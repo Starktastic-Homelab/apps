@@ -1,25 +1,21 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: cert-manager
+  name: sealed-secrets
   namespace: argocd
   finalizers: ["resources-finalizer.argocd.argoproj.io"]
-  annotations:
-    argocd.argoproj.io/sync-wave: "-10"
 spec:
   project: default
   source:
-    repoURL: https://charts.jetstack.io
-    chart: cert-manager
-    targetRevision: v1.19.2
+    repoURL: https://bitnami-labs.github.io/sealed-secrets
+    chart: sealed-secrets
+    targetRevision: 2.13.3
     helm:
       values: |
-        crds:
-          enabled: true
-          keep: true
+        fullnameOverride: sealed-secrets-controller
   destination:
     server: https://kubernetes.default.svc
-    namespace: cert-manager
+    namespace: kube-system
   syncPolicy:
     automated:
       prune: true

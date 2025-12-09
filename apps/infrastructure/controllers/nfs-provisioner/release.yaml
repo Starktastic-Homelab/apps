@@ -1,20 +1,24 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: sealed-secrets
+  name: nfs-provisioner
   namespace: argocd
   finalizers: ["resources-finalizer.argocd.argoproj.io"]
-  annotations:
-    argocd.argoproj.io/sync-wave: "-15"
 spec:
   project: default
   source:
-    repoURL: https://bitnami-labs.github.io/sealed-secrets
-    chart: sealed-secrets
-    targetRevision: 2.13.3
+    repoURL: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
+    chart: nfs-subdir-external-provisioner
+    targetRevision: 4.0.18
     helm:
       values: |
-        fullnameOverride: sealed-secrets-controller
+        nfs:
+          server: 10.9.8.30
+          path: /mnt/apps/pv
+        storageClass:
+          name: nfs-pv
+          defaultClass: true
+          archiveOnDelete: true
   destination:
     server: https://kubernetes.default.svc
     namespace: kube-system

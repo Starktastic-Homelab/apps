@@ -14,6 +14,37 @@ spec:
       values: |
         deployment:
           replicas: 2
+        ports:
+          web:
+            port: 8000
+            expose: true
+            redirections:
+              entryPoint:
+                to: websecure
+                scheme: https
+                permanent: true
+          websecure:
+            port: 8443
+            expose: true
+            protocol: TCP
+          web_internal:
+            port: 8001
+            expose: false
+            redirections:
+              entryPoint:
+                to: websecure_internal
+                scheme: https
+                permanent: true
+          websecure_internal:
+            port: 8444
+            expose: false
+            protocol: TCP
+        service:
+          enabled: true
+          type: LoadBalancer
+          loadBalancerIP: "10.9.8.90"
+          annotations:
+            kube-vip.io/loadbalancerIPs: "10.9.8.90"
         persistence:
           enabled: true
           name: data
@@ -24,23 +55,9 @@ spec:
         ingressClass:
           enabled: true
           isDefaultClass: true
-        ports:
-          web:
-            redirections:
-              entryPoint:
-                to: websecure
-                scheme: https
-                permanent: true
-        service:
-          enabled: true
-          type: LoadBalancer
-          annotations:
-            kube-vip.io/loadbalancerIPs: "10.9.9.90,10.9.8.90"
         api:
           dashboard: true
           insecure: true
-        # By default, we DO NOT expose the dashboard on the LoadBalancer.
-        # We will expose it via Ingress later, protected by Middleware.
         ingressRoute:
           dashboard:
             enabled: false

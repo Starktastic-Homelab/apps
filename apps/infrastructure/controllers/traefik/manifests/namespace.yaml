@@ -4,3 +4,5 @@ metadata:
   name: traefik-system
   labels:
     name: traefik-system
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"

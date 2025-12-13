@@ -3,6 +3,8 @@ kind: Certificate
 metadata:
   name: starktastic-net-cert
   namespace: traefik-system
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   secretName: starktastic-net-tls
   issuerRef:

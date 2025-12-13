@@ -5,6 +5,7 @@ metadata:
   namespace: traefik-system
   annotations:
     kube-vip.io/loadbalancerIPs: "10.9.9.90"
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   type: LoadBalancer
   loadBalancerIP: "10.9.9.90"

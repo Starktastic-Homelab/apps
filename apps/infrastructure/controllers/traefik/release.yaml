@@ -29,16 +29,16 @@ spec:
             expose:
               default: true
             protocol: TCP
-          web_internal:
+          web-int:
             port: 8001
             expose:
               default: false
             redirections:
               entryPoint:
-                to: websecure_internal
+                to: websec-int
                 scheme: https
                 permanent: true
-          websecure_internal:
+          websec-int:
             port: 8444
             expose:
               default: false

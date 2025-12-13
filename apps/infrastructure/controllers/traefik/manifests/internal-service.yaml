@@ -13,11 +13,11 @@ spec:
     app.kubernetes.io/name: traefik
     app.kubernetes.io/instance: traefik
   ports:
-    - name: web-internal
+    - name: web-int
       protocol: TCP
       port: 80
       targetPort: 8001
-    - name: websecure-internal
+    - name: websec-int
       protocol: TCP
       port: 443
       targetPort: 8444

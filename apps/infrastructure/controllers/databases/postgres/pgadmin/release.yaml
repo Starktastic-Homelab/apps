@@ -1,0 +1,58 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: pgadmin
+  namespace: argocd
+  finalizers: ["resources-finalizer.argocd.argoproj.io"]
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: default
+  source:
+    repoURL: https://helm.runix.net
+    chart: pgadmin4
+    targetRevision: 1.50.0
+    helm:
+      values: |
+        env:
+          email:
+            valueFrom:
+              secretKeyRef:
+                name: pgadmin-secret
+                key: email
+          password:
+            valueFrom:
+              secretKeyRef:
+                name: pgadmin-secret
+                key: password
+        persistentVolume:
+          enabled: true
+          storageClass: "nfs-pv"
+          size: 1Gi
+        serverDefinitions:
+          "servers.json": |
+            {
+              "Servers": {
+                "1": {
+                  "Name": "Starktastic Postgres",
+                  "Group": "Servers",
+                  "Port": 5432,
+                  "Username": "postgres",
+                  "Host": "postgres-postgresql.databases.svc.cluster.local",
+                  "SSLMode": "prefer",
+                  "MaintenanceDB": "postgres"
+                }
+              }
+            }
+        securityContext:
+          fsGroup: 5050
+          runAsUser: 5050
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: databases
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

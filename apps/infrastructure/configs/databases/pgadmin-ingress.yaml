@@ -1,0 +1,21 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: pgadmin
+  namespace: databases
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  entryPoints:
+    - websec-int
+  routes:
+    - match: Host(`pgadmin.internal.starktastic.net`)
+      kind: Rule
+      middlewares:
+        - name: rate-limit-strong
+          namespace: traefik-system
+      services:
+        - name: pgadmin-pgadmin4
+          port: 80
+  tls:
+    secretName: starktastic-net-tls

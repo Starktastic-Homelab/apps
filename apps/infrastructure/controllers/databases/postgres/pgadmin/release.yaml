@@ -15,15 +15,15 @@ spec:
     helm:
       values: |
         env:
-          email: "dummy@localhost"
-          password: "SeeSealedSecretInstead"
+          email: "dummy@example.com"
+          password: "dummy"
         extraEnv:
-          - name: PGADMIN_SETUP_EMAIL
+          - name: PGADMIN_DEFAULT_EMAIL
             valueFrom:
               secretKeyRef:
                 name: pgadmin-secret
                 key: email
-          - name: PGADMIN_SETUP_PASSWORD
+          - name: PGADMIN_DEFAULT_PASSWORD
             valueFrom:
               secretKeyRef:
                 name: pgadmin-secret

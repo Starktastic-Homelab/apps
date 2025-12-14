@@ -5,6 +5,9 @@ metadata:
   namespace: traefik-system
 spec:
   rateLimit:
-    average: 10
-    burst: 5
-    period: 1m
+    # Allow 50 requests per second on average
+    average: 50
+    # Allow a sudden spike of 100 requests (for initial page load)
+    burst: 100
+    # Measurement window
+    period: 1s

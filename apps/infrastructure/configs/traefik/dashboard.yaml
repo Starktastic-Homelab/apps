@@ -11,6 +11,9 @@ spec:
   routes:
     - match: Host(`traefik.internal.starktastic.net`)
       kind: Rule
+      middlewares:
+        - name: rate-limit-strong
+          namespace: traefik-system
       services:
         - name: api@internal
           kind: TraefikService

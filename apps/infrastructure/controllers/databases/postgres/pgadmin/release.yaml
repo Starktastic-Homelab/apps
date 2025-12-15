@@ -34,7 +34,8 @@ spec:
                   "Username": "postgres",
                   "Host": "postgres-postgresql.databases.svc.cluster.local",
                   "SSLMode": "prefer",
-                  "MaintenanceDB": "postgres"
+                  "MaintenanceDB": "postgres",
+                  "Shared": true
                 }
               }
             }

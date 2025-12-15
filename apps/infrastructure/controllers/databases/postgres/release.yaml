@@ -25,6 +25,20 @@ spec:
             enabled: true
             storageClass: "nfs-pv"
             size: 8Gi
+          initContainers:
+            - name: rm-postmaster-lock-file
+              image: busybox:latest
+              imagePullPolicy: IfNotPresent
+              securityContext:
+                runAsUser: 0
+              command:
+                - sh
+                - -c
+                - |
+                  if [ -f /bitnami/postgresql/data/postmaster.pid ]; then
+                    echo "🧟 Zombie Lock Found: Deleting postmaster.pid"
+                    rm -f /bitnami/postgresql/data/postmaster.pid
+                  fi
           podSecurityContext:
             fsGroup: 1001
             enabled: true

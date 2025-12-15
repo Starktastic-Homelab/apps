@@ -15,7 +15,7 @@ spec:
         nfs:
           server: 10.9.8.30
           path: /mnt/apps/pv
-          pathPattern: "${.PVC.namespace}/${.PVC.name}"
+          pathPattern: '${.PVC.namespace}/${.PVC.name}'
         storageClass:
           name: nfs-pv
           defaultClass: true

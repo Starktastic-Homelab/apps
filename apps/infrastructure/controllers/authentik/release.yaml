@@ -28,11 +28,31 @@ spec:
           redis:
             host: "redis-redis.databases.svc.cluster.local"
             port: 6379
+        email:
+          host: "smtp.eu.mailgun.org"
+          port: 587
+          username: "postmaster@benplus.vip"
+          use_tls: true
+          use_ssl: false
+          timeout: 10
+          from: "noreply@benplus.vip"
         server:
+          env:
+            - name: AUTHENTIK_EMAIL__PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-smtp-secret
+                  key: password
           envFrom:
             - secretRef:
                 name: authentik-secret
         worker:
+          env:
+            - name: AUTHENTIK_EMAIL__PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-smtp-secret
+                  key: password
           envFrom:
             - secretRef:
                 name: authentik-secret

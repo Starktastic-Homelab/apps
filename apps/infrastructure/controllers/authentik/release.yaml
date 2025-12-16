@@ -43,6 +43,12 @@ spec:
                 secretKeyRef:
                   name: authentik-smtp-secret
                   key: password
+            - name: AUTHENTIK_RATELIMIT__GLOBAL__PER_IP
+              value: "1000/s"
+            - name: AUTHENTIK_RATELIMIT__ERROR__PER_IP
+              value: "50/s"
+            - name: AUTHENTIK_AUTHENTICATION__RATE_LIMIT__LOGIN__LIMIT
+              value: "10/m"
           envFrom:
             - secretRef:
                 name: authentik-secret

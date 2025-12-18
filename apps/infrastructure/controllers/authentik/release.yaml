@@ -37,7 +37,7 @@ spec:
             - name: AUTHENTIK_EMAIL__USERNAME
               value: "postmaster@benplus.vip"
             - name: AUTHENTIK_EMAIL__FROM
-              value: "noreply@benplus.vip"
+              value: "Ben Plus <noreply@benplus.vip>"
             - name: AUTHENTIK_EMAIL__USE_TLS
               value: "true"
             - name: AUTHENTIK_EMAIL__TIMEOUT
@@ -65,7 +65,7 @@ spec:
             - name: AUTHENTIK_EMAIL__USERNAME
               value: "postmaster@benplus.vip"
             - name: AUTHENTIK_EMAIL__FROM
-              value: "noreply@benplus.vip"
+              value: "Ben Plus <noreply@benplus.vip>"
             - name: AUTHENTIK_EMAIL__USE_TLS
               value: "true"
             - name: AUTHENTIK_EMAIL__TIMEOUT

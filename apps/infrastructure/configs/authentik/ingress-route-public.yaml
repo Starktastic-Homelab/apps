@@ -9,12 +9,20 @@ spec:
   entryPoints:
     - websecure
   routes:
-    # Send Admin/API paths to 404
-    - match: Host(`auth.starktastic.net`) && (PathPrefix(`/if/admin`) || PathPrefix(`/api/v3/admin`))
+    - match: Host(`auth.starktastic.net`) && PathPrefix(`/if/admin`)
+      kind: Rule
+      services:
+        - name: authentik-server
+          port: 80
+      middlewares:
+        - name: redirect-admin-to-internal
+
+    - match: Host(`auth.starktastic.net`) && PathPrefix(`/api/v3/admin`)
       kind: Rule
       services:
         - name: api@internal
           kind: TraefikService
+
     - match: Host(`auth.starktastic.net`)
       kind: Rule
       services:

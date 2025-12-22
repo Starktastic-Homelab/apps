@@ -30,6 +30,8 @@ spec:
             port: 6379
         server:
           env:
+            - name: AUTHENTIK_AUTHENTICATION__GLOBAL__TRUSTED_PROXY_CIDRS
+              value: "10.42.0.0/16,10.43.0.0/16,127.0.0.1/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
             - name: AUTHENTIK_EMAIL__HOST
               value: "smtp.eu.mailgun.org"
             - name: AUTHENTIK_EMAIL__PORT

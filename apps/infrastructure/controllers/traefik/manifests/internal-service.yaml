@@ -9,6 +9,7 @@ metadata:
 spec:
   type: LoadBalancer
   loadBalancerIP: "10.9.9.90"
+  externalTrafficPolicy: Local
   selector:
     app.kubernetes.io/name: traefik
     app.kubernetes.io/instance: traefik-traefik-system

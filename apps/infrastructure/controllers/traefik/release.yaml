@@ -50,6 +50,11 @@ spec:
           externalTrafficPolicy: Local
           annotations:
             kube-vip.io/loadbalancerIPs: "10.9.8.90"
+        additionalArguments:
+          - "--entryPoints.web.forwardedHeaders.trustedIPs=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,127.0.0.1/32"
+          - "--entryPoints.websecure.forwardedHeaders.trustedIPs=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,127.0.0.1/32"
+          - "--entryPoints.web-int.forwardedHeaders.trustedIPs=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,127.0.0.1/32"
+          - "--entryPoints.websec-int.forwardedHeaders.trustedIPs=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,127.0.0.1/32"
         persistence:
           enabled: true
           name: data
@@ -76,7 +81,7 @@ spec:
             level: INFO
           access:
             enabled: true
-            format: json  # JSON is much easier to parse
+            format: json
             fields:
               defaultMode: keep
               headers:

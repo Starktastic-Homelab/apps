@@ -13,8 +13,9 @@ spec:
         - name: qbittorrent-webui
           port: 8080
       middlewares:
+        - name: rate-limit-strong
+          namespace: traefik-system
         - name: authentik-middleware
           namespace: authentik
-  tls:
-    secretName: starktastic-net-tls
+  tls: {}
 

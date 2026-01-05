@@ -72,6 +72,11 @@ spec:
             allowExternalNameServices: true
             publishedService:
               enabled: true
+        tlsStore:
+          default:
+            secret:
+              name: starktastic-net-tls
+                namespace: traefik-system
   destination:
     server: https://kubernetes.default.svc
     namespace: traefik-system

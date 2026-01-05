@@ -64,13 +64,13 @@ spec:
       targetRevision: HEAD
       path: apps/services/media/qbittorrent/manifests
 
-destination:
-server: https://kubernetes.default.svc
-namespace: media
-syncPolicy:
-automated:
-prune: true
-selfHeal: true
-syncOptions:
-- CreateNamespace=true
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: media
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+        - CreateNamespace=true
 

@@ -14,7 +14,6 @@ fi
 echo " Creating SealedSecret '$SECRET_NAME' in namespace '$NAMESPACE'..."
 echo " Enter your key-value pairs (e.g. password=SuperSecret). Press Ctrl+D when done."
 
-# 1. Create a generic secret (dry-run) -> 2. Seal it -> 3. Save to file
 kubectl create secret generic $SECRET_NAME \
   --namespace $NAMESPACE \
   --from-env-file /dev/stdin \
@@ -23,6 +22,6 @@ kubectl create secret generic $SECRET_NAME \
   kubeseal \
     --controller-name=sealed-secrets-controller \
     --controller-namespace=kube-system \
-    --format yaml > $SECRET_NAME.yaml  # Save to current dir
+    --format yaml > $SECRET_NAME.yaml
 
 echo "✅ Done! Saved $SECRET_NAME.yaml"

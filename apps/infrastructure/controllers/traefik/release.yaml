@@ -52,12 +52,7 @@ spec:
               default: false
             protocol: TCP
         service:
-          enabled: true
-          type: LoadBalancer
-          loadBalancerIP: "10.9.8.90"
-          externalTrafficPolicy: Local
-          annotations:
-            kube-vip.io/loadbalancerIPs: "10.9.8.90"
+          enabled: false
         persistence:
           enabled: true
           name: data

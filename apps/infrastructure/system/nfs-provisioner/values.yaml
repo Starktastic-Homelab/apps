@@ -1,0 +1,9 @@
+nfs:
+  server: 10.9.8.30
+  path: /mnt/apps/pv
+storageClass:
+  name: nfs-pv
+  defaultClass: true
+  reclaimPolicy: Retain
+  archiveOnDelete: false
+  pathPattern: "${.PVC.namespace}/${.PVC.name}"

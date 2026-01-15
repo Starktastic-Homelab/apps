@@ -1,0 +1,7 @@
+name: traefik
+namespace: traefik-system
+syncWave: "0"
+chart:
+  repo: https://traefik.github.io/charts
+  name: traefik
+  version: 38.0.2

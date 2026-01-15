@@ -1,0 +1,18 @@
+controllers:
+  main:
+    containers:
+      main:
+        env:
+          TZ: "Asia/Jerusalem"
+          PUID: "1000"
+          PGID: "1000"
+
+persistence:
+  config:
+    enabled: true
+    type: persistentVolumeClaim
+    storageClass: "nfs-pv"
+    size: 1Gi
+    accessMode: ReadWriteMany
+    globalMounts:
+      - path: /config

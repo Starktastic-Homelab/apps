@@ -1,0 +1,7 @@
+name: sealed-secrets
+namespace: kube-system
+syncWave: "-5"
+chart:
+  repo: https://bitnami-labs.github.io/sealed-secrets
+  name: sealed-secrets
+  version: 2.18.0

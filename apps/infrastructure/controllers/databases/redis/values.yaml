@@ -1,0 +1,21 @@
+global:
+  storageClass: "nfs-pv"
+  redis:
+    password: "" # Use existingSecret
+auth:
+  existingSecret: redis-admin-secret
+  existingSecretPasswordKey: redis-password
+architecture: standalone
+master:
+  persistence:
+    enabled: true
+    storageClass: "nfs-pv"
+    size: 2Gi
+  podSecurityContext:
+    fsGroup: 1001
+    enabled: true
+  containerSecurityContext:
+    runAsUser: 1001
+    enabled: true
+volumePermissions:
+  enabled: true

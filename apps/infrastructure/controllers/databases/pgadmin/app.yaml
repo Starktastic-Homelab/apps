@@ -1,0 +1,7 @@
+name: pgadmin
+namespace: databases
+syncWave: "0"
+chart:
+  repo: https://helm.runix.net
+  name: pgadmin4
+  version: 1.50.0

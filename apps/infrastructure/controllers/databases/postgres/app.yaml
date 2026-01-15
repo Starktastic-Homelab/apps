@@ -1,0 +1,7 @@
+name: postgres
+namespace: databases
+syncWave: "0"
+chart:
+  repo: https://charts.bitnami.com/bitnami
+  name: postgresql
+  version: 18.2.0

@@ -1,0 +1,3 @@
+name: intel-gpu
+nodeFeatureRule: false
+sharedDevNum: 1

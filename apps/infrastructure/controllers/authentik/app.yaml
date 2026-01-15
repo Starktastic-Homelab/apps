@@ -1,0 +1,7 @@
+name: authentik
+namespace: authentik
+syncWave: "0"
+chart:
+  repo: https://charts.goauthentik.io
+  name: authentik
+  version: 2025.10.3

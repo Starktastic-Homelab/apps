@@ -1,0 +1,7 @@
+name: redis
+namespace: databases
+syncWave: "0"
+chart:
+  repo: https://charts.bitnami.com/bitnami
+  name: redis
+  version: 24.1.0

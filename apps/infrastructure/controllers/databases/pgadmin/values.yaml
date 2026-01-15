@@ -1,0 +1,36 @@
+env:
+  email: "benfaingold@gmail.com"
+existingSecret: "pgadmin-secret"
+secretKeys:
+  pgadminPasswordKey: "password"
+envVarsExtra:
+  - name: PGADMIN_CONFIG_AUTHENTICATION_SOURCES
+    value: "['webserver', 'internal']"
+
+  - name: PGADMIN_CONFIG_WEBSERVER_REMOTE_USER
+    value: "'X-authentik-email'"
+
+  - name: PGADMIN_CONFIG_WEBSERVER_AUTO_CREATE_USER
+    value: "False"
+
+  - name: PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED
+    value: "False"
+persistentVolume:
+  enabled: true
+  storageClass: "nfs-pv"
+  size: 1Gi
+serverDefinitions:
+  enabled: true
+  resourceType: ConfigMap
+  servers:
+    primaryDB:
+      Name: "Starktastic Postgres"
+      Group: "Servers"
+      Username: "postgres"
+      Host: "postgres-postgresql"
+      Port: 5432
+      SSLMode: "prefer"
+      MaintenanceDB: "postgres"
+securityContext:
+  fsGroup: 5050
+  runAsUser: 5050

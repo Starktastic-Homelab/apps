@@ -15,9 +15,9 @@
   },
   "customManagers": [
     {
-      "description": "Update default app-template in AppSet",
+      "description": "Update default app-template in services AppSet",
       "customType": "regex",
-      "fileMatch": ["^apps/bootstrap/appset\\.yaml$"],
+      "fileMatch": ["^apps/bootstrap/appset-services\\.yaml$"],
       "matchStrings": [
         "repoURL: '{{ dig \"chart\" \"repo\" \"(?<registryUrl>.*?)\" \\. }}'[\\s\\S]*?chart: '{{ dig \"chart\" \"name\" \"(?<depName>.*?)\" \\. }}'[\\s\\S]*?targetRevision: '{{ dig \"chart\" \"version\" \"(?<currentValue>.*?)\" \\. }}'"
       ],
@@ -44,7 +44,7 @@
         "^apps/.*/values\\.yaml$"
       ],
       "matchStrings": [
-        "**. { 'depName': repository, 'currentDigest': digest } ? [depName] : []"
+        "**. { 'depName': repository, 'currentDigest': digest, 'currentValue': $exists(tag) ? tag : 'latest' } ? [depName] : []"
       ],
       "datasourceTemplate": "docker",
       "fileFormat": "yaml"

@@ -101,7 +101,7 @@ jobs:
         id: diff
         run: |
           echo "### 🔮 Kubernetes Live Plan" > plan.md
-          
+
           set +e
           DIFF_OUTPUT=$(kubectl diff -f all_manifests.yaml --server-side 2>&1)
           EXIT_CODE=$?
@@ -123,5 +123,5 @@ jobs:
             echo "$DIFF_OUTPUT" >> plan.md
             echo "\`\`\`" >> plan.md
           fi
-          
+
           cat plan.md

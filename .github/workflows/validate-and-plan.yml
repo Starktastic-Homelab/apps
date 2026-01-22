@@ -60,7 +60,7 @@ jobs:
             echo "Generating from: $appset"
             yq -i ".spec.generators[0].git.revision = \"$PR_SHA\"" $appset
             echo "---" >> all_manifests.yaml
-            argocd appset generate $appset >> all_manifests.yaml
+            argocd appset generate --core $appset >> all_manifests.yaml
           done
 
           echo "Processing standalone Apps..."

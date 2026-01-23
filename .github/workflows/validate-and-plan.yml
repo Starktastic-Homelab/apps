@@ -73,7 +73,9 @@ jobs:
           options: --client
 
       - name: Setup YQ
-        uses: chrisdickinson/setup-yq@v1.0.0
+        run: |
+          curl -sSLo /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          chmod +x /usr/local/bin/yq
 
       - name: Generate Full Manifests
         env:
@@ -88,7 +90,7 @@ jobs:
             yq -i ".spec.generators[0].git.revision = \"$PR_SHA\"" $appset
             echo "---" >> all_manifests.yaml
             # Using --core to use the in-cluster config/secrets for generation
-            argocd appset generate --core $appset >> all_manifests.yaml
+            argocd appset generate $appset >> all_manifests.yaml
           done
 
           echo "Processing standalone Apps..."

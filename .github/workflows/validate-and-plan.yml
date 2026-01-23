@@ -6,10 +6,10 @@ on:
 
 jobs:
   # ------------------------------------------------------------------
-  # STAGE 1: Cloud Runner (Validation & Generation)
+  # STAGE 1: Cloud Runner (Validation)
   # ------------------------------------------------------------------
   validate:
-    name: ⚡ Generate & Validate
+    name: Validate & Lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -26,15 +26,6 @@ jobs:
           curl -L https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz | tar xz
           echo "$PWD" >> $GITHUB_PATH
 
-      - name: Setup ArgoCD CLI
-        uses: clowdhaus/argo-cd-action@main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          version: 3.2.0
-          command: version
-          options: --client
-
       - name: YAML Lint
         run: yamllint .
         env:
@@ -48,9 +39,44 @@ jobs:
             -schema-location default \
             -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
 
-      - name: Generate Full Manifests
+  # ------------------------------------------------------------------
+  # STAGE 2: Self-Hosted Runner (Generation & Plan)
+  # ------------------------------------------------------------------
+  live-plan:
+    name: Live Cluster Diff
+    needs: validate
+    runs-on: self-hosted
+    container:
+      image: buildpack-deps:scm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG_RAW }}" > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Setup Kubectl
+        uses: azure/setup-kubectl@v4.0.1
+        with:
+          version: 'latest'
+
+      - name: Setup ArgoCD CLI
+        uses: clowdhaus/argo-cd-action@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          version: 3.2.6
+          command: version
+          options: --client
+
+      - name: Setup YQ
+        uses: chrisdickinson/setup-yq@v1.0.0
+
+      - name: Generate Full Manifests
+        env:
           PR_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           touch all_manifests.yaml
@@ -58,8 +84,10 @@ jobs:
           echo "Processing AppSets..."
           for appset in apps/bootstrap/appsets/*.yaml; do
             echo "Generating from: $appset"
+            # Time Travel Patching
             yq -i ".spec.generators[0].git.revision = \"$PR_SHA\"" $appset
             echo "---" >> all_manifests.yaml
+            # Using --core to use the in-cluster config/secrets for generation
             argocd appset generate --core $appset >> all_manifests.yaml
           done
 
@@ -71,47 +99,13 @@ jobs:
             cat $app >> all_manifests.yaml
           done
 
-          echo "Validating..."
-          cat all_manifests.yaml | kubeconform \
-            -verbose \
-            -summary \
-            -schema-location default \
-            -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
-
-      - name: Upload Manifests
-        uses: actions/upload-artifact@v4
-        with:
-          name: proposed-manifests
-          path: all_manifests.yaml
-          retention-days: 1
-
-  # ------------------------------------------------------------------
-  # STAGE 2: Self-Hosted Runner (Live Plan)
-  # ------------------------------------------------------------------
-  live-plan:
-    name: 🔮 Live Cluster Diff
-    needs: validate
-    runs-on: self-hosted
-    container:
-      image: bitnami/kubectl:latest
-    steps:
-      - name: Setup Kubeconfig
-        run: |
-          mkdir -p ~/.kube
-          echo "${{ secrets.KUBECONFIG_RAW }}" > ~/.kube/config
-          chmod 600 ~/.kube/config
-
-      - name: Download Manifests
-        uses: actions/download-artifact@v4
-        with:
-          name: proposed-manifests
-
       - name: Run Diff
         id: diff
         run: |
           echo "### 🔮 Kubernetes Live Plan" > plan.md
 
           set +e
+          # Diff generated manifests against the live cluster
           DIFF_OUTPUT=$(kubectl diff -f all_manifests.yaml --server-side 2>&1)
           EXIT_CODE=$?
           set -e
@@ -134,3 +128,9 @@ jobs:
           fi
 
           cat plan.md
+
+      - name: Post Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: live-plan
+          path: plan.md

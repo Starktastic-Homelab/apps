@@ -90,7 +90,7 @@ jobs:
             # Time Travel Patching
             yq -i ".spec.generators[0].git.revision = \"$PR_SHA\"" $appset
             echo "---" >> all_manifests.yaml
-            argocd appset generate --core --loglevel error -o yaml $appset >> all_manifests.yaml 2>/dev/null
+            argocd appset generate --core --loglevel error -o yaml $appset | yq -P '[]' >> all_manifests.yaml 2>/dev/null
           done
 
           echo "Processing standalone Apps..."

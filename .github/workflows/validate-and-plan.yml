@@ -81,6 +81,7 @@ jobs:
         env:
           PR_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
+          kubectl config set-context --current --namespace=argocd
           touch all_manifests.yaml
 
           echo "Processing AppSets..."

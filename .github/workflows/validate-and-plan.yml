@@ -72,6 +72,7 @@ jobs:
           fi
 
           echo "" >> validation-report.md
+
       - name: Upload validation report artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -186,6 +187,8 @@ jobs:
     needs: [validate, plan]
     if: always()
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4

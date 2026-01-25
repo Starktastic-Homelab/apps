@@ -140,39 +140,40 @@ jobs:
             cat $app >> all_manifests.yaml
           done
 
-      - name: Run diff
-        id: diff
+      - name: Setup Dyff
+        run: |
+          curl -sL https://github.com/homeport/dyff/releases/download/v1.10.3/dyff_1.10.3_linux_amd64.tar.gz | tar xz
+          mv dyff /usr/local/bin/
+          chmod +x /usr/local/bin/dyff
+
+      - name: Run dyff
         run: |
           echo "### 🔮 Kubernetes Live Plan" > plan.md
+
+          chmod +x scripts/dyff-wrapper.sh
+          export KUBECTL_EXTERNAL_DIFF="$PWD/scripts/dyff-wrapper.sh"
 
           set +e
           DIFF_OUTPUT=$(kubectl diff -f all_manifests.yaml --server-side 2>&1)
           EXIT_CODE=$?
           set -e
 
-          IGNORED_PATTERNS="targetRevision|generation|resourceVersion|argocd.argoproj.io/tracking-id|kubectl.kubernetes.io/last-applied-configuration"
-          REAL_CHANGES=$(echo "$DIFF_OUTPUT" | grep -E "^[+|-]" | grep -vE "^(\+\+\+|---)" | grep -vE "$IGNORED_PATTERNS" || true)
-
           if [ $EXIT_CODE -eq 1 ]; then
-            if [ -z "$REAL_CHANGES" ]; then
-              echo "✅ **Verified** (no logic changes detected)." >> plan.md
-              echo "> _targetRevision updated to PR SHA._" >> plan.md
-            else
-              echo "⚠️ **Changes Detected**" >> plan.md
-              echo "<details><summary><strong>Show Plan</strong></summary>" >> plan.md
-              echo "" >> plan.md
-              echo "\`\`\`diff" >> plan.md
-              echo "$DIFF_OUTPUT" | head -c 60000 >> plan.md
-              echo "\`\`\`" >> plan.md
-              echo "</details>" >> plan.md
-            fi
+            echo "⚠️ **Changes detected**" >> plan.md
+            echo "<details><summary><strong>Show Plan</strong></summary>" >> plan.md
+            echo "" >> plan.md
+            echo "\`\`\`yaml" >> plan.md
+            echo "$DIFF_OUTPUT" >> plan.md
+            echo "\`\`\`" >> plan.md
+            echo "</details>" >> plan.md
           elif [ $EXIT_CODE -eq 0 ]; then
-            echo "✅ No changes detected against live cluster." >> plan.md
+            echo "✅ **No changes detected**" >> plan.md
           else
             echo "❌ **Diff Failed** (Exit Code: $EXIT_CODE)" >> plan.md
             echo "\`\`\`" >> plan.md
             echo "$DIFF_OUTPUT" >> plan.md
             echo "\`\`\`" >> plan.md
+            exit 1
           fi
 
       - name: Upload plan artifact

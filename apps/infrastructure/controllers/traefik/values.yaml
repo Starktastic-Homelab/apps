@@ -44,7 +44,6 @@ persistence:
   name: data
   accessMode: ReadWriteMany
   size: 128Mi
-  storageClass: "nfs-pv"
   path: /data
 ingressClass:
   enabled: true

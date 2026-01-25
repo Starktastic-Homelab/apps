@@ -1,5 +1,4 @@
 global:
-  storageClass: "nfs-pv"
   redis:
     password: "" # Use existingSecret
 auth:
@@ -9,7 +8,6 @@ architecture: standalone
 master:
   persistence:
     enabled: true
-    storageClass: "nfs-pv"
     size: 2Gi
   podSecurityContext:
     fsGroup: 1001

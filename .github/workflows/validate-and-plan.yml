@@ -158,7 +158,7 @@ jobs:
           export KUBECTL_EXTERNAL_DIFF="$PWD/scripts/dyff-wrapper.sh"
 
           set +e
-          DIFF_OUTPUT=$(kubectl diff -f all_manifests.yaml --server-side 2>&1)
+          DIFF_OUTPUT=$(kubectl diff -f all_manifests.yaml --server-side --force-conflicts 2>&1)
           EXIT_CODE=$?
           set -e
 

@@ -159,7 +159,7 @@ jobs:
           set -e
 
           if [ $EXIT_CODE -eq 1 ]; then
-            echo "⚠️ **Changes Detected**" >> plan.md
+            echo "⚠️ **Changes detected**" >> plan.md
             echo "<details><summary><strong>Show Plan</strong></summary>" >> plan.md
             echo "" >> plan.md
             echo "\`\`\`yaml" >> plan.md
@@ -167,7 +167,7 @@ jobs:
             echo "\`\`\`" >> plan.md
             echo "</details>" >> plan.md
           elif [ $EXIT_CODE -eq 0 ]; then
-            echo "✅ **Verified** (No changes detected)." >> plan.md
+            echo "✅ **No changes detected**" >> plan.md
           else
             echo "❌ **Diff Failed** (Exit Code: $EXIT_CODE)" >> plan.md
             echo "\`\`\`" >> plan.md

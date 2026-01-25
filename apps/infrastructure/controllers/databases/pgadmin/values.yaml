@@ -17,6 +17,7 @@ envVarsExtra:
     value: "False"
 persistentVolume:
   enabled: true
+  storageClass: "nfs-pv"
   size: 1Gi
 serverDefinitions:
   enabled: true

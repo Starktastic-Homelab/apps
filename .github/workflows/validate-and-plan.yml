@@ -140,6 +140,11 @@ jobs:
             cat $app >> all_manifests.yaml
           done
 
+      - name: Debug Traefik Manifest
+        run: |
+          echo "🔎 Inspecting Traefik Application in all_manifests.yaml:"
+          yq '. | select(.metadata.name == "traefik")' all_manifests.yaml
+
       - name: Setup Dyff
         run: |
           curl -sL https://github.com/homeport/dyff/releases/download/v1.10.3/dyff_1.10.3_linux_amd64.tar.gz | tar xz

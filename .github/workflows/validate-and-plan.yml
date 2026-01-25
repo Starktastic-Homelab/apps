@@ -141,6 +141,9 @@ jobs:
             cat $app >> all_manifests.yaml
           done
 
+      - name: Print all_manifests.yaml
+        run: cat all_manifests.yaml
+
       - name: Setup Dyff
         run: |
           curl -sL https://github.com/homeport/dyff/releases/download/v1.10.3/dyff_1.10.3_linux_amd64.tar.gz | tar xz

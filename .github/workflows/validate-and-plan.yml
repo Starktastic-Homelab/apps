@@ -130,9 +130,7 @@ jobs:
           for appset in apps/bootstrap/appsets/*.yaml; do
             echo "Generating from: $appset"
             yq -i ".spec.generators[0].git.revision = \"$PR_SHA\"" $appset
-            echo "Manifest:"
-            argocd appset generate --core --loglevel error -o yaml $appset
-            argocd appset generate --core --loglevel error -o yaml $appset | yq -P '.[]' >> all_manifests.yaml
+            argocd appset generate --core --loglevel error -o yaml $appset | yq -P '.[]' | sed 's/^apiVersion:/---\napiVersion:/' >> all_manifests.yaml
           done
 
           echo "Processing standalone Apps..."

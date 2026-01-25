@@ -1,0 +1,36 @@
+name: Refresh ArgoCD
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    name: Trigger refresh
+    runs-on: self-hosted
+    container:
+      image: buildpack-deps:scm
+    steps:
+      - name: Setup Kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG_RAW }}" > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Setup ArgoCD CLI
+        uses: clowdhaus/argo-cd-action@main
+        with:
+          command: version
+          options: --client
+
+      - name: Hard-refresh applications
+        run: |
+          echo 'Triggering hard refresh (git fetch) on all apps...'
+
+          argocd app list --core -o name | xargs -I {} sh -c '
+            echo "Refreshing {}..."
+            argocd app get {} --core --refresh > /dev/null
+          '
+
+          echo 'Refresh triggers sent. ArgoCD will auto-sync changes shortly.'

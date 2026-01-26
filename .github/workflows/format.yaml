@@ -6,7 +6,7 @@ on:
 
 jobs:
   format:
-    name: Format all YAML files
+    name: Format all YAML, JSON and shell files
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -19,5 +19,6 @@ jobs:
       - name: Prettier
         uses: creyD/prettier_action@v4.6
         with:
-          prettier_plugins: "@prettier/plugin-sh"
           prettier_options: --write **/*.{yaml,yml,json,sh}
+          prettier_plugins: prettier-plugin-sh
+          allow_other_plugins: true

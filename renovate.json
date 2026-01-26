@@ -22,9 +22,7 @@
       "description": "Update Helm charts in app.yaml via JSONata",
       "customType": "jsonata",
       "fileMatch": ["^apps/.*/app\\.yaml$"],
-      "matchStrings": [
-        "chart.{ 'depName': name, 'registryUrl': repo, 'currentValue': version }"
-      ],
+      "matchStrings": ["chart.{ 'depName': name, 'registryUrl': repo, 'currentValue': version }"],
       "datasourceTemplate": "helm",
       "fileFormat": "yaml"
     },

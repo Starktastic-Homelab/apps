@@ -18,10 +18,10 @@ kubectl create secret generic $SECRET_NAME \
   --namespace $NAMESPACE \
   --from-env-file /dev/stdin \
   --dry-run=client \
-  -o yaml | \
+  -o yaml |
   kubeseal \
     --controller-name=sealed-secrets-controller \
     --controller-namespace=kube-system \
-    --format yaml > $SECRET_NAME.yaml
+    --format yaml >$SECRET_NAME.yaml
 
 echo "✅ Done! Saved $SECRET_NAME.yaml"

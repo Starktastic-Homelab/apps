@@ -6,7 +6,7 @@ on:
 
 jobs:
   format:
-    name: Format all YAML files
+    name: Format all YAML, JSON and shell files
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -27,7 +27,7 @@ jobs:
         uses: mfinelli/setup-shfmt@v4.0.1
 
       - name: Run shfmt
-        run: shfmt-i 2 -ci -s -w **/*.sh || true
+        run: shfmt -i 2 -ci -s -w **/*.sh || true
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v7.1.0

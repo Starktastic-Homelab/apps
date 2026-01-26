@@ -12,21 +12,19 @@ jobs:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref }}
-          token: ${{ github.token }}
+          token: ${{ secrets.ORG_DISPATCH_TOKEN }}
 
       - name: Prettier Action
         uses: creyD/prettier_action@v4.6
         with:
-          github_token: ${{ github.token }}
           prettier_options: --write **/*.{yaml,yml,json}
 
       - name: sh-checker
         uses: luizm/action-sh-checker@v0.10.0
         env:
-          GITHUB_TOKEN: ${{ github.token }}
           SHFMT_OPTIONS: -i 2 -ci -s
         with:
           sh_checker_comments: true

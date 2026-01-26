@@ -8,30 +8,29 @@ jobs:
   format:
     name: Format all YAML files
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref }}
-          token: ${{ secrets.ORG_DISPATCH_TOKEN }}
 
       - name: Prettier
         uses: creyD/prettier_action@v4.6
         with:
           prettier_options: --write **/*.{yaml,yml,json}
-          github_token: ${{ secrets.ORG_DISPATCH_TOKEN }}
+          no_commit: true
 
       - name: sh-checker
         uses: luizm/action-sh-checker@v0.10.0
         env:
           SHFMT_OPTIONS: -i 2 -ci -s
-          GITHUB_TOKEN: ${{ secrets.ORG_DISPATCH_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
         with:
-          sh_checker_comments: true
+          sh_checker_comment: true
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v7.1.0
         with:
           commit_message: "style: apply automatic formatting"
-          branch: ${{ github.head_ref }}
-          github_token: ${{ secrets.ORG_DISPATCH_TOKEN }}

@@ -13,19 +13,17 @@ jobs:
         uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref }}
-          token: ${{ secrets.ORG_DISPATCH_TOKEN }}
+          token: ${{ github.token }}
 
       - name: Prettier Action
         uses: creyD/prettier_action@v4.6
         with:
           prettier_options: --write **/*.{yaml,yml,json}
-          github_token: ${{ secrets.ORG_DISPATCH_TOKEN }}
 
       - name: sh-checker
         uses: luizm/action-sh-checker@v0.10.0
         env:
           SHFMT_OPTIONS: -i 2 -ci -s
-          GITHUB_TOKEN: ${{ secrets.ORG_DISPATCH_TOKEN }}
         with:
           sh_checker_comments: true
 
@@ -34,4 +32,3 @@ jobs:
         with:
           commit_message: "style: apply automatic formatting"
           branch: ${{ github.head_ref }}
-          github_token: ${{ secrets.ORG_DISPATCH_TOKEN }}

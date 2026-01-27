@@ -94,6 +94,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # Required to compare against main
 
       - name: Setup Kubeconfig
         run: |
@@ -119,6 +121,26 @@ jobs:
           curl -sSLo /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           chmod +x /usr/local/bin/yq
 
+      - name: Generate Raw Diff
+        run: |
+          echo "### 📄 Raw File Changes" > plan.md
+
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git fetch origin ${{ github.base_ref }}
+          CHANGES=$(git diff origin/${{ github.base_ref }}...HEAD -- apps/ | cat)
+
+          if [ -z "$CHANGES" ]; then
+            echo "No raw manifest changes detected." >> plan.md
+          else
+            echo "<details><summary>Click to expand</summary>" >> plan.md
+            echo "" >> plan.md
+            echo "\`\`\`diff" >> plan.md
+            echo "$CHANGES" >> plan.md
+            echo "\`\`\`" >> plan.md
+            echo "</details>" >> plan.md
+          fi
+          echo "" >> plan.md
+
       - name: Generate full manifests with PR SHA
         env:
           PR_SHA: ${{ github.event.pull_request.head.sha }}
@@ -126,10 +148,13 @@ jobs:
           kubectl config set-context --current --namespace=argocd
           touch all_manifests.yaml
 
+          REPO_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
+
           echo "Processing AppSets..."
           for appset in apps/bootstrap/appsets/*.yaml; do
             echo "Generating from: $appset"
             yq -i ".spec.generators[0].git.revision = \"$PR_SHA\"" $appset
+            yq -i ".spec.template.spec.sources[] |= select(.repoURL == \"$REPO_URL\").targetRevision = \"$PR_SHA\"" $appset
             argocd appset generate --core --loglevel error -o yaml $appset | yq -P '.[]' | sed 's/^apiVersion:/---\napiVersion:/' >> all_manifests.yaml
           done
 
@@ -149,7 +174,7 @@ jobs:
 
       - name: Run dyff
         run: |
-          echo "### 🔮 Kubernetes Live Plan" > plan.md
+          echo "### 🔮 Kubernetes Live Plan" >> plan.md
 
           chmod +x scripts/dyff-wrapper.sh
           export KUBECTL_EXTERNAL_DIFF="$PWD/scripts/dyff-wrapper.sh"
@@ -168,7 +193,7 @@ jobs:
             echo "\`\`\`" >> plan.md
             echo "</details>" >> plan.md
           elif [ $EXIT_CODE -eq 0 ]; then
-            echo "✅ **No changes detected**" >> plan.md
+            echo "✅ **No ArgoCD App changes detected**" >> plan.md
           else
             echo "❌ **Diff Failed** (Exit Code: $EXIT_CODE)" >> plan.md
             echo "\`\`\`" >> plan.md

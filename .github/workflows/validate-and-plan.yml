@@ -125,6 +125,7 @@ jobs:
         run: |
           echo "### 📄 Raw File Changes" > plan.md
 
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git fetch origin ${{ github.base_ref }}
           CHANGES=$(git diff origin/${{ github.base_ref }}...HEAD -- apps/ | cat)
 

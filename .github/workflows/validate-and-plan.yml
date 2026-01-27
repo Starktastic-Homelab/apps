@@ -125,7 +125,8 @@ jobs:
         run: |
           echo "### 📄 Raw File Changes" > plan.md
 
-          CHANGES=$(git diff origin/main...HEAD -- apps/ | cat)
+          git fetch origin ${{ github.base_ref }}
+          CHANGES=$(git diff origin/${{ github.base_ref }}...HEAD -- apps/ | cat)
 
           if [ -z "$CHANGES" ]; then
             echo "No raw manifest changes detected." >> plan.md

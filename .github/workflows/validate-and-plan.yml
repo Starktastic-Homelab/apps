@@ -151,8 +151,8 @@ jobs:
           echo "Processing AppSets..."
           for appset in apps/bootstrap/appsets/*.yaml; do
             echo "Generating from: $appset"
-            yq -i '.spec.generators[0].git.revision = env(PR_SHA)' $appset
-            yq -i '.spec.template.spec.sources[] |= select(.repoURL == \"$REPO_URL\").targetRevision = env(PR_SHA)' $appset
+            yq -i ".spec.generators[0].git.revision = \"$PR_SHA\"" $appset
+            yq -i "".spec.template.spec.sources[] |= select(.repoURL == \"$REPO_URL\").targetRevision = \"$PR_SHA\"" $appset
             argocd appset generate --core --loglevel error -o yaml $appset | yq -P '.[]' | sed 's/^apiVersion:/---\napiVersion:/' >> all_manifests.yaml
           done
 

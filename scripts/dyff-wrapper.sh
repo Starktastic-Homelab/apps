@@ -15,4 +15,5 @@ exec dyff between \
   --exclude "/metadata/annotations/argocd.argoproj.io/tracking-id" \
   --exclude "/status" \
   --exclude "/spec/source/targetRevision" \
+  --exclude "/spec/sources/targetRevision" \
   "$@"

@@ -1,7 +1,16 @@
 #!/bin/sh
 
-# Wrapper to pass arguments ($@) from kubectl to dyff
-# This avoids kubectl's aggressive sanitization of environment variables
+LIVE="$1"
+MERGED="$2"
+
+CLEAN_LIVE=$(mktemp)
+CLEAN_MERGED=$(mktemp)
+
+yq 'del(.spec.sources[]?.targetRevision)' "$LIVE" > "$CLEAN_LIVE"
+yq 'del(.spec.sources[]?.targetRevision)' "$MERGED" > "$CLEAN_MERGED"
+
+# 4. Run dyff on the CLEAN files
+#    We still keep the standard metadata excludes just in case
 exec dyff between \
   --omit-header \
   --set-exit-code \
@@ -14,5 +23,5 @@ exec dyff between \
   --exclude "/metadata/annotations/kubectl.kubernetes.io/last-applied-configuration" \
   --exclude "/metadata/annotations/argocd.argoproj.io/tracking-id" \
   --exclude "/status" \
-  --exclude-regexp ".*targetRevision.*" \
-  "$@"
+  --exclude "/spec/source/targetRevision" \
+  "$CLEAN_LIVE" "$CLEAN_MERGED"

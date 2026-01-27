@@ -6,8 +6,8 @@ MERGED="$2"
 CLEAN_LIVE=$(mktemp)
 CLEAN_MERGED=$(mktemp)
 
-yq 'del(.spec.sources[]?.targetRevision)' "$LIVE" > "$CLEAN_LIVE"
-yq 'del(.spec.sources[]?.targetRevision)' "$MERGED" > "$CLEAN_MERGED"
+yq 'del(.spec.sources[]?.targetRevision)' "$LIVE" >"$CLEAN_LIVE"
+yq 'del(.spec.sources[]?.targetRevision)' "$MERGED" >"$CLEAN_MERGED"
 
 # 4. Run dyff on the CLEAN files
 #    We still keep the standard metadata excludes just in case

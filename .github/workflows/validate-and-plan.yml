@@ -147,7 +147,7 @@ jobs:
               echo "\`\`\`text" >> plan.md
 
               if git show "origin/${{ github.base_ref }}:$file" > old_version.yaml 2>/dev/null; then
-                 dyff between --color=off old_version.yaml "$file" >> plan.md
+                 dyff between --omit-header --ignore-order-changes old_version.yaml "$file" >> plan.md
               else
                  echo "New file created." >> plan.md
               fi

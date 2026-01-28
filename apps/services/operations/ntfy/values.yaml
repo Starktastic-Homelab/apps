@@ -7,14 +7,28 @@ controllers:
         image:
           repository: binwiederhier/ntfy
           tag: v2.16.0
+
+        args: ["serve"]
+
         env:
           NTFY_BASE_URL: "https://ntfy.starktastic.net"
           NTFY_BEHIND_PROXY: "true"
+          NTFY_UPSTREAM_BASE_URL: "https://ntfy.sh"
           NTFY_ENABLE_LOGIN: "true"
           NTFY_AUTH_DEFAULT_ACCESS: "deny-all"
           NTFY_AUTH_FILE: "/var/lib/ntfy/user.db"
           NTFY_CACHE_FILE: "/var/cache/ntfy/cache.db"
           NTFY_ATTACHMENT_CACHE_DIR: "/var/cache/ntfy/attachments"
+          NTFY_WEB_PUSH_FILE: "/var/lib/ntfy/webpush.db"
+          # Keys injected from secret
+          # NTFY_WEB_PUSH_PUBLIC_KEY
+          # NTFY_WEB_PUSH_PRIVATE_KEY
+          # NTFY_WEB_PUSH_EMAIL_ADDRESS
+
+        envFrom:
+          - secretRef:
+              name: ntfy-webpush-secret
+              optional: true
 
 persistence:
   config:

@@ -238,6 +238,8 @@ jobs:
             cat artifacts/plan-report/plan-report.md >> comment.md
           fi
 
+          cat comment.md
+
       - name: Convert comment to env variable
         run: |
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)

@@ -1,0 +1,41 @@
+controllers:
+  main:
+    annotations:
+      reloader.stakater.com/auto: "true"
+    containers:
+      main:
+        image:
+          repository: binwiederhier/ntfy
+          tag: v2.16.0
+        env:
+          NTFY_BASE_URL: "https://ntfy.starktastic.net"
+          NTFY_BEHIND_PROXY: "true"
+          NTFY_ENABLE_LOGIN: "true"
+          NTFY_AUTH_DEFAULT_ACCESS: "deny-all"
+          NTFY_AUTH_FILE: "/var/lib/ntfy/user.db"
+          NTFY_CACHE_FILE: "/var/cache/ntfy/cache.db"
+          NTFY_ATTACHMENT_CACHE_DIR: "/var/cache/ntfy/attachments"
+
+persistence:
+  config:
+    enabled: true
+    accessMode: ReadWriteMany
+    storageClass: "nfs-pv"
+    size: 100Mi
+    globalMounts:
+      - path: /var/lib/ntfy
+
+  cache:
+    enabled: true
+    accessMode: ReadWriteMany
+    storageClass: "nfs-pv"
+    size: 5Gi
+    globalMounts:
+      - path: /var/cache/ntfy
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 80

@@ -10,7 +10,7 @@ spec:
     - match: Host(`ntfy.starktastic.net`)
       kind: Rule
       services:
-        - name: ntfy-main
+        - name: ntfy
           port: 80
       middlewares:
         - name: rate-limit-strong

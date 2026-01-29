@@ -8,9 +8,10 @@ metadata:
 data:
   service.webhook.ntfy: |
     url: https://ntfy.starktastic.net/starktastic_ops
+    basicAuth:
+      username: $ntfy-secret:username
+      password: $ntfy-secret:password
     headers:
-      - name: Authorization
-        value: Basic $ntfy-secret:ntfy-credentials
       - name: Content-Type
         value: application/json
 

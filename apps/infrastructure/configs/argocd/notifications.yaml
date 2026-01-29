@@ -10,7 +10,7 @@ data:
     url: http://debug-listener.argocd.svc.cluster.local
     headers:
       - name: Authorization
-        value: $ntfy-secret:header
+        value: $ntfy-header
       - name: Content-Type
         value: application/json
 

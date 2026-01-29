@@ -121,44 +121,6 @@ jobs:
           curl -sSLo /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           chmod +x /usr/local/bin/yq
 
-      - name: Setup Dyff
-        run: |
-          curl -sL https://github.com/homeport/dyff/releases/download/v1.10.3/dyff_1.10.3_linux_amd64.tar.gz | tar xz
-          mv dyff /usr/local/bin/
-          chmod +x /usr/local/bin/dyff
-
-      - name: Generate raw diff
-        run: |
-          echo "### 📄 Raw File Changes" > plan.md
-
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git fetch origin ${{ github.base_ref }}
-
-          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- apps/ | grep -E '\.(yaml|yml)$' || true)
-
-          if [ -z "$CHANGED_FILES" ]; then
-            echo "No raw manifest changes detected." >> plan.md
-          else
-            echo "<details><summary>Click to expand</summary>" >> plan.md
-            echo "" >> plan.md
-
-            for file in $CHANGED_FILES; do
-              echo "#### Changes in \`$file\`" >> plan.md
-              echo "\`\`\`text" >> plan.md
-
-              if git show "origin/${{ github.base_ref }}:$file" > old_version.yaml 2>/dev/null; then
-                 dyff between --omit-header --ignore-order-changes old_version.yaml "$file" >> plan.md
-              else
-                 echo "New file created." >> plan.md
-              fi
-
-              echo "\`\`\`" >> plan.md
-            done
-
-            echo "</details>" >> plan.md
-          fi
-          echo "" >> plan.md
-
       - name: Generate full manifests with PR SHA
         env:
           PR_SHA: ${{ github.event.pull_request.head.sha }}
@@ -184,9 +146,15 @@ jobs:
             cat $app >> all_manifests.yaml
           done
 
+      - name: Setup Dyff
+        run: |
+          curl -sL https://github.com/homeport/dyff/releases/download/v1.10.3/dyff_1.10.3_linux_amd64.tar.gz | tar xz
+          mv dyff /usr/local/bin/
+          chmod +x /usr/local/bin/dyff
+
       - name: Run dyff
         run: |
-          echo "### 🔮 Kubernetes Live Plan" >> plan.md
+          echo "### 🔮 Kubernetes Live Plan" > plan.md
 
           chmod +x scripts/dyff-wrapper.sh
           export KUBECTL_EXTERNAL_DIFF="$PWD/scripts/dyff-wrapper.sh"

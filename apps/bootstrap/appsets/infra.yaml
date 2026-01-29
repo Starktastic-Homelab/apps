@@ -21,6 +21,7 @@ spec:
       finalizers: ["resources-finalizer.argocd.argoproj.io"]
       annotations:
         argocd.argoproj.io/sync-wave: '{{ .syncWave | default "5" }}'
+        notifications.argoproj.io/subscribe.on-sync-failed.ntfy: ""
     spec:
       project: default
       sources:

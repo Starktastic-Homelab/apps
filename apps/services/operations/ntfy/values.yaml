@@ -20,10 +20,6 @@ controllers:
           NTFY_CACHE_FILE: "/var/cache/ntfy/cache.db"
           NTFY_ATTACHMENT_CACHE_DIR: "/var/cache/ntfy/attachments"
           NTFY_WEB_PUSH_FILE: "/var/lib/ntfy/webpush.db"
-          # Keys injected from secret
-          # NTFY_WEB_PUSH_PUBLIC_KEY
-          # NTFY_WEB_PUSH_PRIVATE_KEY
-          # NTFY_WEB_PUSH_EMAIL_ADDRESS
 
         envFrom:
           - secretRef:

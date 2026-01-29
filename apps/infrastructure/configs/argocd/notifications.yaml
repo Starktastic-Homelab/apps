@@ -7,7 +7,7 @@ metadata:
     argocd.argoproj.io/sync-wave: "1"
 data:
   service.webhook.ntfy: |
-    url: https://ntfy.starktastic.net/starktastic_ops
+    url: http://debug-listener.argocd.svc.cluster.local
     basicAuth:
       username: $ntfy-secret:username
       password: $ntfy-secret:password

@@ -1,7 +1,27 @@
-#!/bin/sh
+#!/bin/bash
 
 LIVE="$1"
 MERGED="$2"
+
+# If kubectl passes directories, recurse into them and diff file-by-file
+if [ -d "$LIVE" ]; then
+  EXIT_CODE=0
+
+  for manifest in "$LIVE"/*; do
+    filename=$(basename "$manifest")
+
+    if [ -f "$MERGED/$filename" ]; then
+      "$0" "$LIVE/$filename" "$MERGED/$filename"
+
+      if [ $? -ne 0 ]; then
+        EXIT_CODE=1
+      fi
+    fi
+  done
+  
+  exit $EXIT_CODE
+fi
+
 
 CLEAN_LIVE=$(mktemp)
 CLEAN_MERGED=$(mktemp)
@@ -9,7 +29,7 @@ CLEAN_MERGED=$(mktemp)
 yq 'del(.spec.sources[]?.targetRevision)' "$LIVE" >"$CLEAN_LIVE"
 yq 'del(.spec.sources[]?.targetRevision)' "$MERGED" >"$CLEAN_MERGED"
 
-exec dyff between \
+dyff between \
   --omit-header \
   --set-exit-code \
   --ignore-order-changes \
@@ -23,3 +43,9 @@ exec dyff between \
   --exclude "/status" \
   --exclude "/spec/source/targetRevision" \
   "$CLEAN_LIVE" "$CLEAN_MERGED"
+
+EXIT_CODE=$?
+
+rm -f "$CLEAN_LIVE" "$CLEAN_MERGED"
+
+exit $EXIT_CODE

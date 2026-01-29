@@ -37,3 +37,5 @@ data:
     - description: Application syncing succeeded
       send: [app-sync-succeeded]
       when: app.status.operationState.phase in ['Succeeded']
+
+# Triggering a sync test

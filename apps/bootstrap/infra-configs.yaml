@@ -6,6 +6,8 @@ metadata:
   finalizers: ["resources-finalizer.argocd.argoproj.io"]
   annotations:
     argocd.argoproj.io/sync-wave: "1"
+    notifications.argoproj.io/subscribe.on-sync-succeeded.ntfy: ""
+    notifications.argoproj.io/subscribe.on-sync-failed.ntfy: ""
 spec:
   project: default
   source:

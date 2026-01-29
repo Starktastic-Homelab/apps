@@ -5,6 +5,7 @@ metadata:
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "2"
+    notifications.argoproj.io/subscribe.on-sync-failed.ntfy: ""
 spec:
   goTemplate: true
   goTemplateOptions: ["missingkey=zero"]

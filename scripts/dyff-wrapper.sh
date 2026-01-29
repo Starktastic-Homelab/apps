@@ -3,7 +3,10 @@
 LIVE="$1"
 MERGED="$2"
 
-# If kubectl passes directories, recurse into them and diff file-by-file
+# ---------------------------------------------------------
+# Directory Handler
+# ---------------------------------------------------------
+
 if [ -d "$LIVE" ]; then
   EXIT_CODE=0
 
@@ -11,6 +14,15 @@ if [ -d "$LIVE" ]; then
     filename=$(basename "$manifest")
 
     if [ -f "$MERGED/$filename" ]; then
+      # Extract Resource Name for better readability
+      KIND=$(yq '.kind // "Unknown"' "$MERGED/$filename")
+      NAME=$(yq '.metadata.name // "Unknown"' "$MERGED/$filename")
+      
+      echo "---------------------------------------------------------"
+      echo "Resource: $KIND / $NAME"
+      echo "---------------------------------------------------------"
+
+      # Recurse
       "$0" "$LIVE/$filename" "$MERGED/$filename"
 
       if [ $? -ne 0 ]; then
@@ -21,6 +33,10 @@ if [ -d "$LIVE" ]; then
 
   exit $EXIT_CODE
 fi
+
+# ---------------------------------------------------------
+# File Handler
+# ---------------------------------------------------------
 
 CLEAN_LIVE=$(mktemp)
 CLEAN_MERGED=$(mktemp)

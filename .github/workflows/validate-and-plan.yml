@@ -196,8 +196,6 @@ jobs:
           EXIT_CODE=$?
           set -e
 
-          echo $DIFF_OUTPUT
-
           if [ $EXIT_CODE -eq 1 ]; then
             echo "⚠️ **Changes detected**" >> plan.md
             echo "<details><summary><strong>Show Plan</strong></summary>" >> plan.md

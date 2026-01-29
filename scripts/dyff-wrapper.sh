@@ -18,10 +18,9 @@ if [ -d "$LIVE" ]; then
       fi
     fi
   done
-  
+
   exit $EXIT_CODE
 fi
-
 
 CLEAN_LIVE=$(mktemp)
 CLEAN_MERGED=$(mktemp)

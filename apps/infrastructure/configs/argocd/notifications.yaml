@@ -8,10 +8,9 @@ metadata:
 data:
   service.webhook.ntfy: |
     url: http://debug-listener.argocd.svc.cluster.local
-    basicAuth:
-      username: $ntfy-secret:username
-      password: $ntfy-secret:password
     headers:
+      - name: Authorization
+        value: $ntfy-secret:header
       - name: Content-Type
         value: application/json
 

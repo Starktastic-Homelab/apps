@@ -28,6 +28,6 @@ kubectl create secret generic $SECRET_NAME \
     --controller-name=sealed-secrets-controller \
     --controller-namespace=kube-system \
     --scope $SCOPE \
-    --format yaml > $SECRET_NAME.yaml
+    --format yaml >$SECRET_NAME.yaml
 
 echo "✅ Done! Saved $SECRET_NAME.yaml"

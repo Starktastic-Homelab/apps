@@ -9,6 +9,9 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 data:
+  context: |
+    argocdUrl: https://argocd.internal.starktastic.net
+
   service.webhook.ntfy: |
     url: http://ntfy.operations.svc.cluster.local
     headers:

@@ -4,4 +4,4 @@ syncWave: "-5"
 chart:
   repo: https://charts.jetstack.io
   name: cert-manager
-  version: v1.19.2
+  version: v1.19.3

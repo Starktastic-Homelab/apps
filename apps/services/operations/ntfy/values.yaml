@@ -50,3 +50,12 @@ service:
     ports:
       http:
         port: 80
+
+ingressPreset:
+  enabled: true
+  type: public
+  host: ntfy.starktastic.net
+  service:
+    name: ntfy
+    port: 80
+  auth: false

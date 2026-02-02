@@ -1,3 +1,4 @@
 name: ntfy
 namespace: operations
 syncWave: "0"
+manifests: true

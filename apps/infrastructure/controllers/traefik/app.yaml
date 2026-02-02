@@ -1,6 +1,7 @@
 name: traefik
 namespace: traefik-system
 syncWave: "0"
+manifests: true
 chart:
   repo: https://traefik.github.io/charts
   name: traefik

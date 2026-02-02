@@ -1,6 +1,7 @@
 name: postgres
 namespace: databases
 syncWave: "0"
+manifests: true
 chart:
   repo: https://charts.bitnami.com/bitnami
   name: postgresql

@@ -97,6 +97,7 @@ The script will prompt you to enter key-value pairs interactively (press Ctrl+D 
    name: my-app
    namespace: my-namespace
    syncWave: "0"
+   manifests: true  # set to true if you have a manifests/ folder
    chart:
      repo: https://charts.example.com
      name: my-chart
@@ -109,7 +110,7 @@ The script will prompt you to enter key-value pairs interactively (press Ctrl+D 
          - /data/password
    ```
 3. Add `values.yaml` with Helm values
-4. Add any extra manifests to `manifests/`
+4. Add any extra manifests to `manifests/` (and set `manifests: true`)
 
 ### Service (using app-template)
 
@@ -119,8 +120,59 @@ The script will prompt you to enter key-value pairs interactively (press Ctrl+D 
    name: my-service
    namespace: my-namespace
    syncWave: "5"
+   manifests: true  # set to true if you have a manifests/ folder
    ```
 3. Add `values.yaml` (extends `templates/common.yaml`)
+
+## 🧩 Presets
+
+### IngressRoute Preset (Services only)
+
+Services using `app-template` can generate Traefik IngressRoutes via the `ingressPreset` in `values.yaml`:
+
+```yaml
+ingressPreset:
+  enabled: true
+  type: internal      # internal = websec-int, public = websecure
+  host: myapp.internal.starktastic.net
+  service:
+    name: myapp       # defaults to release name
+    port: 8080
+  auth: true          # add authentik-middleware
+  tls:
+    secretName: ""    # leave empty for cluster default, or specify cert secret
+```
+
+**Preset types:**
+| Type | Entrypoint | Domain Pattern |
+|------|------------|----------------|
+| `internal` | `websec-int` | `*.internal.starktastic.net` |
+| `public` | `websecure` | `*.starktastic.net` or `*.benplus.vip` |
+
+**Options:**
+- `auth: true` - Adds `authentik-middleware` for SSO authentication
+- `tls.secretName` - Specify a TLS secret (e.g., `benplus-vip-tls` for Jellyfin)
+
+All IngressRoutes include `rate-limit-strong` middleware from `traefik-system`.
+
+### Persistence Presets
+
+Common values from `apps/templates/common.yaml` provide default persistence:
+
+```yaml
+# Default NFS config volume (1Gi, /config)
+persistence:
+  config:
+    enabled: true
+    type: persistentVolumeClaim
+    storageClass: "nfs-pv"
+    size: 1Gi
+    accessMode: ReadWriteMany
+    globalMounts:
+      - path: /config
+```
+
+Apps can override or extend with additional volumes in their `values.yaml`.
 
 ## 🔧 Configuration
 

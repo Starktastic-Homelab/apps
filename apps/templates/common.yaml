@@ -7,6 +7,10 @@ controllers:
           PUID: "1000"
           PGID: "1000"
 
+# =============================================================================
+# Persistence Presets
+# =============================================================================
+# Default NFS config volume - can be overridden per-app
 persistence:
   config:
     enabled: true
@@ -16,3 +20,58 @@ persistence:
     accessMode: ReadWriteMany
     globalMounts:
       - path: /config
+
+# =============================================================================
+# IngressRoute Presets (via rawResources)
+# =============================================================================
+# Apps can enable these by setting:
+#   ingressPreset:
+#     enabled: true
+#     type: internal | public
+#     host: myapp.internal.starktastic.net
+#     service:
+#       name: myapp       # defaults to app name
+#       port: 8080
+#     auth: true          # add authentik-middleware (default: true for internal)
+#
+# This generates a Traefik IngressRoute with standard middlewares.
+# =============================================================================
+
+# Preset values (apps override these)
+ingressPreset:
+  enabled: false
+  type: internal  # internal = websec-int, public = websecure
+  host: ""
+  service:
+    name: ""
+    port: 80
+  auth: true  # whether to add authentik-middleware
+  rateLimitMiddleware: rate-limit-strong
+  tls:
+    secretName: ""  # leave empty for cluster default cert, or specify e.g. "benplus-vip-tls"
+
+rawResources:
+  ingressroute:
+    enabled: '{{ .Values.ingressPreset.enabled }}'
+    apiVersion: traefik.io/v1alpha1
+    kind: IngressRoute
+    spec:
+      entryPoints:
+        - '{{ eq .Values.ingressPreset.type "internal" | ternary "websec-int" "websecure" }}'
+      routes:
+        - match: 'Host(`{{ .Values.ingressPreset.host }}`)'
+          kind: Rule
+          services:
+            - name: '{{ .Values.ingressPreset.service.name | default .Release.Name }}'
+              port: '{{ .Values.ingressPreset.service.port }}'
+          middlewares:
+            - name: '{{ .Values.ingressPreset.rateLimitMiddleware }}'
+              namespace: traefik-system
+            {{- if .Values.ingressPreset.auth }}
+            - name: authentik-middleware
+              namespace: authentik
+            {{- end }}
+      tls:
+        {{- if .Values.ingressPreset.tls.secretName }}
+        secretName: '{{ .Values.ingressPreset.tls.secretName }}'
+        {{- end }}

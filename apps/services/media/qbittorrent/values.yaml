@@ -35,3 +35,12 @@ persistence:
     existingClaim: media-library-pvc
     globalMounts:
       - path: /data
+
+ingressPreset:
+  enabled: true
+  type: internal
+  host: qbittorrent.internal.starktastic.net
+  service:
+    name: qbittorrent-main
+    port: 8080
+  auth: true

@@ -12,3 +12,12 @@ service:
     ports:
       http:
         port: 9696
+
+ingressPreset:
+  enabled: true
+  type: internal
+  host: prowlarr.internal.starktastic.net
+  service:
+    name: prowlarr
+    port: 9696
+  auth: true

@@ -1,7 +1,6 @@
 name: cert-manager
 namespace: cert-manager
 syncWave: "-5"
-manifests: true
 chart:
   repo: https://charts.jetstack.io
   name: cert-manager

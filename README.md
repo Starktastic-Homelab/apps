@@ -97,7 +97,6 @@ The script will prompt you to enter key-value pairs interactively (press Ctrl+D 
    name: my-app
    namespace: my-namespace
    syncWave: "0"
-   manifests: true  # set to true if you have a manifests/ folder
    chart:
      repo: https://charts.example.com
      name: my-chart
@@ -110,7 +109,7 @@ The script will prompt you to enter key-value pairs interactively (press Ctrl+D 
          - /data/password
    ```
 3. Add `values.yaml` with Helm values
-4. Add any extra manifests to `manifests/` (and set `manifests: true`)
+4. Add `manifests/` folder (can contain `.gitkeep` if empty, or extra manifests)
 
 ### Service (using app-template)
 
@@ -120,9 +119,9 @@ The script will prompt you to enter key-value pairs interactively (press Ctrl+D 
    name: my-service
    namespace: my-namespace
    syncWave: "5"
-   manifests: true  # set to true if you have a manifests/ folder
    ```
 3. Add `values.yaml` (extends `templates/common.yaml`)
+4. Add `manifests/` folder (can contain `.gitkeep` if empty, or extra manifests)
 
 ## 🧩 Presets
 

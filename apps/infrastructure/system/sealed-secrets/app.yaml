@@ -1,7 +1,6 @@
 name: sealed-secrets
 namespace: kube-system
 syncWave: "-5"
-manifests: true
 chart:
   repo: https://bitnami-labs.github.io/sealed-secrets
   name: sealed-secrets

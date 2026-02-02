@@ -1,7 +1,6 @@
 name: authentik
 namespace: authentik
 syncWave: "0"
-manifests: true
 chart:
   repo: https://charts.goauthentik.io
   name: authentik

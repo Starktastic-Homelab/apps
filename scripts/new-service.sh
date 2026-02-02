@@ -25,22 +25,36 @@ if [[ -z "$SERVICE_NAME" ]]; then
   exit 1
 fi
 
-# Namespace selection
+# Namespace selection - scan existing categories
 echo ""
-echo "Available namespaces:"
-echo "  1) media"
-echo "  2) operations"
-echo "  3) databases"
-echo "  4) other (specify)"
-read -p "Select namespace [1-4]: " NS_CHOICE
+echo "Available categories:"
+CATEGORIES=()
+i=1
+for dir in "$REPO_ROOT/apps/services"/*/; do
+  if [[ -d "$dir" ]]; then
+    category=$(basename "$dir")
+    CATEGORIES+=("$category")
+    echo "  $i) $category"
+    ((i++))
+  fi
+done
+echo "  $i) [NEW] Create new category"
 
-case $NS_CHOICE in
-  1) NAMESPACE="media"; CATEGORY="media" ;;
-  2) NAMESPACE="operations"; CATEGORY="operations" ;;
-  3) NAMESPACE="databases"; CATEGORY="databases" ;;
-  4) read -p "Enter namespace: " NAMESPACE; CATEGORY="$NAMESPACE" ;;
-  *) echo -e "${RED}Invalid choice${NC}"; exit 1 ;;
-esac
+read -p "Select category [1-$i]: " CAT_CHOICE
+
+if [[ "$CAT_CHOICE" -eq "$i" ]]; then
+  read -p "Enter new category name: " CATEGORY
+  read -p "Enter namespace (default: $CATEGORY): " NAMESPACE
+  NAMESPACE=${NAMESPACE:-$CATEGORY}
+  echo -e "${YELLOW}Will create new category: $CATEGORY${NC}"
+elif [[ "$CAT_CHOICE" -ge 1 && "$CAT_CHOICE" -lt "$i" ]]; then
+  CATEGORY="${CATEGORIES[$((CAT_CHOICE-1))]}"
+  read -p "Enter namespace (default: $CATEGORY): " NAMESPACE
+  NAMESPACE=${NAMESPACE:-$CATEGORY}
+else
+  echo -e "${RED}Invalid choice${NC}"
+  exit 1
+fi
 
 read -p "Container image (e.g., lscr.io/linuxserver/radarr:latest): " IMAGE
 read -p "Container port (e.g., 7878): " PORT
@@ -52,10 +66,10 @@ read -p "Enable ingress? [Y/n]: " INGRESS_ENABLED
 INGRESS_ENABLED=${INGRESS_ENABLED:-Y}
 
 if [[ "$INGRESS_ENABLED" =~ ^[Yy] ]]; then
-  read -p "Internal service (behind VPN)? [Y/n]: " INTERNAL
+  read -p "Internal service? [Y/n]: " INTERNAL
   INTERNAL=${INTERNAL:-Y}
   
-  read -p "Require Authentik SSO? [Y/n]: " AUTH
+  read -p "Require Authentik middleware? [Y/n]: " AUTH
   AUTH=${AUTH:-Y}
   
   read -p "Enable rate limiting? [Y/n]: " RATELIMIT
@@ -206,9 +220,3 @@ if [[ "$INGRESS_ENABLED" =~ ^[Yy] ]]; then
     echo -e "URL: ${BLUE}https://$SUBDOMAIN.starktastic.net${NC}"
   fi
 fi
-
-echo ""
-echo "Next steps:"
-echo "  1. Review generated files"
-echo "  2. Adjust values.yaml as needed (env vars, additional mounts, etc.)"
-echo "  3. Commit and push to trigger ArgoCD sync"

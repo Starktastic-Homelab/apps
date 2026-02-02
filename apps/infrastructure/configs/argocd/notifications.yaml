@@ -10,7 +10,7 @@ metadata:
     argocd.argoproj.io/sync-wave: "1"
 data:
   service.webhook.ntfy: |
-    url: http://ntfy.starktastic.net
+    url: http://ntfy.operations.svc.cluster.local
     headers:
       - name: Authorization
         value: $ntfy-header

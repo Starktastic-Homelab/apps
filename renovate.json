@@ -9,11 +9,11 @@
   },
   "customManagers": [
     {
-      "description": "Update default app-template in services AppSet",
+      "description": "Update default app-template in platform AppSet",
       "customType": "regex",
-      "fileMatch": ["^apps/bootstrap/appsets/services\\.yaml$"],
+      "fileMatch": ["^apps/bootstrap/appsets/platform\\.yaml$"],
       "matchStrings": [
-        "repoURL: '{{ dig \"chart\" \"repo\" \"(?<registryUrl>.*?)\" \\. }}'[\\s\\S]*?chart: '{{ dig \"chart\" \"name\" \"(?<depName>.*?)\" \\. }}'[\\s\\S]*?targetRevision: '{{ dig \"chart\" \"version\" \"(?<currentValue>.*?)\" \\. }}'"
+        "defaultChartRepo: \"(?<registryUrl>.*?)\"[\\s\\S]*?defaultChartName: \"(?<depName>.*?)\"[\\s\\S]*?defaultChartVersion: \"(?<currentValue>.*?)\""
       ],
       "datasourceTemplate": "helm",
       "fileFormat": "yaml"

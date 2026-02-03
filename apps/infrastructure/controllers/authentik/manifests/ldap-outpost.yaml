@@ -43,7 +43,7 @@ spec:
     spec:
       containers:
         - name: ldap
-          image: ghcr.io/goauthentik/ldap:2025.12.1
+          image: ghcr.io/goauthentik/ldap:2025.12.3
           ports:
             - containerPort: 3389
               name: ldap

@@ -115,6 +115,9 @@ echo -e "${YELLOW}Persistence Configuration${NC}"
 read -p "Need persistent storage? [Y/n]: " PERSISTENCE
 PERSISTENCE=${PERSISTENCE:-Y}
 
+# Storage class - defaults to nfs-pv, can be overridden via environment
+STORAGE_CLASS="${STORAGE_CLASS:-nfs-pv}"
+
 if [[ $PERSISTENCE =~ ^[Yy] ]]; then
   read -p "Storage size (default: 5Gi): " STORAGE_SIZE
   STORAGE_SIZE=${STORAGE_SIZE:-5Gi}
@@ -190,7 +193,7 @@ metadata:
   namespace: $NAMESPACE
 spec:
   accessModes: ["ReadWriteMany"]
-  storageClassName: nfs-pv
+  storageClassName: $STORAGE_CLASS
   resources:
     requests:
       storage: $STORAGE_SIZE

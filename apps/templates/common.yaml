@@ -1,4 +1,5 @@
 global:
+  storageClass: "nfs-pv"
   domains:
     public: "starktastic.net"
     internal: "internal.starktastic.net"

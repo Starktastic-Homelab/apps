@@ -8,8 +8,8 @@ GitOps repository for managing a Kubernetes homelab using ArgoCD with an App-of-
 ┌─────────────────────────────────────────────────────────────────┐
 │                         Bootstrap                                │
 │  ┌──────────────┐  ┌──────────────┐  ┌────────────────────────┐ │
-│  │  foundation  │  │ infra-configs│  │     ApplicationSets    │ │
-│  │  (wave -10)  │  │   (wave 1)   │  │  infra.yaml services   │ │
+│  │  foundation  │  │ infra-configs│  │     ApplicationSet     │ │
+│  │  (wave -10)  │  │   (wave 1)   │  │     platform.yaml      │ │
 │  └──────┬───────┘  └──────┬───────┘  └──────────┬─────────────┘ │
 └─────────┼─────────────────┼─────────────────────┼───────────────┘
           │                 │                     │
@@ -31,8 +31,7 @@ apps/
 │   ├── foundation.yaml     # Creates namespaces (sync-wave: -10)
 │   ├── infra-configs.yaml  # Deploys configs after controllers (sync-wave: 1)
 │   └── appsets/
-│       ├── infra.yaml      # ApplicationSet for infrastructure controllers
-│       └── services.yaml   # ApplicationSet for user services
+│       └── platform.yaml   # Unified ApplicationSet for infra + services
 │
 ├── foundation/             # Namespace definitions
 │   └── namespaces/
@@ -45,17 +44,21 @@ apps/
 │   │   └── traefik/
 │   └── system/             # Cluster-level components
 │       ├── cert-manager/
-│       ├── sealed-secrets/
-│       └── nfs-provisioner/
+│       ├── intel-gpu/
+│       ├── nfs-provisioner/
+│       └── sealed-secrets/
 │
 ├── services/               # User-facing applications
-│   ├── media/              # Prowlarr, qBittorrent, etc.
+│   ├── media/              # Prowlarr, qBittorrent, Jellyfin, etc.
 │   └── operations/         # ntfy, monitoring, etc.
 │
 ├── templates/
-│   └── common.yaml         # Shared Helm values for app-template
+│   ├── common.yaml         # Shared Helm values for services (app-template)
+│   ├── infra-common.yaml   # Shared Helm values for infrastructure
+│   └── ingress-chart/      # Dynamic IngressRoute generator
 │
 └── scripts/                # Utility scripts
+    ├── new-service.sh      # Scaffold a new service
     ├── seal.sh             # Seal secrets with kubeseal
     └── dyff-wrapper.sh     # YAML diff for CI
 ```
@@ -67,9 +70,9 @@ The deployment follows a strict ordering via ArgoCD sync-waves:
 | Wave | Component | Description |
 |------|-----------|-------------|
 | -10 | `foundation` | Namespaces and basic RBAC |
-| 0 | `infra` ApplicationSet | Infrastructure controllers (Traefik, DBs, Auth) |
+| 0 | `platform` ApplicationSet (infrastructure) | Infrastructure controllers (Traefik, DBs, Auth) |
 | 1 | `infra-configs` | Ingress routes, certificates, middlewares |
-| 2 | `services` ApplicationSet | User applications |
+| 2+ | `platform` ApplicationSet (services) | User applications |
 
 ## 🔐 Secret Management
 
@@ -119,9 +122,22 @@ The script will prompt you to enter key-value pairs interactively (press Ctrl+D 
    name: my-service
    namespace: my-namespace
    syncWave: "5"
+   
+   ingress:
+     enabled: true
+     host: my-service          # Subdomain (or empty for root domain)
+     domainType: "internal"    # public | internal | media
+     port: 8080
+     auth: true                # Authentik ForwardAuth middleware
+     rateLimit: true           # Rate limiting middleware
    ```
 3. Add `values.yaml` (extends `templates/common.yaml`)
-4. Add `manifests/` folder with IngressRoute and any extra manifests
+4. Add `manifests/` folder for PVCs and any extra manifests
+
+Or use the scaffolding script:
+```bash
+./scripts/new-service.sh
+```
 
 ## 🧩 Shared Defaults
 
@@ -130,13 +146,23 @@ The script will prompt you to enter key-value pairs interactively (press Ctrl+D 
 All services using `app-template` inherit these defaults:
 
 ```yaml
-# Environment variables
-controllers.main.containers.main.env:
-  TZ: "Asia/Jerusalem"
-  PUID: "1000"
-  PGID: "1000"
+global:
+  storageClass: "nfs-pv"
+  domains:
+    public: "starktastic.net"
+    internal: "internal.starktastic.net"
+    media: "benplus.vip"
+  defaultTlsSecret: "starktastic-net-tls"
 
-# Default NFS config volume (1Gi, /config)
+controllers:
+  main:
+    containers:
+      main:
+        env:
+          TZ: "Asia/Jerusalem"
+          PUID: "1000"
+          PGID: "1000"
+
 persistence:
   config:
     enabled: true
@@ -149,6 +175,27 @@ persistence:
 ```
 
 Apps can override or extend with additional volumes in their `values.yaml`.
+
+### Ingress Chart (templates/ingress-chart/)
+
+The ingress-chart automatically generates Traefik IngressRoutes based on `app.yaml` configuration:
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| `host` | (required) | Subdomain, or empty for root domain |
+| `domainType` | `internal` | `public`, `internal`, or `media` |
+| `port` | `80` | Service port |
+| `auth` | `false` | Enable Authentik ForwardAuth middleware |
+| `rateLimit` | `false` | Enable rate limiting middleware |
+| `serviceName` | `<name>` | Override the target service name |
+
+#### Domain Types
+
+| Type | Domain | Entrypoint | LoadBalancer IP |
+|------|--------|------------|-----------------|
+| `public` | `*.starktastic.net` | `websecure` | `10.9.8.90` |
+| `internal` | `*.internal.starktastic.net` | `websec-int` | `10.9.9.90` |
+| `media` | `*.benplus.vip` | `websecure` | `10.9.8.90` |
 
 ## 🔧 Configuration
 
@@ -216,11 +263,11 @@ yamllint .
 
 ### Domains
 
-| Domain | Purpose |
-|--------|----------|
-| `starktastic.net` | Primary external domain |
-| `*.internal.starktastic.net` | Internal services (behind Authentik) |
-| `benplus.vip` | Email/alternate domain |
+| Domain | Purpose | LoadBalancer IP |
+|--------|----------|-----------------|
+| `*.starktastic.net` | Public external services | `10.9.8.90` |
+| `*.internal.starktastic.net` | Internal services (behind Authentik) | `10.9.9.90` |
+| `*.benplus.vip` | Media services (Jellyfin, Jellyseerr) | `10.9.8.90` |
 
 ### Other Configuration
 
@@ -228,4 +275,85 @@ yamllint .
 |---------|-------|----------|
 | Timezone | `Asia/Jerusalem` | `apps/templates/common.yaml` |
 | PUID/PGID | `1000/1000` | `apps/templates/common.yaml` |
+| Storage Class | `nfs-pv` | `apps/templates/common.yaml`, `apps/templates/infra-common.yaml` |
 | Admin Email | `benfaingold@gmail.com` | ClusterIssuer, pgadmin |
+
+## 🎮 GPU Support
+
+Intel GPU passthrough is enabled for hardware transcoding:
+
+### Components
+
+- **intel-device-operator** (`apps/infrastructure/system/intel-device-operator/`) - Manages Intel device plugins
+- **intel-gpu-plugin** (`apps/infrastructure/system/intel-gpu/`) - Exposes GPU resources to pods
+
+### Usage
+
+To use GPU in a service, add resource requests:
+
+```yaml
+controllers:
+  main:
+    containers:
+      main:
+        resources:
+          requests:
+            gpu.intel.com/i915: "1"
+          limits:
+            gpu.intel.com/i915: "1"
+```
+
+Worker nodes with Intel GPUs are labeled automatically by the device operator.
+
+## 📼 Media Storage
+
+### Static Media Volume
+
+A dedicated 10Ti PV is provisioned for media storage:
+
+| Resource | Details |
+|----------|---------|
+| NFS Server | `10.9.8.30:/mnt/main/media` |
+| PV Name | `media-storage` |
+| PVC | `media-pvc` (namespace: `media`) |
+| Access Mode | `ReadWriteMany` |
+
+### Mounting in Services
+
+```yaml
+persistence:
+  media:
+    existingClaim: media-pvc
+    globalMounts:
+      - path: /media
+```
+
+### Dynamic Storage (nfs-pv)
+
+For application configs and caches, use the `nfs-pv` StorageClass which dynamically provisions NFS volumes.
+
+## 🔧 Troubleshooting
+
+### PostgreSQL postmaster.pid Lock
+
+If PostgreSQL fails to start with "postmaster.pid already exists", the init container in `postgres/values.yaml` automatically removes stale lock files. This can happen after ungraceful NFS disconnections.
+
+### Sealed Secrets Scope
+
+Sealed secrets are namespace-scoped by default. If you get decryption errors:
+1. Ensure the secret was sealed for the correct namespace
+2. Use `--cluster-wide` flag if the secret needs to be used across namespaces
+
+### ArgoCD Sync Wave Ordering
+
+If resources fail to sync due to missing dependencies:
+1. Check sync-wave annotations match the expected order
+2. Ensure namespaces are created in foundation (wave -10)
+3. Verify controllers are deployed before configs (wave 0 before wave 1)
+
+### NFS Connectivity
+
+If PVCs are stuck in Pending:
+1. Verify NFS server (`10.9.8.30`) is accessible from nodes
+2. Check `nfs-provisioner` pods are running
+3. Verify StorageClass `nfs-pv` exists

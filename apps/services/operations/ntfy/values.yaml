@@ -31,7 +31,6 @@ persistence:
   config:
     enabled: true
     accessMode: ReadWriteMany
-    storageClass: "nfs-pv"
     size: 100Mi
     globalMounts:
       - path: /var/lib/ntfy
@@ -39,7 +38,6 @@ persistence:
   cache:
     enabled: true
     accessMode: ReadWriteMany
-    storageClass: "nfs-pv"
     size: 5Gi
     globalMounts:
       - path: /var/cache/ntfy

@@ -23,22 +23,26 @@ ports:
     port: 8000
     expose:
       default: true
+      internal: false
   websecure:
     port: 8443
     expose:
       default: true
+      internal: false
     protocol: TCP
   web-int:
     port: 8001
     expose:
       default: false
+      internal: true
   websec-int:
     port: 8444
     expose:
       default: false
+      internal: true
     protocol: TCP
-service:
-  enabled: false
+# Service configuration is injected via ApplicationSet inline values
+# See apps/bootstrap/appsets/platform.yaml for LoadBalancer IPs
 persistence:
   enabled: true
   name: data

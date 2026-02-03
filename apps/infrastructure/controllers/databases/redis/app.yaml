@@ -4,4 +4,4 @@ syncWave: "0"
 chart:
   repo: https://charts.bitnami.com/bitnami
   name: redis
-  version: 24.1.2
+  version: 24.1.3

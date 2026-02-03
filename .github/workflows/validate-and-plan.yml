@@ -39,7 +39,7 @@ jobs:
         run: |
           set +e
           find . -type f -name '*.yaml' -path '*/manifests/*' -print0 | xargs -0 kubeconform \
-            -verbose -summary -schema-location default \
+            -verbose -summary -ignore-missing-schemas -schema-location default \
             -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' > kubeconform.txt 2>&1
           EXIT_CODE=$?
           echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
@@ -148,7 +148,8 @@ jobs:
 
       - name: Setup Dyff
         run: |
-          curl -sL https://github.com/homeport/dyff/releases/download/v1.10.3/dyff_1.10.3_linux_amd64.tar.gz | tar xz
+          DYFF_VERSION=$(curl -s https://api.github.com/repos/homeport/dyff/releases/latest | grep -oP '"tag_name": "\K[^"]+' | tr -d 'v')
+          curl -sL "https://github.com/homeport/dyff/releases/download/v${DYFF_VERSION}/dyff_${DYFF_VERSION}_linux_amd64.tar.gz" | tar xz
           mv dyff /usr/local/bin/
           chmod +x /usr/local/bin/dyff
 

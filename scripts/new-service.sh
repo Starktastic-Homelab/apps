@@ -4,6 +4,14 @@ set -euo pipefail
 # Service scaffolding generator for homelab-platform
 # Usage: ./scripts/new-service.sh
 
+# Dependency checks
+for cmd in yq; do
+  if ! command -v "$cmd" &>/dev/null; then
+    echo "Error: $cmd is required but not installed."
+    exit 1
+  fi
+done
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
@@ -114,20 +122,7 @@ if [[ $PERSISTENCE =~ ^[Yy] ]]; then
   PERSISTENCE_BLOCK="
 persistence:
   config:
-    existingClaim: $SERVICE_NAME-config
-
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: $SERVICE_NAME-config
-  namespace: $NAMESPACE
-spec:
-  accessModes: [\"ReadWriteOnce\"]
-  storageClassName: longhorn
-  resources:
-    requests:
-      storage: $STORAGE_SIZE"
+    existingClaim: $SERVICE_NAME-config"
 else
   PERSISTENCE_BLOCK=""
 fi
@@ -155,8 +150,22 @@ controllers:
         probes:
           liveness:
             enabled: true
+            type: HTTP
+            path: /
+            port: $PORT
           readiness:
             enabled: true
+            type: HTTP
+            path: /
+            port: $PORT
+          startup:
+            enabled: true
+            type: HTTP
+            path: /
+            port: $PORT
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
 
 service:
   main:
@@ -180,8 +189,8 @@ metadata:
   name: $SERVICE_NAME-config
   namespace: $NAMESPACE
 spec:
-  accessModes: ["ReadWriteOnce"]
-  storageClassName: longhorn
+  accessModes: ["ReadWriteMany"]
+  storageClassName: nfs-pv
   resources:
     requests:
       storage: $STORAGE_SIZE
@@ -198,8 +207,22 @@ controllers:
         probes:
           liveness:
             enabled: true
+            type: HTTP
+            path: /
+            port: $PORT
           readiness:
             enabled: true
+            type: HTTP
+            path: /
+            port: $PORT
+          startup:
+            enabled: true
+            type: HTTP
+            path: /
+            port: $PORT
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
 
 service:
   main:

@@ -5,3 +5,14 @@ global:
     internal: "internal.starktastic.net"
     media: "benplus.vip"
   defaultTlsSecret: "starktastic-net-tls"
+  network:
+    nfs:
+      server: "10.9.8.30"
+    loadBalancers:
+      external: "10.9.8.90"
+      internal: "10.9.9.90"
+      qbittorrent: "10.9.8.91"
+    vlans:
+      mgmt: "10.9.9.0/24"
+      services: "10.9.8.0/24"
+      wireguard: "10.9.10.0/24"

@@ -19,7 +19,7 @@ service:
     controller: main
     type: LoadBalancer
     annotations:
-      kube-vip.io/loadbalancerIPs: "10.9.8.91"
+      kube-vip.io/loadbalancerIPs: "{{ .Values.global.network.loadBalancers.qbittorrent }}"
     ports:
       bittorrent-tcp:
         enabled: true

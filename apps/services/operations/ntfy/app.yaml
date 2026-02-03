@@ -5,7 +5,7 @@ syncWave: "0"
 ingress:
   enabled: true
   host: ntfy
-  internal: false
+  domainType: "public"
   port: 80
   auth: false
   rateLimit: true

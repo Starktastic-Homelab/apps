@@ -5,7 +5,7 @@ syncWave: "5"
 ingress:
   enabled: true
   host: qbittorrent
-  internal: true
+  domainType: "internal"
   port: 8080
   serviceName: qbittorrent-main
   auth: true

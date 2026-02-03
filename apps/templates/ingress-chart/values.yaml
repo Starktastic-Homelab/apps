@@ -2,10 +2,17 @@
 name: ""
 namespace: ""
 
+global:
+  domains:
+    public: "starktastic.net"
+    internal: "internal.starktastic.net"
+    media: "benplus.vip"
+  defaultTlsSecret: "starktastic-net-tls"
+
 ingress:
   enabled: false
   host: ""
-  internal: true
+  domainType: "internal"  # public | internal | media
   port: 80
   serviceName: ""
   auth: false

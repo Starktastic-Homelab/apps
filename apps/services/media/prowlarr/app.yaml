@@ -5,7 +5,7 @@ syncWave: "5"
 ingress:
   enabled: true
   host: prowlarr
-  internal: true
+  domainType: "internal"
   port: 9696
   auth: true
   rateLimit: true

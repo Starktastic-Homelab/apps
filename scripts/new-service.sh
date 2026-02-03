@@ -66,8 +66,19 @@ read -p "Enable ingress? [Y/n]: " INGRESS_ENABLED
 INGRESS_ENABLED=${INGRESS_ENABLED:-Y}
 
 if [[ $INGRESS_ENABLED =~ ^[Yy] ]]; then
-  read -p "Internal service? [Y/n]: " INTERNAL
-  INTERNAL=${INTERNAL:-Y}
+  echo "Domain type:"
+  echo "  1) internal (*.internal.starktastic.net)"
+  echo "  2) public (*.starktastic.net)"
+  echo "  3) media (*.benplus.vip)"
+  read -p "Select [1-3, default=1]: " DOMAIN_CHOICE
+  DOMAIN_CHOICE=${DOMAIN_CHOICE:-1}
+
+  case $DOMAIN_CHOICE in
+    1) DOMAIN_TYPE="internal" ;;
+    2) DOMAIN_TYPE="public" ;;
+    3) DOMAIN_TYPE="media" ;;
+    *) DOMAIN_TYPE="internal" ;;
+  esac
 
   read -p "Require Authentik middleware? [Y/n]: " AUTH
   AUTH=${AUTH:-Y}
@@ -82,7 +93,7 @@ if [[ $INGRESS_ENABLED =~ ^[Yy] ]]; then
 ingress:
   enabled: true
   host: $SUBDOMAIN
-  internal: $([[ $INTERNAL =~ ^[Yy] ]] && echo "true" || echo "false")
+  domainType: \"$DOMAIN_TYPE\"
   port: $PORT
   auth: $([[ $AUTH =~ ^[Yy] ]] && echo "true" || echo "false")
   rateLimit: $([[ $RATELIMIT =~ ^[Yy] ]] && echo "true" || echo "false")"
@@ -214,9 +225,9 @@ echo "  - $SERVICE_DIR/manifests/"
 echo ""
 
 if [[ $INGRESS_ENABLED =~ ^[Yy] ]]; then
-  if [[ $INTERNAL =~ ^[Yy] ]]; then
-    echo -e "URL: ${BLUE}https://$SUBDOMAIN.internal.starktastic.net${NC}"
-  else
-    echo -e "URL: ${BLUE}https://$SUBDOMAIN.starktastic.net${NC}"
-  fi
+  case $DOMAIN_TYPE in
+    internal) echo -e "URL: ${BLUE}https://$SUBDOMAIN.internal.starktastic.net${NC}" ;;
+    public) echo -e "URL: ${BLUE}https://$SUBDOMAIN.starktastic.net${NC}" ;;
+    media) echo -e "URL: ${BLUE}https://$SUBDOMAIN.benplus.vip${NC}" ;;
+  esac
 fi

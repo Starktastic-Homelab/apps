@@ -1,3 +1,10 @@
+global:
+  domains:
+    public: "starktastic.net"
+    internal: "internal.starktastic.net"
+    media: "benplus.vip"
+  defaultTlsSecret: "starktastic-net-tls"
+
 controllers:
   main:
     containers:

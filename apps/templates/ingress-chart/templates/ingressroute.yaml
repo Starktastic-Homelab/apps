@@ -1,0 +1,28 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .Values.name }}{{ if not .Values.ingress.internal }}-public{{ end }}
+  namespace: {{ .Values.namespace }}
+spec:
+  entryPoints:
+    - {{ if .Values.ingress.internal }}websec-int{{ else }}websecure{{ end }}
+  routes:
+    - match: Host(`{{ .Values.ingress.host }}{{ if .Values.ingress.internal }}.internal{{ end }}.starktastic.net`)
+      kind: Rule
+      services:
+        - name: {{ .Values.ingress.serviceName | default .Values.name }}
+          port: {{ .Values.ingress.port }}
+      {{- if or .Values.ingress.rateLimit .Values.ingress.auth }}
+      middlewares:
+        {{- if .Values.ingress.rateLimit }}
+        - name: rate-limit-strong
+          namespace: traefik-system
+        {{- end }}
+        {{- if .Values.ingress.auth }}
+        - name: authentik-middleware
+          namespace: authentik
+        {{- end }}
+      {{- end }}
+  tls: {}
+{{- end }}

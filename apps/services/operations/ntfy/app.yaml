@@ -1,3 +1,11 @@
 name: ntfy
 namespace: operations
 syncWave: "0"
+
+ingress:
+  enabled: true
+  host: ntfy
+  internal: false
+  port: 80
+  auth: false
+  rateLimit: true

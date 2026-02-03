@@ -1,0 +1,12 @@
+# Default values - overridden by app.yaml
+name: ""
+namespace: ""
+
+ingress:
+  enabled: false
+  host: ""
+  internal: true
+  port: 80
+  serviceName: ""
+  auth: false
+  rateLimit: false

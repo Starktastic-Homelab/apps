@@ -1,4 +1,5 @@
 .github/workflows/
 
-# Helm templates with Go templating syntax
+# Go templating syntax (ArgoCD ApplicationSets, Helm templates)
+apps/bootstrap/appsets/
 apps/templates/

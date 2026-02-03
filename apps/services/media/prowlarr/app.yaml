@@ -1,3 +1,11 @@
 name: prowlarr
 namespace: media
 syncWave: "5"
+
+ingress:
+  enabled: true
+  host: prowlarr
+  internal: true
+  port: 9696
+  auth: true
+  rateLimit: true

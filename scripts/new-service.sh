@@ -16,9 +16,9 @@ done
 get_image_digest() {
   local image="$1"
   local digest
-  
+
   echo -e "${BLUE}Fetching digest for $image...${NC}" >&2
-  
+
   if digest=$(docker run --rm gcr.io/go-containerregistry/crane digest "$image" 2>/dev/null); then
     echo "$digest"
     return 0

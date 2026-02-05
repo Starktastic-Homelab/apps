@@ -3,9 +3,9 @@ controllers:
     containers:
       main:
         image:
-          repository: ghcr.io/thephaseless/byparr
+          repository: ghcr.io/flaresolverr/flaresolverr
           tag: latest
-          digest: sha256:dd2ab939fd616c17da5f58d85f5264e5ad125de1db732f3f27a4b52e96b78cbb
+          digest: sha256:7962759d99d7e125e108e0f5e7f3cdbcd36161776d058d1d9b7153b92ef1af9e
         probes:
           liveness:
             enabled: true

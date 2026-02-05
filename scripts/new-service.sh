@@ -5,12 +5,28 @@ set -euo pipefail
 # Usage: ./scripts/new-service.sh
 
 # Dependency checks
-for cmd in yq; do
+for cmd in yq docker; do
   if ! command -v "$cmd" &>/dev/null; then
     echo "Error: $cmd is required but not installed."
     exit 1
   fi
 done
+
+# Fetch image digest using crane via Docker
+get_image_digest() {
+  local image="$1"
+  local digest
+
+  echo -e "${BLUE}Fetching digest for $image...${NC}" >&2
+
+  if digest=$(docker run --rm gcr.io/go-containerregistry/crane digest "$image" 2>/dev/null); then
+    echo "$digest"
+    return 0
+  else
+    echo -e "${YELLOW}Warning: Could not fetch digest for $image${NC}" >&2
+    return 1
+  fi
+}
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
@@ -65,6 +81,20 @@ else
 fi
 
 read -p "Container image (e.g., lscr.io/linuxserver/radarr:latest): " IMAGE
+
+# Fetch image digest
+DIGEST=""
+if DIGEST=$(get_image_digest "$IMAGE"); then
+  echo -e "${GREEN}✓ Digest: $DIGEST${NC}"
+else
+  read -p "Continue without digest? [Y/n]: " SKIP_DIGEST
+  SKIP_DIGEST=${SKIP_DIGEST:-Y}
+  if [[ ! $SKIP_DIGEST =~ ^[Yy] ]]; then
+    echo -e "${RED}Aborted${NC}"
+    exit 1
+  fi
+fi
+
 read -p "Container port (e.g., 7878): " PORT
 
 # Ingress configuration
@@ -142,6 +172,12 @@ syncWave: "5"$INGRESS_BLOCK
 EOF
 
 # Generate values.yaml
+DIGEST_LINE=""
+if [[ -n $DIGEST ]]; then
+  DIGEST_LINE="
+          digest: $DIGEST"
+fi
+
 cat >"$SERVICE_DIR/values.yaml" <<EOF
 controllers:
   main:
@@ -149,22 +185,19 @@ controllers:
       main:
         image:
           repository: ${IMAGE%:*}
-          tag: ${IMAGE#*:}
+          tag: ${IMAGE#*:}$DIGEST_LINE
         probes:
           liveness:
             enabled: true
-            type: HTTP
-            path: /
+            type: TCP
             port: $PORT
           readiness:
             enabled: true
-            type: HTTP
-            path: /
+            type: TCP
             port: $PORT
           startup:
             enabled: true
-            type: HTTP
-            path: /
+            type: TCP
             port: $PORT
             spec:
               failureThreshold: 30
@@ -206,22 +239,19 @@ controllers:
       main:
         image:
           repository: ${IMAGE%:*}
-          tag: ${IMAGE#*:}
+          tag: ${IMAGE#*:}$DIGEST_LINE
         probes:
           liveness:
             enabled: true
-            type: HTTP
-            path: /
+            type: TCP
             port: $PORT
           readiness:
             enabled: true
-            type: HTTP
-            path: /
+            type: TCP
             port: $PORT
           startup:
             enabled: true
-            type: HTTP
-            path: /
+            type: TCP
             port: $PORT
             spec:
               failureThreshold: 30

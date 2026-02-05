@@ -9,6 +9,25 @@ controllers:
         env:
           WEBUI_PORT: "8080"
           DOCKER_MODS: "ghcr.io/gabe565/linuxserver-mod-vuetorrent"
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            path: /api/v2/app/version
+            port: 8080
+          readiness:
+            enabled: true
+            type: HTTP
+            path: /api/v2/app/version
+            port: 8080
+          startup:
+            enabled: true
+            type: HTTP
+            path: /api/v2/app/version
+            port: 8080
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
 service:
   main:
     controller: main

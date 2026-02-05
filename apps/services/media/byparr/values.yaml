@@ -3,31 +3,29 @@ controllers:
     containers:
       main:
         image:
-          repository: lscr.io/linuxserver/prowlarr
+          repository: ghcr.io/thephaseless/byparr
           tag: latest
-          digest: sha256:67a8aaedcfd6989f3030b937a6a07007310b1dfc7ee8df16d2cbfa48d1c1158c
+          digest: sha256:dd2ab939fd616c17da5f58d85f5264e5ad125de1db732f3f27a4b52e96b78cbb
         probes:
           liveness:
             enabled: true
-            type: HTTP
-            path: /ping
-            port: 9696
+            type: TCP
+            port: 8191
           readiness:
             enabled: true
-            type: HTTP
-            path: /ping
-            port: 9696
+            type: TCP
+            port: 8191
           startup:
             enabled: true
-            type: HTTP
-            path: /ping
-            port: 9696
+            type: TCP
+            port: 8191
             spec:
               failureThreshold: 30
               periodSeconds: 5
+
 service:
   main:
     controller: main
     ports:
       http:
-        port: 9696
+        port: 8191

@@ -1,0 +1,42 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: lscr.io/linuxserver/bazarr
+          tag: latest
+          digest: sha256:d40ee61030a9afafddfdd58d160281b865bfcad7cb66e920116fd6fd40668cbb
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            path: /ping
+            port: 6767
+          readiness:
+            enabled: true
+            type: HTTP
+            path: /ping
+            port: 6767
+          startup:
+            enabled: true
+            type: HTTP
+            path: /ping
+            port: 6767
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 6767
+
+persistence:
+  config:
+    existingClaim: bazarr-config
+  media:
+    existingClaim: media-library-pvc
+    globalMounts:
+      - path: /data

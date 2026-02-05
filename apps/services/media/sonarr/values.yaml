@@ -1,0 +1,42 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: lscr.io/linuxserver/sonarr
+          tag: latest
+          digest: sha256:02b4d538d351d6e35882a021c08e8600fe95d28860fb1dd724b597166e7221ca
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            path: /ping
+            port: 8989
+          readiness:
+            enabled: true
+            type: HTTP
+            path: /ping
+            port: 8989
+          startup:
+            enabled: true
+            type: HTTP
+            path: /ping
+            port: 8989
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 8989
+
+persistence:
+  config:
+    existingClaim: sonarr-config
+  media:
+    existingClaim: media-library-pvc
+    globalMounts:
+      - path: /data

@@ -1,0 +1,11 @@
+name: bazarr
+namespace: media
+syncWave: "5"
+
+ingress:
+  enabled: true
+  host: bazarr
+  domainType: "internal"
+  port: 6767
+  auth: true
+  rateLimit: true

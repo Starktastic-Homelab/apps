@@ -13,7 +13,7 @@ authentik:
     host: "redis-redis.databases.svc.cluster.local"
     port: 6379
   error_reporting:
-        enabled: false
+    enabled: false
   disable_update_check: true
   disable_startup_analytics: true
 server:

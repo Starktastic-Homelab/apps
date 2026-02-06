@@ -1,0 +1,56 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: lscr.io/linuxserver/qbittorrent
+          tag: latest
+          digest: sha256:e0cedcadd62f809efdeddfd32e4d1192f9a74e6e64ed6753bfc6e2c3ed4a714a
+        env:
+          WEBUI_PORT: "8080"
+          DOCKER_MODS: "ghcr.io/gabe565/linuxserver-mod-vuetorrent"
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            path: /api/v2/app/version
+            port: 8080
+          readiness:
+            enabled: true
+            type: HTTP
+            path: /api/v2/app/version
+            port: 8080
+          startup:
+            enabled: true
+            type: HTTP
+            path: /api/v2/app/version
+            port: 8080
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 8080
+  bittorrent:
+    controller: main
+    type: LoadBalancer
+    annotations:
+      kube-vip.io/loadbalancerIPs: "{{ .Values.global.network.loadBalancers.qbittorrentRu }}"
+    ports:
+      bittorrent-tcp:
+        enabled: true
+        port: 6881
+        protocol: TCP
+      bittorrent-udp:
+        enabled: true
+        port: 6881
+        protocol: UDP
+persistence:
+  media:
+    enabled: true
+    existingClaim: media-library-pvc
+    globalMounts:
+      - path: /data

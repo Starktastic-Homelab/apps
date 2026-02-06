@@ -1,0 +1,11 @@
+name: radarr-ru
+namespace: media
+syncWave: "5"
+
+ingress:
+  enabled: true
+  host: radarr-ru
+  domainType: "internal"
+  port: 7878
+  auth: true
+  rateLimit: true

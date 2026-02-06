@@ -1,0 +1,12 @@
+name: qbittorrent-ru
+namespace: media
+syncWave: "5"
+
+ingress:
+  enabled: true
+  host: qbittorrent-ru
+  domainType: "internal"
+  port: 8080
+  serviceName: qbittorrent-ru-main
+  auth: true
+  rateLimit: true

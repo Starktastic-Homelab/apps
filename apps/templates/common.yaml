@@ -12,6 +12,7 @@ global:
       external: "10.9.8.90"
       internal: "10.9.9.90"
       qbittorrent: "10.9.8.91"
+      qbittorrentRu: "10.9.8.92"
     vlans:
       mgmt: "10.9.9.0/24"
       services: "10.9.8.0/24"

@@ -1,0 +1,11 @@
+name: sonarr-ru
+namespace: media
+syncWave: "5"
+
+ingress:
+  enabled: true
+  host: sonarr-ru
+  domainType: "internal"
+  port: 8989
+  auth: true
+  rateLimit: true

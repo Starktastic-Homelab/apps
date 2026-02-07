@@ -1,0 +1,34 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: ghcr.io/recyclarr/recyclarr
+          tag: latest
+          digest: sha256:2550848d43a453f2c6adf3582f2198ac719f76670691d76de0819053103ef2fb
+        env:
+          CRON_SCHEDULE: "@daily"
+          RECYCLARR_CREATE_CONFIG: "false"
+        envFrom:
+          - secretRef:
+              name: recyclarr-secret
+        probes:
+          liveness:
+            enabled: false
+          readiness:
+            enabled: false
+          startup:
+            enabled: false
+
+service:
+  main:
+    enabled: false
+
+persistence:
+  recyclarr-config:
+    type: configMap
+    name: recyclarr-config
+    globalMounts:
+      - path: /config/recyclarr.yml
+        subPath: recyclarr.yml
+        readOnly: true

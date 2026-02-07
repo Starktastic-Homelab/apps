@@ -1,0 +1,87 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: recyclarr-config
+  namespace: media
+data:
+  recyclarr.yml: |
+    # yaml-language-server: $schema=https://raw.githubusercontent.com/recyclarr/recyclarr/master/schemas/config-schema.json
+
+    radarr:
+      radarr_main:
+        base_url: http://radarr.media.svc.cluster.local:7878
+        api_key: !env_var RADARR_API_KEY
+        delete_old_custom_formats: true
+        replace_existing_custom_formats: true
+
+        include:
+          # Quality sizes (only needed once per instance)
+          - template: radarr-quality-definition-movie
+
+          # Remux + WEB 2160p (max quality - 4K Remux)
+          - template: radarr-quality-profile-remux-web-2160p
+          - template: radarr-custom-formats-remux-web-2160p
+
+        quality_profiles:
+          - name: Remux + WEB 2160p
+            reset_unmatched_scores:
+              enabled: true
+
+      radarr_ru:
+        base_url: http://radarr-ru.media.svc.cluster.local:7878
+        api_key: !env_var RADARR_RU_API_KEY
+        delete_old_custom_formats: true
+        replace_existing_custom_formats: true
+
+        include:
+          # Quality sizes
+          - template: radarr-quality-definition-movie
+
+          # HD Bluray + WEB (capped at 1080p)
+          - template: radarr-quality-profile-hd-bluray-web
+          - template: radarr-custom-formats-hd-bluray-web
+
+        quality_profiles:
+          - name: HD Bluray + WEB
+            reset_unmatched_scores:
+              enabled: true
+
+    sonarr:
+      sonarr_main:
+        base_url: http://sonarr.media.svc.cluster.local:8989
+        api_key: !env_var SONARR_API_KEY
+        delete_old_custom_formats: true
+        replace_existing_custom_formats: true
+
+        include:
+          # Quality sizes (only needed once per instance)
+          - template: sonarr-quality-definition-series
+
+          # WEB-1080p
+          - template: sonarr-v4-quality-profile-web-1080p
+          - template: sonarr-v4-custom-formats-web-1080p
+
+        quality_profiles:
+          - name: WEB-1080p
+            reset_unmatched_scores:
+              enabled: true
+
+      sonarr_ru:
+        base_url: http://sonarr-ru.media.svc.cluster.local:8989
+        api_key: !env_var SONARR_RU_API_KEY
+        delete_old_custom_formats: true
+        replace_existing_custom_formats: true
+
+        include:
+          # Quality sizes
+          - template: sonarr-quality-definition-series
+
+          # WEB-1080p (same profile for RU)
+          - template: sonarr-v4-quality-profile-web-1080p
+          - template: sonarr-v4-custom-formats-web-1080p
+
+        quality_profiles:
+          - name: WEB-1080p
+            reset_unmatched_scores:
+              enabled: true

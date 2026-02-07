@@ -66,6 +66,11 @@ data:
                 score: -10000
 
           - trash_ids:
+              - 9c38ebb7384dada637be8899efa68e6f # SDR
+            assign_scores_to:
+              - name: Remux + WEB 2160p
+
+          - trash_ids:
               - 496f355514737f7d83bf7aa4d24f8169 # TrueHD ATMOS
               - 2f22d89048b01681dde8afe203bf2e95 # DTS X
               - 417804f7f2c4308c1f4c5d380d4c4475 # ATMOS (undefined)
@@ -209,6 +214,11 @@ data:
                 score: -10000
               - name: Remux-1080p - Anime
                 score: -10000
+
+          - trash_ids:
+              - 2016d1676f5ee13a5b7257ff86ac9a93 # SDR
+            assign_scores_to:
+              - name: WEB-2160p
 
           - trash_ids:
               - 0d7824bb924701997f874e7ff7d4844a # TrueHD ATMOS

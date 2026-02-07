@@ -37,11 +37,11 @@
       "fileFormat": "yaml"
     },
     {
-      "description": "Update argocd-diff-preview Docker image in CI workflow",
+      "description": "Update pinned tool versions in CI workflows",
       "customType": "regex",
       "fileMatch": ["^\\.github/workflows/.*\\.yml$"],
-      "matchStrings": ["# renovate: datasource=docker depName=(?<depName>\\S+)\\s+\\w+:\\s*'(?<currentValue>[^']+)'"],
-      "datasourceTemplate": "docker"
+      "matchStrings": ["# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+\\w+:\\s*'(?<currentValue>[^']+)'"],
+      "datasourceTemplate": "{{datasource}}"
     }
   ]
 }

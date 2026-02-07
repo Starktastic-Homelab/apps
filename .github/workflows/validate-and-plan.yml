@@ -3,6 +3,11 @@ name: Validate manifests and generate ArgoCD diff preview
 on:
   pull_request:
     branches: [main]
+    paths:
+      - 'apps/**'
+      - 'scripts/**'
+      - '.github/workflows/**'
+      - '.github/yamllint.yaml'
 
 jobs:
   validate:
@@ -30,8 +35,11 @@ jobs:
           YAMLLINT_CONFIG_FILE: .github/yamllint.yaml
 
       - name: Setup Kubeconform
+        env:
+          # renovate: datasource=github-releases depName=yannh/kubeconform
+          KUBECONFORM_VERSION: 'v0.7.0'
         run: |
-          curl -L https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz | tar xz
+          curl -L https://github.com/yannh/kubeconform/releases/download/${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz | tar xz
           echo "$PWD" >> $GITHUB_PATH
 
       - name: Validate static manifests
@@ -107,6 +115,7 @@ jobs:
   diff:
     name: ArgoCD diff preview
     needs: validate
+    if: always() && !cancelled()
     runs-on: ubuntu-latest
     steps:
       - name: Checkout PR branch

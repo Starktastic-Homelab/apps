@@ -25,7 +25,9 @@ service:
 
 persistence:
   config:
-    enabled: false
+    type: emptyDir
+    globalMounts:
+      - path: /config
   qbit-config:
     type: configMap
     name: qbit-manage-ru-config

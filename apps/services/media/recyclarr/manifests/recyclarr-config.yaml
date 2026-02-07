@@ -31,6 +31,12 @@ data:
               - name: Remux + WEB 2160p
 
           - trash_ids:
+              - 923b6abef9b17f937fab56cfcf89e1f1 # DV (w/o HDR fallback)
+            assign_scores_to:
+              - name: Remux + WEB 2160p
+                score: -10000
+
+          - trash_ids:
               - 496f355514737f7d83bf7aa4d24f8169 # TrueHD ATMOS
               - 2f22d89048b01681dde8afe203bf2e95 # DTS X
               - 3cafb66171b47f226146a0770576870f # TrueHD
@@ -95,6 +101,12 @@ data:
               - 0c4b99df9206d2cfac3c05ab897dd62a # HDR10+ Boost
             assign_scores_to:
               - name: WEB-2160p
+
+          - trash_ids:
+              - 9b27ab6498ec0f31a3353992e19434ca # DV (w/o HDR fallback)
+            assign_scores_to:
+              - name: WEB-2160p
+                score: -10000
 
           - trash_ids:
               - 0d7824bb924701997f874e7ff7d4844a # TrueHD ATMOS

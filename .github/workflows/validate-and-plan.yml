@@ -48,7 +48,7 @@ jobs:
       - name: Create validation report
         if: always()
         run: |
-          echo "## 🛡️ Static Validation" > validation-report.md
+          echo "## Static Validation" > validation-report.md
           echo "" >> validation-report.md
 
           if [ "${{ steps.yamllint.outputs.exit_code }}" -eq 0 ]; then

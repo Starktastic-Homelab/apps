@@ -8,6 +8,7 @@ metadata:
     argocd.argoproj.io/sync-wave: "1"
     notifications.argoproj.io/subscribe.on-sync-succeeded.ntfy: ""
     notifications.argoproj.io/subscribe.on-sync-failed.ntfy: ""
+    argocd-diff-preview/watch-pattern: "apps/infrastructure/configs/.*"
 spec:
   project: default
   source:

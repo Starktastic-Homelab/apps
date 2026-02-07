@@ -38,6 +38,7 @@ spec:
       annotations:
         argocd.argoproj.io/sync-wave: '{{ .syncWave | default .syncWaveDefault }}'
         notifications.argoproj.io/subscribe.on-sync-failed.ntfy: ""
+        argocd-diff-preview/watch-pattern: '{{.path.path}}/.*, {{ .commonValues }}, apps/templates/ingress-chart/.*'
     spec:
       project: default
       sources: []

@@ -86,109 +86,45 @@ jobs:
         run: exit 1
 
   plan:
-    name: Live cluster diff
+    name: ArgoCD diff preview
     needs: validate
-    runs-on: self-hosted
-    container:
-      image: buildpack-deps:scm
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout PR branch
         uses: actions/checkout@v6
         with:
-          fetch-depth: 0 # Required to compare against main
+          path: pull-request
 
-      - name: Setup Kubeconfig
-        run: |
-          mkdir -p ~/.kube
-          echo "${{ secrets.KUBECONFIG_RAW }}" > ~/.kube/config
-          chmod 600 ~/.kube/config
-
-      - name: Setup Kubectl
-        uses: azure/setup-kubectl@v4.0.1
+      - name: Checkout base branch
+        uses: actions/checkout@v6
         with:
-          version: 'latest'
+          ref: main
+          path: main
 
-      - name: Setup ArgoCD CLI
-        uses: clowdhaus/argo-cd-action@main
+      - name: Generate diff
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          command: version
-          options: --client
-
-      - name: Setup YQ
+          # renovate: datasource=docker depName=dagandersen/argocd-diff-preview
+          DIFF_PREVIEW_VERSION: 'v0.1.24'
         run: |
-          curl -sSLo /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-          chmod +x /usr/local/bin/yq
-
-      - name: Generate full manifests with PR SHA
-        env:
-          PR_SHA: ${{ github.event.pull_request.head.sha }}
-        run: |
-          kubectl config set-context --current --namespace=argocd
-          touch all_manifests.yaml
-
-          REPO_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
-
-          echo "Processing AppSets..."
-          for appset in apps/bootstrap/appsets/*.yaml; do
-            echo "Generating from: $appset"
-            yq -i ".spec.generators[0].git.revision = \"$PR_SHA\"" $appset
-            yq -i ".spec.template.spec.sources[] |= select(.repoURL == \"$REPO_URL\").targetRevision = \"$PR_SHA\"" $appset
-            argocd appset generate --core --loglevel error -o yaml $appset | yq -P '.[]' | sed 's/^apiVersion:/---\napiVersion:/' >> all_manifests.yaml
-          done
-
-          echo "Processing standalone Apps..."
-          for app in apps/bootstrap/*.yaml; do
-            echo "Processing App: $app"
-            yq -i ".spec.source.targetRevision = \"$PR_SHA\"" $app
-            echo "---" >> all_manifests.yaml
-            cat $app >> all_manifests.yaml
-          done
-
-      - name: Setup Dyff
-        run: |
-          DYFF_VERSION=$(curl -s https://api.github.com/repos/homeport/dyff/releases/latest | grep -oP '"tag_name": "\K[^"]+' | tr -d 'v')
-          curl -sL "https://github.com/homeport/dyff/releases/download/v${DYFF_VERSION}/dyff_${DYFF_VERSION}_linux_amd64.tar.gz" | tar xz
-          mv dyff /usr/local/bin/
-          chmod +x /usr/local/bin/dyff
-
-      - name: Run dyff
-        run: |
-          echo "### 🔮 Kubernetes Live Plan" > plan.md
-
-          chmod +x scripts/dyff-wrapper.sh
-          export KUBECTL_EXTERNAL_DIFF="$PWD/scripts/dyff-wrapper.sh"
-
-          set +e
-          DIFF_OUTPUT=$(kubectl diff -f all_manifests.yaml --server-side --force-conflicts 2>&1)
-          EXIT_CODE=$?
-          set -e
-
-          if [ $EXIT_CODE -eq 1 ]; then
-            echo "⚠️ **Changes detected**" >> plan.md
-            echo "<details><summary><strong>Show Plan</strong></summary>" >> plan.md
-            echo "" >> plan.md
-            echo "\`\`\`yaml" >> plan.md
-            echo "$DIFF_OUTPUT" >> plan.md
-            echo "\`\`\`" >> plan.md
-            echo "</details>" >> plan.md
-          elif [ $EXIT_CODE -eq 0 ]; then
-            echo "✅ **No ArgoCD App changes detected**" >> plan.md
-          else
-            echo "❌ **Diff Failed** (Exit Code: $EXIT_CODE)" >> plan.md
-            echo "\`\`\`" >> plan.md
-            echo "$DIFF_OUTPUT" >> plan.md
-            echo "\`\`\`" >> plan.md
-            exit 1
-          fi
+          docker run \
+            --network=host \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v $(pwd)/main:/base-branch \
+            -v $(pwd)/pull-request:/target-branch \
+            -v $(pwd)/output:/output \
+            -e TARGET_BRANCH=${{ github.head_ref }} \
+            -e REPO=${{ github.repository }} \
+            -e AUTO_DETECT_FILES_CHANGED=true \
+            -e WATCH_IF_NO_WATCH_PATTERN_FOUND=false \
+            -e MAX_DIFF_LENGTH=65536 \
+            dagandersen/argocd-diff-preview:$DIFF_PREVIEW_VERSION
 
       - name: Upload plan artifact
         if: always()
         uses: actions/upload-artifact@v6
         with:
           name: plan-report
-          path: plan.md
+          path: output/diff.md
           retention-days: 1
 
   report:
@@ -216,8 +152,8 @@ jobs:
             echo "" >> comment.md
           fi
 
-          if [ -f artifacts/plan.md ]; then
-            cat artifacts/plan.md >> comment.md
+          if [ -f artifacts/diff.md ]; then
+            cat artifacts/diff.md >> comment.md
           fi
 
       - name: Post comment

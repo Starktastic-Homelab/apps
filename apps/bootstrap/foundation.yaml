@@ -6,6 +6,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "-10"
     notifications.argoproj.io/subscribe.on-sync-failed.ntfy: ""
+    argocd-diff-preview/watch-pattern: "apps/foundation/.*"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:

@@ -25,6 +25,8 @@ service:
 
 persistence:
   config:
+    enabled: false
+  config-dir:
     type: emptyDir
     globalMounts:
       - path: /config

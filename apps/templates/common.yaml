@@ -18,6 +18,10 @@ global:
       services: "10.9.8.0/24"
       wireguard: "10.9.10.0/24"
 
+defaultPodOptions:
+  securityContext:
+    fsGroup: 1000
+
 controllers:
   main:
     containers:

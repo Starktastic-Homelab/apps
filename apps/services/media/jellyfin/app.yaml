@@ -1,0 +1,10 @@
+name: jellyfin
+namespace: media
+syncWave: "5"
+ingress:
+  enabled: true
+  host: ""
+  domainType: "media"
+  port: 8096
+  auth: false
+  rateLimit: false

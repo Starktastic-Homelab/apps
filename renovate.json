@@ -40,9 +40,7 @@
       "description": "Update argocd-diff-preview Docker image in CI workflow",
       "customType": "regex",
       "fileMatch": ["^\\.github/workflows/.*\\.yml$"],
-      "matchStrings": [
-        "# renovate: datasource=docker depName=(?<depName>\\S+)\\s+\\w+:\\s*'(?<currentValue>[^']+)'"
-      ],
+      "matchStrings": ["# renovate: datasource=docker depName=(?<depName>\\S+)\\s+\\w+:\\s*'(?<currentValue>[^']+)'"],
       "datasourceTemplate": "docker"
     }
   ]

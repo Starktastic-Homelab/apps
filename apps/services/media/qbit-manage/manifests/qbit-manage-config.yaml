@@ -42,8 +42,6 @@ data:
       movies: "/data/torrents/movies"
       tv: "/data/torrents/tv"
 
-    tracker: {}
-
     nohardlinks:
       movies:
       tv:

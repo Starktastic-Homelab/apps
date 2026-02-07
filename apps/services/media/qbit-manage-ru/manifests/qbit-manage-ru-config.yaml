@@ -42,8 +42,6 @@ data:
       movies-ru: "/data/torrents/movies-ru"
       tv-ru: "/data/torrents/tv-ru"
 
-    tracker: {}
-
     nohardlinks:
       movies-ru:
       tv-ru:

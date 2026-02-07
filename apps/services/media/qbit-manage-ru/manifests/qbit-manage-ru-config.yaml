@@ -1,0 +1,77 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: qbit-manage-ru-config
+  namespace: media
+data:
+  config.yml: |
+    commands:
+      dry_run: false
+      recheck: true
+      cat_update: true
+      tag_update: true
+      rem_unregistered: true
+      tag_tracker_error: true
+      rem_orphaned: true
+      tag_nohardlinks: true
+      share_limits: true
+      skip_cleanup: false
+
+    qbt:
+      host: "http://qbittorrent-ru-main.media.svc.cluster.local:8080"
+
+    settings:
+      force_auto_tmm: false
+      tracker_error_tag: issue
+      nohardlinks_tag: noHL
+      share_limits_tag: ~share_limit
+      cat_filter_completed: true
+      share_limits_filter_completed: true
+      tag_nohardlinks_filter_completed: true
+      cat_update_all: true
+      disable_qbt_default_share_limits: true
+      tag_stalled_torrents: true
+
+    directory:
+      root_dir: "/data/torrents/"
+      recycle_bin: "/data/torrents/.RecycleBin"
+      orphaned_dir: "/data/torrents/.orphaned"
+
+    cat:
+      movies-ru: "/data/torrents/movies-ru"
+      tv-ru: "/data/torrents/tv-ru"
+
+    tracker: {}
+
+    nohardlinks:
+      movies-ru:
+      tv-ru:
+
+    share_limits:
+      noHL:
+        priority: 1
+        include_all_tags:
+          - noHL
+        max_ratio: -1
+        max_seeding_time: 1
+        min_seeding_time: 1
+        cleanup: true
+      default:
+        priority: 999
+        max_ratio: -1
+        max_seeding_time: 10080
+        min_seeding_time: 1
+        cleanup: true
+
+    recyclebin:
+      enabled: true
+      empty_after_x_days: 30
+      split_by_category: false
+
+    orphaned:
+      empty_after_x_days: 7
+      exclude_patterns:
+        - "**/.DS_Store"
+        - "**/*.!qB"
+        - "**/incomplete/**"

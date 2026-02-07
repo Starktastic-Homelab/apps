@@ -1,0 +1,47 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: lscr.io/linuxserver/jellyfin
+          tag: latest
+          digest: sha256:7b29a93a6020f8d5f6c60df381a5ab7d57aa83cda4beb3631bd2bfbbcb1497af
+        env:
+          DOCKER_MODS: "linuxserver/mods:jellyfin-opencl-intel"
+        resources:
+          limits:
+            gpu.intel.com/i915: "1"
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            path: /health
+            port: 8096
+          readiness:
+            enabled: true
+            type: HTTP
+            path: /health
+            port: 8096
+          startup:
+            enabled: true
+            type: HTTP
+            path: /health
+            port: 8096
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 8096
+
+persistence:
+  config:
+    existingClaim: jellyfin-config
+  media:
+    existingClaim: media-library-pvc
+    globalMounts:
+      - path: /data

@@ -1,0 +1,66 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: ghcr.io/unpackerr/unpackerr
+          tag: latest
+          digest: sha256:dc72256942ce50d1c8a1aeb5aa85b6ae2680a36eefd2182129d8d210fce78044
+        env:
+          UN_INTERVAL: "2m"
+          UN_START_DELAY: "1m"
+          UN_WEBSERVER_METRICS: "true"
+          UN_WEBSERVER_LISTEN_ADDR: "0.0.0.0:5656"
+
+          UN_RADARR_0_URL: "http://radarr.media.svc.cluster.local:7878"
+          UN_RADARR_0_PATHS_0: "/data/torrents"
+          UN_RADARR_0_PROTOCOLS: "torrent"
+
+          UN_RADARR_1_URL: "http://radarr-ru.media.svc.cluster.local:7878"
+          UN_RADARR_1_PATHS_0: "/data/torrents"
+          UN_RADARR_1_PROTOCOLS: "torrent"
+
+          UN_SONARR_0_URL: "http://sonarr.media.svc.cluster.local:8989"
+          UN_SONARR_0_PATHS_0: "/data/torrents"
+          UN_SONARR_0_PROTOCOLS: "torrent"
+
+          UN_SONARR_1_URL: "http://sonarr-ru.media.svc.cluster.local:8989"
+          UN_SONARR_1_PATHS_0: "/data/torrents"
+          UN_SONARR_1_PROTOCOLS: "torrent"
+        envFrom:
+          - secretRef:
+              name: unpackerr-secret
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+        probes:
+          liveness:
+            enabled: true
+            type: TCP
+            port: 5656
+          readiness:
+            enabled: true
+            type: TCP
+            port: 5656
+          startup:
+            enabled: true
+            type: TCP
+            port: 5656
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+
+service:
+  main:
+    controller: main
+    ports:
+      metrics:
+        port: 5656
+
+persistence:
+  config:
+    enabled: false
+  media:
+    existingClaim: media-library-pvc
+    globalMounts:
+      - path: /data

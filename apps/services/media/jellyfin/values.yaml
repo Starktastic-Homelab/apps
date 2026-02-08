@@ -48,6 +48,8 @@ service:
         protocol: UDP
 
 persistence:
+  config:
+    existingClaim: jellyfin-config
   media:
     existingClaim: media-library-pvc
     globalMounts:

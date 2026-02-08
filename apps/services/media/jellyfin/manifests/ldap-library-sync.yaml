@@ -254,7 +254,7 @@ spec:
               command:
                 - sh
                 - -c
-                - pip install --quiet ldap3 && python /config/sync.py
+                - pip install --quiet --root-user-action=ignore ldap3 && python /config/sync.py
               env:
                 - name: LDAP_BIND_PASSWORD
                   valueFrom:

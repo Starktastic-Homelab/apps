@@ -2,7 +2,7 @@
 {{- $domainType := .Values.ingress.domainType | default "internal" }}
 {{- $domain := index .Values.global.domains $domainType }}
 {{- $isInternal := eq $domainType "internal" }}
-{{- $tlsSecret := ternary "traefik-system/benplus-app-tls" (printf "traefik-system/%s" .Values.global.defaultTlsSecret) (eq $domainType "media") }}
+{{- $tlsSecret := ternary "benplus-app-tls" .Values.global.defaultTlsSecret (eq $domainType "media") }}
 {{- $host := .Values.ingress.host }}
 {{- $fqdn := ternary $domain (printf "%s.%s" $host $domain) (eq $host "") }}
 apiVersion: traefik.io/v1alpha1

@@ -12,6 +12,9 @@ controllers:
             type: HTTP
             path: /ping
             port: 7878
+            spec:
+              timeoutSeconds: 5
+              failureThreshold: 5
           readiness:
             enabled: true
             type: HTTP

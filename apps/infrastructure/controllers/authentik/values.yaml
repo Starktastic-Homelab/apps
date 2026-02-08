@@ -38,9 +38,9 @@ worker:
     - name: AUTHENTIK_EMAIL__PORT
       value: "587"
     - name: AUTHENTIK_EMAIL__USERNAME
-      value: "postmaster@benplus.vip"
+      value: "postmaster@benplus.app"
     - name: AUTHENTIK_EMAIL__FROM
-      value: "Ben Plus <noreply@benplus.vip>"
+      value: "Ben Plus <noreply@benplus.app>"
     - name: AUTHENTIK_EMAIL__USE_TLS
       value: "true"
     - name: AUTHENTIK_EMAIL__TIMEOUT

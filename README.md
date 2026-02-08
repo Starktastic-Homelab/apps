@@ -65,7 +65,7 @@ flowchart TB
 flowchart LR
     subgraph External["External Traffic"]
         Public["*.starktastic.net<br/>10.9.8.90"]
-        Media["*.benplus.vip<br/>10.9.8.90"]
+        Media["*.benplus.app<br/>10.9.8.90"]
     end
     
     subgraph Internal["Internal Traffic"]
@@ -187,7 +187,7 @@ flowchart LR
 |--------|---------|-----------------|------------|
 | `*.starktastic.net` | Public services | `10.9.8.90` | `websecure` |
 | `*.internal.starktastic.net` | Internal services | `10.9.9.90` | `websec-int` |
-| `*.benplus.vip` | Media services | `10.9.8.90` | `websecure` |
+| `*.benplus.app` | Media services | `10.9.8.90` | `websecure` |
 
 ## Usage
 
@@ -236,7 +236,7 @@ global:
   domains:
     public: "starktastic.net"
     internal: "internal.starktastic.net"
-    media: "benplus.vip"
+    media: "benplus.app"
 
 controllers:
   main:

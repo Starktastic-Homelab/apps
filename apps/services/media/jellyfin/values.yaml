@@ -8,7 +8,7 @@ controllers:
           digest: sha256:7b29a93a6020f8d5f6c60df381a5ab7d57aa83cda4beb3631bd2bfbbcb1497af
         env:
           DOCKER_MODS: "linuxserver/mods:jellyfin-opencl-intel"
-          JELLYFIN_PublishedServerUrl: "https://benplus.vip"
+          JELLYFIN_PublishedServerUrl: "https://benplus.app"
         resources:
           limits:
             gpu.intel.com/i915: "1"

@@ -50,6 +50,9 @@ service:
 persistence:
   config:
     existingClaim: jellyfin-config
+    storageClass: null
+    size: null
+    accessMode: null
   media:
     existingClaim: media-library-pvc
     globalMounts:

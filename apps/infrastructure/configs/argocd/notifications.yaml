@@ -56,6 +56,42 @@ data:
             }]
           }
 
+  template.app-health-degraded: |
+    webhook:
+      ntfy:
+        method: POST
+        body: |
+          {
+            "topic": "starktastic_ops",
+            "title": "Degraded: {{.app.metadata.name}}",
+            "message": "Application health has degraded. Check ArgoCD for details.",
+            "tags": ["rotating_light", "warning"],
+            "priority": 4,
+            "actions": [{
+              "action": "view",
+              "label": "Open ArgoCD",
+              "url": "{{.context.argocdUrl}}/applications/{{.app.metadata.name}}"
+            }]
+          }
+
+  template.app-health-recovered: |
+    webhook:
+      ntfy:
+        method: POST
+        body: |
+          {
+            "topic": "starktastic_ops",
+            "title": "Recovered: {{.app.metadata.name}}",
+            "message": "Application is healthy again.",
+            "tags": ["green_heart"],
+            "priority": 2,
+            "actions": [{
+              "action": "view",
+              "label": "Open ArgoCD",
+              "url": "{{.context.argocdUrl}}/applications/{{.app.metadata.name}}"
+            }]
+          }
+
   trigger.on-sync-failed: |
     - description: Application syncing has failed
       send: [app-sync-failed]
@@ -65,3 +101,13 @@ data:
     - description: Application syncing succeeded
       send: [app-sync-succeeded]
       when: app.status.operationState.phase in ['Succeeded']
+
+  trigger.on-health-degraded: |
+    - description: Application health has degraded
+      send: [app-health-degraded]
+      when: app.status.health.status == 'Degraded'
+
+  trigger.on-health-recovered: |
+    - description: Application health has recovered
+      send: [app-health-recovered]
+      when: app.status.health.status == 'Healthy'

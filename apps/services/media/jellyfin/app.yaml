@@ -5,6 +5,7 @@ ingress:
   enabled: true
   host: ""
   domainType: "media"
+  serviceName: jellyfin-main
   port: 8096
   auth: false
   rateLimit: false

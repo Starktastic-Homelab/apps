@@ -56,4 +56,4 @@ persistence:
     type: emptyDir
     sizeLimit: 20Gi
     globalMounts:
-      - path: /config/data/transcodes
+      - path: /config/cache/transcodes

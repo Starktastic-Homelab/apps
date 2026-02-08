@@ -37,6 +37,15 @@
       "fileFormat": "yaml"
     },
     {
+      "description": "Update image references in CRD manifests via renovate comments",
+      "customType": "regex",
+      "fileMatch": ["^apps/.*\\.yaml$"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+)\\n\\s+\\S+:\\s*\"?(?<depName>[^:\"\\s]+):(?<currentValue>[^\"\\s]+)\"?"
+      ],
+      "datasourceTemplate": "{{datasource}}"
+    },
+    {
       "description": "Update pinned tool versions in CI workflows",
       "customType": "regex",
       "fileMatch": ["^\\.github/workflows/.*\\.yml$"],

@@ -107,7 +107,7 @@ if [[ $INGRESS_ENABLED =~ ^[Yy] ]]; then
   echo "Domain type:"
   echo "  1) internal (*.internal.starktastic.net)"
   echo "  2) public (*.starktastic.net)"
-  echo "  3) media (*.benplus.vip)"
+  echo "  3) media (*.benplus.app)"
   read -p "Select [1-3, default=1]: " DOMAIN_CHOICE
   DOMAIN_CHOICE=${DOMAIN_CHOICE:-1}
 
@@ -284,6 +284,6 @@ if [[ $INGRESS_ENABLED =~ ^[Yy] ]]; then
   case $DOMAIN_TYPE in
     internal) echo -e "URL: ${BLUE}https://$SUBDOMAIN.internal.starktastic.net${NC}" ;;
     public) echo -e "URL: ${BLUE}https://$SUBDOMAIN.starktastic.net${NC}" ;;
-    media) echo -e "URL: ${BLUE}https://$SUBDOMAIN.benplus.vip${NC}" ;;
+    media) echo -e "URL: ${BLUE}https://$SUBDOMAIN.benplus.app${NC}" ;;
   esac
 fi

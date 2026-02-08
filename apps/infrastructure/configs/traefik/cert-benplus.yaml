@@ -1,16 +1,16 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: benplus-vip-cert
+  name: benplus-app-cert
   namespace: traefik-system
   annotations:
     argocd.argoproj.io/sync-wave: "2"
 spec:
-  secretName: benplus-vip-tls
+  secretName: benplus-app-tls
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer
-  commonName: "*.benplus.vip"
+  commonName: "*.benplus.app"
   dnsNames:
-    - "benplus.vip"
-    - "*.benplus.vip"
+    - "benplus.app"
+    - "*.benplus.app"

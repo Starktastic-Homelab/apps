@@ -1,0 +1,15 @@
+apiVersion: deviceplugin.intel.com/v1
+kind: GpuDevicePlugin
+metadata:
+  name: intel-gpu
+  namespace: kube-system
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+spec:
+  image: "intel/intel-gpu-plugin:0.34.1"
+  logLevel: 2
+  sharedDevNum: 1
+  enableMonitoring: true
+  preferredAllocationPolicy: none
+  nodeSelector:
+    intel.feature.node.kubernetes.io/gpu: "true"

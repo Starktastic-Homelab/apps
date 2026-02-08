@@ -12,6 +12,15 @@ if [ -z "$SECRET_NAME" ] || [ -z "$NAMESPACE" ]; then
   exit 1
 fi
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CERT_FILE="$SCRIPT_DIR/sealed-secrets-cert.pem"
+
+if [ ! -f "$CERT_FILE" ]; then
+  echo "❌ Error: Sealed secrets cert not found at $CERT_FILE"
+  echo "   This cert must match the pre-seeded key in Ansible vault."
+  exit 1
+fi
+
 SCOPE="strict"
 if [ "$FLAG" == "--cluster-wide" ]; then
   SCOPE="cluster-wide"
@@ -25,8 +34,7 @@ kubectl create secret generic $SECRET_NAME \
   --dry-run=client \
   -o yaml |
   kubeseal \
-    --controller-name=sealed-secrets-controller \
-    --controller-namespace=kube-system \
+    --cert "$CERT_FILE" \
     --scope $SCOPE \
     --format yaml >$SECRET_NAME.yaml
 

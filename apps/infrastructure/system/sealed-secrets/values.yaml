@@ -1,2 +1,3 @@
 fullnameOverride: sealed-secrets-controller
 secretName: "sealed-secrets-key-bootstrap"
+keyrenewperiod: "0"

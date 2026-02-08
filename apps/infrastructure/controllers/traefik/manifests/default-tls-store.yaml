@@ -6,3 +6,5 @@ metadata:
 spec:
   defaultCertificate:
     secretName: starktastic-net-tls
+  certificates:
+    - secretName: benplus-app-tls

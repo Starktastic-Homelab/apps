@@ -18,17 +18,11 @@ controllers:
             type: HTTP
             path: /health
             port: 8096
-            spec:
-              timeoutSeconds: 5
-              failureThreshold: 5
           readiness:
             enabled: true
             type: HTTP
             path: /health
             port: 8096
-            spec:
-              timeoutSeconds: 5
-              failureThreshold: 5
           startup:
             enabled: true
             type: HTTP

@@ -30,6 +30,19 @@ controllers:
           TZ: "Asia/Jerusalem"
           PUID: "1000"
           PGID: "1000"
+        probes:
+          liveness:
+            spec:
+              timeoutSeconds: 5
+              failureThreshold: 5
+          readiness:
+            spec:
+              timeoutSeconds: 5
+              failureThreshold: 5
+          startup:
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
 
 persistence:
   config:

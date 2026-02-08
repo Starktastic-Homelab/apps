@@ -12,25 +12,16 @@ controllers:
             type: HTTP
             path: /ping
             port: 9696
-            spec:
-              timeoutSeconds: 5
-              failureThreshold: 5
           readiness:
             enabled: true
             type: HTTP
             path: /ping
             port: 9696
-            spec:
-              timeoutSeconds: 5
-              failureThreshold: 5
           startup:
             enabled: true
             type: HTTP
             path: /ping
             port: 9696
-            spec:
-              failureThreshold: 30
-              periodSeconds: 5
 service:
   main:
     controller: main

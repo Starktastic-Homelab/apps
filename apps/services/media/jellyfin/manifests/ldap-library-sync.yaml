@@ -148,11 +148,26 @@ data:
         return True
 
 
+    def jellyfin_healthy(base_url):
+        """Check if Jellyfin is up and responding."""
+        try:
+            req = urllib.request.Request(f"{base_url}/health", method="GET")
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                return resp.status == 200
+        except Exception:
+            return False
+
+
     def main():
         config = load_config()
         ldap_cfg = config["ldap"]
         jf_cfg = config["jellyfin"]
         group_map = config["group_library_map"]
+
+        # Wait for Jellyfin to be ready
+        if not jellyfin_healthy(jf_cfg["url"]):
+            print("Jellyfin not ready, skipping sync.")
+            sys.exit(0)
 
         bind_password = os.environ.get("LDAP_BIND_PASSWORD")
         api_key = os.environ.get("JELLYFIN_API_KEY")

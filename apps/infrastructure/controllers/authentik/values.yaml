@@ -22,6 +22,8 @@ server:
       value: "starktastic.net"
     - name: AUTHENTIK_LISTEN__TRUSTED_PROXY_CIDRS
       value: "127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+    - name: AUTHENTIK_WEB__WORKERS
+      value: "4"
     - name: AUTHENTIK_RATELIMIT__GLOBAL__PER_IP
       value: "1000/s"
     - name: AUTHENTIK_RATELIMIT__ERROR__PER_IP

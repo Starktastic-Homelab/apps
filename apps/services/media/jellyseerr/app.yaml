@@ -1,0 +1,10 @@
+name: jellyseerr
+namespace: media
+syncWave: "5"
+ingress:
+  enabled: true
+  host: "request"
+  domainType: "media"
+  port: 5055
+  auth: false
+  rateLimit: true

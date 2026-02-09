@@ -132,7 +132,7 @@ jobs:
       - name: Generate diff
         env:
           # renovate: datasource=docker depName=dagandersen/argocd-diff-preview
-          DIFF_PREVIEW_VERSION: 'v0.1.24'
+          DIFF_PREVIEW_VERSION: 'v0.1.25'
         run: |
           docker run \
             --network=host \

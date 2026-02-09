@@ -251,6 +251,9 @@ data:
 
         quality_profiles:
           - name: WEB-2160p
+            upgrade:
+              allowed: true
+              until_quality: Remux-2160p
             qualities:
               - name: Remux-2160p
               - name: WEB 2160p

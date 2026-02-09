@@ -20,4 +20,4 @@ spec:
           scheme: https
           serversTransport: argocd-transport
   tls:
-    secretName: argocd-server-tls
+    secretName: traefik-system/starktastic-net-tls

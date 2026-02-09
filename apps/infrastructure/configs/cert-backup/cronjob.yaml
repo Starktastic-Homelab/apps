@@ -1,0 +1,84 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cert-backup
+  namespace: cert-backup
+spec:
+  schedule: "0 3 * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      template:
+        spec:
+          serviceAccountName: cert-backup
+          automountServiceAccountToken: true
+          restartPolicy: OnFailure
+          containers:
+            - name: backup
+              image: bitnami/kubectl:latest
+              command:
+                - /bin/sh
+                - -ce
+                - |
+                  BACKUP_DIR=/backup
+                  TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+                  echo "Starting cert backup at ${TIMESTAMP}"
+
+                  backup_secret() {
+                    local ns=$1
+                    local name=$2
+                    local file="${BACKUP_DIR}/${ns}--${name}.yaml"
+
+                    echo "Backing up ${ns}/${name}..."
+                    if kubectl get secret "${name}" -n "${ns}" -o yaml \
+                      | sed '/^\s*\(resourceVersion\|uid\|creationTimestamp\|selfLink\|managedFields\):/d' \
+                      | sed '/^\s*manager:/d; /^\s*operation:/d; /^\s*time:/d; /^\s*fieldsType:/d; /^\s*fieldsV1:/d' \
+                      | sed '/^\s*f:/d' \
+                      > "${file}.tmp"; then
+                      mv "${file}.tmp" "${file}"
+                      echo "  ✓ ${ns}/${name}"
+                    else
+                      echo "  ✗ ${ns}/${name} (failed)"
+                      rm -f "${file}.tmp"
+                    fi
+                  }
+
+                  # Discover and back up all TLS secrets (cert-manager issued certs)
+                  echo "Discovering kubernetes.io/tls secrets..."
+                  kubectl get secrets --all-namespaces --field-selector type=kubernetes.io/tls \
+                    -o jsonpath='{range .items[*]}{.metadata.namespace} {.metadata.name}{"\n"}{end}' \
+                  | while read -r ns name; do
+                    [ -z "$ns" ] && continue
+                    backup_secret "$ns" "$name"
+                  done
+
+                  # Back up ACME account keys (type Opaque, managed by cert-manager)
+                  echo "Discovering ACME account keys..."
+                  kubectl get secrets --all-namespaces \
+                    -l cert-manager.io/key-usage=account-key \
+                    -o jsonpath='{range .items[*]}{.metadata.namespace} {.metadata.name}{"\n"}{end}' 2>/dev/null \
+                  | while read -r ns name; do
+                    [ -z "$ns" ] && continue
+                    backup_secret "$ns" "$name"
+                  done
+
+                  # Also grab the well-known ACME key name as fallback (may not have the label)
+                  for ns in $(kubectl get namespaces -o jsonpath='{.items[*].metadata.name}'); do
+                    kubectl get secret letsencrypt-prod-account-key -n "$ns" >/dev/null 2>&1 && \
+                      backup_secret "$ns" letsencrypt-prod-account-key
+                  done
+
+                  echo "Backup complete at $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+                  echo "Backed up files:"
+                  ls -la ${BACKUP_DIR}/
+              volumeMounts:
+                - name: backup-storage
+                  mountPath: /backup
+          volumes:
+            - name: backup-storage
+              persistentVolumeClaim:
+                claimName: cert-backup

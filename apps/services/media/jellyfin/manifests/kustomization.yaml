@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - jellyfin-ldap-sync-secret.yaml
+  - ldap-library-sync.yaml
+  - pvc.yaml
+
+configMapGenerator:
+  - name: jellyfin-ldap-sync
+    namespace: media
+    files:
+      - sync.py
+      - config.json

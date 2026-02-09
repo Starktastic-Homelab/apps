@@ -20,7 +20,7 @@ data:
       },
       "group_library_map": {
         "jellyfin-admins": ["*"],
-        "jellyfin-users": ["Movies", "TV Shows", "Anime Movies", "Anime Shows"],
+        "jellyfin-users": ["Movies", "TV Shows", "Anime"],
         "jellyfin-users-ru": ["Фильмы", "Сериалы"]
       }
     }

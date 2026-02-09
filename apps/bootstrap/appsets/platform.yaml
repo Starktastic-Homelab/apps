@@ -13,14 +13,14 @@ spec:
               elements:
                 - category: infrastructure
                   pathPattern: "apps/infrastructure/**/app.yaml"
-                  syncWaveDefault: "0"
+                  deployPhaseDefault: platform
                   commonValues: "apps/templates/infra-common.yaml"
                   defaultChartRepo: ""
                   defaultChartName: ""
                   defaultChartVersion: ""
                 - category: services
                   pathPattern: "apps/services/**/app.yaml"
-                  syncWaveDefault: "5"
+                  deployPhaseDefault: apps
                   commonValues: "apps/templates/common.yaml"
                   defaultChartRepo: "https://bjw-s-labs.github.io/helm-charts"
                   defaultChartName: "app-template"
@@ -30,13 +30,38 @@ spec:
               revision: HEAD
               files:
                 - path: "{{ .pathPattern }}"
+  strategy:
+    type: RollingSync
+    rollingSync:
+      steps:
+        - matchExpressions:
+            - key: deploy-phase
+              operator: In
+              values:
+                - foundation
+        - matchExpressions:
+            - key: deploy-phase
+              operator: In
+              values:
+                - hardware
+        - matchExpressions:
+            - key: deploy-phase
+              operator: In
+              values:
+                - platform
+        - matchExpressions:
+            - key: deploy-phase
+              operator: In
+              values:
+                - apps
   template:
     metadata:
       name: "{{.name}}"
       namespace: argocd
       finalizers: ["resources-finalizer.argocd.argoproj.io"]
+      labels:
+        deploy-phase: '{{ .deployPhase | default .deployPhaseDefault }}'
       annotations:
-        argocd.argoproj.io/sync-wave: '{{ .syncWave | default .syncWaveDefault }}'
         notifications.argoproj.io/subscribe.on-sync-failed.ntfy: ""
         notifications.argoproj.io/subscribe.on-health-degraded.ntfy: ""
         notifications.argoproj.io/subscribe.on-health-recovered.ntfy: ""

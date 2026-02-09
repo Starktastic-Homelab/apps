@@ -1,6 +1,6 @@
 name: qbittorrent-ru
 namespace: media
-syncWave: "5"
+deployPhase: apps
 
 ingress:
   enabled: true

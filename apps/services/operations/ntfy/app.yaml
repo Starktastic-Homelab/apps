@@ -1,6 +1,6 @@
 name: ntfy
 namespace: operations
-syncWave: "0"
+deployPhase: platform
 
 ingress:
   enabled: true

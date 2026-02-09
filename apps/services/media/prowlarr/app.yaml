@@ -1,6 +1,6 @@
 name: prowlarr
 namespace: media
-syncWave: "5"
+deployPhase: apps
 
 ingress:
   enabled: true

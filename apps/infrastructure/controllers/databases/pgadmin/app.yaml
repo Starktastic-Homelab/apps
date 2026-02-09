@@ -1,6 +1,6 @@
 name: pgadmin
 namespace: databases
-syncWave: "0"
+deployPhase: platform
 chart:
   repo: https://helm.runix.net
   name: pgadmin4

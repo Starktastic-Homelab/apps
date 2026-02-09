@@ -1,6 +1,6 @@
 name: authentik
 namespace: authentik
-syncWave: "0"
+deployPhase: platform
 chart:
   repo: https://charts.goauthentik.io
   name: authentik

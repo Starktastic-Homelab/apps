@@ -52,10 +52,10 @@ entries:
     state: present
     attrs:
       field_key: username
-      label: Username
+      label: "Username / Имя пользователя"
       type: username
       required: true
-      placeholder: Username
+      placeholder: " "
       placeholder_expression: false
       order: 200
 
@@ -66,10 +66,10 @@ entries:
     state: present
     attrs:
       field_key: name
-      label: Name
+      label: "Name / Имя"
       type: text
       required: true
-      placeholder: Name
+      placeholder: " "
       placeholder_expression: false
       order: 201
 
@@ -80,10 +80,10 @@ entries:
     state: present
     attrs:
       field_key: email
-      label: Email
+      label: "Email / Эл. почта"
       type: email
       required: true
-      placeholder: Email
+      placeholder: " "
       placeholder_expression: false
       order: 202
 
@@ -94,10 +94,10 @@ entries:
     state: present
     attrs:
       field_key: password
-      label: Password
+      label: "Password / Пароль"
       type: password
       required: true
-      placeholder: Password
+      placeholder: " "
       placeholder_expression: false
       sub_text: >-
         Min. 12 characters: uppercase, lowercase, number, and special character. /
@@ -111,10 +111,10 @@ entries:
     state: present
     attrs:
       field_key: password_repeat
-      label: "Password (repeat)"
+      label: "Password (repeat) / Пароль (ещё раз)"
       type: password
       required: true
-      placeholder: "Password (repeat)"
+      placeholder: " "
       placeholder_expression: false
       order: 301
 

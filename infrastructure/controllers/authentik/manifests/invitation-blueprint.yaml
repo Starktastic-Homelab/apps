@@ -357,7 +357,7 @@ data:
         attrs:
           use_global_settings: true
           template: "email/account_confirmation_branded.html"
-          subject: "Welcome to Starktastic Services! Please verify your email"
+          subject: "Verify your email | Подтвердите почту"
           activate_user_on_success: true
           token_expiry: minutes=30
 

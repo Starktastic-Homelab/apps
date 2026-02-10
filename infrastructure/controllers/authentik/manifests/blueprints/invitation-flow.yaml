@@ -114,8 +114,8 @@ entries:
       placeholder: Password
       placeholder_expression: false
       sub_text: >-
-        <span class="lang-en">Min. 12 characters: uppercase, lowercase, number, and special character.</span>
-        <span class="lang-ru">Мин. 12 символов: заглавная, строчная, цифра и спецсимвол.</span>
+        <span class="lang-en">Min. 12 characters: uppercase, lowercase, number, and special character.</span> <span
+        class="lang-ru">Мин. 12 символов: заглавная, строчная, цифра и спецсимвол.</span>
       order: 300
 
   - identifiers:
@@ -143,8 +143,8 @@ entries:
       type: radio-button-group
       required: true
       sub_text: >-
-        <span class="lang-en">Choose which media libraries you'd like access to</span>
-        <span class="lang-ru">Выберите, к каким медиатекам вы хотите получить доступ</span>
+        <span class="lang-en">Choose which media libraries you'd like access to</span> <span class="lang-ru">Выберите, к
+        каким медиатекам вы хотите получить доступ</span>
       placeholder: |-
         return [
             {"label": "Original", "value": "original"},
@@ -166,11 +166,11 @@ entries:
       type: static
       required: false
       initial_value: >-
-        <span class="lang-en">Check your inbox</span>
-        <span class="lang-ru">Проверьте почту</span>
+        <span class="lang-en">Check your inbox</span> <span class="lang-ru">Проверьте почту</span>
       sub_text: >-
-        <span class="lang-en">A confirmation link has been sent to your email. Please click it to activate your account.</span>
-        <span class="lang-ru">Ссылка для подтверждения отправлена на вашу почту. Нажмите на неё, чтобы активировать аккаунт.</span>
+        <span class="lang-en">A confirmation link has been sent to your email. Please click it to activate your
+        account.</span> <span class="lang-ru">Ссылка для подтверждения отправлена на вашу почту. Нажмите на неё, чтобы
+        активировать аккаунт.</span>
       order: 0
 
   - identifiers:
@@ -184,11 +184,10 @@ entries:
       type: static
       required: false
       initial_value: >-
-        <span class="lang-en">Email verified!</span>
-        <span class="lang-ru">Почта подтверждена!</span>
+        <span class="lang-en">Email verified!</span> <span class="lang-ru">Почта подтверждена!</span>
       sub_text: >-
-        <span class="lang-en">Click Continue to get started.</span>
-        <span class="lang-ru">Нажмите «Продолжить», чтобы начать.</span>
+        <span class="lang-en">Click Continue to get started.</span> <span class="lang-ru">Нажмите «Продолжить», чтобы
+        начать.</span>
       order: 0
 
   # =============================================================
@@ -225,8 +224,10 @@ entries:
       amount_lowercase: 1
       amount_symbols: 1
       length_min: 12
-      symbol_charset: "!\"#$%&'()*+,-./:;<=>?@[]^_`{|}~"
-      error_message: "Password must be at least 12 characters with uppercase, lowercase, number, and special character. / Пароль должен содержать минимум 12 символов: заглавную, строчную, цифру и спецсимвол."
+      symbol_charset: '!"#$%&''()*+,-./:;<=>?@[]^_`{|}~'
+      error_message:
+        "Password must be at least 12 characters with uppercase, lowercase, number, and special character. / Пароль
+        должен содержать минимум 12 символов: заглавную, строчную, цифру и спецсимвол."
       hibp_allowed_count: 0
       zxcvbn_score_threshold: 2
 

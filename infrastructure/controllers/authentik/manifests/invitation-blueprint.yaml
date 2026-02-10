@@ -1,0 +1,566 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: authentik-invitation-blueprint
+  namespace: authentik
+data:
+  invitation-flow.yaml: |
+    version: 1
+    metadata:
+      labels:
+        blueprints.goauthentik.io/instantiate: "true"
+      name: Invitation Flow
+    entries:
+      # =============================================================
+      # FLOW
+      # =============================================================
+
+      - identifiers:
+          slug: invitation
+        id: flow
+        model: authentik_flows.flow
+        state: present
+        attrs:
+          name: Invitation
+          title: "Welcome to Ben Plus!"
+          designation: enrollment
+          authentication: none
+          layout: stacked
+          denied_action: message_continue
+          compatibility_mode: false
+          policy_engine_mode: any
+
+      # =============================================================
+      # PROMPT FIELDS
+      # =============================================================
+
+      - identifiers:
+          name: invite-field-username
+        id: field-username
+        model: authentik_stages_prompt.prompt
+        state: present
+        attrs:
+          field_key: username
+          label: Username
+          type: username
+          required: true
+          placeholder: Username
+          placeholder_expression: false
+          order: 200
+
+      - identifiers:
+          name: invite-field-name
+        id: field-name
+        model: authentik_stages_prompt.prompt
+        state: present
+        attrs:
+          field_key: name
+          label: Name
+          type: text
+          required: true
+          placeholder: Name
+          placeholder_expression: false
+          order: 201
+
+      - identifiers:
+          name: invite-field-email
+        id: field-email
+        model: authentik_stages_prompt.prompt
+        state: present
+        attrs:
+          field_key: email
+          label: Email
+          type: email
+          required: true
+          placeholder: Email
+          placeholder_expression: false
+          order: 202
+
+      - identifiers:
+          name: invite-field-password
+        id: field-password
+        model: authentik_stages_prompt.prompt
+        state: present
+        attrs:
+          field_key: password
+          label: Password
+          type: password
+          required: true
+          placeholder: Password
+          placeholder_expression: false
+          order: 300
+
+      - identifiers:
+          name: invite-field-password-repeat
+        id: field-password-repeat
+        model: authentik_stages_prompt.prompt
+        state: present
+        attrs:
+          field_key: password_repeat
+          label: "Password (repeat)"
+          type: password
+          required: true
+          placeholder: "Password (repeat)"
+          placeholder_expression: false
+          order: 301
+
+      - identifiers:
+          name: invite-field-media-preference
+        id: field-media-preference
+        model: authentik_stages_prompt.prompt
+        state: present
+        attrs:
+          field_key: attributes.media_preference
+          label: Content Language Preference
+          type: radio-button-group
+          required: true
+          sub_text: "Choose which media libraries you'd like access to"
+          placeholder: |-
+            return [
+                {"label": "Original / English Dub", "value": "en"},
+                {"label": "Russian / Дубляж", "value": "ru"},
+                {"label": "Both / Оба", "value": "both"},
+            ]
+          placeholder_expression: true
+          initial_value: en
+          order: 0
+
+      - identifiers:
+          name: invite-field-check-email-message
+        id: field-check-email
+        model: authentik_stages_prompt.prompt
+        state: present
+        attrs:
+          field_key: info_text
+          label: Check your inbox
+          type: static
+          required: false
+          sub_text: "A confirmation link has been sent to your email. Please click it to activate your account."
+          order: 0
+
+      - identifiers:
+          name: invite-field-success-message
+        id: field-success
+        model: authentik_stages_prompt.prompt
+        state: present
+        attrs:
+          field_key: info_text
+          label: Success
+          type: static
+          required: false
+          sub_text: "Email verified successfully! Click Continue to get started."
+          order: 0
+
+      # =============================================================
+      # POLICIES
+      # =============================================================
+
+      - identifiers:
+          name: "Invite - Unique Email"
+        id: policy-unique-email
+        model: authentik_policies_expression.expressionpolicy
+        state: present
+        attrs:
+          expression: |
+            from django.core.exceptions import ValidationError
+
+            email = request.context.get("prompt_data", {}).get("email")
+            if email and ak_user_by(email__iexact=email):
+                raise ValidationError("This email is already registered.")
+
+            return True
+
+      - identifiers:
+          name: "Invite - Strong Password"
+        id: policy-strong-password
+        model: authentik_policies_password.passwordpolicy
+        state: present
+        attrs:
+          password_field: password
+          check_static_rules: true
+          check_have_i_been_pwned: true
+          check_zxcvbn: true
+          amount_digits: 1
+          amount_uppercase: 1
+          amount_lowercase: 1
+          amount_symbols: 1
+          length_min: 12
+          symbol_charset: "!\"#$%&'()*+,-./:;<=>?@[]^_`{|}~"
+          error_message: "Password must be at least 12 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character."
+          hibp_allowed_count: 0
+          zxcvbn_score_threshold: 2
+
+      - identifiers:
+          name: "Invite - Is Restored"
+        id: policy-is-restored
+        model: authentik_policies_expression.expressionpolicy
+        state: present
+        attrs:
+          expression: |
+            return request.context.get("is_restored", False)
+
+      - identifiers:
+          name: "Invite - Assign Media Groups"
+        id: policy-assign-groups
+        model: authentik_policies_expression.expressionpolicy
+        state: present
+        attrs:
+          expression: |
+            from authentik.core.models import Group
+
+            try:
+                preference = request.context.get("prompt_data", {}).get("attributes", {}).get("media_preference", "en")
+
+                groups = []
+                if preference in ("en", "both"):
+                    groups.append(Group.objects.get(pk="bc6b8e41-4fe9-4115-a861-10438458cb30"))
+                if preference in ("ru", "both"):
+                    groups.append(Group.objects.get(pk="3f075557-877c-4c20-8da9-d36235ad5975"))
+
+                flow_plan = request.context.get("flow_plan")
+                if flow_plan:
+                    flow_plan.context["groups"] = groups
+            except Exception as e:
+                ak_logger.warning("Failed to assign media groups", error=str(e))
+
+            return True
+
+      - identifiers:
+          name: "Invite - Send Welcome Email"
+        id: policy-send-welcome-email
+        model: authentik_policies_expression.expressionpolicy
+        state: present
+        attrs:
+          expression: |
+            pending_user = request.context.get("pending_user")
+            if not pending_user or not getattr(pending_user, "email", None):
+                return True
+
+            try:
+                preference = pending_user.attributes.get("media_preference", "en")
+
+                ak_send_email(
+                    address=pending_user.email,
+                    subject="Welcome to Ben Plus! Here's how to get started",
+                    template="email/welcome_instructions.html",
+                    context={
+                        "user": pending_user,
+                        "media_preference": preference,
+                    },
+                )
+            except Exception as e:
+                ak_logger.warning("Failed to send welcome email", error=str(e))
+
+            return True
+
+      # =============================================================
+      # STAGES
+      # =============================================================
+
+      - identifiers:
+          name: "Invite - Check Token"
+        id: stage-check-token
+        model: authentik_stages_invitation.invitationstage
+        state: present
+        attrs:
+          continue_flow_without_invitation: false
+
+      - identifiers:
+          name: "Invite - User Details"
+        id: stage-user-details
+        model: authentik_stages_prompt.promptstage
+        state: present
+        attrs:
+          fields:
+            - !KeyOf field-username
+            - !KeyOf field-name
+            - !KeyOf field-email
+            - !KeyOf field-password
+            - !KeyOf field-password-repeat
+          validation_policies:
+            - !KeyOf policy-unique-email
+            - !KeyOf policy-strong-password
+
+      - identifiers:
+          name: "Invite - Media Preference"
+        id: stage-media-preference
+        model: authentik_stages_prompt.promptstage
+        state: present
+        attrs:
+          fields:
+            - !KeyOf field-media-preference
+
+      - identifiers:
+          name: "Invite - Write User"
+        id: stage-write-user
+        model: authentik_stages_user_write.userwritestage
+        state: present
+        attrs:
+          user_creation_mode: always_create
+          create_users_as_inactive: true
+
+      - identifiers:
+          name: "Invite - Email Verification"
+        id: stage-email-verification
+        model: authentik_stages_email.emailstage
+        state: present
+        attrs:
+          use_global_settings: true
+          template: "email/account_confirmation_branded.html"
+          subject: "Welcome to Ben Plus! Please verify your email"
+          activate_user_on_success: true
+          token_expiry: minutes=30
+
+      - identifiers:
+          name: "Invite - Check Email Prompt"
+        id: stage-check-email-prompt
+        model: authentik_stages_prompt.promptstage
+        state: present
+        attrs:
+          fields:
+            - !KeyOf field-check-email
+
+      - identifiers:
+          name: "Invite - Email Success"
+        id: stage-email-success
+        model: authentik_stages_prompt.promptstage
+        state: present
+        attrs:
+          fields:
+            - !KeyOf field-success
+
+      - identifiers:
+          name: "Invite - Login"
+        id: stage-login
+        model: authentik_stages_user_login.userloginstage
+        state: present
+        attrs:
+          session_duration: seconds=0
+          terminate_other_sessions: false
+          network_binding: no_binding
+          geoip_binding: no_binding
+
+      - identifiers:
+          name: "Invite - Redirect to Ben Plus"
+        id: stage-redirect
+        model: authentik_stages_redirect.redirectstage
+        state: present
+        attrs:
+          mode: static
+          target_static: "https://benplus.app"
+          keep_context: false
+
+      # =============================================================
+      # FLOW STAGE BINDINGS
+      # =============================================================
+
+      - identifiers:
+          target: !KeyOf flow
+          stage: !KeyOf stage-check-token
+          order: 10
+        id: binding-check-token
+        model: authentik_flows.flowstagebinding
+        state: present
+        attrs:
+          evaluate_on_plan: false
+          re_evaluate_policies: true
+
+      - identifiers:
+          target: !KeyOf flow
+          stage: !KeyOf stage-user-details
+          order: 20
+        id: binding-user-details
+        model: authentik_flows.flowstagebinding
+        state: present
+        attrs:
+          evaluate_on_plan: false
+          re_evaluate_policies: true
+
+      - identifiers:
+          target: !KeyOf flow
+          stage: !KeyOf stage-media-preference
+          order: 25
+        id: binding-media-preference
+        model: authentik_flows.flowstagebinding
+        state: present
+        attrs:
+          evaluate_on_plan: false
+          re_evaluate_policies: true
+
+      - identifiers:
+          target: !KeyOf flow
+          stage: !KeyOf stage-write-user
+          order: 30
+        id: binding-write-user
+        model: authentik_flows.flowstagebinding
+        state: present
+        attrs:
+          evaluate_on_plan: false
+          re_evaluate_policies: true
+
+      - identifiers:
+          target: !KeyOf flow
+          stage: !KeyOf stage-email-verification
+          order: 40
+        id: binding-email-verification
+        model: authentik_flows.flowstagebinding
+        state: present
+        attrs:
+          evaluate_on_plan: false
+          re_evaluate_policies: true
+
+      - identifiers:
+          target: !KeyOf flow
+          stage: !KeyOf stage-check-email-prompt
+          order: 50
+        id: binding-check-email
+        model: authentik_flows.flowstagebinding
+        state: present
+        attrs:
+          evaluate_on_plan: false
+          re_evaluate_policies: true
+
+      - identifiers:
+          target: !KeyOf flow
+          stage: !KeyOf stage-email-success
+          order: 51
+        id: binding-email-success
+        model: authentik_flows.flowstagebinding
+        state: present
+        attrs:
+          evaluate_on_plan: false
+          re_evaluate_policies: true
+
+      - identifiers:
+          target: !KeyOf flow
+          stage: !KeyOf stage-login
+          order: 70
+        id: binding-login
+        model: authentik_flows.flowstagebinding
+        state: present
+        attrs:
+          evaluate_on_plan: false
+          re_evaluate_policies: true
+
+      - identifiers:
+          target: !KeyOf flow
+          stage: !KeyOf stage-redirect
+          order: 80
+        id: binding-redirect
+        model: authentik_flows.flowstagebinding
+        state: present
+        attrs:
+          evaluate_on_plan: false
+          re_evaluate_policies: true
+
+      # =============================================================
+      # POLICY BINDINGS
+      # =============================================================
+
+      # Assign Media Groups → Write User stage binding
+      - identifiers:
+          policy: !KeyOf policy-assign-groups
+          target: !KeyOf binding-write-user
+          order: 0
+        model: authentik_policies.policybinding
+        state: present
+        attrs:
+          negate: false
+          enabled: true
+          timeout: 30
+
+      # Send Welcome Email → Login stage binding
+      - identifiers:
+          policy: !KeyOf policy-send-welcome-email
+          target: !KeyOf binding-login
+          order: 0
+        model: authentik_policies.policybinding
+        state: present
+        attrs:
+          negate: false
+          enabled: true
+          timeout: 30
+
+      # Is Restored (negated) → Check Email Prompt binding
+      - identifiers:
+          policy: !KeyOf policy-is-restored
+          target: !KeyOf binding-check-email
+          order: 0
+        model: authentik_policies.policybinding
+        state: present
+        attrs:
+          negate: true
+          enabled: true
+          timeout: 30
+
+      # Is Restored → Email Success binding
+      - identifiers:
+          policy: !KeyOf policy-is-restored
+          target: !KeyOf binding-email-success
+          order: 0
+        model: authentik_policies.policybinding
+        state: present
+        attrs:
+          negate: false
+          enabled: true
+          timeout: 30
+
+      # =============================================================
+      # CLEANUP: Remove old bindings to shared stages
+      # =============================================================
+
+      # Remove old binding to "Welcome Email" (replaced by "Invite - Email Verification")
+      - identifiers:
+          name: "Welcome Email"
+        id: old-stage-welcome-email
+        model: authentik_stages_email.emailstage
+        state: present
+
+      - identifiers:
+          target: !KeyOf flow
+          stage: !KeyOf old-stage-welcome-email
+          order: 40
+        model: authentik_flows.flowstagebinding
+        state: absent
+
+      # Remove old binding to "Check Email Prompt" (replaced by "Invite - Check Email Prompt")
+      - identifiers:
+          name: "Check Email Prompt"
+        id: old-stage-check-email
+        model: authentik_stages_prompt.promptstage
+        state: present
+
+      - identifiers:
+          target: !KeyOf flow
+          stage: !KeyOf old-stage-check-email
+          order: 50
+        model: authentik_flows.flowstagebinding
+        state: absent
+
+      # Remove old binding to "Email Success" (replaced by "Invite - Email Success")
+      - identifiers:
+          name: "Email Success"
+        id: old-stage-email-success
+        model: authentik_stages_prompt.promptstage
+        state: present
+
+      - identifiers:
+          target: !KeyOf flow
+          stage: !KeyOf old-stage-email-success
+          order: 51
+        model: authentik_flows.flowstagebinding
+        state: absent
+
+      # Remove old binding to "default-authentication-login" (replaced by "Invite - Login")
+      - identifiers:
+          name: default-authentication-login
+        id: old-stage-login
+        model: authentik_stages_user_login.userloginstage
+        state: present
+
+      - identifiers:
+          target: !KeyOf flow
+          stage: !KeyOf old-stage-login
+          order: 70
+        model: authentik_flows.flowstagebinding
+        state: absent

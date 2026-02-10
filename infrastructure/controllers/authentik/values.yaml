@@ -2,6 +2,17 @@ postgresql:
   enabled: false
 redis:
   enabled: false
+blueprints:
+  configMaps:
+    - authentik-invitation-blueprint
+global:
+  volumes:
+    - name: custom-email-templates
+      configMap:
+        name: authentik-email-templates
+  volumeMounts:
+    - name: custom-email-templates
+      mountPath: /templates/email
 authentik:
   log_level: info
   postgresql:

@@ -1,0 +1,66 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ak-outpost-ldap-outpost
+  namespace: authentik
+  labels:
+    app.kubernetes.io/name: authentik-outpost-ldap
+    app.kubernetes.io/instance: ak-outpost-ldap-outpost
+    app.kubernetes.io/managed-by: argocd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: authentik-outpost-ldap
+      app.kubernetes.io/instance: ak-outpost-ldap-outpost
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: authentik-outpost-ldap
+        app.kubernetes.io/instance: ak-outpost-ldap-outpost
+    spec:
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: ldap
+          image: ghcr.io/goauthentik/ldap:2025.12.3
+          ports:
+            - name: ldap
+              containerPort: 3389
+              protocol: TCP
+            - name: ldaps
+              containerPort: 6636
+              protocol: TCP
+            - name: http-metrics
+              containerPort: 9300
+              protocol: TCP
+          env:
+            - name: AUTHENTIK_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: ak-outpost-ldap-outpost
+                  key: authentik_host
+            - name: AUTHENTIK_HOST_BROWSER
+              valueFrom:
+                secretKeyRef:
+                  name: ak-outpost-ldap-outpost
+                  key: authentik_host_browser
+            - name: AUTHENTIK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: ak-outpost-ldap-outpost
+                  key: token
+            - name: AUTHENTIK_INSECURE
+              valueFrom:
+                secretKeyRef:
+                  name: ak-outpost-ldap-outpost
+                  key: authentik_host_insecure
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi

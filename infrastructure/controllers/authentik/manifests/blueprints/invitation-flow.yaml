@@ -48,7 +48,7 @@ entries:
     state: present
     attrs:
       field_key: attributes.locale
-      label: ""
+      label: Locale
       type: hidden
       required: false
       initial_value: |-
@@ -162,7 +162,7 @@ entries:
     state: present
     attrs:
       field_key: info_text
-      label: ""
+      label: "\u200B"
       type: static
       required: false
       initial_value: >-
@@ -180,7 +180,7 @@ entries:
     state: present
     attrs:
       field_key: info_text
-      label: ""
+      label: "\u200B"
       type: static
       required: false
       initial_value: >-

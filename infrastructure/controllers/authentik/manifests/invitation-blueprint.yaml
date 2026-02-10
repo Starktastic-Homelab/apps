@@ -49,6 +49,24 @@ data:
       # =============================================================
 
       - identifiers:
+          name: invite-field-locale
+        id: field-locale
+        model: authentik_stages_prompt.prompt
+        state: present
+        attrs:
+          field_key: attributes.locale
+          label: ""
+          type: hidden
+          required: false
+          initial_value: |-
+            accept = request.http_request.META.get('HTTP_ACCEPT_LANGUAGE', '')
+            return "ru" if accept.lower().startswith('ru') else "en"
+          initial_value_expression: true
+          placeholder: en
+          placeholder_expression: false
+          order: 0
+
+      - identifiers:
           name: invite-field-username
         id: field-username
         model: authentik_stages_prompt.prompt
@@ -267,14 +285,16 @@ data:
 
             try:
                 preference = pending_user.attributes.get("media_preference", "original")
+                locale = pending_user.attributes.get("locale", "en")
 
                 ak_send_email(
                     address=pending_user.email,
-                    subject="Welcome to Starktastic Services! Here's how to get started",
+                    subject="Welcome to Starktastic Services!" if locale != "ru" else "Добро пожаловать!",
                     template="email/welcome_instructions.html",
                     context={
                         "user": pending_user,
                         "media_preference": preference,
+                        "locale": locale,
                     },
                 )
             except Exception as e:
@@ -301,6 +321,7 @@ data:
         state: present
         attrs:
           fields:
+            - !KeyOf field-locale
             - !KeyOf field-username
             - !KeyOf field-name
             - !KeyOf field-email

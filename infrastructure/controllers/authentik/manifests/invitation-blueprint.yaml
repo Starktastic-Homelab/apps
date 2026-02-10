@@ -12,6 +12,20 @@ data:
       name: Invitation Flow
     entries:
       # =============================================================
+      # BRAND (custom CSS for locale switching)
+      # =============================================================
+
+      - identifiers:
+          domain: auth.starktastic.net
+        model: authentik_brands.brand
+        state: present
+        attrs:
+          branding_custom_css: |
+            .lang-ru { display: none; }
+            :host(:lang(ru)) .lang-en { display: none; }
+            :host(:lang(ru)) .lang-ru { display: inline; }
+
+      # =============================================================
       # FLOW
       # =============================================================
 
@@ -22,7 +36,7 @@ data:
         state: present
         attrs:
           name: Invitation
-          title: "Welcome to Starktastic Services! / Добро пожаловать!"
+          title: "Welcome to Starktastic Services!"
           designation: enrollment
           authentication: none
           layout: stacked
@@ -41,10 +55,10 @@ data:
         state: present
         attrs:
           field_key: username
-          label: "Username / Имя пользователя"
+          label: Username
           type: username
           required: true
-          placeholder: "Username / Имя пользователя"
+          placeholder: Username
           placeholder_expression: false
           order: 200
 
@@ -55,10 +69,10 @@ data:
         state: present
         attrs:
           field_key: name
-          label: "Name / Имя"
+          label: Name
           type: text
           required: true
-          placeholder: "Name / Имя"
+          placeholder: Name
           placeholder_expression: false
           order: 201
 
@@ -69,10 +83,10 @@ data:
         state: present
         attrs:
           field_key: email
-          label: "Email / Эл. почта"
+          label: Email
           type: email
           required: true
-          placeholder: "Email / Эл. почта"
+          placeholder: Email
           placeholder_expression: false
           order: 202
 
@@ -83,12 +97,14 @@ data:
         state: present
         attrs:
           field_key: password
-          label: "Password / Пароль"
+          label: Password
           type: password
           required: true
-          placeholder: "Password / Пароль"
+          placeholder: Password
           placeholder_expression: false
-          sub_text: "Min. 12 characters: uppercase, lowercase, number, and special character. / Мин. 12 символов: заглавная, строчная, цифра и спецсимвол."
+          sub_text: >-
+            <span class="lang-en">Min. 12 characters: uppercase, lowercase, number, and special character.</span>
+            <span class="lang-ru">Мин. 12 символов: заглавная, строчная, цифра и спецсимвол.</span>
           order: 300
 
       - identifiers:
@@ -98,10 +114,10 @@ data:
         state: present
         attrs:
           field_key: password_repeat
-          label: "Password (repeat) / Пароль (повтор)"
+          label: "Password (repeat)"
           type: password
           required: true
-          placeholder: "Password (repeat) / Пароль (повтор)"
+          placeholder: "Password (repeat)"
           placeholder_expression: false
           order: 301
 
@@ -112,10 +128,12 @@ data:
         state: present
         attrs:
           field_key: attributes.media_preference
-          label: "Content Language Preference / Языковые предпочтения"
+          label: Content Language Preference
           type: radio-button-group
           required: true
-          sub_text: "Choose which media libraries you'd like access to / Выберите, к каким медиатекам вы хотите получить доступ"
+          sub_text: >-
+            <span class="lang-en">Choose which media libraries you'd like access to</span>
+            <span class="lang-ru">Выберите, к каким медиатекам вы хотите получить доступ</span>
           placeholder: |-
             return [
                 {"label": "Original", "value": "original"},
@@ -133,10 +151,15 @@ data:
         state: present
         attrs:
           field_key: info_text
-          label: "Check your inbox / Проверьте почту"
+          label: ""
           type: static
           required: false
-          sub_text: "A confirmation link has been sent to your email. Please click it to activate your account. / Ссылка для подтверждения отправлена на вашу почту. Нажмите на неё, чтобы активировать аккаунт."
+          initial_value: >-
+            <span class="lang-en">Check your inbox</span>
+            <span class="lang-ru">Проверьте почту</span>
+          sub_text: >-
+            <span class="lang-en">A confirmation link has been sent to your email. Please click it to activate your account.</span>
+            <span class="lang-ru">Ссылка для подтверждения отправлена на вашу почту. Нажмите на неё, чтобы активировать аккаунт.</span>
           order: 0
 
       - identifiers:
@@ -146,10 +169,15 @@ data:
         state: present
         attrs:
           field_key: info_text
-          label: "Success / Готово"
+          label: ""
           type: static
           required: false
-          sub_text: "Email verified successfully! Click Continue to get started. / Почта подтверждена! Нажмите «Продолжить», чтобы начать."
+          initial_value: >-
+            <span class="lang-en">Email verified!</span>
+            <span class="lang-ru">Почта подтверждена!</span>
+          sub_text: >-
+            <span class="lang-en">Click Continue to get started.</span>
+            <span class="lang-ru">Нажмите «Продолжить», чтобы начать.</span>
           order: 0
 
       # =============================================================

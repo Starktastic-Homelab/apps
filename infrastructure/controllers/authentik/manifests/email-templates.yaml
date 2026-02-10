@@ -1,0 +1,118 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: authentik-email-templates
+  namespace: authentik
+data:
+  account_confirmation_branded.html: |
+    {% extends 'email/base.html' %}
+
+    {% load authentik_stages_email %}
+    {% load i18n %}
+
+    {% block content %}
+    <tr>
+      <td align="center">
+        <h1>
+          Welcome to Ben Plus!
+        </h1>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <table border="0">
+          <tr>
+            <td align="center" style="max-width: 300px; padding: 20px 0; color: #212124;">
+              You've been invited to join Ben Plus, your personal media streaming service.
+              To get started, please confirm your email address by clicking the button below.
+            </td>
+          </tr>
+          <tr>
+            <td align="center" class="btn btn-primary">
+              <a id="confirm" href="{{ url }}" rel="noopener noreferrer" target="_blank">Confirm Email</a>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    {% endblock %}
+
+    {% block sub_content %}
+    <tr>
+      <td style="padding: 20px; font-size: 12px; color: #212124; word-break: break-all; overflow-wrap: break-word;" align="center">
+        If that doesn't work, copy and paste the following link in your browser: {{ url }}
+      </td>
+    </tr>
+    {% endblock %}
+  welcome_instructions.html: |
+    {% extends 'email/base.html' %}
+
+    {% load authentik_stages_email %}
+
+    {% block content %}
+    <tr>
+      <td align="center">
+        <h1>
+          Welcome to Ben Plus!
+        </h1>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 20px; color: #212124;">
+        <p style="margin-top: 0;">Hi {{ user.name|default:user.username }},</p>
+        <p>Your account is all set up and ready to go. Here's everything you need to start streaming.</p>
+
+        <h2 style="font-size: 18px; margin-top: 24px;">Step 1: Download Jellyfin</h2>
+        <p>Install the Jellyfin app on your device to watch content:</p>
+        <table border="0" style="margin: 10px 0 20px 0;">
+          <tr>
+            <td style="padding: 4px 15px;">
+              <a href="https://apps.apple.com/app/jellyfin-mobile/id1480192618" rel="noopener noreferrer" target="_blank">iPhone / iPad</a>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 4px 15px;">
+              <a href="https://play.google.com/store/apps/details?id=org.jellyfin.mobile" rel="noopener noreferrer" target="_blank">Android Phone / Tablet</a>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 4px 15px;">
+              <a href="https://play.google.com/store/apps/details?id=org.jellyfin.androidtv" rel="noopener noreferrer" target="_blank">Android TV / Fire TV</a>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 4px 15px;">
+              <a href="https://jellyfin.org/downloads" rel="noopener noreferrer" target="_blank">Desktop & Other Devices</a>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 4px 15px;">
+              Or just visit <a href="https://benplus.app" rel="noopener noreferrer" target="_blank">benplus.app</a> in your browser
+            </td>
+          </tr>
+        </table>
+
+        <p>When the app asks for a server address, enter: <strong>https://benplus.app</strong></p>
+        <p>Log in with the username and password you created during sign-up.</p>
+
+        <h2 style="font-size: 18px; margin-top: 24px;">Step 2: Request New Content</h2>
+        <p>Can't find something you want to watch? Use Jellyseerr to request movies and TV shows, and they'll be added automatically.</p>
+
+        {% if media_preference == "en" or media_preference == "both" %}
+        <p>
+          <a href="https://request.benplus.app" rel="noopener noreferrer" target="_blank" style="font-weight: bold;">request.benplus.app</a>
+          &mdash; Request movies &amp; shows (English / Original)
+        </p>
+        {% endif %}
+
+        {% if media_preference == "ru" or media_preference == "both" %}
+        <p>
+          <a href="https://request-ru.benplus.app" rel="noopener noreferrer" target="_blank" style="font-weight: bold;">request-ru.benplus.app</a>
+          &mdash; Запросить фильмы и сериалы (Русский дубляж)
+        </p>
+        {% endif %}
+
+        <p style="margin-top: 24px; color: #666;">That's it! If you have any questions, reach out to the person who invited you.</p>
+      </td>
+    </tr>
+    {% endblock %}

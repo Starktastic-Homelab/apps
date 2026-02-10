@@ -14,8 +14,9 @@ data:
     <tr>
       <td align="center">
         <h1>
-          Welcome to Ben Plus!
+          Welcome to Starktastic Services!
         </h1>
+        <p style="margin-top: 0; color: #666;">Добро пожаловать!</p>
       </td>
     </tr>
     <tr>
@@ -23,13 +24,18 @@ data:
         <table border="0">
           <tr>
             <td align="center" style="max-width: 300px; padding: 20px 0; color: #212124;">
-              You've been invited to join Ben Plus, your personal media streaming service.
+              You've been invited to join Starktastic Services, which includes access to Ben+ and more.
               To get started, please confirm your email address by clicking the button below.
+              <br><br>
+              <span style="color: #666;">
+                Вы приглашены в Starktastic Services с доступом к Ben+ и другим сервисам.
+                Подтвердите свою почту, нажав на кнопку ниже.
+              </span>
             </td>
           </tr>
           <tr>
             <td align="center" class="btn btn-primary">
-              <a id="confirm" href="{{ url }}" rel="noopener noreferrer" target="_blank">Confirm Email</a>
+              <a id="confirm" href="{{ url }}" rel="noopener noreferrer" target="_blank">Confirm Email / Подтвердить</a>
             </td>
           </tr>
         </table>
@@ -40,7 +46,7 @@ data:
     {% block sub_content %}
     <tr>
       <td style="padding: 20px; font-size: 12px; color: #212124; word-break: break-all; overflow-wrap: break-word;" align="center">
-        If that doesn't work, copy and paste the following link in your browser: {{ url }}
+        If that doesn't work, copy and paste the following link in your browser / Если кнопка не работает, скопируйте эту ссылку в браузер: {{ url }}
       </td>
     </tr>
     {% endblock %}
@@ -53,17 +59,22 @@ data:
     <tr>
       <td align="center">
         <h1>
-          Welcome to Ben Plus!
+          Welcome to Starktastic Services!
         </h1>
+        <p style="margin-top: 0; color: #666;">Добро пожаловать!</p>
       </td>
     </tr>
     <tr>
       <td style="padding: 20px; color: #212124;">
         <p style="margin-top: 0;">Hi {{ user.name|default:user.username }},</p>
-        <p>Your account is all set up and ready to go. Here's everything you need to start streaming.</p>
+        <p>Your account is all set up and ready to go. Here's what you have access to.</p>
+        <p style="color: #666;">Ваш аккаунт готов. Вот что вам доступно.</p>
 
-        <h2 style="font-size: 18px; margin-top: 24px;">Step 1: Download Jellyfin</h2>
-        <p>Install the Jellyfin app on your device to watch content:</p>
+        <h2 style="font-size: 18px; margin-top: 24px;">Ben+ &mdash; Media Streaming</h2>
+        <p>
+          Stream movies, TV shows, and more with Ben+. Install the Jellyfin app on your device to get started:
+          <br><span style="color: #666;">Смотрите фильмы, сериалы и многое другое. Установите приложение Jellyfin:</span>
+        </p>
         <table border="0" style="margin: 10px 0 20px 0;">
           <tr>
             <td style="padding: 4px 15px;">
@@ -82,26 +93,35 @@ data:
           </tr>
           <tr>
             <td style="padding: 4px 15px;">
-              <a href="https://jellyfin.org/downloads" rel="noopener noreferrer" target="_blank">Desktop & Other Devices</a>
+              <a href="https://jellyfin.org/downloads" rel="noopener noreferrer" target="_blank">Desktop & Other Devices / Компьютер</a>
             </td>
           </tr>
           <tr>
             <td style="padding: 4px 15px;">
-              Or just visit <a href="https://benplus.app" rel="noopener noreferrer" target="_blank">benplus.app</a> in your browser
+              Or just visit / Или откройте <a href="https://benplus.app" rel="noopener noreferrer" target="_blank">benplus.app</a> in your browser / в браузере
             </td>
           </tr>
         </table>
 
-        <p>When the app asks for a server address, enter: <strong>https://benplus.app</strong></p>
-        <p>Log in with the username and password you created during sign-up.</p>
+        <p>
+          When the app asks for a server address, enter: <strong>https://benplus.app</strong>
+          <br><span style="color: #666;">Когда приложение запросит адрес сервера, введите: <strong>https://benplus.app</strong></span>
+        </p>
+        <p>
+          Log in with the username and password you created during sign-up.
+          <br><span style="color: #666;">Войдите с логином и паролем, которые вы создали при регистрации.</span>
+        </p>
 
-        <h2 style="font-size: 18px; margin-top: 24px;">Step 2: Request New Content</h2>
-        <p>Can't find something you want to watch? Use Jellyseerr to request movies and TV shows, and they'll be added automatically.</p>
+        <h3 style="font-size: 16px; margin-top: 20px;">Request New Content / Запросить контент</h3>
+        <p>
+          Can't find something you want to watch? Use Jellyseerr to request movies and TV shows, and they'll be added automatically.
+          <br><span style="color: #666;">Не нашли что посмотреть? Запросите через Jellyseerr &mdash; контент добавится автоматически.</span>
+        </p>
 
-        {% if media_preference == "en" or media_preference == "both" %}
+        {% if media_preference == "original" or media_preference == "both" %}
         <p>
           <a href="https://request.benplus.app" rel="noopener noreferrer" target="_blank" style="font-weight: bold;">request.benplus.app</a>
-          &mdash; Request movies &amp; shows (English / Original)
+          &mdash; Request movies &amp; shows (Original)
         </p>
         {% endif %}
 
@@ -112,7 +132,10 @@ data:
         </p>
         {% endif %}
 
-        <p style="margin-top: 24px; color: #666;">That's it! If you have any questions, reach out to the person who invited you.</p>
+        <p style="margin-top: 24px; color: #666;">
+          That's it! If you have any questions, reach out to the person who invited you.
+          <br>Это всё! Если есть вопросы, обратитесь к тому, кто вас пригласил.
+        </p>
       </td>
     </tr>
     {% endblock %}

@@ -22,7 +22,7 @@ data:
         state: present
         attrs:
           name: Invitation
-          title: "Welcome to Ben Plus!"
+          title: "Welcome to Starktastic Services! / Добро пожаловать!"
           designation: enrollment
           authentication: none
           layout: stacked
@@ -41,10 +41,10 @@ data:
         state: present
         attrs:
           field_key: username
-          label: Username
+          label: "Username / Имя пользователя"
           type: username
           required: true
-          placeholder: Username
+          placeholder: "Username / Имя пользователя"
           placeholder_expression: false
           order: 200
 
@@ -55,10 +55,10 @@ data:
         state: present
         attrs:
           field_key: name
-          label: Name
+          label: "Name / Имя"
           type: text
           required: true
-          placeholder: Name
+          placeholder: "Name / Имя"
           placeholder_expression: false
           order: 201
 
@@ -69,10 +69,10 @@ data:
         state: present
         attrs:
           field_key: email
-          label: Email
+          label: "Email / Эл. почта"
           type: email
           required: true
-          placeholder: Email
+          placeholder: "Email / Эл. почта"
           placeholder_expression: false
           order: 202
 
@@ -83,11 +83,12 @@ data:
         state: present
         attrs:
           field_key: password
-          label: Password
+          label: "Password / Пароль"
           type: password
           required: true
-          placeholder: Password
+          placeholder: "Password / Пароль"
           placeholder_expression: false
+          sub_text: "Min. 12 characters: uppercase, lowercase, number, and special character. / Мин. 12 символов: заглавная, строчная, цифра и спецсимвол."
           order: 300
 
       - identifiers:
@@ -97,10 +98,10 @@ data:
         state: present
         attrs:
           field_key: password_repeat
-          label: "Password (repeat)"
+          label: "Password (repeat) / Пароль (повтор)"
           type: password
           required: true
-          placeholder: "Password (repeat)"
+          placeholder: "Password (repeat) / Пароль (повтор)"
           placeholder_expression: false
           order: 301
 
@@ -111,18 +112,18 @@ data:
         state: present
         attrs:
           field_key: attributes.media_preference
-          label: Content Language Preference
+          label: "Content Language Preference / Языковые предпочтения"
           type: radio-button-group
           required: true
-          sub_text: "Choose which media libraries you'd like access to"
+          sub_text: "Choose which media libraries you'd like access to / Выберите, к каким медиатекам вы хотите получить доступ"
           placeholder: |-
             return [
-                {"label": "Original / English Dub", "value": "en"},
+                {"label": "Original", "value": "original"},
                 {"label": "Russian / Дубляж", "value": "ru"},
                 {"label": "Both / Оба", "value": "both"},
             ]
           placeholder_expression: true
-          initial_value: en
+          initial_value: original
           order: 0
 
       - identifiers:
@@ -132,10 +133,10 @@ data:
         state: present
         attrs:
           field_key: info_text
-          label: Check your inbox
+          label: "Check your inbox / Проверьте почту"
           type: static
           required: false
-          sub_text: "A confirmation link has been sent to your email. Please click it to activate your account."
+          sub_text: "A confirmation link has been sent to your email. Please click it to activate your account. / Ссылка для подтверждения отправлена на вашу почту. Нажмите на неё, чтобы активировать аккаунт."
           order: 0
 
       - identifiers:
@@ -145,10 +146,10 @@ data:
         state: present
         attrs:
           field_key: info_text
-          label: Success
+          label: "Success / Готово"
           type: static
           required: false
-          sub_text: "Email verified successfully! Click Continue to get started."
+          sub_text: "Email verified successfully! Click Continue to get started. / Почта подтверждена! Нажмите «Продолжить», чтобы начать."
           order: 0
 
       # =============================================================
@@ -166,7 +167,7 @@ data:
 
             email = request.context.get("prompt_data", {}).get("email")
             if email and ak_user_by(email__iexact=email):
-                raise ValidationError("This email is already registered.")
+                raise ValidationError("This email is already registered. / Этот адрес уже зарегистрирован.")
 
             return True
 
@@ -186,7 +187,7 @@ data:
           amount_symbols: 1
           length_min: 12
           symbol_charset: "!\"#$%&'()*+,-./:;<=>?@[]^_`{|}~"
-          error_message: "Password must be at least 12 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character."
+          error_message: "Password must be at least 12 characters with uppercase, lowercase, number, and special character. / Пароль должен содержать минимум 12 символов: заглавную, строчную, цифру и спецсимвол."
           hibp_allowed_count: 0
           zxcvbn_score_threshold: 2
 
@@ -209,10 +210,10 @@ data:
             from authentik.core.models import Group
 
             try:
-                preference = request.context.get("prompt_data", {}).get("attributes", {}).get("media_preference", "en")
+                preference = request.context.get("prompt_data", {}).get("attributes", {}).get("media_preference", "original")
 
                 groups = []
-                if preference in ("en", "both"):
+                if preference in ("original", "both"):
                     groups.append(Group.objects.get(pk="bc6b8e41-4fe9-4115-a861-10438458cb30"))
                 if preference in ("ru", "both"):
                     groups.append(Group.objects.get(pk="3f075557-877c-4c20-8da9-d36235ad5975"))
@@ -237,11 +238,11 @@ data:
                 return True
 
             try:
-                preference = pending_user.attributes.get("media_preference", "en")
+                preference = pending_user.attributes.get("media_preference", "original")
 
                 ak_send_email(
                     address=pending_user.email,
-                    subject="Welcome to Ben Plus! Here's how to get started",
+                    subject="Welcome to Starktastic Services! Here's how to get started",
                     template="email/welcome_instructions.html",
                     context={
                         "user": pending_user,
@@ -307,7 +308,7 @@ data:
         attrs:
           use_global_settings: true
           template: "email/account_confirmation_branded.html"
-          subject: "Welcome to Ben Plus! Please verify your email"
+          subject: "Welcome to Starktastic Services! Please verify your email"
           activate_user_on_success: true
           token_expiry: minutes=30
 

@@ -15,8 +15,8 @@ entries:
     attrs:
       branding_custom_css: |
         .lang-ru { display: none; }
-        :host(:lang(ru)) .lang-en { display: none; }
-        :host(:lang(ru)) .lang-ru { display: inline; }
+        :host-context([lang="ru"]) .lang-en { display: none; }
+        :host-context([lang="ru"]) .lang-ru { display: inline; }
 
   # =============================================================
   # FLOW

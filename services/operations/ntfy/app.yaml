@@ -1,0 +1,11 @@
+name: ntfy
+namespace: operations
+deployPhase: controllers
+
+ingress:
+  enabled: true
+  host: ntfy
+  domainType: "public"
+  port: 80
+  auth: false
+  rateLimit: true

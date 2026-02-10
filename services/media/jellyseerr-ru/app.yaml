@@ -1,0 +1,10 @@
+name: jellyseerr-ru
+namespace: media
+deployPhase: services
+ingress:
+  enabled: true
+  host: "request-ru"
+  domainType: "media"
+  port: 5055
+  auth: false
+  rateLimit: true

@@ -1,0 +1,7 @@
+name: redis
+namespace: databases
+deployPhase: controllers
+chart:
+  repo: https://charts.bitnami.com/bitnami
+  name: redis
+  version: 24.1.6

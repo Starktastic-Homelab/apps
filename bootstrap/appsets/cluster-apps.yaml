@@ -1,0 +1,117 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: cluster-apps
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=zero"]
+  generators:
+    - matrix:
+        generators:
+          - list:
+              elements:
+                - category: infrastructure
+                  pathPattern: "infrastructure/**/app.yaml"
+                  deployPhaseDefault: controllers
+                  commonValues: "templates/infra-common.yaml"
+                  defaultChartRepo: ""
+                  defaultChartName: ""
+                  defaultChartVersion: ""
+                - category: services
+                  pathPattern: "services/**/app.yaml"
+                  deployPhaseDefault: services
+                  commonValues: "templates/common.yaml"
+                  defaultChartRepo: "https://bjw-s-labs.github.io/helm-charts"
+                  defaultChartName: "app-template"
+                  defaultChartVersion: "4.6.2"
+          - git:
+              repoURL: https://github.com/Starktastic-Homelab/apps.git
+              revision: HEAD
+              files:
+                - path: "{{ .pathPattern }}"
+  strategy:
+    type: RollingSync
+    rollingSync:
+      steps:
+        - matchExpressions:
+            - key: deploy-phase
+              operator: In
+              values:
+                - foundation
+        - matchExpressions:
+            - key: deploy-phase
+              operator: In
+              values:
+                - hardware
+        - matchExpressions:
+            - key: deploy-phase
+              operator: In
+              values:
+                - controllers
+        - matchExpressions:
+            - key: deploy-phase
+              operator: In
+              values:
+                - services
+  template:
+    metadata:
+      name: "{{.name}}"
+      namespace: argocd
+      finalizers: ["resources-finalizer.argocd.argoproj.io"]
+      labels:
+        deploy-phase: '{{ .deployPhase | default .deployPhaseDefault }}'
+      annotations:
+        notifications.argoproj.io/subscribe.on-sync-failed.ntfy: ""
+        notifications.argoproj.io/subscribe.on-health-degraded.ntfy: ""
+        notifications.argoproj.io/subscribe.on-health-recovered.ntfy: ""
+        argocd-diff-preview/watch-pattern: '{{.path.path}}/.*, {{ .commonValues }}, templates/ingress-chart/.*'
+    spec:
+      project: default
+      sources: []
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{ .namespace }}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+  templatePatch: |
+    {{- $repo := "https://github.com/Starktastic-Homelab/apps.git" }}
+    {{- $isService := eq .category "services" }}
+    spec:
+      sources:
+        {{- if $isService }}
+        - repoURL: '{{ dig "chart" "repo" .defaultChartRepo . }}'
+          chart: '{{ dig "chart" "name" .defaultChartName . }}'
+          targetRevision: '{{ dig "chart" "version" .defaultChartVersion . }}'
+          helm:
+            valueFiles:
+              - $values/{{ .commonValues }}
+              - $values/{{.path.path}}/values.yaml
+        {{- else }}
+        - repoURL: "{{ .chart.repo }}"
+          chart: "{{ .chart.name }}"
+          targetRevision: "{{ .chart.version }}"
+          helm:
+            valueFiles:
+              - $values/{{ .commonValues }}
+              - $values/{{.path.path}}/values.yaml
+        {{- end }}
+        - repoURL: {{ $repo }}
+          targetRevision: HEAD
+          ref: values
+        {{- if and $isService (dig "ingress" "enabled" false .) }}
+        - repoURL: {{ $repo }}
+          targetRevision: HEAD
+          path: templates/ingress-chart
+          helm:
+            valueFiles:
+              - $values/{{.path.path}}/app.yaml
+        {{- end }}
+        - repoURL: {{ $repo }}
+          targetRevision: HEAD
+          path: '{{.path.path}}/manifests'

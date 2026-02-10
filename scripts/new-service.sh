@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Service scaffolding generator for homelab-platform
+# Service scaffolding generator for homelab-apps
 # Usage: ./scripts/new-service.sh
 
 # Dependency checks
@@ -54,7 +54,7 @@ echo ""
 echo "Available categories:"
 CATEGORIES=()
 i=1
-for dir in "$REPO_ROOT/apps/services"/*/; do
+for dir in "$REPO_ROOT/services"/*/; do
   if [[ -d $dir ]]; then
     category=$(basename "$dir")
     CATEGORIES+=("$category")
@@ -161,7 +161,7 @@ else
 fi
 
 # Create directory structure
-SERVICE_DIR="$REPO_ROOT/apps/services/$CATEGORY/$SERVICE_NAME"
+SERVICE_DIR="$REPO_ROOT/services/$CATEGORY/$SERVICE_NAME"
 mkdir -p "$SERVICE_DIR/manifests"
 
 # Generate app.yaml

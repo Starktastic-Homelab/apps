@@ -1,0 +1,12 @@
+name: qbittorrent
+namespace: media
+deployPhase: services
+
+ingress:
+  enabled: true
+  host: qbittorrent
+  domainType: "internal"
+  port: 8080
+  serviceName: qbittorrent-main
+  auth: true
+  rateLimit: true

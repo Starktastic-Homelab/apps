@@ -1,0 +1,7 @@
+name: pgadmin
+namespace: databases
+deployPhase: controllers
+chart:
+  repo: https://helm.runix.net
+  name: pgadmin4
+  version: 1.57.0

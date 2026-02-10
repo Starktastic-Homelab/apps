@@ -1,0 +1,11 @@
+name: prowlarr
+namespace: media
+deployPhase: services
+
+ingress:
+  enabled: true
+  host: prowlarr
+  domainType: "internal"
+  port: 9696
+  auth: true
+  rateLimit: true

@@ -1,0 +1,28 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ak-outpost-ldap-outpost
+  namespace: authentik
+  labels:
+    app.kubernetes.io/name: authentik-outpost-ldap
+    app.kubernetes.io/instance: ak-outpost-ldap-outpost
+    app.kubernetes.io/managed-by: argocd
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: authentik-outpost-ldap
+    app.kubernetes.io/instance: ak-outpost-ldap-outpost
+  ports:
+    - name: ldap
+      port: 389
+      targetPort: 3389
+      protocol: TCP
+    - name: ldaps
+      port: 636
+      targetPort: 6636
+      protocol: TCP
+    - name: http-metrics
+      port: 9300
+      targetPort: 9300
+      protocol: TCP

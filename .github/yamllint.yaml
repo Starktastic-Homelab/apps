@@ -17,6 +17,6 @@ rules:
   empty-values: disable
 
 ignore: |
-  apps/bootstrap/appsets/
+  bootstrap/appsets/
   **/templates/
   .git/

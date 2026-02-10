@@ -1,4 +1,4 @@
-# Homelab Platform
+# Homelab Apps
 
 ![ArgoCD](https://img.shields.io/badge/ArgoCD-Synced-48bb78?logo=argo)
 [![Kubernetes](https://img.shields.io/badge/K3s-v1.35-326CE5?logo=kubernetes)](https://k3s.io)
@@ -9,7 +9,7 @@ GitOps repository for managing a Kubernetes homelab using ArgoCD with an App-of-
 
 ## Overview
 
-This repository contains the complete application layer for the homelab Kubernetes cluster. It is bootstrapped by [homelab-ansible](https://github.com/starktastic/homelab-ansible) and uses ArgoCD for continuous deployment.
+This repository contains the complete application layer for the homelab Kubernetes cluster. It is bootstrapped by [ansible](https://github.com/starktastic/ansible) and uses ArgoCD for continuous deployment.
 
 ```mermaid
 flowchart TB
@@ -21,7 +21,7 @@ flowchart TB
     
     subgraph Apps["Applications"]
         Foundation[foundation<br/>wave: -10] --> Namespaces[Namespaces]
-        AppSet[platform AppSet<br/>wave: 0-5] --> Controllers
+        AppSet[cluster-apps AppSet<br/>wave: 0-5] --> Controllers
         AppSet --> Services
         InfraConfigs[infra-configs<br/>wave: 1] --> Ingresses
         
@@ -93,42 +93,41 @@ flowchart LR
 ## Repository Structure
 
 ```
-apps/
-├── bootstrap/                  # Entry point - deploy these first
-│   ├── foundation.yaml         # Creates namespaces (sync-wave: -10)
-│   ├── infra-configs.yaml      # Deploys configs after controllers (wave: 1)
-│   └── appsets/
-│       └── platform.yaml       # Unified ApplicationSet
-│
-├── foundation/                 # Namespace definitions
+bootstrap/                      # Entry point - deploy these first
+├── foundation.yaml             # Creates namespaces (sync-wave: -10)
+├── infra-configs.yaml          # Deploys configs after controllers (wave: 1)
+└── appsets/
+    └── cluster-apps.yaml       # Unified ApplicationSet
+
+foundation/                     # Namespace definitions
 │   └── namespaces/
 │       ├── authentik.yaml
 │       ├── cert-manager.yaml
 │       └── ...
-│
-├── infrastructure/
-│   ├── configs/                # Non-Helm resources
-│   │   └── ingresses/          # IngressRoutes, certs, middlewares
-│   ├── controllers/            # Helm-based infrastructure
-│   │   ├── authentik/          # Identity provider
-│   │   ├── databases/          # PostgreSQL + Redis
-│   │   └── traefik/            # Ingress controller
-│   └── system/                 # Cluster components
-│       ├── cert-manager/
-│       ├── intel-gpu/
-│       ├── nfs-provisioner/
-│       └── sealed-secrets/
-│
-├── services/                   # User-facing applications
-│   ├── media/                  # qBittorrent, Prowlarr
-│   └── operations/             # ntfy
-│
-├── templates/
-│   ├── common.yaml             # Shared values for services
-│   ├── infra-common.yaml       # Shared values for infrastructure
-│   └── ingress-chart/          # Dynamic IngressRoute generator
-│
-└── scripts/
+
+infrastructure/
+├── configs/                    # Non-Helm resources
+│   └── ingresses/          # IngressRoutes, certs, middlewares
+├── controllers/                # Helm-based infrastructure
+│   ├── authentik/              # Identity provider
+│   ├── databases/              # PostgreSQL + Redis
+│   └── traefik/                # Ingress controller
+└── system/                     # Cluster components
+    ├── cert-manager/
+    ├── intel-gpu/
+    ├── nfs-provisioner/
+    └── sealed-secrets/
+
+services/                       # User-facing applications
+├── media/                      # qBittorrent, Prowlarr
+└── operations/                 # ntfy
+
+templates/
+├── common.yaml                 # Shared values for services
+├── infra-common.yaml           # Shared values for infrastructure
+└── ingress-chart/              # Dynamic IngressRoute generator
+
+scripts/
     ├── new-service.sh          # Scaffold a new service
     ├── seal.sh                 # Seal secrets with kubeseal
     └── dyff-wrapper.sh         # YAML diff for CI
@@ -193,7 +192,7 @@ flowchart LR
 
 ### Adding a New Service
 
-1. Create directory: `apps/services/<category>/<name>/`
+1. Create directory: `services/<category>/<name>/`
 2. Add `app.yaml`:
    ```yaml
    name: my-service
@@ -296,17 +295,17 @@ flowchart TD
         Packer["📦 Packer<br/>VM Template"]
         Terraform["🏗️ Terraform<br/>VM Provisioning"]
         Ansible["⚙️ Ansible<br/>K3s Cluster"]
-        Platform["🚀 Platform<br/>GitOps Apps"]
+        Apps["🚀 Apps<br/>GitOps Apps"]
     end
     
     Packer -->|manifest.json| Terraform
     Terraform -->|dispatch| Ansible
-    Ansible -->|bootstrap| Platform
+    Ansible -->|bootstrap| Apps
     
     style Packer fill:#4299e1,stroke:#2b6cb0
     style Terraform fill:#805ad5,stroke:#553c9a
     style Ansible fill:#48bb78,stroke:#276749
-    style Platform fill:#ed8936,stroke:#c05621
+    style Apps fill:#ed8936,stroke:#c05621
 ```
 
 ## Troubleshooting
@@ -323,9 +322,9 @@ flowchart TD
 
 | Repository | Description |
 |------------|-------------|
-| [homelab-packer](https://github.com/starktastic/homelab-packer) | Builds VM templates |
-| [homelab-terraform](https://github.com/starktastic/homelab-terraform) | Provisions VMs on Proxmox |
-| [homelab-ansible](https://github.com/starktastic/homelab-ansible) | K3s cluster configuration |
+| [packer](https://github.com/starktastic/packer) | Builds VM templates |
+| [terraform](https://github.com/starktastic/terraform) | Provisions VMs on Proxmox |
+| [ansible](https://github.com/starktastic/ansible) | K3s cluster configuration |
 
 ## License
 

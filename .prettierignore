@@ -1,5 +1,5 @@
 .github/workflows/
 
 # Go templating syntax (ArgoCD ApplicationSets, Helm templates)
-apps/bootstrap/appsets/
-apps/templates/
+bootstrap/appsets/
+templates/

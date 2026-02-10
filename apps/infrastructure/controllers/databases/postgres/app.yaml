@@ -1,7 +1,0 @@
-name: postgres
-namespace: databases
-deployPhase: platform
-chart:
-  repo: https://charts.bitnami.com/bitnami
-  name: postgresql
-  version: 18.2.4

@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: authentik
+
+resources:
+  - authentik-secret.yaml
+  - ldap-outpost-deployment.yaml
+  - ldap-outpost-secret.yaml
+  - ldap-outpost-service.yaml
+  - smtp-authentik-secret.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+configMapGenerator:
+  - name: authentik-email-templates
+    files:
+      - account_confirmation_branded.html=templates/account_confirmation_branded.html
+      - welcome_instructions.html=templates/welcome_instructions.html
+  - name: authentik-invitation-blueprint
+    files:
+      - invitation-flow.yaml=blueprints/invitation-flow.yaml

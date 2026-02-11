@@ -19,6 +19,7 @@ entries:
       designation: enrollment
       authentication: none
       layout: stacked
+      background: "branding/background.svg"
       denied_action: message_continue
       compatibility_mode: false
       policy_engine_mode: any

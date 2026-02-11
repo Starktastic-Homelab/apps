@@ -5,14 +5,20 @@ redis:
 blueprints:
   configMaps:
     - authentik-invitation-blueprint
+    - authentik-branding-blueprint
 global:
   volumes:
     - name: custom-email-templates
       configMap:
         name: authentik-email-templates
+    - name: branding-assets
+      configMap:
+        name: authentik-branding-assets
   volumeMounts:
     - name: custom-email-templates
       mountPath: /templates/email
+    - name: branding-assets
+      mountPath: /media/custom
 authentik:
   log_level: info
   email:

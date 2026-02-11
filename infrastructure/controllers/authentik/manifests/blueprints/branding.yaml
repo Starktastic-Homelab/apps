@@ -1,0 +1,79 @@
+version: 1
+metadata:
+  labels:
+    blueprints.goauthentik.io/instantiate: "true"
+  name: Starktastic Brand
+
+entries:
+  # =============================================================
+  # BRAND
+  # =============================================================
+
+  - identifiers:
+      domain: starktastic.net
+    model: authentik_brands.brand
+    state: present
+    attrs:
+      default: true
+      branding_title: "Starktastic Services"
+      branding_logo: "/media/custom/logo.svg"
+      branding_favicon: "/media/custom/favicon.svg"
+      branding_default_flow_background: "/media/custom/background.svg"
+      branding_custom_css: |
+        /* Starktastic Services — Custom Authentik Theme
+         * Palette: Deep Crimson (#c53030), Arc Reactor Blue (#63b3ed), Dark (#1a202c)
+         */
+
+        :root {
+          /* Override Authentik accent colors */
+          --ak-accent-50: #fff5f5;
+          --ak-accent-100: #fed7d7;
+          --ak-accent-200: #feb2b2;
+          --ak-accent-300: #fc8181;
+          --ak-accent-400: #f56565;
+          --ak-accent-500: #e53e3e;
+          --ak-accent-600: #c53030;
+          --ak-accent-700: #9b2c2c;
+          --ak-accent-800: #822727;
+          --ak-accent-900: #63171b;
+        }
+
+        /* Dark theme overrides */
+        :host([theme="dark"]) {
+          --ak-accent-500: #e53e3e;
+          --ak-accent-600: #c53030;
+        }
+
+        /* Flow executor background override for dark feel */
+        .pf-c-login {
+          --pf-c-login--BackgroundColor: #1a202c;
+        }
+
+        /* Subtle arc-reactor blue glow on the login card */
+        .pf-c-login__main {
+          border: 1px solid rgba(99, 179, 237, 0.15);
+          box-shadow: 0 0 30px rgba(99, 179, 237, 0.05),
+                      0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Style primary buttons with crimson */
+        .pf-c-button.pf-m-primary {
+          --pf-c-button--m-primary--BackgroundColor: #c53030;
+          --pf-c-button--m-primary--hover--BackgroundColor: #9b2c2c;
+          --pf-c-button--m-primary--focus--BackgroundColor: #9b2c2c;
+          --pf-c-button--m-primary--active--BackgroundColor: #822727;
+        }
+
+        /* Links in arc-reactor blue */
+        .pf-c-login__main-footer-links a,
+        .pf-c-form__helper-text a {
+          color: #63b3ed;
+        }
+        .pf-c-form__helper-text a:hover {
+          color: #90cdf4;
+        }
+      attributes:
+        settings:
+          theme:
+            base: dark
+          locale: ""

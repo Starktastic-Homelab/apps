@@ -24,7 +24,7 @@ entries:
       policy_engine_mode: any
 
   # =============================================================
-  # PROMPT FIELDS (custom only; standard fields use built-in defaults)
+  # PROMPT FIELDS
   # =============================================================
 
   - identifiers:

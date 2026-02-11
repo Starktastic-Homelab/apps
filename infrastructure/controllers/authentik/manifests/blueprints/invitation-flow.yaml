@@ -15,7 +15,7 @@ entries:
     state: present
     attrs:
       name: Invitation
-      title: "Welcome to Starktastic Services!"
+      title: "Create Your Account"
       designation: enrollment
       authentication: none
       layout: stacked

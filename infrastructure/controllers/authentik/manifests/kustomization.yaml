@@ -16,6 +16,7 @@ generatorOptions:
 configMapGenerator:
   - name: authentik-email-templates
     files:
+      - base.html=templates/base.html
       - account_confirmation_branded.html=templates/account_confirmation_branded.html
       - welcome_instructions.html=templates/welcome_instructions.html
   - name: authentik-invitation-blueprint

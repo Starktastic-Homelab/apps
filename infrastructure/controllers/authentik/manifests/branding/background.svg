@@ -1,341 +1,83 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
   <defs>
-    <filter id="bgNodeGlow" x="-300%" y="-300%" width="700%" height="700%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-    <filter id="bgPathGlow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-    <filter id="bgSoftGlow" x="-100%" y="-100%" width="300%" height="300%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="40" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-      </feMerge>
-    </filter>
-    <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
-      <stop offset="0%" stop-color="#1a202c" stop-opacity="0"/>
-      <stop offset="100%" stop-color="#0d1117" stop-opacity="0.8"/>
+    <!-- Base atmosphere -->
+    <radialGradient id="bg_atmos" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="50%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </radialGradient>
+
+    <!-- Indigo glow top-right -->
+    <radialGradient id="bg_indigo" cx="75%" cy="20%" r="40%">
+      <stop offset="0%" stop-color="#6366F1" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#6366F1" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Gold glow bottom-left -->
+    <radialGradient id="bg_gold" cx="25%" cy="80%" r="35%">
+      <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Subtle center glow -->
+    <radialGradient id="bg_center" cx="50%" cy="50%" r="30%">
+      <stop offset="0%" stop-color="#818CF8" stop-opacity="0.03"/>
+      <stop offset="100%" stop-color="#818CF8" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Vignette -->
+    <radialGradient id="bg_vig" cx="50%" cy="50%" r="70%">
+      <stop offset="60%" stop-color="#000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0.4"/>
     </radialGradient>
   </defs>
-  <rect width="1920" height="1080" fill="#1a202c"/>
-  <circle cx="300" cy="200" r="200" fill="#c53030" filter="url(#bgSoftGlow)" opacity="0.03"/>
-  <circle cx="1600" cy="800" r="250" fill="#63b3ed" filter="url(#bgSoftGlow)" opacity="0.04"/>
-  <circle cx="960" cy="540" r="300" fill="#63b3ed" filter="url(#bgSoftGlow)" opacity="0.02"/>
-  <circle cx="1400" cy="300" r="180" fill="#c53030" filter="url(#bgSoftGlow)" opacity="0.02"/>
-  <g stroke="#2d3748" stroke-width="1" opacity="0.6">
-    <line x1="0" y1="0" x2="60" y2="0"/>
-    <line x1="1440" y1="0" x2="1620" y2="0"/>
-    <line x1="1680" y1="0" x2="1920" y2="0"/>
-    <line x1="180" y1="60" x2="240" y2="60"/>
-    <line x1="300" y1="60" x2="420" y2="60"/>
-    <line x1="480" y1="60" x2="540" y2="60"/>
-    <line x1="600" y1="60" x2="720" y2="60"/>
-    <line x1="900" y1="120" x2="1080" y2="120"/>
-    <line x1="1140" y1="120" x2="1440" y2="120"/>
-    <line x1="0" y1="180" x2="240" y2="180"/>
-    <line x1="1680" y1="180" x2="1860" y2="180"/>
-    <line x1="420" y1="240" x2="480" y2="240"/>
-    <line x1="540" y1="240" x2="660" y2="240"/>
-    <line x1="720" y1="240" x2="780" y2="240"/>
-    <line x1="840" y1="240" x2="960" y2="240"/>
-    <line x1="1140" y1="300" x2="1320" y2="300"/>
-    <line x1="1380" y1="300" x2="1680" y2="300"/>
-    <line x1="0" y1="360" x2="120" y2="360"/>
-    <line x1="180" y1="360" x2="240" y2="360"/>
-    <line x1="300" y1="360" x2="420" y2="360"/>
-    <line x1="1860" y1="360" x2="1920" y2="360"/>
-    <line x1="600" y1="420" x2="780" y2="420"/>
-    <line x1="840" y1="420" x2="1140" y2="420"/>
-    <line x1="1380" y1="480" x2="1560" y2="480"/>
-    <line x1="1620" y1="480" x2="1920" y2="480"/>
-    <line x1="120" y1="540" x2="180" y2="540"/>
-    <line x1="240" y1="540" x2="360" y2="540"/>
-    <line x1="420" y1="540" x2="480" y2="540"/>
-    <line x1="540" y1="540" x2="660" y2="540"/>
-    <line x1="840" y1="600" x2="1020" y2="600"/>
-    <line x1="1080" y1="600" x2="1380" y2="600"/>
-    <line x1="0" y1="660" x2="120" y2="660"/>
-    <line x1="1560" y1="660" x2="1860" y2="660"/>
-    <line x1="300" y1="720" x2="480" y2="720"/>
-    <line x1="540" y1="720" x2="840" y2="720"/>
-    <line x1="1080" y1="780" x2="1260" y2="780"/>
-    <line x1="1320" y1="780" x2="1620" y2="780"/>
-    <line x1="0" y1="840" x2="300" y2="840"/>
-    <line x1="360" y1="840" x2="540" y2="840"/>
-    <line x1="1800" y1="840" x2="1920" y2="840"/>
-    <line x1="540" y1="900" x2="720" y2="900"/>
-    <line x1="780" y1="900" x2="1080" y2="900"/>
-    <line x1="1260" y1="960" x2="1560" y2="960"/>
-    <line x1="1620" y1="960" x2="1800" y2="960"/>
-    <line x1="0" y1="1020" x2="180" y2="1020"/>
-    <line x1="240" y1="1020" x2="540" y2="1020"/>
-    <line x1="780" y1="1080" x2="960" y2="1080"/>
-    <line x1="1020" y1="1080" x2="1320" y2="1080"/>
-    <line x1="0" y1="0" x2="0" y2="60"/>
-    <line x1="0" y1="300" x2="0" y2="540"/>
-    <line x1="0" y1="660" x2="0" y2="780"/>
-    <line x1="0" y1="1020" x2="0" y2="1080"/>
-    <line x1="60" y1="120" x2="60" y2="360"/>
-    <line x1="60" y1="480" x2="60" y2="600"/>
-    <line x1="60" y1="840" x2="60" y2="1080"/>
-    <line x1="120" y1="0" x2="120" y2="180"/>
-    <line x1="120" y1="300" x2="120" y2="420"/>
-    <line x1="120" y1="660" x2="120" y2="900"/>
-    <line x1="120" y1="1020" x2="120" y2="1080"/>
-    <line x1="180" y1="120" x2="180" y2="240"/>
-    <line x1="180" y1="480" x2="180" y2="720"/>
-    <line x1="180" y1="840" x2="180" y2="960"/>
-    <line x1="240" y1="0" x2="240" y2="60"/>
-    <line x1="240" y1="300" x2="240" y2="540"/>
-    <line x1="240" y1="660" x2="240" y2="780"/>
-    <line x1="240" y1="1020" x2="240" y2="1080"/>
-    <line x1="300" y1="120" x2="300" y2="360"/>
-    <line x1="300" y1="480" x2="300" y2="600"/>
-    <line x1="300" y1="840" x2="300" y2="1080"/>
-    <line x1="360" y1="0" x2="360" y2="180"/>
-    <line x1="360" y1="300" x2="360" y2="420"/>
-    <line x1="360" y1="660" x2="360" y2="900"/>
-    <line x1="360" y1="1020" x2="360" y2="1080"/>
-    <line x1="420" y1="120" x2="420" y2="240"/>
-    <line x1="420" y1="480" x2="420" y2="720"/>
-    <line x1="420" y1="840" x2="420" y2="960"/>
-    <line x1="480" y1="0" x2="480" y2="60"/>
-    <line x1="480" y1="300" x2="480" y2="540"/>
-    <line x1="480" y1="660" x2="480" y2="780"/>
-    <line x1="480" y1="1020" x2="480" y2="1080"/>
-    <line x1="540" y1="180" x2="540" y2="360"/>
-    <line x1="540" y1="480" x2="540" y2="600"/>
-    <line x1="540" y1="840" x2="540" y2="1080"/>
-    <line x1="600" y1="0" x2="600" y2="180"/>
-    <line x1="600" y1="360" x2="600" y2="420"/>
-    <line x1="600" y1="660" x2="600" y2="900"/>
-    <line x1="600" y1="1020" x2="600" y2="1080"/>
-    <line x1="660" y1="180" x2="660" y2="240"/>
-    <line x1="660" y1="540" x2="660" y2="720"/>
-    <line x1="660" y1="840" x2="660" y2="960"/>
-    <line x1="720" y1="0" x2="720" y2="60"/>
-    <line x1="720" y1="360" x2="720" y2="540"/>
-    <line x1="720" y1="720" x2="720" y2="780"/>
-    <line x1="720" y1="1020" x2="720" y2="1080"/>
-    <line x1="780" y1="180" x2="780" y2="360"/>
-    <line x1="780" y1="540" x2="780" y2="600"/>
-    <line x1="780" y1="900" x2="780" y2="1080"/>
-    <line x1="840" y1="0" x2="840" y2="180"/>
-    <line x1="840" y1="360" x2="840" y2="420"/>
-    <line x1="840" y1="720" x2="840" y2="900"/>
-    <line x1="900" y1="180" x2="900" y2="240"/>
-    <line x1="900" y1="540" x2="900" y2="720"/>
-    <line x1="900" y1="900" x2="900" y2="960"/>
-    <line x1="960" y1="0" x2="960" y2="60"/>
-    <line x1="960" y1="360" x2="960" y2="540"/>
-    <line x1="960" y1="720" x2="960" y2="780"/>
-    <line x1="1020" y1="180" x2="1020" y2="360"/>
-    <line x1="1020" y1="540" x2="1020" y2="600"/>
-    <line x1="1020" y1="900" x2="1020" y2="1080"/>
-    <line x1="1080" y1="0" x2="1080" y2="180"/>
-    <line x1="1080" y1="360" x2="1080" y2="420"/>
-    <line x1="1080" y1="720" x2="1080" y2="900"/>
-    <line x1="1140" y1="180" x2="1140" y2="240"/>
-    <line x1="1140" y1="540" x2="1140" y2="720"/>
-    <line x1="1140" y1="900" x2="1140" y2="960"/>
-    <line x1="1200" y1="0" x2="1200" y2="60"/>
-    <line x1="1200" y1="360" x2="1200" y2="540"/>
-    <line x1="1200" y1="720" x2="1200" y2="780"/>
-    <line x1="1260" y1="180" x2="1260" y2="360"/>
-    <line x1="1260" y1="540" x2="1260" y2="600"/>
-    <line x1="1260" y1="900" x2="1260" y2="1080"/>
-    <line x1="1320" y1="0" x2="1320" y2="180"/>
-    <line x1="1320" y1="360" x2="1320" y2="420"/>
-    <line x1="1320" y1="720" x2="1320" y2="900"/>
-    <line x1="1380" y1="180" x2="1380" y2="240"/>
-    <line x1="1380" y1="540" x2="1380" y2="720"/>
-    <line x1="1380" y1="900" x2="1380" y2="960"/>
-    <line x1="1440" y1="0" x2="1440" y2="60"/>
-    <line x1="1440" y1="360" x2="1440" y2="540"/>
-    <line x1="1440" y1="720" x2="1440" y2="780"/>
-    <line x1="1500" y1="180" x2="1500" y2="360"/>
-    <line x1="1500" y1="540" x2="1500" y2="600"/>
-    <line x1="1500" y1="900" x2="1500" y2="1080"/>
-    <line x1="1560" y1="60" x2="1560" y2="180"/>
-    <line x1="1560" y1="360" x2="1560" y2="420"/>
-    <line x1="1560" y1="720" x2="1560" y2="900"/>
-    <line x1="1620" y1="240" x2="1620" y2="480"/>
-    <line x1="1620" y1="540" x2="1620" y2="720"/>
-    <line x1="1620" y1="900" x2="1620" y2="960"/>
-    <line x1="1680" y1="60" x2="1680" y2="300"/>
-    <line x1="1680" y1="420" x2="1680" y2="540"/>
-    <line x1="1680" y1="720" x2="1680" y2="780"/>
-    <line x1="1740" y1="240" x2="1740" y2="360"/>
-    <line x1="1740" y1="600" x2="1740" y2="840"/>
-    <line x1="1740" y1="900" x2="1740" y2="1080"/>
-    <line x1="1800" y1="60" x2="1800" y2="180"/>
-    <line x1="1800" y1="420" x2="1800" y2="660"/>
-    <line x1="1800" y1="780" x2="1800" y2="900"/>
-    <line x1="1860" y1="240" x2="1860" y2="480"/>
-    <line x1="1860" y1="600" x2="1860" y2="720"/>
-    <line x1="1860" y1="960" x2="1860" y2="1080"/>
-    <line x1="1920" y1="60" x2="1920" y2="300"/>
-    <line x1="1920" y1="420" x2="1920" y2="540"/>
-    <line x1="1920" y1="780" x2="1920" y2="1020"/>
+
+  <!-- Base -->
+  <rect width="1920" height="1080" fill="url(#bg_atmos)"/>
+
+  <!-- Atmospheric glows -->
+  <rect width="1920" height="1080" fill="url(#bg_indigo)"/>
+  <rect width="1920" height="1080" fill="url(#bg_gold)"/>
+  <rect width="1920" height="1080" fill="url(#bg_center)"/>
+
+  <!-- Subtle geometric lines -->
+  <g stroke="#6366F1" stroke-width="0.5" opacity="0.06">
+    <line x1="0" y1="360" x2="1920" y2="360"/>
+    <line x1="0" y1="720" x2="1920" y2="720"/>
+    <line x1="640" y1="0" x2="640" y2="1080"/>
+    <line x1="1280" y1="0" x2="1280" y2="1080"/>
   </g>
-  <g fill="#4a5568" opacity="0.4">
-    <circle cx="0" cy="0" r="1.5"/>
-    <circle cx="0" cy="300" r="1.5"/>
-    <circle cx="0" cy="540" r="1"/>
-    <circle cx="0" cy="840" r="1"/>
-    <circle cx="60" cy="120" r="1"/>
-    <circle cx="60" cy="480" r="1.5"/>
-    <circle cx="60" cy="1080" r="1.5"/>
-    <circle cx="120" cy="0" r="1"/>
-    <circle cx="120" cy="300" r="1"/>
-    <circle cx="120" cy="360" r="1.5"/>
-    <circle cx="120" cy="660" r="1.5"/>
-    <circle cx="120" cy="900" r="1"/>
-    <circle cx="180" cy="240" r="1.5"/>
-    <circle cx="180" cy="480" r="1"/>
-    <circle cx="180" cy="540" r="1.5"/>
-    <circle cx="180" cy="840" r="1.5"/>
-    <circle cx="240" cy="60" r="1"/>
-    <circle cx="240" cy="360" r="1"/>
-    <circle cx="240" cy="660" r="1"/>
-    <circle cx="240" cy="1020" r="1.5"/>
-    <circle cx="300" cy="600" r="1.5"/>
-    <circle cx="300" cy="840" r="1"/>
-    <circle cx="360" cy="180" r="1.5"/>
-    <circle cx="360" cy="420" r="1"/>
-    <circle cx="360" cy="1020" r="1"/>
-    <circle cx="360" cy="1080" r="1.5"/>
-    <circle cx="420" cy="60" r="1.5"/>
-    <circle cx="420" cy="360" r="1.5"/>
-    <circle cx="420" cy="960" r="1.5"/>
-    <circle cx="480" cy="240" r="1.5"/>
-    <circle cx="480" cy="540" r="1.5"/>
-    <circle cx="480" cy="780" r="1"/>
-    <circle cx="480" cy="1080" r="1"/>
-    <circle cx="540" cy="60" r="1"/>
-    <circle cx="540" cy="360" r="1"/>
-    <circle cx="540" cy="720" r="1.5"/>
-    <circle cx="540" cy="1020" r="1.5"/>
-    <circle cx="600" cy="0" r="1.5"/>
+
+  <!-- Diagonal accent lines -->
+  <g stroke="#F59E0B" stroke-width="0.5" opacity="0.04">
+    <line x1="0" y1="1080" x2="960" y2="0"/>
+    <line x1="960" y1="1080" x2="1920" y2="0"/>
+  </g>
+
+  <!-- Floating orbs -->
+  <circle cx="1500" cy="200" r="120" fill="#6366F1" opacity="0.02"/>
+  <circle cx="400" cy="850" r="90" fill="#F59E0B" opacity="0.015"/>
+  <circle cx="960" cy="540" r="200" fill="#818CF8" opacity="0.01"/>
+
+  <!-- Small accent dots -->
+  <g fill="#818CF8" opacity="0.08">
+    <circle cx="320" cy="180" r="2"/>
+    <circle cx="780" cy="320" r="1.5"/>
+    <circle cx="1140" cy="760" r="2"/>
+    <circle cx="1600" cy="480" r="1.5"/>
+    <circle cx="500" cy="600" r="1"/>
+    <circle cx="1400" cy="900" r="1.5"/>
+    <circle cx="200" cy="500" r="1"/>
+    <circle cx="1750" cy="700" r="1"/>
+  </g>
+  <g fill="#FBBF24" opacity="0.06">
+    <circle cx="960" cy="150" r="1.5"/>
+    <circle cx="1300" cy="350" r="1"/>
     <circle cx="600" cy="900" r="1.5"/>
-    <circle cx="660" cy="180" r="1.5"/>
-    <circle cx="660" cy="720" r="1"/>
-    <circle cx="720" cy="0" r="1"/>
-    <circle cx="720" cy="60" r="1.5"/>
-    <circle cx="720" cy="360" r="1.5"/>
-    <circle cx="720" cy="900" r="1"/>
-    <circle cx="780" cy="180" r="1"/>
-    <circle cx="780" cy="240" r="1.5"/>
-    <circle cx="780" cy="540" r="1.5"/>
-    <circle cx="780" cy="1080" r="1"/>
-    <circle cx="840" cy="360" r="1"/>
-    <circle cx="840" cy="420" r="1.5"/>
-    <circle cx="840" cy="720" r="1.5"/>
-    <circle cx="900" cy="240" r="1"/>
-    <circle cx="900" cy="540" r="1"/>
-    <circle cx="900" cy="900" r="1.5"/>
-    <circle cx="960" cy="720" r="1"/>
-    <circle cx="960" cy="780" r="1.5"/>
-    <circle cx="960" cy="1080" r="1.5"/>
-    <circle cx="1020" cy="360" r="1.5"/>
-    <circle cx="1020" cy="600" r="1"/>
-    <circle cx="1020" cy="900" r="1"/>
-    <circle cx="1080" cy="180" r="1"/>
-    <circle cx="1080" cy="780" r="1"/>
-    <circle cx="1140" cy="120" r="1.5"/>
-    <circle cx="1140" cy="420" r="1.5"/>
-    <circle cx="1140" cy="720" r="1.5"/>
-    <circle cx="1140" cy="960" r="1"/>
-    <circle cx="1200" cy="0" r="1.5"/>
-    <circle cx="1200" cy="540" r="1"/>
-    <circle cx="1260" cy="180" r="1.5"/>
-    <circle cx="1260" cy="780" r="1.5"/>
-    <circle cx="1260" cy="1080" r="1.5"/>
-    <circle cx="1320" cy="0" r="1"/>
-    <circle cx="1320" cy="300" r="1"/>
-    <circle cx="1320" cy="360" r="1.5"/>
-    <circle cx="1320" cy="900" r="1"/>
-    <circle cx="1380" cy="180" r="1"/>
-    <circle cx="1380" cy="240" r="1.5"/>
-    <circle cx="1380" cy="480" r="1"/>
-    <circle cx="1380" cy="540" r="1.5"/>
-    <circle cx="1440" cy="60" r="1"/>
-    <circle cx="1440" cy="120" r="1.5"/>
-    <circle cx="1440" cy="360" r="1"/>
-    <circle cx="1440" cy="720" r="1.5"/>
-    <circle cx="1500" cy="540" r="1"/>
-    <circle cx="1500" cy="600" r="1.5"/>
-    <circle cx="1500" cy="900" r="1.5"/>
-    <circle cx="1560" cy="180" r="1.5"/>
-    <circle cx="1560" cy="420" r="1"/>
-    <circle cx="1560" cy="480" r="1.5"/>
-    <circle cx="1560" cy="720" r="1"/>
-    <circle cx="1620" cy="0" r="1"/>
-    <circle cx="1620" cy="900" r="1"/>
-    <circle cx="1620" cy="960" r="1.5"/>
-    <circle cx="1680" cy="180" r="1"/>
-    <circle cx="1680" cy="540" r="1.5"/>
-    <circle cx="1680" cy="780" r="1"/>
-    <circle cx="1740" cy="360" r="1"/>
-    <circle cx="1800" cy="840" r="1"/>
-    <circle cx="1800" cy="900" r="1.5"/>
-    <circle cx="1860" cy="180" r="1.5"/>
-    <circle cx="1860" cy="480" r="1.5"/>
-    <circle cx="1860" cy="720" r="1"/>
-    <circle cx="1860" cy="1080" r="1.5"/>
-    <circle cx="1920" cy="0" r="1"/>
-    <circle cx="1920" cy="60" r="1.5"/>
-    <circle cx="1920" cy="300" r="1"/>
-    <circle cx="1920" cy="360" r="1.5"/>
+    <circle cx="100" cy="300" r="1"/>
+    <circle cx="1800" cy="950" r="1"/>
   </g>
-  <g fill="none" stroke="#c53030" stroke-width="1.5" filter="url(#bgPathGlow)" opacity="0.5">
-    <path d="M 120,180 L 240,180 L 240,120 L 480,120 L 480,180 L 600,180"/>
-    <path d="M 1560,300 L 1560,420 L 1620,420 L 1620,600 L 1560,600 L 1560,720"/>
-    <path d="M 180,720 L 300,720 L 300,780 L 420,780 L 420,840 L 540,840"/>
-    <path d="M 1200,240 L 1320,240 L 1320,300 L 1440,300"/>
-  </g>
-  <g fill="none" stroke="#63b3ed" stroke-width="1" filter="url(#bgPathGlow)" opacity="0.35">
-    <path d="M 780,360 L 840,360 L 840,420 L 960,420 L 960,360 L 1080,360"/>
-    <path d="M 660,600 L 720,600 L 720,660 L 840,660 L 840,720"/>
-    <path d="M 1080,540 L 1200,540 L 1200,600 L 1260,600"/>
-    <path d="M 360,420 L 360,480 L 420,480 L 420,540 L 480,540"/>
-    <path d="M 1320,660 L 1440,660 L 1440,720 L 1500,720 L 1500,780"/>
-  </g>
-  <g filter="url(#bgNodeGlow)">
-    <circle cx="120" cy="180" r="3" fill="#e53e3e" opacity="0.6"/>
-    <circle cx="480" cy="120" r="3" fill="#e53e3e" opacity="0.6"/>
-    <circle cx="600" cy="180" r="3" fill="#e53e3e" opacity="0.6"/>
-    <circle cx="1620" cy="420" r="3" fill="#e53e3e" opacity="0.6"/>
-    <circle cx="1560" cy="720" r="3" fill="#e53e3e" opacity="0.6"/>
-    <circle cx="300" cy="780" r="3" fill="#e53e3e" opacity="0.6"/>
-    <circle cx="540" cy="840" r="3" fill="#e53e3e" opacity="0.6"/>
-    <circle cx="1200" cy="240" r="3" fill="#e53e3e" opacity="0.6"/>
-    <circle cx="1440" cy="300" r="3" fill="#e53e3e" opacity="0.6"/>
-    <circle cx="840" cy="360" r="2.5" fill="#63b3ed" opacity="0.5"/>
-    <circle cx="960" cy="420" r="2.5" fill="#63b3ed" opacity="0.5"/>
-    <circle cx="1080" cy="360" r="2.5" fill="#63b3ed" opacity="0.5"/>
-    <circle cx="720" cy="660" r="2.5" fill="#63b3ed" opacity="0.5"/>
-    <circle cx="840" cy="720" r="2.5" fill="#63b3ed" opacity="0.5"/>
-    <circle cx="1200" cy="540" r="2.5" fill="#63b3ed" opacity="0.5"/>
-    <circle cx="1260" cy="600" r="2.5" fill="#63b3ed" opacity="0.5"/>
-    <circle cx="420" cy="480" r="2.5" fill="#63b3ed" opacity="0.5"/>
-    <circle cx="480" cy="540" r="2.5" fill="#63b3ed" opacity="0.5"/>
-    <circle cx="1440" cy="660" r="2.5" fill="#63b3ed" opacity="0.5"/>
-    <circle cx="1500" cy="780" r="2.5" fill="#63b3ed" opacity="0.5"/>
-  </g>
-  <g opacity="0.06">
-    <circle cx="1750" cy="920" r="80" fill="none" stroke="#c53030" stroke-width="3"/>
-    <circle cx="1750" cy="920" r="60" fill="none" stroke="#c53030" stroke-width="2"/>
-    <circle cx="1750" cy="920" r="35" fill="none" stroke="#c53030" stroke-width="1.5"/>
-    <circle cx="1750" cy="920" r="15" fill="#63b3ed" opacity="0.5"/>
-  </g>
-  <rect width="1920" height="1080" fill="url(#vignette)"/>
+
+  <!-- Vignette -->
+  <rect width="1920" height="1080" fill="url(#bg_vig)"/>
 </svg>

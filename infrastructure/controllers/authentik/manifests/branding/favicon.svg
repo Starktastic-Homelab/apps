@@ -1,59 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" role="img" aria-label="Starktastic">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
-    <filter id="fav_coreGlow" x="-100%" y="-100%" width="300%" height="300%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="3.0" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-    <filter id="fav_nodeGlow" x="-200%" y="-200%" width="500%" height="500%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-    <filter id="fav_outerGlow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="1.0" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
+    <linearGradient id="sg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#818CF8"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </linearGradient>
+    <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FBBF24"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
   </defs>
-  <circle cx="40" cy="40" r="36.0" fill="none" stroke="#c53030" stroke-width="2.5" opacity="0.9"/>
-  <circle cx="40" cy="40" r="34.0" fill="none" stroke="#c53030" stroke-width="0.5" opacity="0.4"/>
-  <path d="M 33.93,13.69 A 27.00,27.00 0 0 1 46.07,13.69" fill="none" stroke="#c53030" stroke-width="4.0" stroke-linecap="round" opacity="0.85"/>
-  <path d="M 50.55,15.15 A 27.00,27.00 0 0 1 60.38,22.29" fill="none" stroke="#c53030" stroke-width="4.0" stroke-linecap="round" opacity="0.85"/>
-  <path d="M 63.14,26.09 A 27.00,27.00 0 0 1 66.90,37.65" fill="none" stroke="#c53030" stroke-width="4.0" stroke-linecap="round" opacity="0.85"/>
-  <path d="M 66.90,42.35 A 27.00,27.00 0 0 1 63.14,53.91" fill="none" stroke="#c53030" stroke-width="4.0" stroke-linecap="round" opacity="0.85"/>
-  <path d="M 60.38,57.71 A 27.00,27.00 0 0 1 50.55,64.85" fill="none" stroke="#c53030" stroke-width="4.0" stroke-linecap="round" opacity="0.85"/>
-  <path d="M 46.07,66.31 A 27.00,27.00 0 0 1 33.93,66.31" fill="none" stroke="#c53030" stroke-width="4.0" stroke-linecap="round" opacity="0.85"/>
-  <path d="M 29.45,64.85 A 27.00,27.00 0 0 1 19.62,57.71" fill="none" stroke="#c53030" stroke-width="4.0" stroke-linecap="round" opacity="0.85"/>
-  <path d="M 16.86,53.91 A 27.00,27.00 0 0 1 13.10,42.35" fill="none" stroke="#c53030" stroke-width="4.0" stroke-linecap="round" opacity="0.85"/>
-  <path d="M 13.10,37.65 A 27.00,27.00 0 0 1 16.86,26.09" fill="none" stroke="#c53030" stroke-width="4.0" stroke-linecap="round" opacity="0.85"/>
-  <path d="M 19.62,22.29 A 27.00,27.00 0 0 1 29.45,15.15" fill="none" stroke="#c53030" stroke-width="4.0" stroke-linecap="round" opacity="0.85"/>
-  <circle cx="40" cy="40" r="18.0" fill="none" stroke="#c53030" stroke-width="1.5" opacity="0.8"/>
-  <line x1="40.00" y1="21.00" x2="40.00" y2="5.00" stroke="#c53030" stroke-width="1.2" opacity="0.5"/>
-  <line x1="58.07" y1="34.13" x2="73.29" y2="29.18" stroke="#c53030" stroke-width="1.2" opacity="0.5"/>
-  <line x1="51.17" y1="55.37" x2="60.57" y2="68.32" stroke="#c53030" stroke-width="1.2" opacity="0.5"/>
-  <line x1="28.83" y1="55.37" x2="19.43" y2="68.32" stroke="#c53030" stroke-width="1.2" opacity="0.5"/>
-  <line x1="21.93" y1="34.13" x2="6.71" y2="29.18" stroke="#c53030" stroke-width="1.2" opacity="0.5"/>
-  <circle cx="40.00" cy="22.00" r="1.5" fill="#63b3ed" filter="url(#fav_nodeGlow)" opacity="0.8"/>
-  <circle cx="50.58" cy="25.44" r="1.5" fill="#63b3ed" filter="url(#fav_nodeGlow)" opacity="0.8"/>
-  <circle cx="57.12" cy="34.44" r="1.5" fill="#63b3ed" filter="url(#fav_nodeGlow)" opacity="0.8"/>
-  <circle cx="57.12" cy="45.56" r="1.5" fill="#63b3ed" filter="url(#fav_nodeGlow)" opacity="0.8"/>
-  <circle cx="50.58" cy="54.56" r="1.5" fill="#63b3ed" filter="url(#fav_nodeGlow)" opacity="0.8"/>
-  <circle cx="40.00" cy="58.00" r="1.5" fill="#63b3ed" filter="url(#fav_nodeGlow)" opacity="0.8"/>
-  <circle cx="29.42" cy="54.56" r="1.5" fill="#63b3ed" filter="url(#fav_nodeGlow)" opacity="0.8"/>
-  <circle cx="22.88" cy="45.56" r="1.5" fill="#63b3ed" filter="url(#fav_nodeGlow)" opacity="0.8"/>
-  <circle cx="22.88" cy="34.44" r="1.5" fill="#63b3ed" filter="url(#fav_nodeGlow)" opacity="0.8"/>
-  <circle cx="29.42" cy="25.44" r="1.5" fill="#63b3ed" filter="url(#fav_nodeGlow)" opacity="0.8"/>
-  <circle cx="40" cy="40" r="11.0" fill="none" stroke="#63b3ed" stroke-width="1.0" filter="url(#fav_outerGlow)" opacity="0.6"/>
-  <circle cx="40" cy="40" r="8.0" fill="#63b3ed" filter="url(#fav_coreGlow)" opacity="0.5"/>
-  <circle cx="40" cy="40" r="6.0" fill="#63b3ed" opacity="0.8"/>
-  <circle cx="40" cy="40" r="3.0" fill="#90cdf4" opacity="0.9"/>
-  <circle cx="40" cy="40" r="1.5" fill="white" opacity="0.7"/>
+
+  <!-- Shield -->
+  <path d="M32 4 L56 14 L56 30 Q56 48 32 60 Q8 48 8 30 L8 14 Z"
+        fill="url(#sg)" opacity="0.15"/>
+  <path d="M32 4 L56 14 L56 30 Q56 48 32 60 Q8 48 8 30 L8 14 Z"
+        fill="none" stroke="url(#sg)" stroke-width="2" opacity="0.7"/>
+
+  <!-- Bold S for small sizes -->
+  <path d="M38 18 Q44 18 44 24 Q44 30 32 32 Q20 34 20 40 Q20 46 26 46"
+        fill="none" stroke="url(#ag)" stroke-width="4.5"
+        stroke-linecap="round"/>
+
+  <!-- Terminal dots -->
+  <circle cx="38" cy="18" r="2.5" fill="#FBBF24"/>
+  <circle cx="26" cy="46" r="2.5" fill="#F59E0B"/>
 </svg>

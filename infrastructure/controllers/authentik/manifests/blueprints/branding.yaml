@@ -21,56 +21,56 @@ entries:
       branding_default_flow_background: "branding/background.svg"
       branding_custom_css: |
         /* Starktastic Services — Custom Authentik Theme
-         * Palette: Deep Crimson (#c53030), Arc Reactor Blue (#63b3ed), Dark (#1a202c)
+         * Palette: Indigo (#6366F1), Warm Gold (#F59E0B), Deep Slate (#0F172A)
          */
 
         :root {
-          /* Override Authentik accent colors */
-          --ak-accent-50: #fff5f5;
-          --ak-accent-100: #fed7d7;
-          --ak-accent-200: #feb2b2;
-          --ak-accent-300: #fc8181;
-          --ak-accent-400: #f56565;
-          --ak-accent-500: #e53e3e;
-          --ak-accent-600: #c53030;
-          --ak-accent-700: #9b2c2c;
-          --ak-accent-800: #822727;
-          --ak-accent-900: #63171b;
+          /* Override Authentik accent colors — indigo ramp */
+          --ak-accent-50: #EEF2FF;
+          --ak-accent-100: #E0E7FF;
+          --ak-accent-200: #C7D2FE;
+          --ak-accent-300: #A5B4FC;
+          --ak-accent-400: #818CF8;
+          --ak-accent-500: #6366F1;
+          --ak-accent-600: #4F46E5;
+          --ak-accent-700: #4338CA;
+          --ak-accent-800: #3730A3;
+          --ak-accent-900: #312E81;
         }
 
-        /* Dark theme overrides */
+        /* Dark theme accent overrides */
         :host([theme="dark"]) {
-          --ak-accent-500: #e53e3e;
-          --ak-accent-600: #c53030;
+          --ak-accent-500: #6366F1;
+          --ak-accent-600: #4F46E5;
         }
 
-        /* Flow executor background override for dark feel */
+        /* Flow executor background */
         .pf-c-login {
-          --pf-c-login--BackgroundColor: #1a202c;
+          --pf-c-login--BackgroundColor: #0F172A;
         }
 
-        /* Subtle arc-reactor blue glow on the login card */
+        /* Subtle indigo glow on the login card */
         .pf-c-login__main {
-          border: 1px solid rgba(99, 179, 237, 0.15);
-          box-shadow: 0 0 30px rgba(99, 179, 237, 0.05),
-                      0 4px 20px rgba(0, 0, 0, 0.3);
+          border: 1px solid rgba(99, 102, 241, 0.15);
+          box-shadow: 0 0 40px rgba(99, 102, 241, 0.06),
+                      0 4px 24px rgba(0, 0, 0, 0.35);
         }
 
-        /* Style primary buttons with crimson */
+        /* Primary buttons — indigo */
         .pf-c-button.pf-m-primary {
-          --pf-c-button--m-primary--BackgroundColor: #c53030;
-          --pf-c-button--m-primary--hover--BackgroundColor: #9b2c2c;
-          --pf-c-button--m-primary--focus--BackgroundColor: #9b2c2c;
-          --pf-c-button--m-primary--active--BackgroundColor: #822727;
+          --pf-c-button--m-primary--BackgroundColor: #6366F1;
+          --pf-c-button--m-primary--hover--BackgroundColor: #4F46E5;
+          --pf-c-button--m-primary--focus--BackgroundColor: #4F46E5;
+          --pf-c-button--m-primary--active--BackgroundColor: #4338CA;
         }
 
-        /* Links in arc-reactor blue */
+        /* Links — warm gold */
         .pf-c-login__main-footer-links a,
         .pf-c-form__helper-text a {
-          color: #63b3ed;
+          color: #F59E0B;
         }
         .pf-c-form__helper-text a:hover {
-          color: #90cdf4;
+          color: #FBBF24;
         }
       attributes:
         settings:

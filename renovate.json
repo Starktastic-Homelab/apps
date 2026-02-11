@@ -5,13 +5,13 @@
     "managerFilePatterns": ["/\\.yaml$/"]
   },
   "kubernetes": {
-    "fileMatch": ["\\.yaml$"]
+    "managerFilePatterns": ["/\\.yaml$/"]
   },
   "customManagers": [
     {
       "description": "Update default app-template in cluster-apps AppSet",
       "customType": "regex",
-      "fileMatch": ["^bootstrap/appsets/cluster-apps\\.yaml$"],
+      "managerFilePatterns": ["/^bootstrap/appsets/cluster-apps\\.yaml$/"],
       "matchStrings": [
         "defaultChartRepo: \"(?<registryUrl>.*?)\"[\\s\\S]*?defaultChartName: \"(?<depName>.*?)\"[\\s\\S]*?defaultChartVersion: \"(?<currentValue>.*?)\""
       ],
@@ -21,15 +21,17 @@
     {
       "description": "Update Helm charts in app.yaml via JSONata",
       "customType": "jsonata",
-      "fileMatch": ["^(infrastructure|services)/.*/app\\.yaml$"],
-      "matchStrings": ["chart.{ 'depName': name, 'registryUrl': repo, 'currentValue': version }"],
+      "managerFilePatterns": ["/^(infrastructure|services)/.*/app\\.yaml$/"],
+      "matchStrings": [
+        "chart.{ 'depName': name, 'registryUrl': repo, 'currentValue': version }"
+      ],
       "datasourceTemplate": "helm",
       "fileFormat": "yaml"
     },
     {
       "description": "Update Docker images recursively via JSONata",
       "customType": "jsonata",
-      "fileMatch": ["^(infrastructure|services)/.*/values\\.yaml$"],
+      "managerFilePatterns": ["/^(infrastructure|services)/.*/values\\.yaml$/"],
       "matchStrings": [
         "**.image.{ 'depName': repository, 'currentDigest': digest, 'currentValue': tag ? tag : 'latest' }"
       ],
@@ -39,7 +41,7 @@
     {
       "description": "Update image references in CRD manifests via renovate comments",
       "customType": "regex",
-      "fileMatch": ["^(infrastructure|services)/.*\\.yaml$"],
+      "managerFilePatterns": ["/^(infrastructure|services)/.*\\.yaml$/"],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+)\\n\\s+\\S+:\\s*\"?(?<depName>[^:\"\\s]+):(?<currentValue>[^\"\\s]+)\"?"
       ],
@@ -48,7 +50,7 @@
     {
       "description": "Update pinned tool versions in CI workflows",
       "customType": "regex",
-      "fileMatch": ["^\\.github/workflows/.*\\.yml$"],
+      "managerFilePatterns": ["/^\\.github/workflows/.*\\.yml$/"],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+\\w+:\\s*'(?<currentValue>[^']+)'"
       ],

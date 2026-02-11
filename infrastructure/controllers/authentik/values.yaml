@@ -15,6 +15,13 @@ global:
       mountPath: /templates/email
 authentik:
   log_level: info
+  email:
+    host: "smtp.eu.mailgun.org"
+    port: 587
+    username: "postmaster@benplus.app"
+    from: "Ben Plus <noreply@benplus.app>"
+    use_tls: true
+    timeout: 10
   postgresql:
     host: "postgres-postgresql.databases.svc.cluster.local"
     name: "authentik"
@@ -41,23 +48,16 @@ server:
       value: "50/s"
     - name: AUTHENTIK_AUTHENTICATION__RATE_LIMIT__LOGIN__LIMIT
       value: "10/m"
+    - name: AUTHENTIK_EMAIL__PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: smtp-authentik-secret
+          key: password
   envFrom:
     - secretRef:
         name: authentik-secret
 worker:
   env:
-    - name: AUTHENTIK_EMAIL__HOST
-      value: "smtp.eu.mailgun.org"
-    - name: AUTHENTIK_EMAIL__PORT
-      value: "587"
-    - name: AUTHENTIK_EMAIL__USERNAME
-      value: "postmaster@benplus.app"
-    - name: AUTHENTIK_EMAIL__FROM
-      value: "Ben Plus <noreply@benplus.app>"
-    - name: AUTHENTIK_EMAIL__USE_TLS
-      value: "true"
-    - name: AUTHENTIK_EMAIL__TIMEOUT
-      value: "10"
     - name: AUTHENTIK_EMAIL__PASSWORD
       valueFrom:
         secretKeyRef:

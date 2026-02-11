@@ -19,6 +19,10 @@ entries:
       branding_logo: "custom/logo.svg"
       branding_favicon: "custom/favicon.svg"
       branding_default_flow_background: "custom/background.svg"
+      authentication_flow: !Find [authentik_flows.flow, [slug, default-authentication-flow]]
+      invalidation_flow: !Find [authentik_flows.flow, [slug, default-invalidation-flow]]
+      recovery_flow: !Find [authentik_flows.flow, [slug, default-recovery-flow]]
+      user_settings_flow: !Find [authentik_flows.flow, [slug, default-user-settings-flow]]
       branding_custom_css: |
         /* Starktastic Services — Custom Authentik Theme
          * Palette: Deep Crimson (#c53030), Arc Reactor Blue (#63b3ed), Dark (#1a202c)

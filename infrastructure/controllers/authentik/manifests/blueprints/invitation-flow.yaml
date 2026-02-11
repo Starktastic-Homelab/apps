@@ -28,6 +28,36 @@ entries:
   # =============================================================
 
   - identifiers:
+      name: invite-field-password
+    id: field-password
+    model: authentik_stages_prompt.prompt
+    state: present
+    attrs:
+      field_key: password
+      label: Password
+      type: password
+      required: true
+      placeholder: Password
+      placeholder_expression: false
+      sub_text: >-
+        Min. 12 characters: uppercase, lowercase, number, and special character.
+      order: 300
+
+  - identifiers:
+      name: invite-field-password-repeat
+    id: field-password-repeat
+    model: authentik_stages_prompt.prompt
+    state: present
+    attrs:
+      field_key: password_repeat
+      label: "Password (repeat)"
+      type: password
+      required: true
+      placeholder: "Password (repeat)"
+      placeholder_expression: false
+      order: 301
+
+  - identifiers:
       name: invite-field-media-preference
     id: field-media-preference
     model: authentik_stages_prompt.prompt
@@ -202,8 +232,8 @@ entries:
         - !Find [authentik_stages_prompt.prompt, [name, "default-user-settings-field-username"]]
         - !Find [authentik_stages_prompt.prompt, [name, "default-user-settings-field-name"]]
         - !Find [authentik_stages_prompt.prompt, [name, "default-user-settings-field-email"]]
-        - !Find [authentik_stages_prompt.prompt, [name, "default-password-change-field-password"]]
-        - !Find [authentik_stages_prompt.prompt, [name, "default-password-change-field-password-repeat"]]
+        - !KeyOf field-password
+        - !KeyOf field-password-repeat
       validation_policies:
         - !KeyOf policy-unique-email
         - !KeyOf policy-strong-password

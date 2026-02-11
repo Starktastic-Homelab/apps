@@ -29,9 +29,9 @@
     {
       "description": "Update Docker images recursively via JSONata",
       "customType": "jsonata",
-      "fileMatch": ["^(infrastructure|services)/.*/app\\.yaml$", "^(infrastructure|services)/.*/values\\.yaml$"],
+      "fileMatch": ["^(infrastructure|services)/.*/values\\.yaml$"],
       "matchStrings": [
-        "**. { 'depName': repository, 'currentDigest': digest, 'currentValue': $exists(tag) ? tag : 'latest' } ? [depName] : []"
+        "**.image.{ 'depName': repository, 'currentDigest': digest, 'currentValue': tag ? tag : 'latest' }"
       ],
       "datasourceTemplate": "docker",
       "fileFormat": "yaml"

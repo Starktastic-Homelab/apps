@@ -18,13 +18,13 @@ global:
     - name: custom-email-templates
       mountPath: /templates/email
     - name: branding-assets
-      mountPath: /static/dist/assets/images/logo.svg
+      mountPath: /data/media/public/branding/logo.svg
       subPath: logo.svg
     - name: branding-assets
-      mountPath: /static/dist/assets/images/background.svg
+      mountPath: /data/media/public/branding/background.svg
       subPath: background.svg
     - name: branding-assets
-      mountPath: /static/dist/assets/icons/favicon.svg
+      mountPath: /data/media/public/branding/favicon.svg
       subPath: favicon.svg
 authentik:
   log_level: info

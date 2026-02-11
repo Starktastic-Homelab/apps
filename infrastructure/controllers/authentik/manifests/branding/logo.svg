@@ -1,34 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 64">
-  <defs>
-    <linearGradient id="crimsonGrad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#EF4444"/>
-      <stop offset="100%" stop-color="#DC2626"/>
-    </linearGradient>
-    <linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#60A5FA"/>
-      <stop offset="100%" stop-color="#3B82F6"/>
-    </linearGradient>
-  </defs>
-
-  <!-- Shield icon -->
-  <path d="M26 6 L46 13.5 L46 26 Q46 39 26 48 Q6 39 6 26 L6 13.5 Z"
-        fill="#DC2626" opacity="0.12"/>
-  <path d="M26 6 L46 13.5 L46 26 Q46 39 26 48 Q6 39 6 26 L6 13.5 Z"
-        fill="none" stroke="#DC2626" stroke-width="1.5" opacity="0.7"/>
-
-  <!-- S mark inside shield -->
-  <path d="M31 16 Q36 16 36 20.5 Q36 25 26 27 Q16 29 16 33.5 Q16 38 21 38"
-        fill="none" stroke="url(#blueGrad)" stroke-width="3"
-        stroke-linecap="round"/>
-  <circle cx="31" cy="16" r="1.8" fill="#60A5FA" opacity="0.9"/>
-  <circle cx="21" cy="38" r="1.8" fill="#3B82F6" opacity="0.9"/>
-
-  <!-- STARKTASTIC text -->
-  <text x="58" y="37" font-family="Arial, Helvetica, sans-serif"
-        font-size="22" font-weight="700" letter-spacing="3" fill="#F1F5F9">STARK</text>
-  <text x="163" y="37" font-family="Arial, Helvetica, sans-serif"
-        font-size="22" font-weight="700" letter-spacing="3" fill="#DC2626">TASTIC</text>
-
-  <!-- Subtle underline accent -->
-  <line x1="58" y1="44" x2="248" y2="44" stroke="#3B82F6" stroke-width="1" opacity="0.3"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 48">
+  <text x="0" y="36" font-family="Arial, Helvetica, sans-serif"
+        font-size="36" font-weight="800" letter-spacing="2">
+    <tspan fill="#F1F5F9">STARK</tspan><tspan fill="#DC2626">TASTIC</tspan>
+  </text>
 </svg>

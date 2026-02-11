@@ -11,14 +11,9 @@ global:
     - name: custom-email-templates
       configMap:
         name: authentik-email-templates
-    - name: branding-assets
-      configMap:
-        name: authentik-branding-assets
   volumeMounts:
     - name: custom-email-templates
       mountPath: /templates/email
-    - name: branding-assets
-      mountPath: /data/custom
 authentik:
   log_level: info
   email:

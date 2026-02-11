@@ -3,42 +3,6 @@
 {% load authentik_stages_email %}
 
 {% block content %}
-{% if locale == "ru" %}
-<tr>
-  <td align="center">
-    <h1>Добро пожаловать!</h1>
-  </td>
-</tr>
-<tr>
-  <td style="padding: 20px; color: #212124;">
-    <p style="margin-top: 0;">Привет, {{ user.name|default:user.username }}!</p>
-    <p>Ваш аккаунт готов. Вот что вам доступно.</p>
-
-    <h2 style="font-size: 18px; margin-top: 24px;">Ben+ &mdash; Медиа</h2>
-    <p>Смотрите фильмы, сериалы и многое другое. Установите приложение Jellyfin:</p>
-    <table border="0" style="margin: 10px 0 20px 0;">
-      <tr><td style="padding: 4px 15px;"><a href="https://apps.apple.com/app/jellyfin-mobile/id1480192618" rel="noopener noreferrer" target="_blank">iPhone / iPad</a></td></tr>
-      <tr><td style="padding: 4px 15px;"><a href="https://play.google.com/store/apps/details?id=org.jellyfin.mobile" rel="noopener noreferrer" target="_blank">Android</a></td></tr>
-      <tr><td style="padding: 4px 15px;"><a href="https://play.google.com/store/apps/details?id=org.jellyfin.androidtv" rel="noopener noreferrer" target="_blank">Android TV / Fire TV</a></td></tr>
-      <tr><td style="padding: 4px 15px;"><a href="https://jellyfin.org/downloads" rel="noopener noreferrer" target="_blank">ПК и другие устройства</a></td></tr>
-      <tr><td style="padding: 4px 15px;">Или откройте <a href="https://benplus.app" rel="noopener noreferrer" target="_blank">benplus.app</a> в браузере</td></tr>
-    </table>
-    <p>Адрес сервера: <strong>https://benplus.app</strong></p>
-    <p>Войдите с логином и паролем, которые вы создали при регистрации.</p>
-
-    <h3 style="font-size: 16px; margin-top: 20px;">Запросить контент</h3>
-    <p>Не нашли что посмотреть? Запросите через Jellyseerr &mdash; контент добавится автоматически.</p>
-    {% if media_preference == "original" or media_preference == "both" %}
-    <p><a href="https://request.benplus.app" rel="noopener noreferrer" target="_blank" style="font-weight: bold;">request.benplus.app</a> &mdash; Оригинальный контент</p>
-    {% endif %}
-    {% if media_preference == "ru" or media_preference == "both" %}
-    <p><a href="https://request-ru.benplus.app" rel="noopener noreferrer" target="_blank" style="font-weight: bold;">request-ru.benplus.app</a> &mdash; Русский дубляж</p>
-    {% endif %}
-
-    <p style="margin-top: 20px; color: #666;">Есть вопросы? Обратитесь к тому, кто вас пригласил.</p>
-  </td>
-</tr>
-{% else %}
 <tr>
   <td align="center">
     <h1>Welcome to Starktastic Services!</h1>
@@ -67,11 +31,10 @@
     <p><a href="https://request.benplus.app" rel="noopener noreferrer" target="_blank" style="font-weight: bold;">request.benplus.app</a> &mdash; Original content</p>
     {% endif %}
     {% if media_preference == "ru" or media_preference == "both" %}
-    <p><a href="https://request-ru.benplus.app" rel="noopener noreferrer" target="_blank" style="font-weight: bold;">request-ru.benplus.app</a> &mdash; Русский дубляж</p>
+    <p><a href="https://request-ru.benplus.app" rel="noopener noreferrer" target="_blank" style="font-weight: bold;">request-ru.benplus.app</a> &mdash; Russian dubbed content</p>
     {% endif %}
 
     <p style="margin-top: 20px; color: #666;">Questions? Reach out to the person who invited you.</p>
   </td>
 </tr>
-{% endif %}
 {% endblock %}

@@ -28,34 +28,16 @@ entries:
   # =============================================================
 
   - identifiers:
-      name: invite-field-locale
-    id: field-locale
-    model: authentik_stages_prompt.prompt
-    state: present
-    attrs:
-      field_key: attributes.locale
-      label: Locale
-      type: hidden
-      required: false
-      initial_value: |-
-        accept = request.http_request.META.get('HTTP_ACCEPT_LANGUAGE', '')
-        return "ru" if accept.lower().startswith('ru') else "en"
-      initial_value_expression: true
-      placeholder: en
-      placeholder_expression: false
-      order: 0
-
-  - identifiers:
       name: invite-field-username
     id: field-username
     model: authentik_stages_prompt.prompt
     state: present
     attrs:
       field_key: username
-      label: "Username / Имя пользователя"
+      label: Username
       type: username
       required: true
-      placeholder: " "
+      placeholder: Username
       placeholder_expression: false
       order: 200
 
@@ -66,10 +48,10 @@ entries:
     state: present
     attrs:
       field_key: name
-      label: "Name / Имя"
+      label: Name
       type: text
       required: true
-      placeholder: " "
+      placeholder: Name
       placeholder_expression: false
       order: 201
 
@@ -80,10 +62,10 @@ entries:
     state: present
     attrs:
       field_key: email
-      label: "Email / Эл. почта"
+      label: Email
       type: email
       required: true
-      placeholder: " "
+      placeholder: Email
       placeholder_expression: false
       order: 202
 
@@ -94,14 +76,13 @@ entries:
     state: present
     attrs:
       field_key: password
-      label: "Password / Пароль"
+      label: Password
       type: password
       required: true
-      placeholder: " "
+      placeholder: Password
       placeholder_expression: false
       sub_text: >-
-        Min. 12 characters: uppercase, lowercase, number, and special character. /
-        Мин. 12 символов: заглавная, строчная, цифра и спецсимвол.
+        Min. 12 characters: uppercase, lowercase, number, and special character.
       order: 300
 
   - identifiers:
@@ -111,10 +92,10 @@ entries:
     state: present
     attrs:
       field_key: password_repeat
-      label: "Password (repeat) / Пароль (ещё раз)"
+      label: "Password (repeat)"
       type: password
       required: true
-      placeholder: " "
+      placeholder: "Password (repeat)"
       placeholder_expression: false
       order: 301
 
@@ -125,12 +106,10 @@ entries:
     state: present
     attrs:
       field_key: attributes.media_preference
-      label: Content Language / Язык контента
+      label: Content Language
       type: radio-button-group
       required: true
-      sub_text: >-
-        Choose which media libraries you'd like access to /
-        Выберите, к каким медиатекам вы хотите получить доступ
+      sub_text: "Choose which media libraries you'd like access to"
       placeholder: |-
         return [
             {"label": "Original", "value": "original"},
@@ -151,10 +130,9 @@ entries:
       label: "\u200B"
       type: static
       required: false
-      initial_value: "Check your inbox / Проверьте почту"
+      initial_value: "Check your inbox"
       sub_text: >-
-        A confirmation link has been sent to your email. Please click it to activate your account. /
-        Ссылка для подтверждения отправлена на вашу почту. Нажмите на неё, чтобы активировать аккаунт.
+        A confirmation link has been sent to your email. Please click it to activate your account.
       order: 0
 
   - identifiers:
@@ -167,8 +145,8 @@ entries:
       label: "\u200B"
       type: static
       required: false
-      initial_value: "Email verified! / Почта подтверждена!"
-      sub_text: "Click Continue to get started. / Нажмите «Продолжить», чтобы начать."
+      initial_value: "Email verified!"
+      sub_text: "Click Continue to get started."
       order: 0
 
   # =============================================================
@@ -186,7 +164,7 @@ entries:
 
         email = request.context.get("prompt_data", {}).get("email")
         if email and ak_user_by(email__iexact=email):
-            raise ValidationError("This email is already registered. / Этот адрес уже зарегистрирован.")
+            raise ValidationError("This email is already registered.")
 
         return True
 
@@ -207,8 +185,7 @@ entries:
       length_min: 12
       symbol_charset: '!"#$%&''()*+,-./:;<=>?@[]^_`{|}~'
       error_message:
-        "Password must be at least 12 characters with uppercase, lowercase, number, and special character. / Пароль
-        должен содержать минимум 12 символов: заглавную, строчную, цифру и спецсимвол."
+        "Password must be at least 12 characters with uppercase, lowercase, number, and special character."
       hibp_allowed_count: 0
       zxcvbn_score_threshold: 2
 
@@ -260,16 +237,14 @@ entries:
 
         try:
             preference = pending_user.attributes.get("media_preference", "original")
-            locale = pending_user.attributes.get("locale", "en")
 
             ak_send_email(
                 address=pending_user.email,
-                subject="Welcome to Starktastic Services!" if locale != "ru" else "Добро пожаловать!",
+                subject="Welcome to Starktastic Services!",
                 template="email/welcome_instructions.html",
                 context={
                     "user": pending_user,
                     "media_preference": preference,
-                    "locale": locale,
                 },
             )
         except Exception as e:
@@ -296,7 +271,6 @@ entries:
     state: present
     attrs:
       fields:
-        - !KeyOf field-locale
         - !KeyOf field-username
         - !KeyOf field-name
         - !KeyOf field-email
@@ -332,7 +306,7 @@ entries:
     attrs:
       use_global_settings: true
       template: "email/account_confirmation_branded.html"
-      subject: "Verify your email | Подтвердите почту"
+      subject: "Verify your email"
       activate_user_on_success: true
       token_expiry: minutes=30
 

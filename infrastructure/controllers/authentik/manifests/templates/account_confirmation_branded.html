@@ -1,33 +1,8 @@
 {% extends 'email/base.html' %}
 
 {% load authentik_stages_email %}
-{% load i18n %}
 
 {% block content %}
-{% if user.attributes.locale == "ru" %}
-<tr>
-  <td align="center">
-    <h1>Добро пожаловать!</h1>
-  </td>
-</tr>
-<tr>
-  <td align="center">
-    <table border="0">
-      <tr>
-        <td align="center" style="max-width: 300px; padding: 20px 0; color: #212124;">
-          Вы приглашены в Starktastic Services с доступом к Ben+ и другим сервисам.
-          Подтвердите свою почту, нажав на кнопку ниже.
-        </td>
-      </tr>
-      <tr>
-        <td align="center" class="btn btn-primary">
-          <a id="confirm" href="{{ url }}" rel="noopener noreferrer" target="_blank">Подтвердить</a>
-        </td>
-      </tr>
-    </table>
-  </td>
-</tr>
-{% else %}
 <tr>
   <td align="center">
     <h1>Welcome to Starktastic Services!</h1>
@@ -50,17 +25,12 @@
     </table>
   </td>
 </tr>
-{% endif %}
 {% endblock %}
 
 {% block sub_content %}
 <tr>
   <td style="padding: 20px; font-size: 12px; color: #666; word-break: break-all; overflow-wrap: break-word;" align="center">
-    {% if user.attributes.locale == "ru" %}
-    Если кнопка не работает, скопируйте ссылку в браузер: {{ url }}
-    {% else %}
     If the button doesn't work, copy this link into your browser: {{ url }}
-    {% endif %}
   </td>
 </tr>
 {% endblock %}

@@ -24,8 +24,3 @@ configMapGenerator:
   - name: authentik-branding-blueprint
     files:
       - branding.yaml=blueprints/branding.yaml
-  - name: authentik-branding-assets
-    files:
-      - logo.svg=branding/logo.svg
-      - favicon.svg=branding/favicon.svg
-      - background.svg=branding/background.svg

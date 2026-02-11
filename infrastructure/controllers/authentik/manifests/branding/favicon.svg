@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur"/>
+      <feFlood flood-color="#DC2626" flood-opacity="0.5" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="shadow"/>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="48" height="48" rx="10" fill="#0F0F1A"/>
+  <text x="50%" y="34" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="26" font-weight="800" letter-spacing="1">
+    <tspan fill="#F1F5F9">S</tspan><tspan fill="#DC2626" filter="url(#glow)">T</tspan>
+  </text>
+</svg>

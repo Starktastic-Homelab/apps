@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080">
+  <defs>
+    <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#0F0F1A" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.6"/>
+    </radialGradient>
+    <filter id="nodeglow">
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+  </defs>
+
+  <!-- Base -->
+  <rect width="1920" height="1080" fill="#0F0F1A"/>
+
+  <!-- Subtle grid -->
+  <g stroke="#1E293B" stroke-width="0.5" opacity="0.4">
+    <line x1="0" y1="0" x2="0" y2="1080"/><line x1="120" y1="0" x2="120" y2="1080"/>
+    <line x1="240" y1="0" x2="240" y2="1080"/><line x1="360" y1="0" x2="360" y2="1080"/>
+    <line x1="480" y1="0" x2="480" y2="1080"/><line x1="600" y1="0" x2="600" y2="1080"/>
+    <line x1="720" y1="0" x2="720" y2="1080"/><line x1="840" y1="0" x2="840" y2="1080"/>
+    <line x1="960" y1="0" x2="960" y2="1080"/><line x1="1080" y1="0" x2="1080" y2="1080"/>
+    <line x1="1200" y1="0" x2="1200" y2="1080"/><line x1="1320" y1="0" x2="1320" y2="1080"/>
+    <line x1="1440" y1="0" x2="1440" y2="1080"/><line x1="1560" y1="0" x2="1560" y2="1080"/>
+    <line x1="1680" y1="0" x2="1680" y2="1080"/><line x1="1800" y1="0" x2="1800" y2="1080"/>
+    <line x1="1920" y1="0" x2="1920" y2="1080"/>
+    <line x1="0" y1="0" x2="1920" y2="0"/><line x1="0" y1="120" x2="1920" y2="120"/>
+    <line x1="0" y1="240" x2="1920" y2="240"/><line x1="0" y1="360" x2="1920" y2="360"/>
+    <line x1="0" y1="480" x2="1920" y2="480"/><line x1="0" y1="600" x2="1920" y2="600"/>
+    <line x1="0" y1="720" x2="1920" y2="720"/><line x1="0" y1="840" x2="1920" y2="840"/>
+    <line x1="0" y1="960" x2="1920" y2="960"/><line x1="0" y1="1080" x2="1920" y2="1080"/>
+  </g>
+
+  <!-- Circuit traces -->
+  <g fill="none" stroke-width="1.5" stroke-linecap="round" opacity="0.3">
+    <!-- Blue traces -->
+    <polyline stroke="#3B82F6" points="120,360 360,360 360,600 600,600"/>
+    <polyline stroke="#3B82F6" points="1320,240 1320,480 1560,480 1560,720"/>
+    <polyline stroke="#3B82F6" points="480,840 720,840 720,600"/>
+    <polyline stroke="#3B82F6" points="1200,120 1200,360 960,360"/>
+    <!-- Crimson traces -->
+    <polyline stroke="#DC2626" points="840,120 840,360 1080,360 1080,600"/>
+    <polyline stroke="#DC2626" points="240,600 480,600 480,360"/>
+    <polyline stroke="#DC2626" points="1440,600 1680,600 1680,840 1440,840"/>
+    <polyline stroke="#DC2626" points="600,240 840,240"/>
+  </g>
+
+  <!-- Circuit nodes -->
+  <g opacity="0.5">
+    <circle cx="360" cy="360" r="4" fill="#3B82F6"/>
+    <circle cx="360" cy="600" r="4" fill="#3B82F6"/>
+    <circle cx="600" cy="600" r="4" fill="#3B82F6"/>
+    <circle cx="1320" cy="480" r="4" fill="#3B82F6"/>
+    <circle cx="1560" cy="480" r="4" fill="#3B82F6"/>
+    <circle cx="720" cy="840" r="4" fill="#3B82F6"/>
+    <circle cx="1200" cy="360" r="4" fill="#3B82F6"/>
+    <circle cx="840" cy="360" r="4" fill="#DC2626"/>
+    <circle cx="1080" cy="360" r="4" fill="#DC2626"/>
+    <circle cx="1080" cy="600" r="4" fill="#DC2626"/>
+    <circle cx="480" cy="600" r="4" fill="#DC2626"/>
+    <circle cx="480" cy="360" r="4" fill="#DC2626"/>
+    <circle cx="1680" cy="600" r="4" fill="#DC2626"/>
+    <circle cx="1680" cy="840" r="4" fill="#DC2626"/>
+    <circle cx="840" cy="240" r="4" fill="#DC2626"/>
+  </g>
+
+  <!-- Glow spots -->
+  <g filter="url(#nodeglow)" opacity="0.15">
+    <circle cx="600" cy="600" r="8" fill="#3B82F6"/>
+    <circle cx="1080" cy="600" r="8" fill="#DC2626"/>
+    <circle cx="1560" cy="480" r="8" fill="#3B82F6"/>
+    <circle cx="480" cy="360" r="8" fill="#DC2626"/>
+  </g>
+
+  <!-- Vignette -->
+  <rect width="1920" height="1080" fill="url(#vignette)"/>
+</svg>

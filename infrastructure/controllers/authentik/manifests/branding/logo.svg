@@ -1,6 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 48">
-  <text x="0" y="36" font-family="Arial, Helvetica, sans-serif"
-        font-size="36" font-weight="800" letter-spacing="2">
-    <tspan fill="#F1F5F9">STARK</tspan><tspan fill="#DC2626">TASTIC</tspan>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 56">
+  <defs>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur"/>
+      <feFlood flood-color="#DC2626" flood-opacity="0.6" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="shadow"/>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+  <text x="0" y="34" font-family="Arial, Helvetica, sans-serif"
+        font-size="36" font-weight="800" letter-spacing="2" filter="url(#shadow)">
+    <tspan fill="#F1F5F9">STARK</tspan><tspan fill="#DC2626" filter="url(#glow)">TASTIC</tspan>
+  </text>
+  <text x="1" y="52" font-family="Arial, Helvetica, sans-serif"
+        font-size="13" font-weight="600" letter-spacing="6" fill="#94A3B8">
+    SERVICES
   </text>
 </svg>

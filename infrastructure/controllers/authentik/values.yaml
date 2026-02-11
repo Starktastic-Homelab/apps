@@ -20,6 +20,12 @@ global:
     - name: branding-assets
       mountPath: /data/media/public/branding/logo.svg
       subPath: logo.svg
+    - name: branding-assets
+      mountPath: /data/media/public/branding/favicon.svg
+      subPath: favicon.svg
+    - name: branding-assets
+      mountPath: /data/media/public/branding/background.svg
+      subPath: background.svg
 authentik:
   log_level: info
   email:

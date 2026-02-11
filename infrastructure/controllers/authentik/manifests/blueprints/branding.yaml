@@ -49,6 +49,8 @@ entries:
       default: true
       branding_title: "Starktastic Services"
       branding_logo: "branding/logo.svg"
+      branding_favicon: "branding/favicon.svg"
+      branding_default_flow_background: "branding/background.svg"
       branding_custom_css: |
         /* Starktastic Services — Custom Authentik Theme
          * Palette: Crimson (#DC2626), Blue (#3B82F6), Dark (#0F0F1A)

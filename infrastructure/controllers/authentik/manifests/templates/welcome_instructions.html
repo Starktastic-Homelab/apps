@@ -30,8 +30,10 @@
     {% if media_preference == "original" or media_preference == "both" %}
     <p><a href="https://request.benplus.app" rel="noopener noreferrer" target="_blank" style="font-weight: bold;">request.benplus.app</a> &mdash; Original content</p>
     {% endif %}
-    {% if media_preference == "ru" or media_preference == "both" %}
-    <p><a href="https://request-ru.benplus.app" rel="noopener noreferrer" target="_blank" style="font-weight: bold;">request-ru.benplus.app</a> &mdash; Russian dubbed content</p>
+    {% if media_preference == "ru" %}
+    <p><a href="https://request-ru.benplus.app" rel="noopener noreferrer" target="_blank" style="font-weight: bold;">request-ru.benplus.app</a> &mdash; Русский дубляж</p>
+    {% elif media_preference == "both" %}
+    <p><a href="https://request-ru.benplus.app" rel="noopener noreferrer" target="_blank" style="font-weight: bold;">request-ru.benplus.app</a> &mdash; Russian dubbed content / Русский дубляж</p>
     {% endif %}
 
     <p style="margin-top: 20px; color: #666;">Questions? Reach out to the person who invited you.</p>

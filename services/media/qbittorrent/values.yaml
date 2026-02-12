@@ -4,7 +4,7 @@ controllers:
       main:
         image:
           repository: lscr.io/linuxserver/qbittorrent
-          tag: latest
+          tag: 5.1.4
           digest: sha256:e0cedcadd62f809efdeddfd32e4d1192f9a74e6e64ed6753bfc6e2c3ed4a714a
         env:
           WEBUI_PORT: "8080"

@@ -12,11 +12,7 @@ controllers:
           GEMINI_MODEL: "gemini-2.0-flash"
 
           # Database
-          DB_CONNECTION: "postgresql"
-          DB_HOST: "postgres-postgresql.databases.svc.cluster.local"
-          DB_PORT: "5432"
-          DB_DATABASE: "lingarr"
-          DB_USERNAME: "lingarr"
+          DB_CONNECTION: "sqlite"
 
           # Sonarr / Radarr (EN instances only)
           SONARR_URL: "http://sonarr.media.svc.cluster.local:8989"

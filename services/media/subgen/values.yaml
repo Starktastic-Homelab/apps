@@ -1,0 +1,52 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: mccloud/subgen
+          tag: 2026.02.9-cpu
+          digest: sha256:9daf2c34f3d97ed2a0b158cb47ac7eb5d8c016d7d810ac740ea2d472e4bf3311
+        env:
+          WHISPER_MODEL: "small"
+          TRANSCRIBE_DEVICE: "cpu"
+          WHISPER_THREADS: "4"
+          CONCURRENT_TRANSCRIPTIONS: "1"
+          CLEAR_VRAM_ON_COMPLETE: "True"
+          MODEL_CLEANUP_DELAY: "30"
+          UPDATE: "False"
+          DEBUG: "False"
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            path: /status
+            port: 9000
+          readiness:
+            enabled: true
+            type: HTTP
+            path: /status
+            port: 9000
+          startup:
+            enabled: true
+            type: HTTP
+            path: /status
+            port: 9000
+            spec:
+              initialDelaySeconds: 10
+              failureThreshold: 60
+              periodSeconds: 10
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 9000
+
+persistence:
+  config:
+    enabled: false
+  models:
+    type: emptyDir
+    globalMounts:
+      - path: /subgen/models

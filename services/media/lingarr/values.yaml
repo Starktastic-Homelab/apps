@@ -1,0 +1,71 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: ghcr.io/lingarr-translate/lingarr
+          tag: "1.0.5"
+          digest: sha256:9ffd14638d33cdc503c874e2010e1f9366a6f63100bbb6373d86490c6e96a2cf
+        env:
+          # Translation backend
+          SERVICE_TYPE: "gemini"
+          GEMINI_MODEL: "gemini-2.0-flash"
+
+          # Database
+          DB_CONNECTION: "postgresql"
+          DB_HOST: "postgres-postgresql.databases.svc.cluster.local"
+          DB_PORT: "5432"
+          DB_DATABASE: "lingarr"
+          DB_USERNAME: "lingarr"
+
+          # Sonarr / Radarr (EN instances only)
+          SONARR_URL: "http://sonarr.media.svc.cluster.local:8989"
+          RADARR_URL: "http://radarr.media.svc.cluster.local:7878"
+
+          # Languages
+          SOURCE_LANGUAGES: '[{"name":"English","code":"en"}]'
+          TARGET_LANGUAGES: '[{"name":"Hebrew","code":"he"},{"name":"Russian","code":"ru"}]'
+        envFrom:
+          - secretRef:
+              name: lingarr-secret
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            path: /
+            port: 9876
+          readiness:
+            enabled: true
+            type: HTTP
+            path: /
+            port: 9876
+          startup:
+            enabled: true
+            type: HTTP
+            path: /
+            port: 9876
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 9876
+
+persistence:
+  config:
+    enabled: false
+  lingarr-config:
+    type: persistentVolumeClaim
+    storageClass: "nfs-pv"
+    size: 1Gi
+    accessMode: ReadWriteMany
+    globalMounts:
+      - path: /app/config
+  media:
+    existingClaim: media-library-pvc
+    globalMounts:
+      - path: /data

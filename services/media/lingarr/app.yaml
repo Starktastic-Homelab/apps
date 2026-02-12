@@ -1,0 +1,11 @@
+name: lingarr
+namespace: media
+deployPhase: services
+
+ingress:
+  enabled: true
+  host: lingarr
+  domainType: "internal"
+  port: 9876
+  auth: true
+  rateLimit: true

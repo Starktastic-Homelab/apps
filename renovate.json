@@ -27,14 +27,14 @@
       "fileFormat": "yaml"
     },
     {
-      "description": "Update Docker images recursively via JSONata",
-      "customType": "jsonata",
+      "description": "Update Docker image digests in Helm values",
+      "customType": "regex",
       "managerFilePatterns": ["/^(infrastructure|services)/.*/values\\.yaml$/"],
       "matchStrings": [
-        "**.image.{ 'depName': repository, 'currentDigest': digest, 'currentValue': tag ? tag : 'latest' }"
+        "repository: (?<depName>\\S+)\\n\\s+tag: (?<currentValue>\\S+)\\n\\s+digest: (?<currentDigest>sha256:[a-f0-9]+)"
       ],
-      "datasourceTemplate": "docker",
-      "fileFormat": "yaml"
+      "autoReplaceStringTemplate": "repository: {{{depName}}}\n          tag: {{{newValue}}}\n          digest: {{{newDigest}}}",
+      "datasourceTemplate": "docker"
     },
     {
       "description": "Update image references in CRD manifests via renovate comments",

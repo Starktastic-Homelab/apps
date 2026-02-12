@@ -4,4 +4,4 @@ deployPhase: controllers
 chart:
   repo: https://charts.bitnami.com/bitnami
   name: redis
-  version: 24.1.8
+  version: 25.0.0

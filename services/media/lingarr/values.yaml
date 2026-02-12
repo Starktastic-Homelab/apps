@@ -27,27 +27,29 @@ controllers:
         probes:
           liveness:
             enabled: true
-            type: TCP
-            port: 9876
+            type: HTTP
+            path: /
+            port: 8080
           readiness:
             enabled: true
-            type: TCP
-            port: 9876
+            type: HTTP
+            path: /
+            port: 8080
           startup:
             enabled: true
-            type: TCP
-            port: 9876
+            type: HTTP
+            path: /
+            port: 8080
             spec:
-              initialDelaySeconds: 30
-              failureThreshold: 60
-              periodSeconds: 10
+              failureThreshold: 30
+              periodSeconds: 5
 
 service:
   main:
     controller: main
     ports:
       http:
-        port: 9876
+        port: 8080
 
 persistence:
   config:

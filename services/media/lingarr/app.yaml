@@ -6,6 +6,6 @@ ingress:
   enabled: true
   host: lingarr
   domainType: "internal"
-  port: 9876
+  port: 8080
   auth: true
   rateLimit: true

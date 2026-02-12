@@ -27,18 +27,15 @@ controllers:
         probes:
           liveness:
             enabled: true
-            type: HTTP
-            path: /
+            type: TCP
             port: 9876
           readiness:
             enabled: true
-            type: HTTP
-            path: /
+            type: TCP
             port: 9876
           startup:
             enabled: true
-            type: HTTP
-            path: /
+            type: TCP
             port: 9876
             spec:
               failureThreshold: 30

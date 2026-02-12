@@ -38,8 +38,9 @@ controllers:
             type: TCP
             port: 9876
             spec:
-              failureThreshold: 30
-              periodSeconds: 5
+              initialDelaySeconds: 30
+              failureThreshold: 60
+              periodSeconds: 10
 
 service:
   main:

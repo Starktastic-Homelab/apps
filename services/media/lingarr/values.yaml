@@ -4,8 +4,8 @@ controllers:
       main:
         image:
           repository: ghcr.io/lingarr-translate/lingarr
-          tag: 1.0.5
-          digest: sha256:9ffd14638d33cdc503c874e2010e1f9366a6f63100bbb6373d86490c6e96a2cf
+          tag: 1.0.7
+          digest: sha256:524ec3f9f08b02bcb247c1d529f213a3ded09ea0477404f45330b6d88a8112c5
         env:
           # Translation backend
           SERVICE_TYPE: "gemini"

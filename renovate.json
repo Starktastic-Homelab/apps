@@ -7,6 +7,9 @@
   "kubernetes": {
     "managerFilePatterns": ["/\\.yaml$/"]
   },
+  "helm-values": {
+    "managerFilePatterns": ["!/^(infrastructure|services)/.*/values\\.yaml$/"]
+  },
   "customManagers": [
     {
       "description": "Update default app-template in cluster-apps AppSet",

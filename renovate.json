@@ -14,8 +14,14 @@
     {
       "description": "Block Ubuntu base-image version tags (e.g. 20.04.1) on LinuxServer images",
       "matchDatasources": ["docker"],
-      "matchPackagePatterns": ["^lscr\\.io/linuxserver/"],
+      "matchPackageNames": ["/^lscr\\.io/linuxserver//"],
       "allowedVersions": "!/^\\d{2}\\.04/"
+    },
+    {
+      "description": "Block old LinuxServer libtorrent-based tags for qBittorrent",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["lscr.io/linuxserver/qbittorrent"],
+      "allowedVersions": "< 6.0.0"
     }
   ],
   "customManagers": [

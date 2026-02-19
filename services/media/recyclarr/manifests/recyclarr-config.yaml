@@ -23,7 +23,6 @@ data:
 
         include:
           - template: radarr-quality-definition-movie
-          - template: radarr-quality-profile-uhd-bluray-web
           - template: radarr-custom-formats-uhd-bluray-web
 
         custom_formats:

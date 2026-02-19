@@ -25,7 +25,7 @@ data:
           - template: radarr-quality-definition-movie
           - template: radarr-quality-profile-uhd-bluray-web
           - template: radarr-custom-formats-uhd-bluray-web
-          - template: radarr-custom-formats-audio-advanced
+          # REMOVED: Audio template (Using manual IDs below instead)
           - template: radarr-custom-formats-hdr
 
         custom_formats:
@@ -45,6 +45,7 @@ data:
                 score: 5000
 
           # Lossless Audio Boost
+          # Recyclarr will fetch these definitions directly by ID
           - trash_ids:
               - 496f355514737f7d83bf7aa4d24f8169 # TrueHD ATMOS
               - 2f22d89048b01681dde8afe203bf2e95 # DTS X
@@ -144,7 +145,7 @@ data:
           - template: sonarr-v4-quality-profile-web-2160p-alternative
           - template: sonarr-v4-custom-formats-web-2160p
           - template: sonarr-v4-custom-formats-anime
-          - template: sonarr-v4-custom-formats-audio-advanced
+          # REMOVED: Audio template (Using manual IDs below instead)
           - template: sonarr-v4-custom-formats-hdr
 
         custom_formats:
@@ -176,7 +177,7 @@ data:
                 score: 2000
               - name: Anime (Ultimate)
                 score: 2000
-                
+
           # BLOCK DV (w/o HDR Fallback)
           - trash_ids:
               - 9b27ab6498ec0f31a3353992e19434ca # DV (w/o HDR fallback)

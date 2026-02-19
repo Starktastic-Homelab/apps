@@ -29,14 +29,14 @@ data:
           - trash_ids:
               - 0f12c086e289cf966fa5948eac571f44 # Hybrid
             assign_scores_to:
-              - name: Remux + WEB 2160p
+              - name: UHD Bluray + WEB
                 score: 10000
 
           - trash_ids:
               - b337d6812e06c200ec9a2d3cfa9d20a7 # DV Boost
               - caa37d0df9c348912df1fb1d88f9273a # HDR10+ Boost
             assign_scores_to:
-              - name: Remux + WEB 2160p
+              - name: UHD Bluray + WEB
                 score: 5000
 
           - trash_ids:
@@ -45,23 +45,23 @@ data:
               - 3cafb66171b47f226146a0770576870f # TrueHD
               - dcf3ec6938fa32445f590a4da84256cd # DTS-HD MA
             assign_scores_to:
-              - name: Remux + WEB 2160p
+              - name: UHD Bluray + WEB
                 score: 2000
 
           - trash_ids:
               - 9c38ebb7384dada637be8899efa68e6f # SDR
             assign_scores_to:
-              - name: Remux + WEB 2160p
+              - name: UHD Bluray + WEB
                 score: -10000
 
           - trash_ids:
               - 923b6abef9b17f937fab56cfcf89e1f1 # DV (w/o HDR fallback)
             assign_scores_to:
-              - name: Remux + WEB 2160p
+              - name: UHD Bluray + WEB
                 score: -10000
 
         quality_profiles:
-          - name: Remux + WEB 2160p
+          - name: UHD Bluray + WEB
             upgrade:
               allowed: true
               until_quality: Remux-2160p
@@ -138,7 +138,6 @@ data:
           - template: sonarr-v4-custom-formats-anime
 
         custom_formats:
-          # Anime Tier 01 (SeaDex)
           - trash_ids:
               - 949c16fe0a8147f50ba82cc2df9411c9 # Anime BD Tier 01
               - e0014372773c8f0e1bef8824f00c7dc4 # Anime Web Tier 01
@@ -146,7 +145,6 @@ data:
               - name: Remux-1080p - Anime
                 score: 10000
 
-          # Hybrid / Remaster
           - trash_ids:
               - 3a4127d8aa781b44120d907f2cd62627 # Hybrid
               - b735f09d3c025cbb7d75a5d38325b73b # Remaster
@@ -156,7 +154,6 @@ data:
               - name: Remux-1080p - Anime
                 score: 5000
 
-          # Lossless Audio Boost
           - trash_ids:
               - 0d7824bb924701997f874e7ff7d4844a # TrueHD ATMOS
               - 9d00418ba386a083fbf4d58235fc37ef # DTS X
@@ -167,7 +164,6 @@ data:
               - name: Remux-1080p - Anime
                 score: 2000
 
-          # BLOCK DV (w/o HDR Fallback)
           - trash_ids:
               - 9b27ab6498ec0f31a3353992e19434ca # DV (w/o HDR fallback)
             assign_scores_to:

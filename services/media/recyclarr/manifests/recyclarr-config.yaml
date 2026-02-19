@@ -1,3 +1,4 @@
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -24,9 +25,8 @@ data:
           - template: radarr-quality-definition-movie
           - template: radarr-quality-profile-uhd-bluray-web
           - template: radarr-custom-formats-uhd-bluray-web
-          - template: radarr-custom-formats-advanced-audio
+          - template: radarr-custom-formats-audio-advanced
           - template: radarr-custom-formats-hdr
-          - template: radarr-custom-formats-remux-tier
 
         custom_formats:
           # Hybrid / Best Quality
@@ -44,7 +44,7 @@ data:
               - name: Remux + WEB 2160p
                 score: 5000
 
-          # Lossless Audio Boost (TrueHD/DTS-X)
+          # Lossless Audio Boost
           - trash_ids:
               - 496f355514737f7d83bf7aa4d24f8169 # TrueHD ATMOS
               - 2f22d89048b01681dde8afe203bf2e95 # DTS X
@@ -54,16 +54,16 @@ data:
               - name: Remux + WEB 2160p
                 score: 2000
 
-          # Remux Tier 01
-          - trash_ids:
-              - 5761d377-1729-436c-9b90-c6b226e63780 # Remux Tier 01
-            assign_scores_to:
-              - name: Remux + WEB 2160p
-                score: 500
-
           # SDR Avoidance
           - trash_ids:
               - 9c38ebb7384dada637be8899efa68e6f # SDR
+            assign_scores_to:
+              - name: Remux + WEB 2160p
+                score: -10000
+
+          # BLOCK DV (w/o HDR Fallback)
+          - trash_ids:
+              - 923b6abef9b17f937fab56cfcf89e1f1 # DV (w/o HDR fallback)
             assign_scores_to:
               - name: Remux + WEB 2160p
                 score: -10000
@@ -144,7 +144,7 @@ data:
           - template: sonarr-v4-quality-profile-web-2160p-alternative
           - template: sonarr-v4-custom-formats-web-2160p
           - template: sonarr-v4-custom-formats-anime
-          - template: sonarr-v4-custom-formats-advanced-audio
+          - template: sonarr-v4-custom-formats-audio-advanced
           - template: sonarr-v4-custom-formats-hdr
 
         custom_formats:
@@ -176,6 +176,15 @@ data:
                 score: 2000
               - name: Anime (Ultimate)
                 score: 2000
+                
+          # BLOCK DV (w/o HDR Fallback)
+          - trash_ids:
+              - 9b27ab6498ec0f31a3353992e19434ca # DV (w/o HDR fallback)
+            assign_scores_to:
+              - name: WEB-2160p
+                score: -10000
+              - name: Anime (Ultimate)
+                score: -10000
 
         quality_profiles:
           - name: WEB-2160p

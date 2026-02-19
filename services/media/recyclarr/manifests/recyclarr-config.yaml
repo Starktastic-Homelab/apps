@@ -25,8 +25,6 @@ data:
           - template: radarr-quality-definition-movie
           - template: radarr-quality-profile-uhd-bluray-web
           - template: radarr-custom-formats-uhd-bluray-web
-          # REMOVED: Audio template (Using manual IDs below instead)
-          - template: radarr-custom-formats-hdr
 
         custom_formats:
           # Hybrid / Best Quality
@@ -45,7 +43,6 @@ data:
                 score: 5000
 
           # Lossless Audio Boost
-          # Recyclarr will fetch these definitions directly by ID
           - trash_ids:
               - 496f355514737f7d83bf7aa4d24f8169 # TrueHD ATMOS
               - 2f22d89048b01681dde8afe203bf2e95 # DTS X
@@ -145,8 +142,6 @@ data:
           - template: sonarr-v4-quality-profile-web-2160p-alternative
           - template: sonarr-v4-custom-formats-web-2160p
           - template: sonarr-v4-custom-formats-anime
-          # REMOVED: Audio template (Using manual IDs below instead)
-          - template: sonarr-v4-custom-formats-hdr
 
         custom_formats:
           # Anime Tier 01 (SeaDex)

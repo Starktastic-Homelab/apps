@@ -27,14 +27,12 @@ data:
           - template: radarr-custom-formats-uhd-bluray-web
 
         custom_formats:
-          # Hybrid / Best Quality
           - trash_ids:
               - 0f12c086e289cf966fa5948eac571f44 # Hybrid
             assign_scores_to:
               - name: Remux + WEB 2160p
                 score: 10000
 
-          # DV / HDR10+ Boost
           - trash_ids:
               - b337d6812e06c200ec9a2d3cfa9d20a7 # DV Boost
               - caa37d0df9c348912df1fb1d88f9273a # HDR10+ Boost
@@ -42,7 +40,6 @@ data:
               - name: Remux + WEB 2160p
                 score: 5000
 
-          # Lossless Audio Boost
           - trash_ids:
               - 496f355514737f7d83bf7aa4d24f8169 # TrueHD ATMOS
               - 2f22d89048b01681dde8afe203bf2e95 # DTS X
@@ -52,14 +49,12 @@ data:
               - name: Remux + WEB 2160p
                 score: 2000
 
-          # SDR Avoidance
           - trash_ids:
               - 9c38ebb7384dada637be8899efa68e6f # SDR
             assign_scores_to:
               - name: Remux + WEB 2160p
                 score: -10000
 
-          # BLOCK DV (w/o HDR Fallback)
           - trash_ids:
               - 923b6abef9b17f937fab56cfcf89e1f1 # DV (w/o HDR fallback)
             assign_scores_to:
@@ -149,7 +144,7 @@ data:
               - 949c16fe0a8147f50ba82cc2df9411c9 # Anime BD Tier 01
               - e0014372773c8f0e1bef8824f00c7dc4 # Anime Web Tier 01
             assign_scores_to:
-              - name: Anime (Ultimate)
+              - name: Remux-1080p - Anime
                 score: 10000
 
           # Hybrid / Remaster
@@ -159,7 +154,7 @@ data:
             assign_scores_to:
               - name: WEB-2160p
                 score: 5000
-              - name: Anime (Ultimate)
+              - name: Remux-1080p - Anime
                 score: 5000
 
           # Lossless Audio Boost
@@ -170,7 +165,7 @@ data:
             assign_scores_to:
               - name: WEB-2160p
                 score: 2000
-              - name: Anime (Ultimate)
+              - name: Remux-1080p - Anime
                 score: 2000
 
           # BLOCK DV (w/o HDR Fallback)
@@ -179,7 +174,7 @@ data:
             assign_scores_to:
               - name: WEB-2160p
                 score: -10000
-              - name: Anime (Ultimate)
+              - name: Remux-1080p - Anime
                 score: -10000
 
         quality_profiles:
@@ -209,7 +204,7 @@ data:
             reset_unmatched_scores:
               enabled: true
 
-          - name: Anime (Ultimate)
+          - name: Remux-1080p - Anime
             upgrade:
               allowed: true
               until_quality: Bluray-2160p Remux

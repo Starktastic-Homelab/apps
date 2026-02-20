@@ -4,4 +4,4 @@ deployPhase: controllers
 chart:
   repo: https://traefik.github.io/charts
   name: traefik
-  version: 39.0.1
+  version: 39.0.2

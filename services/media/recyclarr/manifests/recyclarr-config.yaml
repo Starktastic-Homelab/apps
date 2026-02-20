@@ -13,7 +13,6 @@ data:
         base_url: http://radarr.media.svc.cluster.local:7878
         api_key: !env_var RADARR_API_KEY
         delete_old_custom_formats: true
-        replace_existing_custom_formats: true
 
         media_naming:
           folder: default
@@ -21,9 +20,8 @@ data:
             rename: true
             standard: standard
 
-        include:
-          - template: radarr-quality-definition-movie
-          - template: radarr-custom-formats-uhd-bluray-web
+        quality_definition:
+          type: movie
 
         custom_formats:
           - trash_ids:
@@ -61,7 +59,7 @@ data:
                 score: -10000
 
         quality_profiles:
-          - name: UHD Bluray + WEB
+          - trash_id: 64fb5f9858489bdac2af690e27c8f42f # UHD Bluray + WEB
             upgrade:
               allowed: true
               until_quality: Remux-2160p
@@ -90,7 +88,6 @@ data:
         base_url: http://radarr-ru.media.svc.cluster.local:7878
         api_key: !env_var RADARR_RU_API_KEY
         delete_old_custom_formats: true
-        replace_existing_custom_formats: true
 
         media_naming:
           folder: default
@@ -98,10 +95,8 @@ data:
             rename: true
             standard: standard
 
-        include:
-          - template: radarr-quality-definition-movie
-          - template: radarr-quality-profile-hd-bluray-web
-          - template: radarr-custom-formats-hd-bluray-web
+        quality_definition:
+          type: movie
 
         custom_formats:
           - trash_ids:
@@ -111,7 +106,7 @@ data:
                 score: -10000
 
         quality_profiles:
-          - name: HD Bluray + WEB
+          - trash_id: d1d67249d3890e49bc12e275d989a7e9 # HD Bluray + WEB
             reset_unmatched_scores:
               enabled: true
 
@@ -120,7 +115,6 @@ data:
         base_url: http://sonarr.media.svc.cluster.local:8989
         api_key: !env_var SONARR_API_KEY
         delete_old_custom_formats: true
-        replace_existing_custom_formats: true
 
         media_naming:
           series: default
@@ -131,11 +125,8 @@ data:
             daily: default
             anime: default
 
-        include:
-          - template: sonarr-quality-definition-series
-          - template: sonarr-v4-quality-profile-web-2160p-alternative
-          - template: sonarr-v4-custom-formats-web-2160p
-          - template: sonarr-v4-custom-formats-anime
+        quality_definition:
+          type: series
 
         custom_formats:
           - trash_ids:
@@ -173,7 +164,8 @@ data:
                 score: -10000
 
         quality_profiles:
-          - name: WEB-2160p
+          - trash_id: dfa5eaae7894077ad6449169b6eb03e0 # WEB-2160p (Alternative)
+            name: WEB-2160p
             upgrade:
               allowed: true
               until_quality: Bluray-2160p Remux
@@ -199,7 +191,8 @@ data:
             reset_unmatched_scores:
               enabled: true
 
-          - name: Remux-1080p - Anime
+          - trash_id: 20e0fc959f1f1704bed501f23bdae76f # [Anime] Remux-1080p
+            name: Remux-1080p - Anime
             upgrade:
               allowed: true
               until_quality: Bluray-2160p Remux
@@ -231,7 +224,6 @@ data:
         base_url: http://sonarr-ru.media.svc.cluster.local:8989
         api_key: !env_var SONARR_RU_API_KEY
         delete_old_custom_formats: true
-        replace_existing_custom_formats: true
 
         media_naming:
           series: default
@@ -242,10 +234,8 @@ data:
             daily: default
             anime: default
 
-        include:
-          - template: sonarr-quality-definition-series
-          - template: sonarr-v4-quality-profile-web-1080p
-          - template: sonarr-v4-custom-formats-web-1080p
+        quality_definition:
+          type: series
 
         custom_formats:
           - trash_ids:
@@ -255,6 +245,6 @@ data:
                 score: -10000
 
         quality_profiles:
-          - name: WEB-1080p
+          - trash_id: 72dae194fc92bf828f32cde7744e51a1 # WEB-1080p
             reset_unmatched_scores:
               enabled: true

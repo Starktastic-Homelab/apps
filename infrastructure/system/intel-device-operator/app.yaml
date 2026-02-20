@@ -4,4 +4,4 @@ deployPhase: hardware
 chart:
   repo: https://intel.github.io/helm-charts
   name: intel-device-plugins-operator
-  version: 0.34.1
+  version: 0.35.0

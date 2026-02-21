@@ -6,8 +6,6 @@ controllers:
           repository: ghcr.io/cross-seed/cross-seed
           tag: "6.13.6"
           digest: sha256:e2bf5b593e4e7d699e6242423ad7966190cd52ba8eefafdfdbb0cb5b0b609b96
-        command:
-          - "cross-seed"
         args:
           - "daemon"
         probes:
@@ -35,12 +33,6 @@ service:
         port: 2468
 
 persistence:
-  config:
-    enabled: false
-  cross-seed-data:
-    type: emptyDir
-    globalMounts:
-      - path: /config
   cross-seed-config:
     type: secret
     name: cross-seed-config

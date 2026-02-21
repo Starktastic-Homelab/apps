@@ -8,6 +8,8 @@ controllers:
           digest: sha256:e2bf5b593e4e7d699e6242423ad7966190cd52ba8eefafdfdbb0cb5b0b609b96
         args:
           - "daemon"
+          - "--config-dir"
+          - "/cross-seed"
         probes:
           liveness:
             enabled: true
@@ -33,11 +35,17 @@ service:
         port: 2468
 
 persistence:
+  config:
+    enabled: false
+  cross-seed-data:
+    type: emptyDir
+    globalMounts:
+      - path: /cross-seed
   cross-seed-config:
     type: secret
     name: cross-seed-config
     globalMounts:
-      - path: /config/config.js
+      - path: /cross-seed/config.js
         subPath: config.js
         readOnly: true
   media:

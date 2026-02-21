@@ -1,0 +1,3 @@
+name: cross-seed
+namespace: media
+deployPhase: services

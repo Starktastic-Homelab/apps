@@ -33,14 +33,6 @@ service:
         port: 2468
 
 persistence:
-  config:
-    enabled: true
-    type: persistentVolumeClaim
-    storageClass: "nfs-pv"
-    size: 1Gi
-    accessMode: ReadWriteMany
-    globalMounts:
-      - path: /config
   cross-seed-config:
     type: secret
     name: cross-seed-config

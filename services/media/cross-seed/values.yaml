@@ -1,0 +1,46 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: ghcr.io/cross-seed/cross-seed
+          tag: "6.13.6"
+          digest: sha256:e2bf5b593e4e7d699e6242423ad7966190cd52ba8eefafdfdbb0cb5b0b609b96
+        args:
+          - "daemon"
+        probes:
+          liveness:
+            enabled: true
+            type: TCP
+            port: 2468
+          readiness:
+            enabled: true
+            type: TCP
+            port: 2468
+          startup:
+            enabled: true
+            type: TCP
+            port: 2468
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 2468
+
+persistence:
+  cross-seed-config:
+    type: secret
+    name: cross-seed-config
+    globalMounts:
+      - path: /config/config.js
+        subPath: config.js
+        readOnly: true
+  media:
+    existingClaim: media-library-pvc
+    globalMounts:
+      - path: /data

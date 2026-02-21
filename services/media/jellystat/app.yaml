@@ -1,0 +1,11 @@
+name: jellystat
+namespace: media
+deployPhase: services
+
+ingress:
+  enabled: true
+  host: jellystat
+  domainType: "internal"
+  port: 3000
+  auth: true
+  rateLimit: true

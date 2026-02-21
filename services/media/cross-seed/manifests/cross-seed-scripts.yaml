@@ -15,16 +15,16 @@ data:
     INDEXERS=$(curl -sf "${PROWLARR_URL}/api/v1/indexer" \
       -H "X-Api-Key: ${PROWLARR_API_KEY}")
 
-    # Build torznab array: enabled + torrent + private/semi-private
+    # Build torznab array: enabled + torrent + private
     TORZNAB=$(echo "$INDEXERS" | jq -r '[
       .[] | select(
         .enable == true and
         .protocol == "torrent" and
-        (.privacy == "private" or .privacy == "semiPrivate")
+        .privacy == "private"
       ) | "    \"'"${PROWLARR_URL}"'/" + (.id | tostring) + "/api?apikey='"${PROWLARR_API_KEY}"'\","
     ] | join("\n")')
 
-    COUNT=$(echo "$INDEXERS" | jq '[.[] | select(.enable == true and .protocol == "torrent" and (.privacy == "private" or .privacy == "semiPrivate"))] | length')
+    COUNT=$(echo "$INDEXERS" | jq '[.[] | select(.enable == true and .protocol == "torrent" and .privacy == "private")] | length')
     echo "Found ${COUNT} private torrent indexer(s)"
 
     cat > /config/config.js << CONFIGJS

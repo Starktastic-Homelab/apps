@@ -4,7 +4,7 @@ controllers:
       generate-config:
         image:
           repository: alpine/curl
-          tag: "8.12.1"
+          tag: "8.17.0"
         command:
           - sh
           - /scripts/generate-config.sh

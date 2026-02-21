@@ -1,5 +1,73 @@
 controllers:
   main:
+    initContainers:
+      generate-config:
+        image:
+          repository: alpine/curl
+          tag: "8.12.1"
+        command:
+          - sh
+          - -c
+          - |
+            set -e
+            apk add --no-cache jq >/dev/null 2>&1
+
+            echo "Fetching private torrent indexers from Prowlarr..."
+            PROWLARR_URL="http://prowlarr.media.svc.cluster.local:9696"
+            INDEXERS=$(curl -sf "${PROWLARR_URL}/api/v1/indexer" \
+              -H "X-Api-Key: ${PROWLARR_API_KEY}")
+
+            # Build torznab array: enabled + torrent + private/semi-private
+            TORZNAB=$(echo "$INDEXERS" | jq -r '[
+              .[] | select(
+                .enable == true and
+                .protocol == "torrent" and
+                (.privacy == "private" or .privacy == "semiPrivate")
+              ) | "    \"'"${PROWLARR_URL}"'/" + (.id | tostring) + "/api?apikey='"${PROWLARR_API_KEY}"'\","
+            ] | join("\n")')
+
+            COUNT=$(echo "$INDEXERS" | jq '[.[] | select(.enable == true and .protocol == "torrent" and (.privacy == "private" or .privacy == "semiPrivate"))] | length')
+            echo "Found ${COUNT} private torrent indexer(s)"
+
+            cat > /config/config.js << CONFIGJS
+            export default {
+              torrentClients: [
+                "qbittorrent:http://qbittorrent-main.media.svc.cluster.local:8080",
+              ],
+              action: "inject",
+              useClientTorrents: true,
+              matchMode: "flexible",
+              duplicateCategories: true,
+              linkCategory: "cross-seed",
+              linkType: "hardlink",
+              linkDirs: ["/data/cross-seed-links"],
+              dataDirs: ["/data/torrents"],
+              maxDataDepth: 2,
+              outputDir: null,
+              port: 2468,
+              host: "0.0.0.0",
+              apiKey: "${CROSSSEED_API_KEY}",
+              torznab: [
+            ${TORZNAB}
+              ],
+              sonarr: [
+                "http://sonarr.media.svc.cluster.local:8989/?apikey=${SONARR_API_KEY}",
+              ],
+              radarr: [
+                "http://radarr.media.svc.cluster.local:7878/?apikey=${RADARR_API_KEY}",
+              ],
+              searchCadence: "1 day",
+              rssCadence: "30 minutes",
+              excludeOlder: "2 weeks",
+              excludeRecentSearch: "3 days",
+            };
+            CONFIGJS
+            # Remove leading whitespace from heredoc
+            sed -i 's/^            //' /config/config.js
+            echo "Config generated successfully"
+        envFrom:
+          - secretRef:
+              name: cross-seed-secret
     containers:
       main:
         image:
@@ -11,15 +79,18 @@ controllers:
         probes:
           liveness:
             enabled: true
-            type: TCP
+            type: HTTP
+            path: /api/ping
             port: 2468
           readiness:
             enabled: true
-            type: TCP
+            type: HTTP
+            path: /api/ping
             port: 2468
           startup:
             enabled: true
-            type: TCP
+            type: HTTP
+            path: /api/ping
             port: 2468
             spec:
               failureThreshold: 30
@@ -33,13 +104,6 @@ service:
         port: 2468
 
 persistence:
-  cross-seed-config:
-    type: secret
-    name: cross-seed-config
-    globalMounts:
-      - path: /config/config.js
-        subPath: config.js
-        readOnly: true
   media:
     existingClaim: media-library-pvc
     globalMounts:

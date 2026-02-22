@@ -64,7 +64,7 @@ spec:
       annotations:
         notifications.argoproj.io/subscribe.on-sync-failed.ntfy: ""
         notifications.argoproj.io/subscribe.on-health-degraded.ntfy: ""
-        argocd-diff-preview/watch-pattern: '{{.path.path}}/.*, {{ .commonValues }}, templates/ingress-chart/.*'
+        argocd-diff-preview/watch-pattern: '{{.path.path}}/.*, templates/globals.yaml, {{ .commonValues }}, templates/ingress-chart/.*'
     spec:
       project: default
       sources: []
@@ -89,6 +89,7 @@ spec:
           targetRevision: '{{ dig "chart" "version" .defaultChartVersion . }}'
           helm:
             valueFiles:
+              - $values/templates/globals.yaml
               - $values/{{ .commonValues }}
               - $values/{{.path.path}}/values.yaml
         {{- else }}
@@ -97,6 +98,7 @@ spec:
           targetRevision: "{{ .chart.version }}"
           helm:
             valueFiles:
+              - $values/templates/globals.yaml
               - $values/{{ .commonValues }}
               - $values/{{.path.path}}/values.yaml
         {{- end }}
@@ -109,6 +111,7 @@ spec:
           path: templates/ingress-chart
           helm:
             valueFiles:
+              - $values/templates/globals.yaml
               - $values/{{.path.path}}/app.yaml
         {{- end }}
         - repoURL: {{ $repo }}

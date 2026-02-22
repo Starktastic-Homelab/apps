@@ -195,14 +195,24 @@ controllers:
           tag: ${IMAGE#*:}$DIGEST_LINE
         probes:
           liveness:
+            enabled: true
+            type: TCP
             port: $PORT
           readiness:
+            enabled: true
+            type: TCP
             port: $PORT
           startup:
+            enabled: true
+            type: TCP
             port: $PORT
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
 
 service:
   main:
+    controller: main
     ports:
       http:
         port: $PORT
@@ -239,14 +249,24 @@ controllers:
           tag: ${IMAGE#*:}$DIGEST_LINE
         probes:
           liveness:
+            enabled: true
+            type: TCP
             port: $PORT
           readiness:
+            enabled: true
+            type: TCP
             port: $PORT
           startup:
+            enabled: true
+            type: TCP
             port: $PORT
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
 
 service:
   main:
+    controller: main
     ports:
       http:
         port: $PORT

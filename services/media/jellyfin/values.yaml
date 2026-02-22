@@ -14,12 +14,18 @@ controllers:
             gpu.intel.com/i915: "1"
         probes:
           liveness:
+            enabled: true
+            type: HTTP
             path: /health
             port: 8096
           readiness:
+            enabled: true
+            type: HTTP
             path: /health
             port: 8096
           startup:
+            enabled: true
+            type: HTTP
             path: /health
             port: 8096
             spec:
@@ -29,6 +35,7 @@ controllers:
 
 service:
   main:
+    controller: main
     ports:
       http:
         port: 8096

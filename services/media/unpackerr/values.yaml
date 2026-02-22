@@ -35,12 +35,15 @@ controllers:
           runAsGroup: 1000
         probes:
           liveness:
+            enabled: true
             type: TCP
             port: 5656
           readiness:
+            enabled: true
             type: TCP
             port: 5656
           startup:
+            enabled: true
             type: TCP
             port: 5656
             spec:
@@ -49,6 +52,7 @@ controllers:
 
 service:
   main:
+    controller: main
     ports:
       metrics:
         port: 5656

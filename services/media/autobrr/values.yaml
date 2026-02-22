@@ -20,12 +20,18 @@ controllers:
               name: autobrr-secret
         probes:
           liveness:
+            enabled: true
+            type: HTTP
             path: /api/healthz/liveness
             port: 7474
           readiness:
+            enabled: true
+            type: HTTP
             path: /api/healthz/readiness
             port: 7474
           startup:
+            enabled: true
+            type: HTTP
             path: /api/healthz/liveness
             port: 7474
             spec:
@@ -34,6 +40,7 @@ controllers:
 
 service:
   main:
+    controller: main
     ports:
       http:
         port: 7474

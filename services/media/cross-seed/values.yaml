@@ -21,12 +21,18 @@ controllers:
           - "daemon"
         probes:
           liveness:
+            enabled: true
+            type: HTTP
             path: /api/ping
             port: 2468
           readiness:
+            enabled: true
+            type: HTTP
             path: /api/ping
             port: 2468
           startup:
+            enabled: true
+            type: HTTP
             path: /api/ping
             port: 2468
             spec:
@@ -35,6 +41,7 @@ controllers:
 
 service:
   main:
+    controller: main
     ports:
       http:
         port: 2468

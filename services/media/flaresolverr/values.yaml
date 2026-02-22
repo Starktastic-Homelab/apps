@@ -8,15 +8,12 @@ controllers:
           digest: sha256:7962759d99d7e125e108e0f5e7f3cdbcd36161776d058d1d9b7153b92ef1af9e
         probes:
           liveness:
-            enabled: true
             type: TCP
             port: 8191
           readiness:
-            enabled: true
             type: TCP
             port: 8191
           startup:
-            enabled: true
             type: TCP
             port: 8191
             spec:
@@ -25,7 +22,6 @@ controllers:
 
 service:
   main:
-    controller: main
     ports:
       http:
         port: 8191

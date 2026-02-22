@@ -13,24 +13,17 @@ controllers:
           runAsGroup: 1000
         probes:
           liveness:
-            enabled: true
-            type: HTTP
             path: /api/v1/status
             port: 5055
           readiness:
-            enabled: true
-            type: HTTP
             path: /api/v1/status
             port: 5055
           startup:
-            enabled: true
-            type: HTTP
             path: /api/v1/status
             port: 5055
 
 service:
   main:
-    controller: main
     ports:
       http:
         port: 5055

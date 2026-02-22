@@ -17,18 +17,12 @@ controllers:
           DEBUG: "False"
         probes:
           liveness:
-            enabled: true
-            type: HTTP
             path: /status
             port: 9000
           readiness:
-            enabled: true
-            type: HTTP
             path: /status
             port: 9000
           startup:
-            enabled: true
-            type: HTTP
             path: /status
             port: 9000
             spec:
@@ -38,7 +32,6 @@ controllers:
 
 service:
   main:
-    controller: main
     ports:
       http:
         port: 9000

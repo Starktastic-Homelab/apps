@@ -52,6 +52,4 @@ persistence:
             subPath: config.yml
             readOnly: true
   media:
-    existingClaim: media-library-pvc
-    globalMounts:
-      - path: /data
+    enabled: true

@@ -8,30 +8,21 @@ controllers:
           digest: sha256:37be832b78548e3f55f69c45b50e3b14d18df1b6def2a4994258217e67efb1a1
         probes:
           liveness:
-            enabled: true
-            type: HTTP
             path: /ping
             port: 8989
           readiness:
-            enabled: true
-            type: HTTP
             path: /ping
             port: 8989
           startup:
-            enabled: true
-            type: HTTP
             path: /ping
             port: 8989
 
 service:
   main:
-    controller: main
     ports:
       http:
         port: 8989
 
 persistence:
   media:
-    existingClaim: media-library-pvc
-    globalMounts:
-      - path: /data
+    enabled: true

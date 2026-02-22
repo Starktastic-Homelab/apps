@@ -26,18 +26,12 @@ controllers:
               name: lingarr-secret
         probes:
           liveness:
-            enabled: true
-            type: HTTP
             path: /
             port: 8080
           readiness:
-            enabled: true
-            type: HTTP
             path: /
             port: 8080
           startup:
-            enabled: true
-            type: HTTP
             path: /
             port: 8080
             spec:
@@ -46,7 +40,6 @@ controllers:
 
 service:
   main:
-    controller: main
     ports:
       http:
         port: 8080
@@ -62,6 +55,4 @@ persistence:
     globalMounts:
       - path: /app/config
   media:
-    existingClaim: media-library-pvc
-    globalMounts:
-      - path: /data
+    enabled: true

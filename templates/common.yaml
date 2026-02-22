@@ -12,17 +12,33 @@ controllers:
           PGID: "1000"
         probes:
           liveness:
+            enabled: true
+            type: HTTP
+            port: 80
             spec:
               timeoutSeconds: 5
               failureThreshold: 5
           readiness:
+            enabled: true
+            type: HTTP
+            port: 80
             spec:
               timeoutSeconds: 5
               failureThreshold: 5
           startup:
+            enabled: true
+            type: HTTP
+            port: 80
             spec:
               failureThreshold: 30
               periodSeconds: 5
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 80
 
 persistence:
   config:
@@ -33,3 +49,8 @@ persistence:
     accessMode: ReadWriteMany
     globalMounts:
       - path: /config
+  media:
+    enabled: false
+    existingClaim: media-library-pvc
+    globalMounts:
+      - path: /data

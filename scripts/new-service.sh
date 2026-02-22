@@ -30,6 +30,13 @@ get_image_digest() {
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
+GLOBALS="$REPO_ROOT/templates/globals.yaml"
+
+# Read domain values from globals.yaml
+DOMAIN_PUBLIC=$(yq '.global.domains.public' "$GLOBALS")
+DOMAIN_INTERNAL=$(yq '.global.domains.internal' "$GLOBALS")
+DOMAIN_MEDIA=$(yq '.global.domains.media' "$GLOBALS")
+STORAGE_CLASS_DEFAULT=$(yq '.global.storageClass' "$GLOBALS")
 
 # Colors for output
 RED='\033[0;31m'
@@ -105,9 +112,9 @@ INGRESS_ENABLED=${INGRESS_ENABLED:-Y}
 
 if [[ $INGRESS_ENABLED =~ ^[Yy] ]]; then
   echo "Domain type:"
-  echo "  1) internal (*.internal.starktastic.net)"
-  echo "  2) public (*.starktastic.net)"
-  echo "  3) media (*.benplus.app)"
+  echo "  1) internal (*.$DOMAIN_INTERNAL)"
+  echo "  2) public (*.$DOMAIN_PUBLIC)"
+  echo "  3) media (*.$DOMAIN_MEDIA)"
   read -p "Select [1-3, default=1]: " DOMAIN_CHOICE
   DOMAIN_CHOICE=${DOMAIN_CHOICE:-1}
 
@@ -145,8 +152,8 @@ echo -e "${YELLOW}Persistence Configuration${NC}"
 read -p "Need persistent storage? [Y/n]: " PERSISTENCE
 PERSISTENCE=${PERSISTENCE:-Y}
 
-# Storage class - defaults to nfs-pv, can be overridden via environment
-STORAGE_CLASS="${STORAGE_CLASS:-nfs-pv}"
+# Storage class - defaults to value in globals.yaml, can be overridden via environment
+STORAGE_CLASS="${STORAGE_CLASS:-$STORAGE_CLASS_DEFAULT}"
 
 if [[ $PERSISTENCE =~ ^[Yy] ]]; then
   read -p "Storage size (default: 5Gi): " STORAGE_SIZE
@@ -168,7 +175,7 @@ mkdir -p "$SERVICE_DIR/manifests"
 cat >"$SERVICE_DIR/app.yaml" <<EOF
 name: $SERVICE_NAME
 namespace: $NAMESPACE
-syncWave: "5"$INGRESS_BLOCK
+deployPhase: services$INGRESS_BLOCK
 EOF
 
 # Generate values.yaml
@@ -188,24 +195,14 @@ controllers:
           tag: ${IMAGE#*:}$DIGEST_LINE
         probes:
           liveness:
-            enabled: true
-            type: TCP
             port: $PORT
           readiness:
-            enabled: true
-            type: TCP
             port: $PORT
           startup:
-            enabled: true
-            type: TCP
             port: $PORT
-            spec:
-              failureThreshold: 30
-              periodSeconds: 5
 
 service:
   main:
-    controller: main
     ports:
       http:
         port: $PORT
@@ -242,24 +239,14 @@ controllers:
           tag: ${IMAGE#*:}$DIGEST_LINE
         probes:
           liveness:
-            enabled: true
-            type: TCP
             port: $PORT
           readiness:
-            enabled: true
-            type: TCP
             port: $PORT
           startup:
-            enabled: true
-            type: TCP
             port: $PORT
-            spec:
-              failureThreshold: 30
-              periodSeconds: 5
 
 service:
   main:
-    controller: main
     ports:
       http:
         port: $PORT
@@ -282,8 +269,8 @@ echo ""
 
 if [[ $INGRESS_ENABLED =~ ^[Yy] ]]; then
   case $DOMAIN_TYPE in
-    internal) echo -e "URL: ${BLUE}https://$SUBDOMAIN.internal.starktastic.net${NC}" ;;
-    public) echo -e "URL: ${BLUE}https://$SUBDOMAIN.starktastic.net${NC}" ;;
-    media) echo -e "URL: ${BLUE}https://$SUBDOMAIN.benplus.app${NC}" ;;
+    internal) echo -e "URL: ${BLUE}https://$SUBDOMAIN.$DOMAIN_INTERNAL${NC}" ;;
+    public) echo -e "URL: ${BLUE}https://$SUBDOMAIN.$DOMAIN_PUBLIC${NC}" ;;
+    media) echo -e "URL: ${BLUE}https://$SUBDOMAIN.$DOMAIN_MEDIA${NC}" ;;
   esac
 fi

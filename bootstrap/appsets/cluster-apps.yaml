@@ -64,7 +64,6 @@ spec:
       annotations:
         notifications.argoproj.io/subscribe.on-sync-failed.ntfy: ""
         notifications.argoproj.io/subscribe.on-health-degraded.ntfy: ""
-        notifications.argoproj.io/subscribe.on-health-recovered.ntfy: ""
         argocd-diff-preview/watch-pattern: '{{.path.path}}/.*, {{ .commonValues }}, templates/ingress-chart/.*'
     spec:
       project: default

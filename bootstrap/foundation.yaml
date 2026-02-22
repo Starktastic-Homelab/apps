@@ -7,7 +7,6 @@ metadata:
     argocd.argoproj.io/sync-wave: "-10"
     notifications.argoproj.io/subscribe.on-sync-failed.ntfy: ""
     notifications.argoproj.io/subscribe.on-health-degraded.ntfy: ""
-    notifications.argoproj.io/subscribe.on-health-recovered.ntfy: ""
     argocd-diff-preview/watch-pattern: "foundation/.*"
   finalizers:
     - resources-finalizer.argocd.argoproj.io

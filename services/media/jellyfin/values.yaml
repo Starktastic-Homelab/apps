@@ -55,9 +55,7 @@ persistence:
     globalMounts:
       - path: /config
   media:
-    existingClaim: media-library-pvc
-    globalMounts:
-      - path: /data
+    enabled: true
   transcode:
     type: emptyDir
     sizeLimit: 20Gi

@@ -56,6 +56,4 @@ persistence:
         generate-config:
           - path: /scripts
   media:
-    existingClaim: media-library-pvc
-    globalMounts:
-      - path: /data
+    enabled: true

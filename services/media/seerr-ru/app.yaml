@@ -1,6 +1,8 @@
 name: seerr-ru
 namespace: media
 deployPhase: services
+baseApp: services/media/seerr
+
 ingress:
   enabled: true
   host: "request-ru"

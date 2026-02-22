@@ -1,13 +1,7 @@
 # Default values - overridden by app.yaml
+# Global config (domains, TLS) is injected via globals.yaml
 name: ""
 namespace: ""
-
-global:
-  domains:
-    public: "starktastic.net"
-    internal: "internal.starktastic.net"
-    media: "benplus.app"
-  defaultTlsSecret: "starktastic-net-tls"
 
 ingress:
   enabled: false

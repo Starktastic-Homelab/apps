@@ -1,6 +1,7 @@
 name: radarr-ru
 namespace: media
 deployPhase: services
+baseApp: services/media/radarr
 
 ingress:
   enabled: true

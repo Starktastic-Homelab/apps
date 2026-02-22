@@ -22,6 +22,7 @@ controllers:
             type: HTTP
             path: /ping
             port: 9696
+
 service:
   main:
     controller: main

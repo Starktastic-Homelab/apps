@@ -1,3 +1,5 @@
 name: qbit-manage-ru
 namespace: media
 deployPhase: services
+baseApp: services/media/qbit-manage
+valuesOverride: true

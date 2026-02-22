@@ -48,6 +48,3 @@ service:
 persistence:
   media:
     enabled: true
-    existingClaim: media-library-pvc
-    globalMounts:
-      - path: /data

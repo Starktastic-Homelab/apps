@@ -1,57 +1,5 @@
-controllers:
-  main:
-    initContainers:
-      copy-config:
-        image:
-          repository: busybox
-          tag: stable
-        command:
-          - sh
-          - -c
-          - cp /config-source/config.yml /config/config.yml
-        securityContext:
-          runAsUser: 1000
-          runAsGroup: 1000
-    containers:
-      main:
-        image:
-          repository: ghcr.io/stuffanthings/qbit_manage
-          tag: v4.6.5
-          digest: sha256:4f36632a138b4e5aeab3b765b7f389087bfb140c80dbbec1343eca74dc351245
-        env:
-          QBT_SCHEDULE: "30"
-        securityContext:
-          runAsUser: 1000
-          runAsGroup: 1000
-        probes:
-          liveness:
-            enabled: false
-          readiness:
-            enabled: false
-          startup:
-            enabled: false
-
-service:
-  main:
-    enabled: false
-
+# Override values for qbit-manage-ru (base: services/media/qbit-manage)
+# Only the delta from the base service's values.yaml
 persistence:
-  config:
-    enabled: false
-  config-dir:
-    type: emptyDir
-    globalMounts:
-      - path: /config
   qbit-config:
-    type: configMap
     name: qbit-manage-ru-config
-    advancedMounts:
-      main:
-        copy-config:
-          - path: /config-source/config.yml
-            subPath: config.yml
-            readOnly: true
-  media:
-    existingClaim: media-library-pvc
-    globalMounts:
-      - path: /data

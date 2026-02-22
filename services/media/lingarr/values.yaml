@@ -62,6 +62,4 @@ persistence:
     globalMounts:
       - path: /app/config
   media:
-    existingClaim: media-library-pvc
-    globalMounts:
-      - path: /data
+    enabled: true

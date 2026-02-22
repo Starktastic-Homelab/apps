@@ -1,4 +1,4 @@
-name: jellyseerr-ru
+name: seerr-ru
 namespace: media
 deployPhase: services
 ingress:

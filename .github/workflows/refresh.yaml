@@ -34,7 +34,12 @@ jobs:
             exit 0
           fi
 
-          CHANGED=$(git diff --name-only "$BEFORE" "${{ github.sha }}")
+          # Get changed files — if the before SHA is unreachable (force push / rebase), fall back to refreshing
+          CHANGED=$(git diff --name-only "$BEFORE" "${{ github.sha }}" 2>/dev/null) || {
+            echo "Before SHA unreachable (likely force push) — refreshing to be safe"
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          }
           echo "Changed files:"
           echo "$CHANGED"
 

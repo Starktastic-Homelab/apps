@@ -1,6 +1,8 @@
 name: qbittorrent-ru
 namespace: media
 deployPhase: services
+baseApp: services/media/qbittorrent
+valuesOverride: true
 
 ingress:
   enabled: true

@@ -1,6 +1,7 @@
 name: sonarr-ru
 namespace: media
 deployPhase: services
+baseApp: services/media/sonarr
 
 ingress:
   enabled: true

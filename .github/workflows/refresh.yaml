@@ -12,32 +12,60 @@ jobs:
     container:
       image: buildpack-deps:scm
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
+
+      - name: Check for app-relevant changes
+        id: guard
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          CHANGED=$(git diff --name-only HEAD~1 HEAD)
+          echo "Changed files:"
+          echo "$CHANGED"
+
+          # Skip refresh if changes only touch non-app files (README, scripts, renovate, .github, etc.)
+          if echo "$CHANGED" | grep -qE '^(services/|infrastructure/|templates/|bootstrap/)'; then
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "No app-relevant changes — skipping refresh"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Setup Kubeconfig
+        if: steps.guard.outputs.skip != 'true'
         run: |
           mkdir -p ~/.kube
           echo "${{ secrets.KUBECONFIG_RAW }}" > ~/.kube/config
           chmod 600 ~/.kube/config
 
       - name: Setup Kubectl
+        if: steps.guard.outputs.skip != 'true'
         uses: azure/setup-kubectl@v4.0.1
         with:
           version: 'latest'
 
       - name: Setup ArgoCD CLI
+        if: steps.guard.outputs.skip != 'true'
         uses: clowdhaus/argo-cd-action@main
         with:
           command: version
           options: --client
 
       - name: Hard-refresh applications
+        if: steps.guard.outputs.skip != 'true'
         run: |
           kubectl config set-context --current --namespace=argocd
 
-          echo 'Triggering hard refresh (git fetch) on all apps...'
+          echo 'Triggering hard refresh on all apps...'
 
-          argocd app list --core -o name | xargs -I {} sh -c '
-            echo "Refreshing {}..."
-            argocd app get {} --core --refresh > /dev/null
-          '
+          argocd app list --core -o name | xargs -P 10 -I {} sh -c '
+            argocd app get "$1" --core --refresh > /dev/null && echo "✓ $1" || echo "✗ $1"
+          ' _ {}
 
-          echo 'Refresh triggers sent. ArgoCD will auto-sync changes shortly.'
+          echo 'Refresh complete. ArgoCD will auto-sync changes shortly.'

@@ -22,18 +22,15 @@ controllers:
         probes:
           liveness:
             enabled: true
-            type: HTTP
-            path: /api/ping
+            type: TCP
             port: 2468
           readiness:
             enabled: true
-            type: HTTP
-            path: /api/ping
+            type: TCP
             port: 2468
           startup:
             enabled: true
-            type: HTTP
-            path: /api/ping
+            type: TCP
             port: 2468
             spec:
               failureThreshold: 30

@@ -44,6 +44,12 @@ service:
         port: 2468
 
 persistence:
+  config:
+    enabled: false
+  config-dir:
+    type: emptyDir
+    globalMounts:
+      - path: /config
   scripts:
     type: configMap
     name: cross-seed-scripts

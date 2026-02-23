@@ -20,8 +20,8 @@ data:
             condition: status == "resolved"
         templates:
           title: |
-            {{ if eq .Status "resolved" }}✅ Resolved{{ else }}🚨 Firing{{ end }}: {{ index .Annotations "summary" | default .Labels.alertname }}
+            {{ if eq .Status "resolved" }}✅ Resolved{{ else }}🚨 Firing{{ end }}: {{ if index .Annotations "summary" }}{{ index .Annotations "summary" }}{{ else }}{{ .Labels.alertname }}{{ end }}
           description: |
             {{ if index .Annotations "description" }}{{ index .Annotations "description" }}{{ end }}
-            Severity: {{ .Labels.severity | default "unknown" }}
-            Namespace: {{ .Labels.namespace | default "n/a" }}
+            Severity: {{ if .Labels.severity }}{{ .Labels.severity }}{{ else }}unknown{{ end }}
+            Namespace: {{ if .Labels.namespace }}{{ .Labels.namespace }}{{ else }}n/a{{ end }}

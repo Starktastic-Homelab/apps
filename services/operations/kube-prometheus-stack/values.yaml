@@ -90,19 +90,29 @@ alertmanager:
 # -----------------------------------------------------------------------------
 grafana:
   enabled: true
-  # TODO: Move to a SealedSecret — create a secret named 'grafana-admin-secret'
-  # with keys 'admin-user' and 'admin-password', then set:
-  #   admin:
-  #     existingSecret: grafana-admin-secret
-  #     userKey: admin-user
-  #     passwordKey: admin-password
-  adminPassword: "admin"
+  admin:
+    existingSecret: grafana-admin-secret
+    userKey: admin-user
+    passwordKey: admin-password
+  envFromSecret: grafana-oidc-secret
   defaultDashboardsTimezone: Asia/Jerusalem
   grafana.ini:
     server:
       root_url: https://grafana.internal.starktastic.net
     auth.anonymous:
       enabled: false
+    auth.generic_oauth:
+      enabled: true
+      name: Authentik
+      allow_sign_up: true
+      auto_login: true
+      scopes: openid profile email
+      auth_url: https://auth.starktastic.net/application/o/authorize/
+      token_url: https://auth.starktastic.net/application/o/token/
+      api_url: https://auth.starktastic.net/application/o/userinfo/
+      # client_id & client_secret injected via GF_AUTH_GENERIC_OAUTH_CLIENT_ID
+      # and GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET from grafana-oidc-secret
+      role_attribute_path: "contains(groups[*], 'Grafana Admins') && 'Admin' || contains(groups[*], 'Grafana Editors') && 'Editor' || 'Viewer'"
   persistence:
     enabled: true
     storageClassName: nfs-pv

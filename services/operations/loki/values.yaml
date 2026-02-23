@@ -57,6 +57,8 @@ test:
 lokiCanary:
   enabled: false
 monitoring:
+  serviceMonitor:
+    enabled: true
   selfMonitoring:
     enabled: false
     grafanaAgent:

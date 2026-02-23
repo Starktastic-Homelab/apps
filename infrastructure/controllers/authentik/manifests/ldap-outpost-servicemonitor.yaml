@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: authentik-ldap-outpost
+  namespace: authentik
+  labels:
+    app.kubernetes.io/name: authentik-outpost-ldap
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: authentik-outpost-ldap
+  endpoints:
+    - port: http-metrics
+      interval: 30s
+      path: /metrics

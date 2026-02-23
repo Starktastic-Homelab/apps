@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: unpackerr
+  namespace: media
+  labels:
+    app.kubernetes.io/name: unpackerr
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: unpackerr
+  endpoints:
+    - port: metrics
+      interval: 60s
+      path: /metrics

@@ -37,6 +37,11 @@ ports:
     expose:
       default: false
     protocol: TCP
+  metrics:
+    port: 9100
+    expose:
+      default: false
+    exposedPort: 9100
 service:
   enabled: false
 persistence:
@@ -61,4 +66,15 @@ providers:
   kubernetesIngress:
     allowExternalNameServices: true
     publishedService:
+      enabled: true
+
+# -----------------------------------------------------------------------------
+# Prometheus metrics
+# -----------------------------------------------------------------------------
+metrics:
+  prometheus:
+    entryPoint: metrics
+    serviceMonitor:
+      enabled: true
+    service:
       enabled: true

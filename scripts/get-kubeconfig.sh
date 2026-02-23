@@ -10,8 +10,8 @@ echo "🔌 Fetching Kubeconfig from $HOST..."
 
 # 1. SSH, cat the file (sudo), replace IP, and write locally in one stream
 ssh -o StrictHostKeyChecking=no -i "$KEY" "$USER@$HOST" \
-  "sudo cat /etc/rancher/k3s/k3s.yaml" | \
-  sed "s/127.0.0.1/$HOST/g" > "$LOCAL_CONFIG"
+  "sudo cat /etc/rancher/k3s/k3s.yaml" |
+  sed "s/127.0.0.1/$HOST/g" >"$LOCAL_CONFIG"
 
 # 2. Secure the file permissions
 chmod 600 "$LOCAL_CONFIG"

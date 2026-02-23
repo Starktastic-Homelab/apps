@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-ntfy-config
+  namespace: monitoring
+data:
+  config.yml: |
+    http:
+      addr: :8000
+    ntfy:
+      baseurl: http://ntfy.operations.svc.cluster.local
+      notification:
+        topic: alerts
+        priority: |
+          status == "firing" ? "urgent" : "default"
+        tags:
+          - tag: rotating_light
+            condition: status == "firing"
+          - tag: white_check_mark
+            condition: status == "resolved"
+        templates:
+          title: |
+            {{ if eq .Status "resolved" }}✅ Resolved{{ else }}🚨 Firing{{ end }}: {{ index .Annotations "summary" | default .Labels.alertname }}
+          description: |
+            {{ if index .Annotations "description" }}{{ index .Annotations "description" }}{{ end }}
+            Severity: {{ .Labels.severity | default "unknown" }}
+            Namespace: {{ .Labels.namespace | default "n/a" }}

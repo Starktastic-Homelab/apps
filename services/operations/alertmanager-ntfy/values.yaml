@@ -1,0 +1,40 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: ghcr.io/alexbakker/alertmanager-ntfy
+          tag: "1.1.0"
+        args: ["--configs", "/config/config.yml,/auth/auth.yml"]
+        probes:
+          liveness:
+            enabled: false
+          readiness:
+            enabled: false
+          startup:
+            enabled: false
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 8000
+
+persistence:
+  config:
+    enabled: false
+  app-config:
+    enabled: true
+    type: configMap
+    name: alertmanager-ntfy-config
+    globalMounts:
+      - path: /config
+        readOnly: true
+  auth-config:
+    enabled: true
+    type: secret
+    name: alertmanager-ntfy-auth
+    globalMounts:
+      - path: /auth
+        readOnly: true

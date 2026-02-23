@@ -1,0 +1,13 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: alertmanager-ntfy-auth
+  namespace: monitoring
+spec:
+  encryptedData:
+    auth.yml: AgC7HhjAvaWliL7On8k4xw4QIPzkbEaNTs0Nt3AQGMI8sERWnZpgXEBKpXVy9SNqvy80boHtwJx8lXnjeNtvMHVlX2IR2Qe/26U/2HaVbDDiM/TV/eQRp5t4zPJtVM44/D6dwFB63upta/g37OLauaB0s+5DECqeYHoliEC9pSA5lA5bYAQlMPmeFO2N34+CkItSdod/xHrjQtIcqo6s5WI1YX8Qh395F1gO/4Q1+UEZINqFQcx6jd0KXBBDMcCxCxYnN0glxH2u1L9z+pApuvzn13zkW5kXeVXxym8n07Zvo15bkTjdJT7DQoZDGDwAdqHdRFgYA8SpCCYuCptfNJeIh7gKIrClTTVR6tZVsxTHqIOQ8rDHsxaHZXdewUuR3ry5tmPnEpOTIe4Q/46adYhpT8DpclU0x2bfMz6Bt+uZ3kA+B1AWNTwAJegdsiqSpzxga+TLyYD9HwODGnV+8cDbKvAWM/E5whZujeDXANDL/MeuFZRTeNu4FBWs0D8ueh7uRQa56v+2Bnio5jhO+H7YBJtUWs0hpUYReEKDHuD8fp1Hahp8BAkTvB+hZUWMCdTRI4mN6qOsI55nOSVqUdTFz8eRsV912Y/eb6vTPafUHi9VH7LbZoQmNxL4mj1tJj/ApQ9xIwgGS7fddizSIdQNNXYiNzPPQRkEmGfYlLtJb6ixM1YJjBv7oHzJFd8LMOm0koRYlYVf8rHAxL8tJRhbupTykY+DPRR7YQyAL9uJGT9u2gR1SGBNCWjcwAxOB9b51QcqU9AOvFbkPmE=
+  template:
+    metadata:
+      name: alertmanager-ntfy-auth
+      namespace: monitoring

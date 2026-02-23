@@ -112,7 +112,9 @@ grafana:
       api_url: https://auth.starktastic.net/application/o/userinfo/
       # client_id & client_secret injected via GF_AUTH_GENERIC_OAUTH_CLIENT_ID
       # and GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET from grafana-oidc-secret
-      role_attribute_path: "contains(groups[*], 'Grafana Admins') && 'Admin' || contains(groups[*], 'Grafana Editors') && 'Editor' || 'Viewer'"
+      role_attribute_path:
+        "contains(groups[*], 'Grafana Admins') && 'Admin' || contains(groups[*], 'Grafana Editors') && 'Editor' ||
+        'Viewer'"
   persistence:
     enabled: true
     storageClassName: nfs-pv

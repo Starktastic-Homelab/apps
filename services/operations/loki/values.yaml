@@ -1,0 +1,82 @@
+# =============================================================================
+# Loki Helm values — single-binary mode for homelab-scale log aggregation
+# =============================================================================
+
+deploymentMode: SingleBinary
+
+loki:
+  auth_enabled: false
+  commonConfig:
+    path_prefix: /var/loki
+    replication_factor: 1
+  storage:
+    type: filesystem
+    filesystem:
+      chunks_directory: /var/loki/chunks
+      rules_directory: /var/loki/rules
+  schemaConfig:
+    configs:
+      - from: "2024-04-01"
+        store: tsdb
+        object_store: filesystem
+        schema: v13
+        index:
+          prefix: index_
+          period: 24h
+  limits_config:
+    retention_period: 30d
+    reject_old_samples: true
+    reject_old_samples_max_age: 168h
+    volume_enabled: true
+  compactor:
+    retention_enabled: true
+
+# -----------------------------------------------------------------------------
+# Single binary deployment — 1 replica with persistent storage
+# -----------------------------------------------------------------------------
+singleBinary:
+  replicas: 1
+  persistence:
+    enabled: true
+    storageClass: nfs-pv
+    size: 10Gi
+
+# Disable distributed / simple-scalable components
+read:
+  replicas: 0
+write:
+  replicas: 0
+backend:
+  replicas: 0
+
+# -----------------------------------------------------------------------------
+# Gateway — nginx reverse proxy in front of Loki
+# Provides a stable endpoint for Promtail and Grafana
+# -----------------------------------------------------------------------------
+gateway:
+  enabled: true
+
+# -----------------------------------------------------------------------------
+# Disable caching (no memcached needed at homelab scale)
+# -----------------------------------------------------------------------------
+chunksCache:
+  enabled: false
+resultsCache:
+  enabled: false
+memcached:
+  enabled: false
+
+# -----------------------------------------------------------------------------
+# Disable testing & self-monitoring components
+# -----------------------------------------------------------------------------
+test:
+  enabled: false
+lokiCanary:
+  enabled: false
+monitoring:
+  selfMonitoring:
+    enabled: false
+    grafanaAgent:
+      installOperator: false
+  lokiCanary:
+    enabled: false

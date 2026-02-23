@@ -1,0 +1,130 @@
+# =============================================================================
+# kube-prometheus-stack Helm values
+# Deploys: Prometheus, Grafana, AlertManager, node-exporter, kube-state-metrics
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# K3s compatibility — disable components that don't expose standard endpoints
+# -----------------------------------------------------------------------------
+kubeEtcd:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+kubeProxy:
+  enabled: false
+
+# -----------------------------------------------------------------------------
+# Prometheus
+# -----------------------------------------------------------------------------
+prometheus:
+  prometheusSpec:
+    retention: 15d
+    retentionSize: "8GB"
+    # Scrape all ServiceMonitors/PodMonitors cluster-wide, not just those
+    # matching the Helm release labels
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    probeSelectorNilUsesHelmValues: false
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: nfs-pv
+          accessModes: ["ReadWriteMany"]
+          resources:
+            requests:
+              storage: 10Gi
+
+# -----------------------------------------------------------------------------
+# AlertManager
+# -----------------------------------------------------------------------------
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: nfs-pv
+          accessModes: ["ReadWriteMany"]
+          resources:
+            requests:
+              storage: 2Gi
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      group_by: ['alertname', 'namespace']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      receiver: 'ntfy'
+      routes:
+        # Silence Watchdog — it fires continuously as a dead-man's switch
+        - receiver: 'null'
+          matchers:
+            - alertname = "Watchdog"
+        - receiver: 'null'
+          matchers:
+            - alertname = "InfoInhibitor"
+        - receiver: 'ntfy'
+          continue: true
+    receivers:
+      - name: 'null'
+      - name: 'ntfy'
+        webhook_configs:
+          # Posts AlertManager JSON payload to the 'alerts' topic on ntfy.
+          # ntfy will display the raw JSON body — for formatted messages,
+          # consider adding an alertmanager-ntfy adapter in the future.
+          - url: 'http://ntfy.operations.svc.cluster.local/alerts'
+            send_resolved: true
+    inhibit_rules:
+      - source_matchers:
+          - severity = "critical"
+        target_matchers:
+          - severity = "warning"
+        equal: ['alertname', 'namespace']
+
+# -----------------------------------------------------------------------------
+# Grafana
+# -----------------------------------------------------------------------------
+grafana:
+  enabled: true
+  # TODO: Move to a SealedSecret — create a secret named 'grafana-admin-secret'
+  # with keys 'admin-user' and 'admin-password', then set:
+  #   admin:
+  #     existingSecret: grafana-admin-secret
+  #     userKey: admin-user
+  #     passwordKey: admin-password
+  adminPassword: "admin"
+  defaultDashboardsTimezone: Asia/Jerusalem
+  grafana.ini:
+    server:
+      root_url: https://grafana.internal.starktastic.net
+    auth.anonymous:
+      enabled: false
+  persistence:
+    enabled: true
+    storageClassName: nfs-pv
+    accessModes: ["ReadWriteMany"]
+    size: 2Gi
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      access: proxy
+      url: http://loki-gateway.monitoring.svc.cluster.local
+      jsonData:
+        maxLines: 250
+
+# -----------------------------------------------------------------------------
+# node-exporter (DaemonSet — hardware & OS metrics from every node)
+# -----------------------------------------------------------------------------
+nodeExporter:
+  enabled: true
+
+# -----------------------------------------------------------------------------
+# kube-state-metrics (K8s object state — pod status, deployments, etc.)
+# -----------------------------------------------------------------------------
+kubeStateMetrics:
+  enabled: true

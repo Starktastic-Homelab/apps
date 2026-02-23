@@ -1,0 +1,9 @@
+# =============================================================================
+# Promtail Helm values — DaemonSet log shipper for Loki
+# NOTE: Promtail is deprecated upstream in favor of Grafana Alloy.
+#       It remains fully functional; consider migrating to Alloy in the future.
+# =============================================================================
+
+config:
+  clients:
+    - url: http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push

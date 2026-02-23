@@ -1,0 +1,7 @@
+name: loki
+namespace: monitoring
+deployPhase: services
+chart:
+  repo: https://grafana.github.io/helm-charts
+  name: loki
+  version: 6.53.0

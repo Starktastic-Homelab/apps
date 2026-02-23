@@ -1,7 +1,3 @@
-# =============================================================================
-# Loki Helm values — single-binary mode for homelab-scale log aggregation
-# =============================================================================
-
 deploymentMode: SingleBinary
 
 loki:
@@ -31,9 +27,6 @@ loki:
   compactor:
     retention_enabled: true
 
-# -----------------------------------------------------------------------------
-# Single binary deployment — 1 replica with persistent storage
-# -----------------------------------------------------------------------------
 singleBinary:
   replicas: 1
   persistence:
@@ -41,7 +34,6 @@ singleBinary:
     storageClass: nfs-pv
     size: 10Gi
 
-# Disable distributed / simple-scalable components
 read:
   replicas: 0
 write:
@@ -49,16 +41,9 @@ write:
 backend:
   replicas: 0
 
-# -----------------------------------------------------------------------------
-# Gateway — nginx reverse proxy in front of Loki
-# Provides a stable endpoint for Promtail and Grafana
-# -----------------------------------------------------------------------------
 gateway:
   enabled: true
 
-# -----------------------------------------------------------------------------
-# Disable caching (no memcached needed at homelab scale)
-# -----------------------------------------------------------------------------
 chunksCache:
   enabled: false
 resultsCache:
@@ -66,9 +51,6 @@ resultsCache:
 memcached:
   enabled: false
 
-# -----------------------------------------------------------------------------
-# Disable testing & self-monitoring components
-# -----------------------------------------------------------------------------
 test:
   enabled: false
 lokiCanary:

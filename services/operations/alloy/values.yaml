@@ -1,8 +1,3 @@
-# =============================================================================
-# Grafana Alloy — unified telemetry collector (replaces Promtail)
-# DaemonSet that collects pod logs + K8s events and ships to Loki
-# =============================================================================
-
 alloy:
   configMap:
     create: true

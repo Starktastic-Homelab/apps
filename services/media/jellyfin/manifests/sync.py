@@ -86,7 +86,7 @@ def update_user_policy(base_url, api_key, user_id, user_name, library_ids, is_ad
 
     # Determine desired state
     if library_ids is None:
-        # Wildcard — access to all
+        # Wildcard - access to all
         desired_folders = []
         desired_all = True
     else:
@@ -200,7 +200,7 @@ def main():
                 else:
                     print(f"  WARNING: Library '{name}' not found in Jellyfin")
         else:
-            # User has no mapped groups — no library access
+            # User has no mapped groups - no library access
             print(f"  {jf_name}: no mapped groups ({user_groups}), skipping")
             continue
 

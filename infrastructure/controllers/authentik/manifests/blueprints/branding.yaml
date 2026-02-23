@@ -52,12 +52,12 @@ entries:
       branding_favicon: "branding/favicon.svg"
       branding_default_flow_background: "branding/background.svg"
       branding_custom_css: |
-        /* Starktastic Services — Custom Authentik Theme
+        /* Starktastic Services - Custom Authentik Theme
          * Palette: Crimson (#DC2626), Blue (#3B82F6), Dark (#0F0F1A)
          */
 
         :root {
-          /* Override Authentik accent colors — crimson ramp */
+          /* Override Authentik accent colors - crimson ramp */
           --ak-accent-50: #FEF2F2;
           --ak-accent-100: #FEE2E2;
           --ak-accent-200: #FECACA;
@@ -81,14 +81,14 @@ entries:
           --pf-c-login--BackgroundColor: #0F0F1A;
         }
 
-        /* Login card glow — subtle blue */
+        /* Login card glow - subtle blue */
         .pf-c-login__main {
           border: 1px solid rgba(59, 130, 246, 0.12);
           box-shadow: 0 0 40px rgba(59, 130, 246, 0.05),
                       0 4px 24px rgba(0, 0, 0, 0.4);
         }
 
-        /* Primary buttons — crimson */
+        /* Primary buttons - crimson */
         .pf-c-button.pf-m-primary {
           --pf-c-button--m-primary--BackgroundColor: #DC2626;
           --pf-c-button--m-primary--hover--BackgroundColor: #B91C1C;
@@ -96,7 +96,7 @@ entries:
           --pf-c-button--m-primary--active--BackgroundColor: #991B1B;
         }
 
-        /* Links — blue */
+        /* Links - blue */
         .pf-c-login__main-footer-links a,
         .pf-c-form__helper-text a {
           color: #60A5FA;
@@ -105,7 +105,7 @@ entries:
           color: #93C5FD;
         }
 
-        /* Admin navbar logo sizing — increase from default 2.25rem */
+        /* Admin navbar logo sizing - increase from default 2.25rem */
         .pf-c-brand {
           height: 3rem !important;
           min-height: 3rem !important;

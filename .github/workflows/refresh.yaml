@@ -27,16 +27,16 @@ jobs:
 
           BEFORE="${{ github.event.before }}"
 
-          # First push or force-push with no prior SHA — can't diff, so don't skip
+          # First push or force-push with no prior SHA - can't diff, so don't skip
           if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
-            echo "No previous SHA available — refreshing to be safe"
+            echo "No previous SHA available - refreshing to be safe"
             echo "skip=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          # Get changed files — if the before SHA is unreachable (force push / rebase), fall back to refreshing
+          # Get changed files - if the before SHA is unreachable (force push / rebase), fall back to refreshing
           CHANGED=$(git diff --name-only "$BEFORE" "${{ github.sha }}" 2>/dev/null) || {
-            echo "Before SHA unreachable (likely force push) — refreshing to be safe"
+            echo "Before SHA unreachable (likely force push) - refreshing to be safe"
             echo "skip=false" >> "$GITHUB_OUTPUT"
             exit 0
           }
@@ -47,7 +47,7 @@ jobs:
           if echo "$CHANGED" | grep -qE '^(services/|infrastructure/|templates/|bootstrap/)'; then
             echo "skip=false" >> "$GITHUB_OUTPUT"
           else
-            echo "No app-relevant changes — skipping refresh"
+            echo "No app-relevant changes - skipping refresh"
             echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
 

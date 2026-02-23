@@ -43,18 +43,22 @@ data:
       tv: "/data/torrents/tv"
 
     tracker:
-      Aither:
+      aither:
         tag: Aither
-      AlphaRatio:
+      alphaRatio:
         tag: AlphaRatio
-      AnimeTorrents:
+      animetorrents:
         tag: AnimeTorrents
-      Anthelion:
+      anthelion:
         tag: Anthelion
+      darkpeers:
+        tag: Darkpeers
       filelist:
         tag: FileList
       hawke-uno|hawke.uno:
         tag: hawke-uno
+      hd-space:
+        tag: HD-Space
       hebits:
         tag: Hebits
       iptorrents:

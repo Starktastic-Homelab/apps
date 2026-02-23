@@ -34,6 +34,7 @@ service:
   bittorrent:
     controller: main
     type: LoadBalancer
+    externalTrafficPolicy: Local
     annotations:
       kube-vip.io/loadbalancerIPs: "{{ .Values.global.network.loadBalancers.qbittorrent }}"
     ports:

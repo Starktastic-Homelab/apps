@@ -62,3 +62,21 @@ providers:
     allowExternalNameServices: true
     publishedService:
       enabled: true
+
+# -----------------------------------------------------------------------------
+# Prometheus metrics
+# -----------------------------------------------------------------------------
+metrics:
+  prometheus:
+    entryPoint: metrics
+    serviceMonitor:
+      enabled: true
+    service:
+      enabled: true
+
+ports:
+  metrics:
+    port: 9100
+    expose:
+      default: false
+    exposedPort: 9100

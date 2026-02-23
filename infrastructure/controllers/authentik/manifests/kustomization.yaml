@@ -8,6 +8,7 @@ resources:
   - ldap-outpost-deployment.yaml
   - ldap-outpost-secret.yaml
   - ldap-outpost-service.yaml
+  - ldap-outpost-servicemonitor.yaml
   - smtp-authentik-secret.yaml
 
 generatorOptions:

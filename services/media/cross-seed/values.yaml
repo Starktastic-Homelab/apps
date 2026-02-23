@@ -21,21 +21,11 @@ controllers:
           - "daemon"
         probes:
           liveness:
-            enabled: true
-            type: TCP
-            port: 2468
+            enabled: false
           readiness:
-            enabled: true
-            type: TCP
-            port: 2468
+            enabled: false
           startup:
-            enabled: true
-            type: TCP
-            port: 2468
-            spec:
-              initialDelaySeconds: 30
-              failureThreshold: 120
-              periodSeconds: 5
+            enabled: false
 
 service:
   main:

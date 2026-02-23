@@ -33,7 +33,8 @@ controllers:
             type: TCP
             port: 2468
             spec:
-              failureThreshold: 30
+              initialDelaySeconds: 30
+              failureThreshold: 120
               periodSeconds: 5
 
 service:

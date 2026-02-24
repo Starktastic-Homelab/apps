@@ -1,6 +1,5 @@
 name: authentik
 namespace: authentik
-deployPhase: controllers
 chart:
   repo: https://charts.goauthentik.io
   name: authentik

@@ -1,22 +1,21 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: infra-configs
+  name: base-configs
   namespace: argocd
   finalizers: ["resources-finalizer.argocd.argoproj.io"]
   labels:
-    deploy-phase: services
+    deploy-phase: foundation
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
     notifications.argoproj.io/subscribe.on-sync-failed.ntfy: ""
     notifications.argoproj.io/subscribe.on-health-degraded.ntfy: ""
-    argocd-diff-preview/watch-pattern: "infrastructure/configs/.*"
+    argocd-diff-preview/watch-pattern: "infrastructure/base-configs/.*"
 spec:
   project: default
   source:
     repoURL: https://github.com/Starktastic-Homelab/apps.git
     targetRevision: HEAD
-    path: infrastructure/configs
+    path: infrastructure/base-configs
     directory:
       recurse: true
   destination:

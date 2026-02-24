@@ -48,11 +48,6 @@ spec:
             - key: deploy-phase
               operator: In
               values:
-                - hardware
-        - matchExpressions:
-            - key: deploy-phase
-              operator: In
-              values:
                 - controllers
         - matchExpressions:
             - key: deploy-phase

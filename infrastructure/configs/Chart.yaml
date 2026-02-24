@@ -2,4 +2,4 @@ apiVersion: v2
 name: infra-configs
 description: Infrastructure configuration resources (IngressRoutes, Certificates, Middlewares, etc.)
 type: application
-version: 0.1.0
+version: 0.0.0

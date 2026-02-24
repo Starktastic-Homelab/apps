@@ -54,16 +54,6 @@
       "datasourceTemplate": "docker"
     },
     {
-<<<<<<< HEAD
-      "description": "Update Docker images (no digest) in Helm values",
-      "customType": "regex",
-      "managerFilePatterns": ["/^(infrastructure|services)/.*/values\\.yaml$/"],
-      "matchStrings": ["repository: (?<depName>\\S+)\\n\\s+tag: (?<currentValue>\\S+)(?!\\n\\s+digest:)"],
-      "datasourceTemplate": "docker"
-    },
-    {
-=======
->>>>>>> e339bc1 (Fix Renovate)
       "description": "Update image references in CRD manifests via renovate comments",
       "customType": "regex",
       "managerFilePatterns": ["/^(infrastructure|services)/.*\\.yaml$/"],

@@ -57,9 +57,7 @@
       "description": "Update Docker images (no digest) in Helm values",
       "customType": "regex",
       "managerFilePatterns": ["/^(infrastructure|services)/.*/values\\.yaml$/"],
-      "matchStrings": [
-        "repository: (?<depName>\\S+)\\n\\s+tag: (?<currentValue>\\S+)(?!\\n\\s+digest:)"
-      ],
+      "matchStrings": ["repository: (?<depName>\\S+)\\n\\s+tag: (?<currentValue>\\S+)(?!\\n\\s+digest:)"],
       "datasourceTemplate": "docker"
     },
     {
@@ -84,9 +82,7 @@
       "description": "Update Traefik plugin versions",
       "customType": "regex",
       "managerFilePatterns": ["/^infrastructure/controllers/traefik/values\\.yaml$/"],
-      "matchStrings": [
-        "moduleName: github\\.com/(?<depName>\\S+)\\n\\s+version: (?<currentValue>\\S+)"
-      ],
+      "matchStrings": ["moduleName: github\\.com/(?<depName>\\S+)\\n\\s+version: (?<currentValue>\\S+)"],
       "datasourceTemplate": "github-releases"
     }
   ]

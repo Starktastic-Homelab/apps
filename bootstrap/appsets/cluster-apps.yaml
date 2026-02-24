@@ -129,6 +129,15 @@ spec:
               - $values/templates/globals.yaml
               - $values/{{.path.path}}/app.yaml
         {{- end }}
+        {{- if dig "helmManifests" false . }}
         - repoURL: {{ $repo }}
           targetRevision: HEAD
           path: '{{.path.path}}/manifests'
+          helm:
+            valueFiles:
+              - $values/templates/globals.yaml
+        {{- else }}
+        - repoURL: {{ $repo }}
+          targetRevision: HEAD
+          path: '{{.path.path}}/manifests'
+        {{- end }}

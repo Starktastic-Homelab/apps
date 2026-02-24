@@ -6,12 +6,12 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "2"
 spec:
-  secretName: starktastic-net-tls
+  secretName: {{ .Values.global.defaultTlsSecret }}
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer
-  commonName: "*.starktastic.net"
+  commonName: "*.{{ .Values.global.domains.public }}"
   dnsNames:
-    - "starktastic.net"
-    - "*.starktastic.net"
-    - "*.internal.starktastic.net"
+    - {{ .Values.global.domains.public | quote }}
+    - "*.{{ .Values.global.domains.public }}"
+    - "*.{{ .Values.global.domains.internal }}"

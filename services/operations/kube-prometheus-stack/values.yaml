@@ -35,7 +35,7 @@ prometheus:
     storageSpec:
       volumeClaimTemplate:
         spec:
-          storageClassName: nfs-pv
+          storageClassName: nfs-pv # source: globals.yaml → global.storageClass
           accessModes: ["ReadWriteMany"]
           resources:
             requests:
@@ -50,7 +50,7 @@ alertmanager:
     storage:
       volumeClaimTemplate:
         spec:
-          storageClassName: nfs-pv
+          storageClassName: nfs-pv # source: globals.yaml → global.storageClass
           accessModes: ["ReadWriteMany"]
           resources:
             requests:
@@ -108,7 +108,7 @@ grafana:
     runAsGroup: 472
   grafana.ini:
     server:
-      root_url: https://grafana.internal.starktastic.net
+      root_url: https://grafana.internal.starktastic.net # source: globals.yaml → global.domains.internal
     auth.anonymous:
       enabled: false
     auth.generic_oauth:
@@ -117,9 +117,9 @@ grafana:
       allow_sign_up: true
       auto_login: true
       scopes: openid profile email
-      auth_url: https://auth.starktastic.net/application/o/authorize/
-      token_url: https://auth.starktastic.net/application/o/token/
-      api_url: https://auth.starktastic.net/application/o/userinfo/
+      auth_url: https://auth.starktastic.net/application/o/authorize/ # source: globals.yaml → global.domains.public
+      token_url: https://auth.starktastic.net/application/o/token/ # source: globals.yaml → global.domains.public
+      api_url: https://auth.starktastic.net/application/o/userinfo/ # source: globals.yaml → global.domains.public
       # client_id & client_secret injected via GF_AUTH_GENERIC_OAUTH_CLIENT_ID
       # and GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET from grafana-oidc-secret
       role_attribute_path:
@@ -127,7 +127,7 @@ grafana:
         'Viewer'"
   persistence:
     enabled: true
-    storageClassName: nfs-pv
+    storageClassName: nfs-pv # source: globals.yaml → global.storageClass
     accessModes: ["ReadWriteMany"]
     size: 2Gi
   additionalDataSources:

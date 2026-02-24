@@ -5,6 +5,6 @@ metadata:
   namespace: traefik-system
 spec:
   defaultCertificate:
-    secretName: starktastic-net-tls
+    secretName: {{ .Values.global.defaultTlsSecret }}
   certificates:
     - secretName: benplus-app-tls

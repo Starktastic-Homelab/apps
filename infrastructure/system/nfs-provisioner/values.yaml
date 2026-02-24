@@ -1,8 +1,8 @@
 nfs:
-  server: 10.9.8.30
+  server: 10.9.8.30 # source: globals.yaml → global.network.nfs.server
   path: /mnt/apps/pv
 storageClass:
-  name: nfs-pv
+  name: nfs-pv # source: globals.yaml → global.storageClass
   defaultClass: true
   reclaimPolicy: Retain
   archiveOnDelete: false

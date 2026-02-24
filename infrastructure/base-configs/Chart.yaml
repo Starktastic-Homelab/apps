@@ -1,0 +1,5 @@
+apiVersion: v2
+name: base-configs
+description: Foundation configuration resources (namespaces, RBAC, PVCs, backup jobs)
+type: application
+version: 0.0.0

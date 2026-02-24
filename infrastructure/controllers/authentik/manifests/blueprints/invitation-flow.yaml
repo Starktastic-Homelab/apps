@@ -304,7 +304,7 @@ entries:
     state: present
     attrs:
       mode: static
-      target_static: "https://benplus.app"
+      target_static: "https://benplus.app" # source: globals.yaml → global.domains.media (Kustomize-managed)
       keep_context: false
 
   # =============================================================

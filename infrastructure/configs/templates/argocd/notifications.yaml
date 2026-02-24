@@ -10,7 +10,7 @@ metadata:
     argocd.argoproj.io/sync-wave: "1"
 data:
   context: |
-    argocdUrl: https://argocd.internal.starktastic.net
+    argocdUrl: https://argocd.{{ .Values.global.domains.internal }}
 
   service.webhook.ntfy: |
     url: http://ntfy.operations.svc.cluster.local
@@ -27,14 +27,14 @@ data:
         body: |
           {
             "topic": "ops",
-            "title": "Sync Failed: {{.app.metadata.name}}",
-            "message": "Reason: {{.app.status.operationState.message}}",
+            "title": "Sync Failed: {{ "{{" }}.app.metadata.name{{ "}}" }}",
+            "message": "Reason: {{ "{{" }}.app.status.operationState.message{{ "}}" }}",
             "tags": ["skull", "error"],
             "priority": 5,
             "actions": [{
               "action": "view",
               "label": "Open ArgoCD",
-              "url": "{{.context.argocdUrl}}/applications/{{.app.metadata.name}}"
+              "url": "{{ "{{" }}.context.argocdUrl{{ "}}" }}/applications/{{ "{{" }}.app.metadata.name{{ "}}" }}"
             }]
           }
 
@@ -45,14 +45,14 @@ data:
         body: |
           {
             "topic": "ops",
-            "title": "Degraded: {{.app.metadata.name}}",
+            "title": "Degraded: {{ "{{" }}.app.metadata.name{{ "}}" }}",
             "message": "Application health has degraded. Check ArgoCD for details.",
             "tags": ["rotating_light", "warning"],
             "priority": 4,
             "actions": [{
               "action": "view",
               "label": "Open ArgoCD",
-              "url": "{{.context.argocdUrl}}/applications/{{.app.metadata.name}}"
+              "url": "{{ "{{" }}.context.argocdUrl{{ "}}" }}/applications/{{ "{{" }}.app.metadata.name{{ "}}" }}"
             }]
           }
 

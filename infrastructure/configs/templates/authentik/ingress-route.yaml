@@ -9,7 +9,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`auth.starktastic.net`) && (PathPrefix(`/if/admin`) || PathPrefix(`/api/v3/admin`))
+    - match: Host(`auth.{{ .Values.global.domains.public }}`) && (PathPrefix(`/if/admin`) || PathPrefix(`/api/v3/admin`))
       kind: Rule
       services:
         - name: authentik-server
@@ -17,7 +17,7 @@ spec:
       middlewares:
         - name: internal-ip-allowlist
 
-    - match: Host(`auth.starktastic.net`)
+    - match: Host(`auth.{{ .Values.global.domains.public }}`)
       kind: Rule
       services:
         - name: authentik-server

@@ -23,15 +23,19 @@ spec:
       annotations:
         notifications.argoproj.io/subscribe.on-sync-failed.ntfy: ""
         notifications.argoproj.io/subscribe.on-health-degraded.ntfy: ""
-        argocd-diff-preview/watch-pattern: "{{path}}/.*"
+        argocd-diff-preview/watch-pattern: "{{path}}/.*, templates/globals.yaml"
     spec:
       project: default
-      source:
-        repoURL: https://github.com/Starktastic-Homelab/apps.git
-        targetRevision: HEAD
-        path: "{{path}}"
-        directory:
-          recurse: true
+      sources:
+        - repoURL: https://github.com/Starktastic-Homelab/apps.git
+          targetRevision: HEAD
+          path: "{{path}}"
+          helm:
+            valueFiles:
+              - $values/templates/globals.yaml
+        - repoURL: https://github.com/Starktastic-Homelab/apps.git
+          targetRevision: HEAD
+          ref: values
       destination:
         server: https://kubernetes.default.svc
         namespace: default

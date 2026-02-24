@@ -9,7 +9,7 @@ spec:
   entryPoints:
     - websec-int
   routes:
-    - match: Host(`argocd.internal.starktastic.net`)
+    - match: Host(`argocd.{{ .Values.global.domains.internal }}`)
       kind: Rule
       middlewares:
         - name: rate-limit-strong
@@ -20,4 +20,4 @@ spec:
           scheme: https
           serversTransport: argocd-transport
   tls:
-    secretName: traefik-system/starktastic-net-tls
+    secretName: traefik-system/{{ .Values.global.defaultTlsSecret }}

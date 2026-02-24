@@ -49,7 +49,7 @@ persistence:
   name: data
   accessMode: ReadWriteMany
   size: 128Mi
-  storageClass: "nfs-pv"
+  storageClass: "nfs-pv" # source: globals.yaml → global.storageClass
   path: /data
 ingressClass:
   enabled: true

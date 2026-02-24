@@ -10,7 +10,7 @@ spec:
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer
-  commonName: "*.benplus.app"
+  commonName: "*.{{ .Values.global.domains.media }}"
   dnsNames:
-    - "benplus.app"
-    - "*.benplus.app"
+    - {{ .Values.global.domains.media | quote }}
+    - "*.{{ .Values.global.domains.media }}"

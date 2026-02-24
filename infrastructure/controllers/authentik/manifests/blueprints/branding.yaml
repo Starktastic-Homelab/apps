@@ -42,7 +42,7 @@ entries:
   # =============================================================
 
   - identifiers:
-      domain: starktastic.net
+      domain: starktastic.net # source: globals.yaml → global.domains.public (Kustomize-managed, cannot use Helm template)
     model: authentik_brands.brand
     state: present
     attrs:

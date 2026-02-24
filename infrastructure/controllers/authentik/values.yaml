@@ -31,8 +31,8 @@ authentik:
   email:
     host: "smtp.eu.mailgun.org"
     port: 587
-    username: "postmaster@benplus.app"
-    from: "Ben Plus <noreply@benplus.app>"
+    username: "postmaster@benplus.app" # source: globals.yaml → global.domains.media
+    from: "Ben Plus <noreply@benplus.app>" # source: globals.yaml → global.domains.media
     use_tls: true
     timeout: 10
   postgresql:
@@ -54,7 +54,7 @@ server:
       enabled: true
   env:
     - name: AUTHENTIK_COOKIE_DOMAIN
-      value: "starktastic.net"
+      value: "starktastic.net" # source: globals.yaml → global.domains.public
     - name: AUTHENTIK_LISTEN__TRUSTED_PROXY_CIDRS
       value: "127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
     - name: AUTHENTIK_WEB__WORKERS

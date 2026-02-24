@@ -1,24 +1,25 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: traefik
+  name: traefik-internal
   namespace: traefik-system
   annotations:
-    kube-vip.io/loadbalancerIPs: "10.9.8.90"
+    kube-vip.io/loadbalancerIPs: {{ .Values.global.network.loadBalancers.internal | quote }}
+    kube-vip.io/serviceInterface: "auto"
     argocd.argoproj.io/sync-wave: "0"
 spec:
   type: LoadBalancer
-  loadBalancerIP: "10.9.8.90"
+  loadBalancerIP: {{ .Values.global.network.loadBalancers.internal | quote }}
   externalTrafficPolicy: Local
   selector:
     app.kubernetes.io/name: traefik
     app.kubernetes.io/instance: traefik-traefik-system
   ports:
-    - name: web
+    - name: web-int
       protocol: TCP
       port: 80
-      targetPort: 8000
-    - name: websecure
+      targetPort: 8001
+    - name: websec-int
       protocol: TCP
       port: 443
-      targetPort: 8443
+      targetPort: 8444

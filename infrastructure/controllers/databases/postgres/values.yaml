@@ -5,7 +5,7 @@ auth:
 primary:
   persistence:
     enabled: true
-    storageClass: "nfs-pv"
+    # storageClass provided by global.storageClass in globals.yaml
     size: 8Gi
   initContainers:
     - name: rm-postmaster-lock-file

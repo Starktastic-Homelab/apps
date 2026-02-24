@@ -24,13 +24,13 @@ lapi:
       enabled: true
       accessModes:
         - ReadWriteOnce
-      storageClassName: nfs-pv
+      storageClassName: nfs-pv # source: globals.yaml → global.storageClass
       size: 1Gi
     config:
       enabled: true
       accessModes:
         - ReadWriteOnce
-      storageClassName: nfs-pv
+      storageClassName: nfs-pv # source: globals.yaml → global.storageClass
       size: 100Mi
 
   metrics:

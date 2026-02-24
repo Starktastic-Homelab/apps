@@ -5,7 +5,7 @@ architecture: standalone
 master:
   persistence:
     enabled: true
-    storageClass: "nfs-pv"
+    # storageClass provided by global.storageClass in globals.yaml
     size: 2Gi
   podSecurityContext:
     fsGroup: 1001

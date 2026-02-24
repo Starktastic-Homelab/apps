@@ -28,7 +28,7 @@ persistence:
   config:
     enabled: true
     type: persistentVolumeClaim
-    storageClass: "nfs-pv"
+    storageClass: "nfs-pv" # source: globals.yaml → global.storageClass
     size: 1Gi
     accessMode: ReadWriteMany
     globalMounts:

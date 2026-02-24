@@ -37,10 +37,7 @@ service:
 
 persistence:
   config:
-    enabled: true
-    type: persistentVolumeClaim
-    storageClass: "nfs-pv"
+    # storageClass, type, accessMode inherited from common.yaml
     size: 1Gi
-    accessMode: ReadWriteMany
     globalMounts:
       - path: /app/config

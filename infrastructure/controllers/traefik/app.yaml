@@ -1,5 +1,6 @@
 name: traefik
 namespace: traefik-system
+helmManifests: true
 chart:
   repo: https://traefik.github.io/charts
   name: traefik

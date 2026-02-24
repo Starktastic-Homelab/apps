@@ -27,7 +27,8 @@ spec:
             severity: warning
           annotations:
             summary: "CrowdSec has no active decisions"
-            description: "No bans or captcha decisions have been active for 30 minutes. Verify the agent is parsing logs."
+            description:
+              "No bans or captcha decisions have been active for 30 minutes. Verify the agent is parsing logs."
 
         # ── Alert spike ─────────────────────────────────────────────
         - alert: CrowdSecHighAlertRate

@@ -77,15 +77,10 @@ experimental:
       moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
       version: v1.4.5
 
-additionalVolumeMounts:
-  - name: crowdsec-bouncer-key
-    mountPath: /etc/crowdsec
-    readOnly: true
-
 volumes:
   - name: crowdsec-bouncer-key
-    secret:
-      secretName: crowdsec-bouncer-key
+    mountPath: /etc/crowdsec
+    type: secret
 
 # -----------------------------------------------------------------------------
 # Distributed tracing (OTLP → Alloy → Tempo)

@@ -38,7 +38,7 @@ spec:
             severity: warning
           annotations:
             summary: "CrowdSec alert rate is high"
-            description: "More than 1 alert/s sustained over 10 minutes — possible attack."
+            description: "More than 1 alert/s sustained over 10 minutes - possible attack."
 
         # ── Agent not shipping logs ─────────────────────────────────
         - alert: CrowdSecAgentNoLogs

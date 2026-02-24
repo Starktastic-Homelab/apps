@@ -1,7 +1,7 @@
 container_runtime: containerd
 
 # ---------------------------------------------------------------------------
-# LAPI (Local API) — central decision engine
+# LAPI (Local API) - central decision engine
 # ---------------------------------------------------------------------------
 lapi:
   env:
@@ -46,7 +46,7 @@ lapi:
       memory: 128Mi
 
 # ---------------------------------------------------------------------------
-# Agent — reads log sources and sends alerts to LAPI
+# Agent - reads log sources and sends alerts to LAPI
 # ---------------------------------------------------------------------------
 agent:
   env:

@@ -4,8 +4,12 @@
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# K3s compatibility — disable components that don't expose standard endpoints
+# K3s compatibility - disable components that don't expose standard endpoints
 # -----------------------------------------------------------------------------
+# CRDs are installed separately via prometheus-operator-crds (crds deploy phase)
+crds:
+  enabled: false
+
 kubeEtcd:
   enabled: false
 kubeScheduler:
@@ -61,7 +65,7 @@ alertmanager:
       repeat_interval: 12h
       receiver: "ntfy"
       routes:
-        # Silence Watchdog — it fires continuously as a dead-man's switch
+        # Silence Watchdog - it fires continuously as a dead-man's switch
         - receiver: "null"
           matchers:
             - alertname = "Watchdog"
@@ -149,13 +153,13 @@ grafana:
           datasourceUid: prometheus
 
 # -----------------------------------------------------------------------------
-# node-exporter (DaemonSet — hardware & OS metrics from every node)
+# node-exporter (DaemonSet - hardware & OS metrics from every node)
 # -----------------------------------------------------------------------------
 nodeExporter:
   enabled: true
 
 # -----------------------------------------------------------------------------
-# kube-state-metrics (K8s object state — pod status, deployments, etc.)
+# kube-state-metrics (K8s object state - pod status, deployments, etc.)
 # -----------------------------------------------------------------------------
 kubeStateMetrics:
   enabled: true

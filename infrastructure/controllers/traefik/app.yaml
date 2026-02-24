@@ -1,6 +1,5 @@
 name: traefik
 namespace: traefik-system
-deployPhase: controllers
 chart:
   repo: https://traefik.github.io/charts
   name: traefik

@@ -38,12 +38,12 @@ spec:
             - key: deploy-phase
               operator: In
               values:
-                - foundation
+                - crds
         - matchExpressions:
             - key: deploy-phase
               operator: In
               values:
-                - hardware
+                - foundation
         - matchExpressions:
             - key: deploy-phase
               operator: In

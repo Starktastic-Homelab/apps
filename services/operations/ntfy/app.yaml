@@ -1,6 +1,5 @@
 name: ntfy
 namespace: operations
-deployPhase: controllers
 
 ingress:
   enabled: true

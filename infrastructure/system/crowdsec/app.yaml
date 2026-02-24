@@ -1,6 +1,5 @@
 name: crowdsec
 namespace: crowdsec
-deployPhase: foundation
 chart:
   repo: https://crowdsecurity.github.io/helm-charts
   name: crowdsec

@@ -95,11 +95,13 @@ tracing:
 
 # -----------------------------------------------------------------------------
 # Prometheus metrics
+# ServiceMonitor is deployed as a separate manifest to avoid the chart's
+# hard dependency on monitoring.coreos.com CRDs at template-render time.
 # -----------------------------------------------------------------------------
 metrics:
   prometheus:
     entryPoint: metrics
     serviceMonitor:
-      enabled: true
+      enabled: false
     service:
       enabled: true

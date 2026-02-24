@@ -44,13 +44,22 @@
       "fileFormat": "yaml"
     },
     {
-      "description": "Update Docker image digests in Helm values",
+      "description": "Update Docker images + digests in Helm values",
       "customType": "regex",
       "managerFilePatterns": ["/^(infrastructure|services)/.*/values\\.yaml$/"],
       "matchStrings": [
         "repository: (?<depName>\\S+)\\n\\s+tag: (?<currentValue>\\S+)\\n\\s+digest: (?<currentDigest>sha256:[a-f0-9]+)"
       ],
       "autoReplaceStringTemplate": "repository: {{{depName}}}\n          tag: {{{newValue}}}\n          digest: {{{newDigest}}}",
+      "datasourceTemplate": "docker"
+    },
+    {
+      "description": "Update Docker images (no digest) in Helm values",
+      "customType": "regex",
+      "managerFilePatterns": ["/^(infrastructure|services)/.*/values\\.yaml$/"],
+      "matchStrings": [
+        "repository: (?<depName>\\S+)\\n\\s+tag: (?<currentValue>\\S+)(?!\\n\\s+digest:)"
+      ],
       "datasourceTemplate": "docker"
     },
     {
@@ -70,6 +79,15 @@
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+\\w+:\\s*'(?<currentValue>[^']+)'"
       ],
       "datasourceTemplate": "{{datasource}}"
+    },
+    {
+      "description": "Update Traefik plugin versions",
+      "customType": "regex",
+      "managerFilePatterns": ["/^infrastructure/controllers/traefik/values\\.yaml$/"],
+      "matchStrings": [
+        "moduleName: github\\.com/(?<depName>\\S+)\\n\\s+version: (?<currentValue>\\S+)"
+      ],
+      "datasourceTemplate": "github-releases"
     }
   ]
 }

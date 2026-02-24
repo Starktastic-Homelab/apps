@@ -123,10 +123,24 @@ grafana:
   additionalDataSources:
     - name: Loki
       type: loki
+      uid: loki
       access: proxy
       url: http://loki-gateway.monitoring.svc.cluster.local
       jsonData:
         maxLines: 250
+    - name: Tempo
+      type: tempo
+      uid: tempo
+      access: proxy
+      url: http://tempo.monitoring.svc.cluster.local:3200
+      jsonData:
+        tracesToLogsV2:
+          datasourceUid: loki
+          filterByTraceID: true
+        nodeGraph:
+          enabled: true
+        serviceMap:
+          datasourceUid: prometheus
 
 # -----------------------------------------------------------------------------
 # node-exporter (DaemonSet — hardware & OS metrics from every node)

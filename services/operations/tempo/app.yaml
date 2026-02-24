@@ -1,0 +1,7 @@
+name: tempo
+namespace: monitoring
+deployPhase: services
+chart:
+  repo: https://grafana.github.io/helm-charts
+  name: tempo
+  version: 1.24.4

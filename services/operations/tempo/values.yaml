@@ -1,0 +1,38 @@
+# =============================================================================
+# Grafana Tempo — single-binary distributed tracing backend
+# Receives OTLP traces from Alloy, stores on NFS, generates RED metrics
+# =============================================================================
+
+tempo:
+  reportingEnabled: false
+  metricsGenerator:
+    enabled: true
+    remoteWriteUrl: "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/write"
+  retention: 72h
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: "0.0.0.0:4317"
+        http:
+          endpoint: "0.0.0.0:4318"
+  storage:
+    trace:
+      backend: local
+      local:
+        path: /var/tempo/traces
+      wal:
+        path: /var/tempo/wal
+
+persistence:
+  enabled: true
+  storageClassName: nfs-pv
+  accessModes:
+    - ReadWriteMany
+  size: 5Gi
+
+serviceMonitor:
+  enabled: true
+
+tempoQuery:
+  enabled: false

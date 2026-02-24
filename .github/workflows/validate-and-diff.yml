@@ -50,7 +50,11 @@ jobs:
         id: kubeconform
         run: |
           set +e
-          find . -type f -name '*.yaml' -path '*/manifests/*' -not -path '*/blueprints/*' -print0 | xargs -0 kubeconform \
+          find . -type f -name '*.yaml' -path '*/manifests/*' \
+            -not -path '*/blueprints/*' \
+            -not -path '*/manifests/templates/*' \
+            -not -name 'Chart.yaml' \
+            -print0 | xargs -0 kubeconform \
             -verbose -summary -ignore-missing-schemas -schema-location default \
             -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' > kubeconform.txt 2>&1
           EXIT_CODE=$?

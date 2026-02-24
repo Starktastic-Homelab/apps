@@ -83,6 +83,11 @@ spec:
           kind: Secret
           jsonPointers:
             - /data
+        - group: apps
+          kind: Deployment
+          jqPathExpressions:
+            - '.spec.template.metadata.annotations["checksum/lapi-secret"]'
+            - '.spec.template.metadata.annotations["checksum/lapi-configmap"]'
   templatePatch: |
     {{- $repo := "https://github.com/Starktastic-Homelab/apps.git" }}
     {{- $isService := eq .category "services" }}

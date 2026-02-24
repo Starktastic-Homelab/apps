@@ -96,6 +96,12 @@ grafana:
     passwordKey: admin-password
   envFromSecret: grafana-oidc-secret
   defaultDashboardsTimezone: Asia/Jerusalem
+  initChownData:
+    enabled: false
+  podSecurityContext:
+    fsGroup: 472
+    runAsUser: 472
+    runAsGroup: 472
   grafana.ini:
     server:
       root_url: https://grafana.internal.starktastic.net

@@ -90,11 +90,6 @@ alertmanager:
 # -----------------------------------------------------------------------------
 grafana:
   enabled: true
-  # Remove stale Loki datasource (auto-generated UID) so provisioning can
-  # recreate it with the explicit uid: loki we need for cross-references.
-  deleteDatasources:
-    - name: Loki
-      orgId: 1
   admin:
     existingSecret: grafana-admin-secret
     userKey: admin-user

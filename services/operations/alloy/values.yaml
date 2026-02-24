@@ -1,8 +1,42 @@
 serviceMonitor:
   enabled: true
 
+# ---------------------------------------------------------------------------
+# GeoIP database init container (MaxMind GeoLite2-City)
+# ---------------------------------------------------------------------------
+controller:
+  initContainers:
+    - name: geoip-download
+      image: maxmindinc/geoipupdate:v7.1
+      env:
+        - name: GEOIPUPDATE_EDITION_IDS
+          value: GeoLite2-City
+        - name: GEOIPUPDATE_DB_DIR
+          value: /geoip
+        - name: GEOIPUPDATE_ACCOUNT_ID
+          valueFrom:
+            secretKeyRef:
+              name: maxmind-license
+              key: GEOIPUPDATE_ACCOUNT_ID
+        - name: GEOIPUPDATE_LICENSE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: maxmind-license
+              key: GEOIPUPDATE_LICENSE_KEY
+      volumeMounts:
+        - name: geoip-db
+          mountPath: /geoip
+  volumes:
+    extra:
+      - name: geoip-db
+        emptyDir: {}
+
 # Expose OTLP ports for trace ingestion
 alloy:
+  mounts:
+    extra:
+      - name: geoip-db
+        mountPath: /geoip
   extraPorts:
     - name: otlp-grpc
       port: 4317
@@ -66,13 +100,47 @@ alloy:
         forward_to = [loki.process.pod_logs.receiver]
       }
 
-      // Add cluster label
+      // Add cluster label and enrich Traefik access logs with GeoIP
       loki.process "pod_logs" {
         stage.static_labels {
           values = {
             cluster = "homelab",
           }
         }
+
+        // GeoIP enrichment for Traefik access-log lines
+        stage.match {
+          selector   = "{app=\"traefik\"}"
+          pipeline_name = "geoip"
+
+          stage.json {
+            expressions = {
+              client_ip = "ClientHost",
+            }
+          }
+
+          stage.geoip {
+            source   = "client_ip"
+            db       = "/geoip/GeoLite2-City.mmdb"
+            db_type  = "city"
+          }
+
+          stage.labels {
+            values = {
+              geoip_country_code = "",
+            }
+          }
+
+          stage.structured_metadata {
+            values = {
+              geoip_city         = "",
+              geoip_country_name = "",
+              geoip_latitude     = "",
+              geoip_longitude    = "",
+            }
+          }
+        }
+
         forward_to = [loki.write.default.receiver]
       }
 

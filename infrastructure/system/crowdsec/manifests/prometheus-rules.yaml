@@ -1,0 +1,50 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: crowdsec-alerts
+  namespace: crowdsec
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: crowdsec
+      rules:
+        # ── LAPI health ─────────────────────────────────────────────
+        - alert: CrowdSecLAPIDown
+          expr: up{job=~".*crowdsec.*lapi.*"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "CrowdSec LAPI is down"
+            description: "The CrowdSec Local API has been unreachable for 5 minutes."
+
+        # ── No active decisions (may indicate broken pipeline) ──────
+        - alert: CrowdSecNoActiveDecisions
+          expr: cs_active_decisions == 0
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "CrowdSec has no active decisions"
+            description: "No bans or captcha decisions have been active for 30 minutes. Verify the agent is parsing logs."
+
+        # ── Alert spike ─────────────────────────────────────────────
+        - alert: CrowdSecHighAlertRate
+          expr: rate(cs_alerts_total[5m]) > 1
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "CrowdSec alert rate is high"
+            description: "More than 1 alert/s sustained over 10 minutes — possible attack."
+
+        # ── Agent not shipping logs ─────────────────────────────────
+        - alert: CrowdSecAgentNoLogs
+          expr: rate(cs_parsed_total[15m]) == 0
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "CrowdSec agent is not parsing logs"
+            description: "The CrowdSec agent has parsed zero log lines for 15 minutes."

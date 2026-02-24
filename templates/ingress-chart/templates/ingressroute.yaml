@@ -19,8 +19,12 @@ spec:
       services:
         - name: {{ .Values.ingress.serviceName | default .Values.name }}
           port: {{ .Values.ingress.port }}
-      {{- if or .Values.ingress.rateLimit .Values.ingress.auth }}
+      {{- if or .Values.ingress.rateLimit .Values.ingress.auth (not $isInternal) }}
       middlewares:
+        {{- if not $isInternal }}
+        - name: crowdsec-bouncer
+          namespace: traefik-system
+        {{- end }}
         {{- if .Values.ingress.rateLimit }}
         - name: rate-limit-strong
           namespace: traefik-system

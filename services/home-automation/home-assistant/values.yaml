@@ -12,18 +12,15 @@ controllers:
         probes:
           liveness:
             enabled: true
-            type: HTTP
-            path: /api/
+            type: TCP
             port: 8123
           readiness:
             enabled: true
-            type: HTTP
-            path: /api/
+            type: TCP
             port: 8123
           startup:
             enabled: true
-            type: HTTP
-            path: /api/
+            type: TCP
             port: 8123
             spec:
               initialDelaySeconds: 10

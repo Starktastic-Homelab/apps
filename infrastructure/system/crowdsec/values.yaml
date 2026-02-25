@@ -11,9 +11,6 @@ lapi:
         secretKeyRef:
           name: crowdsec-secrets
           key: bouncer-key
-    # Enroll this instance in CrowdSec Console
-    - name: ENROLL_KEY
-      value: "cmm0fvhoq000p02l7yw8m41h0"
     - name: ENROLL_INSTANCE_NAME
       value: "homelab"
     - name: ENROLL_TAGS

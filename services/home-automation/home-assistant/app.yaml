@@ -1,0 +1,11 @@
+name: home-assistant
+namespace: home-automation
+deployPhase: services
+
+ingress:
+  enabled: true
+  host: home-assistant
+  domainType: "internal"
+  port: 8123
+  auth: false
+  rateLimit: false

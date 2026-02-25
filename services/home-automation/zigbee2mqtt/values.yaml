@@ -1,0 +1,46 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: ghcr.io/koenkk/zigbee2mqtt
+          tag: 2.8.0
+          digest: sha256:89cf02f379aa743a68494388e3a26fba7b8c9101f8b452038cc07aeff3fc983c
+        env:
+          ZIGBEE2MQTT_CONFIG_MQTT_SERVER: "mqtt://mosquitto.home-automation.svc.cluster.local:1883"
+          ZIGBEE2MQTT_CONFIG_FRONTEND_PORT: "8080"
+          ZIGBEE2MQTT_CONFIG_SERIAL_ADAPTER: "zstack"
+        resources:
+          limits:
+            squat.ai/zigbee: 1
+        securityContext:
+          privileged: false
+        probes:
+          liveness:
+            enabled: true
+            type: TCP
+            port: 8080
+          readiness:
+            enabled: true
+            type: TCP
+            port: 8080
+          startup:
+            enabled: true
+            type: TCP
+            port: 8080
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 8080
+
+persistence:
+  config:
+    existingClaim: zigbee2mqtt-config
+  media:
+    enabled: false

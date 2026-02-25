@@ -12,6 +12,7 @@ global:
     loadBalancers:
       external: "10.9.8.90"
       internal: "10.9.9.90"
+      homeAssistant: "10.9.8.80"
       qbittorrent: "10.9.8.91"
       qbittorrentRu: "10.9.8.92"
     vlans:

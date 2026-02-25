@@ -1,0 +1,11 @@
+name: zigbee2mqtt
+namespace: home-automation
+deployPhase: services
+
+ingress:
+  enabled: true
+  host: zigbee2mqtt
+  domainType: "internal"
+  port: 8080
+  auth: true
+  rateLimit: true

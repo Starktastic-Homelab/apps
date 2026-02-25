@@ -1,0 +1,75 @@
+controllers:
+  main:
+    type: daemonset
+    containers:
+      main:
+        image:
+          repository: ghcr.io/squat/generic-device-plugin
+          tag: 854e0c1
+          digest: sha256:8e74085edef446b02116d0e851a7a5576b4681e07fe5be75c4e5f6791a8ad0f7
+        args:
+          - --device
+          - |
+            name: zigbee
+            groups:
+              - usb:
+                  - vendor: "10c4"
+                    product: "ea60"
+              - paths:
+                  - path: /dev/ttyUSB*
+                  - path: /dev/ttyACM*
+        resources:
+          requests:
+            cpu: 50m
+            memory: 10Mi
+          limits:
+            cpu: 100m
+            memory: 20Mi
+        securityContext:
+          privileged: true
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            path: /
+            port: 8080
+          readiness:
+            enabled: true
+            type: HTTP
+            path: /
+            port: 8080
+          startup:
+            enabled: true
+            type: HTTP
+            path: /
+            port: 8080
+            spec:
+              failureThreshold: 10
+              periodSeconds: 5
+
+defaultPodOptions:
+  priorityClassName: system-node-critical
+  tolerations:
+    - operator: "Exists"
+      effect: "NoExecute"
+    - operator: "Exists"
+      effect: "NoSchedule"
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 8080
+
+persistence:
+  device-plugin:
+    type: hostPath
+    hostPath: /var/lib/kubelet/device-plugins
+    globalMounts:
+      - path: /var/lib/kubelet/device-plugins
+  dev:
+    type: hostPath
+    hostPath: /dev
+    globalMounts:
+      - path: /dev

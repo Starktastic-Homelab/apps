@@ -1,0 +1,60 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: ghcr.io/home-assistant/home-assistant
+          tag: "2026.2.3"
+          digest: sha256:96fa92d83fa8dae987fbbbcf58b1fea1140985ff6a8517b37f7b65c76ef20133
+        env:
+          PUID: null
+          PGID: null
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            path: /api/
+            port: 8123
+          readiness:
+            enabled: true
+            type: HTTP
+            path: /api/
+            port: 8123
+          startup:
+            enabled: true
+            type: HTTP
+            path: /api/
+            port: 8123
+            spec:
+              initialDelaySeconds: 10
+              failureThreshold: 60
+              periodSeconds: 10
+
+defaultPodOptions:
+  securityContext:
+    fsGroup: 0
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 8123
+  lan:
+    controller: main
+    type: LoadBalancer
+    externalTrafficPolicy: Local
+    annotations:
+      kube-vip.io/loadbalancerIPs: "{{ .Values.global.network.loadBalancers.homeAssistant }}"
+    ports:
+      http:
+        port: 8123
+      mdns:
+        port: 5353
+        protocol: UDP
+
+persistence:
+  config:
+    existingClaim: home-assistant-config
+  media:
+    enabled: false

@@ -31,17 +31,17 @@ controllers:
           liveness:
             enabled: true
             type: HTTP
-            path: /
+            path: /health
             port: 8080
           readiness:
             enabled: true
             type: HTTP
-            path: /
+            path: /health
             port: 8080
           startup:
             enabled: true
             type: HTTP
-            path: /
+            path: /health
             port: 8080
             spec:
               failureThreshold: 10

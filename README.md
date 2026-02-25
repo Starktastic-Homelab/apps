@@ -13,6 +13,90 @@ This repository contains the complete application layer for the homelab Kubernet
 
 **37 apps** across 3 categories: 11 infrastructure, 6 operations, 20 media services.
 
+```mermaid
+flowchart TB
+    subgraph Bootstrap["ArgoCD Bootstrap"]
+        ClusterBootstrap[cluster-bootstrap] --> Foundation
+        ClusterBootstrap --> InfraConfigs
+        ClusterBootstrap --> AppSet
+    end
+    
+    subgraph Apps["Applications"]
+        Foundation[foundation<br/>phase: crds/foundation] --> Namespaces[Namespaces]
+        AppSet[cluster-apps AppSet<br/>phase: controllers/services] --> Controllers
+        AppSet --> Services
+        InfraConfigs[infra-configs<br/>phase: controllers] --> Ingresses
+        
+        subgraph Controllers["Infrastructure"]
+            Traefik[Traefik]
+            Authentik[Authentik]
+            PostgreSQL[PostgreSQL]
+            Redis[Redis]
+            CrowdSec[CrowdSec]
+        end
+        
+        subgraph Services["Services"]
+            Media[Media Apps]
+            Operations[Operations]
+        end
+        
+        subgraph Ingresses["Configs"]
+            Routes[IngressRoutes]
+            Certs[Certificates]
+            MW[Middlewares]
+        end
+    end
+    
+    style Bootstrap fill:#2d3748,stroke:#805ad5
+    style Apps fill:#2d3748,stroke:#48bb78
+```
+
+## Features
+
+- 🔄 **GitOps with ArgoCD** - Declarative app definitions, auto-sync, self-healing
+- 📦 **App-of-Apps Pattern** - Unified ApplicationSet for all workloads
+- 🔐 **Authentik SSO** - OIDC authentication with ForwardAuth middleware
+- 🌐 **Traefik Ingress** - Dynamic IngressRoute generation
+- 🔑 **Sealed Secrets** - Encrypted secrets stored in Git
+- 🛡️ **CrowdSec** - Intrusion detection with Traefik bouncer
+- 🎮 **Intel GPU Support** - SR-IOV passthrough for transcoding
+- 💾 **NFS Storage** - Dynamic provisioning with `nfs-pv` StorageClass
+- 📊 **Full Observability** - Prometheus, Grafana, Loki, Tempo, Alloy
+- 🔄 **Renovate Managed** - Automated Helm chart updates
+
+## Architecture
+
+```mermaid
+flowchart LR
+    subgraph External["External Traffic"]
+        Public["*.starktastic.net<br/>10.9.8.90"]
+        Media["*.benplus.app<br/>10.9.8.90"]
+    end
+    
+    subgraph Internal["Internal Traffic"]
+        Int["*.internal.starktastic.net<br/>10.9.9.90"]
+    end
+    
+    subgraph Cluster["K3s Cluster"]
+        Traefik[Traefik]
+        CrowdSec[CrowdSec<br/>Bouncer]
+        Authentik[Authentik<br/>ForwardAuth]
+        Apps[Applications]
+    end
+    
+    Public --> Traefik
+    Media --> Traefik
+    Int --> Traefik
+    Traefik --> CrowdSec
+    CrowdSec --> Authentik
+    Authentik --> Apps
+    Traefik --> Apps
+    
+    style External fill:#e53e3e,stroke:#c53030
+    style Internal fill:#4299e1,stroke:#2b6cb0
+    style Cluster fill:#2d3748,stroke:#48bb78
+```
+
 ## Repository Structure
 
 ```
@@ -107,6 +191,22 @@ flowchart LR
 | 2 | `foundation` | cert-manager, base-configs |
 | 3 | `controllers` | traefik, authentik, databases, crowdsec, sealed-secrets, intel-device-operator, nfs-provisioner, infra-configs |
 | 4 | `services` | All 20 media apps + 6 operations apps |
+
+### Bootstrap Order
+
+Deployment follows strict phase ordering:
+
+```mermaid
+flowchart LR
+    P1["Phase 1<br/>CRDs"] --> P2["Phase 2<br/>Foundation"]
+    P2 --> P3["Phase 3<br/>Controllers"]
+    P3 --> P4["Phase 4<br/>Services"]
+    
+    style P1 fill:#805ad5
+    style P2 fill:#4299e1
+    style P3 fill:#48bb78
+    style P4 fill:#ed8936
+```
 
 ## Infrastructure Components
 

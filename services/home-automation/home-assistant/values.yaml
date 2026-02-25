@@ -55,6 +55,10 @@ service:
 
 persistence:
   config:
+    enabled: false
+  home-assistant-config:
     existingClaim: home-assistant-config
+    globalMounts:
+      - path: /config
   media:
     enabled: false

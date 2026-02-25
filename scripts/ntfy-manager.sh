@@ -12,7 +12,7 @@ NAMESPACE="operations"
 # Find the pod
 POD=$(kubectl get pod -n "$NAMESPACE" -l "$LABEL_SELECTOR" -o jsonpath="{.items[0].metadata.name}")
 
-if [[ -z "$POD" ]]; then
+if [[ -z $POD ]]; then
   echo "❌ Ntfy pod not found in namespace '$NAMESPACE'"
   echo "   Is the app deployed and running?"
   exit 1

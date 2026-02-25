@@ -8,7 +8,7 @@ SECRET_NAME="${1:-}"
 NAMESPACE="${2:-}"
 FLAG="${3:-}"
 
-if [[ -z "$SECRET_NAME" ]] || [[ -z "$NAMESPACE" ]]; then
+if [[ -z $SECRET_NAME ]] || [[ -z $NAMESPACE ]]; then
   echo "Usage: $0 <secret-name> <namespace> [--cluster-wide]"
   exit 1
 fi
@@ -16,14 +16,14 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CERT_FILE="$SCRIPT_DIR/sealed-secrets-cert.pem"
 
-if [[ ! -f "$CERT_FILE" ]]; then
+if [[ ! -f $CERT_FILE ]]; then
   echo "❌ Error: Sealed secrets cert not found at $CERT_FILE"
   echo "   This cert must match the pre-seeded key in Ansible vault."
   exit 1
 fi
 
 SCOPE="strict"
-if [[ "$FLAG" == "--cluster-wide" ]]; then
+if [[ $FLAG == "--cluster-wide" ]]; then
   SCOPE="cluster-wide"
 fi
 

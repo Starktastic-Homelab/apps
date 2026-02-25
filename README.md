@@ -21,7 +21,7 @@ flowchart TB
     end
     
     subgraph Apps["Applications"]
-        Foundation[foundation<br/>phase: crds/foundation] --> Namespaces[Namespaces]
+        Foundation[foundation<br/>cert-manager, sealed-secrets,<br/>nfs-provisioner, base-configs]
         AppSet[cluster-apps AppSet<br/>phase: controllers/services] --> Controllers
         AppSet --> Services
         InfraConfigs[infra-configs<br/>phase: services] --> Ingresses

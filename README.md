@@ -1,7 +1,6 @@
 # Homelab Apps
 
 ![ArgoCD](https://img.shields.io/badge/ArgoCD-Synced-48bb78?logo=argo)
-[![Kubernetes](https://img.shields.io/badge/K3s-v1.35-326CE5?logo=kubernetes)](https://k3s.io)
 ![Traefik](https://img.shields.io/badge/Traefik-v3-24A1C1?logo=traefikproxy)
 ![Authentik](https://img.shields.io/badge/Authentik-SSO-FD4B2D?logo=authentik)
 
@@ -25,7 +24,7 @@ flowchart TB
         Foundation[foundation<br/>phase: crds/foundation] --> Namespaces[Namespaces]
         AppSet[cluster-apps AppSet<br/>phase: controllers/services] --> Controllers
         AppSet --> Services
-        InfraConfigs[infra-configs<br/>phase: controllers] --> Ingresses
+        InfraConfigs[infra-configs<br/>phase: services] --> Ingresses
         
         subgraph Controllers["Infrastructure"]
             Traefik[Traefik]
@@ -62,7 +61,8 @@ flowchart TB
 - 🎮 **Intel GPU Support** - SR-IOV passthrough for transcoding
 - 💾 **NFS Storage** - Dynamic provisioning with `nfs-pv` StorageClass
 - 📊 **Full Observability** - Prometheus, Grafana, Loki, Tempo, Alloy
-- 🔄 **Renovate Managed** - Automated Helm chart updates
+- � **ArgoCD Notifications** - Sync failure & health alerts via ntfy
+- �🔄 **Renovate Managed** - Automated Helm chart updates
 
 ## Architecture
 
@@ -107,8 +107,16 @@ bootstrap/                          # Entry point — deploy these first
 
 infrastructure/
 ├── base-configs/                   # Non-Helm cluster configs
-│   └── templates/                  # Cert-backup, ingresses, certs, middlewares
+│   └── templates/                  # Cert backup CronJob
 ├── configs/                        # IngressRoutes, certificates, middlewares
+│   └── templates/
+│       ├── argocd/                 # ArgoCD notifications (ntfy transport)
+│       ├── authentik/              # ForwardAuth middleware
+│       ├── crowdsec/               # Bouncer middleware
+│       ├── databases/              # Database ingress routes
+│       ├── hooks/                  # Sync hooks (webhook readiness)
+│       ├── media-storage/          # Shared media PV/PVC
+│       └── traefik/                # Traefik ingress routes & certs
 ├── controllers/                    # Helm-based infrastructure
 │   ├── authentik/                  # Identity provider & SSO
 │   ├── traefik/                    # Ingress controller
@@ -157,14 +165,15 @@ services/
 templates/
 ├── globals.yaml                    # Cluster-wide values (domains, IPs, storage)
 ├── common.yaml                     # Shared defaults for all services
-├── infra-common.yaml               # Shared defaults for infrastructure
+├── infra-common.yaml               # Infrastructure values (placeholder)
 └── ingress-chart/                  # Dynamic IngressRoute generator template
 
 scripts/
 ├── get-kubeconfig.sh               # Fetch kubeconfig from cluster via SSH
 ├── new-service.sh                  # Scaffold a new service interactively
 ├── ntfy-manager.sh                 # Manage ntfy users/access in-cluster
-└── seal.sh                         # Seal secrets with kubeseal
+├── seal.sh                         # Seal secrets with kubeseal
+└── sealed-secrets-cert.pem         # Sealed Secrets public cert
 ```
 
 ## Deployment Architecture
@@ -174,9 +183,9 @@ ArgoCD deploys all apps via two ApplicationSets with a **RollingSync** strategy:
 ```mermaid
 flowchart LR
     subgraph RollingSync["Deploy Phases (cluster-apps)"]
-        P1["1. crds\nprometheus-operator-crds"] --> P2["2. foundation\ncert-manager, base-configs"]
-        P2 --> P3["3. controllers\ntraefik, authentik, databases,\ncrowdsec, sealed-secrets, ..."]
-        P3 --> P4["4. services\nall media & operations apps"]
+        P1["1. crds\nprometheus-operator-crds"] --> P2["2. foundation\ncert-manager, base-configs,\nsealed-secrets, nfs-provisioner"]
+        P2 --> P3["3. controllers\ntraefik, authentik, databases,\ncrowdsec, intel-device-operator"]
+        P3 --> P4["4. services\nall media & operations apps,\ninfra-configs"]
     end
 
     style P1 fill:#805ad5
@@ -188,9 +197,9 @@ flowchart LR
 | Phase | Label | Components |
 |-------|-------|------------|
 | 1 | `crds` | prometheus-operator-crds |
-| 2 | `foundation` | cert-manager, base-configs |
-| 3 | `controllers` | traefik, authentik, databases, crowdsec, sealed-secrets, intel-device-operator, nfs-provisioner, infra-configs |
-| 4 | `services` | All 20 media apps + 6 operations apps |
+| 2 | `foundation` | cert-manager, base-configs, sealed-secrets, nfs-provisioner |
+| 3 | `controllers` | traefik, authentik, databases, crowdsec, intel-device-operator |
+| 4 | `services` | All 20 media apps + 6 operations apps, infra-configs |
 
 ### Bootstrap Order
 
@@ -215,7 +224,7 @@ flowchart LR
 | Component | Chart | Version | Description |
 |-----------|-------|---------|-------------|
 | Traefik | traefik | 39.0.2 | Ingress controller with dual entrypoints |
-| Authentik | authentik | 2025.12.4 | Identity provider with OIDC SSO |
+| Authentik | authentik | 2026.2.0 | Identity provider with OIDC SSO |
 | PostgreSQL | postgresql | 18.4.1 | Database for Authentik and apps |
 | Redis | redis | 25.3.2 | Cache for Authentik |
 | pgAdmin | pgadmin4 | 1.59.0 | Database administration UI |
@@ -235,7 +244,7 @@ flowchart LR
 
 | Component | Chart | Version | Description |
 |-----------|-------|---------|-------------|
-| kube-prometheus-stack | kube-prometheus-stack | 82.3.0 | Prometheus + Grafana + AlertManager |
+| kube-prometheus-stack | kube-prometheus-stack | 82.4.0 | Prometheus + Grafana + AlertManager |
 | Loki | loki | 6.53.0 | Log aggregation |
 | Alloy | alloy | 1.6.0 | Grafana Alloy (log/trace/metric collector) |
 | Tempo | tempo | 1.24.4 | Distributed tracing |

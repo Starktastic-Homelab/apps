@@ -11,6 +11,11 @@ lapi:
         secretKeyRef:
           name: crowdsec-secrets
           key: bouncer-key
+    - name: ENROLL_KEY
+      valueFrom:
+        secretKeyRef:
+          name: crowdsec-secrets
+          key: enroll-key
     - name: ENROLL_INSTANCE_NAME
       value: "homelab"
     - name: ENROLL_TAGS
@@ -21,13 +26,13 @@ lapi:
       enabled: true
       accessModes:
         - ReadWriteOnce
-      storageClassName: nfs-pv # source: globals.yaml → global.storageClass
+      storageClassName: nfs-pv # IMPORTANT: must match global.storageClass in templates/globals.yaml
       size: 1Gi
     config:
       enabled: true
       accessModes:
         - ReadWriteOnce
-      storageClassName: nfs-pv # source: globals.yaml → global.storageClass
+      storageClassName: nfs-pv # IMPORTANT: must match global.storageClass in templates/globals.yaml
       size: 100Mi
 
   metrics:

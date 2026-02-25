@@ -4,6 +4,8 @@ metadata:
   name: config-apps
   namespace: argocd
 spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
   generators:
     - list:
         elements:
@@ -15,21 +17,21 @@ spec:
             deployPhase: services
   template:
     metadata:
-      name: "{{name}}"
+      name: "{{.name}}"
       namespace: argocd
       finalizers: ["resources-finalizer.argocd.argoproj.io"]
       labels:
-        deploy-phase: "{{deployPhase}}"
+        deploy-phase: "{{.deployPhase}}"
       annotations:
         notifications.argoproj.io/subscribe.on-sync-failed.ntfy: ""
         notifications.argoproj.io/subscribe.on-health-degraded.ntfy: ""
-        argocd-diff-preview/watch-pattern: "{{path}}/.*, templates/globals.yaml"
+        argocd-diff-preview/watch-pattern: "{{.path}}/.*, templates/globals.yaml"
     spec:
       project: default
       sources:
         - repoURL: https://github.com/Starktastic-Homelab/apps.git
           targetRevision: HEAD
-          path: "{{path}}"
+          path: "{{.path}}"
           helm:
             valueFiles:
               - $values/templates/globals.yaml

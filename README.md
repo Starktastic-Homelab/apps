@@ -9,178 +9,140 @@ GitOps repository for managing a Kubernetes homelab using ArgoCD with an App-of-
 
 ## Overview
 
-This repository contains the complete application layer for the homelab Kubernetes cluster. It is bootstrapped by [ansible](https://github.com/starktastic/ansible) and uses ArgoCD for continuous deployment.
+This repository contains the complete application layer for the homelab Kubernetes cluster. It is bootstrapped by [ansible](https://github.com/Starktastic-Homelab/ansible) and uses ArgoCD for continuous deployment.
 
-```mermaid
-flowchart TB
-    subgraph Bootstrap["ArgoCD Bootstrap"]
-        ClusterBootstrap[cluster-bootstrap] --> Foundation
-        ClusterBootstrap --> InfraConfigs
-        ClusterBootstrap --> AppSet
-    end
-    
-    subgraph Apps["Applications"]
-        Foundation[foundation<br/>wave: -10] --> Namespaces[Namespaces]
-        AppSet[cluster-apps AppSet<br/>wave: 0-5] --> Controllers
-        AppSet --> Services
-        InfraConfigs[infra-configs<br/>wave: 1] --> Ingresses
-        
-        subgraph Controllers["Infrastructure"]
-            Traefik[Traefik]
-            Authentik[Authentik]
-            PostgreSQL[PostgreSQL]
-            Redis[Redis]
-        end
-        
-        subgraph Services["Services"]
-            Media[Media Apps]
-            Operations[Operations]
-        end
-        
-        subgraph Ingresses["Configs"]
-            Routes[IngressRoutes]
-            Certs[Certificates]
-            MW[Middlewares]
-        end
-    end
-    
-    style Bootstrap fill:#2d3748,stroke:#805ad5
-    style Apps fill:#2d3748,stroke:#48bb78
-```
-
-## Features
-
-- 🔄 **GitOps with ArgoCD** - Declarative app definitions, auto-sync, self-healing
-- 📦 **App-of-Apps Pattern** - Unified ApplicationSet for all workloads
-- 🔐 **Authentik SSO** - OIDC authentication with ForwardAuth middleware
-- 🌐 **Traefik Ingress** - Dynamic IngressRoute generation
-- 🔑 **Sealed Secrets** - Encrypted secrets stored in Git
-- 🎮 **Intel GPU Support** - SR-IOV passthrough for transcoding
-- 💾 **NFS Storage** - Dynamic provisioning with `nfs-pv` StorageClass
-- 🔄 **Renovate Managed** - Automated Helm chart updates
-
-## Architecture
-
-```mermaid
-flowchart LR
-    subgraph External["External Traffic"]
-        Public["*.starktastic.net<br/>10.9.8.90"]
-        Media["*.benplus.app<br/>10.9.8.90"]
-    end
-    
-    subgraph Internal["Internal Traffic"]
-        Int["*.internal.starktastic.net<br/>10.9.9.90"]
-    end
-    
-    subgraph Cluster["K3s Cluster"]
-        Traefik[Traefik]
-        Authentik[Authentik<br/>ForwardAuth]
-        Apps[Applications]
-    end
-    
-    Public --> Traefik
-    Media --> Traefik
-    Int --> Traefik
-    Traefik --> Authentik
-    Authentik --> Apps
-    Traefik --> Apps
-    
-    style External fill:#e53e3e,stroke:#c53030
-    style Internal fill:#4299e1,stroke:#2b6cb0
-    style Cluster fill:#2d3748,stroke:#48bb78
-```
+**37 apps** across 3 categories: 11 infrastructure, 6 operations, 20 media services.
 
 ## Repository Structure
 
 ```
-bootstrap/                      # Entry point - deploy these first
-├── foundation.yaml             # Creates namespaces (sync-wave: -10)
-├── infra-configs.yaml          # Deploys configs after controllers (wave: 1)
+bootstrap/                          # Entry point — deploy these first
 └── appsets/
-    └── cluster-apps.yaml       # Unified ApplicationSet
-
-foundation/                     # Namespace definitions
-│   └── namespaces/
-│       ├── authentik.yaml
-│       ├── cert-manager.yaml
-│       └── ...
+    ├── cluster-apps.yaml           # Main ApplicationSet (matrix generator)
+    └── config-apps.yaml            # Config ApplicationSet (base-configs + ingresses)
 
 infrastructure/
-├── configs/                    # Non-Helm resources
-│   └── ingresses/          # IngressRoutes, certs, middlewares
-├── controllers/                # Helm-based infrastructure
-│   ├── authentik/              # Identity provider
-│   ├── databases/              # PostgreSQL + Redis
-│   └── traefik/                # Ingress controller
-└── system/                     # Cluster components
-    ├── cert-manager/
-    ├── intel-gpu/
-    ├── nfs-provisioner/
-    └── sealed-secrets/
+├── base-configs/                   # Non-Helm cluster configs
+│   └── templates/                  # Cert-backup, ingresses, certs, middlewares
+├── configs/                        # IngressRoutes, certificates, middlewares
+├── controllers/                    # Helm-based infrastructure
+│   ├── authentik/                  # Identity provider & SSO
+│   ├── traefik/                    # Ingress controller
+│   └── databases/
+│       ├── pgadmin/                # Database admin UI
+│       ├── postgres/               # PostgreSQL
+│       └── redis/                  # Redis cache
+└── system/                         # Cluster-level components
+    ├── cert-manager/               # TLS certificate automation
+    ├── crowdsec/                   # Intrusion detection & bouncer
+    ├── intel-device-operator/      # Intel GPU SR-IOV operator
+    ├── nfs-provisioner/            # Dynamic NFS volume provisioning
+    ├── prometheus-operator-crds/   # Monitoring CRDs (deploy phase: crds)
+    └── sealed-secrets/             # Encrypted secrets in Git
 
-services/                       # User-facing applications
-├── media/                      # qBittorrent, Prowlarr
-└── operations/                 # ntfy
+services/
+├── media/                          # 20 media apps (namespace: media)
+│   ├── autobrr/                    # Torrent automation
+│   ├── bazarr/                     # Subtitle management
+│   ├── cross-seed/                 # Cross-seeding
+│   ├── flaresolverr/               # Cloudflare bypass proxy
+│   ├── jellyfin/                   # Media server (+ LDAP sync CronJob)
+│   ├── lingarr/                    # Subtitle translation
+│   ├── prowlarr/                   # Indexer manager
+│   ├── qbit-manage/                # qBittorrent tag manager
+│   ├── qbit-manage-ru/             # ↳ Russian variant (baseApp)
+│   ├── qbittorrent/                # BitTorrent client
+│   ├── qbittorrent-ru/             # ↳ Russian variant (baseApp)
+│   ├── radarr/                     # Movie management
+│   ├── radarr-ru/                  # ↳ Russian variant (baseApp)
+│   ├── recyclarr/                  # TRaSH guide sync
+│   ├── seerr/                      # Request management
+│   ├── seerr-ru/                   # ↳ Russian variant (baseApp)
+│   ├── sonarr/                     # TV management
+│   ├── sonarr-ru/                  # ↳ Russian variant (baseApp)
+│   ├── subgen/                     # AI subtitle generation
+│   └── unpackerr/                  # Archive extraction
+└── operations/                     # 6 ops apps (namespace: monitoring/operations)
+    ├── alertmanager-ntfy/          # Alert → ntfy adapter
+    ├── alloy/                      # Grafana Alloy (log/metric collector)
+    ├── kube-prometheus-stack/       # Prometheus + Grafana + AlertManager
+    ├── loki/                       # Log aggregation
+    ├── ntfy/                       # Push notifications
+    └── tempo/                      # Distributed tracing
 
 templates/
-├── common.yaml                 # Shared values for services
-├── infra-common.yaml           # Shared values for infrastructure
-└── ingress-chart/              # Dynamic IngressRoute generator
+├── globals.yaml                    # Cluster-wide values (domains, IPs, storage)
+├── common.yaml                     # Shared defaults for all services
+├── infra-common.yaml               # Shared defaults for infrastructure
+└── ingress-chart/                  # Dynamic IngressRoute generator template
 
 scripts/
-    ├── new-service.sh          # Scaffold a new service
-    ├── seal.sh                 # Seal secrets with kubeseal
-    └── dyff-wrapper.sh         # YAML diff for CI
+├── get-kubeconfig.sh               # Fetch kubeconfig from cluster via SSH
+├── new-service.sh                  # Scaffold a new service interactively
+├── ntfy-manager.sh                 # Manage ntfy users/access in-cluster
+└── seal.sh                         # Seal secrets with kubeseal
 ```
 
-## Bootstrap Order
+## Deployment Architecture
 
-Deployment follows strict sync-wave ordering:
+ArgoCD deploys all apps via two ApplicationSets with a **RollingSync** strategy:
 
 ```mermaid
 flowchart LR
-    W10["Wave -10<br/>Namespaces"] --> W1["Wave -1<br/>GPU Plugin"]
-    W1 --> W0["Wave 0<br/>Controllers"]
-    W0 --> W1b["Wave 1<br/>Configs"]
-    W1b --> W5["Wave 5+<br/>Services"]
-    
-    style W10 fill:#805ad5
-    style W1 fill:#4299e1
-    style W0 fill:#48bb78
-    style W1b fill:#ed8936
-    style W5 fill:#e53e3e
+    subgraph RollingSync["Deploy Phases (cluster-apps)"]
+        P1["1. crds\nprometheus-operator-crds"] --> P2["2. foundation\ncert-manager, base-configs"]
+        P2 --> P3["3. controllers\ntraefik, authentik, databases,\ncrowdsec, sealed-secrets, ..."]
+        P3 --> P4["4. services\nall media & operations apps"]
+    end
+
+    style P1 fill:#805ad5
+    style P2 fill:#4299e1
+    style P3 fill:#48bb78
+    style P4 fill:#ed8936
 ```
 
-| Wave | Component | Description |
-|------|-----------|-------------|
-| -10 | `foundation` | Namespaces and basic RBAC |
-| -1 | `intel-gpu-plugin` | GPU device plugin (before workloads) |
-| 0 | Infrastructure controllers | Traefik, Authentik, PostgreSQL, Redis |
-| 1 | `infra-configs` | Ingress routes, certificates, middlewares |
-| 5+ | Services | User applications |
+| Phase | Label | Components |
+|-------|-------|------------|
+| 1 | `crds` | prometheus-operator-crds |
+| 2 | `foundation` | cert-manager, base-configs |
+| 3 | `controllers` | traefik, authentik, databases, crowdsec, sealed-secrets, intel-device-operator, nfs-provisioner, infra-configs |
+| 4 | `services` | All 20 media apps + 6 operations apps |
 
 ## Infrastructure Components
 
 ### Controllers
 
-| Component | Chart Version | Description |
-|-----------|--------------|-------------|
-| Traefik | v39.0.0 | Ingress controller with dual entrypoints |
-| Authentik | v2025.12.3 | Identity provider with OIDC SSO |
-| PostgreSQL | v18.2.4 | Database for Authentik and apps |
-| Redis | v24.1.3 | Cache for Authentik |
+| Component | Chart | Version | Description |
+|-----------|-------|---------|-------------|
+| Traefik | traefik | 39.0.2 | Ingress controller with dual entrypoints |
+| Authentik | authentik | 2025.12.4 | Identity provider with OIDC SSO |
+| PostgreSQL | postgresql | 18.4.1 | Database for Authentik and apps |
+| Redis | redis | 25.3.2 | Cache for Authentik |
+| pgAdmin | pgadmin4 | 1.59.0 | Database administration UI |
 
 ### System
 
-| Component | Description |
-|-----------|-------------|
-| cert-manager | TLS certificate automation |
-| intel-device-operator | Intel GPU device management |
-| intel-gpu-plugin | Exposes GPU resources to pods |
-| nfs-provisioner | Dynamic NFS volume provisioning |
-| sealed-secrets | Encrypted secrets in Git |
+| Component | Chart | Version | Description |
+|-----------|-------|---------|-------------|
+| cert-manager | cert-manager | v1.19.4 | TLS certificate automation (Let's Encrypt) |
+| CrowdSec | crowdsec | 0.22.0 | Intrusion detection + Traefik bouncer |
+| Intel GPU Operator | intel-device-plugins-operator | 0.35.0 | SR-IOV GPU sharing (20 pods/VF) |
+| NFS Provisioner | nfs-subdir-external-provisioner | 4.0.18 | Dynamic NFS PV provisioning |
+| Prometheus CRDs | prometheus-operator-crds | 27.0.0 | ServiceMonitor/PodMonitor CRDs |
+| Sealed Secrets | sealed-secrets | 2.18.1 | Encrypt secrets for Git storage |
 
-## Domain Configuration
+### Operations / Monitoring
+
+| Component | Chart | Version | Description |
+|-----------|-------|---------|-------------|
+| kube-prometheus-stack | kube-prometheus-stack | 82.3.0 | Prometheus + Grafana + AlertManager |
+| Loki | loki | 6.53.0 | Log aggregation |
+| Alloy | alloy | 1.6.0 | Grafana Alloy (log/trace/metric collector) |
+| Tempo | tempo | 1.24.4 | Distributed tracing |
+| alertmanager-ntfy | app-template | 4.6.2 | AlertManager → ntfy webhook adapter |
+| ntfy | app-template | 4.6.2 | Self-hosted push notifications |
+
+## Domain & Network Configuration
 
 | Domain | Purpose | LoadBalancer IP | Entrypoint |
 |--------|---------|-----------------|------------|
@@ -188,32 +150,44 @@ flowchart LR
 | `*.internal.starktastic.net` | Internal services | `10.9.9.90` | `websec-int` |
 | `*.benplus.app` | Media services | `10.9.8.90` | `websecure` |
 
+| Resource | IP / CIDR | Purpose |
+|----------|-----------|---------|
+| NFS Server | `10.9.8.30` | Persistent storage |
+| qBittorrent | `10.9.8.91` | BitTorrent LB |
+| qBittorrent-RU | `10.9.8.92` | BitTorrent LB (RU) |
+| Management VLAN | `10.9.9.0/24` | Cluster management |
+| Services VLAN | `10.9.8.0/24` | Service network |
+| WireGuard VLAN | `10.9.10.0/24` | VPN network |
+
 ## Usage
 
 ### Adding a New Service
 
-1. Create directory: `services/<category>/<name>/`
-2. Add `app.yaml`:
-   ```yaml
-   name: my-service
-   namespace: my-namespace
-   syncWave: "5"
-   
-   ingress:
-     enabled: true
-     host: my-service          # Subdomain
-     domainType: "internal"    # public | internal | media
-     port: 8080
-     auth: true                # Authentik ForwardAuth
-     rateLimit: true           # Rate limiting
-   ```
-3. Add `values.yaml` (extends `templates/common.yaml`)
-4. Add `manifests/` folder for PVCs and extra resources
+Use the interactive scaffolding script:
 
-Or use the scaffolding script:
 ```bash
 ./scripts/new-service.sh
 ```
+
+Or manually create `services/<category>/<name>/` with:
+
+**app.yaml**:
+```yaml
+name: my-service
+namespace: my-namespace
+
+ingress:
+  enabled: true
+  host: my-service
+  domainType: "internal"    # public | internal | media
+  port: 8080
+  auth: true                # Authentik ForwardAuth
+  rateLimit: true           # CrowdSec rate limiting
+```
+
+**values.yaml** — extends `templates/common.yaml` (inherits TZ, PUID/PGID, probes, NFS config).
+
+**manifests/** — plain Kubernetes manifests (PVCs, Secrets, ConfigMaps).
 
 ### Sealing Secrets
 
@@ -225,37 +199,9 @@ Or use the scaffolding script:
 ./scripts/seal.sh <secret-name> <namespace> --cluster-wide
 ```
 
-### Shared Defaults
+### GPU Support
 
-All services inherit from `templates/common.yaml`:
-
-```yaml
-global:
-  storageClass: "nfs-pv"
-  domains:
-    public: "starktastic.net"
-    internal: "internal.starktastic.net"
-    media: "benplus.app"
-
-controllers:
-  main:
-    containers:
-      main:
-        env:
-          TZ: "Asia/Jerusalem"
-          PUID: "1000"
-          PGID: "1000"
-
-persistence:
-  config:
-    enabled: true
-    storageClass: "nfs-pv"
-    size: 1Gi
-```
-
-## GPU Support
-
-Intel GPU passthrough for hardware transcoding:
+Intel GPU SR-IOV passthrough for hardware transcoding (20 pods share each VF):
 
 ```yaml
 controllers:
@@ -269,39 +215,15 @@ controllers:
             gpu.intel.com/i915: "1"
 ```
 
-## Network Configuration
-
-| Service | IP Address | Purpose |
-|---------|------------|---------|
-| NFS Server | `10.9.8.30` | Persistent storage |
-| Traefik External | `10.9.8.90` | Public ingress |
-| Traefik Internal | `10.9.9.90` | Internal ingress |
-| qBittorrent | `10.9.8.91` | BitTorrent client |
-
-### VLANs
-
-| VLAN | CIDR | Purpose |
-|------|------|---------|
-| Management | `10.9.9.0/24` | Cluster management |
-| Services | `10.9.8.0/24` | Service network |
-| Pods | `10.42.0.0/16` | Kubernetes pods |
-
 ## Pipeline Integration
 
 ```mermaid
 flowchart TD
-    subgraph Pipeline["Homelab Pipeline"]
-        direction TB
-        Packer["📦 Packer<br/>VM Template"]
-        Terraform["🏗️ Terraform<br/>VM Provisioning"]
-        Ansible["⚙️ Ansible<br/>K3s Cluster"]
-        Apps["🚀 Apps<br/>GitOps Apps"]
-    end
-    
-    Packer -->|manifest.json| Terraform
-    Terraform -->|dispatch| Ansible
-    Ansible -->|bootstrap| Apps
-    
+    Packer["📦 Packer\nVM Template"] -->|manifest.json| Terraform
+    Terraform["🏗️ Terraform\nVM Provisioning"] -->|dispatch| Ansible
+    Ansible["⚙️ Ansible\nK3s Cluster"] -->|bootstrap| Apps
+    Apps["🚀 Apps\nGitOps Deployment"]
+
     style Packer fill:#4299e1,stroke:#2b6cb0
     style Terraform fill:#805ad5,stroke:#553c9a
     style Ansible fill:#48bb78,stroke:#276749
@@ -314,17 +236,17 @@ flowchart TD
 |-------|----------|
 | PostgreSQL postmaster.pid lock | Init container auto-removes stale locks |
 | Sealed secrets decryption error | Verify secret was sealed for correct namespace |
-| Sync wave ordering failure | Check namespaces exist (wave -10) before controllers |
 | PVC stuck in Pending | Verify NFS server `10.9.8.30` is accessible |
 | GPU not available | Check intel-gpu-plugin pods are running |
+| CrowdSec bouncer blocking | Check `cscli decisions list` in LAPI pod |
 
 ## Related Repositories
 
 | Repository | Description |
 |------------|-------------|
-| [packer](https://github.com/starktastic/packer) | Builds VM templates |
-| [terraform](https://github.com/starktastic/terraform) | Provisions VMs on Proxmox |
-| [ansible](https://github.com/starktastic/ansible) | K3s cluster configuration |
+| [packer](https://github.com/Starktastic-Homelab/packer) | Builds Debian VM templates for Proxmox |
+| [terraform](https://github.com/Starktastic-Homelab/terraform) | Provisions VMs on Proxmox |
+| [ansible](https://github.com/Starktastic-Homelab/ansible) | K3s cluster bootstrap & configuration |
 
 ## License
 

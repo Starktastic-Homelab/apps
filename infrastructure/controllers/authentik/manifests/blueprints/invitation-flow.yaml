@@ -170,9 +170,9 @@ entries:
 
             groups = []
             if preference in ("original", "both"):
-                groups.append(Group.objects.get(pk="bc6b8e41-4fe9-4115-a861-10438458cb30"))
+                groups.append(Group.objects.get(name="jellyfin-users"))
             if preference in ("ru", "both"):
-                groups.append(Group.objects.get(pk="3f075557-877c-4c20-8da9-d36235ad5975"))
+                groups.append(Group.objects.get(name="jellyfin-users-ru"))
 
             flow_plan = request.context.get("flow_plan")
             if flow_plan:

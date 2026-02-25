@@ -7,7 +7,7 @@ metadata:
 spec:
   schedule: "*/15 * * * *"
   successfulJobsHistoryLimit: 1
-  failedJobsHistoryLimit: 0
+  failedJobsHistoryLimit: 1
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
@@ -16,14 +16,35 @@ spec:
       template:
         spec:
           restartPolicy: Never
+          initContainers:
+            - name: install-deps
+              image: python:alpine
+              command:
+                - pip
+                - install
+                - --quiet
+                - --root-user-action=ignore
+                - --target=/pip-cache
+                - ldap3
+              volumeMounts:
+                - name: pip-cache
+                  mountPath: /pip-cache
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+                limits:
+                  cpu: 200m
+                  memory: 128Mi
           containers:
             - name: sync
               image: python:alpine
               command:
-                - sh
-                - -c
-                - pip install --quiet --root-user-action=ignore ldap3 && python /config/sync.py
+                - python
+                - /config/sync.py
               env:
+                - name: PYTHONPATH
+                  value: /pip-cache
                 - name: LDAP_BIND_PASSWORD
                   valueFrom:
                     secretKeyRef:
@@ -37,6 +58,9 @@ spec:
               volumeMounts:
                 - name: config
                   mountPath: /config
+                - name: pip-cache
+                  mountPath: /pip-cache
+                  readOnly: true
               resources:
                 requests:
                   cpu: 50m
@@ -48,3 +72,5 @@ spec:
             - name: config
               configMap:
                 name: jellyfin-ldap-sync
+            - name: pip-cache
+              emptyDir: {}

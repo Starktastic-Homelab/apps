@@ -5,6 +5,7 @@ global:
     internal: "internal.starktastic.net"
     media: "benplus.app"
   defaultTlsSecret: "starktastic-net-tls"
+  mediaTlsSecret: "benplus-app-tls"
   network:
     nfs:
       server: "10.9.8.30"

@@ -28,7 +28,9 @@ jobs:
         uses: mfinelli/setup-shfmt@v4.0.1
 
       - name: Run shfmt
-        run: shfmt -i 2 -ci -s -w **/*.sh || true
+        run: |
+          shopt -s globstar
+          shfmt -i 2 -ci -s -w **/*.sh
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v7.1.0

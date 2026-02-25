@@ -35,7 +35,7 @@ prometheus:
     storageSpec:
       volumeClaimTemplate:
         spec:
-          storageClassName: nfs-pv # source: globals.yaml → global.storageClass
+          storageClassName: nfs-pv # IMPORTANT: must match global.storageClass in templates/globals.yaml
           accessModes: ["ReadWriteMany"]
           resources:
             requests:
@@ -50,7 +50,7 @@ alertmanager:
     storage:
       volumeClaimTemplate:
         spec:
-          storageClassName: nfs-pv # source: globals.yaml → global.storageClass
+          storageClassName: nfs-pv # IMPORTANT: must match global.storageClass in templates/globals.yaml
           accessModes: ["ReadWriteMany"]
           resources:
             requests:
@@ -65,7 +65,12 @@ alertmanager:
       repeat_interval: 12h
       receiver: "ntfy"
       routes:
-        # Silence Watchdog - it fires continuously as a dead-man's switch
+        # Watchdog fires continuously as a dead-man's switch.
+        # TODO: Route to Uptime Kuma push monitor once deployed:
+        #   - receiver: "watchdog"
+        #     matchers: [alertname = "Watchdog"]
+        #     group_interval: 1m
+        #     repeat_interval: 1m
         - receiver: "null"
           matchers:
             - alertname = "Watchdog"
@@ -127,7 +132,7 @@ grafana:
         'Viewer'"
   persistence:
     enabled: true
-    storageClassName: nfs-pv # source: globals.yaml → global.storageClass
+    storageClassName: nfs-pv # IMPORTANT: must match global.storageClass in templates/globals.yaml
     accessModes: ["ReadWriteMany"]
     size: 2Gi
   additionalDataSources:

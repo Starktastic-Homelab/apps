@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
 spec:
   goTemplate: true
-  goTemplateOptions: ["missingkey=zero"]
+  goTemplateOptions: ["missingkey=error"]
   generators:
     - matrix:
         generators:
@@ -60,7 +60,7 @@ spec:
       namespace: argocd
       finalizers: ["resources-finalizer.argocd.argoproj.io"]
       labels:
-        deploy-phase: '{{ .deployPhase | default .deployPhaseDefault }}'
+        deploy-phase: '{{ dig "deployPhase" .deployPhaseDefault . }}'
       annotations:
         notifications.argoproj.io/subscribe.on-sync-failed.ntfy: ""
         notifications.argoproj.io/subscribe.on-health-degraded.ntfy: ""

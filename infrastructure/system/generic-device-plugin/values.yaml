@@ -13,6 +13,8 @@ controllers:
             name: zigbee
             groups:
               - paths:
+                  - path: /dev/serial/by-id/usb-Itead_Sonoff_Zigbee*
+                    optional: true
                   - path: /dev/ttyUSB*
                     optional: true
                   - path: /dev/ttyACM*

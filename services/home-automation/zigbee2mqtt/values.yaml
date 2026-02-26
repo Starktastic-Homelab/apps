@@ -10,8 +10,10 @@ controllers:
           ZIGBEE2MQTT_CONFIG_MQTT_SERVER: "mqtt://mosquitto.home-automation.svc.cluster.local:1883"
           ZIGBEE2MQTT_CONFIG_HOMEASSISTANT_ENABLED: "true"
           ZIGBEE2MQTT_CONFIG_FRONTEND_PORT: "8080"
-          ZIGBEE2MQTT_CONFIG_SERIAL_PORT: "/dev/ttyUSB0"
+          ZIGBEE2MQTT_CONFIG_SERIAL_PORT: "/dev/serial/by-id/usb-Itead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_V2_d0f116b306f4ef118456c41b6d9880ab-if00-port0"
           ZIGBEE2MQTT_CONFIG_SERIAL_ADAPTER: "ember"
+          ZIGBEE2MQTT_CONFIG_SERIAL_BAUDRATE: "115200"
+          ZIGBEE2MQTT_CONFIG_ADVANCED_WATCHDOG: "true"
         resources:
           limits:
             squat.ai/zigbee: 1

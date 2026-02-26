@@ -47,6 +47,6 @@ persistence:
   zigbee2mqtt-config:
     existingClaim: zigbee2mqtt-config
     globalMounts:
-      - path: /data
+      - path: /app/data
   media:
     enabled: false

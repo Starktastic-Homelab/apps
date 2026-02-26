@@ -18,4 +18,5 @@ global:
     vlans:
       mgmt: "10.9.9.0/24"
       services: "10.9.8.0/24"
+      iot: "10.9.50.0/24"
       wireguard: "10.9.10.0/24"

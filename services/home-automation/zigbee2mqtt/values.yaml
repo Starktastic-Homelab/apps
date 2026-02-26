@@ -11,7 +11,7 @@ controllers:
           ZIGBEE2MQTT_CONFIG_HOMEASSISTANT_ENABLED: "true"
           ZIGBEE2MQTT_CONFIG_FRONTEND_PORT: "8080"
           ZIGBEE2MQTT_CONFIG_SERIAL_PORT: "/dev/ttyUSB0"
-          ZIGBEE2MQTT_CONFIG_SERIAL_ADAPTER: "zstack"
+          ZIGBEE2MQTT_CONFIG_SERIAL_ADAPTER: "ember"
         resources:
           limits:
             squat.ai/zigbee: 1

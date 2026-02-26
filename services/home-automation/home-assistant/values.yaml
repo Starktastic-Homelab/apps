@@ -30,8 +30,6 @@ controllers:
 defaultPodOptions:
   hostNetwork: true
   dnsPolicy: ClusterFirstWithHostNet
-  nodeSelector:
-    kubernetes.io/hostname: kube-worker-01
   securityContext:
     fsGroup: 0
 

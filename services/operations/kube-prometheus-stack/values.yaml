@@ -61,8 +61,8 @@ alertmanager:
     route:
       group_by: ["alertname", "namespace"]
       group_wait: 30s
-      group_interval: 5m
-      repeat_interval: 12h
+      group_interval: 15m
+      repeat_interval: 24h
       receiver: "ntfy"
       routes:
         # Watchdog fires continuously as a dead-man's switch.
@@ -77,6 +77,10 @@ alertmanager:
         - receiver: "null"
           matchers:
             - alertname = "InfoInhibitor"
+        # Silence noisy built-in alerts that fire during normal rollouts
+        - receiver: "null"
+          matchers:
+            - alertname =~ "KubePodNotReady|KubePodCrashLooping|KubeDeploymentReplicasMismatch|KubeContainerWaiting|CPUThrottlingHigh|KubeHpaReplicasMismatch"
         - receiver: "ntfy"
           continue: true
     receivers:

@@ -80,7 +80,8 @@ alertmanager:
         # Silence noisy built-in alerts that fire during normal rollouts
         - receiver: "null"
           matchers:
-            - alertname =~ "KubePodNotReady|KubePodCrashLooping|KubeDeploymentReplicasMismatch|KubeContainerWaiting|CPUThrottlingHigh|KubeHpaReplicasMismatch"
+            - alertname =~
+              "KubePodNotReady|KubePodCrashLooping|KubeDeploymentReplicasMismatch|KubeContainerWaiting|CPUThrottlingHigh|KubeHpaReplicasMismatch"
         - receiver: "ntfy"
           continue: true
     receivers:

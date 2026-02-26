@@ -12,9 +12,6 @@ controllers:
           - |
             name: zigbee
             groups:
-              - usb:
-                  - vendor: "10c4"
-                    product: "ea60"
               - paths:
                   - path: /dev/ttyUSB*
                   - path: /dev/ttyACM*

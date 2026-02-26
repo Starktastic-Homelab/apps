@@ -14,7 +14,9 @@ controllers:
             groups:
               - paths:
                   - path: /dev/ttyUSB*
+                    optional: true
                   - path: /dev/ttyACM*
+                    optional: true
         resources:
           requests:
             cpu: 50m

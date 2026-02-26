@@ -4,7 +4,8 @@ deployPhase: services
 
 ingress:
   enabled: true
-  host: home-assistant
+  host: ha
+  serviceName: home-assistant-main
   domainType: "internal"
   port: 8123
   auth: false

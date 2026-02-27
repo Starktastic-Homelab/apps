@@ -1,6 +1,27 @@
 container_runtime: containerd
 
 # ---------------------------------------------------------------------------
+# Config - LAPI configuration overrides (merged with default config.yaml)
+# ---------------------------------------------------------------------------
+config:
+  config.yaml.local: |
+    db_config:
+      flush:
+        agents_autodelete:
+          # Auto-clean stale agent registrations that haven't heartbeated.
+          # This prevents "user already exist" errors when agent pods restart
+          # and try to re-register with the same machine name.
+          login_password: 10m
+    api:
+      server:
+        auto_registration:
+          enabled: true
+          token: "${REGISTRATION_TOKEN}"
+          allowed_ranges:
+            - "127.0.0.1/32"
+            - "10.0.0.0/8"
+
+# ---------------------------------------------------------------------------
 # LAPI (Local API) - central decision engine
 # ---------------------------------------------------------------------------
 lapi:

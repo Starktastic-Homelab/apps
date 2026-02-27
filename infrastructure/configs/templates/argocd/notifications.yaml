@@ -60,6 +60,7 @@ data:
     - description: Application syncing has failed
       send: [app-sync-failed]
       when: app.status.operationState.phase in ['Error', 'Failed']
+      oncePer: app.status.operationState.phase
 
   trigger.on-health-degraded: |
     - description: Application health has degraded (not during a sync)

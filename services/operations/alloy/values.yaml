@@ -134,10 +134,10 @@ alloy:
 
           stage.structured_metadata {
             values = {
-              geoip_city_name    = "",
-              geoip_country_name = "",
-              geoip_latitude     = "",
-              geoip_longitude    = "",
+              geoip_city_name          = "",
+              geoip_country_name       = "",
+              geoip_location_latitude  = "",
+              geoip_location_longitude = "",
             }
           }
         }

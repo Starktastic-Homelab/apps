@@ -169,6 +169,7 @@ grafana:
       HTTP_HOST: 0.0.0.0
       BROWSER_TZ: Asia/Jerusalem
       BROWSER_READINESS_TIMEOUT: 60s
+      BROWSER_READINESS_DISABLE_NETWORK_WAIT: "true"
     resources:
       requests:
         cpu: 100m

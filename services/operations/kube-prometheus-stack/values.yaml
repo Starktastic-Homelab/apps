@@ -135,6 +135,8 @@ grafana:
       role_attribute_path:
         "contains(groups[*], 'Grafana Admins') && 'Admin' || contains(groups[*], 'Grafana Editors') && 'Editor' ||
         'Viewer'"
+    unified_alerting.screenshots:
+      capture: true
   persistence:
     enabled: true
     storageClassName: nfs-pv # IMPORTANT: must match global.storageClass in templates/globals.yaml
@@ -161,6 +163,20 @@ grafana:
           enabled: true
         serviceMap:
           datasourceUid: prometheus
+  imageRenderer:
+    enabled: true
+    env:
+      HTTP_HOST: 0.0.0.0
+    securityContext:
+      runAsUser: 472
+      runAsGroup: 472
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 300m
+        memory: 512Mi
 
 # -----------------------------------------------------------------------------
 # node-exporter (DaemonSet - hardware & OS metrics from every node)

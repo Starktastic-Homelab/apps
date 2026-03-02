@@ -167,9 +167,8 @@ grafana:
     enabled: true
     env:
       HTTP_HOST: 0.0.0.0
-    securityContext:
-      runAsUser: 472
-      runAsGroup: 472
+      BROWSER_TZ: Asia/Jerusalem
+      BROWSER_READINESS_TIMEOUT: 60s
     resources:
       requests:
         cpu: 100m

@@ -1,11 +1,12 @@
 controllers:
   main:
+    strategy: Recreate
     containers:
       main:
         image:
           repository: ghcr.io/koenkk/zigbee2mqtt
-          tag: 2.9.1
-          digest: sha256:574b2bd0dcbb59fae6edbbb81a35b5563291d3825da0225f0078aa5575dac37f
+          tag: 2.9.0
+          digest: sha256:6cce51b7328afda3670336cd385f53a2f824ac948164e60f304383d1c3c6ef87
         env:
           ZIGBEE2MQTT_CONFIG_MQTT_SERVER: "mqtt://mosquitto.home-automation.svc.cluster.local:1883"
           ZIGBEE2MQTT_CONFIG_HOMEASSISTANT_ENABLED: "true"
@@ -13,6 +14,7 @@ controllers:
           ZIGBEE2MQTT_CONFIG_SERIAL_PORT: "/dev/serial/by-id/usb-Itead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_V2_d0f116b306f4ef118456c41b6d9880ab-if00-port0"
           ZIGBEE2MQTT_CONFIG_SERIAL_ADAPTER: "ember"
           ZIGBEE2MQTT_CONFIG_SERIAL_BAUDRATE: "115200"
+          ZIGBEE2MQTT_CONFIG_SERIAL_RTSCTS: "false"
           ZIGBEE2MQTT_CONFIG_ADVANCED_WATCHDOG: "true"
         resources:
           limits:
@@ -33,7 +35,7 @@ controllers:
             type: TCP
             port: 8080
             spec:
-              failureThreshold: 30
+              failureThreshold: 60
               periodSeconds: 5
 
 service:

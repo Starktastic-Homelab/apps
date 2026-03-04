@@ -1,0 +1,11 @@
+name: metube
+namespace: media
+deployPhase: services
+
+ingress:
+  enabled: true
+  host: metube
+  domainType: "media"
+  port: 8081
+  auth: true
+  rateLimit: true

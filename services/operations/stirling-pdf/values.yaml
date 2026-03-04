@@ -32,6 +32,10 @@ service:
 
 persistence:
   config:
+    enabled: false
+  stirling-pdf-config:
     existingClaim: stirling-pdf-config
     globalMounts:
       - path: /configs
+  media:
+    enabled: false

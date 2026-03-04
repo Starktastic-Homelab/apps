@@ -8,6 +8,7 @@ controllers:
           digest: sha256:079c0100fec65a972dd7bf8fed9474a2e947c6badb875465878a389bb3a0c163
         env:
           DOWNLOAD_DIR: "/data/downloads/metube"
+          TEMP_DIR: "/data/downloads/metube/.tmp"
           STATE_DIR: "/data/downloads/metube/.metube"
           DELETE_FILE_ON_TRASHCAN: "true"
           DEFAULT_THEME: "auto"

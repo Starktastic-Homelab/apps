@@ -1,0 +1,11 @@
+name: metube
+namespace: operations
+deployPhase: services
+
+ingress:
+  enabled: true
+  host: metube
+  domainType: "public"
+  port: 8081
+  auth: true
+  rateLimit: true

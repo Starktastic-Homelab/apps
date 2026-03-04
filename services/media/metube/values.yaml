@@ -11,6 +11,7 @@ controllers:
           STATE_DIR: "/data/downloads/metube/.metube"
           DELETE_FILE_ON_TRASHCAN: "true"
           DEFAULT_THEME: "auto"
+          CHOWN_DIRS: "false"
         probes:
           liveness:
             enabled: true

@@ -1,0 +1,11 @@
+name: cyberchef
+namespace: operations
+deployPhase: services
+
+ingress:
+  enabled: true
+  host: cyberchef
+  domainType: "public"
+  port: 8000
+  auth: true
+  rateLimit: true

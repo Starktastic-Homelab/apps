@@ -1,0 +1,37 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: mpepping/cyberchef
+          tag: latest
+          digest: sha256:75bc7fab50593ef1fa2c3156451bdabfca68f06556f41e4756de8259abcbbb24
+        probes:
+          liveness:
+            enabled: true
+            type: TCP
+            port: 8000
+          readiness:
+            enabled: true
+            type: TCP
+            port: 8000
+          startup:
+            enabled: true
+            type: TCP
+            port: 8000
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 8000
+
+persistence:
+  config:
+    enabled: false
+  media:
+    enabled: false

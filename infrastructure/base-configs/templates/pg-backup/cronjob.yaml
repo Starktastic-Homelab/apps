@@ -16,7 +16,7 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: pg-backup
-              image: postgres:17-alpine
+              image: postgres:alpine
               command: ["/bin/sh", "/scripts/backup.sh"]
               env:
                 - name: PGHOST

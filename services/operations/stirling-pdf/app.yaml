@@ -1,0 +1,11 @@
+name: stirling-pdf
+namespace: operations
+deployPhase: services
+
+ingress:
+  enabled: true
+  host: pdf
+  domainType: "public"
+  port: 8080
+  auth: true
+  rateLimit: true

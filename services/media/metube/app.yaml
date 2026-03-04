@@ -1,5 +1,5 @@
 name: metube
-namespace: operations
+namespace: media
 deployPhase: services
 
 ingress:

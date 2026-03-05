@@ -1,0 +1,6 @@
+name: microbin
+namespace: operations
+deployPhase: services
+
+ingress:
+  enabled: false

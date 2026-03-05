@@ -1,0 +1,72 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: danielszabo99/microbin
+          tag: 2.1.0
+          digest: sha256:34fe4ac99b65cc633975ae72ca6fc84eab15f73a95b2e03b98312374063ee5d7
+        env:
+          MICROBIN_PUBLIC_PATH: "https://microbin.starktastic.net"
+          MICROBIN_PORT: "8080"
+          MICROBIN_BIND: "0.0.0.0"
+          # Access control
+          MICROBIN_PRIVATE: "true"
+          MICROBIN_EDITABLE: "false"
+          MICROBIN_NO_LISTING: "true"
+          MICROBIN_ENABLE_READONLY: "true"
+          # Encryption
+          MICROBIN_ENCRYPTION_CLIENT_SIDE: "true"
+          MICROBIN_ENCRYPTION_SERVER_SIDE: "true"
+          # Features
+          MICROBIN_ENABLE_BURN_AFTER: "true"
+          MICROBIN_DEFAULT_EXPIRY: "24hour"
+          MICROBIN_DEFAULT_BURN_AFTER: "0"
+          MICROBIN_GC_DAYS: "90"
+          MICROBIN_QR: "true"
+          MICROBIN_HIGHLIGHTSYNTAX: "true"
+          MICROBIN_SHOW_READ_STATS: "true"
+          MICROBIN_WIDE: "false"
+          # Admin (credentials from sealed secret)
+          MICROBIN_ADMIN_USERNAME:
+            valueFrom:
+              secretKeyRef:
+                name: microbin-secret
+                key: MICROBIN_ADMIN_USERNAME
+          MICROBIN_ADMIN_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: microbin-secret
+                key: MICROBIN_ADMIN_PASSWORD
+          # Telemetry
+          MICROBIN_DISABLE_TELEMETRY: "true"
+          MICROBIN_DISABLE_UPDATE_CHECKING: "true"
+        probes:
+          liveness:
+            enabled: true
+            type: TCP
+            port: 8080
+          readiness:
+            enabled: true
+            type: TCP
+            port: 8080
+          startup:
+            enabled: true
+            type: TCP
+            port: 8080
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 8080
+
+persistence:
+  config:
+    existingClaim: microbin-config
+    globalMounts:
+      - path: /app/microbin_data

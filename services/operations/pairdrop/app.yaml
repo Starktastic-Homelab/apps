@@ -1,0 +1,11 @@
+name: pairdrop
+namespace: operations
+deployPhase: services
+
+ingress:
+  enabled: true
+  host: pairdrop
+  domainType: "public"
+  port: 3000
+  auth: true
+  rateLimit: true

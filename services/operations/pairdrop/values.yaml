@@ -1,0 +1,40 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: lscr.io/linuxserver/pairdrop
+          tag: "1.11.2"
+          digest: sha256:9a0f8dc04637f4a97f9d53ba276c019a972248a04cb94cf7c4b8f7f04cac7783
+        env:
+          WS_FALLBACK: "true"
+          RATE_LIMIT: "false"
+        probes:
+          liveness:
+            enabled: true
+            type: TCP
+            port: 3000
+          readiness:
+            enabled: true
+            type: TCP
+            port: 3000
+          startup:
+            enabled: true
+            type: TCP
+            port: 3000
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 3000
+
+persistence:
+  config:
+    enabled: false
+  media:
+    enabled: false

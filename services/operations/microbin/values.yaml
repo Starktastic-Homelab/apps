@@ -56,6 +56,8 @@ service:
 
 persistence:
   config:
+    enabled: false
+  data:
     existingClaim: microbin-config
     globalMounts:
       - path: /app/microbin_data

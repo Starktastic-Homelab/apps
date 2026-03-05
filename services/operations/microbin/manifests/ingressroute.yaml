@@ -21,7 +21,9 @@ spec:
         - name: authentik-admin-middleware
           namespace: authentik
     # Create/manage — Authentik SSO (any authenticated user)
-    - match: Host(`microbin.starktastic.net`) && (Path(`/`) || PathPrefix(`/create`) || PathPrefix(`/edit`) || PathPrefix(`/remove`) || PathPrefix(`/list`) || PathPrefix(`/pastalist`))
+    - match:
+        Host(`microbin.starktastic.net`) && (Path(`/`) || PathPrefix(`/create`) || PathPrefix(`/edit`) ||
+        PathPrefix(`/remove`) || PathPrefix(`/list`) || PathPrefix(`/pastalist`))
       kind: Rule
       services:
         - name: microbin

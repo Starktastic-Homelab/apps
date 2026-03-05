@@ -1,0 +1,51 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: libretranslate/libretranslate
+          tag: v1.9.5
+          digest: sha256:b358e61598c9d5240ddb5f9e8f53389931db8305ccfd426fbfcc603f4b24c7a4
+        env:
+          LT_LOAD_ONLY: "en,he,ru"
+          LT_DISABLE_WEB_UI: "true"
+          LT_THREADS: "4"
+          LT_UPDATE_MODELS: "true"
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            path: /languages
+            port: 5000
+          readiness:
+            enabled: true
+            type: HTTP
+            path: /languages
+            port: 5000
+          startup:
+            enabled: true
+            type: HTTP
+            path: /languages
+            port: 5000
+            spec:
+              initialDelaySeconds: 30
+              failureThreshold: 120
+              periodSeconds: 10
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 5000
+
+persistence:
+  config:
+    enabled: false
+  libretranslate-models:
+    type: persistentVolumeClaim
+    storageClass: "nfs-pv"
+    size: 2Gi
+    accessMode: ReadWriteMany
+    globalMounts:
+      - path: /home/libretranslate/.local

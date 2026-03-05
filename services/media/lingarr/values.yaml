@@ -8,8 +8,8 @@ controllers:
           digest: sha256:26b3dba8ba1d6b37bdde752418bf3f14d3fac16a3c05a64a2c840e8c507d24e5
         env:
           # Translation backend
-          SERVICE_TYPE: "gemini"
-          GEMINI_MODEL: "gemini-2.0-flash"
+          SERVICE_TYPE: "libretranslate"
+          LIBRE_TRANSLATE_URL: "http://libretranslate.media.svc.cluster.local:5000"
 
           # Database
           DB_CONNECTION: "sqlite"

@@ -1,0 +1,50 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: microbin-public
+  namespace: operations
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    # Admin panel — Authentik SSO (admin-group only)
+    - match: Host(`microbin.starktastic.net`) && PathPrefix(`/admin`)
+      kind: Rule
+      services:
+        - name: microbin
+          port: 8080
+      middlewares:
+        - name: crowdsec-bouncer
+          namespace: traefik-system
+        - name: rate-limit-strong
+          namespace: traefik-system
+        - name: authentik-admin-middleware
+          namespace: authentik
+    # Create/manage — Authentik SSO (any authenticated user)
+    - match:
+        Host(`microbin.starktastic.net`) && (Path(`/`) || PathPrefix(`/create`) || PathPrefix(`/edit`) ||
+        PathPrefix(`/remove`) || PathPrefix(`/list`) || PathPrefix(`/pastalist`))
+      kind: Rule
+      services:
+        - name: microbin
+          port: 8080
+      middlewares:
+        - name: crowdsec-bouncer
+          namespace: traefik-system
+        - name: rate-limit-strong
+          namespace: traefik-system
+        - name: authentik-middleware
+          namespace: authentik
+    # View/share — fully public (paste links, raw, files, QR, guide)
+    - match: Host(`microbin.starktastic.net`)
+      kind: Rule
+      services:
+        - name: microbin
+          port: 8080
+      middlewares:
+        - name: crowdsec-bouncer
+          namespace: traefik-system
+        - name: rate-limit-strong
+          namespace: traefik-system
+  tls:
+    secretName: traefik-system/starktastic-net-tls

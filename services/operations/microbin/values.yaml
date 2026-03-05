@@ -27,17 +27,6 @@ controllers:
           MICROBIN_HIGHLIGHTSYNTAX: "true"
           MICROBIN_SHOW_READ_STATS: "true"
           MICROBIN_WIDE: "false"
-          # Admin (credentials from sealed secret)
-          MICROBIN_ADMIN_USERNAME:
-            valueFrom:
-              secretKeyRef:
-                name: microbin-secret
-                key: MICROBIN_ADMIN_USERNAME
-          MICROBIN_ADMIN_PASSWORD:
-            valueFrom:
-              secretKeyRef:
-                name: microbin-secret
-                key: MICROBIN_ADMIN_PASSWORD
           # Telemetry
           MICROBIN_DISABLE_TELEMETRY: "true"
           MICROBIN_DISABLE_UPDATE_CHECKING: "true"

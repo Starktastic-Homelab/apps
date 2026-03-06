@@ -15,6 +15,9 @@ controllers:
           # PAPERLESS_REDIS is set via paperless-ngx-secret (contains auth password)
           # Hosting
           PAPERLESS_URL: "https://paperless.internal.starktastic.net"
+          PAPERLESS_USE_X_FORWARD_HOST: "true"
+          PAPERLESS_USE_X_FORWARD_PORT: "true"
+          PAPERLESS_PROXY_SSL_HEADER: '["HTTP_X_FORWARDED_PROTO","https"]'
           PAPERLESS_TIME_ZONE: "Asia/Jerusalem"
           PAPERLESS_OCR_LANGUAGE: "eng"
           # Consumer

@@ -12,7 +12,7 @@ controllers:
           PAPERLESS_DBPORT: "5432"
           PAPERLESS_DBNAME: "paperless"
           PAPERLESS_DBUSER: "paperless"
-          PAPERLESS_REDIS: "redis://redis-redis-master.databases.svc.cluster.local:6379"
+          PAPERLESS_REDIS: "redis://redis-redis.databases.svc.cluster.local:6379"
           # Hosting
           PAPERLESS_URL: "https://paperless.internal.starktastic.net"
           PAPERLESS_TIME_ZONE: "Asia/Jerusalem"

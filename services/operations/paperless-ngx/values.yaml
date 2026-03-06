@@ -1,0 +1,67 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: ghcr.io/paperless-ngx/paperless-ngx
+          tag: 2.20.10
+          digest: sha256:07a0b4ba01ce377c82a0636e16c0c3d931fde5b7e9304de6601986cc42d9b6e6
+        env:
+          # Database
+          PAPERLESS_DBHOST: "postgres-postgresql.databases.svc.cluster.local"
+          PAPERLESS_DBPORT: "5432"
+          PAPERLESS_DBNAME: "paperless"
+          PAPERLESS_DBUSER: "paperless"
+          PAPERLESS_REDIS: "redis://redis-redis.databases.svc.cluster.local:6379"
+          # Hosting
+          PAPERLESS_URL: "https://paperless.internal.starktastic.net"
+          PAPERLESS_TIME_ZONE: "Asia/Jerusalem"
+          PAPERLESS_OCR_LANGUAGE: "eng"
+          # Consumer
+          PAPERLESS_CONSUMER_POLLING: "30"
+          # SSO - Authentik OIDC
+          PAPERLESS_APPS: "allauth.socialaccount.providers.openid_connect"
+          PAPERLESS_SOCIAL_AUTO_SIGNUP: "true"
+          PAPERLESS_SOCIALACCOUNT_ALLOW_SIGNUPS: "true"
+          PAPERLESS_REDIRECT_LOGIN_TO_SSO: "true"
+          PAPERLESS_DISABLE_REGULAR_LOGIN: "false"
+          PAPERLESS_LOGOUT_REDIRECT_URL: "https://auth.starktastic.net/application/o/paperless-ngx/end-session/"
+        envFrom:
+          - secretRef:
+              name: paperless-ngx-secret
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            port: 8000
+            path: /
+          readiness:
+            enabled: true
+            type: HTTP
+            port: 8000
+            path: /
+          startup:
+            enabled: true
+            type: TCP
+            port: 8000
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 8000
+
+persistence:
+  data:
+    existingClaim: paperless-ngx-data
+    globalMounts:
+      - path: /usr/src/paperless/data
+        subPath: data
+      - path: /usr/src/paperless/media
+        subPath: media
+      - path: /usr/src/paperless/consume
+        subPath: consume

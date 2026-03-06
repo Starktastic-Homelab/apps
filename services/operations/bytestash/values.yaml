@@ -1,0 +1,50 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: ghcr.io/jordan-dalby/bytestash
+          tag: 1.5.11
+          digest: sha256:f5ca5cc8c33d76eda8969757d5b6da653c39ca8d946b3f7bfbc86df1360bf525
+        env:
+          # Auth
+          ALLOW_NEW_ACCOUNTS: "false"
+          DISABLE_INTERNAL_ACCOUNTS: "true"
+          # OIDC
+          OIDC_ENABLED: "true"
+          OIDC_DISPLAY_NAME: "Authentik"
+          OIDC_ISSUER_URL: "https://auth.starktastic.net/application/o/bytestash/"
+          # Session
+          TOKEN_EXPIRY: "24h"
+        envFrom:
+          - secretRef:
+              name: bytestash-secret
+        probes:
+          liveness:
+            enabled: true
+            type: TCP
+            port: 5000
+          readiness:
+            enabled: true
+            type: TCP
+            port: 5000
+          startup:
+            enabled: true
+            type: TCP
+            port: 5000
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 5000
+
+persistence:
+  data:
+    existingClaim: bytestash-data
+    globalMounts:
+      - path: /data/snippets

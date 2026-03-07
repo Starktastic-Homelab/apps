@@ -1,0 +1,31 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: paperless-share-redirect
+  namespace: operations
+spec:
+  redirectRegex:
+    regex: "^https://paperless\\.internal\\.starktastic\\.net(/share/.*)$"
+    replacement: "https://paperless.starktastic.net${1}"
+    permanent: false
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: paperless-ngx-share-redirect
+  namespace: operations
+spec:
+  entryPoints:
+    - websec-int
+  routes:
+    - match: Host(`paperless.internal.starktastic.net`) && PathPrefix(`/share/`)
+      kind: Rule
+      priority: 100
+      services:
+        - name: paperless-ngx
+          port: 8000
+      middlewares:
+        - name: paperless-share-redirect
+          namespace: operations
+  tls:
+    secretName: traefik-system/starktastic-net-tls

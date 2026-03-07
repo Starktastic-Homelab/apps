@@ -7,4 +7,4 @@ ingress:
   domainType: "public"
   port: 8000
   auth: false
-  rateLimit: false
+  rateLimit: true

@@ -4,7 +4,7 @@ deployPhase: services
 ingress:
   enabled: true
   host: paperless
-  domainType: "internal"
+  domainType: "public"
   port: 8000
   auth: false
   rateLimit: false

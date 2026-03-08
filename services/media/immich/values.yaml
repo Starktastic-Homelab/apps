@@ -89,8 +89,8 @@ controllers:
       main:
         image:
           repository: ghcr.io/immich-app/postgres
-          tag: 16-vectorchord0.5.3-pgvector0.8.1
-          digest: sha256:bea97ce1bdd653d1a3461629544e83374976f5799f695e9b28ee7fe77bfb150d
+          tag: 16-vectorchord0.4.3-pgvector0.8.1
+          digest: sha256:2c6e74ea2c5d4d784f5eece3d25c8d1c8872623537eb048483a913fcfb3587cc
         env:
           POSTGRES_DB: immich
           POSTGRES_USER: immich

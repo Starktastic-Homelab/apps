@@ -81,9 +81,9 @@ controllers:
           - sh
           - -c
           - |
-            if [ -f /var/lib/postgresql/data/immich/postmaster.pid ]; then
+            if [ -f /data/pgdata/postmaster.pid ]; then
               echo "🧟 Zombie Lock Found: Deleting postmaster.pid"
-              rm -f /var/lib/postgresql/data/immich/postmaster.pid
+              rm -f /data/pgdata/postmaster.pid
             fi
     containers:
       main:
@@ -100,6 +100,7 @@ controllers:
                 name: immich-secret
                 key: DB_PASSWORD
           POSTGRES_INITDB_ARGS: "--data-checksums"
+          PGDATA: "/data/pgdata"
         probes:
           liveness:
             enabled: true
@@ -148,11 +149,9 @@ persistence:
     advancedMounts:
       postgres:
         rm-postmaster-lock:
-          - path: /var/lib/postgresql/data
-            subPath: immich
+          - path: /data
         main:
-          - path: /var/lib/postgresql/data
-            subPath: immich
+          - path: /data
   model-cache:
     existingClaim: immich-model-cache
     advancedMounts:

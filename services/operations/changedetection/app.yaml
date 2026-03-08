@@ -4,7 +4,7 @@ deployPhase: services
 ingress:
   enabled: true
   host: changedetection
-  domainType: "internal"
+  domainType: "public"
   port: 5000
   auth: true
   rateLimit: false

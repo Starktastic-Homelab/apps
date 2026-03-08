@@ -5,6 +5,7 @@ ingress:
   enabled: true
   host: immich
   domainType: "media"
+  serviceName: immich-main
   port: 2283
   auth: false
   rateLimit: false

@@ -1,0 +1,10 @@
+name: vaultwarden
+namespace: operations
+deployPhase: services
+ingress:
+  enabled: true
+  host: vaultwarden
+  domainType: "internal"
+  port: 8080
+  auth: false
+  rateLimit: true

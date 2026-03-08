@@ -1,0 +1,54 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: ghcr.io/dani-garcia/vaultwarden
+          tag: 1.35.4
+          digest: sha256:43498a94b22f9563f2a94b53760ab3e710eefc0d0cac2efda4b12b9eb8690664
+        env:
+          DOMAIN: "https://vaultwarden.internal.starktastic.net"
+          ROCKET_PORT: "8080"
+          SIGNUPS_ALLOWED: "false"
+          INVITATIONS_ALLOWED: "true"
+          SHOW_PASSWORD_HINT: "false"
+          # SSO / OpenID Connect
+          SSO_ENABLED: "true"
+          SSO_ONLY: "false"
+          SSO_AUTHORITY: "https://auth.starktastic.net/application/o/vaultwarden/"
+        envFrom:
+          - secretRef:
+              name: vaultwarden-secret
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            path: /alive
+            port: 8080
+          readiness:
+            enabled: true
+            type: HTTP
+            path: /alive
+            port: 8080
+          startup:
+            enabled: true
+            type: TCP
+            port: 8080
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 8080
+
+persistence:
+  config:
+    enabled: false
+  data:
+    existingClaim: vaultwarden-data
+    globalMounts:
+      - path: /data

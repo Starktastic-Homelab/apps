@@ -14,7 +14,7 @@ controllers:
           SHOW_PASSWORD_HINT: "false"
           # SSO / OpenID Connect (https://integrations.goauthentik.io/security/vaultwarden/)
           SSO_ENABLED: "true"
-          SSO_ONLY: "true"
+          SSO_ONLY: "false"
           SSO_AUTHORITY: "https://auth.starktastic.net/application/o/vaultwarden/"
           SSO_SCOPES: "email profile offline_access"
           SSO_ALLOW_UNKNOWN_EMAIL_VERIFICATION: "false"

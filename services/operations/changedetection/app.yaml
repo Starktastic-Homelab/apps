@@ -1,0 +1,10 @@
+name: changedetection
+namespace: operations
+deployPhase: services
+ingress:
+  enabled: true
+  host: changedetection
+  domainType: "internal"
+  port: 5000
+  auth: true
+  rateLimit: false

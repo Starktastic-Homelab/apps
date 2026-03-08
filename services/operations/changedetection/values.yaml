@@ -1,0 +1,68 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: ghcr.io/dgtlmoon/changedetection.io
+          tag: 0.54.4
+          digest: sha256:78a25eb5637f4842472f3e3f667e2f3e63c5a1cdf86aa2600884c54c6c0ea4b5
+        env:
+          PLAYWRIGHT_DRIVER_URL: "ws://localhost:3000"
+          BASE_URL: "https://changedetection.internal.starktastic.net"
+          USE_X_SETTINGS: "1"
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            port: 5000
+            path: /
+          readiness:
+            enabled: true
+            type: HTTP
+            port: 5000
+            path: /
+          startup:
+            enabled: true
+            type: TCP
+            port: 5000
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+      sockpuppetbrowser:
+        image:
+          repository: dgtlmoon/sockpuppetbrowser
+          tag: latest
+          digest: sha256:7116c61ef9cfce3d48a7efd9355d2fbe19f593ea3cfb52a5ded40ecbcb0a3f9d
+        env:
+          SCREEN_WIDTH: "1920"
+          SCREEN_HEIGHT: "1024"
+          SCREEN_DEPTH: "16"
+          MAX_CONCURRENT_CHROME_PROCESSES: "5"
+        securityContext:
+          capabilities:
+            add:
+              - SYS_ADMIN
+        probes:
+          liveness:
+            enabled: false
+          readiness:
+            enabled: false
+          startup:
+            enabled: false
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 5000
+
+persistence:
+  config:
+    enabled: false
+  data:
+    existingClaim: changedetection-data
+    advancedMounts:
+      main:
+        main:
+          - path: /datastore

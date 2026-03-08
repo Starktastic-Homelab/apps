@@ -11,7 +11,7 @@ controllers:
           DB_PORT: "5432"
           DB_DATABASE_NAME: immich
           DB_USERNAME: immich
-          DB_VECTOR_EXTENSION: "pgvecto.rs"
+          DB_VECTOR_EXTENSION: "vectorchord"
           REDIS_HOSTNAME: redis-master.databases.svc.cluster.local
           REDIS_PORT: "6379"
           IMMICH_MACHINE_LEARNING_URL: "http://immich-machine-learning:3003"
@@ -88,9 +88,9 @@ controllers:
     containers:
       main:
         image:
-          repository: ghcr.io/tensorchord/cloudnative-pgvecto.rs
-          tag: 16-v0.4.0
-          digest: sha256:d92dedeeb2c1c70110b72270e3f5ba90f222dcc6fb93988d9adb4d0da15a6a9d
+          repository: ghcr.io/immich-app/postgres
+          tag: 16-vectorchord0.5.3-pgvector0.8.1
+          digest: sha256:bea97ce1bdd653d1a3461629544e83374976f5799f695e9b28ee7fe77bfb150d
         env:
           POSTGRES_DB: immich
           POSTGRES_USER: immich

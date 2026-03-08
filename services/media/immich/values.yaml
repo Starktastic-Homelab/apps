@@ -1,7 +1,5 @@
 controllers:
   main:
-    dependsOn:
-      - postgres
     containers:
       main:
         image:

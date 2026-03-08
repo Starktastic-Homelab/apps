@@ -69,6 +69,22 @@ controllers:
               periodSeconds: 5
 
   postgres:
+    pod:
+      securityContext:
+        fsGroup: 999
+    initContainers:
+      rm-postmaster-lock:
+        image:
+          repository: busybox
+          tag: latest
+        command:
+          - sh
+          - -c
+          - |
+            if [ -f /var/lib/postgresql/data/immich/postmaster.pid ]; then
+              echo "🧟 Zombie Lock Found: Deleting postmaster.pid"
+              rm -f /var/lib/postgresql/data/immich/postmaster.pid
+            fi
     containers:
       main:
         image:
@@ -131,6 +147,9 @@ persistence:
     existingClaim: immich-pgdata
     advancedMounts:
       postgres:
+        rm-postmaster-lock:
+          - path: /var/lib/postgresql/data
+            subPath: immich
         main:
           - path: /var/lib/postgresql/data
             subPath: immich

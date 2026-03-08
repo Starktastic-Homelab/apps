@@ -144,6 +144,7 @@ persistence:
       main:
         main:
           - path: /usr/src/app/upload
+            subPath: immich
   pgdata:
     existingClaim: immich-pgdata
     advancedMounts:

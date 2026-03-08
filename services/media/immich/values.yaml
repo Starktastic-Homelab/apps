@@ -73,8 +73,8 @@ controllers:
       main:
         image:
           repository: ghcr.io/tensorchord/cloudnative-pgvecto.rs
-          tag: 16-v0.4.0
-          digest: sha256:d92dedeeb2c1c70110b72270e3f5ba90f222dcc6fb93988d9adb4d0da15a6a9d
+          tag: 17-v0.4.0
+          digest: sha256:cfa59ddef46bf642e3f6be9ad1878317ae5d4015707d02349bf1569d76b564e0
         env:
           POSTGRES_DB: immich
           POSTGRES_USER: immich

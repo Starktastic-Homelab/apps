@@ -1,0 +1,10 @@
+name: immich
+namespace: media
+deployPhase: services
+ingress:
+  enabled: true
+  host: immich
+  domainType: "media"
+  port: 2283
+  auth: false
+  rateLimit: false

@@ -1,0 +1,153 @@
+controllers:
+  main:
+    dependsOn:
+      - postgres
+    containers:
+      main:
+        image:
+          repository: ghcr.io/immich-app/immich-server
+          tag: v1.131.3
+          digest: sha256:7e5b6729b12b5e5cc5d98bcc6f7c27f723fabae4ee77696855808ebd5200bbf8
+        env:
+          DB_HOSTNAME: immich-postgres
+          DB_PORT: "5432"
+          DB_DATABASE_NAME: immich
+          DB_USERNAME: immich
+          REDIS_HOSTNAME: redis-master.databases.svc.cluster.local
+          REDIS_PORT: "6379"
+          IMMICH_MACHINE_LEARNING_URL: "http://immich-machine-learning:3003"
+        envFrom:
+          - secretRef:
+              name: immich-secret
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            path: /api/server/ping
+            port: 2283
+          readiness:
+            enabled: true
+            type: HTTP
+            path: /api/server/ping
+            port: 2283
+          startup:
+            enabled: true
+            type: HTTP
+            path: /api/server/ping
+            port: 2283
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+
+  machine-learning:
+    containers:
+      main:
+        image:
+          repository: ghcr.io/immich-app/immich-machine-learning
+          tag: v1.131.3
+          digest: sha256:d6f07b454c0ec7e4ba3a5926fff2482f8fd1a9922b489122dec33b11a4f37bdd
+        env:
+          DB_HOSTNAME: immich-postgres
+          DB_PORT: "5432"
+          DB_DATABASE_NAME: immich
+          DB_USERNAME: immich
+          REDIS_HOSTNAME: redis-master.databases.svc.cluster.local
+          REDIS_PORT: "6379"
+        envFrom:
+          - secretRef:
+              name: immich-secret
+        resources:
+          limits:
+            gpu.intel.com/i915: "1"
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            path: /ping
+            port: 3003
+          readiness:
+            enabled: true
+            type: HTTP
+            path: /ping
+            port: 3003
+          startup:
+            enabled: true
+            type: HTTP
+            path: /ping
+            port: 3003
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+
+  postgres:
+    containers:
+      main:
+        image:
+          repository: ghcr.io/tensorchord/cloudnative-pgvecto.rs
+          tag: 16-v0.4.0
+          digest: sha256:d92dedeeb2c1c70110b72270e3f5ba90f222dcc6fb93988d9adb4d0da15a6a9d
+        env:
+          POSTGRES_DB: immich
+          POSTGRES_USER: immich
+          POSTGRES_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: immich-secret
+                key: DB_PASSWORD
+          POSTGRES_INITDB_ARGS: "--data-checksums"
+        probes:
+          liveness:
+            enabled: true
+            type: TCP
+            port: 5432
+          readiness:
+            enabled: true
+            type: TCP
+            port: 5432
+          startup:
+            enabled: true
+            type: TCP
+            port: 5432
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 2283
+  machine-learning:
+    controller: machine-learning
+    ports:
+      http:
+        port: 3003
+  postgres:
+    controller: postgres
+    ports:
+      tcp:
+        port: 5432
+
+persistence:
+  config:
+    enabled: false
+  library:
+    existingClaim: media-library-pvc
+    advancedMounts:
+      main:
+        main:
+          - path: /usr/src/app/upload
+  pgdata:
+    existingClaim: immich-pgdata
+    advancedMounts:
+      postgres:
+        main:
+          - path: /var/lib/postgresql/data
+            subPath: immich
+  model-cache:
+    existingClaim: immich-model-cache
+    advancedMounts:
+      machine-learning:
+        main:
+          - path: /cache

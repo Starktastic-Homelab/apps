@@ -91,7 +91,7 @@ data:
 
     recyclebin:
       enabled: true
-      empty_after_x_days: 30
+      empty_after_x_days: 3
       split_by_category: false
 
     orphaned:

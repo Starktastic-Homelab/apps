@@ -1,0 +1,10 @@
+name: filebrowser
+namespace: operations
+deployPhase: services
+ingress:
+  enabled: true
+  host: files
+  domainType: "internal"
+  port: 80
+  auth: true
+  rateLimit: true

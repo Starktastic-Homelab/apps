@@ -1,11 +1,20 @@
 controllers:
   main:
+    initContainers:
+      init-db-dir:
+        image:
+          repository: busybox
+          tag: latest
+        command: ["sh", "-c", "mkdir -p /srv/apps/filebrowser && chown 1000:1000 /srv/apps/filebrowser"]
     containers:
       main:
         image:
           repository: filebrowser/filebrowser
           tag: v2.61.2
           digest: sha256:697423514b01ea487596a99b7be38950ef08c46ba466603ad929334250d5ad28
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
         env:
           FB_ROOT: /srv
           FB_DATABASE: /srv/apps/filebrowser/filebrowser.db

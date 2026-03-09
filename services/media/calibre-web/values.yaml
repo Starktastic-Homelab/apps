@@ -1,0 +1,37 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: lscr.io/linuxserver/calibre-web
+          tag: version-v5.7.2
+          digest: sha256:3a59f6ecf159d702f42753bdc21e833593e652cda9625dfaad1679093365b79e
+        env:
+          DOCKER_MODS: "lscr.io/linuxserver/mods:universal-calibre"
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            path: /
+            port: 8083
+          readiness:
+            enabled: true
+            type: HTTP
+            path: /
+            port: 8083
+          startup:
+            enabled: true
+            type: HTTP
+            path: /
+            port: 8083
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 8083
+
+persistence:
+  media:
+    enabled: true

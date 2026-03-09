@@ -1,0 +1,11 @@
+name: calibre-web
+namespace: media
+deployPhase: services
+
+ingress:
+  enabled: true
+  host: books
+  domainType: "media"
+  port: 8083
+  auth: false
+  rateLimit: true

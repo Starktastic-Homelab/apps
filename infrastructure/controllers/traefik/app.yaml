@@ -4,4 +4,4 @@ helmManifests: true
 chart:
   repo: https://traefik.github.io/charts
   name: traefik
-  version: 39.0.4
+  version: 39.0.5

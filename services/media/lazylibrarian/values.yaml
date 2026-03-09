@@ -6,6 +6,8 @@ controllers:
           repository: lscr.io/linuxserver/lazylibrarian
           tag: e7c7ce2d-ls262
           digest: sha256:6a7e6c27f39d1284499e88a66b70e5e9b00e8aa02d6a7837dbe4098466b73855
+        env:
+          DOCKER_MODS: "lscr.io/linuxserver/mods:universal-calibre"
         probes:
           liveness:
             enabled: true

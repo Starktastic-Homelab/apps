@@ -1,0 +1,49 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: filebrowser/filebrowser
+          tag: v2.61.2
+          digest: sha256:697423514b01ea487596a99b7be38950ef08c46ba466603ad929334250d5ad28
+        env:
+          FB_ROOT: /srv
+          FB_DATABASE: /srv/apps/filebrowser/filebrowser.db
+          FB_NOAUTH: "true"
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            port: 80
+            path: /health
+          readiness:
+            enabled: true
+            type: HTTP
+            port: 80
+            path: /health
+          startup:
+            enabled: true
+            type: TCP
+            port: 80
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 80
+
+persistence:
+  config:
+    enabled: false
+  apps:
+    existingClaim: filebrowser-apps-pvc
+    globalMounts:
+      - path: /srv/apps
+  media:
+    existingClaim: filebrowser-media-pvc
+    globalMounts:
+      - path: /srv/media

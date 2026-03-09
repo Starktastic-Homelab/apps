@@ -1,0 +1,11 @@
+name: audiobookshelf
+namespace: media
+deployPhase: services
+
+ingress:
+  enabled: true
+  host: audiobooks
+  domainType: "media"
+  port: 13378
+  auth: false
+  rateLimit: false

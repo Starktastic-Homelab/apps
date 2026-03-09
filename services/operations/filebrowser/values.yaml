@@ -53,6 +53,7 @@ persistence:
     globalMounts:
       - path: /srv/apps
   media:
+    enabled: true
     existingClaim: filebrowser-media-pvc
     globalMounts:
       - path: /srv/media

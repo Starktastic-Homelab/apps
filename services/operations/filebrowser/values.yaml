@@ -11,7 +11,7 @@ controllers:
         image:
           repository: filebrowser/filebrowser
           tag: v2.61.2
-          digest: sha256:697423514b01ea487596a99b7be38950ef08c46ba466603ad929334250d5ad28
+          digest: sha256:40e1185f13edf70be8e5ce0b2fb43cdd80900b1fc921e2256ab86c7865d56ec5
         securityContext:
           runAsUser: 1000
           runAsGroup: 1000

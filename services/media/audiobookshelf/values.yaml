@@ -11,24 +11,24 @@ controllers:
             enabled: true
             type: HTTP
             path: /healthcheck
-            port: 13378
+            port: 80
           readiness:
             enabled: true
             type: HTTP
             path: /healthcheck
-            port: 13378
+            port: 80
           startup:
             enabled: true
             type: HTTP
             path: /healthcheck
-            port: 13378
+            port: 80
 
 service:
   main:
     controller: main
     ports:
       http:
-        port: 13378
+        port: 80
 
 persistence:
   config:

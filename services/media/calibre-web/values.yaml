@@ -4,8 +4,8 @@ controllers:
       main:
         image:
           repository: lscr.io/linuxserver/calibre-web
-          tag: version-v5.7.2
-          digest: sha256:3a59f6ecf159d702f42753bdc21e833593e652cda9625dfaad1679093365b79e
+          tag: 0.6.26-ls373
+          digest: sha256:ce91afe1778a60b0931ef2adc838bd0725679148577c19e73114d624bcfaf581
         env:
           DOCKER_MODS: "lscr.io/linuxserver/mods:universal-calibre"
         probes:

@@ -6,6 +6,6 @@ ingress:
   enabled: true
   host: audiobooks
   domainType: "media"
-  port: 13378
+  port: 80
   auth: false
   rateLimit: false

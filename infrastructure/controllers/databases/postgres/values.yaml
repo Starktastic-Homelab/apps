@@ -3,10 +3,34 @@ auth:
   secretKeys:
     adminPasswordKey: postgres-password
 primary:
+  resourcesPreset: "none"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi
   persistence:
     enabled: true
     # storageClass provided by global.storageClass in globals.yaml
     size: 8Gi
+  livenessProbe:
+    initialDelaySeconds: 60
+    periodSeconds: 15
+    timeoutSeconds: 10
+    failureThreshold: 10
+  readinessProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 10
+    failureThreshold: 10
+  startupProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 10
+    failureThreshold: 30
   initContainers:
     - name: rm-postmaster-lock-file
       image: busybox:latest

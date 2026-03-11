@@ -1,0 +1,11 @@
+name: lidarr
+namespace: media
+deployPhase: services
+
+ingress:
+  enabled: true
+  host: lidarr
+  domainType: "internal"
+  port: 8686
+  auth: true
+  rateLimit: true

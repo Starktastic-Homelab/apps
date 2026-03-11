@@ -1,0 +1,46 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: navidrome-public
+  namespace: media
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    # Subsonic API - native Navidrome auth (no Authentik)
+    - match: Host(`music.benplus.app`) && PathPrefix(`/rest/`)
+      kind: Rule
+      services:
+        - name: navidrome
+          port: 4533
+      middlewares:
+        - name: crowdsec-bouncer
+          namespace: traefik-system
+        - name: rate-limit-strong
+          namespace: traefik-system
+    # Shared links - fully public (no auth)
+    - match: Host(`music.benplus.app`) && PathPrefix(`/share/`)
+      kind: Rule
+      services:
+        - name: navidrome
+          port: 4533
+      middlewares:
+        - name: crowdsec-bouncer
+          namespace: traefik-system
+        - name: rate-limit-strong
+          namespace: traefik-system
+    # Web UI - Authentik SSO
+    - match: Host(`music.benplus.app`)
+      kind: Rule
+      services:
+        - name: navidrome
+          port: 4533
+      middlewares:
+        - name: crowdsec-bouncer
+          namespace: traefik-system
+        - name: rate-limit-strong
+          namespace: traefik-system
+        - name: authentik-middleware
+          namespace: authentik
+  tls:
+    secretName: traefik-system/benplus-app-tls

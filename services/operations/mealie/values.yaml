@@ -17,6 +17,10 @@ controllers:
           OIDC_REMEMBER_ME: "true"
           OIDC_USER_GROUP: "mealie-users"
           OIDC_ADMIN_GROUP: "mealie-admins"
+          OPENAI_BASE_URL: "https://generativelanguage.googleapis.com/v1beta/openai/"
+          OPENAI_MODEL: "gemini-2.0-flash"
+          OPENAI_ENABLE_IMAGE_SERVICES: "true"
+          OPENAI_WORKERS: "1"
         envFrom:
           - secretRef:
               name: mealie-secret

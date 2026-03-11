@@ -17,18 +17,15 @@ controllers:
         probes:
           liveness:
             enabled: true
-            type: HTTP
-            path: /api/ping
+            type: TCP
             port: 4533
           readiness:
             enabled: true
-            type: HTTP
-            path: /api/ping
+            type: TCP
             port: 4533
           startup:
             enabled: true
-            type: HTTP
-            path: /api/ping
+            type: TCP
             port: 4533
 
 service:

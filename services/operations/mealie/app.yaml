@@ -1,0 +1,10 @@
+name: mealie
+namespace: operations
+deployPhase: services
+ingress:
+  enabled: true
+  host: mealie
+  domainType: "public"
+  port: 9000
+  auth: false
+  rateLimit: true

@@ -1,0 +1,60 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: ghcr.io/mealie-recipes/mealie
+          tag: v2.6.0
+        env:
+          BASE_URL: "https://mealie.starktastic.net"
+          ALLOW_SIGNUP: "true"
+          DB_ENGINE: "postgres"
+          OIDC_AUTH_ENABLED: "true"
+          OIDC_SIGNUP_ENABLED: "true"
+          OIDC_CONFIGURATION_URL: "https://auth.starktastic.net/application/o/mealie/.well-known/openid-configuration"
+          OIDC_AUTO_REDIRECT: "true"
+          OIDC_PROVIDER_NAME: "Authentik"
+          OIDC_REMEMBER_ME: "true"
+          OIDC_USER_GROUP: "mealie-users"
+          OIDC_ADMIN_GROUP: "mealie-admins"
+        envFrom:
+          - secretRef:
+              name: mealie-secret
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            port: 9000
+            path: /api/app/about
+          readiness:
+            enabled: true
+            type: HTTP
+            port: 9000
+            path: /api/app/about
+          startup:
+            enabled: true
+            type: TCP
+            port: 9000
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 9000
+
+persistence:
+  data:
+    existingClaim: mealie-data
+    globalMounts:
+      - path: /app/data

@@ -18,6 +18,9 @@ controllers:
         envFrom:
           - secretRef:
               name: immich-secret
+        resources:
+          limits:
+            gpu.intel.com/i915: "1"
         probes:
           liveness:
             enabled: true

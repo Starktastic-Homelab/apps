@@ -17,69 +17,153 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check for app-relevant changes
+      - name: Determine affected applications
         id: guard
         run: |
+          # workflow_dispatch always refreshes everything
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "scope=all" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           BEFORE="${{ github.event.before }}"
 
-          # First push or force-push with no prior SHA - can't diff, so don't skip
+          # First push or force-push with no prior SHA - can't diff, refresh all
           if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
-            echo "No previous SHA available - refreshing to be safe"
-            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "No previous SHA available - refreshing all to be safe"
+            echo "scope=all" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          # Get changed files - if the before SHA is unreachable (force push / rebase), fall back to refreshing
+          # Get changed files - if the before SHA is unreachable (force push / rebase), refresh all
           CHANGED=$(git diff --name-only "$BEFORE" "${{ github.sha }}" 2>/dev/null) || {
-            echo "Before SHA unreachable (likely force push) - refreshing to be safe"
-            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "Before SHA unreachable (likely force push) - refreshing all to be safe"
+            echo "scope=all" >> "$GITHUB_OUTPUT"
             exit 0
           }
           echo "Changed files:"
           echo "$CHANGED"
 
-          # Skip refresh if changes only touch non-app files (README, scripts, renovate, .github, etc.)
-          if echo "$CHANGED" | grep -qE '^(services/|infrastructure/|templates/|bootstrap/)'; then
-            echo "skip=false" >> "$GITHUB_OUTPUT"
+          SCOPE=""       # will be: all, all_services, all_infra, apps, or skip
+          APP_NAMES=""   # space-separated list of specific app names
+
+          while IFS= read -r file; do
+            [ -z "$file" ] && continue
+
+            case "$file" in
+              # Shared templates / bootstrap → broad refresh
+              templates/globals.yaml|templates/ingress-chart/*)
+                SCOPE="all"; break ;;
+              bootstrap/*)
+                SCOPE="all"; break ;;
+              templates/common.yaml)
+                if [ "$SCOPE" = "all_infra" ]; then
+                  SCOPE="all"; break
+                fi
+                SCOPE="all_services" ;;
+              templates/infra-common.yaml)
+                if [ "$SCOPE" = "all_services" ]; then
+                  SCOPE="all"; break
+                fi
+                SCOPE="all_infra" ;;
+
+              # Static config apps from config-apps.yaml ApplicationSet
+              infrastructure/base-configs/*)
+                APP_NAMES="$APP_NAMES base-configs" ;;
+              infrastructure/configs/*)
+                APP_NAMES="$APP_NAMES infra-configs" ;;
+
+              # Dynamic apps: services/{category}/{name}/** and infrastructure/{type}/{name}/**
+              services/*/*)
+                name=$(echo "$file" | cut -d'/' -f3)
+                APP_NAMES="$APP_NAMES $name" ;;
+              infrastructure/*/*)
+                name=$(echo "$file" | cut -d'/' -f3)
+                APP_NAMES="$APP_NAMES $name" ;;
+
+              # Non-app files (README, scripts, renovate, .github, etc.) → no action
+              *) ;;
+            esac
+          done <<EOF
+          $CHANGED
+          EOF
+
+          # Determine final scope
+          if [ "$SCOPE" = "all" ]; then
+            echo "scope=all" >> "$GITHUB_OUTPUT"
+          elif [ "$SCOPE" = "all_services" ] || [ "$SCOPE" = "all_infra" ]; then
+            # Deduplicate app names for the non-covered category
+            UNIQUE_APPS=$(echo "$APP_NAMES" | tr ' ' '\n' | sort -u | tr '\n' ' ' | xargs)
+            echo "scope=$SCOPE" >> "$GITHUB_OUTPUT"
+            echo "apps=$UNIQUE_APPS" >> "$GITHUB_OUTPUT"
+          elif [ -n "$APP_NAMES" ]; then
+            UNIQUE_APPS=$(echo "$APP_NAMES" | tr ' ' '\n' | sort -u | tr '\n' ' ' | xargs)
+            echo "scope=apps" >> "$GITHUB_OUTPUT"
+            echo "apps=$UNIQUE_APPS" >> "$GITHUB_OUTPUT"
           else
             echo "No app-relevant changes - skipping refresh"
-            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "scope=skip" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Setup Kubeconfig
-        if: steps.guard.outputs.skip != 'true'
+        if: steps.guard.outputs.scope != 'skip'
         run: |
           mkdir -p ~/.kube
           echo "${{ secrets.KUBECONFIG_RAW }}" > ~/.kube/config
           chmod 600 ~/.kube/config
 
       - name: Setup Kubectl
-        if: steps.guard.outputs.skip != 'true'
+        if: steps.guard.outputs.scope != 'skip'
         uses: azure/setup-kubectl@v4.0.1
         with:
           version: 'latest'
 
       - name: Setup ArgoCD CLI
-        if: steps.guard.outputs.skip != 'true'
+        if: steps.guard.outputs.scope != 'skip'
         uses: clowdhaus/argo-cd-action@main
         with:
           command: version
           options: --client
 
-      - name: Hard-refresh applications
-        if: steps.guard.outputs.skip != 'true'
+      - name: Refresh applications
+        if: steps.guard.outputs.scope != 'skip'
+        env:
+          SCOPE: ${{ steps.guard.outputs.scope }}
+          APPS: ${{ steps.guard.outputs.apps }}
         run: |
           kubectl config set-context --current --namespace=argocd
 
-          echo 'Triggering hard refresh on all apps...'
+          refresh_apps() {
+            echo "$@" | tr ' ' '\n' | xargs -P 10 -I {} sh -c '
+              argocd app get "$1" --core --refresh > /dev/null && echo "✓ $1" || echo "✗ $1"
+            ' _ {}
+          }
 
-          argocd app list --core -o name | xargs -P 10 -I {} sh -c '
-            argocd app get "$1" --core --refresh > /dev/null && echo "✓ $1" || echo "✗ $1"
-          ' _ {}
+          case "$SCOPE" in
+            all)
+              echo 'Refreshing all applications...'
+              refresh_apps $(argocd app list --core -o name)
+              ;;
+            all_services)
+              echo 'Refreshing all service applications...'
+              refresh_apps $(argocd app list --core -l deploy-phase=services -o name)
+              if [ -n "$APPS" ]; then
+                echo "Also refreshing: $APPS"
+                refresh_apps $APPS
+              fi
+              ;;
+            all_infra)
+              echo 'Refreshing all infrastructure applications...'
+              refresh_apps $(argocd app list --core -l 'deploy-phase in (controllers,crds,foundation)' -o name)
+              if [ -n "$APPS" ]; then
+                echo "Also refreshing: $APPS"
+                refresh_apps $APPS
+              fi
+              ;;
+            apps)
+              echo "Refreshing specific applications: $APPS"
+              refresh_apps $APPS
+              ;;
+          esac
 
           echo 'Refresh complete. ArgoCD will auto-sync changes shortly.'

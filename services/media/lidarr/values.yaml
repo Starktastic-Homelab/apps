@@ -1,0 +1,35 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: lscr.io/linuxserver/lidarr
+          tag: 3.1.0.4875-ls22
+          digest: sha256:dbffcf91da47d48e09e613857032c95a62755b928a71a7718688e3ab03fbbd26
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            path: /ping
+            port: 8686
+          readiness:
+            enabled: true
+            type: HTTP
+            path: /ping
+            port: 8686
+          startup:
+            enabled: true
+            type: HTTP
+            path: /ping
+            port: 8686
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 8686
+
+persistence:
+  media:
+    enabled: true

@@ -41,6 +41,7 @@ data:
     cat:
       movies: "/data/torrents/movies"
       tv: "/data/torrents/tv"
+      music: "/data/torrents/music"
 
     tracker:
       aither:
@@ -79,6 +80,7 @@ data:
     nohardlinks:
       movies:
       tv:
+      music:
 
     share_limits:
       noHL:

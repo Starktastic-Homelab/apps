@@ -5,7 +5,7 @@ controllers:
         image:
           repository: mpepping/cyberchef
           tag: latest
-          digest: sha256:09fc971141dc15f6f8287f0dade0d3bada84bc33d1cf15be49a7b20b8f596318
+          digest: sha256:6029c8a3420514a1d3cde89abcdc2f1c434c217aa74f6eb0b5b08f72d8ba1904
         probes:
           liveness:
             enabled: true

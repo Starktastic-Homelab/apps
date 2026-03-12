@@ -1,3 +1,7 @@
 name: navidrome
 namespace: media
 deployPhase: services
+
+ingress:
+  enabled: false
+  domainType: "media"

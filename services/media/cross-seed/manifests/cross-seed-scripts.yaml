@@ -54,6 +54,9 @@ data:
       radarr: [
         "http://radarr.media.svc.cluster.local:7878/?apikey=${RADARR_API_KEY}",
       ],
+      lidarr: [
+        "http://lidarr.media.svc.cluster.local:8686/?apikey=${LIDARR_API_KEY}",
+      ],
       searchCadence: "1 day",
       rssCadence: "30 minutes",
       excludeOlder: "2 weeks",

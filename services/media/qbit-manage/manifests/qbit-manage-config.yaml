@@ -61,12 +61,18 @@ data:
         tag: HD-Space
       hebits:
         tag: Hebits
-      iptorrents:
+      iptorrents|stackoverflow:
         tag: IPTorrents
       lst.gg:
         tag: LST
+      luminarr:
+        tag: Luminarr
+      myanonamouse:
+        tag: MyAnonamouse
       privatehd:
         tag: PrivateHD
+      torrentleech|tleechreload:
+        tag: TorrentLeech
       other:
         tag: other
 

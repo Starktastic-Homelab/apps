@@ -46,7 +46,7 @@ data:
     tracker:
       aither:
         tag: Aither
-      alphaRatio:
+      alpharatio:
         tag: AlphaRatio
       animetorrents:
         tag: AnimeTorrents

@@ -193,7 +193,7 @@ jobs:
           fi
 
       - name: Post comment
-        uses: marocchino/sticky-pull-request-comment@v3.0.0
+        uses: marocchino/sticky-pull-request-comment@v3.0.2
         with:
           header: ci-report
           path: comment.md

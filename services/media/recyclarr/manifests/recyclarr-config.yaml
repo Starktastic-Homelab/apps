@@ -218,9 +218,9 @@ data:
               - 9d00418ba386a083fbf4d58235fc37ef # DTS X
             assign_scores_to:
               - name: WEB-2160p
-                score: 4500
+                score: 4000
               - name: Remux-1080p - Anime
-                score: 4500
+                score: 4000
 
           - trash_ids:
               - 1808e4b9cee74e064dfae3f1db99dbfe # TrueHD

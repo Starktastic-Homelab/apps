@@ -26,32 +26,36 @@ data:
         custom_formats:
           - trash_ids:
               - 0f12c086e289cf966fa5948eac571f44 # Hybrid
+            assign_scores_to:
+              - name: UHD Bluray + WEB
+                score: 100
+
+          - trash_ids:
               - 570bc9ebecd92723d2d21500f4be314c # Remaster
             assign_scores_to:
               - name: UHD Bluray + WEB
-                score: 10000
-
-          - trash_ids:
-              - b337d6812e06c200ec9a2d3cfa9d20a7 # DV Boost
-              - caa37d0df9c348912df1fb1d88f9273a # HDR10+ Boost
-            assign_scores_to:
-              - name: UHD Bluray + WEB
-                score: 5000
+                score: 25
 
           - trash_ids:
               - 496f355514737f7d83bf7aa4d24f8169 # TrueHD ATMOS
             assign_scores_to:
               - name: UHD Bluray + WEB
-                score: 4500
+                score: 5000
 
           - trash_ids:
               - 2f22d89048b01681dde8afe203bf2e95 # DTS X
             assign_scores_to:
               - name: UHD Bluray + WEB
-                score: 4000
+                score: 4500
 
           - trash_ids:
               - 3cafb66171b47f226146a0770576870f # TrueHD
+            assign_scores_to:
+              - name: UHD Bluray + WEB
+                score: 2750
+
+          - trash_ids:
+              - 1af239278386be2919e1bcee0bde047e # DD+ ATMOS
             assign_scores_to:
               - name: UHD Bluray + WEB
                 score: 3000
@@ -66,19 +70,25 @@ data:
               - a570d4a0e56a2874b64e5bfa55202a1b # FLAC
             assign_scores_to:
               - name: UHD Bluray + WEB
-                score: 2000
-
-          - trash_ids:
-              - 1af239278386be2919e1bcee0bde047e # DD+ ATMOS
-            assign_scores_to:
-              - name: UHD Bluray + WEB
-                score: 1500
+                score: 2250
 
           - trash_ids:
               - 185f1dd7264c4562b9022d963ac37424 # DD+
             assign_scores_to:
               - name: UHD Bluray + WEB
+                score: 1750
+
+          - trash_ids:
+              - b337d6812e06c200ec9a2d3cfa9d20a7 # DV Boost
+            assign_scores_to:
+              - name: UHD Bluray + WEB
                 score: 1000
+
+          - trash_ids:
+              - caa37d0df9c348912df1fb1d88f9273a # HDR10+ Boost
+            assign_scores_to:
+              - name: UHD Bluray + WEB
+                score: 100
 
           - trash_ids:
               - 9c38ebb7384dada637be8899efa68e6f # SDR
@@ -190,40 +200,46 @@ data:
 
           - trash_ids:
               - 3a4127d8aa781b44120d907f2cd62627 # Hybrid
+            assign_scores_to:
+              - name: WEB-2160p
+                score: 100
+              - name: Remux-1080p - Anime
+                score: 100
+
+          - trash_ids:
               - b735f09d3c025cbb7d75a5d38325b73b # Remaster
             assign_scores_to:
               - name: WEB-2160p
-                score: 5000
+                score: 25
               - name: Remux-1080p - Anime
-                score: 5000
-
-          - trash_ids:
-              - 7c3a61a9c6cb04f52f1544be6d44a026 # DV Boost
-              - 0c4b99df9206d2cfac3c05ab897dd62a # HDR10+ Boost
-            assign_scores_to:
-              - name: WEB-2160p
-                score: 5000
-              - name: Remux-1080p - Anime
-                score: 5000
+                score: 25
 
           - trash_ids:
               - 0d7824bb924701997f874e7ff7d4844a # TrueHD ATMOS
             assign_scores_to:
               - name: WEB-2160p
-                score: 4500
+                score: 5000
               - name: Remux-1080p - Anime
-                score: 4500
+                score: 5000
 
           - trash_ids:
               - 9d00418ba386a083fbf4d58235fc37ef # DTS X
             assign_scores_to:
               - name: WEB-2160p
-                score: 4000
+                score: 4500
               - name: Remux-1080p - Anime
-                score: 4000
+                score: 4500
 
           - trash_ids:
               - 1808e4b9cee74e064dfae3f1db99dbfe # TrueHD
+            assign_scores_to:
+              - name: WEB-2160p
+                score: 2750
+              - name: Remux-1080p - Anime
+                score: 2750
+
+          - trash_ids:
+              - 4232a509ce60c4e208d13825b7c06264 # DD+ ATMOS
             assign_scores_to:
               - name: WEB-2160p
                 score: 3000
@@ -242,25 +258,33 @@ data:
               - 851bd64e04c9374c51102be3dd9ae4cc # FLAC
             assign_scores_to:
               - name: WEB-2160p
-                score: 2000
+                score: 2250
               - name: Remux-1080p - Anime
-                score: 2000
-
-          - trash_ids:
-              - 4232a509ce60c4e208d13825b7c06264 # DD+ ATMOS
-            assign_scores_to:
-              - name: WEB-2160p
-                score: 1500
-              - name: Remux-1080p - Anime
-                score: 1500
+                score: 2250
 
           - trash_ids:
               - 63487786a8b01b7f20dd2bc90dd4a477 # DD+
             assign_scores_to:
               - name: WEB-2160p
+                score: 1750
+              - name: Remux-1080p - Anime
+                score: 1750
+
+          - trash_ids:
+              - 7c3a61a9c6cb04f52f1544be6d44a026 # DV Boost
+            assign_scores_to:
+              - name: WEB-2160p
                 score: 1000
               - name: Remux-1080p - Anime
                 score: 1000
+
+          - trash_ids:
+              - 0c4b99df9206d2cfac3c05ab897dd62a # HDR10+ Boost
+            assign_scores_to:
+              - name: WEB-2160p
+                score: 100
+              - name: Remux-1080p - Anime
+                score: 100
 
           - trash_ids:
               - 2016d1676f5ee13a5b7257ff86ac9a93 # SDR

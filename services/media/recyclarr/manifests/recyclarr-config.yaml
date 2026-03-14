@@ -39,12 +39,45 @@ data:
 
           - trash_ids:
               - 496f355514737f7d83bf7aa4d24f8169 # TrueHD ATMOS
+            assign_scores_to:
+              - name: UHD Bluray + WEB
+                score: 5000
+
+          - trash_ids:
               - 2f22d89048b01681dde8afe203bf2e95 # DTS X
+            assign_scores_to:
+              - name: UHD Bluray + WEB
+                score: 4500
+
+          - trash_ids:
               - 3cafb66171b47f226146a0770576870f # TrueHD
+            assign_scores_to:
+              - name: UHD Bluray + WEB
+                score: 3000
+
+          - trash_ids:
               - dcf3ec6938fa32445f590a4da84256cd # DTS-HD MA
             assign_scores_to:
               - name: UHD Bluray + WEB
+                score: 2500
+
+          - trash_ids:
+              - a570d4a0e56a2874b64e5bfa55202a1b # FLAC
+            assign_scores_to:
+              - name: UHD Bluray + WEB
                 score: 2000
+
+          - trash_ids:
+              - 1af239278386be2919e1bcee0bde047e # DD+ ATMOS
+            assign_scores_to:
+              - name: UHD Bluray + WEB
+                score: 1500
+
+          - trash_ids:
+              - 185f1dd7264c4562b9022d963ac37424 # DD+
+            assign_scores_to:
+              - name: UHD Bluray + WEB
+                score: 1000
 
           - trash_ids:
               - 9c38ebb7384dada637be8899efa68e6f # SDR
@@ -164,14 +197,53 @@ data:
                 score: 5000
 
           - trash_ids:
+              - 7c3a61a9c6cb04f52f1544be6d44a026 # DV Boost
+              - 0c4b99df9206d2cfac3c05ab897dd62a # HDR10+ Boost
+            assign_scores_to:
+              - name: WEB-2160p
+                score: 5000
+              - name: Remux-1080p - Anime
+                score: 5000
+
+          - trash_ids:
               - 0d7824bb924701997f874e7ff7d4844a # TrueHD ATMOS
+            assign_scores_to:
+              - name: WEB-2160p
+                score: 5000
+              - name: Remux-1080p - Anime
+                score: 5000
+
+          - trash_ids:
               - 9d00418ba386a083fbf4d58235fc37ef # DTS X
+            assign_scores_to:
+              - name: WEB-2160p
+                score: 4500
+              - name: Remux-1080p - Anime
+                score: 4500
+
+          - trash_ids:
               - 851bd64e04c9374c51102be3dd9ae4cc # FLAC
             assign_scores_to:
               - name: WEB-2160p
                 score: 2000
               - name: Remux-1080p - Anime
                 score: 2000
+
+          - trash_ids:
+              - 4232a509ce60c4e208d13825b7c06264 # DD+ ATMOS
+            assign_scores_to:
+              - name: WEB-2160p
+                score: 1500
+              - name: Remux-1080p - Anime
+                score: 1500
+
+          - trash_ids:
+              - 63487786a8b01b7f20dd2bc90dd4a477 # DD+
+            assign_scores_to:
+              - name: WEB-2160p
+                score: 1000
+              - name: Remux-1080p - Anime
+                score: 1000
 
           - trash_ids:
               - 9b27ab6498ec0f31a3353992e19434ca # DV (w/o HDR fallback)

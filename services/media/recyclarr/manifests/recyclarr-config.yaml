@@ -235,6 +235,7 @@ data:
               until_score: 10000
             qualities:
               - name: Remux-2160p
+              - name: Bluray-2160p
               - name: WEB 2160p
                 qualities:
                   - WEBDL-2160p

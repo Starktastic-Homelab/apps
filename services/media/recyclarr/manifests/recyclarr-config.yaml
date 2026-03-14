@@ -33,6 +33,9 @@ data:
 
           # HQ Release Groups
           - trash_ids:
+              - 3a3ff47579026e76d6504ebea39390de # Remux Tier 01
+              - 9f98181fe5a3fbeb0cc29340da2a468a # Remux Tier 02
+              - 8baaf0b3142bf4d94c42a724f034e27a # Remux Tier 03
               - 4d74ac4c4db0b64bff6ce0cffef99bf0 # UHD Bluray Tier 01
               - a58f517a70193f8e578056642178419d # UHD Bluray Tier 02
               - e71939fae578037e7aed3ee219bbe7c1 # UHD Bluray Tier 03
@@ -62,6 +65,15 @@ data:
               - 0a3f082873eb454bde444150b70253cc # Extras
               - 712d74cd88bceb883ee32f773656b1f5 # Sing-Along Versions
               - cae4ca30163749b891686f95532519bd # AV1
+            assign_scores_to:
+              - name: UHD Bluray + WEB
+
+          # Optional
+          - trash_ids:
+              - ae9b7c9ebde1f3bd336a8cbd1ec4c5e5 # No-RlsGroup
+              - 7357cf5161efbf8c4d5d0c30b4815ee2 # Obfuscated
+              - 5c44f52a8714fdd79bb4d98e2673be1f # Retags
+              - f537cf427b64c38c8e36298f657e4828 # Scene
             assign_scores_to:
               - name: UHD Bluray + WEB
 
@@ -257,6 +269,13 @@ data:
               - name: HD Bluray + WEB
                 score: -10000
 
+          - trash_ids:
+              - ed38b889b31be83fda192888e2286d83 # BR-DISK
+              - 90a6f9a284dff5103f6346090e6280c8 # LQ
+              - e204b80c87be9497a8a6eaff48f72905 # LQ (Release Title)
+            assign_scores_to:
+              - name: HD Bluray + WEB
+
         quality_profiles:
           - trash_id: d1d67249d3890e49bc12e275d989a7e9 # HD Bluray + WEB
             upgrade:
@@ -334,6 +353,15 @@ data:
             assign_scores_to:
               - name: WEB-2160p
 
+          # Optional
+          - trash_ids:
+              - 82d40da2bc6923f41e14394075dd4b03 # No-RlsGroup
+              - e1a997ddb54e3ecbfe06341ad323c458 # Obfuscated
+              - 06d66ab109d4d2eddb2794d21526d140 # Retags
+              - 1b3994c551cbb92a2c781af061f4ab44 # Scene
+            assign_scores_to:
+              - name: WEB-2160p
+
           # Streaming Services
           - trash_ids:
               - d660701077794679fd59e8bdf4ce3a29 # AMZN
@@ -360,11 +388,33 @@ data:
 
           # Anime
           - trash_ids:
-              - 949c16fe0a8147f50ba82cc2df9411c9 # Anime BD Tier 01
-              - e0014372773c8f0e1bef8824f00c7dc4 # Anime Web Tier 01
+              - 949c16fe0a8147f50ba82cc2df9411c9 # Anime BD Tier 01 (Top SeaDex Muxers)
+              - ed7f1e315e000aef424a58517fa48727 # Anime BD Tier 02 (SeaDex Muxers)
+              - 096e406c92baa713da4a72d88030b815 # Anime BD Tier 03 (SeaDex Muxers)
+              - 30feba9da3030c5ed1e0f7d610bcadc4 # Anime BD Tier 04 (SeaDex Muxers)
+              - 545a76b14ddc349b8b185a6344e28b04 # Anime BD Tier 05 (Remuxes)
+              - 25d2afecab632b1582eaf03b63055f72 # Anime BD Tier 06 (FanSubs)
+              - 0329044e3d9137b08502a9f84a7e58db # Anime BD Tier 07 (P2P/Scene)
+              - c81bbfb47fed3d5a3ad027d077f889de # Anime BD Tier 08 (Mini Encodes)
+              - e0014372773c8f0e1bef8824f00c7dc4 # Anime Web Tier 01 (Muxers)
+              - 19180499de5ef2b84b6ec59aae444696 # Anime Web Tier 02 (Top FanSubs)
+              - c27f2ae6a4e82373b0f1da094e2489ad # Anime Web Tier 03 (Official Subs)
+              - 4fd5528a3a8024e6b49f9c67053ea5f3 # Anime Web Tier 04 (Official Subs)
+              - 29c2a13d091144f63307e4a8ce963a39 # Anime Web Tier 05 (FanSubs)
+              - dc262f88d74c651b12e9d90b39f6c753 # Anime Web Tier 06 (FanSubs)
+              - e3515e519f3b1360cbfc17651944354c # Anime LQ Groups
+              - b4a1b3d705159cdca36d71e57ca86871 # Anime Raws
+              - 026d5aadd1a6b4e550b134cb6c72b3ca # Uncensored
+              - d2d7b8a9d39413da5f44054080e028a3 # v0
+              - 273bd326df95955e1b6c26527d1df89b # v1
+              - 228b8ee9aa0a609463efca874524a6b8 # v2
+              - 0e5833d3af2cc5fa96a0c29cd4477feb # v3
+              - 4fc15eeb8f2f9a749f918217d4234ad8 # v4
+              - 15a05bc7c1a36e2b57fd628f8977e2fc # AV1
+              - 9965a052eb87b0d10313b1cea89eb451 # Remux Tier 01
+              - 8a1d0c3d7497e741736761a1da866a2e # Remux Tier 02
             assign_scores_to:
               - name: Remux-1080p - Anime
-                score: 10000
 
           - trash_ids:
               - 3a4127d8aa781b44120d907f2cd62627 # Hybrid
@@ -613,6 +663,13 @@ data:
             assign_scores_to:
               - name: WEB-1080p
                 score: -10000
+
+          - trash_ids:
+              - 85c61753df5da1fb2aab6f2a47426b09 # BR-DISK
+              - 9c11cd3f07101cdba90a2d81cf0e56b4 # LQ
+              - e2315f990da2e2cbfc9fa5b7a6fcfe48 # LQ (Release Title)
+            assign_scores_to:
+              - name: WEB-1080p
 
         quality_profiles:
           - trash_id: 72dae194fc92bf828f32cde7744e51a1 # WEB-1080p

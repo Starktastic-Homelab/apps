@@ -38,3 +38,5 @@ persistence:
     existingClaim: cwa-book-ingest
     globalMounts:
       - path: /books
+  media:
+    enabled: true

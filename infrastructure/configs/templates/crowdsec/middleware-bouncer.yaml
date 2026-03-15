@@ -9,6 +9,7 @@ spec:
       enabled: true
       crowdsecMode: stream
       updateIntervalSeconds: 15
-      crowdsecLapiScheme: http
+      crowdsecLapiScheme: https
       crowdsecLapiHost: crowdsec-service.crowdsec.svc.cluster.local:8080
       crowdsecLapiKeyFile: /etc/crowdsec/bouncer-key
+      crowdsecLapiTLSInsecureVerify: true

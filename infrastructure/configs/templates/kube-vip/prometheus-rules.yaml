@@ -1,0 +1,30 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: kube-vip-alerts
+  namespace: kube-system
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: kube-vip
+      rules:
+        # ── VIP leader is flapping between nodes ────────────────────
+        - alert: KubeVipLeaderFlapping
+          expr: rate(kube_vip_leader_election_leader_transitions_total[5m]) > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Kube-VIP leader election is flapping"
+            description: "Leader transitions detected over the last 5 minutes. This causes VIP failovers and brief service interruptions."
+
+        # ── Kube-VIP metrics endpoint unreachable ───────────────────
+        - alert: KubeVipDown
+          expr: up{job=~".*kube-vip.*"} == 0
+          for: 3m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Kube-VIP is down"
+            description: "The kube-vip-svc metrics endpoint has been unreachable for 3 minutes."

@@ -45,12 +45,7 @@ ports:
 service:
   enabled: false
 persistence:
-  enabled: true
-  name: data
-  accessMode: ReadWriteMany
-  size: 128Mi
-  storageClass: "nfs-pv" # source: globals.yaml → global.storageClass
-  path: /data
+  enabled: false
 ingressClass:
   enabled: true
   isDefaultClass: true

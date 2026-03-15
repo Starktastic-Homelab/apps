@@ -66,6 +66,12 @@ lapi:
       # docker_start.sh handles prestaging correctly for TLS mode.
       enabled: false
 
+  # Without a config PVC, CAPI and cscli credentials must be stored in Secrets
+  # so they survive pod restarts (the chart runs a pre-install/upgrade Job to
+  # register with CrowdSec Central API and store the result).
+  storeCAPICredentialsInSecret: true
+  storeLAPICscliCredentialsInSecret: true
+
   metrics:
     enabled: true
     serviceMonitor:

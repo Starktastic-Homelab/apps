@@ -59,11 +59,12 @@ lapi:
       storageClassName: nfs-pv # IMPORTANT: must match global.storageClass in templates/globals.yaml
       size: 1Gi
     config:
-      enabled: true
-      accessModes:
-        - ReadWriteOnce
-      storageClassName: nfs-pv # IMPORTANT: must match global.storageClass in templates/globals.yaml
-      size: 100Mi
+      # Disabled with TLS: the chart's persistent config startup command (cp -nR)
+      # copies default local_api_credentials.yaml with login/password into the PVC,
+      # then docker_start.sh adds TLS cert paths without removing passwords,
+      # causing "user/password and TLS are mutually exclusive". Without the PVC,
+      # docker_start.sh handles prestaging correctly for TLS mode.
+      enabled: false
 
   metrics:
     enabled: true

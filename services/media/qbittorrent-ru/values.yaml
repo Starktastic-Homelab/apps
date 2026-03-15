@@ -6,6 +6,6 @@ service:
       kube-vip.io/loadbalancerIPs: "{{ .Values.global.network.loadBalancers.qbittorrentRu }}"
     ports:
       bittorrent-tcp:
-        port: 6882
+        port: 56882
       bittorrent-udp:
-        port: 6882
+        port: 56882

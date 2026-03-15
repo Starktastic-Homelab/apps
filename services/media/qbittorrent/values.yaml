@@ -40,11 +40,11 @@ service:
     ports:
       bittorrent-tcp:
         enabled: true
-        port: 6881
+        port: 56881
         protocol: TCP
       bittorrent-udp:
         enabled: true
-        port: 6881
+        port: 56881
         protocol: UDP
 persistence:
   media:

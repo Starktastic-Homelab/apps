@@ -3,11 +3,12 @@ controllers:
     containers:
       main:
         image:
-          repository: lscr.io/linuxserver/calibre-web
-          tag: 0.6.26-ls373
-          digest: sha256:ce91afe1778a60b0931ef2adc838bd0725679148577c19e73114d624bcfaf581
+          repository: ghcr.io/crocodilestick/calibre-web-automated
+          tag: v4.0.6
+          digest: sha256:fbf0c866e77b366f07050a6a12fee4e840b60d364485576a810109851a488eec
         env:
-          DOCKER_MODS: "lscr.io/linuxserver/mods:universal-calibre"
+          NETWORK_SHARE_MODE: "true"
+          TRUSTED_PROXY_COUNT: "2"
         probes:
           liveness:
             enabled: true
@@ -33,5 +34,14 @@ service:
         port: 8083
 
 persistence:
-  media:
-    enabled: true
+  config:
+    size: 2Gi
+  calibre-library:
+    existingClaim: media-library-pvc
+    globalMounts:
+      - path: /calibre-library
+        subPath: library/books
+  ingest:
+    existingClaim: cwa-book-ingest
+    globalMounts:
+      - path: /cwa-book-ingest

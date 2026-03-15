@@ -1,0 +1,40 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: ghcr.io/calibrain/shelfmark
+          tag: v1.2.0
+          digest: sha256:60c3a31a6e7cde429042be6de19a006a1be5bcd2bc9fea3420e780f538702a5e
+        env:
+          FLASK_PORT: "8084"
+          INGEST_DIR: "/books"
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            path: /api/health
+            port: 8084
+          readiness:
+            enabled: true
+            type: HTTP
+            path: /api/health
+            port: 8084
+          startup:
+            enabled: true
+            type: HTTP
+            path: /api/health
+            port: 8084
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 8084
+
+persistence:
+  ingest:
+    existingClaim: cwa-book-ingest
+    globalMounts:
+      - path: /books

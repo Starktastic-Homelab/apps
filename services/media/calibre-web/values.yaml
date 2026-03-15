@@ -8,7 +8,7 @@ controllers:
           digest: sha256:fbf0c866e77b366f07050a6a12fee4e840b60d364485576a810109851a488eec
         env:
           NETWORK_SHARE_MODE: "true"
-          TRUSTED_PROXY_COUNT: "2"
+          TRUSTED_PROXY_COUNT: "1"
         probes:
           liveness:
             enabled: true

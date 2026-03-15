@@ -23,6 +23,9 @@ jobs:
       - name: Determine affected applications
         id: guard
         run: |
+          # Container git doesn't inherit the runner's safe.directory config
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
           # workflow_dispatch always refreshes everything
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "→ Manual dispatch - refreshing all"

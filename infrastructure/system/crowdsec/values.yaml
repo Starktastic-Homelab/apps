@@ -1,6 +1,16 @@
 container_runtime: containerd
 
 # ---------------------------------------------------------------------------
+# TLS - mutual TLS for agent ↔ LAPI authentication via cert-manager
+# This eliminates the fragile password-based registration init container
+# that fails with "user already exist" on agent pod restarts.
+# ---------------------------------------------------------------------------
+tls:
+  enabled: true
+  certManager:
+    enabled: true
+
+# ---------------------------------------------------------------------------
 # Config - LAPI configuration overrides (merged with default config.yaml)
 # ---------------------------------------------------------------------------
 config:

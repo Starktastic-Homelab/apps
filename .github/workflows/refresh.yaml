@@ -11,6 +11,9 @@ jobs:
     runs-on: self-hosted
     container:
       image: buildpack-deps:scm
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -22,6 +25,7 @@ jobs:
         run: |
           # workflow_dispatch always refreshes everything
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "→ Manual dispatch - refreshing all"
             echo "scope=all" >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -30,69 +34,88 @@ jobs:
 
           # First push or force-push with no prior SHA - can't diff, refresh all
           if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
-            echo "No previous SHA available - refreshing all to be safe"
+            echo "→ No previous SHA available - refreshing all to be safe"
             echo "scope=all" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
+          echo "Diffing $BEFORE..${{ github.sha }}"
+
           # Get changed files - if the before SHA is unreachable (force push / rebase), refresh all
-          CHANGED=$(git diff --name-only "$BEFORE" "${{ github.sha }}" 2>/dev/null) || {
-            echo "Before SHA unreachable (likely force push) - refreshing all to be safe"
+          if ! CHANGED=$(git diff --name-only "$BEFORE" "${{ github.sha }}"); then
+            echo "→ git diff failed - refreshing all to be safe"
             echo "scope=all" >> "$GITHUB_OUTPUT"
             exit 0
-          }
+          fi
+
           echo "Changed files:"
           echo "$CHANGED"
+          echo "---"
 
-          SCOPE=""       # will be: all, all_services, all_infra, apps, or skip
-          APP_NAMES=""   # space-separated list of specific app names
+          SCOPE=""
+          APP_NAMES=""
+
+          # Walk up from a file path to find the nearest directory containing app.yaml
+          find_app_name() {
+            local dir
+            dir=$(dirname "$1")
+            while [ "$dir" != "." ] && [ "$dir" != "/" ]; do
+              if [ -f "$dir/app.yaml" ]; then
+                basename "$dir"
+                return 0
+              fi
+              dir=$(dirname "$dir")
+            done
+            return 1
+          }
 
           while IFS= read -r file; do
             [ -z "$file" ] && continue
 
             case "$file" in
-              # Shared templates / bootstrap → broad refresh
-              templates/globals.yaml|templates/ingress-chart/*)
+              templates/globals.yaml | templates/ingress-chart/*)
+                echo "  $file → all (shared template)"
                 SCOPE="all"; break ;;
               bootstrap/*)
+                echo "  $file → all (bootstrap)"
                 SCOPE="all"; break ;;
               templates/common.yaml)
+                echo "  $file → all_services"
                 if [ "$SCOPE" = "all_infra" ]; then
                   SCOPE="all"; break
                 fi
                 SCOPE="all_services" ;;
               templates/infra-common.yaml)
+                echo "  $file → all_infra"
                 if [ "$SCOPE" = "all_services" ]; then
                   SCOPE="all"; break
                 fi
                 SCOPE="all_infra" ;;
 
-              # Static config apps from config-apps.yaml ApplicationSet
               infrastructure/base-configs/*)
+                echo "  $file → app:base-configs"
                 APP_NAMES="$APP_NAMES base-configs" ;;
               infrastructure/configs/*)
+                echo "  $file → app:infra-configs"
                 APP_NAMES="$APP_NAMES infra-configs" ;;
 
-              # Dynamic apps: services/{category}/{name}/** and infrastructure/{type}/{name}/**
-              services/*/*)
-                name=$(echo "$file" | cut -d'/' -f3)
-                APP_NAMES="$APP_NAMES $name" ;;
-              infrastructure/*/*)
-                name=$(echo "$file" | cut -d'/' -f3)
-                APP_NAMES="$APP_NAMES $name" ;;
+              services/* | infrastructure/*)
+                if name=$(find_app_name "$file"); then
+                  echo "  $file → app:$name"
+                  APP_NAMES="$APP_NAMES $name"
+                else
+                  echo "  $file → (no app.yaml ancestor, ignored)"
+                fi ;;
 
-              # Non-app files (README, scripts, renovate, .github, etc.) → no action
-              *) ;;
+              *)
+                echo "  $file → (ignored)" ;;
             esac
-          done <<EOF
-          $CHANGED
-          EOF
+          done < <(printf '%s\n' "$CHANGED")
 
           # Determine final scope
           if [ "$SCOPE" = "all" ]; then
             echo "scope=all" >> "$GITHUB_OUTPUT"
           elif [ "$SCOPE" = "all_services" ] || [ "$SCOPE" = "all_infra" ]; then
-            # Deduplicate app names for the non-covered category
             UNIQUE_APPS=$(echo "$APP_NAMES" | tr ' ' '\n' | sort -u | tr '\n' ' ' | xargs)
             echo "scope=$SCOPE" >> "$GITHUB_OUTPUT"
             echo "apps=$UNIQUE_APPS" >> "$GITHUB_OUTPUT"
@@ -101,9 +124,11 @@ jobs:
             echo "scope=apps" >> "$GITHUB_OUTPUT"
             echo "apps=$UNIQUE_APPS" >> "$GITHUB_OUTPUT"
           else
-            echo "No app-relevant changes - skipping refresh"
             echo "scope=skip" >> "$GITHUB_OUTPUT"
           fi
+
+          echo "→ scope=$(grep '^scope=' "$GITHUB_OUTPUT" | tail -1 | cut -d= -f2)"
+          echo "→ apps=$(grep '^apps=' "$GITHUB_OUTPUT" | tail -1 | cut -d= -f2)"
 
       - name: Setup Kubeconfig
         if: steps.guard.outputs.scope != 'skip'

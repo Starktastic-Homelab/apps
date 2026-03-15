@@ -9,6 +9,13 @@ tls:
   enabled: true
   certManager:
     enabled: true
+    # Workaround: chart unconditionally renders `secretTemplate:` in agent/bouncer
+    # Certificate specs but leaves the body empty when no annotations or labels
+    # are set, producing invalid YAML (null value). Providing a harmless annotation
+    # ensures the block is non-empty.
+    secretTemplate:
+      annotations:
+        meta.helm.sh/release-name: crowdsec
 
 # ---------------------------------------------------------------------------
 # Config - LAPI configuration overrides (merged with default config.yaml)

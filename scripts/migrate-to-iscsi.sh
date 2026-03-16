@@ -71,8 +71,8 @@ HELM_PVCS=(
   "media/autobrr-config"
   "media/calibre-web-config"
   "media/shelfmark-config"
-  "media/lingarr-lingarr-config"
-  "media/libretranslate-libretranslate-models"
+  "media/lingarr"
+  "media/libretranslate"
   # media — -ru variant config PVCs
   "media/radarr-ru-config"
   "media/sonarr-ru-config"

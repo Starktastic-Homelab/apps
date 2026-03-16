@@ -1,5 +1,35 @@
 deployment:
   kind: DaemonSet
+  # ── Init container: pre-fetch the CrowdSec bouncer plugin so Traefik never
+  #    depends on GitHub availability at runtime.  The emptyDir volume persists
+  #    across container restarts within the same pod.  On full pod recreation
+  #    (reboots, cluster rebuild) the init container re-downloads it before
+  #    Traefik starts, so the plugin is always present.
+  initContainers:
+    - name: download-bouncer-plugin
+      image: alpine/git:2.47.2
+      command:
+        - sh
+        - -c
+        - |
+          DEST=/plugins-local/src/github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
+          # If already populated (container restart), skip.
+          [ -f "$DEST/.traefik.yml" ] && echo "plugin already cached" && exit 0
+          for i in 1 2 3 4 5; do
+            git clone --depth 1 --branch v1.5.1 \
+              https://github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin.git \
+              "$DEST" && exit 0
+            echo "attempt $i failed, retrying in 5s…"
+            sleep 5
+          done
+          echo "FATAL: could not download bouncer plugin" >&2
+          exit 1
+      volumeMounts:
+        - name: crowdsec-bouncer-plugin
+          mountPath: /plugins-local/src/github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
+  additionalVolumes:
+    - name: crowdsec-bouncer-plugin
+      emptyDir: {}
 
 logs:
   access:
@@ -64,13 +94,17 @@ providers:
       enabled: true
 
 # -----------------------------------------------------------------------------
-# CrowdSec bouncer plugin
+# CrowdSec bouncer plugin  (local mode — no GitHub download at Traefik start)
+# The init container above pre-fetches the source into the emptyDir volume so
+# the plugin is available before Traefik boots, surviving restarts and rebuilds.
 # -----------------------------------------------------------------------------
 experimental:
-  plugins:
+  localPlugins:
     bouncer:
       moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
-      version: v1.5.1
+      type: localPath
+      mountPath: /plugins-local/src/github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
+      volumeName: crowdsec-bouncer-plugin
 
 volumes:
   - name: crowdsec-bouncer-key

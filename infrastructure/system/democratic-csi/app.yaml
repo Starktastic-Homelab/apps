@@ -1,0 +1,7 @@
+name: democratic-csi
+namespace: democratic-csi
+deployPhase: foundation
+chart:
+  repo: https://democratic-csi.github.io/charts
+  name: democratic-csi
+  version: 0.14.7

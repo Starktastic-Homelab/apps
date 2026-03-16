@@ -1,0 +1,36 @@
+csiDriver:
+  name: "org.democratic-csi.iscsi"
+
+storageClasses:
+  - name: iscsi-pv
+    defaultClass: true
+    reclaimPolicy: Retain
+    allowVolumeExpansion: true
+    mountOptions: []
+    parameters:
+      fsType: ext4
+
+volumeSnapshotClasses: []
+
+driver:
+  existingConfigSecret: democratic-csi-driver-config
+
+node:
+  hostPID: true
+  driver:
+    extraEnvs:
+      - name: ISCSIADM_HOST_STRATEGY
+        value: nsenter
+      - name: ISCSIADM_HOST_PATH
+        value: /usr/local/sbin/iscsiadm
+    iscsiConnector:
+      iscsiadm:
+
+  extraVolumes:
+    - name: iscsi-host
+      hostPath:
+        path: /run/lock/iscsi
+        type: DirectoryOrCreate
+  extraVolumeMounts:
+    - name: iscsi-host
+      mountPath: /run/lock/iscsi

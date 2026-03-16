@@ -56,7 +56,7 @@ lapi:
       enabled: true
       accessModes:
         - ReadWriteOnce
-      storageClassName: nfs-pv # IMPORTANT: must match global.storageClass in templates/globals.yaml
+      storageClassName: iscsi-pv # IMPORTANT: must match global.storageClass in templates/globals.yaml
       size: 1Gi
     config:
       # Disabled with TLS: the chart's persistent config startup command (cp -nR)

@@ -4,8 +4,8 @@ metadata:
   name: mosquitto-config
   namespace: home-automation
 spec:
-  accessModes: ["ReadWriteMany"]
-  storageClassName: nfs-pv
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: iscsi-pv
   resources:
     requests:
       storage: 1Gi

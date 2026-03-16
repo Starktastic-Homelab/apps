@@ -26,9 +26,9 @@ tempo:
 
 persistence:
   enabled: true
-  storageClassName: nfs-pv # source: globals.yaml → global.storageClass
+  storageClassName: iscsi-pv # source: globals.yaml → global.storageClass
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   size: 5Gi
 
 serviceMonitor:

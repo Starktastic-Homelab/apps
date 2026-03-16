@@ -58,41 +58,44 @@ STATIC_PVCS=(
 # Format: "namespace/pvc-name"
 # ---------------------------------------------------------------------------
 HELM_PVCS=(
-  # media — app-template config PVCs (Deployment-managed)
-  "media/navidrome-config"
-  "media/radarr-config"
-  "media/sonarr-config"
-  "media/bazarr-config"
-  "media/lidarr-config"
-  "media/prowlarr-config"
-  "media/qbittorrent-config"
-  "media/audiobookshelf-config"
-  "media/seerr-config"
-  "media/autobrr-config"
-  "media/calibre-web-config"
-  "media/shelfmark-config"
+  # media — app-template PVCs
+  "media/navidrome"
+  "media/radarr"
+  "media/sonarr"
+  "media/bazarr"
+  "media/lidarr"
+  "media/prowlarr"
+  "media/qbittorrent"
+  "media/audiobookshelf"
+  "media/seerr"
+  "media/autobrr"
+  "media/calibre-web"
+  "media/shelfmark"
   "media/lingarr"
   "media/libretranslate"
-  # media — -ru variant config PVCs
-  "media/radarr-ru-config"
-  "media/sonarr-ru-config"
-  "media/qbittorrent-ru-config"
-  "media/seerr-ru-config"
-  # operations — ntfy PVCs
+  # media — -ru variant PVCs
+  "media/radarr-ru"
+  "media/sonarr-ru"
+  "media/qbittorrent-ru"
+  "media/seerr-ru"
+  # operations — Helm-managed PVCs
   "operations/ntfy-config"
   "operations/ntfy-cache"
+  "operations/paperless-ngx"
+  "operations/mealie"
+  "operations/bytestash"
   # databases
   "databases/data-postgres-postgresql-0"
   "databases/redis-data-redis-master-0"
   "databases/pgadmin-pgadmin4"
   # crowdsec
-  "crowdsec/crowdsec-lapi-data"
+  "crowdsec/crowdsec-db-pvc"
   # monitoring
   "monitoring/prometheus-kube-prometheus-stack-prometheus-db-prometheus-kube-prometheus-stack-prometheus-0"
   "monitoring/alertmanager-kube-prometheus-stack-alertmanager-db-alertmanager-kube-prometheus-stack-alertmanager-0"
   "monitoring/kube-prometheus-stack-grafana"
   "monitoring/storage-loki-0"
-  "monitoring/tempo"
+  "monitoring/storage-tempo-0"
 )
 
 # ---------------------------------------------------------------------------
@@ -105,6 +108,7 @@ HELM_WORKLOADS=(
   "monitoring/statefulset/prometheus-kube-prometheus-stack-prometheus"
   "monitoring/statefulset/alertmanager-kube-prometheus-stack-alertmanager"
   "monitoring/statefulset/loki"
+  "monitoring/statefulset/tempo"
 )
 
 # ---------------------------------------------------------------------------
@@ -152,9 +156,10 @@ DEPLOYMENTS=(
   "operations/ntfy"
   # databases
   "databases/pgadmin-pgadmin4"
+  # crowdsec
+  "crowdsec/crowdsec-lapi"
   # monitoring
   "monitoring/kube-prometheus-stack-grafana"
-  "monitoring/tempo"
 )
 
 RED='\033[0;31m'

@@ -14,9 +14,9 @@ NFS_SERVER="10.9.8.30"
 NFS_BASE_PATH="/mnt/apps/pv"
 
 NODES=(
-  "10.9.9.50"  # kube-master-01
-  "10.9.9.51"  # kube-worker-01
-  "10.9.9.52"  # kube-worker-02
+  "10.9.9.50" # kube-master-01
+  "10.9.9.51" # kube-worker-01
+  "10.9.9.52" # kube-worker-02
 )
 
 # ArgoCD app names that own migrating PVCs
@@ -163,9 +163,9 @@ YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-log()  { echo -e "${GREEN}[✓]${NC} $1"; }
+log() { echo -e "${GREEN}[✓]${NC} $1"; }
 warn() { echo -e "${YELLOW}[!]${NC} $1"; }
-err()  { echo -e "${RED}[✗]${NC} $1"; }
+err() { echo -e "${RED}[✗]${NC} $1"; }
 step() { echo -e "\n${CYAN}━━━ $1 ━━━${NC}"; }
 
 pause() {
@@ -238,7 +238,7 @@ step_scale_down() {
     rest="${item#*/}"
     kind="${rest%%/*}"
     name="${rest#*/}"
-    if [[ "$kind" == "statefulset" ]]; then
+    if [[ $kind == "statefulset" ]]; then
       echo -n "  sts/$name ($ns): "
       if kubectl -n "$ns" scale sts/"$name" --replicas=0 >/dev/null 2>&1; then
         log "scaled to 0"
@@ -253,7 +253,7 @@ step_scale_down() {
   for attempt in $(seq 1 12); do
     local terminating
     terminating=$(kubectl get pods -A --no-headers 2>/dev/null | grep -c Terminating || echo 0)
-    [[ "$terminating" -eq 0 ]] && break
+    [[ $terminating -eq 0 ]] && break
     echo "    $terminating pods still terminating (attempt $attempt/12)..."
     sleep 10
   done
@@ -374,11 +374,11 @@ step_reenable_argocd() {
   local all_bound=false
   for i in $(seq 1 60); do
     local pending
-    pending=$(kubectl get pvc -A --no-headers 2>/dev/null \
-      | grep -v Bound \
-      | grep -v "media-library\|filebrowser\|cwa-book-ingest\|cert-backup\|pg-backup" \
-      | wc -l)
-    if [[ "$pending" -eq 0 ]]; then
+    pending=$(kubectl get pvc -A --no-headers 2>/dev/null |
+      grep -v Bound |
+      grep -v "media-library\|filebrowser\|cwa-book-ingest\|cert-backup\|pg-backup" |
+      wc -l)
+    if [[ $pending -eq 0 ]]; then
       all_bound=true
       break
     fi
@@ -411,7 +411,7 @@ step_migrate_data() {
     rest="${item#*/}"
     kind="${rest%%/*}"
     name="${rest#*/}"
-    [[ "$kind" == "statefulset" ]] && kubectl -n "$ns" scale sts/"$name" --replicas=0 >/dev/null 2>&1 || true
+    [[ $kind == "statefulset" ]] && kubectl -n "$ns" scale sts/"$name" --replicas=0 >/dev/null 2>&1 || true
   done
   sleep 15
 
@@ -531,7 +531,7 @@ step_verify() {
   echo "  Pod Status (checking for issues):"
   local problem_pods
   problem_pods=$(kubectl get pods -A --no-headers 2>/dev/null | grep -Ev "Running|Completed|migrate-" || true)
-  if [[ -z "$problem_pods" ]]; then
+  if [[ -z $problem_pods ]]; then
     log "All pods Running or Completed"
   else
     warn "Some pods have issues:"
@@ -542,7 +542,7 @@ step_verify() {
   echo "  Recent probe failures:"
   local unhealthy
   unhealthy=$(kubectl get events -A --field-selector reason=Unhealthy --sort-by='.lastTimestamp' 2>/dev/null | tail -5 || true)
-  if [[ -z "$unhealthy" ]]; then
+  if [[ -z $unhealthy ]]; then
     log "No probe failures"
   else
     echo "$unhealthy"
@@ -590,19 +590,23 @@ main() {
   echo "  11)   Verify"
   echo ""
 
-  if [[ "${1:-}" == "--step" ]]; then
+  if [[ ${1:-} == "--step" ]]; then
     case "${2:-}" in
       2) step_verify_iscsi ;;
       3) step_pause_argocd ;;
       4) step_scale_down ;;
       6) step_deploy_democratic_csi ;;
-      7|8) step_delete_old_pvcs ;;
+      7 | 8) step_delete_old_pvcs ;;
       9) step_reenable_argocd ;;
       10) step_migrate_data ;;
       10b) step_restore_workloads ;;
       11) step_verify ;;
       cleanup) step_cleanup ;;
-      *) echo "Unknown step: ${2:-}"; echo "Usage: $0 [--step <2|3|4|6|7|9|10|10b|11|cleanup>]"; exit 1 ;;
+      *)
+        echo "Unknown step: ${2:-}"
+        echo "Usage: $0 [--step <2|3|4|6|7|9|10|10b|11|cleanup>]"
+        exit 1
+        ;;
     esac
     exit 0
   fi

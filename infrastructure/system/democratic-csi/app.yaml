@@ -4,4 +4,4 @@ deployPhase: foundation
 chart:
   repo: https://democratic-csi.github.io/charts
   name: democratic-csi
-  version: 0.14.7
+  version: 0.15.1

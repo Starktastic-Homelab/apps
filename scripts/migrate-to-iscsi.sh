@@ -257,7 +257,7 @@ step_scale_down() {
   echo "  Waiting for pods to terminate..."
   for attempt in $(seq 1 12); do
     local terminating
-    terminating=$(kubectl get pods -A --no-headers 2>/dev/null | grep -c Terminating || echo 0)
+    terminating=$(kubectl get pods -A --no-headers 2>/dev/null | grep -c Terminating || true)
     [[ $terminating -eq 0 ]] && break
     echo "    $terminating pods still terminating (attempt $attempt/12)..."
     sleep 10

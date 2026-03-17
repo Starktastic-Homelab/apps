@@ -468,7 +468,7 @@ spec:
                 exit 0
               fi
               echo "Copying data from ${nfs_path} ..."
-              rsync -a /mnt/nfs/ /mnt/iscsi/
+              rsync -a --delete /mnt/nfs/ /mnt/iscsi/
               echo "Done. Synced \$(du -sh /mnt/iscsi | cut -f1) of data."
               umount /mnt/nfs || true
           securityContext:

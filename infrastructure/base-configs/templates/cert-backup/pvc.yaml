@@ -6,7 +6,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteMany
-  storageClassName: {{ .Values.global.storageClass }}
+  storageClassName: nfs-pv # stays on NFS — backup CronJob needs RWX
   resources:
     requests:
       storage: 1Mi

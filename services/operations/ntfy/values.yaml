@@ -30,14 +30,14 @@ controllers:
 persistence:
   config:
     enabled: true
-    accessMode: ReadWriteOnce
+    accessMode: ReadWriteMany
     size: 100Mi
     globalMounts:
       - path: /var/lib/ntfy
 
   cache:
     enabled: true
-    accessMode: ReadWriteOnce
+    accessMode: ReadWriteMany
     size: 5Gi
     globalMounts:
       - path: /var/cache/ntfy

@@ -17,7 +17,7 @@ envVarsExtra:
     value: "False"
 persistentVolume:
   enabled: true
-  storageClass: "iscsi-pv" # source: globals.yaml → global.storageClass
+  storageClass: "nfs-pv" # source: globals.yaml → global.storageClass
   size: 1Gi
 serverDefinitions:
   enabled: true

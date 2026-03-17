@@ -4,8 +4,8 @@ metadata:
   name: mealie-data
   namespace: operations
 spec:
-  accessModes: ["ReadWriteOnce"]
-  storageClassName: "iscsi-pv"
+  accessModes: ["ReadWriteMany"]
+  storageClassName: "nfs-pv"
   resources:
     requests:
       storage: 5Gi

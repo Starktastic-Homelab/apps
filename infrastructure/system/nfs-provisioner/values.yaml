@@ -3,7 +3,7 @@ nfs:
   path: /mnt/apps/pv
 storageClass:
   name: nfs-pv # source: globals.yaml → global.storageClass
-  defaultClass: false
+  defaultClass: true
   reclaimPolicy: Retain
   archiveOnDelete: false
   pathPattern: "${.PVC.namespace}/${.PVC.name}"

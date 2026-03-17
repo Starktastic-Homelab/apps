@@ -44,8 +44,8 @@ persistence:
     enabled: false
   libretranslate-models:
     type: persistentVolumeClaim
-    storageClass: "iscsi-pv"
+    storageClass: "nfs-pv"
     size: 2Gi
-    accessMode: ReadWriteOnce
+    accessMode: ReadWriteMany
     globalMounts:
       - path: /home/libretranslate/.local

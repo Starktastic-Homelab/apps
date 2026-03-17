@@ -4,8 +4,8 @@ metadata:
   name: zigbee2mqtt-config
   namespace: home-automation
 spec:
-  accessModes: ["ReadWriteOnce"]
-  storageClassName: iscsi-pv
+  accessModes: ["ReadWriteMany"]
+  storageClassName: nfs-pv
   resources:
     requests:
       storage: 2Gi

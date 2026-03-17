@@ -3,7 +3,7 @@ csiDriver:
 
 storageClasses:
   - name: iscsi-pv
-    defaultClass: true
+    defaultClass: false
     reclaimPolicy: Retain
     allowVolumeExpansion: true
     mountOptions: []

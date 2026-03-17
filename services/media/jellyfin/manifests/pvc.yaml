@@ -8,4 +8,4 @@ spec:
   storageClassName: iscsi-pv # source: globals.yaml → global.storageClass (Kustomize-managed, cannot use Helm template)
   resources:
     requests:
-      storage: 5Gi
+      storage: 15Gi

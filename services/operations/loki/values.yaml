@@ -32,7 +32,7 @@ singleBinary:
   replicas: 1
   persistence:
     enabled: true
-    storageClass: nfs-pv # source: globals.yaml → global.storageClass
+    storageClass: iscsi-pv # source: globals.yaml → global.storageClass
     size: 10Gi
 
 read:

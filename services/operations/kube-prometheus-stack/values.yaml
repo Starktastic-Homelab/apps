@@ -35,8 +35,8 @@ prometheus:
     storageSpec:
       volumeClaimTemplate:
         spec:
-          storageClassName: nfs-pv # IMPORTANT: must match global.storageClass in templates/globals.yaml
-          accessModes: ["ReadWriteMany"]
+          storageClassName: iscsi-pv # IMPORTANT: must match global.storageClass in templates/globals.yaml
+          accessModes: ["ReadWriteOnce"]
           resources:
             requests:
               storage: 10Gi
@@ -50,8 +50,8 @@ alertmanager:
     storage:
       volumeClaimTemplate:
         spec:
-          storageClassName: nfs-pv # IMPORTANT: must match global.storageClass in templates/globals.yaml
-          accessModes: ["ReadWriteMany"]
+          storageClassName: iscsi-pv # IMPORTANT: must match global.storageClass in templates/globals.yaml
+          accessModes: ["ReadWriteOnce"]
           resources:
             requests:
               storage: 2Gi
@@ -139,8 +139,8 @@ grafana:
       capture: true
   persistence:
     enabled: true
-    storageClassName: nfs-pv # IMPORTANT: must match global.storageClass in templates/globals.yaml
-    accessModes: ["ReadWriteMany"]
+    storageClassName: iscsi-pv # IMPORTANT: must match global.storageClass in templates/globals.yaml
+    accessModes: ["ReadWriteOnce"]
     size: 2Gi
   additionalDataSources:
     - name: Loki

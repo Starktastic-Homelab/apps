@@ -4,8 +4,8 @@ metadata:
   name: jellyfin-config
   namespace: media
 spec:
-  accessModes: ["ReadWriteMany"]
-  storageClassName: nfs-pv # source: globals.yaml → global.storageClass (Kustomize-managed, cannot use Helm template)
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: iscsi-pv # source: globals.yaml → global.storageClass (Kustomize-managed, cannot use Helm template)
   resources:
     requests:
       storage: 5Gi

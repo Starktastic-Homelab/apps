@@ -5,7 +5,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteMany
-  storageClassName: nfs-pv
+  storageClassName: nfs-pv # stays on NFS — shared RWX between calibre-web and shelfmark
   resources:
     requests:
       storage: 5Gi

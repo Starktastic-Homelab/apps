@@ -56,9 +56,9 @@ persistence:
     enabled: false
   lingarr-config:
     type: persistentVolumeClaim
-    storageClass: "nfs-pv" # source: globals.yaml → global.storageClass
+    storageClass: "iscsi-pv"
     size: 1Gi
-    accessMode: ReadWriteMany
+    accessMode: ReadWriteOnce
     globalMounts:
       - path: /app/config
   media:

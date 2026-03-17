@@ -7,7 +7,7 @@ deployment:
   #    Traefik starts, so the plugin is always present.
   initContainers:
     - name: download-bouncer-plugin
-      image: alpine/git:2.47.2
+      image: alpine/git:v2.52.0
       command:
         - sh
         - -c

@@ -15,7 +15,7 @@ volumeSnapshotClasses: []
 driver:
   existingConfigSecret: democratic-csi-driver-config
   config:
-    driver: freenas-iscsi
+    driver: freenas-api-iscsi
 
 node:
   hostPID: true

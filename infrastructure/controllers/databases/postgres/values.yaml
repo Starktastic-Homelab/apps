@@ -45,6 +45,8 @@ primary:
             echo "🧟 Zombie Lock Found: Deleting postmaster.pid"
             rm -f /bitnami/postgresql/data/postmaster.pid
           fi
+  extendedConfiguration: |
+    max_connections = 200
   podSecurityContext:
     fsGroup: 1001
     enabled: true

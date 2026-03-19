@@ -7,7 +7,7 @@ deployment:
   #    Traefik starts, so the plugin is always present.
   initContainers:
     - name: download-bouncer-plugin
-      image: alpine/git:v2.52.0
+      image: alpine/git:latest
       command:
         - sh
         - -c
@@ -16,6 +16,7 @@ deployment:
           # If already populated (container restart), skip.
           [ -f "$DEST/.traefik.yml" ] && echo "plugin already cached" && exit 0
           for i in 1 2 3 4 5; do
+            # renovate: datasource=github-releases depName=maxlerebourg/crowdsec-bouncer-traefik-plugin
             git clone --depth 1 --branch v1.5.1 \
               https://github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin.git \
               "$DEST" && exit 0

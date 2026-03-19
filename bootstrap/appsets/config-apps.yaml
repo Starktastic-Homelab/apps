@@ -15,6 +15,20 @@ spec:
           - name: infra-configs
             path: infrastructure/configs
             deployPhase: services
+  strategy:
+    type: RollingSync
+    rollingSync:
+      steps:
+        - matchExpressions:
+            - key: deploy-phase
+              operator: In
+              values:
+                - foundation
+        - matchExpressions:
+            - key: deploy-phase
+              operator: In
+              values:
+                - services
   template:
     metadata:
       name: "{{.name}}"
@@ -49,8 +63,8 @@ spec:
           - CreateNamespace=true
           - ServerSideApply=true
         retry:
-          limit: 5
+          limit: 30
           backoff:
-            duration: 10s
+            duration: 15s
             factor: 2
-            maxDuration: 3m
+            maxDuration: 5m

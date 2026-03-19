@@ -4,8 +4,7 @@ controllers:
       main:
         image:
           repository: danielszabo99/microbin
-          tag: 2.1.4
-          digest: sha256:6660e5ccad0d764fa3c0032464ffb8f4b4f28c92a2eb9e39202b94cdc5b68909
+          tag: 2.1.4@sha256:6660e5ccad0d764fa3c0032464ffb8f4b4f28c92a2eb9e39202b94cdc5b68909
         env:
           MICROBIN_PUBLIC_PATH: "https://microbin.starktastic.net"
           MICROBIN_PORT: "8080"

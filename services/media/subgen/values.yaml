@@ -4,8 +4,7 @@ controllers:
       main:
         image:
           repository: mccloud/subgen
-          tag: 2026.03.6-cpu
-          digest: sha256:c27bd54824a2d96063e77d207c0a4692ee461e31bbb78182865aa739db1ef021
+          tag: 2026.03.6-cpu@sha256:c27bd54824a2d96063e77d207c0a4692ee461e31bbb78182865aa739db1ef021
         env:
           WHISPER_MODEL: "small"
           TRANSCRIBE_DEVICE: "cpu"

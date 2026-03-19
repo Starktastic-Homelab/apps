@@ -6,8 +6,7 @@ controllers:
       main:
         image:
           repository: binwiederhier/ntfy
-          tag: v2.19.2
-          digest: sha256:9114cd5cdcb8c2ea1239bd710caae867e82c2deda68271b9db151240b403b3f4
+          tag: v2.19.2@sha256:9114cd5cdcb8c2ea1239bd710caae867e82c2deda68271b9db151240b403b3f4
 
         args: ["serve"]
 

@@ -7,9 +7,6 @@
   "kubernetes": {
     "managerFilePatterns": ["/\\.yaml$/"]
   },
-  "helm-values": {
-    "managerFilePatterns": ["!/^(infrastructure|services)/.*/values\\.yaml$/"]
-  },
   "packageRules": [
     {
       "description": "Block Ubuntu base-image version tags (e.g. 20.04.1) on LinuxServer images",
@@ -44,16 +41,6 @@
       "fileFormat": "yaml"
     },
     {
-      "description": "Update Docker images + digests in Helm values",
-      "customType": "regex",
-      "managerFilePatterns": ["/^(infrastructure|services)/.*/values\\.yaml$/"],
-      "matchStrings": [
-        "repository: (?<depName>\\S+)\\n\\s+tag: (?<currentValue>\\S+)\\n\\s+digest: (?<currentDigest>sha256:[a-f0-9]+)"
-      ],
-      "autoReplaceStringTemplate": "repository: {{{depName}}}\n          tag: {{{newValue}}}\n          digest: {{{newDigest}}}",
-      "datasourceTemplate": "docker"
-    },
-    {
       "description": "Update image references in CRD manifests via renovate comments",
       "customType": "regex",
       "managerFilePatterns": ["/^(infrastructure|services)/.*\\.yaml$/"],
@@ -74,10 +61,8 @@
     {
       "description": "Update Traefik CrowdSec bouncer plugin version",
       "customType": "regex",
-      "managerFilePatterns": ["/^infrastructure/controllers/traefik/values\.yaml$/"],
-      "matchStrings": [
-        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\s+git clone --depth 1 --branch (?<currentValue>\\S+)"
-      ],
+      "managerFilePatterns": ["/^infrastructure/controllers/traefik/values\\.yaml$/"],
+      "matchStrings": ["# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\s+git clone --depth 1 --branch (?<currentValue>\\S+)"],
       "datasourceTemplate": "{{datasource}}"
     }
   ]

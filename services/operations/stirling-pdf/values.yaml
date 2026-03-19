@@ -4,8 +4,7 @@ controllers:
       main:
         image:
           repository: stirlingtools/stirling-pdf
-          tag: latest
-          digest: sha256:f2e9ab8c82174cc96d573889d91228ad01f489dcbfe0ef7916c969e3a61cafca
+          tag: latest@sha256:f2e9ab8c82174cc96d573889d91228ad01f489dcbfe0ef7916c969e3a61cafca
         env:
           SECURITY_ENABLELOGIN: "false"
         probes:

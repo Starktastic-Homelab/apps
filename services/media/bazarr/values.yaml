@@ -4,8 +4,7 @@ controllers:
       main:
         image:
           repository: lscr.io/linuxserver/bazarr
-          tag: 1.5.6
-          digest: sha256:05f9d5b24884f37120453dc1a008a47be244eebec32099ae1bd29032e75b67aa
+          tag: 1.5.6@sha256:05f9d5b24884f37120453dc1a008a47be244eebec32099ae1bd29032e75b67aa
         probes:
           liveness:
             enabled: true

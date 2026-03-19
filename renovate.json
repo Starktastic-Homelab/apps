@@ -75,7 +75,9 @@
       "description": "Update Traefik CrowdSec bouncer plugin version",
       "customType": "regex",
       "managerFilePatterns": ["/^infrastructure/controllers/traefik/values\.yaml$/"],
-      "matchStrings": ["# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\s+git clone --depth 1 --branch (?<currentValue>\\S+)"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\s+git clone --depth 1 --branch (?<currentValue>\\S+)"
+      ],
       "datasourceTemplate": "{{datasource}}"
     }
   ]

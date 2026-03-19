@@ -1,13 +1,13 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: kube-vip-svc
+  name: kube-vip-cp
   namespace: kube-system
   labels:
-    app.kubernetes.io/name: kube-vip-svc
+    app: kube-vip-cp
     app.kubernetes.io/component: metrics
 spec:
-  jobLabel: kube-vip-svc
+  jobLabel: kube-vip-cp
   endpoints:
     - port: metrics
       path: /metrics
@@ -16,5 +16,5 @@ spec:
       - kube-system
   selector:
     matchLabels:
-      app.kubernetes.io/name: kube-vip-svc
+      app: kube-vip-cp
       app.kubernetes.io/component: metrics

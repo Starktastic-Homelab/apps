@@ -44,7 +44,7 @@ service:
     type: LoadBalancer
     externalTrafficPolicy: Local
     annotations:
-      kube-vip.io/loadbalancerIPs: "{{ .Values.global.network.loadBalancers.homeAssistant }}"
+      metallb.universe.tf/loadBalancerIPs: "{{ .Values.global.network.loadBalancers.homeAssistant }}"
     ports:
       http:
         port: 8123

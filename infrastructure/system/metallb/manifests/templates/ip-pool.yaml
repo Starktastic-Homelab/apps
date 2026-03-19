@@ -1,0 +1,13 @@
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: homelab
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  addresses:
+    - {{ .Values.global.network.loadBalancers.external }}/32
+    - {{ .Values.global.network.loadBalancers.internal }}/32
+    - {{ .Values.global.network.loadBalancers.homeAssistant }}/32
+    - {{ .Values.global.network.loadBalancers.qbittorrent }}/32
+    - {{ .Values.global.network.loadBalancers.qbittorrentRu }}/32

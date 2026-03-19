@@ -36,7 +36,7 @@ service:
     type: LoadBalancer
     externalTrafficPolicy: Local
     annotations:
-      kube-vip.io/loadbalancerIPs: "{{ .Values.global.network.loadBalancers.qbittorrent }}"
+      metallb.universe.tf/loadBalancerIPs: "{{ .Values.global.network.loadBalancers.qbittorrent }}"
     ports:
       bittorrent-tcp:
         enabled: true

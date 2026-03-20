@@ -55,8 +55,7 @@ persistence:
       - path: /config
   media:
     enabled: true
-  transcode:
-    type: emptyDir
-    sizeLimit: 20Gi
+  jellyfin-cache:
+    existingClaim: jellyfin-cache
     globalMounts:
-      - path: /config/cache/transcodes
+      - path: /config/cache

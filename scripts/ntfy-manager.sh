@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Usage: ./scripts/ntfy-manager.sh <command> <args>
 # Example: ./scripts/ntfy-manager.sh user add ben
-# Example: ./scripts/ntfy-manager.sh access /starktastic_media rw katya
+# Example: ./scripts/ntfy-manager.sh access katya starktastic_media rw
 
 # The label selector must match the bjw-s common chart default
 LABEL_SELECTOR="app.kubernetes.io/name=ntfy"

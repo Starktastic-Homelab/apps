@@ -1,4 +1,6 @@
 prometheus:
+  serviceAccount: kube-prometheus-stack-prometheus
+  namespace: monitoring
   serviceMonitor:
     enabled: true
   prometheusRule:

@@ -3,7 +3,7 @@
 service:
   bittorrent:
     annotations:
-      kube-vip.io/loadbalancerIPs: "{{ .Values.global.network.loadBalancers.qbittorrentRu }}"
+      metallb.universe.tf/loadBalancerIPs: "{{ .Values.global.network.loadBalancers.qbittorrentRu }}"
     ports:
       bittorrent-tcp:
         port: 56882

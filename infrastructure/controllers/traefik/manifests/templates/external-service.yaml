@@ -4,11 +4,10 @@ metadata:
   name: traefik
   namespace: traefik-system
   annotations:
-    kube-vip.io/loadbalancerIPs: {{ .Values.global.network.loadBalancers.external | quote }}
+    metallb.universe.tf/loadBalancerIPs: {{ .Values.global.network.loadBalancers.external | quote }}
     argocd.argoproj.io/sync-wave: "0"
 spec:
   type: LoadBalancer
-  loadBalancerIP: {{ .Values.global.network.loadBalancers.external | quote }}
   externalTrafficPolicy: Local
   selector:
     app.kubernetes.io/name: traefik

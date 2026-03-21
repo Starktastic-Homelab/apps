@@ -1,0 +1,8 @@
+name: metallb
+namespace: metallb-system
+deployPhase: foundation
+helmManifests: true
+chart:
+  repo: https://metallb.github.io/metallb
+  name: metallb
+  version: 0.15.3

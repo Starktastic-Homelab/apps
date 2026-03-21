@@ -19,12 +19,12 @@ spec:
             summary: "Kube-VIP leader election is flapping"
             description: "Leader transitions detected over the last 5 minutes. This causes VIP failovers and brief service interruptions."
 
-        # ── Kube-VIP metrics endpoint unreachable ───────────────────
+        # ── Kube-VIP CP metrics endpoint unreachable ──────────────────
         - alert: KubeVipDown
-          expr: up{job=~".*kube-vip.*"} == 0
+          expr: up{job=~".*kube-vip-cp.*"} == 0
           for: 3m
           labels:
             severity: critical
           annotations:
-            summary: "Kube-VIP is down"
-            description: "The kube-vip-svc metrics endpoint has been unreachable for 3 minutes."
+            summary: "Kube-VIP control plane is down"
+            description: "The kube-vip-cp metrics endpoint has been unreachable for 3 minutes."

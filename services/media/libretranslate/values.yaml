@@ -4,8 +4,7 @@ controllers:
       main:
         image:
           repository: libretranslate/libretranslate
-          tag: v1.9.5
-          digest: sha256:b358e61598c9d5240ddb5f9e8f53389931db8305ccfd426fbfcc603f4b24c7a4
+          tag: v1.9.5@sha256:b358e61598c9d5240ddb5f9e8f53389931db8305ccfd426fbfcc603f4b24c7a4
         env:
           LT_LOAD_ONLY: "en,he,ru"
           LT_DISABLE_WEB_UI: "true"

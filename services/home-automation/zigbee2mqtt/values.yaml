@@ -5,8 +5,7 @@ controllers:
       main:
         image:
           repository: ghcr.io/koenkk/zigbee2mqtt
-          tag: 2.9.1
-          digest: sha256:574b2bd0dcbb59fae6edbbb81a35b5563291d3825da0225f0078aa5575dac37f
+          tag: 2.9.1@sha256:574b2bd0dcbb59fae6edbbb81a35b5563291d3825da0225f0078aa5575dac37f
         env:
           ZIGBEE2MQTT_CONFIG_MQTT_SERVER: "mqtt://mosquitto.home-automation.svc.cluster.local:1883"
           ZIGBEE2MQTT_CONFIG_HOMEASSISTANT_ENABLED: "true"

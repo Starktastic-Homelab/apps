@@ -4,8 +4,7 @@ controllers:
       main:
         image:
           repository: ghcr.io/immich-app/immich-server
-          tag: v2.6.1
-          digest: sha256:aa7fe8eec3130742d07498dac7e02baa2d32a903573810ba95ed11f155c7eac1
+          tag: v2.6.1@sha256:aa7fe8eec3130742d07498dac7e02baa2d32a903573810ba95ed11f155c7eac1
         env:
           DB_HOSTNAME: immich-postgres
           DB_PORT: "5432"
@@ -46,8 +45,7 @@ controllers:
       main:
         image:
           repository: ghcr.io/immich-app/immich-machine-learning
-          tag: v2.6.1-openvino
-          digest: sha256:bd5aa51a9f9a17eebf17daa7731b3bacd71a4aa542ce424d3adb06552b40e905
+          tag: v2.6.1-openvino@sha256:bd5aa51a9f9a17eebf17daa7731b3bacd71a4aa542ce424d3adb06552b40e905
         resources:
           limits:
             gpu.intel.com/i915: "1"
@@ -92,8 +90,7 @@ controllers:
       main:
         image:
           repository: ghcr.io/immich-app/postgres
-          tag: 17-vectorchord0.4.3-pgvector0.8.1
-          digest: sha256:79b95b795f0911e95ffa4d092a2162c4d81a984d5629bc8f786afe0bc0657671
+          tag: 17-vectorchord0.4.3-pgvector0.8.1@sha256:79b95b795f0911e95ffa4d092a2162c4d81a984d5629bc8f786afe0bc0657671
         env:
           POSTGRES_DB: immich
           POSTGRES_USER: immich

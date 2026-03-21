@@ -4,8 +4,7 @@ controllers:
       main:
         image:
           repository: ghcr.io/dgtlmoon/changedetection.io
-          tag: 0.54.6
-          digest: sha256:7611738e564caa08a9b7591a7909e4f6c78d34d289873b9fd7d320af50943419
+          tag: 0.54.6@sha256:7611738e564caa08a9b7591a7909e4f6c78d34d289873b9fd7d320af50943419
         env:
           PLAYWRIGHT_DRIVER_URL: "ws://localhost:3000"
           BASE_URL: "https://changedetection.internal.starktastic.net"
@@ -31,8 +30,7 @@ controllers:
       sockpuppetbrowser:
         image:
           repository: dgtlmoon/sockpuppetbrowser
-          tag: latest
-          digest: sha256:7116c61ef9cfce3d48a7efd9355d2fbe19f593ea3cfb52a5ded40ecbcb0a3f9d
+          tag: latest@sha256:7116c61ef9cfce3d48a7efd9355d2fbe19f593ea3cfb52a5ded40ecbcb0a3f9d
         env:
           SCREEN_WIDTH: "1920"
           SCREEN_HEIGHT: "1024"

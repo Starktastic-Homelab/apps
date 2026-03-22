@@ -1,0 +1,83 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: zimengxiong/excalidash-frontend
+          tag: 0.4.28@sha256:7bea1bc89e88c7385d8872ed43ec797401d57d5d373474b69dbcdd0c25a4d5a6
+        env:
+          BACKEND_URL: "localhost:8000"
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            port: 80
+            path: /
+          readiness:
+            enabled: true
+            type: HTTP
+            port: 80
+            path: /
+          startup:
+            enabled: true
+            type: TCP
+            port: 80
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+      backend:
+        image:
+          repository: zimengxiong/excalidash-backend
+          tag: 0.4.28@sha256:1a772d9320e19fcb19ea0393949786508034980a2edd195765c8298d58c22aab
+        env:
+          DATABASE_URL: "file:/app/prisma/dev.db"
+          PORT: "8000"
+          NODE_ENV: "production"
+          AUTH_MODE: "oidc_enforced"
+          TRUST_PROXY: "1"
+          FRONTEND_URL: "https://excalidash.starktastic.net"
+          UPDATE_CHECK_OUTBOUND: "false"
+          # Authentik OIDC
+          OIDC_PROVIDER_NAME: "authentik"
+          OIDC_ISSUER_URL: "https://auth.starktastic.net/application/o/excalidash/"
+          OIDC_CLIENT_ID: "QkCwFo41khJZDm66sLoXD1uaHG5hyBBFCeMetcMM"
+          OIDC_REDIRECT_URI: "https://excalidash.starktastic.net/api/auth/oidc/callback"
+          OIDC_SCOPES: "openid profile email"
+        envFrom:
+          - secretRef:
+              name: excalidash-secret
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            port: 8000
+            path: /health
+          readiness:
+            enabled: true
+            type: HTTP
+            port: 8000
+            path: /health
+          startup:
+            enabled: true
+            type: TCP
+            port: 8000
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 80
+
+persistence:
+  config:
+    enabled: false
+  data:
+    existingClaim: excalidash-data
+    advancedMounts:
+      main:
+        backend:
+          - path: /app/prisma

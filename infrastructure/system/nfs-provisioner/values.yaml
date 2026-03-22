@@ -7,3 +7,9 @@ storageClass:
   reclaimPolicy: Retain
   archiveOnDelete: false
   pathPattern: "${.PVC.namespace}/${.PVC.name}"
+  mountOptions:
+    - nfsvers=4.1
+    - noatime
+    - hard
+    - rsize=1048576
+    - wsize=1048576

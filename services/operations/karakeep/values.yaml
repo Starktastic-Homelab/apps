@@ -10,7 +10,6 @@ controllers:
           NEXTAUTH_URL: "https://karakeep.starktastic.net"
           MEILI_ADDR: "http://localhost:7700"
           BROWSER_WEB_URL: "http://localhost:9222"
-          DISABLE_SIGNUPS: "true"
           DISABLE_PASSWORD_AUTH: "true"
           LOG_LEVEL: "notice"
           # Authentik OIDC

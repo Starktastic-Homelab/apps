@@ -1,0 +1,10 @@
+name: karakeep
+namespace: operations
+deployPhase: services
+ingress:
+  enabled: true
+  host: karakeep
+  domainType: "public"
+  port: 3000
+  auth: false
+  rateLimit: true

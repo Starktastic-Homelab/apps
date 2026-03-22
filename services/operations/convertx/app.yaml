@@ -1,0 +1,11 @@
+name: convertx
+namespace: operations
+deployPhase: services
+
+ingress:
+  enabled: true
+  host: convertx
+  domainType: "public"
+  port: 3000
+  auth: true
+  rateLimit: true

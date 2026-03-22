@@ -42,6 +42,7 @@ controllers:
           OIDC_ISSUER_URL: "https://auth.starktastic.net/application/o/excalidash/"
           OIDC_REDIRECT_URI: "https://excalidash.starktastic.net/api/auth/oidc/callback"
           OIDC_SCOPES: "openid profile email"
+          OIDC_REQUIRE_EMAIL_VERIFIED: "false"
         envFrom:
           - secretRef:
               name: excalidash-secret

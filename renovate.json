@@ -19,6 +19,12 @@
       "matchDatasources": ["docker"],
       "matchPackageNames": ["lscr.io/linuxserver/qbittorrent"],
       "allowedVersions": "< 6.0.0"
+    },
+    {
+      "description": "Meilisearch requires dump-and-restore for minor upgrades",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["getmeili/meilisearch"],
+      "prBodyNotes": ["⚠️ Meilisearch requires a dump-and-restore to upgrade. Clear the meilisearch PVC or run a dump migration before merging."]
     }
   ],
   "customManagers": [

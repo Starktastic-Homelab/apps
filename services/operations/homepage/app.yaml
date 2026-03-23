@@ -1,0 +1,12 @@
+name: homepage
+namespace: operations
+deployPhase: services
+helmManifests: true
+
+ingress:
+  enabled: true
+  host: ""
+  domainType: "public"
+  port: 3000
+  auth: true
+  rateLimit: true

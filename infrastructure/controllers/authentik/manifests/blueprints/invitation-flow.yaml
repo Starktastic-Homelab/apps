@@ -108,6 +108,55 @@ entries:
       sub_text: "Click Continue to get started."
       order: 0
 
+  - identifiers:
+      name: invite-field-welcome-content
+    id: field-welcome-content
+    model: authentik_stages_prompt.prompt
+    state: present
+    attrs:
+      field_key: welcome_info
+      label: "\u200B"
+      type: static
+      required: false
+      initial_value: |-
+        user = request.user
+        name = user.name or user.username
+        pref = user.attributes.get("media_preference", "original")
+
+        request_links = ""
+        if pref in ("original", "both"):
+            request_links += '<p><a href="https://request.benplus.app" target="_blank" style="color: #60A5FA; font-weight: bold;">request.benplus.app</a> &mdash; Original content</p>'
+        if pref == "ru":
+            request_links += '<p><a href="https://request-ru.benplus.app" target="_blank" style="color: #60A5FA; font-weight: bold;">request-ru.benplus.app</a> &mdash; \u0420\u0443\u0441\u0441\u043A\u0438\u0439 \u0434\u0443\u0431\u043B\u044F\u0436</p>'
+        elif pref == "both":
+            request_links += '<p><a href="https://request-ru.benplus.app" target="_blank" style="color: #60A5FA; font-weight: bold;">request-ru.benplus.app</a> &mdash; Russian dubbed content / \u0420\u0443\u0441\u0441\u043A\u0438\u0439 \u0434\u0443\u0431\u043B\u044F\u0436</p>'
+
+        return (
+            '<div style="text-align: left; color: #CBD5E1; line-height: 1.6;">'
+            f'<h2 style="font-size: 20px; color: #F8FAFC; text-align: center; margin: 0 0 16px 0;">Welcome Aboard</h2>'
+            f'<p>Hi {name},</p>'
+            '<p>Your account is all set up. Here\u2019s what you have access to.</p>'
+            '<h3 style="font-size: 18px; color: #F8FAFC; margin-top: 24px;">Ben+ &mdash; Media Streaming</h3>'
+            '<p>Stream movies, TV shows, and more. Install the Jellyfin app on your device:</p>'
+            '<ul style="padding-left: 20px; margin: 10px 0 20px 0;">'
+            '<li><a href="https://apps.apple.com/app/jellyfin-mobile/id1480192618" target="_blank" style="color: #60A5FA;">iPhone / iPad</a></li>'
+            '<li><a href="https://play.google.com/store/apps/details?id=org.jellyfin.mobile" target="_blank" style="color: #60A5FA;">Android Phone / Tablet</a></li>'
+            '<li><a href="https://play.google.com/store/apps/details?id=org.jellyfin.androidtv" target="_blank" style="color: #60A5FA;">Android TV / Fire TV</a></li>'
+            '<li><a href="https://jellyfin.org/downloads" target="_blank" style="color: #60A5FA;">Desktop &amp; Other Devices</a></li>'
+            '<li>Or visit <a href="https://benplus.app" target="_blank" style="color: #60A5FA;">benplus.app</a> in your browser</li>'
+            '</ul>'
+            '<p>Server address: <strong style="color: #F8FAFC;">https://benplus.app</strong></p>'
+            '<p>Log in with the username and password you created during sign-up.</p>'
+            '<h3 style="font-size: 16px; color: #F8FAFC; margin-top: 20px;">Request New Content</h3>'
+            '<p>Can\u2019t find something? Use Jellyseerr to request movies and TV shows &mdash; they\u2019ll be added automatically.</p>'
+            f'{request_links}'
+            '<p style="margin-top: 24px; color: #94A3B8; font-size: 13px;">You\u2019ll also receive this info by email. Questions? Reach out to the person who invited you.</p>'
+            '</div>'
+        )
+      initial_value_expression: true
+      sub_text: ""
+      order: 0
+
   # =============================================================
   # POLICIES
   # =============================================================
@@ -124,6 +173,39 @@ entries:
         email = request.context.get("prompt_data", {}).get("email")
         if email and ak_user_by(email__iexact=email):
             raise ValidationError("This email is already registered.")
+
+        return True
+
+  - identifiers:
+      name: "Invite - Unique Username"
+    id: policy-unique-username
+    model: authentik_policies_expression.expressionpolicy
+    state: present
+    attrs:
+      expression: |
+        from django.core.exceptions import ValidationError
+
+        username = request.context.get("prompt_data", {}).get("username")
+        if username and ak_user_by(username__iexact=username):
+            raise ValidationError("This username is already taken.")
+
+        return True
+
+  - identifiers:
+      name: "Invite - Valid Username"
+    id: policy-valid-username
+    model: authentik_policies_expression.expressionpolicy
+    state: present
+    attrs:
+      expression: |
+        import re
+        from django.core.exceptions import ValidationError
+
+        username = request.context.get("prompt_data", {}).get("username", "")
+        if len(username) < 3:
+            raise ValidationError("Username must be at least 3 characters.")
+        if not re.match(r"^[a-zA-Z0-9_-]+$", username):
+            raise ValidationError("Username can only contain letters, numbers, underscores, and hyphens.")
 
         return True
 
@@ -236,6 +318,8 @@ entries:
         - !KeyOf field-password-repeat
       validation_policies:
         - !KeyOf policy-unique-email
+        - !KeyOf policy-unique-username
+        - !KeyOf policy-valid-username
         - !KeyOf policy-strong-password
 
   - identifiers:
@@ -298,14 +382,13 @@ entries:
       geoip_binding: no_binding
 
   - identifiers:
-      name: "Invite - Redirect to Ben Plus"
-    id: stage-redirect
-    model: authentik_stages_redirect.redirectstage
+      name: "Invite - Welcome"
+    id: stage-welcome
+    model: authentik_stages_prompt.promptstage
     state: present
     attrs:
-      mode: static
-      target_static: "https://benplus.app" # source: globals.yaml → global.domains.media (Kustomize-managed)
-      keep_context: false
+      fields:
+        - !KeyOf field-welcome-content
 
   # =============================================================
   # FLOW STAGE BINDINGS
@@ -401,9 +484,9 @@ entries:
 
   - identifiers:
       target: !KeyOf flow
-      stage: !KeyOf stage-redirect
+      stage: !KeyOf stage-welcome
       order: 80
-    id: binding-redirect
+    id: binding-welcome
     model: authentik_flows.flowstagebinding
     state: present
     attrs:

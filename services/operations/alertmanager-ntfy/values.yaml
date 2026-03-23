@@ -4,7 +4,7 @@ controllers:
       main:
         image:
           repository: ghcr.io/alexbakker/alertmanager-ntfy
-          tag: 1.2.0@sha256:3bff1d075a144244dd3dc15a68557ff4a2cac6af5299f793b32fecaa1dea6cb2
+          tag: 1.2.1@sha256:2a862f23c8fb67f777824979487c06a417b2f9bbbc2eb45a974a1fb45b9bbff3
         args: ["--configs", "/config/config.yml,/auth/auth.yml"]
         probes:
           liveness:

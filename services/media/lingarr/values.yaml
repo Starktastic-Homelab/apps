@@ -11,7 +11,11 @@ controllers:
           LIBRE_TRANSLATE_URL: "http://libretranslate.media.svc.cluster.local:5000"
 
           # Database
-          DB_CONNECTION: "sqlite"
+          DB_CONNECTION: "postgres"
+          DB_HOST: "postgres-postgresql.databases.svc.cluster.local"
+          DB_PORT: "5432"
+          DB_DATABASE: "lingarr"
+          DB_USERNAME: "lingarr"
 
           # Sonarr / Radarr (EN instances only)
           SONARR_URL: "http://sonarr.media.svc.cluster.local:8989"

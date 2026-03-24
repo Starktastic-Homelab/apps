@@ -5,7 +5,7 @@ helmManifests: true
 
 ingress:
   enabled: true
-  host: ""
+  host: "admin"
   domainType: "public"
   port: 3000
   auth: true

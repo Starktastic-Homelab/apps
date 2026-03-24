@@ -8,7 +8,7 @@ controllers:
           repository: ghcr.io/gethomepage/homepage
           tag: v1.11.0@sha256:b129cb0f674bd6d204e215bde2c2fc3f11d6ad0e82f6d20007cf80f74e1acbb1
         env:
-          HOMEPAGE_ALLOWED_HOSTS: "starktastic.net"
+          HOMEPAGE_ALLOWED_HOSTS: "admin.starktastic.net"
           LOG_TARGETS: "stdout"
         envFrom:
           - secretRef:
@@ -23,7 +23,7 @@ controllers:
                 port: 3000
                 httpHeaders:
                   - name: Host
-                    value: starktastic.net
+                    value: admin.starktastic.net
           readiness:
             enabled: true
             custom: true
@@ -33,7 +33,7 @@ controllers:
                 port: 3000
                 httpHeaders:
                   - name: Host
-                    value: starktastic.net
+                    value: admin.starktastic.net
           startup:
             enabled: true
             custom: true
@@ -43,7 +43,7 @@ controllers:
                 port: 3000
                 httpHeaders:
                   - name: Host
-                    value: starktastic.net
+                    value: admin.starktastic.net
               failureThreshold: 30
               periodSeconds: 5
 

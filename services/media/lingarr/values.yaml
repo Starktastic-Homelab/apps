@@ -6,6 +6,8 @@ controllers:
           repository: ghcr.io/lingarr-translate/lingarr
           tag: 1.0.9@sha256:26b3dba8ba1d6b37bdde752418bf3f14d3fac16a3c05a64a2c840e8c507d24e5
         env:
+          TZ: "UTC"
+
           # Translation backend
           SERVICE_TYPE: "libretranslate"
           LIBRE_TRANSLATE_URL: "http://libretranslate.media.svc.cluster.local:5000"

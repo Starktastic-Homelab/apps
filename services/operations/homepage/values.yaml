@@ -8,7 +8,13 @@ controllers:
           repository: ghcr.io/gethomepage/homepage
           tag: v1.11.0@sha256:cb53e4903e7bfbb0a1d66d652b68ceabf11df49eb3bdd8dfc19963e935e0e58e
         env:
-          HOMEPAGE_ALLOWED_HOSTS: "starktastic.net"
+          POD_IP:
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          HOMEPAGE_ALLOWED_HOSTS:
+            value: "starktastic.net,$(POD_IP)"
+            dependsOn: POD_IP
           LOG_TARGETS: "stdout"
         envFrom:
           - secretRef:

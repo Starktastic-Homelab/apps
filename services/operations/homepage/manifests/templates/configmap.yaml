@@ -408,6 +408,7 @@ data:
             description: Dashboards & Alerting
             widget:
               type: grafana
+              alerts: alertmanager
               url: http://kube-prometheus-stack-grafana.monitoring.svc.cluster.local:80
               username: {{ "{{" }}HOMEPAGE_VAR_GRAFANA_USER{{ "}}" }}
               password: {{ "{{" }}HOMEPAGE_VAR_GRAFANA_PASS{{ "}}" }}

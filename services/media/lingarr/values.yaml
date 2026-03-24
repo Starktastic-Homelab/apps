@@ -86,7 +86,7 @@ persistence:
   # WORKAROUND: Mount for runtimeconfig override — remove with the ConfigMap above.
   runtimeconfig:
     type: configMap
-    name: lingarr-runtimeconfig
+    name: lingarr
     globalMounts:
       - path: /app/Lingarr.Server.runtimeconfig.json
         subPath: Lingarr.Server.runtimeconfig.json

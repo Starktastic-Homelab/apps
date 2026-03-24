@@ -1,0 +1,595 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homepage-config
+  namespace: operations
+data:
+  proxmox.yaml: |
+    pve:
+      url: https://10.9.9.20:8006
+      token: {{ "{{" }}HOMEPAGE_VAR_PROXMOX_USER{{ "}}" }}
+      secret: {{ "{{" }}HOMEPAGE_VAR_PROXMOX_PASS{{ "}}" }}
+  docker.yaml: ""
+  custom.js: ""
+  custom.css: |
+    :root {
+      --color-50: #fef2f2;
+      --color-100: #fee2e2;
+      --color-200: #fecaca;
+      --color-300: #fca5a5;
+      --color-400: #f87171;
+      --color-500: #ef4444;
+      --color-600: #dc2626;
+      --color-700: #b91c1c;
+      --color-800: #991b1b;
+      --color-900: #7f1d1d;
+    }
+  kubernetes.yaml: |
+    mode: cluster
+  settings.yaml: |
+    title: Starktastic Services
+    theme: dark
+    color: red
+    headerStyle: boxedWidgets
+    statusStyle: dot
+    useEqualHeights: true
+    hideVersion: true
+    disableCollapse: false
+    disableIndexing: true
+    iconStyle: theme
+    quicklaunch:
+      searchDescriptions: true
+      hideInternetSearch: false
+      showSearchSuggestions: true
+      provider: duckduckgo
+    background:
+      image: /images/background.svg
+      blur: sm
+      saturate: 50
+      brightness: 50
+      opacity: 30
+    cardBlur: sm
+    pwa:
+      shortcuts:
+        - name: Home
+          url: "/#home"
+        - name: Media
+          url: "/#media"
+        - name: Operations
+          url: "/#operations"
+        - name: Infrastructure
+          url: "/#infrastructure"
+    layout:
+      # -- Home tab --
+      Streaming:
+        tab: Home
+        style: row
+        columns: 3
+        icon: jellyfin.png
+      Requests:
+        tab: Home
+        style: row
+        columns: 2
+        icon: overseerr.png
+      Home & Life:
+        tab: Home
+        style: row
+        columns: 3
+        icon: home-assistant.png
+      Calendar:
+        tab: Home
+        style: row
+        columns: 1
+      # -- Media tab --
+      Movies & TV:
+        tab: Media
+        style: row
+        columns: 4
+        icon: radarr.png
+      Music & Books:
+        tab: Media
+        style: row
+        columns: 4
+        icon: navidrome.png
+      Subtitles & Indexers:
+        tab: Media
+        style: row
+        columns: 3
+        icon: prowlarr.png
+      Downloads:
+        tab: Media
+        style: row
+        columns: 2
+        icon: qbittorrent.png
+      # -- Operations tab --
+      Monitoring:
+        tab: Operations
+        style: row
+        columns: 4
+        icon: grafana.png
+      Security:
+        tab: Operations
+        style: row
+        columns: 3
+        icon: authentik.png
+      Documents:
+        tab: Operations
+        style: row
+        columns: 4
+        icon: paperless-ngx.png
+      Utilities:
+        tab: Operations
+        style: row
+        columns: 5
+        icon: mdi-tools
+      # -- Infrastructure tab --
+      Proxmox:
+        tab: Infrastructure
+        style: row
+        columns: 3
+        icon: proxmox.png
+      Cluster VMs:
+        tab: Infrastructure
+        style: row
+        columns: 3
+        icon: proxmox.png
+      Networking:
+        tab: Infrastructure
+        style: row
+        columns: 3
+        icon: traefik.png
+      Databases:
+        tab: Infrastructure
+        style: row
+        columns: 2
+        icon: postgres.png
+  widgets.yaml: |
+    - kubernetes:
+        cluster:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
+          label: "cluster"
+        nodes:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
+    - search:
+        provider: duckduckgo
+        target: _blank
+    - openmeteo:
+        label: Weather
+        latitude: 32.08
+        longitude: 34.78
+        timezone: Asia/Jerusalem
+        units: metric
+    - datetime:
+        text_size: xl
+        format:
+          dateStyle: long
+          timeStyle: short
+          hourCycle: h23
+  services.yaml: |
+    # ==================== HOME TAB ====================
+    - Streaming:
+        - Jellyfin:
+            icon: jellyfin.png
+            href: https://benplus.app
+            description: Movies, TV & Anime
+            widget:
+              type: jellyfin
+              url: http://jellyfin-main.media.svc.cluster.local:8096
+              key: {{ "{{" }}HOMEPAGE_VAR_JELLYFIN_KEY{{ "}}" }}
+              enableBlocks: true
+              enableNowPlaying: true
+              enableUser: true
+              showEpisodeNumber: true
+        - Immich:
+            icon: immich.png
+            href: https://photos.benplus.app
+            description: Photos & Videos
+            widget:
+              type: immich
+              url: http://immich-main.media.svc.cluster.local:2283
+              key: {{ "{{" }}HOMEPAGE_VAR_IMMICH_KEY{{ "}}" }}
+              version: 2
+        - Navidrome:
+            icon: navidrome.png
+            href: https://music.benplus.app
+            description: Music streaming
+            widget:
+              type: navidrome
+              url: http://navidrome.media.svc.cluster.local:4533
+              user: {{ "{{" }}HOMEPAGE_VAR_NAVIDROME_USER{{ "}}" }}
+              token: {{ "{{" }}HOMEPAGE_VAR_NAVIDROME_TOKEN{{ "}}" }}
+              salt: {{ "{{" }}HOMEPAGE_VAR_NAVIDROME_SALT{{ "}}" }}
+    - Requests:
+        - Seerr:
+            icon: overseerr.png
+            href: https://request.benplus.app
+            description: Request movies & TV
+            widget:
+              type: seerr
+              url: http://seerr.media.svc.cluster.local:5055
+              key: {{ "{{" }}HOMEPAGE_VAR_SEERR_KEY{{ "}}" }}
+        - Seerr RU:
+            icon: overseerr.png
+            href: https://request-ru.benplus.app
+            description: Request movies & TV (RU)
+            widget:
+              type: seerr
+              url: http://seerr-ru.media.svc.cluster.local:5055
+              key: {{ "{{" }}HOMEPAGE_VAR_SEERR_RU_KEY{{ "}}" }}
+    - Home & Life:
+        - Home Assistant:
+            icon: home-assistant.png
+            href: https://ha.internal.starktastic.net
+            description: Smart home control
+            widget:
+              type: homeassistant
+              url: http://home-assistant-main.home-automation.svc.cluster.local:8123
+              key: {{ "{{" }}HOMEPAGE_VAR_HASS_KEY{{ "}}" }}
+        - Mealie:
+            icon: mealie.png
+            href: https://mealie.starktastic.net
+            description: Recipe manager
+            widget:
+              type: mealie
+              url: http://mealie.operations.svc.cluster.local:9000
+              key: {{ "{{" }}HOMEPAGE_VAR_MEALIE_KEY{{ "}}" }}
+              version: 2
+        - Audiobookshelf:
+            icon: audiobookshelf.png
+            href: https://audiobooks.benplus.app
+            description: Audiobooks & Podcasts
+            widget:
+              type: audiobookshelf
+              url: http://audiobookshelf.media.svc.cluster.local:80
+              key: {{ "{{" }}HOMEPAGE_VAR_AUDIOBOOKSHELF_KEY{{ "}}" }}
+    - Calendar:
+        - Calendar:
+            widget:
+              type: calendar
+              view: monthly
+              maxEvents: 15
+              showTime: true
+              integrations:
+                - type: sonarr
+                  service_group: Movies & TV
+                  service_name: Sonarr
+                  color: "#3B82F6"
+                  params:
+                    unmonitored: true
+                - type: sonarr
+                  service_group: Movies & TV
+                  service_name: Sonarr RU
+                  color: "#60A5FA"
+                  params:
+                    unmonitored: true
+                - type: radarr
+                  service_group: Movies & TV
+                  service_name: Radarr
+                  color: "#DC2626"
+                  params:
+                    unmonitored: true
+                - type: radarr
+                  service_group: Movies & TV
+                  service_name: Radarr RU
+                  color: "#F87171"
+                  params:
+                    unmonitored: true
+                - type: lidarr
+                  service_group: Music & Books
+                  service_name: Lidarr
+                  color: "#22C55E"
+                  params:
+                    unmonitored: true
+    # ==================== MEDIA TAB ====================
+    - Movies & TV:
+        - Radarr:
+            icon: radarr.png
+            href: https://radarr.internal.starktastic.net
+            description: Movie management
+            widget:
+              type: radarr
+              url: http://radarr.media.svc.cluster.local:7878
+              key: {{ "{{" }}HOMEPAGE_VAR_RADARR_KEY{{ "}}" }}
+              enableQueue: true
+        - Radarr RU:
+            icon: radarr.png
+            href: https://radarr-ru.internal.starktastic.net
+            description: Movie management (RU)
+            widget:
+              type: radarr
+              url: http://radarr-ru.media.svc.cluster.local:7878
+              key: {{ "{{" }}HOMEPAGE_VAR_RADARR_RU_KEY{{ "}}" }}
+              enableQueue: true
+        - Sonarr:
+            icon: sonarr.png
+            href: https://sonarr.internal.starktastic.net
+            description: TV series management
+            widget:
+              type: sonarr
+              url: http://sonarr.media.svc.cluster.local:8989
+              key: {{ "{{" }}HOMEPAGE_VAR_SONARR_KEY{{ "}}" }}
+              enableQueue: true
+        - Sonarr RU:
+            icon: sonarr.png
+            href: https://sonarr-ru.internal.starktastic.net
+            description: TV series management (RU)
+            widget:
+              type: sonarr
+              url: http://sonarr-ru.media.svc.cluster.local:8989
+              key: {{ "{{" }}HOMEPAGE_VAR_SONARR_RU_KEY{{ "}}" }}
+              enableQueue: true
+    - Music & Books:
+        - Lidarr:
+            icon: lidarr.png
+            href: https://lidarr.internal.starktastic.net
+            description: Music management
+            widget:
+              type: lidarr
+              url: http://lidarr.media.svc.cluster.local:8686
+              key: {{ "{{" }}HOMEPAGE_VAR_LIDARR_KEY{{ "}}" }}
+        - Navidrome:
+            icon: navidrome.png
+            href: https://music.benplus.app
+            description: Music streaming
+            widget:
+              type: navidrome
+              url: http://navidrome.media.svc.cluster.local:4533
+              user: {{ "{{" }}HOMEPAGE_VAR_NAVIDROME_USER{{ "}}" }}
+              token: {{ "{{" }}HOMEPAGE_VAR_NAVIDROME_TOKEN{{ "}}" }}
+              salt: {{ "{{" }}HOMEPAGE_VAR_NAVIDROME_SALT{{ "}}" }}
+        - Audiobookshelf:
+            icon: audiobookshelf.png
+            href: https://audiobooks.benplus.app
+            description: Audiobooks & Podcasts
+            widget:
+              type: audiobookshelf
+              url: http://audiobookshelf.media.svc.cluster.local:80
+              key: {{ "{{" }}HOMEPAGE_VAR_AUDIOBOOKSHELF_KEY{{ "}}" }}
+        - Calibre-Web:
+            icon: calibre-web.png
+            href: https://books.benplus.app
+            description: E-book library
+            widget:
+              type: calibreweb
+              url: http://calibre-web.media.svc.cluster.local:8083
+              username: {{ "{{" }}HOMEPAGE_VAR_CALIBRE_USER{{ "}}" }}
+              password: {{ "{{" }}HOMEPAGE_VAR_CALIBRE_PASS{{ "}}" }}
+    - Subtitles & Indexers:
+        - Bazarr:
+            icon: bazarr.png
+            href: https://bazarr.internal.starktastic.net
+            description: Subtitle management
+            widget:
+              type: bazarr
+              url: http://bazarr.media.svc.cluster.local:6767
+              key: {{ "{{" }}HOMEPAGE_VAR_BAZARR_KEY{{ "}}" }}
+        - Prowlarr:
+            icon: prowlarr.png
+            href: https://prowlarr.internal.starktastic.net
+            description: Indexer management
+            widget:
+              type: prowlarr
+              url: http://prowlarr.media.svc.cluster.local:9696
+              key: {{ "{{" }}HOMEPAGE_VAR_PROWLARR_KEY{{ "}}" }}
+        - Autobrr:
+            icon: autobrr.png
+            href: https://autobrr.internal.starktastic.net
+            description: Torrent automation
+            widget:
+              type: autobrr
+              url: http://autobrr.media.svc.cluster.local:7474
+              key: {{ "{{" }}HOMEPAGE_VAR_AUTOBRR_KEY{{ "}}" }}
+    - Downloads:
+        - qBittorrent:
+            icon: qbittorrent.png
+            href: https://qbittorrent.internal.starktastic.net
+            description: Torrent client
+            widget:
+              type: qbittorrent
+              url: http://qbittorrent-main.media.svc.cluster.local:8080
+        - qBittorrent RU:
+            icon: qbittorrent.png
+            href: https://qbittorrent-ru.internal.starktastic.net
+            description: Torrent client (RU)
+            widget:
+              type: qbittorrent
+              url: http://qbittorrent-ru-main.media.svc.cluster.local:8080
+    # ==================== OPERATIONS TAB ====================
+    - Monitoring:
+        - Grafana:
+            icon: grafana.png
+            href: https://grafana.internal.starktastic.net
+            description: Dashboards & Alerting
+            widget:
+              type: grafana
+              alerts: alertmanager
+              url: http://kube-prometheus-stack-grafana.monitoring.svc.cluster.local:80
+              username: {{ "{{" }}HOMEPAGE_VAR_GRAFANA_USER{{ "}}" }}
+              password: {{ "{{" }}HOMEPAGE_VAR_GRAFANA_PASS{{ "}}" }}
+              version: 2
+        - Prometheus:
+            icon: prometheus.png
+            href: https://grafana.internal.starktastic.net/explore
+            description: Metrics collection
+            widget:
+              type: prometheus
+              url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+        - Traefik:
+            icon: traefik.png
+            href: https://traefik.internal.starktastic.net
+            description: Reverse proxy
+            widget:
+              type: traefik
+              url: http://traefik.traefik-system.svc.cluster.local:9000
+        - CrowdSec:
+            icon: crowdsec.png
+            href: https://app.crowdsec.net
+            description: Security engine
+    - Security:
+        - Authentik:
+            icon: authentik.png
+            href: https://auth.starktastic.net
+            description: Identity provider
+            widget:
+              type: authentik
+              url: http://authentik-server.authentik.svc.cluster.local:80
+              key: {{ "{{" }}HOMEPAGE_VAR_AUTHENTIK_KEY{{ "}}" }}
+              version: 2
+        - Vaultwarden:
+            icon: vaultwarden.png
+            href: https://vaultwarden.internal.starktastic.net
+            description: Password manager
+        - ArgoCD:
+            icon: argocd.png
+            href: https://argocd.internal.starktastic.net
+            description: GitOps deployment
+            widget:
+              type: argocd
+              url: http://argocd-server.argocd.svc.cluster.local:80
+              key: {{ "{{" }}HOMEPAGE_VAR_ARGOCD_KEY{{ "}}" }}
+    - Documents:
+        - Paperless-ngx:
+            icon: paperless-ngx.png
+            href: https://paperless.starktastic.net
+            description: Document management
+            widget:
+              type: paperlessngx
+              url: http://paperless-ngx.operations.svc.cluster.local:8000
+              key: {{ "{{" }}HOMEPAGE_VAR_PAPERLESS_KEY{{ "}}" }}
+        - Karakeep:
+            icon: karakeep.png
+            href: https://karakeep.starktastic.net
+            description: Bookmarks & Read-later
+            widget:
+              type: karakeep
+              url: http://karakeep.operations.svc.cluster.local:3000
+              key: {{ "{{" }}HOMEPAGE_VAR_KARAKEEP_KEY{{ "}}" }}
+        - Changedetection:
+            icon: changedetection-io.png
+            href: https://changedetection.internal.starktastic.net
+            description: Website change monitor
+            widget:
+              type: changedetectionio
+              url: http://changedetection.operations.svc.cluster.local:5000
+              key: {{ "{{" }}HOMEPAGE_VAR_CHANGEDETECTION_KEY{{ "}}" }}
+        - Filebrowser:
+            icon: filebrowser.png
+            href: https://files.internal.starktastic.net
+            description: Web file manager
+    - Utilities:
+        - ntfy:
+            icon: ntfy.png
+            href: https://ntfy.starktastic.net
+            description: Push notifications
+        - CyberChef:
+            icon: cyberchef.png
+            href: https://cyberchef.starktastic.net
+            description: Data transformation
+        - Stirling PDF:
+            icon: stirling-pdf.png
+            href: https://pdf.starktastic.net
+            description: PDF tools
+        - MeTube:
+            icon: metube.png
+            href: https://metube.benplus.app
+            description: Video downloader
+        - MicroBin:
+            icon: microbin.png
+            href: https://microbin.starktastic.net
+            description: Paste & share
+        - PairDrop:
+            icon: pairdrop.png
+            href: https://pairdrop.starktastic.net
+            description: Local file sharing
+        - Excalidash:
+            icon: excalidraw.png
+            href: https://excalidash.starktastic.net
+            description: Collaborative whiteboard
+        - ConvertX:
+            icon: convertx.png
+            href: https://convertx.starktastic.net
+            description: File converter
+        - ByteStash:
+            icon: bytestash.png
+            href: https://bytestash.internal.starktastic.net
+            description: Code snippets
+        - Shelfmark:
+            icon: mdi-bookshelf
+            href: https://request-books.benplus.app
+            description: Book requests
+    # ==================== INFRASTRUCTURE TAB ====================
+    - Proxmox:
+        - Proxmox VE:
+            icon: proxmox.png
+            href: https://10.9.9.20:8006
+            description: Hypervisor
+            widget:
+              type: proxmox
+              url: https://10.9.9.20:8006
+              username: {{ "{{" }}HOMEPAGE_VAR_PROXMOX_USER{{ "}}" }}
+              password: {{ "{{" }}HOMEPAGE_VAR_PROXMOX_PASS{{ "}}" }}
+              node: pve
+    - Cluster VMs:
+        - kube-master-01:
+            icon: proxmox.png
+            description: Control plane (4c / 16GB)
+            proxmoxNode: pve
+            proxmoxVMID: 200
+        - kube-worker-01:
+            icon: proxmox.png
+            description: Worker node (6c / 28GB / GPU)
+            proxmoxNode: pve
+            proxmoxVMID: 201
+        - kube-worker-02:
+            icon: proxmox.png
+            description: Worker node (6c / 28GB / GPU)
+            proxmoxNode: pve
+            proxmoxVMID: 202
+    - Networking:
+        - Traefik Dashboard:
+            icon: traefik.png
+            href: https://traefik.internal.starktastic.net
+            description: Reverse proxy dashboard
+        - MetalLB:
+            icon: metallb.png
+            description: "Load balancer (ext: 10.9.8.90 / int: 10.9.9.90)"
+        - CrowdSec LAPI:
+            icon: crowdsec.png
+            href: https://app.crowdsec.net
+            description: Security decisions API
+    - Databases:
+        - PostgreSQL:
+            icon: postgres.png
+            description: Database server
+        - pgAdmin:
+            icon: pgadmin.png
+            href: https://pgadmin.internal.starktastic.net
+            description: Database management
+  bookmarks.yaml: |
+    - Developer:
+        - GitHub:
+            - abbr: GH
+              href: https://github.com/Starktastic-Homelab
+        - ArgoCD:
+            - abbr: CD
+              href: https://argocd.internal.starktastic.net
+    - Documentation:
+        - Homepage:
+            - abbr: HP
+              href: https://gethomepage.dev
+        - Kubernetes:
+            - abbr: K8
+              href: https://kubernetes.io/docs
+    - External:
+        - Cloudflare:
+            - abbr: CF
+              href: https://dash.cloudflare.com
+        - Mailgun:
+            - abbr: MG
+              href: https://app.mailgun.com

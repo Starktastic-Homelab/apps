@@ -1,0 +1,95 @@
+controllers:
+  main:
+    serviceAccount:
+      name: homepage
+    containers:
+      main:
+        image:
+          repository: ghcr.io/gethomepage/homepage
+          tag: v1.11.0@sha256:cb53e4903e7bfbb0a1d66d652b68ceabf11df49eb3bdd8dfc19963e935e0e58e
+        env:
+          HOMEPAGE_ALLOWED_HOSTS: "starktastic.net"
+          LOG_TARGETS: "stdout"
+        envFrom:
+          - secretRef:
+              name: homepage-secrets
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            path: /api/healthcheck
+            port: 3000
+          readiness:
+            enabled: true
+            type: HTTP
+            path: /api/healthcheck
+            port: 3000
+          startup:
+            enabled: true
+            type: HTTP
+            path: /api/healthcheck
+            port: 3000
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+
+defaultPodOptions:
+  automountServiceAccountToken: true
+  securityContext:
+    fsGroup: 1000
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 3000
+
+persistence:
+  config:
+    enabled: false
+  homepage-config:
+    enabled: true
+    type: configMap
+    name: homepage-config
+    globalMounts:
+      - path: /app/config/settings.yaml
+        subPath: settings.yaml
+        readOnly: true
+      - path: /app/config/services.yaml
+        subPath: services.yaml
+        readOnly: true
+      - path: /app/config/bookmarks.yaml
+        subPath: bookmarks.yaml
+        readOnly: true
+      - path: /app/config/widgets.yaml
+        subPath: widgets.yaml
+        readOnly: true
+      - path: /app/config/kubernetes.yaml
+        subPath: kubernetes.yaml
+        readOnly: true
+      - path: /app/config/proxmox.yaml
+        subPath: proxmox.yaml
+        readOnly: true
+      - path: /app/config/custom.css
+        subPath: custom.css
+        readOnly: true
+      - path: /app/config/custom.js
+        subPath: custom.js
+        readOnly: true
+      - path: /app/config/docker.yaml
+        subPath: docker.yaml
+        readOnly: true
+  homepage-background:
+    enabled: true
+    type: configMap
+    name: homepage-background
+    globalMounts:
+      - path: /app/public/images/background.svg
+        subPath: background.svg
+        readOnly: true
+  logs:
+    enabled: true
+    type: emptyDir
+    globalMounts:
+      - path: /app/config/logs

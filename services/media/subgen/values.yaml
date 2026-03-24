@@ -45,6 +45,8 @@ service:
 persistence:
   config:
     enabled: false
+  media:
+    enabled: true
   models:
     type: emptyDir
     globalMounts:

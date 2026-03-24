@@ -8,13 +8,7 @@ controllers:
           repository: ghcr.io/gethomepage/homepage
           tag: v1.11.0@sha256:b129cb0f674bd6d204e215bde2c2fc3f11d6ad0e82f6d20007cf80f74e1acbb1
         env:
-          POD_IP:
-            valueFrom:
-              fieldRef:
-                fieldPath: status.podIP
-          HOMEPAGE_ALLOWED_HOSTS:
-            value: "starktastic.net,$(POD_IP)"
-            dependsOn: POD_IP
+          HOMEPAGE_ALLOWED_HOSTS: "starktastic.net"
           LOG_TARGETS: "stdout"
         envFrom:
           - secretRef:
@@ -22,20 +16,34 @@ controllers:
         probes:
           liveness:
             enabled: true
-            type: HTTP
-            path: /api/healthcheck
-            port: 3000
+            custom: true
+            spec:
+              httpGet:
+                path: /api/healthcheck
+                port: 3000
+                httpHeaders:
+                  - name: Host
+                    value: starktastic.net
           readiness:
             enabled: true
-            type: HTTP
-            path: /api/healthcheck
-            port: 3000
+            custom: true
+            spec:
+              httpGet:
+                path: /api/healthcheck
+                port: 3000
+                httpHeaders:
+                  - name: Host
+                    value: starktastic.net
           startup:
             enabled: true
-            type: HTTP
-            path: /api/healthcheck
-            port: 3000
+            custom: true
             spec:
+              httpGet:
+                path: /api/healthcheck
+                port: 3000
+                httpHeaders:
+                  - name: Host
+                    value: starktastic.net
               failureThreshold: 30
               periodSeconds: 5
 

@@ -30,7 +30,7 @@ spec:
           namespace: traefik-system
         {{- end }}
         {{- if .Values.ingress.auth }}
-        - name: authentik-middleware
+        - name: {{ ternary "authentik-admin-middleware" "authentik-middleware" (.Values.ingress.authAdmin | default false) }}
           namespace: authentik
         {{- end }}
       {{- end }}

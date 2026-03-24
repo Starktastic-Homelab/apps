@@ -9,4 +9,5 @@ ingress:
   domainType: "public"
   port: 3000
   auth: true
+  authAdmin: true
   rateLimit: true

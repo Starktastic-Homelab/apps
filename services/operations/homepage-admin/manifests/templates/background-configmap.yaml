@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: homepage-background
+  name: homepage-admin-background
   namespace: operations
 data:
   background.svg: |

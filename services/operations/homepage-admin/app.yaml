@@ -1,4 +1,4 @@
-name: homepage
+name: homepage-admin
 namespace: operations
 deployPhase: services
 helmManifests: true

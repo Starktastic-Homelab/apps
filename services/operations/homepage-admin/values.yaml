@@ -1,7 +1,7 @@
 controllers:
   main:
     serviceAccount:
-      name: homepage
+      name: homepage-admin
     containers:
       main:
         image:
@@ -12,7 +12,7 @@ controllers:
           LOG_TARGETS: "stdout"
         envFrom:
           - secretRef:
-              name: homepage-secrets
+              name: homepage-admin-secrets
         probes:
           liveness:
             enabled: true
@@ -62,10 +62,10 @@ service:
 persistence:
   config:
     enabled: false
-  homepage-config:
+  homepage-admin-config:
     enabled: true
     type: configMap
-    name: homepage-config
+    name: homepage-admin-config
     globalMounts:
       - path: /app/config/settings.yaml
         subPath: settings.yaml
@@ -94,10 +94,10 @@ persistence:
       - path: /app/config/docker.yaml
         subPath: docker.yaml
         readOnly: true
-  homepage-background:
+  homepage-admin-background:
     enabled: true
     type: configMap
-    name: homepage-background
+    name: homepage-admin-background
     globalMounts:
       - path: /app/public/images/background.svg
         subPath: background.svg

@@ -1,0 +1,5 @@
+apiVersion: v2
+name: homepage-admin-manifests
+description: Homepage admin sidecar resources (RBAC, ConfigMaps, SealedSecret)
+type: application
+version: 0.0.0

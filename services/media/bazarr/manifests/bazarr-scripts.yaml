@@ -9,9 +9,13 @@ data:
     #!/usr/bin/env python3
     """Bazarr post-processing script.
 
+    Called by Bazarr with template-substituted arguments:
+      python3 /scripts/postprocess.py <directory> <subtitles> <lang_code2> <series_id> <episode_id>
+
     1. Refreshes only the affected directory in Jellyfin (not the whole library).
     2. If the downloaded subtitle is English, queries Lingarr for configured
        target languages and triggers translation to each one via Bazarr.
+    3. Refreshes Jellyfin again after translations complete.
     """
 
     import json
@@ -87,11 +91,16 @@ data:
 
 
     def main():
-        directory = os.environ.get("directory", "")
-        subtitle_path = os.environ.get("subtitles", "")
-        lang_code2 = os.environ.get("subtitles_language_code2", "")
-        series_id = os.environ.get("series_id", "")
-        episode_id = os.environ.get("episode_id", "")
+        if len(sys.argv) < 6:
+            print("Usage: postprocess.py <directory> <subtitles> <lang_code2> <series_id> <episode_id>",
+                  file=sys.stderr)
+            sys.exit(1)
+
+        directory = sys.argv[1]
+        subtitle_path = sys.argv[2]
+        lang_code2 = sys.argv[3]
+        series_id = sys.argv[4]
+        episode_id = sys.argv[5]
 
         # Step 1: Targeted Jellyfin refresh
         if directory and JELLYFIN_TOKEN:
@@ -101,6 +110,7 @@ data:
         # Strip :hi / :forced suffixes from language code
         base_lang = lang_code2.split(":")[0] if lang_code2 else ""
 
+        translated = False
         if base_lang == "en" and subtitle_path and BAZARR_APIKEY:
             media_type = "episode" if series_id else "movie"
             media_id = episode_id
@@ -108,6 +118,11 @@ data:
 
             for target in targets:
                 translate_subtitle(subtitle_path, target, media_type, media_id)
+                translated = True
+
+        # Step 3: Refresh Jellyfin again so it picks up translated subtitles
+        if translated and directory and JELLYFIN_TOKEN:
+            jellyfin_refresh(directory)
 
 
     if __name__ == "__main__":

@@ -10,7 +10,8 @@ data:
     """Bazarr post-processing script.
 
     1. Refreshes only the affected directory in Jellyfin (not the whole library).
-    2. If the downloaded subtitle is English, triggers Lingarr translation to he/ru.
+    2. If the downloaded subtitle is English, queries Lingarr for configured
+       target languages and triggers translation to each one via Bazarr.
     """
 
     import json
@@ -23,7 +24,21 @@ data:
     JELLYFIN_TOKEN = os.environ.get("JELLYFIN_API_KEY", "")
     BAZARR_URL = "http://localhost:6767"
     BAZARR_APIKEY = os.environ.get("BAZARR_APIKEY", "")
-    TRANSLATE_TARGETS = ["ru", "he"]
+    LINGARR_URL = "http://lingarr.media.svc.cluster.local:8080"
+
+
+    def get_translate_targets():
+        """Fetch configured target languages from Lingarr."""
+        req = urllib.request.Request(f"{LINGARR_URL}/api/setting/target_languages")
+        try:
+            resp = urllib.request.urlopen(req, timeout=10)
+            languages = json.loads(resp.read().decode())
+            codes = [lang["code"] for lang in languages]
+            print(f"Lingarr targets: {codes}")
+            return codes
+        except Exception as e:
+            print(f"Failed to fetch Lingarr targets: {e}", file=sys.stderr)
+            return []
 
 
     def jellyfin_refresh(directory):
@@ -89,8 +104,9 @@ data:
         if base_lang == "en" and subtitle_path and BAZARR_APIKEY:
             media_type = "episode" if series_id else "movie"
             media_id = episode_id
+            targets = get_translate_targets()
 
-            for target in TRANSLATE_TARGETS:
+            for target in targets:
                 translate_subtitle(subtitle_path, target, media_type, media_id)
 
 

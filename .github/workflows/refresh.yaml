@@ -142,7 +142,7 @@ jobs:
 
       - name: Setup Kubectl
         if: steps.guard.outputs.scope != 'skip'
-        uses: azure/setup-kubectl@v4.0.1
+        uses: azure/setup-kubectl@v5.0.0
         with:
           version: 'latest'
 

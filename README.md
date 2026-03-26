@@ -391,25 +391,6 @@ The Intel Device Plugin Operator shares each GPU virtual function across up to 2
 
 The refresh workflow is scope-aware: changes to `templates/globals.yaml` refresh all apps, changes to `templates/common.yaml` refresh all services, and changes to a specific service directory refresh only that service's ArgoCD Application.
 
-## Pipeline Position
-
-```mermaid
-flowchart LR
-    Packer["📦 Packer\nVM Template"]
-    Terraform["🏗️ Terraform\nInfrastructure"]
-    Ansible["⚙️ Ansible\nK3s Cluster"]
-    Apps["🚀 Apps\nGitOps"]
-
-    Packer -- "manifest.json\nauto-creates PR" --> Terraform
-    Terraform -- "repository_dispatch\non apply" --> Ansible
-    Ansible -- "bootstraps\nArgoCD" --> Apps
-
-    style Packer fill:#4299e1,stroke:#2b6cb0,color:#fff
-    style Terraform fill:#805ad5,stroke:#b794f4,color:#fff
-    style Ansible fill:#48bb78,stroke:#276749,color:#fff
-    style Apps fill:#ed8936,stroke:#dd6b20,color:#fff
-```
-
 ## Troubleshooting
 
 | Issue | Solution |

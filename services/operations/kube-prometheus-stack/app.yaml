@@ -4,7 +4,7 @@ deployPhase: services
 chart:
   repo: https://prometheus-community.github.io/helm-charts
   name: kube-prometheus-stack
-  version: 82.14.1
+  version: 82.15.0
 
 ingress:
   enabled: true

@@ -1,0 +1,57 @@
+controllers:
+  main:
+    initContainers:
+      install:
+        image:
+          repository: listmonk/listmonk
+          tag: v4.1.0@sha256:7a05c607d0098cd8edf7de6f6346f6fff3864303081c9d803275283658f7cdbb
+        command: ["./listmonk", "--install", "--idempotent", "--yes"]
+        envFrom:
+          - secretRef:
+              name: listmonk-secret
+    containers:
+      main:
+        image:
+          repository: listmonk/listmonk
+          tag: v4.1.0@sha256:7a05c607d0098cd8edf7de6f6346f6fff3864303081c9d803275283658f7cdbb
+        envFrom:
+          - secretRef:
+              name: listmonk-secret
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            port: 9000
+            path: /health
+          readiness:
+            enabled: true
+            type: HTTP
+            port: 9000
+            path: /health
+          startup:
+            enabled: true
+            type: TCP
+            port: 9000
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 9000
+
+persistence:
+  uploads:
+    existingClaim: listmonk-uploads
+    globalMounts:
+      - path: /listmonk/uploads

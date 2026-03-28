@@ -1,0 +1,73 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: listmonk-sync
+  namespace: operations
+spec:
+  schedule: "0 3 * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 300
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: sync
+              image: curlimages/curl:8.12.1
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  set -e
+
+                  AUTHENTIK_URL="https://auth.starktastic.net"
+                  LISTMONK_URL="http://listmonk.operations.svc.cluster.local:9000"
+                  LIST_ID=1
+
+                  echo "Fetching users from Authentik..."
+                  PAGE=1
+                  while true; do
+                    RESPONSE=$(curl -sf \
+                      -H "Authorization: Bearer ${AUTHENTIK_API_TOKEN}" \
+                      "${AUTHENTIK_URL}/api/v3/core/users/?is_active=true&page=${PAGE}&page_size=100")
+
+                    echo "$RESPONSE" | sed 's/}/}\n/g' | grep -o '"email":"[^"]*"' | sed 's/"email":"//;s/"//' | while read -r EMAIL; do
+                      [ -z "$EMAIL" ] && continue
+
+                      NAME=$(echo "$RESPONSE" | grep -o "\"email\":\"${EMAIL}\"[^}]*\"name\":\"[^\"]*\"" | grep -o '"name":"[^"]*"' | head -1 | sed 's/"name":"//;s/"//' || echo "")
+                      [ -z "$NAME" ] && NAME="$EMAIL"
+
+                      echo "Syncing: ${NAME} <${EMAIL}>"
+
+                      STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+                        -u "${LISTMONK_API_USER}:${LISTMONK_API_PASSWORD}" \
+                        -H "Content-Type: application/json" \
+                        -d "{\"email\":\"${EMAIL}\",\"name\":\"${NAME}\",\"status\":\"enabled\",\"lists\":[${LIST_ID}],\"preconfirm_subscriptions\":true}" \
+                        "${LISTMONK_URL}/api/subscribers")
+
+                      case "$STATUS" in
+                        200) echo "  -> Created" ;;
+                        409) echo "  -> Already exists (skipped)" ;;
+                        *)   echo "  -> Unexpected status: ${STATUS}" ;;
+                      esac
+                    done
+
+                    NEXT=$(echo "$RESPONSE" | grep -o '"next":"[^"]*"' | sed 's/"next":"//;s/"//')
+                    [ -z "$NEXT" ] || [ "$NEXT" = "null" ] && break
+                    PAGE=$((PAGE + 1))
+                  done
+
+                  echo "Sync complete."
+              envFrom:
+                - secretRef:
+                    name: listmonk-sync-secret
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
+                limits:
+                  cpu: 100m
+                  memory: 64Mi

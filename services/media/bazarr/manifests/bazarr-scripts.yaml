@@ -14,10 +14,12 @@ data:
 
     1. Refreshes only the affected directory in Jellyfin (not the whole library).
     2. If the downloaded subtitle is English, queries Lingarr for configured
-       target languages and triggers translation to each one via Bazarr.
+       target languages and triggers translation to each one via Bazarr,
+       skipping languages that already have a subtitle file on disk.
     3. Refreshes Jellyfin again after translations complete.
     """
 
+    import glob
     import json
     import os
     import sys
@@ -43,6 +45,20 @@ data:
         except Exception as e:
             print(f"Failed to fetch Lingarr targets: {e}", file=sys.stderr)
             return []
+
+
+    def subtitle_exists(subtitle_path, target_lang):
+        """Check if a subtitle for the target language already exists on disk."""
+        # e.g. /media/tv/Show/S01/Show - S01E01.en.srt -> /media/tv/Show/S01/Show - S01E01
+        base = subtitle_path.rsplit(".", 1)[0]  # strip extension (.srt/.ass)
+        parts = base.split(".")
+        while parts and parts[-1] in ("hi", "forced", "sdh", "cc"):
+            parts.pop()
+        if parts:
+            parts.pop()  # remove source language code (en/eng)
+        video_base = ".".join(parts)
+        matches = glob.glob(f"{glob.escape(video_base)}.{target_lang}.*")
+        return len(matches) > 0
 
 
     def jellyfin_refresh(directory):
@@ -117,6 +133,9 @@ data:
             targets = get_translate_targets()
 
             for target in targets:
+                if subtitle_exists(subtitle_path, target):
+                    print(f"Skip: {target} subtitle already exists")
+                    continue
                 translate_subtitle(subtitle_path, target, media_type, media_id)
                 translated = True
 

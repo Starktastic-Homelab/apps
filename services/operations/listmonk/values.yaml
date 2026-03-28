@@ -4,7 +4,7 @@ controllers:
       install:
         image:
           repository: listmonk/listmonk
-          tag: v4.1.0@sha256:7a05c607d0098cd8edf7de6f6346f6fff3864303081c9d803275283658f7cdbb
+          tag: v4.1.0@sha256:e14920d4e340ddaf5fc12ac6fe7e1a66277544427a58ad874171a17c3cfd83bd
         command: ["./listmonk", "--install", "--idempotent", "--yes"]
         envFrom:
           - secretRef:
@@ -13,7 +13,7 @@ controllers:
       main:
         image:
           repository: listmonk/listmonk
-          tag: v4.1.0@sha256:7a05c607d0098cd8edf7de6f6346f6fff3864303081c9d803275283658f7cdbb
+          tag: v4.1.0@sha256:e14920d4e340ddaf5fc12ac6fe7e1a66277544427a58ad874171a17c3cfd83bd
         envFrom:
           - secretRef:
               name: listmonk-secret

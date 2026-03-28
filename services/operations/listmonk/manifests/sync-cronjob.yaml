@@ -25,7 +25,7 @@ spec:
 
                   AUTHENTIK_URL="https://auth.starktastic.net"
                   LISTMONK_URL="http://listmonk.operations.svc.cluster.local:9000"
-                  LIST_ID=1
+                  LIST_ID=3
 
                   echo "Fetching users from Authentik..."
                   PAGE=1

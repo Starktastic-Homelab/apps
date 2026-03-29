@@ -91,7 +91,7 @@ data:
           - noHL
         max_ratio: 10.0
         max_seeding_time: 43200
-        min_seeding_time: 10080
+        min_seeding_time: 20160
         cleanup: true
       default:
         priority: 999

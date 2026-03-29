@@ -89,7 +89,7 @@ data:
         priority: 1
         include_all_tags:
           - noHL
-        max_ratio: 5.0
+        max_ratio: 10.0
         max_seeding_time: 43200
         min_seeding_time: 10080
         cleanup: true

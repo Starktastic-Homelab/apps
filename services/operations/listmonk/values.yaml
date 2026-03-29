@@ -4,7 +4,7 @@ controllers:
       main:
         image:
           repository: listmonk/listmonk
-          tag: v6.0.0@sha256:bf3903d54a468ba0544629b474a9c78714b1419ba9f89e186590264fa40d4ea1
+          tag: v6.1.0@sha256:179d00d9553c371b6fe88c9b145095d651e275bdd66db46b2e0b79daff316b6f
         command:
           [
             sh,

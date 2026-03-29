@@ -26,6 +26,7 @@ spec:
                   AUTHENTIK_URL="https://auth.starktastic.net"
                   LISTMONK_URL="http://listmonk.operations.svc.cluster.local:9000"
                   LIST_ID=3
+                  EXCLUDE_EMAILS="root@example.com,benfaingold@gmail.com"
 
                   echo "Fetching users from Authentik..."
                   PAGE=1
@@ -36,6 +37,11 @@ spec:
 
                     echo "$RESPONSE" | sed 's/}/}\n/g' | grep -o '"email":"[^"]*"' | sed 's/"email":"//;s/"//' | while read -r EMAIL; do
                       [ -z "$EMAIL" ] && continue
+
+                      echo "${EXCLUDE_EMAILS}" | tr ',' '\n' | grep -qxF "$EMAIL" && {
+                        echo "Skipping excluded: ${EMAIL}"
+                        continue
+                      }
 
                       NAME=$(echo "$RESPONSE" | grep -o "\"email\":\"${EMAIL}\"[^}]*\"name\":\"[^\"]*\"" | grep -o '"name":"[^"]*"' | head -1 | sed 's/"name":"//;s/"//' || echo "")
                       [ -z "$NAME" ] && NAME="$EMAIL"

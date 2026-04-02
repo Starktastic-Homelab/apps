@@ -1,23 +1,4 @@
-apiVersion: batch/v1
-kind: CronJob
-metadata:
-  name: listmonk-sync
-  namespace: operations
-spec:
-  schedule: "0 3 * * *"
-  successfulJobsHistoryLimit: 3
-  failedJobsHistoryLimit: 3
-  concurrencyPolicy: Forbid
-  jobTemplate:
-    spec:
-      backoffLimit: 3
-      activeDeadlineSeconds: 300
-      template:
-        spec:
-          restartPolicy: OnFailure
-          containers:
-            - name: sync
-              image: ghcr.io/jqlang/jq:latest
+              image: badouralix/curl-jq:latest
               command: ["/bin/sh", "-c"]
               args:
                 - |
@@ -31,8 +12,8 @@ spec:
                   echo "Fetching users from Authentik..."
                   PAGE=1
                   while true; do
-                    RESPONSE=$(wget -qO- \
-                      --header="Authorization: Bearer ${AUTHENTIK_API_TOKEN}" \
+                    RESPONSE=$(curl -sf \
+                      -H "Authorization: Bearer ${AUTHENTIK_API_TOKEN}" \
                       "${AUTHENTIK_URL}/api/v3/core/users/?is_active=true&page=${PAGE}&page_size=100")
 
                     echo "$RESPONSE" | jq -r '.results[] | "\(.email)\t\(.name)"' | while IFS="$(printf '\t')" read -r EMAIL NAME; do
@@ -47,13 +28,11 @@ spec:
 
                       echo "Syncing: ${NAME} <${EMAIL}>"
 
-                      BODY=$(printf '{"email":"%s","name":"%s","status":"enabled","lists":[%d],"preconfirm_subscriptions":true}' "$EMAIL" "$NAME" "$LIST_ID")
-
-                      STATUS=$(wget -qO/dev/null -S \
-                        --header="Authorization: Basic $(printf '%s:%s' "${LISTMONK_API_USER}" "${LISTMONK_API_PASSWORD}" | base64)" \
-                        --header="Content-Type: application/json" \
-                        --post-data="$BODY" \
-                        "${LISTMONK_URL}/api/subscribers" 2>&1 | grep "HTTP/" | tail -1 | awk '{print $2}')
+                      STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+                        -u "${LISTMONK_API_USER}:${LISTMONK_API_PASSWORD}" \
+                        -H "Content-Type: application/json" \
+                        -d "{\"email\":\"${EMAIL}\",\"name\":\"${NAME}\",\"status\":\"enabled\",\"lists\":[${LIST_ID}],\"preconfirm_subscriptions\":true}" \
+                        "${LISTMONK_URL}/api/subscribers")
 
                       case "$STATUS" in
                         200) echo "  -> Created" ;;
@@ -68,13 +47,3 @@ spec:
                   done
 
                   echo "Sync complete."
-              envFrom:
-                - secretRef:
-                    name: listmonk-sync-secret
-              resources:
-                requests:
-                  cpu: 10m
-                  memory: 32Mi
-                limits:
-                  cpu: 100m
-                  memory: 64Mi

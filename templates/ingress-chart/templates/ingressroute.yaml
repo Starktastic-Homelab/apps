@@ -2,7 +2,6 @@
 {{- $domainType := .Values.ingress.domainType | default "internal" }}
 {{- $domain := index .Values.global.domains $domainType }}
 {{- $isInternal := eq $domainType "internal" }}
-{{- $tlsSecret := ternary (printf "traefik-system/%s" .Values.global.mediaTlsSecret) (printf "traefik-system/%s" .Values.global.defaultTlsSecret) (eq $domainType "media") }}
 {{- $host := .Values.ingress.host }}
 {{- $fqdn := ternary $domain (printf "%s.%s" $host $domain) (eq $host "") }}
 apiVersion: traefik.io/v1alpha1
@@ -34,6 +33,5 @@ spec:
           namespace: authentik
         {{- end }}
       {{- end }}
-  tls:
-    secretName: {{ $tlsSecret }}
+  tls: {}
 {{- end }}

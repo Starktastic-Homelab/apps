@@ -5,6 +5,7 @@ resources:
   - cache-pvc.yaml
   - jellyfin-ldap-sync-secret.yaml
   - ldap-library-sync.yaml
+  - pip-cache-pvc.yaml
   - pvc.yaml
 
 configMapGenerator:

@@ -11,7 +11,7 @@ spec:
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
-      backoffLimit: 1
+      backoffLimit: 3
       activeDeadlineSeconds: 120
       template:
         spec:
@@ -20,12 +20,12 @@ spec:
             - name: install-deps
               image: python:alpine
               command:
-                - pip
-                - install
-                - --quiet
-                - --root-user-action=ignore
-                - --target=/pip-cache
-                - ldap3
+                - sh
+                - -c
+                - |
+                  PYTHONPATH=/pip-cache python -c 'import ldap3' 2>/dev/null \
+                    && echo "ldap3 already cached, skipping install" \
+                    || pip install --quiet --root-user-action=ignore --target=/pip-cache ldap3
               volumeMounts:
                 - name: pip-cache
                   mountPath: /pip-cache
@@ -73,4 +73,5 @@ spec:
               configMap:
                 name: jellyfin-ldap-sync
             - name: pip-cache
-              emptyDir: {}
+              persistentVolumeClaim:
+                claimName: jellyfin-ldap-pip-cache

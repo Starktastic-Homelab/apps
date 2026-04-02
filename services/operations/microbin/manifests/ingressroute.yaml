@@ -46,4 +46,7 @@ spec:
           namespace: traefik-system
         - name: rate-limit-strong
           namespace: traefik-system
-  tls: {}
+  tls:
+    store:
+      name: default
+      namespace: traefik-system

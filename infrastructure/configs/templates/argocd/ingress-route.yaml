@@ -19,4 +19,7 @@ spec:
           port: 443
           scheme: https
           serversTransport: argocd-transport
-  tls: {}
+  tls:
+    store:
+      name: default
+      namespace: traefik-system

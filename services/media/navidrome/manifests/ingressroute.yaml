@@ -42,4 +42,7 @@ spec:
           namespace: traefik-system
         - name: authentik-middleware
           namespace: authentik
-  tls: {}
+  tls:
+    store:
+      name: default
+      namespace: traefik-system

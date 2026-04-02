@@ -42,5 +42,4 @@ spec:
           namespace: traefik-system
         - name: authentik-middleware
           namespace: authentik
-  tls:
-    secretName: traefik-system/benplus-app-tls
+  tls: {}

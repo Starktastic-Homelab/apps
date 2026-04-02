@@ -19,5 +19,4 @@ spec:
           port: 443
           scheme: https
           serversTransport: argocd-transport
-  tls:
-    secretName: traefik-system/{{ .Values.global.defaultTlsSecret }}
+  tls: {}

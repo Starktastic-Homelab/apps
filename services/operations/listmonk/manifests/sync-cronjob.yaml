@@ -10,7 +10,7 @@ spec:
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
-      backoffLimit: 2
+      backoffLimit: 3
       activeDeadlineSeconds: 300
       template:
         spec:
@@ -23,7 +23,7 @@ spec:
                 - |
                   set -e
 
-                  AUTHENTIK_URL="https://auth.starktastic.net"
+                  AUTHENTIK_URL="http://authentik-server.authentik.svc.cluster.local"
                   LISTMONK_URL="http://listmonk.operations.svc.cluster.local:9000"
                   LIST_ID=3
                   EXCLUDE_EMAILS="root@example.com,benfaingold@gmail.com"

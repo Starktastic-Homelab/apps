@@ -108,16 +108,20 @@ data:
                             for sub in ep.get("subtitles", [])
                         } - {""}
             else:
-                qs = urllib.parse.urlencode({"apikey": BAZARR_APIKEY})
-                url = f"{BAZARR_URL}/api/movies/{episode_id}?{qs}"
+                qs = urllib.parse.urlencode(
+                    {"radarrid[]": episode_id, "apikey": BAZARR_APIKEY}
+                )
+                url = f"{BAZARR_URL}/api/movies?{qs}"
                 resp = urllib.request.urlopen(
                     urllib.request.Request(url), timeout=10
                 )
-                movie = json.loads(resp.read().decode())
-                return {
-                    sub.get("code2", sub.get("code", ""))
-                    for sub in movie.get("subtitles", [])
-                } - {""}
+                data = json.loads(resp.read().decode())
+                movies = data.get("data", data) if isinstance(data, dict) else data
+                if movies:
+                    return {
+                        sub.get("code2", sub.get("code", ""))
+                        for sub in movies[0].get("subtitles", [])
+                    } - {""}
         except Exception as e:
             print(f"Bazarr subtitle lookup failed (falling back to disk check): {e}",
                   file=sys.stderr)

@@ -1,5 +1,8 @@
 controllers:
   main:
+    pod:
+      nodeSelector:
+        node-role.kubernetes.io/worker: "true"
     containers:
       main:
         image:
@@ -9,7 +12,7 @@ controllers:
           WHISPER_MODEL: "small"
           TRANSCRIBE_DEVICE: "cpu"
           TRANSCRIBE_OR_TRANSLATE: "translate"
-          WHISPER_THREADS: "4"
+          WHISPER_THREADS: "6"
           CONCURRENT_TRANSCRIPTIONS: "1"
           CLEAR_VRAM_ON_COMPLETE: "True"
           MODEL_CLEANUP_DELAY: "30"

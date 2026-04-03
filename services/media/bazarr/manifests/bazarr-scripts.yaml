@@ -15,7 +15,8 @@ data:
     1. Refreshes only the affected directory in Jellyfin (not the whole library).
     2. If the downloaded subtitle is English, queries Lingarr for configured
        target languages and triggers translation to each one via Bazarr,
-       skipping languages that already have a subtitle file on disk.
+       skipping languages that Bazarr already knows about (via API) or that
+       already have a subtitle file on disk.
     3. Refreshes Jellyfin again after translations complete.
     """
 
@@ -82,6 +83,51 @@ data:
             print(f"Jellyfin refresh failed: {e}", file=sys.stderr)
 
 
+    def get_known_subtitle_languages(media_type, series_id, episode_id):
+        """Query Bazarr API for languages it already knows about.
+
+        Returns a set of 2-letter language codes for subtitles Bazarr has
+        registered (including embedded streams not yet extracted to disk).
+        Returns an empty set on failure so the caller falls back to disk checks.
+        """
+        try:
+            if media_type == "episode":
+                qs = urllib.parse.urlencode(
+                    {"seriesid[]": series_id, "apikey": BAZARR_APIKEY}
+                )
+                url = f"{BAZARR_URL}/api/episodes?{qs}"
+                resp = urllib.request.urlopen(
+                    urllib.request.Request(url), timeout=10
+                )
+                data = json.loads(resp.read().decode())
+                episodes = data.get("data", data) if isinstance(data, dict) else data
+                for ep in episodes:
+                    if str(ep.get("sonarrEpisodeId")) == str(episode_id):
+                        return {
+                            sub.get("code2", sub.get("code", ""))
+                            for sub in ep.get("subtitles", [])
+                        } - {""}
+            else:
+                qs = urllib.parse.urlencode(
+                    {"radarrid[]": episode_id, "apikey": BAZARR_APIKEY}
+                )
+                url = f"{BAZARR_URL}/api/movies?{qs}"
+                resp = urllib.request.urlopen(
+                    urllib.request.Request(url), timeout=10
+                )
+                data = json.loads(resp.read().decode())
+                movies = data.get("data", data) if isinstance(data, dict) else data
+                if movies:
+                    return {
+                        sub.get("code2", sub.get("code", ""))
+                        for sub in movies[0].get("subtitles", [])
+                    } - {""}
+        except Exception as e:
+            print(f"Bazarr subtitle lookup failed (falling back to disk check): {e}",
+                  file=sys.stderr)
+        return set()
+
+
     def translate_subtitle(subtitle_path, target_lang, media_type, media_id):
         """Ask Bazarr to translate a subtitle file to the target language."""
         params = urllib.parse.urlencode(
@@ -131,10 +177,16 @@ data:
             media_type = "episode" if series_id else "movie"
             media_id = episode_id
             targets = get_translate_targets()
+            known = get_known_subtitle_languages(media_type, series_id, episode_id)
+            if known:
+                print(f"Bazarr knows about subtitles: {sorted(known)}")
 
             for target in targets:
+                if target in known:
+                    print(f"Skip: {target} subtitle known to Bazarr")
+                    continue
                 if subtitle_exists(subtitle_path, target):
-                    print(f"Skip: {target} subtitle already exists")
+                    print(f"Skip: {target} subtitle already on disk")
                     continue
                 translate_subtitle(subtitle_path, target, media_type, media_id)
                 translated = True

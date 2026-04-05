@@ -87,6 +87,34 @@ flowchart TB
 
 The **Matrix generator** combines a list of categories (infrastructure, services) with a Git file scanner. Every directory containing an `app.yaml` is automatically discovered and deployed — no manual Application manifests needed.
 
+Under the hood, the `templatePatch` resolves each discovered `app.yaml` into a multi-source ArgoCD Application — handling variant inheritance, value layering, and optional ingress injection:
+
+```mermaid
+flowchart TB
+    subgraph matrix["Matrix Generator"]
+        LIST["List Generator\n─────\ninfrastructure → infra-common.yaml\nservices → common.yaml"] ---|"×"| GIT["Git Generator\n─────\nScan **/app.yaml\nExtract fields"]
+    end
+
+    matrix ==> PATCH{{"templatePatch\n(Go template)"}}
+
+    PATCH -->|"baseApp defined?"| VARIANT["Variant Path\nInherit base values.yaml\n+ optional delta override"]
+    PATCH -->|"standard app"| STANDARD["Standard Path\nOwn values.yaml"]
+
+    VARIANT & STANDARD ==> SOURCES
+
+    subgraph SOURCES["Multi-Source Application"]
+        S1(["Source 1\nHelm Chart Repo"])
+        S2(["Source 2\nglobals + common + values"])
+        S3(["Source 3\nIngress Chart\n(if ingress.enabled)"])
+        S4(["Source 4\nRaw manifests/\n(if directory exists)"])
+    end
+
+    classDef gen fill:#EF7B4D,stroke:#D66A3D,color:#fff
+    classDef gate fill:#3C3C3C,stroke:#2D2D2D,color:#fff
+    class LIST,GIT gen
+    class PATCH gate
+```
+
 ### Phased RollingSync
 
 Deployments are ordered through 4 phases to guarantee dependency resolution:
@@ -294,7 +322,42 @@ A custom Helm chart generates Traefik IngressRoutes from declarative `app.yaml` 
 Traefik's CrowdSec bouncer plugin is downloaded via init container to emptyDir, not fetched at runtime. This ensures cluster restarts work even if GitHub is down.
 
 ### 5. Sealed Secrets Workflow
-Secrets are encrypted with a pre-seeded certificate (matching the Ansible bootstrap), committed to Git as `SealedSecret` CRDs, and decrypted in-cluster. The `seal.sh` helper script wraps the entire workflow.
+Secrets are encrypted with a pre-seeded certificate (matching the Ansible bootstrap), committed to Git as `SealedSecret` CRDs, and decrypted in-cluster. The full lifecycle spans three repos:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Vault as Ansible Vault
+    participant K8s as Kubernetes
+    participant Argo as ArgoCD
+    participant SS as Sealed Secrets<br/>Controller
+    participant Dev as Developer
+    participant Git as Apps Repo
+
+    rect rgb(238, 0, 0)
+    Note over Vault,K8s: Cluster Bootstrap (Ansible)
+    Vault->>K8s: Pre-seed TLS keypair as Secret
+    Note right of K8s: labeled sealed-secrets-key: active
+    end
+
+    rect rgb(123, 66, 188)
+    Note over Argo,SS: Phase 2 — Foundation
+    Argo->>K8s: Deploy sealed-secrets controller
+    SS->>K8s: Find and adopt pre-seeded key
+    end
+
+    rect rgb(50, 108, 229)
+    Note over Dev,Git: Day-to-Day Usage
+    Dev->>Dev: seal.sh encrypts with<br/>matching public cert
+    Dev->>Git: Commit SealedSecret YAML
+    Git-->>Argo: Sync detected
+    Argo->>K8s: Apply SealedSecret CRD
+    SS->>K8s: Decrypt → plain Secret
+    K8s-->>K8s: Pod mounts Secret<br/>as env or volume
+    end
+```
+
+The key insight: because Ansible pre-seeds the exact keypair that `seal.sh` encrypts against, secrets can be sealed and committed to Git *before the cluster even exists* — and they'll decrypt correctly on first boot.
 
 ### 6. Multi-Source Helm Rendering
 Each ArgoCD Application pulls from up to 4 sources: the Helm chart repo, the Git values layers, the ingress chart, and raw manifests — composing complex deployments declaratively.

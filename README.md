@@ -55,11 +55,11 @@ Two ApplicationSets at the bootstrap level drive all deployments:
 
 ```mermaid
 flowchart TB
-    BOOT["cluster-bootstrap\n(Ansible-deployed Application)"]
-    BOOT --> CS["cluster-apps\nApplicationSet"]
-    BOOT --> CFG["config-apps\nApplicationSet"]
+    BOOT{{"cluster-bootstrap\n(Ansible-deployed)"}}
+    BOOT ==> CS(["cluster-apps\nApplicationSet"])
+    BOOT ==> CFG(["config-apps\nApplicationSet"])
 
-    CS -->|"Matrix: List × Git"| DISCOVER["Scan repo for **/app.yaml"]
+    CS ==>|"Matrix: List × Git"| DISCOVER["Scan repo for\n**/app.yaml"]
 
     DISCOVER --> P1["Phase 1: CRDs\nPrometheus Operator CRDs"]
     DISCOVER --> P2["Phase 2: Foundation\ncert-manager · sealed-secrets\nnfs-provisioner · metallb"]
@@ -71,13 +71,18 @@ flowchart TB
 
     P1 ~~~ P2 ~~~ P3 ~~~ P4
 
-    style BOOT fill:#EE0000,color:#fff
-    style CS fill:#EF7B4D,color:#fff
-    style CFG fill:#EF7B4D,color:#fff
-    style P1 fill:#3C3C3C,color:#fff
-    style P2 fill:#7B42BC,color:#fff
-    style P3 fill:#326CE5,color:#fff
-    style P4 fill:#0F1689,color:#fff
+    classDef boot fill:#EE0000,stroke:#CC0000,color:#fff
+    classDef appset fill:#EF7B4D,stroke:#D66A3D,color:#fff
+    classDef p1 fill:#3C3C3C,stroke:#2D2D2D,color:#fff
+    classDef p2 fill:#7B42BC,stroke:#6A35A3,color:#fff
+    classDef p3 fill:#326CE5,stroke:#2B5FC2,color:#fff
+    classDef p4 fill:#0F1689,stroke:#0D1270,color:#fff
+    class BOOT boot
+    class CS,CFG appset
+    class P1 p1
+    class P2 p2
+    class P3 p3
+    class P4 p4
 ```
 
 The **Matrix generator** combines a list of categories (infrastructure, services) with a Git file scanner. Every directory containing an `app.yaml` is automatically discovered and deployed — no manual Application manifests needed.
@@ -103,19 +108,23 @@ Every Helm release inherits configuration from a strict 4-layer hierarchy — ma
 
 ```mermaid
 flowchart TB
-    G["🌍 globals.yaml\nCluster-wide: domains, IPs,\nNFS server, storage class"]
-    C["📋 common.yaml\nCategory defaults: TZ, PUID/PGID,\nprobes, default PVC template"]
-    S["📦 service/values.yaml\nService-specific: image, ports,\nenv vars, persistence mounts"]
-    V["🔀 variant/values.yaml\nDelta override: image tag,\nLB IP, locale settings"]
+    G(["🌍 globals.yaml\nCluster-wide: domains, IPs,\nNFS server, storage class"])
+    C(["📋 common.yaml\nCategory defaults: TZ, PUID/PGID,\nprobes, default PVC template"])
+    S(["📦 service/values.yaml\nService-specific: image, ports,\nenv vars, persistence mounts"])
+    V(["🔀 variant/values.yaml\nDelta override: image tag,\nLB IP, locale settings"])
 
-    G -->|"Layer 1"| C
-    C -->|"Layer 2"| S
-    S -->|"Layer 3"| V
+    G ==>|"Layer 1"| C
+    C ==>|"Layer 2"| S
+    S ==>|"Layer 3"| V
 
-    style G fill:#E57000,color:#fff
-    style C fill:#7B42BC,color:#fff
-    style S fill:#326CE5,color:#fff
-    style V fill:#0F1689,color:#fff
+    classDef globals fill:#E57000,stroke:#CC6300,color:#fff
+    classDef common fill:#7B42BC,stroke:#6A35A3,color:#fff
+    classDef service fill:#326CE5,stroke:#2B5FC2,color:#fff
+    classDef variant fill:#0F1689,stroke:#0D1270,color:#fff
+    class G globals
+    class C common
+    class S service
+    class V variant
 ```
 
 | Layer | Scope | Example |
@@ -184,26 +193,31 @@ All external and internal traffic follows a layered security path:
 
 ```mermaid
 flowchart LR
-    EXT["🌍 External Request\n*.starktastic.net\n*.benplus.app"]
-    INT["🏠 Internal Request\n*.internal.starktastic.net"]
+    EXT(["🌍 External\n*.starktastic.net\n*.benplus.app"])
+    INT(["🏠 Internal\n*.internal.starktastic.net"])
 
-    EXT --> LB_EXT["MetalLB\nExternal IP"]
-    INT --> LB_INT["MetalLB\nInternal IP"]
+    EXT ==> LB_EXT["MetalLB\nExternal IP"]
+    INT ==> LB_INT["MetalLB\nInternal IP"]
 
-    LB_EXT --> TFK["Traefik\nDaemonSet"]
-    LB_INT --> TFK
+    LB_EXT ==> TFK["Traefik\nDaemonSet"]
+    LB_INT ==> TFK
 
-    TFK --> CS{{"CrowdSec Bouncer\n(external only)"}}
-    CS --> AUTH{{"Authentik ForwardAuth\n(if auth enabled)"}}
+    TFK ==> CS{{"CrowdSec Bouncer\n(external only)"}}
+    CS ==> AUTH{{"Authentik ForwardAuth\n(if auth enabled)"}}
     TFK --> AUTH
-    AUTH --> RL{{"Rate Limiter\n(if enabled)"}}
-    RL --> SVC["Service Pod"]
+    AUTH ==> RL{{"Rate Limiter\n(if enabled)"}}
+    RL ==> SVC(["Service Pod"])
 
-    style EXT fill:#E57000,color:#fff
-    style INT fill:#326CE5,color:#fff
-    style CS fill:#3C3C3C,color:#fff
-    style AUTH fill:#7B42BC,color:#fff
-    style SVC fill:#0F1689,color:#fff
+    classDef external fill:#E57000,stroke:#CC6300,color:#fff
+    classDef internal fill:#326CE5,stroke:#2B5FC2,color:#fff
+    classDef gate fill:#3C3C3C,stroke:#2D2D2D,color:#fff
+    classDef auth fill:#7B42BC,stroke:#6A35A3,color:#fff
+    classDef svc fill:#0F1689,stroke:#0D1270,color:#fff
+    class EXT external
+    class INT internal
+    class CS gate
+    class AUTH auth
+    class SVC svc
 ```
 
 | Layer | Scope | Function |
@@ -223,40 +237,44 @@ A full observability stack provides metrics, logs, traces, and alerting:
 ```mermaid
 flowchart TB
     subgraph collection["Collection"]
-        ALLOY["Alloy\nPod logs + GeoIP"]
-        TFK_TRACE["Traefik\nOTLP traces"]
-        NE["Node Exporter\nHost metrics"]
-        KSM["Kube-State-Metrics\nK8s object metrics"]
+        ALLOY(["Alloy\nPod logs + GeoIP"])
+        TFK_TRACE(["Traefik\nOTLP traces"])
+        NE(["Node Exporter\nHost metrics"])
+        KSM(["Kube-State-Metrics\nK8s object metrics"])
     end
 
     subgraph storage["Storage & Query"]
-        PROM["Prometheus\nMetrics · 15d retention"]
-        LOKI["Loki\nLogs · 30d retention"]
-        TEMPO["Tempo\nTraces · 72h retention"]
+        PROM[(Prometheus\nMetrics · 15d)]
+        LOKI[(Loki\nLogs · 30d)]
+        TEMPO[(Tempo\nTraces · 72h)]
     end
 
     subgraph viz["Visualization & Alerting"]
         GRAF["Grafana\nDashboards + Explore"]
         AM["AlertManager"]
-        NTFY["ntfy\nPush notifications"]
+        NTFY(["ntfy\nPush notifications"])
     end
 
-    ALLOY --> LOKI
-    ALLOY --> PROM
-    TFK_TRACE --> TEMPO
-    NE --> PROM
-    KSM --> PROM
+    ALLOY ==> LOKI
+    ALLOY ==> PROM
+    TFK_TRACE ==> TEMPO
+    NE ==> PROM
+    KSM ==> PROM
 
-    PROM --> GRAF
-    LOKI --> GRAF
-    TEMPO --> GRAF
+    PROM ==> GRAF
+    LOKI ==> GRAF
+    TEMPO ==> GRAF
     PROM --> AM
     AM --> NTFY
 
-    style GRAF fill:#F46800,color:#fff
-    style PROM fill:#E6522C,color:#fff
-    style LOKI fill:#F46800,color:#fff
-    style TEMPO fill:#F46800,color:#fff
+    classDef grafana fill:#F46800,stroke:#D95D00,color:#fff
+    classDef prometheus fill:#E6522C,stroke:#C9441F,color:#fff
+    classDef loki fill:#F46800,stroke:#D95D00,color:#fff
+    classDef tempo fill:#F46800,stroke:#D95D00,color:#fff
+    class GRAF grafana
+    class PROM prometheus
+    class LOKI loki
+    class TEMPO tempo
 ```
 
 ---
@@ -300,21 +318,23 @@ Three workflows ensure safe, validated deployments:
 
 ```mermaid
 flowchart TD
-    subgraph "PR Phase"
-        PR["Pull Request"] --> VAL["validate-and-diff.yml"]
+    subgraph pr["PR Phase"]
+        PR([Pull Request]) --> VAL[validate-and-diff.yml]
         VAL --> LINT["YAML Lint +\nKubeconform"]
-        VAL --> DIFF["ArgoCD Diff Preview\nShows exactly what changes"]
-        PR --> FMT["format.yml\nPrettier formatting"]
+        VAL --> DIFF>ArgoCD Diff\nPreview]
+        PR --> FMT[format.yml\nPrettier formatting]
     end
 
-    subgraph "Merge Phase"
-        MERGE["Push to Main"] --> REF["refresh.yml"]
-        REF --> SCOPE["Scope Detection\nWhich apps changed?"]
-        SCOPE --> SYNC["ArgoCD Sync\nOnly affected apps"]
+    subgraph merge["Merge Phase"]
+        MERGE([Push to Main]) ==> REF[refresh.yml]
+        REF ==> SCOPE{{"Scope Detection\nWhich apps changed?"}}
+        SCOPE ==> SYNC(["ArgoCD Sync\nOnly affected apps"])
     end
 
-    style VAL fill:#EF7B4D,color:#fff
-    style REF fill:#326CE5,color:#fff
+    classDef val fill:#EF7B4D,stroke:#D66A3D,color:#fff
+    classDef ref fill:#326CE5,stroke:#2B5FC2,color:#fff
+    class VAL val
+    class REF ref
 ```
 
 | Workflow | Trigger | Purpose |

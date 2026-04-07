@@ -178,10 +178,9 @@ deployPhase: services$INGRESS_BLOCK
 EOF
 
 # Generate values.yaml
-DIGEST_LINE=""
+TAG="${IMAGE#*:}"
 if [[ -n $DIGEST ]]; then
-  DIGEST_LINE="
-          digest: $DIGEST"
+  TAG="${TAG}@${DIGEST}"
 fi
 
 cat >"$SERVICE_DIR/values.yaml" <<EOF
@@ -191,7 +190,7 @@ controllers:
       main:
         image:
           repository: ${IMAGE%:*}
-          tag: ${IMAGE#*:}$DIGEST_LINE
+          tag: $TAG
         probes:
           liveness:
             enabled: true

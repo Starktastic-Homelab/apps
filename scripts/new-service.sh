@@ -36,7 +36,6 @@ GLOBALS="$REPO_ROOT/templates/globals.yaml"
 DOMAIN_PUBLIC=$(yq '.global.domains.public' "$GLOBALS")
 DOMAIN_INTERNAL=$(yq '.global.domains.internal' "$GLOBALS")
 DOMAIN_MEDIA=$(yq '.global.domains.media' "$GLOBALS")
-STORAGE_CLASS_DEFAULT=$(yq '.global.storageClass' "$GLOBALS")
 
 # Colors for output
 RED='\033[0;31m'
@@ -152,19 +151,19 @@ echo -e "${YELLOW}Persistence Configuration${NC}"
 read -p "Need persistent storage? [Y/n]: " PERSISTENCE
 PERSISTENCE=${PERSISTENCE:-Y}
 
-# Storage class - defaults to value in globals.yaml, can be overridden via environment
-STORAGE_CLASS="${STORAGE_CLASS:-$STORAGE_CLASS_DEFAULT}"
-
 if [[ $PERSISTENCE =~ ^[Yy] ]]; then
-  read -p "Storage size (default: 5Gi): " STORAGE_SIZE
-  STORAGE_SIZE=${STORAGE_SIZE:-5Gi}
+  read -p "Storage size (default: 1Gi): " STORAGE_SIZE
+  STORAGE_SIZE=${STORAGE_SIZE:-1Gi}
 
   PERSISTENCE_BLOCK="
 persistence:
   config:
-    existingClaim: $SERVICE_NAME-config"
+    size: $STORAGE_SIZE"
 else
-  PERSISTENCE_BLOCK=""
+  PERSISTENCE_BLOCK="
+persistence:
+  config:
+    enabled: false"
 fi
 
 # Create directory structure
@@ -219,64 +218,8 @@ service:
 $PERSISTENCE_BLOCK
 EOF
 
-# Create empty manifests placeholder if no persistence
-if [[ ! $PERSISTENCE =~ ^[Yy] ]]; then
-  touch "$SERVICE_DIR/manifests/.gitkeep"
-else
-  # Extract PVC to manifests
-  if [[ -n $PERSISTENCE_BLOCK ]]; then
-    cat >"$SERVICE_DIR/manifests/pvc.yaml" <<EOF
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: $SERVICE_NAME-config
-  namespace: $NAMESPACE
-spec:
-  accessModes: ["ReadWriteMany"]
-  storageClassName: $STORAGE_CLASS
-  resources:
-    requests:
-      storage: $STORAGE_SIZE
-EOF
-    # Remove PVC from values.yaml (keep only persistence reference)
-    cat >"$SERVICE_DIR/values.yaml" <<EOF
-controllers:
-  main:
-    containers:
-      main:
-        image:
-          repository: ${IMAGE%:*}
-          tag: ${IMAGE#*:}$DIGEST_LINE
-        probes:
-          liveness:
-            enabled: true
-            type: TCP
-            port: $PORT
-          readiness:
-            enabled: true
-            type: TCP
-            port: $PORT
-          startup:
-            enabled: true
-            type: TCP
-            port: $PORT
-            spec:
-              failureThreshold: 30
-              periodSeconds: 5
-
-service:
-  main:
-    controller: main
-    ports:
-      http:
-        port: $PORT
-
-persistence:
-  config:
-    existingClaim: $SERVICE_NAME-config
-EOF
-  fi
-fi
+# Create empty manifests placeholder
+touch "$SERVICE_DIR/manifests/.gitkeep"
 
 echo ""
 echo -e "${GREEN}✅ Service scaffolded successfully!${NC}"

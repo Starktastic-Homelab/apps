@@ -1,0 +1,10 @@
+name: cineplete
+namespace: media
+deployPhase: services
+ingress:
+  enabled: true
+  host: cineplete
+  domainType: "internal"
+  port: 8787
+  auth: true
+  rateLimit: true

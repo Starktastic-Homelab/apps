@@ -1,0 +1,44 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: sdblepas/cineplete
+          tag: v4.0.3
+          digest: sha256:fa1f59f08ae043b7655763727931041d76affb2843c1290eec7c7dac41608f66
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            path: /
+            port: 8787
+          readiness:
+            enabled: true
+            type: HTTP
+            path: /
+            port: 8787
+          startup:
+            enabled: true
+            type: HTTP
+            path: /
+            port: 8787
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 8787
+
+persistence:
+  data:
+    enabled: true
+    type: persistentVolumeClaim
+    storageClass: "nfs-pv"
+    size: 1Gi
+    accessMode: ReadWriteMany
+    globalMounts:
+      - path: /data

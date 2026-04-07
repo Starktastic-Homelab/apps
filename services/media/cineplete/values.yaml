@@ -9,18 +9,15 @@ controllers:
         probes:
           liveness:
             enabled: true
-            type: HTTP
-            path: /
+            type: TCP
             port: 8787
           readiness:
             enabled: true
-            type: HTTP
-            path: /
+            type: TCP
             port: 8787
           startup:
             enabled: true
-            type: HTTP
-            path: /
+            type: TCP
             port: 8787
             spec:
               failureThreshold: 30

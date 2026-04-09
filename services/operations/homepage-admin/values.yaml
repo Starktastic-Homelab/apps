@@ -85,9 +85,6 @@ persistence:
       - path: /app/config/proxmox.yaml
         subPath: proxmox.yaml
         readOnly: true
-      - path: /app/config/custom.css
-        subPath: custom.css
-        readOnly: true
       - path: /app/config/custom.js
         subPath: custom.js
         readOnly: true

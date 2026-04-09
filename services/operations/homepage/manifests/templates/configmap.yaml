@@ -6,25 +6,11 @@ metadata:
 data:
   docker.yaml: ""
   custom.js: ""
-  custom.css: |
-    :root {
-      --color-50: #fef2f2;
-      --color-100: #fee2e2;
-      --color-200: #fecaca;
-      --color-300: #fca5a5;
-      --color-400: #f87171;
-      --color-500: #ef4444;
-      --color-600: #dc2626;
-      --color-700: #b91c1c;
-      --color-800: #991b1b;
-      --color-900: #7f1d1d;
-    }
+  custom.css: ""
   kubernetes.yaml: |
     mode: disabled
   settings.yaml: |
     title: Starktastic
-    theme: dark
-    color: red
     headerStyle: boxedWidgets
     statusStyle: dot
     useEqualHeights: true
@@ -37,7 +23,6 @@ data:
       hideInternetSearch: false
       showSearchSuggestions: true
       provider: duckduckgo
-    cardBlur: sm
     layout:
       Streaming:
         style: row

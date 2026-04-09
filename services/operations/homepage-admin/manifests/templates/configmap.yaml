@@ -74,7 +74,7 @@ data:
       Home & Life:
         tab: Home
         style: row
-        columns: 3
+        columns: 5
         icon: home-assistant.png
       Calendar:
         tab: Home
@@ -94,7 +94,7 @@ data:
       Subtitles & Indexers:
         tab: Media
         style: row
-        columns: 3
+        columns: 4
         icon: prowlarr.png
       Downloads:
         tab: Media
@@ -120,7 +120,7 @@ data:
       Utilities:
         tab: Operations
         style: row
-        columns: 5
+        columns: 6
         icon: mdi-tools
       # -- Infrastructure tab --
       Proxmox:
@@ -231,6 +231,10 @@ data:
               type: homeassistant
               url: http://home-assistant-main.home-automation.svc.cluster.local:8123
               key: {{ "{{" }}HOMEPAGE_VAR_HASS_KEY{{ "}}" }}
+        - Zigbee2MQTT:
+            icon: zigbee2mqtt.png
+            href: https://zigbee2mqtt.internal.starktastic.net
+            description: Zigbee device management
         - Mealie:
             icon: mealie.png
             href: https://mealie.starktastic.net
@@ -248,6 +252,10 @@ data:
               type: audiobookshelf
               url: http://audiobookshelf.media.svc.cluster.local:80
               key: {{ "{{" }}HOMEPAGE_VAR_AUDIOBOOKSHELF_KEY{{ "}}" }}
+        - Cineplete:
+            icon: mdi-movie-open-check
+            href: https://cineplete.internal.starktastic.net
+            description: Movie tracker
     - Calendar:
         - Calendar:
             widget:
@@ -369,6 +377,10 @@ data:
               type: bazarr
               url: http://bazarr.media.svc.cluster.local:6767
               key: {{ "{{" }}HOMEPAGE_VAR_BAZARR_KEY{{ "}}" }}
+        - Lingarr:
+            icon: mdi-translate
+            href: https://lingarr.internal.starktastic.net
+            description: Subtitle translation
         - Prowlarr:
             icon: prowlarr.png
             href: https://prowlarr.internal.starktastic.net
@@ -456,7 +468,7 @@ data:
     - Documents:
         - Paperless-ngx:
             icon: paperless-ngx.png
-            href: https://paperless.starktastic.net
+            href: https://paperless.internal.starktastic.net
             description: Document management
             widget:
               type: paperlessngx
@@ -487,6 +499,17 @@ data:
             icon: ntfy.png
             href: https://ntfy.starktastic.net
             description: Push notifications
+        - SearXNG:
+            icon: searxng.png
+            href: https://search.starktastic.net
+            description: Private search engine
+            widget:
+              type: searxng
+              url: http://searxng.operations.svc.cluster.local:8080
+        - Listmonk:
+            icon: listmonk.png
+            href: https://listmonk.starktastic.net
+            description: Newsletter manager
         - CyberChef:
             icon: cyberchef.png
             href: https://cyberchef.starktastic.net

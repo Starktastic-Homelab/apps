@@ -5,7 +5,7 @@ deployPhase: services
 ingress:
   enabled: true
   host: search
-  domainType: "internal"
+  domainType: "public"
   port: 8080
   auth: true
   rateLimit: true

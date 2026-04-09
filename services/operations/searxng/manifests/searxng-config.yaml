@@ -12,7 +12,7 @@ data:
       enable_metrics: false
 
     server:
-      base_url: "https://search.internal.starktastic.net"
+      base_url: "https://search.starktastic.net"
       image_proxy: true
       limiter: false
       public_instance: false

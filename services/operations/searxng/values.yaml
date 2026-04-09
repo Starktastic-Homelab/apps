@@ -6,7 +6,7 @@ controllers:
           repository: searxng/searxng
           tag: 2026.4.7-08ef7a63d@sha256:6a89a150d0163877caab1982b7a20d0a03fd4b39401a0d3f26f61ad205949442
         env:
-          SEARXNG_BASE_URL: "https://search.internal.starktastic.net"
+          SEARXNG_BASE_URL: "https://search.starktastic.net"
         envFrom:
           - secretRef:
               name: searxng-secret

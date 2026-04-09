@@ -78,10 +78,4 @@ persistence:
         subPath: docker.yaml
         readOnly: true
   homepage-background:
-    enabled: true
-    type: configMap
-    name: homepage-background
-    globalMounts:
-      - path: /app/public/images/background.svg
-        subPath: background.svg
-        readOnly: true
+    enabled: false

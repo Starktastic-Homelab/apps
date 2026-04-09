@@ -42,12 +42,6 @@ data:
       hideInternetSearch: false
       showSearchSuggestions: true
       provider: duckduckgo
-    background:
-      image: /images/background.svg
-      blur: sm
-      saturate: 50
-      brightness: 50
-      opacity: 30
     cardBlur: sm
     pwa:
       shortcuts:

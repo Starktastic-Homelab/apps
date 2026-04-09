@@ -48,8 +48,8 @@ data:
         tag: Aither
       alpharatio:
         tag: AlphaRatio
-      animetorrents:
-        tag: AnimeTorrents
+      animez|animetorrents:
+        tag: AnimeZ
       anthelion:
         tag: Anthelion
       darkpeers:
@@ -74,6 +74,8 @@ data:
         tag: Nebulance
       privatehd:
         tag: PrivateHD
+      speedapp:
+        tag: SpeedApp
       torrentleech|tleechreload:
         tag: TorrentLeech
       other:

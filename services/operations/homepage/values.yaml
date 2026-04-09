@@ -46,8 +46,6 @@ controllers:
 persistence:
   homepage-admin-config:
     enabled: false
-  homepage-admin-background:
-    enabled: false
   homepage-config:
     enabled: true
     type: configMap
@@ -77,5 +75,3 @@ persistence:
       - path: /app/config/docker.yaml
         subPath: docker.yaml
         readOnly: true
-  homepage-background:
-    enabled: false

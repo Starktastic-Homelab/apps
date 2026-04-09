@@ -94,8 +94,6 @@ persistence:
       - path: /app/config/docker.yaml
         subPath: docker.yaml
         readOnly: true
-  homepage-admin-background:
-    enabled: false
   logs:
     enabled: true
     type: emptyDir

@@ -1,0 +1,14 @@
+name: homepage
+namespace: operations
+deployPhase: services
+baseApp: services/operations/homepage-admin
+valuesOverride: true
+helmManifests: true
+
+ingress:
+  enabled: true
+  host: ""
+  domainType: "public"
+  port: 3000
+  auth: true
+  rateLimit: true

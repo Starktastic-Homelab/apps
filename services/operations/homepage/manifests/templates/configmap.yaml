@@ -1,0 +1,220 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homepage-config
+  namespace: operations
+data:
+  docker.yaml: ""
+  custom.js: ""
+  custom.css: |
+    :root {
+      --color-50: #fef2f2;
+      --color-100: #fee2e2;
+      --color-200: #fecaca;
+      --color-300: #fca5a5;
+      --color-400: #f87171;
+      --color-500: #ef4444;
+      --color-600: #dc2626;
+      --color-700: #b91c1c;
+      --color-800: #991b1b;
+      --color-900: #7f1d1d;
+    }
+  kubernetes.yaml: |
+    mode: disabled
+  settings.yaml: |
+    title: Starktastic
+    theme: dark
+    color: red
+    headerStyle: boxedWidgets
+    statusStyle: dot
+    useEqualHeights: true
+    hideVersion: true
+    disableCollapse: false
+    disableIndexing: true
+    iconStyle: theme
+    quicklaunch:
+      searchDescriptions: true
+      hideInternetSearch: false
+      showSearchSuggestions: true
+      provider: duckduckgo
+    background:
+      image: /images/background.svg
+      blur: sm
+      saturate: 50
+      brightness: 50
+      opacity: 30
+    cardBlur: sm
+    layout:
+      Streaming:
+        style: row
+        columns: 5
+        icon: jellyfin.png
+      Requests:
+        style: row
+        columns: 3
+        icon: overseerr.png
+      Apps:
+        style: row
+        columns: 4
+        icon: mealie.png
+      Tools:
+        style: row
+        columns: 4
+        icon: mdi-tools
+  widgets.yaml: |
+    - search:
+        provider: duckduckgo
+        target: _blank
+    - openmeteo:
+        label: Weather
+        latitude: 32.08
+        longitude: 34.78
+        timezone: Asia/Jerusalem
+        units: metric
+    - datetime:
+        text_size: xl
+        format:
+          dateStyle: long
+          timeStyle: short
+          hourCycle: h23
+  services.yaml: |
+    - Streaming:
+        - Jellyfin:
+            icon: jellyfin.png
+            href: https://benplus.app
+            description: Movies, TV & Anime
+            widget:
+              type: jellyfin
+              url: http://jellyfin-main.media.svc.cluster.local:8096
+              key: {{ "{{" }}HOMEPAGE_VAR_JELLYFIN_KEY{{ "}}" }}
+              enableBlocks: true
+              enableNowPlaying: true
+              enableUser: true
+              showEpisodeNumber: true
+        - Immich:
+            icon: immich.png
+            href: https://photos.benplus.app
+            description: Photos & Videos
+            widget:
+              type: immich
+              url: http://immich-main.media.svc.cluster.local:2283
+              key: {{ "{{" }}HOMEPAGE_VAR_IMMICH_KEY{{ "}}" }}
+              version: 2
+        - Navidrome:
+            icon: navidrome.png
+            href: https://music.benplus.app
+            description: Music streaming
+            widget:
+              type: navidrome
+              url: http://navidrome.media.svc.cluster.local:4533
+              user: {{ "{{" }}HOMEPAGE_VAR_NAVIDROME_USER{{ "}}" }}
+              token: {{ "{{" }}HOMEPAGE_VAR_NAVIDROME_TOKEN{{ "}}" }}
+              salt: {{ "{{" }}HOMEPAGE_VAR_NAVIDROME_SALT{{ "}}" }}
+        - Audiobookshelf:
+            icon: audiobookshelf.png
+            href: https://audiobooks.benplus.app
+            description: Audiobooks & Podcasts
+            widget:
+              type: audiobookshelf
+              url: http://audiobookshelf.media.svc.cluster.local:80
+              key: {{ "{{" }}HOMEPAGE_VAR_AUDIOBOOKSHELF_KEY{{ "}}" }}
+        - Calibre-Web:
+            icon: calibre-web.png
+            href: https://books.benplus.app
+            description: E-book library
+            widget:
+              type: calibreweb
+              url: http://calibre-web.media.svc.cluster.local:8083
+              username: {{ "{{" }}HOMEPAGE_VAR_CALIBRE_USER{{ "}}" }}
+              password: {{ "{{" }}HOMEPAGE_VAR_CALIBRE_PASS{{ "}}" }}
+    - Requests:
+        - Seerr:
+            icon: overseerr.png
+            href: https://request.benplus.app
+            description: Request movies & TV
+            widget:
+              type: seerr
+              url: http://seerr.media.svc.cluster.local:5055
+              key: {{ "{{" }}HOMEPAGE_VAR_SEERR_KEY{{ "}}" }}
+        - Seerr RU:
+            icon: overseerr.png
+            href: https://request-ru.benplus.app
+            description: Request movies & TV (RU)
+            widget:
+              type: seerr
+              url: http://seerr-ru.media.svc.cluster.local:5055
+              key: {{ "{{" }}HOMEPAGE_VAR_SEERR_RU_KEY{{ "}}" }}
+        - Shelfmark:
+            icon: mdi-bookshelf
+            href: https://request-books.benplus.app
+            description: Book requests
+    - Apps:
+        - Mealie:
+            icon: mealie.png
+            href: https://mealie.starktastic.net
+            description: Recipe manager
+            widget:
+              type: mealie
+              url: http://mealie.operations.svc.cluster.local:9000
+              key: {{ "{{" }}HOMEPAGE_VAR_MEALIE_KEY{{ "}}" }}
+              version: 2
+        - Karakeep:
+            icon: karakeep.png
+            href: https://karakeep.starktastic.net
+            description: Bookmarks & Read-later
+            widget:
+              type: karakeep
+              url: http://karakeep.operations.svc.cluster.local:3000
+              key: {{ "{{" }}HOMEPAGE_VAR_KARAKEEP_KEY{{ "}}" }}
+        - Listmonk:
+            icon: listmonk.png
+            href: https://listmonk.starktastic.net
+            description: Newsletter manager
+        - ntfy:
+            icon: ntfy.png
+            href: https://ntfy.starktastic.net
+            description: Push notifications
+    - Tools:
+        - SearXNG:
+            icon: searxng.png
+            href: https://search.starktastic.net
+            description: Private search engine
+            widget:
+              type: searxng
+              url: http://searxng.operations.svc.cluster.local:8080
+        - CyberChef:
+            icon: cyberchef.png
+            href: https://cyberchef.starktastic.net
+            description: Data transformation
+        - Stirling PDF:
+            icon: stirling-pdf.png
+            href: https://pdf.starktastic.net
+            description: PDF tools
+        - MeTube:
+            icon: metube.png
+            href: https://metube.benplus.app
+            description: Video downloader
+        - MicroBin:
+            icon: microbin.png
+            href: https://microbin.starktastic.net
+            description: Paste & share
+        - PairDrop:
+            icon: pairdrop.png
+            href: https://pairdrop.starktastic.net
+            description: Local file sharing
+        - Excalidash:
+            icon: excalidraw.png
+            href: https://excalidash.starktastic.net
+            description: Collaborative whiteboard
+        - ConvertX:
+            icon: convertx.png
+            href: https://convertx.starktastic.net
+            description: File converter
+  bookmarks.yaml: |
+    - Links:
+        - Authentik:
+            - abbr: AK
+              href: https://auth.starktastic.net
+        - GitHub:
+            - abbr: GH
+              href: https://github.com/Starktastic-Homelab

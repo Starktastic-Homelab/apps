@@ -1,0 +1,54 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: searxng/searxng
+          tag: 2026.4.7-08ef7a63d@sha256:6a89a150d0163877caab1982b7a20d0a03fd4b39401a0d3f26f61ad205949442
+        env:
+          SEARXNG_BASE_URL: "https://search.internal.starktastic.net"
+        envFrom:
+          - secretRef:
+              name: searxng-secret
+        probes:
+          liveness:
+            enabled: true
+            type: TCP
+            port: 8080
+          readiness:
+            enabled: true
+            type: TCP
+            port: 8080
+          startup:
+            enabled: true
+            type: TCP
+            port: 8080
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 8080
+
+persistence:
+  config:
+    enabled: false
+  searxng-config:
+    type: configMap
+    name: searxng-config
+    globalMounts:
+      - path: /etc/searxng/settings.yml
+        subPath: settings.yml
+        readOnly: true
+  cache:
+    enabled: true
+    type: persistentVolumeClaim
+    storageClass: "nfs-pv"
+    size: 256Mi
+    accessMode: ReadWriteMany
+    globalMounts:
+      - path: /var/cache/searxng

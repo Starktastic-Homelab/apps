@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: searxng-config
+  namespace: operations
+data:
+  settings.yml: |
+    use_default_settings: true
+
+    general:
+      instance_name: "SearXNG"
+      enable_metrics: false
+
+    server:
+      base_url: "https://search.internal.starktastic.net"
+      image_proxy: true
+      limiter: false
+      public_instance: false
+      method: "GET"
+
+    ui:
+      default_theme: "simple"
+      query_in_title: true
+      search_on_category_select: true
+
+    search:
+      default_lang: "en"
+      autocomplete: "google"
+      safe_search: 0

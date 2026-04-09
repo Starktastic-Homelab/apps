@@ -4,4 +4,4 @@ deployPhase: foundation
 chart:
   repo: https://bitnami-labs.github.io/sealed-secrets
   name: sealed-secrets
-  version: 2.18.4
+  version: 2.18.5

@@ -29,7 +29,9 @@ data:
             reset_unmatched_scores:
               enabled: true
             upgrade:
+              allowed: true
               until_quality: Remux-2160p
+              until_score: 10000
             qualities:
               - name: Remux-2160p
               - name: Bluray-2160p
@@ -153,7 +155,9 @@ data:
             reset_unmatched_scores:
               enabled: true
             upgrade:
+              allowed: true
               until_quality: Bluray-2160p Remux
+              until_score: 10000
             qualities:
               - name: Bluray-2160p Remux
               - name: WEB 2160p
@@ -180,7 +184,9 @@ data:
             reset_unmatched_scores:
               enabled: true
             upgrade:
+              allowed: true
               until_quality: Bluray-1080p
+              until_score: 10000
             qualities:
               - name: Bluray-1080p
                 qualities:

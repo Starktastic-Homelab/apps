@@ -6,7 +6,7 @@ metadata:
   namespace: media
 data:
   recyclarr.yml: |
-    # yaml-language-server: $schema=https://raw.githubusercontent.com/recyclarr/recyclarr/master/schemas/config-schema.json
+    # yaml-language-server: $schema=https://schemas.recyclarr.dev/v8/config-schema.json
 
     radarr:
       radarr_main:
@@ -15,40 +15,19 @@ data:
 
         delete_old_custom_formats: true
 
-        include:
-          - template: radarr-quality-definition-movie
-          - template: radarr-quality-profile-uhd-bluray-web
-          - template: radarr-custom-formats-uhd-bluray-web
-
         media_naming:
           folder: default
           movie:
             rename: true
             standard: standard
 
-        # Audio formats (not included in templates — uses TRaSH default scores)
-        custom_formats:
-          - trash_ids:
-              - 496f355514737f7d83bf7aa4d24f8169 # TrueHD ATMOS
-              - 2f22d89048b01681dde8afe203bf2e95 # DTS X
-              - 417804f7f2c4308c1f4c5d380d4c4475 # ATMOS (undefined)
-              - 1af239278386be2919e1bcee0bde047e # DD+ ATMOS
-              - 3cafb66171b47f226146a0770576870f # TrueHD
-              - dcf3ec6938fa32445f590a4da84256cd # DTS-HD MA
-              - a570d4a0e56a2874b64e5bfa55202a1b # FLAC
-              - e7c2fcae07cbada050a0af3357491d7b # PCM
-              - 8e109e50e0a0b83a5098b056e13bf6db # DTS-HD HRA
-              - 185f1dd7264c4562b9022d963ac37424 # DD+
-              - f9f847ac70a0af62ea4a08280b859636 # DTS-ES
-              - 1c1a4c5e823891c75bc50380a6866f73 # DTS
-              - 240770601cc226190c367ef59aba7463 # AAC
-              - c2998bd0d90ed5621d8df281e839436e # DD
-            assign_scores_to:
-              - name: UHD Bluray + WEB
+        quality_definition:
+          type: movie
 
-        # Override template quality profile: extend ladder down to 720p and upgrade to Remux-2160p
         quality_profiles:
-          - name: UHD Bluray + WEB
+          - trash_id: 64fb5f9858489bdac2af690e27c8f42f # UHD Bluray + WEB
+            reset_unmatched_scores:
+              enabled: true
             upgrade:
               until_quality: Remux-2160p
             qualities:
@@ -70,19 +49,48 @@ data:
                   - WEBDL-720p
                   - WEBRip-720p
 
+        custom_format_groups:
+          add:
+            # Required: penalizes x265 without HDR/DV
+            - trash_id: ff204bbcecdd487d1cefcefdbf0c278d # [Required] Golden Rule UHD
+              select:
+                - 839bea857ed2c0a8e084f3cbdbd65ecb # x265 (no HDR/DV)
+            # Hard-block DV without HDR fallback
+            - trash_id: 7fc2751eef7e6bdc70b74136e5e35c76 # [HDR Formats] DV (w/o HDR fallback)
+            # Boost DV and HDR10+
+            - trash_id: 1616617ab3a14397a2b2321bcbda44d1 # [HDR Formats] DV Boost
+            - trash_id: b29413a7487478fe98228ce79e5689e4 # [HDR Formats] HDR10+ Boost
+            # Movie Versions (Hybrid, Remaster, IMAX, etc.)
+            - trash_id: f4f1474b963b24cf983455743aa9906c # [Optional] Movie Versions
+              select:
+                - 0f12c086e289cf966fa5948eac571f44 # Hybrid
+                - 570bc9ebecd92723d2d21500f4be314c # Remaster
+            # SDR: hard-penalize on this UHD profile
+            - trash_id: 47f0d69750de9e16855915fa73bb7b08 # [Optional] SDR
+              select:
+                - 9c38ebb7384dada637be8899efa68e6f # SDR
+            # Miscellaneous optional formats
+            - trash_id: 9337080378236ce4c0b183e35790d2a7 # [Optional] Miscellaneous
+              select:
+                - ae9b7c9ebde1f3bd336a8cbd1ec4c5e5 # No-RlsGroup
+                - 7357cf5161efbf8c4d5d0c30b4815ee2 # Obfuscated
+                - 5c44f52a8714fdd79bb4d98e2673be1f # Retags
+                - f537cf427b64c38c8e36298f657e4828 # Scene
+          # Synced by default: Audio Formats, HDR, Streaming Services General
+
       radarr_ru:
         base_url: http://radarr-ru.media.svc.cluster.local:7878
         api_key: !env_var RADARR_RU_API_KEY
         delete_old_custom_formats: true
-
-        include:
-          - template: radarr-quality-definition-movie
 
         media_naming:
           folder: default
           movie:
             rename: true
             standard: standard
+
+        quality_definition:
+          type: movie
 
         custom_formats:
           - trash_ids:
@@ -127,13 +135,6 @@ data:
 
         delete_old_custom_formats: true
 
-        include:
-          - template: sonarr-quality-definition-series
-          - template: sonarr-v4-quality-profile-web-2160p
-          - template: sonarr-v4-custom-formats-web-2160p
-          - template: sonarr-v4-quality-profile-anime
-          - template: sonarr-v4-custom-formats-anime
-
         media_naming:
           series: default
           season: default
@@ -143,53 +144,14 @@ data:
             daily: default
             anime: default
 
-        custom_formats:
-          # Override anime template defaults
-          - trash_ids:
-              - b2550eb333d27b75833e25b8c2557b38 # 10bit
-            assign_scores_to:
-              - name: Remux-1080p - Anime
-                score: 0
+        quality_definition:
+          type: series
 
-          - trash_ids:
-              - 418f50b10f1907201b6cfdf881f467b7 # Anime Dual Audio
-            assign_scores_to:
-              - name: Remux-1080p - Anime
-                score: 0
-
-          # Unwanted formats for the anime profile (not included in anime template)
-          - trash_ids:
-              - 85c61753df5da1fb2aab6f2a47426b09 # BR-DISK
-              - 9c11cd3f07101cdba90a2d81cf0e56b4 # LQ
-              - e2315f990da2e2cbfc9fa5b7a6fcfe48 # LQ (Release Title)
-              - fbcb31d8dabd2a319072b84fc0b7249c # Extras
-              - 15a05bc7c1a36e2b57fd628f8977e2fc # AV1
-            assign_scores_to:
-              - name: Remux-1080p - Anime
-
-          # Audio formats (not included in templates — uses TRaSH default scores)
-          - trash_ids:
-              - 0d7824bb924701997f874e7ff7d4844a # TrueHD ATMOS
-              - 9d00418ba386a083fbf4d58235fc37ef # DTS X
-              - b6fbafa7942952a13e17e2b1152b539a # ATMOS (undefined)
-              - 4232a509ce60c4e208d13825b7c06264 # DD+ ATMOS
-              - 1808e4b9cee74e064dfae3f1db99dbfe # TrueHD
-              - c429417a57ea8c41d57e6990a8b0033f # DTS-HD MA
-              - 851bd64e04c9374c51102be3dd9ae4cc # FLAC
-              - 30f70576671ca933adbdcfc736a69718 # PCM
-              - cfa5fbd8f02a86fc55d8d223d06a5e1f # DTS-HD HRA
-              - 63487786a8b01b7f20dd2bc90dd4a477 # DD+
-              - c1a25cd67b5d2e08287c957b1eb903ec # DTS-ES
-              - 5964f2a8b3be407d083498e4459d05d0 # DTS
-              - a50b8a0c62274a7c38b09a9619ba9d86 # AAC
-              - dbe00161b08a25ac6154c55f95e6318d # DD
-            assign_scores_to:
-              - name: WEB-2160p
-              - name: Remux-1080p - Anime
-
-        # Override template quality profiles with custom quality ladders
         quality_profiles:
-          - name: WEB-2160p
+          - trash_id: dfa5eaae7894077ad6449169b6eb03e0 # WEB-2160p (Alternative)
+            name: WEB-2160p
+            reset_unmatched_scores:
+              enabled: true
             upgrade:
               until_quality: Bluray-2160p Remux
             qualities:
@@ -212,8 +174,11 @@ data:
                   - WEBRip-720p
               - name: HDTV-720p
 
-          - name: Remux-1080p - Anime
+          - trash_id: 20e0fc959f1f1704bed501f23bdae76f # [Anime] Remux-1080p
+            name: Remux-1080p - Anime
             min_format_score: 100
+            reset_unmatched_scores:
+              enabled: true
             upgrade:
               until_quality: Bluray-1080p
             qualities:
@@ -233,13 +198,77 @@ data:
                   - WEBRip-720p
                   - HDTV-720p
 
+        custom_format_groups:
+          add:
+            # Required: penalizes x265 without HDR/DV
+            - trash_id: e3f37512790f00d0e89e54fe5e790d1c # [Required] Golden Rule UHD
+              select:
+                - 9b64dff695c2115facf1b6ea59c9bd07 # x265 (no HDR/DV)
+            # Hard-block DV without HDR fallback
+            - trash_id: d776a1ea912a117d66d83b880ff2055d # [HDR Formats] DV (w/o HDR fallback)
+            # Boost DV and HDR10+
+            - trash_id: e0b2774083df4265f25c9e5bc6c80940 # [HDR Formats] DV Boost
+            - trash_id: 7d366c213e5c23a052b157356fac1921 # [HDR Formats] HDR10+ Boost
+            # SDR: hard-penalize on UHD profile
+            - trash_id: e1053c0ef622df3749fa43c22865663a # [Optional] SDR
+              select:
+                - 2016d1676f5ee13a5b7257ff86ac9a93 # SDR
+            # Miscellaneous optional formats
+            - trash_id: f4a0410a1df109a66d6e47dcadcce014 # [Optional] Miscellaneous
+              select:
+                - 82d40da2bc6923f41e14394075dd4b03 # No-RlsGroup
+                - e1a997ddb54e3ecbfe06341ad323c458 # Obfuscated
+                - 06d66ab109d4d2eddb2794d21526d140 # Retags
+                - 1b3994c551cbb92a2c781af061f4ab44 # Scene
+          # Synced by default: Audio Formats, HDR, Streaming Services General
+
+        custom_formats:
+          # Override anime template defaults
+          - trash_ids:
+              - b2550eb333d27b75833e25b8c2557b38 # 10bit
+            assign_scores_to:
+              - name: Remux-1080p - Anime
+                score: 0
+
+          - trash_ids:
+              - 418f50b10f1907201b6cfdf881f467b7 # Anime Dual Audio
+            assign_scores_to:
+              - name: Remux-1080p - Anime
+                score: 0
+
+          # Audio formats for the anime profile (groups only target WEB-2160p)
+          - trash_ids:
+              - 0d7824bb924701997f874e7ff7d4844a # TrueHD ATMOS
+              - 9d00418ba386a083fbf4d58235fc37ef # DTS X
+              - b6fbafa7942952a13e17e2b1152b539a # ATMOS (undefined)
+              - 4232a509ce60c4e208d13825b7c06264 # DD+ ATMOS
+              - 1808e4b9cee74e064dfae3f1db99dbfe # TrueHD
+              - c429417a57ea8c41d57e6990a8b0033f # DTS-HD MA
+              - 851bd64e04c9374c51102be3dd9ae4cc # FLAC
+              - 30f70576671ca933adbdcfc736a69718 # PCM
+              - cfa5fbd8f02a86fc55d8d223d06a5e1f # DTS-HD HRA
+              - 63487786a8b01b7f20dd2bc90dd4a477 # DD+
+              - c1a25cd67b5d2e08287c957b1eb903ec # DTS-ES
+              - 5964f2a8b3be407d083498e4459d05d0 # DTS
+              - a50b8a0c62274a7c38b09a9619ba9d86 # AAC
+              - dbe00161b08a25ac6154c55f95e6318d # DD
+            assign_scores_to:
+              - name: Remux-1080p - Anime
+
+          # Unwanted formats for the anime profile
+          - trash_ids:
+              - 85c61753df5da1fb2aab6f2a47426b09 # BR-DISK
+              - 9c11cd3f07101cdba90a2d81cf0e56b4 # LQ
+              - e2315f990da2e2cbfc9fa5b7a6fcfe48 # LQ (Release Title)
+              - fbcb31d8dabd2a319072b84fc0b7249c # Extras
+              - 15a05bc7c1a36e2b57fd628f8977e2fc # AV1
+            assign_scores_to:
+              - name: Remux-1080p - Anime
+
       sonarr_ru:
         base_url: http://sonarr-ru.media.svc.cluster.local:8989
         api_key: !env_var SONARR_RU_API_KEY
         delete_old_custom_formats: true
-
-        include:
-          - template: sonarr-quality-definition-series
 
         media_naming:
           series: default
@@ -249,6 +278,9 @@ data:
             standard: default
             daily: default
             anime: default
+
+        quality_definition:
+          type: series
 
         custom_formats:
           - trash_ids:

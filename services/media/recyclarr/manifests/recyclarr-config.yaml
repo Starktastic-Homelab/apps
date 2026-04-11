@@ -208,14 +208,6 @@ data:
           # Synced by default: Audio Formats, HDR, Streaming Services General
 
         custom_formats:
-          # Movie Versions (no Sonarr group exists for these)
-          - trash_ids:
-              - 3a4127d8aa781b44120d907f2cd62627 # Hybrid
-              - b735f09d3c025cbb7d75a5d38325b73b # Remaster
-            assign_scores_to:
-              - name: WEB-2160p
-              - name: Remux-1080p - Anime
-
           # Override anime template defaults
           - trash_ids:
               - b2550eb333d27b75833e25b8c2557b38 # 10bit

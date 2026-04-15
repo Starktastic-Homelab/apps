@@ -25,7 +25,7 @@
       "matchDatasources": ["docker"],
       "matchPackageNames": ["getmeili/meilisearch"],
       "prBodyNotes": [
-        "⚠️ Meilisearch requires a dump-and-restore to upgrade. Clear the meilisearch PVC or run a dump migration before merging."
+        "⚠️ Meilisearch requires a dump-and-restore to upgrade. Run `apps/scripts/meilisearch-upgrade.sh` to wipe the PVC before merging. Use `--dry-run` to preview."
       ]
     }
   ],

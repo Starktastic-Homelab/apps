@@ -9,7 +9,7 @@ set -euo pipefail
 # Run this BEFORE merging a Renovate Meilisearch version bump PR.
 
 DRY_RUN=false
-if [[ "${1:-}" == "--dry-run" ]]; then
+if [[ ${1:-} == "--dry-run" ]]; then
   DRY_RUN=true
   echo "🔍 Dry-run mode — no changes will be made"
 fi
@@ -33,7 +33,7 @@ echo ""
 
 # Step 1: Scale down
 echo "⏬ Scaling down $APP_NAME..."
-if [[ "$DRY_RUN" == true ]]; then
+if [[ $DRY_RUN == true ]]; then
   echo "   (dry-run) kubectl scale deployment/$APP_NAME -n $NAMESPACE --replicas=0"
 else
   kubectl scale deployment/"$APP_NAME" -n "$NAMESPACE" --replicas=0
@@ -44,7 +44,7 @@ fi
 # Step 2: Wipe Meilisearch data via a temporary pod
 # NFS-backed PVCs retain data across delete/recreate, so we must clear the contents directly.
 echo "🗑️  Wiping Meilisearch data from PVC '$PVC_NAME'..."
-if [[ "$DRY_RUN" == true ]]; then
+if [[ $DRY_RUN == true ]]; then
   echo "   (dry-run) kubectl run meili-cleanup --rm -it ... rm -rf /meili_data/*"
 else
   kubectl run meili-cleanup --rm -i --restart=Never \
@@ -68,7 +68,7 @@ fi
 
 # Step 3: Scale back up
 echo "⏫ Scaling up $APP_NAME..."
-if [[ "$DRY_RUN" == true ]]; then
+if [[ $DRY_RUN == true ]]; then
   echo "   (dry-run) kubectl scale deployment/$APP_NAME -n $NAMESPACE --replicas=1"
 else
   kubectl scale deployment/"$APP_NAME" -n "$NAMESPACE" --replicas=1

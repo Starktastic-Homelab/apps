@@ -13,6 +13,9 @@ controllers:
           ND_ENABLESHARING: "true"
           ND_EXTAUTH_TRUSTEDSOURCES: "10.42.0.0/16"
           ND_EXTAUTH_USERHEADER: "X-authentik-username"
+        envFrom:
+          - secretRef:
+              name: navidrome-lastfm-secret
         probes:
           liveness:
             enabled: true

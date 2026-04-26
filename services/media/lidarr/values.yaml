@@ -11,6 +11,10 @@ controllers:
             type: HTTP
             path: /ping
             port: 8686
+            spec:
+              timeoutSeconds: 10
+              failureThreshold: 10
+              periodSeconds: 30
           readiness:
             enabled: true
             type: HTTP

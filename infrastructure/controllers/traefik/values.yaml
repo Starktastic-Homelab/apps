@@ -17,7 +17,7 @@ deployment:
           [ -f "$DEST/.traefik.yml" ] && echo "plugin already cached" && exit 0
           for i in 1 2 3 4 5; do
             # renovate: datasource=github-releases depName=maxlerebourg/crowdsec-bouncer-traefik-plugin
-            git clone --depth 1 --branch v1.5.1 \
+            git clone --depth 1 --branch v1.6.0 \
               https://github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin.git \
               "$DEST" && exit 0
             echo "attempt $i failed, retrying in 5s…"

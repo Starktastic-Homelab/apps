@@ -4,7 +4,7 @@ controllers:
       main:
         image:
           repository: sdblepas/cineplete
-          tag: v4.5.1@sha256:8e61d95978b8b0512c3964efe824bc9f79f01127b8888e09c56fe9c652e7fd3e
+          tag: v4.5.2@sha256:4bf150c7e1f3b3056ff6cc36b6b6b2945b8878119515123bf60b429ce91e3a05
         probes:
           liveness:
             enabled: true

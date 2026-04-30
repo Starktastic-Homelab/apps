@@ -1,0 +1,23 @@
+version: 1
+metadata:
+  labels:
+    blueprints.goauthentik.io/instantiate: "true"
+  name: Recovery Flow
+
+entries:
+  # =============================================================
+  # Override the default "Recovery Email" stage to use global SMTP
+  # settings (Mailgun) instead of the localhost defaults, and point
+  # to the branded password-reset email template.
+  # =============================================================
+
+  - identifiers:
+      name: Recovery Email
+    model: authentik_stages_email.emailstage
+    state: present
+    attrs:
+      use_global_settings: true
+      template: "email/password_reset_branded.html"
+      subject: "Reset Your Password"
+      activate_user_on_success: true
+      token_expiry: minutes=30

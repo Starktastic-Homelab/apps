@@ -19,6 +19,7 @@ configMapGenerator:
     files:
       - base.html=templates/base.html
       - account_confirmation_branded.html=templates/account_confirmation_branded.html
+      - password_reset_branded.html=templates/password_reset_branded.html
       - welcome_instructions.html=templates/welcome_instructions.html
   - name: authentik-invitation-blueprint
     files:
@@ -31,3 +32,6 @@ configMapGenerator:
   - name: authentik-branding-blueprint
     files:
       - branding.yaml=blueprints/branding.yaml
+  - name: authentik-recovery-blueprint
+    files:
+      - recovery-flow.yaml=blueprints/recovery-flow.yaml

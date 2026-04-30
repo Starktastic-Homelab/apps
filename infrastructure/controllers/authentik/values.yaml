@@ -6,6 +6,7 @@ blueprints:
   configMaps:
     - authentik-invitation-blueprint
     - authentik-branding-blueprint
+    - authentik-recovery-blueprint
 global:
   volumes:
     - name: custom-email-templates

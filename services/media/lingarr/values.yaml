@@ -54,43 +54,9 @@ service:
       http:
         port: 8080
 
-# WORKAROUND: Lingarr uses DateTime.Now (Kind=Local) which Npgsql rejects for
-# 'timestamp with time zone' columns. This ConfigMap overrides the .NET
-# runtimeconfig to enable Npgsql's legacy timestamp behavior.
-# Remove once https://github.com/lingarr-translate/lingarr/issues/352 is fixed.
-configMaps:
-  runtimeconfig:
-    data:
-      Lingarr.Server.runtimeconfig.json: |
-        {
-          "runtimeOptions": {
-            "tfm": "net9.0",
-            "frameworks": [
-              { "name": "Microsoft.NETCore.App", "version": "9.0.0" },
-              { "name": "Microsoft.AspNetCore.App", "version": "9.0.0" }
-            ],
-            "configProperties": {
-              "System.GC.Server": true,
-              "System.Globalization.Invariant": false,
-              "System.Reflection.Metadata.MetadataUpdater.IsSupported": false,
-              "System.Reflection.NullabilityInfoContext.IsSupported": true,
-              "System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization": false,
-              "Npgsql.EnableLegacyTimestampBehavior": true
-            }
-          }
-        }
-
 persistence:
   config:
     enabled: false
-  # WORKAROUND: Mount for runtimeconfig override — remove with the ConfigMap above.
-  runtimeconfig:
-    type: configMap
-    name: lingarr
-    globalMounts:
-      - path: /app/Lingarr.Server.runtimeconfig.json
-        subPath: Lingarr.Server.runtimeconfig.json
-        readOnly: true
   lingarr-config:
     type: persistentVolumeClaim
     storageClass: "nfs-pv"

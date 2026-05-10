@@ -55,7 +55,7 @@ else
         \"containers\": [{
           \"name\": \"meili-cleanup\",
           \"image\": \"busybox:latest\",
-          \"command\": [\"sh\", \"-c\", \"rm -rf /meili_data/* && echo cleared\"],
+          \"command\": [\"sh\", \"-c\", \"find /meili_data -mindepth 1 -delete && echo cleared\"],
           \"volumeMounts\": [{\"name\": \"data\", \"mountPath\": \"/meili_data\"}]
         }],
         \"volumes\": [{

@@ -63,6 +63,20 @@ controllers:
         image:
           repository: getmeili/meilisearch
           tag: v1.43.0@sha256:5d4e1353927785744486fe317d263f442710ab5b27b1983aa1b719dfe2c665b6
+        command: ["sh", "-c"]
+        args:
+          - |
+            CURRENT=$(meilisearch --version | head -1)
+            STORED=$(cat /meili_data/.version_marker 2>/dev/null || echo "none")
+            if [ "$CURRENT" != "$STORED" ]; then
+              echo "Meilisearch version change: $STORED → $CURRENT"
+              echo "Wiping data for clean re-index..."
+              find /meili_data -mindepth 1 -not -name '.version_marker' -delete
+              echo "$CURRENT" > /meili_data/.version_marker
+            else
+              echo "Meilisearch version unchanged ($CURRENT), keeping data"
+            fi
+            exec meilisearch
         env:
           MEILI_NO_ANALYTICS: "true"
           MEILI_ENV: "production"

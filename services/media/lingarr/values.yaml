@@ -4,7 +4,7 @@ controllers:
       main:
         image:
           repository: ghcr.io/lingarr-translate/lingarr
-          tag: 1.1.0@sha256:1a7f1bc6662f08ca94f5463ab030668ecdd55afbbe9f95e65851a255b054063c
+          tag: 1.2.1@sha256:9e93da3c7c15e49a7e20b92aa28633c93e7db4d19348edfd53e2dc7c9b57e6fe
         env:
           # Translation backend
           SERVICE_TYPE: "libretranslate"

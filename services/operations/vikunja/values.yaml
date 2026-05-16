@@ -1,0 +1,60 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: vikunja/vikunja
+          tag: 2.3.0@sha256:f6b80393c1998cd5cd0dc38d24762c59ab4c10000a6f1032ef5b554e262cab93
+        env:
+          # Service
+          VIKUNJA_SERVICE_PUBLICURL: "https://vikunja.starktastic.net"
+          VIKUNJA_SERVICE_ENABLEREGISTRATION: "false"
+          # Database (shared PostgreSQL)
+          VIKUNJA_DATABASE_TYPE: "postgres"
+          VIKUNJA_DATABASE_HOST: "postgres-postgresql.databases.svc.cluster.local"
+          VIKUNJA_DATABASE_DATABASE: "vikunja"
+          VIKUNJA_DATABASE_USER: "vikunja"
+          VIKUNJA_DATABASE_SSLMODE: "disable"
+          # Auth: OIDC only, no local fallback
+          VIKUNJA_AUTH_LOCAL_ENABLED: "false"
+          VIKUNJA_AUTH_OPENID_ENABLED: "true"
+          VIKUNJA_AUTH_OPENID_PROVIDERS_AUTHENTIK_NAME: "Authentik"
+          VIKUNJA_AUTH_OPENID_PROVIDERS_AUTHENTIK_AUTHURL: "https://auth.starktastic.net/application/o/vikunja/"
+          VIKUNJA_AUTH_OPENID_PROVIDERS_AUTHENTIK_LOGOUTURL: "https://auth.starktastic.net/application/o/vikunja/end-session/"
+          VIKUNJA_AUTH_OPENID_PROVIDERS_AUTHENTIK_SCOPE: "openid profile email"
+        envFrom:
+          - secretRef:
+              name: vikunja-secret
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            port: 3456
+            path: /api/v1/info
+          readiness:
+            enabled: true
+            type: HTTP
+            port: 3456
+            path: /api/v1/info
+          startup:
+            enabled: true
+            type: TCP
+            port: 3456
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 3456
+
+persistence:
+  config:
+    enabled: false
+  files:
+    existingClaim: vikunja-files
+    globalMounts:
+      - path: /app/vikunja/files

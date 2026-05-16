@@ -1,0 +1,10 @@
+name: vikunja
+namespace: operations
+deployPhase: services
+ingress:
+  enabled: true
+  host: vikunja
+  domainType: "public"
+  port: 3456
+  auth: false
+  rateLimit: true

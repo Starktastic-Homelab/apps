@@ -5,3 +5,12 @@ prometheus:
     enabled: true
   prometheusRule:
     enabled: true
+
+frr-k8s:
+  prometheus:
+    serviceAccount: kube-prometheus-stack-prometheus
+    namespace: monitoring
+    serviceMonitor:
+      enabled: false
+    prometheusRule:
+      enabled: false

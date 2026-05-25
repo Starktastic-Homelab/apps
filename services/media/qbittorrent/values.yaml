@@ -1,5 +1,15 @@
 controllers:
   main:
+    initContainers:
+      clean-stale-locks:
+        image:
+          repository: busybox
+          tag: stable
+        command:
+          - sh
+          - -c
+          - |
+            rm -fv /config/qBittorrent/lockfile /config/qBittorrent/ipc-socket
     containers:
       main:
         image:

@@ -82,6 +82,10 @@ ingressClass:
   isDefaultClass: true
 api:
   dashboard: true
+  # `insecure: true` exposes Traefik's API on port 8080 inside the pod — NOT
+  # publicly. It's the standard way to back the in-cluster IngressRoute that
+  # serves the dashboard at traefik.internal (which itself is gated by
+  # Authentik forward-auth + the internal-ip-allowlist middleware).
   insecure: true
 ingressRoute:
   dashboard:

@@ -33,7 +33,6 @@ persistence:
   data:
     enabled: true
     type: persistentVolumeClaim
-    storageClass: "nfs-pv"
     size: 1Gi
     accessMode: ReadWriteMany
     globalMounts:

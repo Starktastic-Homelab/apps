@@ -8,13 +8,13 @@ spec:
   acme:
     # server: https://acme-staging-v02.api.letsencrypt.org/directory
     server: https://acme-v02.api.letsencrypt.org/directory
-    email: benfaingold@gmail.com
+    email: {{ .Values.global.acmeEmail }}
     privateKeySecretRef:
       name: letsencrypt-prod-account-key
     solvers:
       - dns01:
           cloudflare:
-            email: benfaingold@gmail.com
+            email: {{ .Values.global.acmeEmail }}
             apiTokenSecretRef:
               name: cloudflare-api-token-secret
               key: api-token

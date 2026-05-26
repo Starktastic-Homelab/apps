@@ -6,9 +6,9 @@ controllers:
           repository: lscr.io/linuxserver/prowlarr
           tag: 2.3.5@sha256:c9fe528f34b1fd3715438b6f6d6991d64e2965f2c055db36398bc66a0e7eab01
         probes:
-          liveness: { port: 9696 }
-          readiness: { port: 9696 }
-          startup: { port: 9696 }
+          liveness: {port: 9696}
+          readiness: {port: 9696}
+          startup: {port: 9696}
 
 service:
   main:

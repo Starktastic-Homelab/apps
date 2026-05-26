@@ -2,6 +2,8 @@ name: bazarr
 namespace: media
 deployPhase: services
 manifests: true
+commonValuesExtras:
+  - templates/media-arr-common.yaml
 
 ingress:
   enabled: true

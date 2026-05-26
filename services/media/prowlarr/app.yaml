@@ -1,9 +1,12 @@
 name: prowlarr
 namespace: media
 deployPhase: services
+commonValuesExtras:
+  - templates/media-arr-common.yaml
 
 # Prowlarr is an indexer manager — it never touches the media library, so
-# unlike the other *arr services this one doesn't enable persistence.media.
+# unlike the other *arr services this one overrides persistence.media.enabled
+# to false in its values.yaml.
 ingress:
   enabled: true
   host: prowlarr

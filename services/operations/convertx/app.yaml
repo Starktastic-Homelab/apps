@@ -1,6 +1,7 @@
 name: convertx
 namespace: operations
 deployPhase: services
+manifests: true
 
 ingress:
   enabled: true

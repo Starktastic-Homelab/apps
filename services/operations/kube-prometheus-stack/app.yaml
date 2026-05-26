@@ -1,6 +1,7 @@
 name: kube-prometheus-stack
 namespace: monitoring
 deployPhase: services
+manifests: true
 chart:
   repo: https://prometheus-community.github.io/helm-charts
   name: kube-prometheus-stack

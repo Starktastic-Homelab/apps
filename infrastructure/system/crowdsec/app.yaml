@@ -1,5 +1,7 @@
 name: crowdsec
 namespace: crowdsec
+deployPhase: controllers
+manifests: true
 chart:
   repo: https://crowdsecurity.github.io/helm-charts
   name: crowdsec

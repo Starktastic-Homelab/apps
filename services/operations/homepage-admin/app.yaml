@@ -2,6 +2,7 @@ name: homepage-admin
 namespace: operations
 deployPhase: services
 helmManifests: true
+manifests: true
 
 ingress:
   enabled: true

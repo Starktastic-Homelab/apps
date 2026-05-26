@@ -1,3 +1,4 @@
 name: mosquitto
 namespace: home-automation
 deployPhase: services
+manifests: true

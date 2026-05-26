@@ -168,7 +168,7 @@ fi
 
 # Create directory structure
 SERVICE_DIR="$REPO_ROOT/services/$CATEGORY/$SERVICE_NAME"
-mkdir -p "$SERVICE_DIR/manifests"
+mkdir -p "$SERVICE_DIR"
 
 # Generate app.yaml
 cat >"$SERVICE_DIR/app.yaml" <<EOF
@@ -217,16 +217,17 @@ service:
 $PERSISTENCE_BLOCK
 EOF
 
-# Create empty manifests placeholder
-touch "$SERVICE_DIR/manifests/.gitkeep"
-
 echo ""
 echo -e "${GREEN}✅ Service scaffolded successfully!${NC}"
 echo ""
 echo "Created files:"
 echo "  - $SERVICE_DIR/app.yaml"
 echo "  - $SERVICE_DIR/values.yaml"
-echo "  - $SERVICE_DIR/manifests/"
+echo ""
+echo -e "${YELLOW}Note:${NC} If this service needs raw Kubernetes manifests (Secrets,"
+echo "ConfigMaps, etc.), create a 'manifests/' directory here and add"
+echo "  manifests: true"
+echo "to app.yaml so the GitOps engine includes them."
 echo ""
 
 if [[ $INGRESS_ENABLED =~ ^[Yy] ]]; then

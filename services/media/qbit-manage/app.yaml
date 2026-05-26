@@ -1,3 +1,4 @@
 name: qbit-manage
 namespace: media
 deployPhase: services
+manifests: true

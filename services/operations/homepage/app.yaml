@@ -4,6 +4,7 @@ deployPhase: services
 baseApp: services/operations/homepage-admin
 valuesOverride: true
 helmManifests: true
+manifests: true
 
 ingress:
   enabled: true

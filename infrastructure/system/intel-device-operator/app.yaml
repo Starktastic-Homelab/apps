@@ -1,5 +1,7 @@
 name: intel-device-operator
 namespace: kube-system
+deployPhase: controllers
+manifests: true
 chart:
   repo: https://intel.github.io/helm-charts
   name: intel-device-plugins-operator

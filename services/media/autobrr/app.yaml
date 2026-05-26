@@ -1,6 +1,7 @@
 name: autobrr
 namespace: media
 deployPhase: services
+manifests: true
 
 ingress:
   enabled: true

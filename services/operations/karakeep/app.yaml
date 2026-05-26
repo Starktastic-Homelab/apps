@@ -1,6 +1,7 @@
 name: karakeep
 namespace: operations
 deployPhase: services
+manifests: true
 ingress:
   enabled: true
   host: karakeep

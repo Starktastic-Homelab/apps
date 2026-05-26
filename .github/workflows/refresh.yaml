@@ -84,16 +84,7 @@ jobs:
                 SCOPE="all"; break ;;
               templates/common.yaml)
                 echo "  $file → all_services"
-                if [ "$SCOPE" = "all_infra" ]; then
-                  SCOPE="all"; break
-                fi
                 SCOPE="all_services" ;;
-              templates/infra-common.yaml)
-                echo "  $file → all_infra"
-                if [ "$SCOPE" = "all_services" ]; then
-                  SCOPE="all"; break
-                fi
-                SCOPE="all_infra" ;;
 
               infrastructure/base-configs/*)
                 echo "  $file → app:base-configs"
@@ -118,7 +109,7 @@ jobs:
           # Determine final scope
           if [ "$SCOPE" = "all" ]; then
             echo "scope=all" >> "$GITHUB_OUTPUT"
-          elif [ "$SCOPE" = "all_services" ] || [ "$SCOPE" = "all_infra" ]; then
+          elif [ "$SCOPE" = "all_services" ]; then
             UNIQUE_APPS=$(echo "$APP_NAMES" | tr ' ' '\n' | sort -u | tr '\n' ' ' | xargs)
             echo "scope=$SCOPE" >> "$GITHUB_OUTPUT"
             echo "apps=$UNIQUE_APPS" >> "$GITHUB_OUTPUT"
@@ -175,14 +166,6 @@ jobs:
             all_services)
               echo 'Refreshing all service applications...'
               refresh_apps $(argocd app list --core -l deploy-phase=services -o name)
-              if [ -n "$APPS" ]; then
-                echo "Also refreshing: $APPS"
-                refresh_apps $APPS
-              fi
-              ;;
-            all_infra)
-              echo 'Refreshing all infrastructure applications...'
-              refresh_apps $(argocd app list --core -l 'deploy-phase in (controllers,crds,foundation)' -o name)
               if [ -n "$APPS" ]; then
                 echo "Also refreshing: $APPS"
                 refresh_apps $APPS

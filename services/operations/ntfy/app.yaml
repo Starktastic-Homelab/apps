@@ -1,5 +1,7 @@
 name: ntfy
 namespace: operations
+deployPhase: services
+manifests: true
 
 ingress:
   enabled: true

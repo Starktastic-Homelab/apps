@@ -1,3 +1,4 @@
 name: recyclarr
 namespace: media
 deployPhase: services
+manifests: true

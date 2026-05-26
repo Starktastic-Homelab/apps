@@ -1,3 +1,4 @@
 name: cross-seed
 namespace: media
 deployPhase: services
+manifests: true

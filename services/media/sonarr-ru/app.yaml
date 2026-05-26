@@ -6,7 +6,3 @@ baseApp: services/media/sonarr
 ingress:
   enabled: true
   host: sonarr-ru
-  domainType: "internal"
-  port: 8989
-  auth: true
-  rateLimit: true

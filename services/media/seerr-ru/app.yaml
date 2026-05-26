@@ -6,7 +6,3 @@ baseApp: services/media/seerr
 ingress:
   enabled: true
   host: "request-ru"
-  domainType: "media"
-  port: 5055
-  auth: false
-  rateLimit: true

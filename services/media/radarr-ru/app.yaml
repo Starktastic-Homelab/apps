@@ -3,10 +3,9 @@ namespace: media
 deployPhase: services
 baseApp: services/media/radarr
 
+# Inherits all ingress fields from the base radarr app.yaml; only the host
+# differs (PR-based variant ingress override loads base app.yaml first, then
+# variant's, in the ingress chart).
 ingress:
   enabled: true
   host: radarr-ru
-  domainType: "internal"
-  port: 7878
-  auth: true
-  rateLimit: true

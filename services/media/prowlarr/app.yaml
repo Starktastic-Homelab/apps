@@ -2,6 +2,8 @@ name: prowlarr
 namespace: media
 deployPhase: services
 
+# Prowlarr is an indexer manager — it never touches the media library, so
+# unlike the other *arr services this one doesn't enable persistence.media.
 ingress:
   enabled: true
   host: prowlarr

@@ -80,6 +80,7 @@ spec:
         syncOptions:
           - CreateNamespace=true
           - ServerSideApply=true
+          - RespectIgnoreDifferences=true
         retry:
           limit: 30
           backoff:
@@ -91,6 +92,14 @@ spec:
           kind: Secret
           jsonPointers:
             - /data
+        - group: ""
+          kind: PersistentVolumeClaim
+          jsonPointers:
+            # PVC spec is immutable post-bind. We dropped the explicit
+            # `storageClassName: nfs-pv` from values now that nfs-pv is the
+            # sole cluster default, but bound PVCs still report it on the
+            # live side, which Argo would otherwise flag as drift forever.
+            - /spec/storageClassName
         - group: apps
           kind: Deployment
           jqPathExpressions:

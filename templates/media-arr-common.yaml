@@ -1,0 +1,34 @@
+# Shared bjw-s app-template values for the *arr family (sonarr, radarr,
+# lidarr, prowlarr, bazarr). Loaded via `commonValuesExtras` from each
+# service's app.yaml, before the service's own values.yaml.
+#
+# Per-service values.yaml still owns:
+#   - controllers.main.containers.main.image
+#   - probe ports (liveness/readiness/startup) and service.main.ports.http.port
+#   - service-specific extras (e.g. bazarr's envFrom and scripts mount,
+#     prowlarr's persistence.media.enabled: false override)
+controllers:
+  main:
+    containers:
+      main:
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            path: /ping
+          readiness:
+            enabled: true
+            type: HTTP
+            path: /ping
+          startup:
+            enabled: true
+            type: HTTP
+            path: /ping
+
+service:
+  main:
+    controller: main
+
+persistence:
+  media:
+    enabled: true

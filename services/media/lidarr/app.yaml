@@ -1,6 +1,8 @@
 name: lidarr
 namespace: media
 deployPhase: services
+commonValuesExtras:
+  - templates/media-arr-common.yaml
 
 ingress:
   enabled: true

@@ -10,24 +10,13 @@ controllers:
               name: bazarr-secret
         probes:
           liveness:
-            enabled: true
-            type: HTTP
-            path: /ping
             port: 6767
           readiness:
-            enabled: true
-            type: HTTP
-            path: /ping
             port: 6767
           startup:
-            enabled: true
-            type: HTTP
-            path: /ping
             port: 6767
-
 service:
   main:
-    controller: main
     ports:
       http:
         port: 6767
@@ -39,5 +28,3 @@ persistence:
     defaultMode: 0755
     globalMounts:
       - path: /scripts
-  media:
-    enabled: true

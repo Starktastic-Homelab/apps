@@ -6,9 +6,9 @@ controllers:
           repository: lscr.io/linuxserver/sonarr
           tag: 4.0.17@sha256:0b5c4803f92456fb9b65bae8375716ea120b4ea17b3cced7da32b63f0085782b
         probes:
-          liveness:   { port: 8989 }
-          readiness:  { port: 8989 }
-          startup:    { port: 8989 }
+          liveness: { port: 8989 }
+          readiness: { port: 8989 }
+          startup: { port: 8989 }
 
 service:
   main:

@@ -1,6 +1,7 @@
 name: alloy
 namespace: monitoring
 deployPhase: services
+manifests: true
 chart:
   repo: https://grafana.github.io/helm-charts
   name: alloy

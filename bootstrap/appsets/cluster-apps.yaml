@@ -11,10 +11,12 @@ spec:
         generators:
           - list:
               elements:
+                # deployPhaseDefault is the fallback when an app.yaml doesn't set deployPhase explicitly.
+                # Apps SHOULD set it explicitly for clarity (see infrastructure/*/app.yaml).
                 - category: infrastructure
                   pathPattern: "infrastructure/**/app.yaml"
                   deployPhaseDefault: controllers
-                  commonValues: "templates/infra-common.yaml"
+                  commonValues: ""
                   defaultChartRepo: ""
                   defaultChartName: ""
                   defaultChartVersion: ""
@@ -62,7 +64,9 @@ spec:
       labels:
         deploy-phase: '{{ dig "deployPhase" .deployPhaseDefault . }}'
       annotations:
-        argocd-diff-preview/watch-pattern: '{{.path.path}}/.*, templates/globals.yaml, {{ .commonValues }}, templates/ingress-chart/.*'
+        notifications.argoproj.io/subscribe.on-sync-failed.ntfy: ""
+        notifications.argoproj.io/subscribe.on-health-degraded.ntfy: ""
+        argocd-diff-preview/watch-pattern: '{{.path.path}}/.*, templates/.*'
     spec:
       project: default
       sources: []
@@ -76,6 +80,12 @@ spec:
         syncOptions:
           - CreateNamespace=true
           - ServerSideApply=true
+        retry:
+          limit: 30
+          backoff:
+            duration: 15s
+            factor: 2
+            maxDuration: 5m
       ignoreDifferences:
         - group: ""
           kind: Secret
@@ -89,16 +99,10 @@ spec:
   templatePatch: |
     {{- $repo := "https://github.com/Starktastic-Homelab/apps.git" }}
     {{- $isService := eq .category "services" }}
-    {{- $isInfra := eq .category "infrastructure" }}
-    {{- $isOps := and $isService (eq .namespace "operations") }}
     {{- $basePath := dig "baseApp" "" . }}
     {{- $valuesPath := or $basePath (printf "%s" .path.path) }}
-    {{- if or $isInfra $isOps }}
-    metadata:
-      annotations:
-        notifications.argoproj.io/subscribe.on-sync-failed.ntfy: ""
-        notifications.argoproj.io/subscribe.on-health-degraded.ntfy: ""
-    {{- end }}
+    {{- $hasCommon := ne .commonValues "" }}
+    {{- $extras := dig "commonValuesExtras" (list) . }}
     spec:
       sources:
         {{- if $isService }}
@@ -108,7 +112,12 @@ spec:
           helm:
             valueFiles:
               - $values/templates/globals.yaml
+              {{- if $hasCommon }}
               - $values/{{ .commonValues }}
+              {{- end }}
+              {{- range $extras }}
+              - $values/{{ . }}
+              {{- end }}
               - $values/{{ $valuesPath }}/values.yaml
               {{- if and $basePath (dig "valuesOverride" false .) }}
               - $values/{{.path.path}}/values.yaml
@@ -120,7 +129,12 @@ spec:
           helm:
             valueFiles:
               - $values/templates/globals.yaml
+              {{- if $hasCommon }}
               - $values/{{ .commonValues }}
+              {{- end }}
+              {{- range $extras }}
+              - $values/{{ . }}
+              {{- end }}
               - $values/{{.path.path}}/values.yaml
         {{- end }}
         - repoURL: {{ $repo }}
@@ -133,8 +147,12 @@ spec:
           helm:
             valueFiles:
               - $values/templates/globals.yaml
+              {{- if $basePath }}
+              - $values/{{ $basePath }}/app.yaml
+              {{- end }}
               - $values/{{.path.path}}/app.yaml
         {{- end }}
+        {{- if dig "manifests" false . }}
         {{- if dig "helmManifests" false . }}
         - repoURL: {{ $repo }}
           targetRevision: HEAD
@@ -146,4 +164,5 @@ spec:
         - repoURL: {{ $repo }}
           targetRevision: HEAD
           path: '{{.path.path}}/manifests'
+        {{- end }}
         {{- end }}

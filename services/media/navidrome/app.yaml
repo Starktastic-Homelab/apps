@@ -1,6 +1,7 @@
 name: navidrome
 namespace: media
 deployPhase: services
+manifests: true
 
 ingress:
   enabled: false

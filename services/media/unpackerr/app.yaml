@@ -1,3 +1,4 @@
 name: unpackerr
 namespace: media
 deployPhase: services
+manifests: true

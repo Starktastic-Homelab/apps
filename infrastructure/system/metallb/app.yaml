@@ -2,6 +2,7 @@ name: metallb
 namespace: metallb-system
 deployPhase: foundation
 helmManifests: true
+manifests: true
 chart:
   repo: https://metallb.github.io/metallb
   name: metallb

@@ -1,6 +1,7 @@
 name: bytestash
 namespace: operations
 deployPhase: services
+manifests: true
 ingress:
   enabled: true
   host: bytestash

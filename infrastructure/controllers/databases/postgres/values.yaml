@@ -36,7 +36,10 @@ primary:
       image: busybox:latest
       imagePullPolicy: IfNotPresent
       securityContext:
-        runAsUser: 0
+        # Match the main container's uid/gid so we don't need to escalate to
+        # root just to delete a single file that's owned by postgres.
+        runAsUser: 1001
+        runAsNonRoot: true
       command:
         - sh
         - -c

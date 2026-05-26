@@ -12,4 +12,9 @@ spec:
       crowdsecLapiScheme: https
       crowdsecLapiHost: crowdsec-service.crowdsec.svc.cluster.local:8080
       crowdsecLapiKeyFile: /etc/crowdsec/bouncer-key
+      # NOTE: requires manual setup before this can be flipped to `false`:
+      # mount the cert-manager-issued bouncer CA cert into Traefik (as a
+      # secret volume) and add `crowdsecLapiTLSCertificateAuthorityFile`
+      # pointing at the mount path. Until then we rely on the pre-shared
+      # bouncer API key plus the in-cluster network for authentication.
       crowdsecLapiTLSInsecureVerify: true

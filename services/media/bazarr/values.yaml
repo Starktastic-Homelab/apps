@@ -9,10 +9,12 @@ controllers:
           - secretRef:
               name: bazarr-secret
         probes:
-          liveness: { port: 6767 }
-          readiness: { port: 6767 }
-          startup: { port: 6767 }
-
+          liveness:
+            port: 6767
+          readiness:
+            port: 6767
+          startup:
+            port: 6767
 service:
   main:
     ports:

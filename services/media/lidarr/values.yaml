@@ -6,10 +6,12 @@ controllers:
           repository: lscr.io/linuxserver/lidarr
           tag: 3.1.0.4875-ls22@sha256:dbffcf91da47d48e09e613857032c95a62755b928a71a7718688e3ab03fbbd26
         probes:
-          liveness: { port: 8686 }
-          readiness: { port: 8686 }
-          startup: { port: 8686 }
-
+          liveness:
+            port: 8686
+          readiness:
+            port: 8686
+          startup:
+            port: 8686
 service:
   main:
     ports:

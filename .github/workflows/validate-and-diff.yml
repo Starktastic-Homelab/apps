@@ -17,6 +17,7 @@ jobs:
   validate:
     name: Validate
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -25,7 +26,9 @@ jobs:
         uses: actions/setup-python@v6.2.0
         with:
           python-version: '3.x'
-          pip-install: 'yamllint'
+
+      - name: Install yamllint
+        run: pip install yamllint
 
       - name: YAML Lint
         id: yamllint
@@ -125,6 +128,7 @@ jobs:
     needs: validate
     if: always() && !cancelled()
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout PR branch
         uses: actions/checkout@v6
@@ -138,6 +142,11 @@ jobs:
           path: main
 
       - name: Generate diff
+        # argocd-diff-preview spins up an ephemeral k3d cluster in Docker to
+        # render real ArgoCD Application manifests, so it needs Docker access.
+        # Mounting /var/run/docker.sock here is safe because this workflow uses
+        # `pull_request` (not `pull_request_target`) — PR code cannot read
+        # repository secrets.
         env:
           # renovate: datasource=docker depName=dagandersen/argocd-diff-preview
           DIFF_PREVIEW_VERSION: 'v0.2.8'
@@ -168,6 +177,7 @@ jobs:
     needs: [validate, diff]
     if: always()
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
       pull-requests: write
     steps:

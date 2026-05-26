@@ -5,10 +5,15 @@ on:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: argocd-refresh
+  cancel-in-progress: false
+
 jobs:
   refresh:
     name: Trigger refresh
     runs-on: self-hosted
+    timeout-minutes: 10
     container:
       image: buildpack-deps:scm
     defaults:
@@ -148,7 +153,8 @@ jobs:
 
       - name: Setup ArgoCD CLI
         if: steps.guard.outputs.scope != 'skip'
-        uses: clowdhaus/argo-cd-action@main
+        # renovate: datasource=github-tags depName=clowdhaus/argo-cd-action
+        uses: clowdhaus/argo-cd-action@b7274e53d135aa3f2c8cc1154420cf11e39e67db  # main
         with:
           command: version
           options: --client

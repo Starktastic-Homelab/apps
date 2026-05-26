@@ -29,9 +29,15 @@ fi
 
 echo " Enter your key-value pairs (e.g. password=SuperSecret). Press Ctrl+D when done."
 
+STDIN_BUFFER=$(cat)
+if [[ -z $STDIN_BUFFER ]]; then
+  echo "❌ Error: No key-value pairs provided on stdin. Aborting." >&2
+  exit 1
+fi
+
 kubectl create secret generic "$SECRET_NAME" \
   --namespace "$NAMESPACE" \
-  --from-env-file /dev/stdin \
+  --from-env-file=<(echo "$STDIN_BUFFER") \
   --dry-run=client \
   -o yaml |
   kubeseal \

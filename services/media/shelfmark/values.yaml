@@ -9,6 +9,7 @@ controllers:
           FLASK_PORT: "8084"
           INGEST_DIR: "/books"
           HIDE_LOCAL_AUTH: "true"
+          DISABLE_LOCAL_AUTH: "true"
           OIDC_AUTO_REDIRECT: "true"
         probes:
           liveness:

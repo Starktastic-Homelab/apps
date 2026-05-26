@@ -19,6 +19,11 @@
       "matchDatasources": ["docker"],
       "matchPackageNames": ["lscr.io/linuxserver/qbittorrent"],
       "allowedVersions": "< 6.0.0"
+    },
+    {
+      "description": "Group the Authentik Helm chart and its outpost docker images into a single PR — they release in lockstep and must be upgraded together",
+      "matchPackageNames": ["authentik", "/^ghcr\\.io/goauthentik//"],
+      "groupName": "authentik"
     }
   ],
   "customManagers": [

@@ -32,6 +32,11 @@ singleBinary:
   replicas: 1
   persistence:
     enabled: true
+    # Must stay explicit: loki ships as a StatefulSet, and once
+    # volumeClaimTemplates.storageClassName is set on a live STS it is
+    # immutable. Leaving this empty would render a different VCT spec
+    # and the apply would be rejected.
+    storageClass: nfs-pv
     size: 10Gi
 
 read:

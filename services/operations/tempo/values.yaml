@@ -26,6 +26,10 @@ tempo:
 
 persistence:
   enabled: true
+  # Must stay explicit: tempo ships as a StatefulSet, and once
+  # volumeClaimTemplates.storageClassName is set on a live STS it is
+  # immutable.
+  storageClassName: nfs-pv
   accessModes:
     - ReadWriteMany
   size: 5Gi

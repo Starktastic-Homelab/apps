@@ -15,7 +15,7 @@
       "allowedVersions": "!/^\\d{2}\\.04/"
     },
     {
-      "description": "Block old LinuxServer libtorrent-based tags for qBittorrent",
+      "description": "Stay on libtorrent v2 (qBittorrent 5.x); block the 6.x release which switches to libtorrent v3",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["lscr.io/linuxserver/qbittorrent"],
       "allowedVersions": "< 6.0.0"

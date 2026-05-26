@@ -5,7 +5,6 @@ metadata:
   namespace: home-automation
 spec:
   accessModes: ["ReadWriteMany"]
-  storageClassName: nfs-pv
   resources:
     requests:
       storage: 5Gi

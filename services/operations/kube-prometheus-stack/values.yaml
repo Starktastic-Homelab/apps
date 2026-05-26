@@ -35,7 +35,6 @@ prometheus:
     storageSpec:
       volumeClaimTemplate:
         spec:
-          storageClassName: nfs-pv # IMPORTANT: must match global.storageClass in templates/globals.yaml
           accessModes: ["ReadWriteMany"]
           resources:
             requests:
@@ -50,7 +49,6 @@ alertmanager:
     storage:
       volumeClaimTemplate:
         spec:
-          storageClassName: nfs-pv # IMPORTANT: must match global.storageClass in templates/globals.yaml
           accessModes: ["ReadWriteMany"]
           resources:
             requests:
@@ -139,7 +137,6 @@ grafana:
       capture: true
   persistence:
     enabled: true
-    storageClassName: nfs-pv # IMPORTANT: must match global.storageClass in templates/globals.yaml
     accessModes: ["ReadWriteMany"]
     size: 2Gi
   additionalDataSources:

@@ -5,7 +5,6 @@ metadata:
   namespace: media
 spec:
   accessModes: ["ReadWriteMany"]
-  storageClassName: "nfs-pv"
   resources:
     requests:
       storage: 10Gi
@@ -17,7 +16,6 @@ metadata:
   namespace: media
 spec:
   accessModes: ["ReadWriteMany"]
-  storageClassName: "nfs-pv"
   resources:
     requests:
       storage: 5Gi

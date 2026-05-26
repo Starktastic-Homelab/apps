@@ -5,7 +5,6 @@ metadata:
   namespace: operations
 spec:
   accessModes: ["ReadWriteMany"]
-  storageClassName: "nfs-pv"
   resources:
     requests:
       storage: 1Gi

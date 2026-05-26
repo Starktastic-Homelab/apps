@@ -1,0 +1,13 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  # k3s pre-installs `local-path` as the cluster default StorageClass. We use
+  # `nfs-pv` as the cluster default instead (RWX, NFS-backed, survives node
+  # loss). This object re-applies the upstream `local-path` SC with the default
+  # annotation flipped off so we end up with exactly one default class.
+  name: local-path
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "false"
+provisioner: rancher.io/local-path
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer

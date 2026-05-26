@@ -26,7 +26,6 @@ tempo:
 
 persistence:
   enabled: true
-  storageClassName: nfs-pv # source: globals.yaml → global.storageClass
   accessModes:
     - ReadWriteMany
   size: 5Gi

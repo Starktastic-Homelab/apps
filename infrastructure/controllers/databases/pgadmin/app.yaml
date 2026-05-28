@@ -5,4 +5,4 @@ manifests: true
 chart:
   repo: https://helm.runix.net
   name: pgadmin4
-  version: 1.62.0
+  version: 1.64.0

@@ -6,4 +6,4 @@ manifests: true
 chart:
   repo: https://metallb.github.io/metallb
   name: metallb
-  version: 0.16.0
+  version: 0.16.1

@@ -2,6 +2,8 @@ name: sonarr-ru
 namespace: media
 deployPhase: services
 baseApp: services/media/sonarr
+commonValuesExtras:
+  - templates/media-arr-common.yaml
 
 ingress:
   enabled: true

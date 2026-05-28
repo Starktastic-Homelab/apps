@@ -2,6 +2,8 @@ name: radarr-ru
 namespace: media
 deployPhase: services
 baseApp: services/media/radarr
+commonValuesExtras:
+  - templates/media-arr-common.yaml
 
 # Inherits all ingress fields from the base radarr app.yaml; only the host
 # differs (PR-based variant ingress override loads base app.yaml first, then

@@ -5,4 +5,4 @@ manifests: true
 chart:
   repo: https://charts.bitnami.com/bitnami
   name: postgresql
-  version: 18.6.9
+  version: 18.6.10

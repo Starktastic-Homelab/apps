@@ -53,8 +53,6 @@ data:
 
         custom_format_groups:
           add:
-            # Required: penalizes x265 without HDR/DV
-            - trash_id: ff204bbcecdd487d1cefcefdbf0c278d # [Required] Golden Rule UHD
             # Hard-block DV without HDR fallback
             - trash_id: 7fc2751eef7e6bdc70b74136e5e35c76 # [HDR Formats] DV (w/o HDR fallback)
             # Boost DV and HDR10+
@@ -234,8 +232,6 @@ data:
           skip:
             - 74aff4168620ed49dcc67e92b2c2a5b4 # [Optional] Language Profiles
           add:
-            # Required: penalizes x265 without HDR/DV
-            - trash_id: e3f37512790f00d0e89e54fe5e790d1c # [Required] Golden Rule UHD
             # Hard-block DV without HDR fallback
             - trash_id: d776a1ea912a117d66d83b880ff2055d # [HDR Formats] DV (w/o HDR fallback)
             # Boost DV and HDR10+

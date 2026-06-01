@@ -89,12 +89,17 @@ data:
             # Miscellaneous optional formats
             # DV (Disk) intentionally omitted: prefer P8 hybrid remuxes over
             # non-hybrid P7 FEL for the LG C2 + Shield + Wholphin path.
-            # x266 is the only CF in this group with a real (-10000) default
-            # score; the rest (HFR, MULTi, VC-1, VP9, x264, x265) have no
-            # default score and would only clutter the Radarr UI.
+            # x266 blocked (-10000). INTERNAL boosted (+10) as a small quality
+            # signal for P2P internal releases. Other CFs in this group (HFR,
+            # MULTi, VC-1, VP9, x264, x265) have no default score and would
+            # only clutter the Radarr UI.
             - trash_id: 9337080378236ce4c0b183e35790d2a7 # [Optional] Miscellaneous
               select:
                 - 390455c22a9cac81a738f6cbad705c3c # x266
+                - 182fa1c42a2468f8488e6dcf75a81b81 # INTERNAL
+            # Accessibility: hard-block releases tagged with sign-language
+            # interpreters or audio-description overlays (WiTH AD/ASL/BSL/BASL).
+            - trash_id: bc3c13e52f2971319bc1748ffa3d1078 # [Optional] Accessibility
           # Synced by default: Audio Formats, HDR, Streaming Services General,
           # Unwanted Formats (Bad Dual Groups, B&W, No-RlsGroup, Obfuscated,
           # Retags, Scene are auto-synced via Unwanted Formats group).
@@ -107,6 +112,15 @@ data:
             assign_scores_to:
               - name: UHD Bluray + WEB
                 score: 500
+
+          # Boost IMAX Enhanced above default (+800) so it pulls ahead of
+          # standard IMAX when both are available. The LG C2 supports IMAX
+          # Enhanced (DTS:X / wider color), so a slight preference is warranted.
+          - trash_ids:
+              - 9f6cbff8cfe4ebbc1bde14c7b7bec0de # IMAX Enhanced
+            assign_scores_to:
+              - name: UHD Bluray + WEB
+                score: 1000
 
       radarr_ru:
         base_url: http://radarr-ru.media.svc.cluster.local:7878
@@ -268,12 +282,30 @@ data:
             # Miscellaneous optional formats
             # DV (Disk) intentionally omitted: prefer P8 hybrid remuxes over
             # non-hybrid P7 FEL for the LG C2 + Shield + Wholphin path.
-            # x266 is the only CF in this group with a real (-10000) default
-            # score; the rest (HFR, MULTi, VC-1, VP9, x264, x265) have no
+            # x266 blocked (-10000). INTERNAL boosted (+10) as a small quality
+            # signal for P2P internal releases. Other CFs in this group (HFR,
+            # MULTi, VC-1, VP9, x264, x265, Multi/Single-Episode) have no
             # default score and would only clutter the Sonarr UI.
             - trash_id: f4a0410a1df109a66d6e47dcadcce014 # [Optional] Miscellaneous
               select:
                 - 041d90b435ebd773271cea047a457a6a # x266
+                - 5ab46ff851b76c337e13e81a4353875f # INTERNAL
+            # Accessibility: hard-block releases tagged with sign-language
+            # interpreters or audio-description overlays (WiTH AD/ASL/BSL/BASL).
+            - trash_id: bad5bc85573a0134e1e1987c46f67e98 # [Optional] Accessibility
+            # Season Packs: small bias (+10) toward full-season releases over
+            # per-episode batches for cleaner library organization.
+            - trash_id: d920fd959d220306888f40b6f38e1578 # [Optional] Season Packs
+              assign_scores_to:
+                - name: WEB-2160p
+            # Series Versions: bias toward remastered TV (e.g. Star Trek TNG,
+            # Buffy, X-Files restorations). Hybrid is handled by the explicit
+            # override below, so only Remaster is selected here.
+            - trash_id: a4a95b9f7bdf10dcb005e765155e4d24 # [Optional] Series Versions
+              assign_scores_to:
+                - name: WEB-2160p
+              select:
+                - b735f09d3c025cbb7d75a5d38325b73b # Remaster
             # Audio Formats: NOT auto-synced for Sonarr (unlike Radarr).
             # Applied to both the main UHD profile and the anime profile so
             # both get proper audio scoring without inline duplication.

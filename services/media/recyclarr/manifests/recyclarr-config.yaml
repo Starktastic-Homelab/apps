@@ -53,6 +53,15 @@ data:
 
         custom_format_groups:
           add:
+            # Release-group tier scoring for Remux / UHD Bluray / HD Bluray /
+            # WEB. Not default-synced (natural include is only Base Profile),
+            # so explicitly assigned to our profile. The profile's own
+            # formatItems already scores UHD Bluray + WEB tiers; this group
+            # adds Remux Tier 01/02/03 (+1950/+1900/+1850) so elite remux
+            # groups (FraMeSToR, BiZKiT, BMF, ...) outscore generic remuxes.
+            - trash_id: b2f2af430f73f3ad1f9948f33e0f0cf8 # [Release Groups] HQ
+              assign_scores_to:
+                - name: UHD Bluray + WEB
             # Hard-block DV without HDR fallback
             - trash_id: 7fc2751eef7e6bdc70b74136e5e35c76 # [HDR Formats] DV (w/o HDR fallback)
             # Boost DV and HDR10+
@@ -232,6 +241,20 @@ data:
           skip:
             - 74aff4168620ed49dcc67e92b2c2a5b4 # [Optional] Language Profiles
           add:
+            # Release-group tier scoring for Remux / HD Bluray / WEB. Not
+            # default-synced (natural include is only Base Profile), so
+            # explicitly assigned to our profile. The profile template only
+            # ships WEB tier scoring in its formatItems; this group adds
+            # Remux Tier 01/02 (+1900/+1850) and HD Bluray Tier 01/02
+            # (+1800/+1750) so the Bluray-2160p Remux / Bluray-1080p Remux /
+            # Bluray-1080p qualities enabled above actually get release-group
+            # quality scoring (FraMeSToR-tier groups outscore generic ones).
+            # Note: Sonarr's HQ group has no UHD Bluray release-group CFs;
+            # TRaSH does not maintain a UHD Bluray release-group tier list
+            # for Sonarr (4K TV remuxes are too rare a corpus).
+            - trash_id: b4a4353e3b3e6789dbef07677ff23686 # [Release Groups] HQ
+              assign_scores_to:
+                - name: WEB-2160p
             # Hard-block DV without HDR fallback
             - trash_id: d776a1ea912a117d66d83b880ff2055d # [HDR Formats] DV (w/o HDR fallback)
             # Boost DV and HDR10+

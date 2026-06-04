@@ -9,3 +9,11 @@ service:
         port: 56882
       bittorrent-udp:
         port: 56882
+
+persistence:
+  incomplete:
+    advancedMounts:
+      main:
+        main:
+          - path: /downloads/incomplete
+            subPath: qbittorrent-ru

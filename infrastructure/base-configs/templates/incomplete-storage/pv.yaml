@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: qbittorrent-incomplete-pv
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
+spec:
+  capacity:
+    storage: 1300Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  nfs:
+    server: {{ .Values.global.network.nfs.server }}
+    path: /mnt/nvme-cache/incomplete
+  mountOptions:
+    - nfsvers=4.1
+    - noatime
+    - hard
+    - rsize=1048576
+    - wsize=1048576

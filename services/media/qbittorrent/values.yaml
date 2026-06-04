@@ -58,3 +58,12 @@ service:
 persistence:
   media:
     enabled: true
+  incomplete:
+    enabled: true
+    type: persistentVolumeClaim
+    existingClaim: qbittorrent-incomplete-pvc
+    advancedMounts:
+      main:
+        main:
+          - path: /downloads/incomplete
+            subPath: qbittorrent

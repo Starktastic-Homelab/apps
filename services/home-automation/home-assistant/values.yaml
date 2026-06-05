@@ -5,6 +5,9 @@ controllers:
         image:
           repository: ghcr.io/home-assistant/home-assistant
           tag: 2026.6.0@sha256:60af7f5d4d13368c86c73611e4a3ce32534eb573bce09f26b98d647291c3df8c
+        resources:
+          requests:
+            memory: 512Mi
         env:
           PUID: null
           PGID: null

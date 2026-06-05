@@ -102,6 +102,9 @@ alertmanager:
 # -----------------------------------------------------------------------------
 grafana:
   enabled: true
+  resources:
+    requests:
+      memory: 640Mi
   admin:
     existingSecret: grafana-admin-secret
     userKey: admin-user

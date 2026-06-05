@@ -1,5 +1,8 @@
 controllers:
   main:
+    pod:
+      nodeSelector:
+        node-role.kubernetes.io/worker: "true"
     initContainers:
       clean-stale-locks:
         image:

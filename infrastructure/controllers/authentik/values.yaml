@@ -49,6 +49,9 @@ authentik:
   disable_update_check: true
   disable_startup_analytics: true
 server:
+  resources:
+    requests:
+      memory: 1Gi
   metrics:
     enabled: true
     serviceMonitor:

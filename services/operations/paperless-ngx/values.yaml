@@ -5,6 +5,9 @@ controllers:
         image:
           repository: ghcr.io/paperless-ngx/paperless-ngx
           tag: 2.20.15@sha256:6c86cad803970ea782683a8e80e7403444c5bf3cf70de63b4d3c8e87500db92f
+        resources:
+          requests:
+            memory: 640Mi
         env:
           # Database
           PAPERLESS_DBHOST: "postgres-postgresql.databases.svc.cluster.local"

@@ -35,6 +35,7 @@ data:
       action: "inject",
       useClientTorrents: true,
       matchMode: "flexible",
+      includeSingleEpisodes: true,
       duplicateCategories: true,
       linkCategory: "cross-seed",
       linkType: "hardlink",

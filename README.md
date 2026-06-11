@@ -92,7 +92,7 @@ Under the hood, the `templatePatch` resolves each discovered `app.yaml` into a m
 ```mermaid
 flowchart TB
     subgraph matrix["Matrix Generator"]
-        LIST["List Generator\n─────\ninfrastructure → infra-common.yaml\nservices → common.yaml"] ---|"×"| GIT["Git Generator\n─────\nScan **/app.yaml\nExtract fields"]
+        LIST["List Generator\n─────\ninfrastructure → (no common file)\nservices → common.yaml"] ---|"×"| GIT["Git Generator\n─────\nScan **/app.yaml\nExtract fields"]
     end
 
     matrix ==> PATCH{{"templatePatch\n(Go template)"}}

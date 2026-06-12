@@ -5,4 +5,4 @@ manifests: true
 chart:
   repo: https://charts.goauthentik.io
   name: authentik
-  version: 2026.5.2
+  version: 2026.5.3

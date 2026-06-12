@@ -59,7 +59,7 @@ mechanism. We rewrite both by hand.
 | Monitoring | Grafana, Prometheus, Traefik, CrowdSec | — |
 | Security | Authentik, Vaultwarden, ArgoCD | Authentik |
 | Documents & Files | Paperless-ngx, Filebrowser, Changedetection | — |
-| Utilities | SearXNG, CyberChef, Stirling PDF, MeTube, MicroBin, PairDrop, Excalidash, ConvertX | + ntfy |
+| Utilities | SearXNG, CyberChef, Stirling PDF, MeTube, MicroBin, PairDrop, Excalidash, ConvertX, ntfy | same |
 | Infrastructure (Proxmox / Cluster VMs / Networking / Databases) | Proxmox, kube VMs, Traefik/MetalLB/CrowdSec, PostgreSQL/pgAdmin | — |
 
 Notes:
@@ -121,7 +121,7 @@ Notes:
 - CrowdSec — `https://app.crowdsec.net` — link only
 
 ### Security
-- Authentik *(both)* — `https://auth.starktastic.net` — `http://authentik-server.authentik.svc.cluster.local:80` — widget: authentik v2
+- Authentik *(both)* — `https://auth.starktastic.net` — admin: widget authentik v2 (`http://authentik-server.authentik.svc.cluster.local:80`, key `HOMEPAGE_VAR_AUTHENTIK_KEY`); **regular: link-only** (no widget, no public API key).
 - Vaultwarden *(admin)* — `https://vaultwarden.internal.starktastic.net` — link only
 - ArgoCD *(admin)* — `https://argocd.internal.starktastic.net` — `http://argocd-server.argocd.svc.cluster.local:80` — widget: argocd
 

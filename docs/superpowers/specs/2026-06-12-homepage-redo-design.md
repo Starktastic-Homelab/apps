@@ -30,8 +30,13 @@ manifests, and the manifests chart receives only `globals.yaml`. Therefore the t
 `configmap.yaml` files are fully independent static templates with no shared-block
 mechanism. We rewrite both by hand.
 
-- **Both instances are flat** — a single scrolling page of category sections. No tabs,
-  no PWA shortcuts.
+- **Admin is tabbed**, **regular is flat**:
+  - *Admin* groups sections into four tabs (`tab:` key) with PWA shortcuts:
+    **Home** (Streaming, Requests, Home & Life, Calendar) ·
+    **Media** (Movies & TV, Music & Books, Downloads) ·
+    **Operations** (Productivity, Monitoring, Security, Documents & Files, Utilities) ·
+    **Infrastructure** (Proxmox, Cluster VMs, Networking, Databases).
+  - *Regular* is a single scrolling page (no `tab:` keys, no PWA shortcuts).
 - **One canonical taxonomy** is shared across both; the regular instance simply omits
   sections/items that don't qualify by domain.
 - Single-item sections on the regular instance are **kept** (strict canonical taxonomy).
@@ -144,10 +149,13 @@ Notes:
 
 ## Layout (column counts, all `style: row`)
 
-- **Admin:** Streaming 5 · Requests 3 · Home&Life 4 · Movies&TV 4 · Music&Books 5 ·
-  Downloads 2 · Calendar 1 · Productivity 4 · Monitoring 4 · Security 3 ·
-  Documents&Files 3 · Utilities 4 · Proxmox 1 · Cluster VMs 3 · Networking 3 · Databases 2
-- **Regular:** Streaming 5 · Requests 3 · Home&Life 1 · Productivity 3 · Security 1 · Utilities 4
+- **Admin** (each section carries a `tab:` per the four tabs above):
+  - *Home tab:* Streaming 5 · Requests 3 · Home&Life 4 · Calendar 1
+  - *Media tab:* Movies&TV 4 · Music&Books 5 · Downloads 2
+  - *Operations tab:* Productivity 4 · Monitoring 4 · Security 3 · Documents&Files 3 · Utilities 4
+  - *Infrastructure tab:* Proxmox 1 · Cluster VMs 3 · Networking 3 · Databases 2
+  - PWA shortcuts: Home `/#home`, Media `/#media`, Operations `/#operations`, Infrastructure `/#infrastructure`.
+- **Regular** (flat, no tabs): Streaming 5 · Requests 3 · Home&Life 1 · Productivity 3 · Security 1 · Utilities 4
 
 ## Info widgets (`widgets.yaml`)
 

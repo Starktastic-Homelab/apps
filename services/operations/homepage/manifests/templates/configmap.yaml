@@ -32,11 +32,19 @@ data:
         style: row
         columns: 3
         icon: overseerr.png
-      Apps:
+      Home & Life:
         style: row
-        columns: 4
-        icon: mealie.png
-      Tools:
+        columns: 1
+        icon: home-assistant.png
+      Productivity:
+        style: row
+        columns: 3
+        icon: vikunja.png
+      Security:
+        style: row
+        columns: 1
+        icon: authentik.png
+      Utilities:
         style: row
         columns: 4
         icon: mdi-tools
@@ -127,7 +135,7 @@ data:
             icon: mdi-bookshelf
             href: https://request-books.benplus.app
             description: Book requests
-    - Apps:
+    - Home & Life:
         - Mealie:
             icon: mealie.png
             href: https://mealie.starktastic.net
@@ -136,6 +144,17 @@ data:
               type: mealie
               url: http://mealie.operations.svc.cluster.local:9000
               key: {{ "{{" }}HOMEPAGE_VAR_MEALIE_KEY{{ "}}" }}
+              version: 2
+    - Productivity:
+        - Vikunja:
+            icon: vikunja.png
+            href: https://vikunja.starktastic.net
+            description: Tasks & to-dos
+            widget:
+              type: vikunja
+              url: http://vikunja.operations.svc.cluster.local:3456
+              key: {{ "{{" }}HOMEPAGE_VAR_VIKUNJA_KEY{{ "}}" }}
+              enableTaskList: true
               version: 2
         - Karakeep:
             icon: karakeep.png
@@ -149,11 +168,12 @@ data:
             icon: listmonk.png
             href: https://listmonk.starktastic.net
             description: Newsletter manager
-        - ntfy:
-            icon: ntfy.png
-            href: https://ntfy.starktastic.net
-            description: Push notifications
-    - Tools:
+    - Security:
+        - Authentik:
+            icon: authentik.png
+            href: https://auth.starktastic.net
+            description: Identity provider
+    - Utilities:
         - SearXNG:
             icon: searxng.png
             href: https://search.starktastic.net
@@ -189,11 +209,12 @@ data:
             icon: convertx.png
             href: https://convertx.starktastic.net
             description: File converter
+        - ntfy:
+            icon: ntfy.png
+            href: https://ntfy.starktastic.net
+            description: Push notifications
   bookmarks.yaml: |
     - Links:
-        - Authentik:
-            - abbr: AK
-              href: https://auth.starktastic.net
         - GitHub:
             - abbr: GH
               href: https://github.com/Starktastic-Homelab

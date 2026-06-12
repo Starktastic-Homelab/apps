@@ -43,17 +43,17 @@ data:
       Streaming:
         tab: Home
         style: row
-        columns: 3
+        columns: 5
         icon: jellyfin.png
       Requests:
         tab: Home
         style: row
-        columns: 2
+        columns: 3
         icon: overseerr.png
       Home & Life:
         tab: Home
         style: row
-        columns: 5
+        columns: 4
         icon: home-assistant.png
       Calendar:
         tab: Home
@@ -68,19 +68,19 @@ data:
       Music & Books:
         tab: Media
         style: row
-        columns: 4
+        columns: 5
         icon: navidrome.png
-      Subtitles & Indexers:
-        tab: Media
-        style: row
-        columns: 4
-        icon: prowlarr.png
       Downloads:
         tab: Media
         style: row
         columns: 2
         icon: qbittorrent.png
       # -- Operations tab --
+      Productivity:
+        tab: Operations
+        style: row
+        columns: 4
+        icon: vikunja.png
       Monitoring:
         tab: Operations
         style: row
@@ -91,21 +91,21 @@ data:
         style: row
         columns: 3
         icon: authentik.png
-      Documents:
+      Documents & Files:
         tab: Operations
         style: row
-        columns: 4
+        columns: 3
         icon: paperless-ngx.png
       Utilities:
         tab: Operations
         style: row
-        columns: 6
+        columns: 4
         icon: mdi-tools
       # -- Infrastructure tab --
       Proxmox:
         tab: Infrastructure
         style: row
-        columns: 3
+        columns: 1
         icon: proxmox.png
       Cluster VMs:
         tab: Infrastructure
@@ -184,6 +184,23 @@ data:
               user: {{ "{{" }}HOMEPAGE_VAR_NAVIDROME_USER{{ "}}" }}
               token: {{ "{{" }}HOMEPAGE_VAR_NAVIDROME_TOKEN{{ "}}" }}
               salt: {{ "{{" }}HOMEPAGE_VAR_NAVIDROME_SALT{{ "}}" }}
+        - Audiobookshelf:
+            icon: audiobookshelf.png
+            href: https://audiobooks.benplus.app
+            description: Audiobooks & Podcasts
+            widget:
+              type: audiobookshelf
+              url: http://audiobookshelf.media.svc.cluster.local:80
+              key: {{ "{{" }}HOMEPAGE_VAR_AUDIOBOOKSHELF_KEY{{ "}}" }}
+        - Calibre-Web:
+            icon: calibre-web.png
+            href: https://books.benplus.app
+            description: E-book library
+            widget:
+              type: calibreweb
+              url: http://calibre-web.media.svc.cluster.local:8083
+              username: {{ "{{" }}HOMEPAGE_VAR_CALIBRE_USER{{ "}}" }}
+              password: {{ "{{" }}HOMEPAGE_VAR_CALIBRE_PASS{{ "}}" }}
     - Requests:
         - Seerr:
             icon: overseerr.png
@@ -201,6 +218,10 @@ data:
               type: seerr
               url: http://seerr-ru.media.svc.cluster.local:5055
               key: {{ "{{" }}HOMEPAGE_VAR_SEERR_RU_KEY{{ "}}" }}
+        - Shelfmark:
+            icon: mdi-bookshelf
+            href: https://request-books.benplus.app
+            description: Book requests
     - Home & Life:
         - Home Assistant:
             icon: home-assistant.png
@@ -223,14 +244,6 @@ data:
               url: http://mealie.operations.svc.cluster.local:9000
               key: {{ "{{" }}HOMEPAGE_VAR_MEALIE_KEY{{ "}}" }}
               version: 2
-        - Audiobookshelf:
-            icon: audiobookshelf.png
-            href: https://audiobooks.benplus.app
-            description: Audiobooks & Podcasts
-            widget:
-              type: audiobookshelf
-              url: http://audiobookshelf.media.svc.cluster.local:80
-              key: {{ "{{" }}HOMEPAGE_VAR_AUDIOBOOKSHELF_KEY{{ "}}" }}
         - Cineplete:
             icon: mdi-movie-open-check
             href: https://cineplete.internal.starktastic.net
@@ -320,34 +333,6 @@ data:
               type: lidarr
               url: http://lidarr.media.svc.cluster.local:8686
               key: {{ "{{" }}HOMEPAGE_VAR_LIDARR_KEY{{ "}}" }}
-        - Navidrome:
-            icon: navidrome.png
-            href: https://music.benplus.app
-            description: Music streaming
-            widget:
-              type: navidrome
-              url: http://navidrome.media.svc.cluster.local:4533
-              user: {{ "{{" }}HOMEPAGE_VAR_NAVIDROME_USER{{ "}}" }}
-              token: {{ "{{" }}HOMEPAGE_VAR_NAVIDROME_TOKEN{{ "}}" }}
-              salt: {{ "{{" }}HOMEPAGE_VAR_NAVIDROME_SALT{{ "}}" }}
-        - Audiobookshelf:
-            icon: audiobookshelf.png
-            href: https://audiobooks.benplus.app
-            description: Audiobooks & Podcasts
-            widget:
-              type: audiobookshelf
-              url: http://audiobookshelf.media.svc.cluster.local:80
-              key: {{ "{{" }}HOMEPAGE_VAR_AUDIOBOOKSHELF_KEY{{ "}}" }}
-        - Calibre-Web:
-            icon: calibre-web.png
-            href: https://books.benplus.app
-            description: E-book library
-            widget:
-              type: calibreweb
-              url: http://calibre-web.media.svc.cluster.local:8083
-              username: {{ "{{" }}HOMEPAGE_VAR_CALIBRE_USER{{ "}}" }}
-              password: {{ "{{" }}HOMEPAGE_VAR_CALIBRE_PASS{{ "}}" }}
-    - Subtitles & Indexers:
         - Bazarr:
             icon: bazarr.png
             href: https://bazarr.internal.starktastic.net
@@ -392,6 +377,33 @@ data:
               type: qbittorrent
               url: http://qbittorrent-ru-main.media.svc.cluster.local:8080
     # ==================== OPERATIONS TAB ====================
+    - Productivity:
+        - Vikunja:
+            icon: vikunja.png
+            href: https://vikunja.starktastic.net
+            description: Tasks & to-dos
+            widget:
+              type: vikunja
+              url: http://vikunja.operations.svc.cluster.local:3456
+              key: {{ "{{" }}HOMEPAGE_VAR_VIKUNJA_KEY{{ "}}" }}
+              enableTaskList: true
+              version: 2
+        - Karakeep:
+            icon: karakeep.png
+            href: https://karakeep.starktastic.net
+            description: Bookmarks & Read-later
+            widget:
+              type: karakeep
+              url: http://karakeep.operations.svc.cluster.local:3000
+              key: {{ "{{" }}HOMEPAGE_VAR_KARAKEEP_KEY{{ "}}" }}
+        - Listmonk:
+            icon: listmonk.png
+            href: https://listmonk.starktastic.net
+            description: Newsletter manager
+        - ByteStash:
+            icon: bytestash.png
+            href: https://bytestash.internal.starktastic.net
+            description: Code snippets
     - Monitoring:
         - Grafana:
             icon: grafana.png
@@ -444,7 +456,7 @@ data:
               type: argocd
               url: http://argocd-server.argocd.svc.cluster.local:80
               key: {{ "{{" }}HOMEPAGE_VAR_ARGOCD_KEY{{ "}}" }}
-    - Documents:
+    - Documents & Files:
         - Paperless-ngx:
             icon: paperless-ngx.png
             href: https://paperless.internal.starktastic.net
@@ -453,14 +465,10 @@ data:
               type: paperlessngx
               url: http://paperless-ngx.operations.svc.cluster.local:8000
               key: {{ "{{" }}HOMEPAGE_VAR_PAPERLESS_KEY{{ "}}" }}
-        - Karakeep:
-            icon: karakeep.png
-            href: https://karakeep.starktastic.net
-            description: Bookmarks & Read-later
-            widget:
-              type: karakeep
-              url: http://karakeep.operations.svc.cluster.local:3000
-              key: {{ "{{" }}HOMEPAGE_VAR_KARAKEEP_KEY{{ "}}" }}
+        - Filebrowser:
+            icon: filebrowser.png
+            href: https://files.internal.starktastic.net
+            description: Web file manager
         - Changedetection:
             icon: changedetection-io.png
             href: https://changedetection.internal.starktastic.net
@@ -469,15 +477,7 @@ data:
               type: changedetectionio
               url: http://changedetection.operations.svc.cluster.local:5000
               key: {{ "{{" }}HOMEPAGE_VAR_CHANGEDETECTION_KEY{{ "}}" }}
-        - Filebrowser:
-            icon: filebrowser.png
-            href: https://files.internal.starktastic.net
-            description: Web file manager
     - Utilities:
-        - ntfy:
-            icon: ntfy.png
-            href: https://ntfy.starktastic.net
-            description: Push notifications
         - SearXNG:
             icon: searxng.png
             href: https://search.starktastic.net
@@ -485,10 +485,6 @@ data:
             widget:
               type: searxng
               url: http://searxng.operations.svc.cluster.local:8080
-        - Listmonk:
-            icon: listmonk.png
-            href: https://listmonk.starktastic.net
-            description: Newsletter manager
         - CyberChef:
             icon: cyberchef.png
             href: https://cyberchef.starktastic.net
@@ -517,14 +513,10 @@ data:
             icon: convertx.png
             href: https://convertx.starktastic.net
             description: File converter
-        - ByteStash:
-            icon: bytestash.png
-            href: https://bytestash.internal.starktastic.net
-            description: Code snippets
-        - Shelfmark:
-            icon: mdi-bookshelf
-            href: https://request-books.benplus.app
-            description: Book requests
+        - ntfy:
+            icon: ntfy.png
+            href: https://ntfy.starktastic.net
+            description: Push notifications
     # ==================== INFRASTRUCTURE TAB ====================
     - Proxmox:
         - Proxmox VE:

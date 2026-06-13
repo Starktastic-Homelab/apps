@@ -4,7 +4,7 @@ controllers:
       main:
         image:
           repository: ghcr.io/alexta69/metube
-          tag: 2026.06.10@sha256:29edbc50d5a9687bf39f15371a588bf754db1a72086da2c92e8243d825a49a0f
+          tag: 2026.06.13@sha256:574fa1d06ebfefbd1b47246dfcea42952eb2152f47693e22f573f43c900de7a8
         env:
           DOWNLOAD_DIR: "/data/downloads/metube"
           TEMP_DIR: "/data/downloads/metube/.tmp"

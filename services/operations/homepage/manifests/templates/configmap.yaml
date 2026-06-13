@@ -15,6 +15,7 @@ data:
     statusStyle: dot
     useEqualHeights: true
     hideVersion: true
+    hideErrors: true
     disableCollapse: false
     disableIndexing: true
     iconStyle: theme
@@ -49,6 +50,9 @@ data:
         columns: 4
         icon: mdi-tools
   widgets.yaml: |
+    - greeting:
+        text_size: xl
+        text: Welcome to Starktastic
     - search:
         provider: duckduckgo
         target: _blank

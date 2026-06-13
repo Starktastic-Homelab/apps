@@ -123,6 +123,9 @@ data:
         columns: 2
         icon: postgres.png
   widgets.yaml: |
+    - greeting:
+        text_size: xl
+        text: Welcome back
     - kubernetes:
         cluster:
           show: true
@@ -157,6 +160,7 @@ data:
             icon: jellyfin.png
             href: https://benplus.app
             description: Movies, TV & Anime
+            siteMonitor: http://jellyfin-main.media.svc.cluster.local:8096
             widget:
               type: jellyfin
               url: http://jellyfin-main.media.svc.cluster.local:8096
@@ -169,6 +173,7 @@ data:
             icon: immich.png
             href: https://photos.benplus.app
             description: Photos & Videos
+            siteMonitor: http://immich-main.media.svc.cluster.local:2283
             widget:
               type: immich
               url: http://immich-main.media.svc.cluster.local:2283
@@ -178,6 +183,7 @@ data:
             icon: navidrome.png
             href: https://music.benplus.app
             description: Music streaming
+            siteMonitor: http://navidrome.media.svc.cluster.local:4533
             widget:
               type: navidrome
               url: http://navidrome.media.svc.cluster.local:4533
@@ -188,6 +194,7 @@ data:
             icon: audiobookshelf.png
             href: https://audiobooks.benplus.app
             description: Audiobooks & Podcasts
+            siteMonitor: http://audiobookshelf.media.svc.cluster.local:80
             widget:
               type: audiobookshelf
               url: http://audiobookshelf.media.svc.cluster.local:80
@@ -196,6 +203,7 @@ data:
             icon: calibre-web.png
             href: https://books.benplus.app
             description: E-book library
+            siteMonitor: http://calibre-web.media.svc.cluster.local:8083
             widget:
               type: calibreweb
               url: http://calibre-web.media.svc.cluster.local:8083
@@ -206,6 +214,7 @@ data:
             icon: overseerr.png
             href: https://request.benplus.app
             description: Request movies & TV
+            siteMonitor: http://seerr.media.svc.cluster.local:5055
             widget:
               type: seerr
               url: http://seerr.media.svc.cluster.local:5055
@@ -214,6 +223,7 @@ data:
             icon: overseerr.png
             href: https://request-ru.benplus.app
             description: Request movies & TV (RU)
+            siteMonitor: http://seerr-ru.media.svc.cluster.local:5055
             widget:
               type: seerr
               url: http://seerr-ru.media.svc.cluster.local:5055
@@ -227,6 +237,7 @@ data:
             icon: home-assistant.png
             href: https://ha.internal.starktastic.net
             description: Smart home control
+            siteMonitor: http://home-assistant-main.home-automation.svc.cluster.local:8123
             widget:
               type: homeassistant
               url: http://home-assistant-main.home-automation.svc.cluster.local:8123
@@ -239,6 +250,7 @@ data:
             icon: mealie.png
             href: https://mealie.starktastic.net
             description: Recipe manager
+            siteMonitor: http://mealie.operations.svc.cluster.local:9000
             widget:
               type: mealie
               url: http://mealie.operations.svc.cluster.local:9000
@@ -292,43 +304,96 @@ data:
             icon: radarr.png
             href: https://radarr.internal.starktastic.net
             description: Movie management
+            siteMonitor: http://radarr.media.svc.cluster.local:7878
             widget:
               type: radarr
               url: http://radarr.media.svc.cluster.local:7878
               key: {{ "{{" }}HOMEPAGE_VAR_RADARR_KEY{{ "}}" }}
               enableQueue: true
+              highlight:
+                queued:
+                  numeric:
+                    - level: danger
+                      when: gte
+                      value: 50
+                    - level: warn
+                      when: gte
+                      value: 20
+                    - level: good
+                      when: eq
+                      value: 0
         - Radarr RU:
             icon: radarr.png
             href: https://radarr-ru.internal.starktastic.net
             description: Movie management (RU)
+            siteMonitor: http://radarr-ru.media.svc.cluster.local:7878
             widget:
               type: radarr
               url: http://radarr-ru.media.svc.cluster.local:7878
               key: {{ "{{" }}HOMEPAGE_VAR_RADARR_RU_KEY{{ "}}" }}
               enableQueue: true
+              highlight:
+                queued:
+                  numeric:
+                    - level: danger
+                      when: gte
+                      value: 50
+                    - level: warn
+                      when: gte
+                      value: 20
+                    - level: good
+                      when: eq
+                      value: 0
         - Sonarr:
             icon: sonarr.png
             href: https://sonarr.internal.starktastic.net
             description: TV series management
+            siteMonitor: http://sonarr.media.svc.cluster.local:8989
             widget:
               type: sonarr
               url: http://sonarr.media.svc.cluster.local:8989
               key: {{ "{{" }}HOMEPAGE_VAR_SONARR_KEY{{ "}}" }}
               enableQueue: true
+              highlight:
+                queued:
+                  numeric:
+                    - level: danger
+                      when: gte
+                      value: 50
+                    - level: warn
+                      when: gte
+                      value: 20
+                    - level: good
+                      when: eq
+                      value: 0
         - Sonarr RU:
             icon: sonarr.png
             href: https://sonarr-ru.internal.starktastic.net
             description: TV series management (RU)
+            siteMonitor: http://sonarr-ru.media.svc.cluster.local:8989
             widget:
               type: sonarr
               url: http://sonarr-ru.media.svc.cluster.local:8989
               key: {{ "{{" }}HOMEPAGE_VAR_SONARR_RU_KEY{{ "}}" }}
               enableQueue: true
+              highlight:
+                queued:
+                  numeric:
+                    - level: danger
+                      when: gte
+                      value: 50
+                    - level: warn
+                      when: gte
+                      value: 20
+                    - level: good
+                      when: eq
+                      value: 0
     - Music & Books:
         - Lidarr:
             icon: lidarr.png
             href: https://lidarr.internal.starktastic.net
             description: Music management
+            siteMonitor: http://lidarr.media.svc.cluster.local:8686
             widget:
               type: lidarr
               url: http://lidarr.media.svc.cluster.local:8686
@@ -337,6 +402,7 @@ data:
             icon: bazarr.png
             href: https://bazarr.internal.starktastic.net
             description: Subtitle management
+            siteMonitor: http://bazarr.media.svc.cluster.local:6767
             widget:
               type: bazarr
               url: http://bazarr.media.svc.cluster.local:6767
@@ -349,6 +415,7 @@ data:
             icon: prowlarr.png
             href: https://prowlarr.internal.starktastic.net
             description: Indexer management
+            siteMonitor: http://prowlarr.media.svc.cluster.local:9696
             widget:
               type: prowlarr
               url: http://prowlarr.media.svc.cluster.local:9696
@@ -357,6 +424,7 @@ data:
             icon: autobrr.png
             href: https://autobrr.internal.starktastic.net
             description: Torrent automation
+            siteMonitor: http://autobrr.media.svc.cluster.local:7474
             widget:
               type: autobrr
               url: http://autobrr.media.svc.cluster.local:7474
@@ -366,6 +434,7 @@ data:
             icon: qbittorrent.png
             href: https://qbittorrent.internal.starktastic.net
             description: Torrent client
+            siteMonitor: http://qbittorrent-main.media.svc.cluster.local:8080
             widget:
               type: qbittorrent
               url: http://qbittorrent-main.media.svc.cluster.local:8080
@@ -373,6 +442,7 @@ data:
             icon: qbittorrent.png
             href: https://qbittorrent-ru.internal.starktastic.net
             description: Torrent client (RU)
+            siteMonitor: http://qbittorrent-ru-main.media.svc.cluster.local:8080
             widget:
               type: qbittorrent
               url: http://qbittorrent-ru-main.media.svc.cluster.local:8080
@@ -382,6 +452,7 @@ data:
             icon: vikunja.png
             href: https://vikunja.starktastic.net
             description: Tasks & to-dos
+            siteMonitor: http://vikunja.operations.svc.cluster.local:3456
             widget:
               type: vikunja
               url: http://vikunja.operations.svc.cluster.local:3456
@@ -392,6 +463,7 @@ data:
             icon: karakeep.png
             href: https://karakeep.starktastic.net
             description: Bookmarks & Read-later
+            siteMonitor: http://karakeep.operations.svc.cluster.local:3000
             widget:
               type: karakeep
               url: http://karakeep.operations.svc.cluster.local:3000
@@ -409,6 +481,7 @@ data:
             icon: grafana.png
             href: https://grafana.internal.starktastic.net
             description: Dashboards & Alerting
+            siteMonitor: http://kube-prometheus-stack-grafana.monitoring.svc.cluster.local:80
             widget:
               type: grafana
               alerts: alertmanager
@@ -420,6 +493,7 @@ data:
             icon: prometheus.png
             href: https://grafana.internal.starktastic.net/explore
             description: Metrics collection
+            siteMonitor: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
             widget:
               type: prometheus
               url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
@@ -427,6 +501,7 @@ data:
             icon: traefik.png
             href: https://traefik.internal.starktastic.net
             description: Reverse proxy
+            siteMonitor: http://traefik.traefik-system.svc.cluster.local:9000
             widget:
               type: traefik
               url: http://traefik.traefik-system.svc.cluster.local:9000
@@ -439,6 +514,7 @@ data:
             icon: authentik.png
             href: https://auth.starktastic.net
             description: Identity provider
+            siteMonitor: http://authentik-server.authentik.svc.cluster.local:80
             widget:
               type: authentik
               url: http://authentik-server.authentik.svc.cluster.local:80
@@ -452,6 +528,7 @@ data:
             icon: argocd.png
             href: https://argocd.internal.starktastic.net
             description: GitOps deployment
+            siteMonitor: http://argocd-server.argocd.svc.cluster.local:80
             widget:
               type: argocd
               url: http://argocd-server.argocd.svc.cluster.local:80
@@ -461,6 +538,7 @@ data:
             icon: paperless-ngx.png
             href: https://paperless.internal.starktastic.net
             description: Document management
+            siteMonitor: http://paperless-ngx.operations.svc.cluster.local:8000
             widget:
               type: paperlessngx
               url: http://paperless-ngx.operations.svc.cluster.local:8000
@@ -473,6 +551,7 @@ data:
             icon: changedetection-io.png
             href: https://changedetection.internal.starktastic.net
             description: Website change monitor
+            siteMonitor: http://changedetection.operations.svc.cluster.local:5000
             widget:
               type: changedetectionio
               url: http://changedetection.operations.svc.cluster.local:5000
@@ -482,6 +561,7 @@ data:
             icon: searxng.png
             href: https://search.starktastic.net
             description: Private search engine
+            siteMonitor: http://searxng.operations.svc.cluster.local:8080
             widget:
               type: searxng
               url: http://searxng.operations.svc.cluster.local:8080

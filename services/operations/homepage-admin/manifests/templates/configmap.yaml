@@ -9,34 +9,32 @@ data:
       url: https://10.9.9.20:8006
       token: {{ "{{" }}HOMEPAGE_VAR_PROXMOX_USER{{ "}}" }}
       secret: {{ "{{" }}HOMEPAGE_VAR_PROXMOX_PASS{{ "}}" }}
-  logo.svg: |
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 56">
+  favicon.svg: |
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
       <defs>
-        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur"/>
-          <feFlood flood-color="#DC2626" flood-opacity="0.6" result="color"/>
+        <filter id="glow">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur"/>
+          <feFlood flood-color="#DC2626" flood-opacity="0.5" result="color"/>
           <feComposite in="color" in2="blur" operator="in" result="shadow"/>
           <feMerge>
             <feMergeNode in="shadow"/>
             <feMergeNode in="SourceGraphic"/>
           </feMerge>
         </filter>
-        <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-          <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.5"/>
-        </filter>
       </defs>
-      <text x="0" y="34" font-family="Arial, Helvetica, sans-serif"
-            font-size="36" font-weight="800" letter-spacing="2" filter="url(#shadow)">
-        <tspan fill="#F1F5F9">STARK</tspan><tspan fill="#DC2626" filter="url(#glow)">TASTIC</tspan>
-      </text>
-      <text x="1" y="52" font-family="Arial, Helvetica, sans-serif"
-            font-size="13" font-weight="600" letter-spacing="6" fill="#94A3B8">
-        SERVICES
+      <rect width="48" height="48" rx="10" fill="#0F0F1A"/>
+      <text x="50%" y="34" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+            font-size="26" font-weight="800" letter-spacing="1">
+        <tspan fill="#F1F5F9">S</tspan><tspan fill="#DC2626" filter="url(#glow)">T</tspan>
       </text>
     </svg>
   docker.yaml: ""
   custom.js: ""
-  custom.css: ""
+  custom.css: |
+    /* Hide the redundant card title above the calendar widget */
+    li.service[data-name="Calendar"] .service-title {
+      display: none;
+    }
   kubernetes.yaml: |
     mode: cluster
   settings.yaml: |
@@ -48,7 +46,7 @@ data:
     disableCollapse: false
     disableIndexing: true
     iconStyle: theme
-    favicon: /icons/logo.svg
+    favicon: /icons/favicon.svg
     quicklaunch:
       searchDescriptions: true
       hideInternetSearch: false
@@ -72,6 +70,7 @@ data:
         style: row
         columns: 1
         icon: mdi-calendar-month
+        header: false
       Streaming:
         tab: Home
         style: row
@@ -162,10 +161,7 @@ data:
         icon: postgres.png
   widgets.yaml: |
     - logo:
-        icon: /icons/logo.svg
-    - greeting:
-        text_size: xl
-        text: Welcome to Starktastic
+        icon: /icons/favicon.svg
     - kubernetes:
         cluster:
           show: true
@@ -204,36 +200,26 @@ data:
               maxEvents: 15
               showTime: true
               integrations:
-                - type: sonarr
-                  service_group: Movies & TV
-                  service_name: Sonarr
-                  color: "#3B82F6"
-                  params:
-                    unmonitored: true
-                - type: sonarr
-                  service_group: Movies & TV
-                  service_name: Sonarr RU
-                  color: "#60A5FA"
-                  params:
-                    unmonitored: true
-                - type: radarr
-                  service_group: Movies & TV
-                  service_name: Radarr
-                  color: "#DC2626"
-                  params:
-                    unmonitored: true
-                - type: radarr
-                  service_group: Movies & TV
-                  service_name: Radarr RU
-                  color: "#F87171"
-                  params:
-                    unmonitored: true
-                - type: lidarr
-                  service_group: Music & Books
-                  service_name: Lidarr
-                  color: "#22C55E"
-                  params:
-                    unmonitored: true
+                - type: ical
+                  url: http://sonarr.media.svc.cluster.local:8989/feed/v3/calendar/Sonarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_SONARR_KEY{{ "}}" }}
+                  name: Sonarr
+                  color: blue
+                - type: ical
+                  url: http://sonarr-ru.media.svc.cluster.local:8989/feed/v3/calendar/Sonarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_SONARR_RU_KEY{{ "}}" }}
+                  name: Sonarr RU
+                  color: sky
+                - type: ical
+                  url: http://radarr.media.svc.cluster.local:7878/feed/v3/calendar/Radarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_RADARR_KEY{{ "}}" }}
+                  name: Radarr
+                  color: red
+                - type: ical
+                  url: http://radarr-ru.media.svc.cluster.local:7878/feed/v3/calendar/Radarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_RADARR_RU_KEY{{ "}}" }}
+                  name: Radarr RU
+                  color: rose
+                - type: ical
+                  url: http://lidarr.media.svc.cluster.local:8686/feed/v1/calendar/Lidarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_LIDARR_KEY{{ "}}" }}
+                  name: Lidarr
+                  color: green
     - Streaming:
         - Jellyfin:
             icon: jellyfin.png
@@ -282,7 +268,7 @@ data:
             icon: calibre-web.png
             href: https://books.benplus.app
             description: E-book library
-            siteMonitor: http://calibre-web.media.svc.cluster.local:8083
+            siteMonitor: http://calibre-web.media.svc.cluster.local:8083/opds
             widget:
               type: calibreweb
               url: http://calibre-web.media.svc.cluster.local:8083
@@ -522,7 +508,7 @@ data:
             icon: grafana.png
             href: https://grafana.internal.starktastic.net
             description: Dashboards & Alerting
-            siteMonitor: http://kube-prometheus-stack-grafana.monitoring.svc.cluster.local:80
+            siteMonitor: http://kube-prometheus-stack-grafana.monitoring.svc.cluster.local:80/api/health
             widget:
               type: grafana
               alerts: alertmanager
@@ -648,6 +634,7 @@ data:
               headers:
                 Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
                 X-GitHub-Api-Version: "2022-11-28"
+                User-Agent: Homepage-Dashboard
               mappings:
                 name: title
                 label: user.login
@@ -665,6 +652,7 @@ data:
               headers:
                 Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
                 X-GitHub-Api-Version: "2022-11-28"
+                User-Agent: Homepage-Dashboard
               mappings:
                 name: title
                 label: user.login
@@ -682,6 +670,7 @@ data:
               headers:
                 Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
                 X-GitHub-Api-Version: "2022-11-28"
+                User-Agent: Homepage-Dashboard
               mappings:
                 name: title
                 label: user.login
@@ -699,6 +688,7 @@ data:
               headers:
                 Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
                 X-GitHub-Api-Version: "2022-11-28"
+                User-Agent: Homepage-Dashboard
               mappings:
                 name: title
                 label: user.login

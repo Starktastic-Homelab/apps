@@ -52,6 +52,10 @@ data:
       provider: custom
       url: https://search.starktastic.net/search?q=
     layout:
+      Calendar:
+        style: row
+        columns: 1
+        icon: mdi-calendar-month
       Streaming:
         style: row
         columns: 5
@@ -99,6 +103,34 @@ data:
           timeStyle: short
           hourCycle: h23
   services.yaml: |
+    - Calendar:
+        - Calendar:
+            widget:
+              type: calendar
+              view: monthly
+              maxEvents: 15
+              showTime: true
+              integrations:
+                - type: ical
+                  url: http://sonarr.media.svc.cluster.local:8989/feed/v3/calendar/Sonarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_SONARR_KEY{{ "}}" }}
+                  name: Sonarr
+                  color: blue
+                - type: ical
+                  url: http://sonarr-ru.media.svc.cluster.local:8989/feed/v3/calendar/Sonarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_SONARR_RU_KEY{{ "}}" }}
+                  name: Sonarr RU
+                  color: sky
+                - type: ical
+                  url: http://radarr.media.svc.cluster.local:7878/feed/v3/calendar/Radarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_RADARR_KEY{{ "}}" }}
+                  name: Radarr
+                  color: red
+                - type: ical
+                  url: http://radarr-ru.media.svc.cluster.local:7878/feed/v3/calendar/Radarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_RADARR_RU_KEY{{ "}}" }}
+                  name: Radarr RU
+                  color: rose
+                - type: ical
+                  url: http://lidarr.media.svc.cluster.local:8686/feed/v1/calendar/Lidarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_LIDARR_KEY{{ "}}" }}
+                  name: Lidarr
+                  color: green
     - Streaming:
         - Jellyfin:
             icon: jellyfin.png
@@ -188,7 +220,7 @@ data:
               type: vikunja
               url: http://vikunja.operations.svc.cluster.local:3456
               key: {{ "{{" }}HOMEPAGE_VAR_VIKUNJA_KEY{{ "}}" }}
-              enableTaskList: true
+              enableTaskList: false
               version: 2
         - Karakeep:
             icon: karakeep.png
@@ -212,9 +244,6 @@ data:
             icon: searxng.png
             href: https://search.starktastic.net
             description: Private search engine
-            widget:
-              type: searxng
-              url: http://searxng.operations.svc.cluster.local:8080
         - CyberChef:
             icon: cyberchef.png
             href: https://cyberchef.starktastic.net

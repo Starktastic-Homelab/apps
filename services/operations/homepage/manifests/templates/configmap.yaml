@@ -4,6 +4,31 @@ metadata:
   name: homepage-config
   namespace: operations
 data:
+  logo.svg: |
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 56">
+      <defs>
+        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur"/>
+          <feFlood flood-color="#DC2626" flood-opacity="0.6" result="color"/>
+          <feComposite in="color" in2="blur" operator="in" result="shadow"/>
+          <feMerge>
+            <feMergeNode in="shadow"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+        <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+          <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.5"/>
+        </filter>
+      </defs>
+      <text x="0" y="34" font-family="Arial, Helvetica, sans-serif"
+            font-size="36" font-weight="800" letter-spacing="2" filter="url(#shadow)">
+        <tspan fill="#F1F5F9">STARK</tspan><tspan fill="#DC2626" filter="url(#glow)">TASTIC</tspan>
+      </text>
+      <text x="1" y="52" font-family="Arial, Helvetica, sans-serif"
+            font-size="13" font-weight="600" letter-spacing="6" fill="#94A3B8">
+        SERVICES
+      </text>
+    </svg>
   docker.yaml: ""
   custom.js: ""
   custom.css: ""
@@ -19,12 +44,18 @@ data:
     disableCollapse: false
     disableIndexing: true
     iconStyle: theme
+    favicon: /icons/logo.svg
     quicklaunch:
       searchDescriptions: true
       hideInternetSearch: false
-      showSearchSuggestions: true
-      provider: duckduckgo
+      showSearchSuggestions: false
+      provider: custom
+      url: https://search.starktastic.net/search?q=
     layout:
+      Calendar:
+        style: row
+        columns: 1
+        icon: mdi-calendar-month
       Streaming:
         style: row
         columns: 5
@@ -50,11 +81,14 @@ data:
         columns: 4
         icon: mdi-tools
   widgets.yaml: |
+    - logo:
+        icon: /icons/logo.svg
     - greeting:
         text_size: xl
         text: Welcome to Starktastic
     - search:
-        provider: duckduckgo
+        provider: custom
+        url: https://search.starktastic.net/search?q=
         target: _blank
     - openmeteo:
         label: Weather
@@ -69,6 +103,34 @@ data:
           timeStyle: short
           hourCycle: h23
   services.yaml: |
+    - Calendar:
+        - Calendar:
+            widget:
+              type: calendar
+              view: monthly
+              maxEvents: 15
+              showTime: true
+              integrations:
+                - type: ical
+                  url: http://sonarr.media.svc.cluster.local:8989/feed/v3/calendar/Sonarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_SONARR_KEY{{ "}}" }}
+                  name: Sonarr
+                  color: blue
+                - type: ical
+                  url: http://sonarr-ru.media.svc.cluster.local:8989/feed/v3/calendar/Sonarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_SONARR_RU_KEY{{ "}}" }}
+                  name: Sonarr RU
+                  color: sky
+                - type: ical
+                  url: http://radarr.media.svc.cluster.local:7878/feed/v3/calendar/Radarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_RADARR_KEY{{ "}}" }}
+                  name: Radarr
+                  color: red
+                - type: ical
+                  url: http://radarr-ru.media.svc.cluster.local:7878/feed/v3/calendar/Radarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_RADARR_RU_KEY{{ "}}" }}
+                  name: Radarr RU
+                  color: rose
+                - type: ical
+                  url: http://lidarr.media.svc.cluster.local:8686/feed/v1/calendar/Lidarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_LIDARR_KEY{{ "}}" }}
+                  name: Lidarr
+                  color: green
     - Streaming:
         - Jellyfin:
             icon: jellyfin.png
@@ -158,7 +220,7 @@ data:
               type: vikunja
               url: http://vikunja.operations.svc.cluster.local:3456
               key: {{ "{{" }}HOMEPAGE_VAR_VIKUNJA_KEY{{ "}}" }}
-              enableTaskList: true
+              enableTaskList: false
               version: 2
         - Karakeep:
             icon: karakeep.png
@@ -182,9 +244,6 @@ data:
             icon: searxng.png
             href: https://search.starktastic.net
             description: Private search engine
-            widget:
-              type: searxng
-              url: http://searxng.operations.svc.cluster.local:8080
         - CyberChef:
             icon: cyberchef.png
             href: https://cyberchef.starktastic.net

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik-api
+  namespace: traefik-system
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: traefik
+    app.kubernetes.io/instance: traefik-traefik-system
+  ports:
+    - name: traefik
+      protocol: TCP
+      port: 8080
+      targetPort: 8080

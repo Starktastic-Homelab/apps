@@ -48,11 +48,13 @@ data:
     disableCollapse: false
     disableIndexing: true
     iconStyle: theme
+    favicon: /icons/logo.svg
     quicklaunch:
       searchDescriptions: true
       hideInternetSearch: false
-      showSearchSuggestions: true
-      provider: duckduckgo
+      showSearchSuggestions: false
+      provider: custom
+      url: https://search.starktastic.net/search?q=
     pwa:
       shortcuts:
         - name: Home
@@ -148,9 +150,11 @@ data:
         columns: 2
         icon: postgres.png
   widgets.yaml: |
+    - logo:
+        icon: /icons/logo.svg
     - greeting:
         text_size: xl
-        text: Welcome back
+        text: Welcome to Starktastic
     - kubernetes:
         cluster:
           show: true
@@ -164,7 +168,8 @@ data:
           memory: true
           showLabel: true
     - search:
-        provider: duckduckgo
+        provider: custom
+        url: https://search.starktastic.net/search?q=
         target: _blank
     - openmeteo:
         label: Weather

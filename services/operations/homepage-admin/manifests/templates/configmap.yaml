@@ -145,6 +145,11 @@ data:
         style: row
         columns: 3
         icon: traefik.png
+      Storage:
+        tab: Infrastructure
+        style: row
+        columns: 1
+        icon: truenas.png
       Databases:
         tab: Infrastructure
         style: row
@@ -665,6 +670,35 @@ data:
             icon: crowdsec.png
             href: https://app.crowdsec.net
             description: Security decisions API
+        - OPNsense:
+            icon: opnsense.png
+            href: https://10.9.9.1
+            description: Firewall & router
+            widget:
+              type: opnsense
+              url: https://10.9.9.1
+              username: {{ "{{" }}HOMEPAGE_VAR_OPNSENSE_USER{{ "}}" }}
+              password: {{ "{{" }}HOMEPAGE_VAR_OPNSENSE_PASS{{ "}}" }}
+        - AdGuard Home:
+            icon: adguard-home.png
+            href: http://10.9.9.1:3000
+            description: DNS ad-blocker
+            widget:
+              type: adguard
+              url: http://10.9.9.1:3000
+              username: {{ "{{" }}HOMEPAGE_VAR_ADGUARD_USER{{ "}}" }}
+              password: {{ "{{" }}HOMEPAGE_VAR_ADGUARD_PASS{{ "}}" }}
+    - Storage:
+        - TrueNAS:
+            icon: truenas.png
+            href: https://10.9.9.30
+            description: NAS & storage
+            widget:
+              type: truenas
+              url: https://10.9.9.30
+              version: 2
+              key: {{ "{{" }}HOMEPAGE_VAR_TRUENAS_KEY{{ "}}" }}
+              enablePools: true
     - Databases:
         - PostgreSQL:
             icon: postgres.png

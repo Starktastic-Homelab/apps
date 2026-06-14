@@ -67,6 +67,11 @@ data:
           url: "/#infrastructure"
     layout:
       # -- Home tab --
+      Calendar:
+        tab: Home
+        style: row
+        columns: 1
+        icon: mdi-calendar-month
       Streaming:
         tab: Home
         style: row
@@ -82,10 +87,6 @@ data:
         style: row
         columns: 4
         icon: home-assistant.png
-      Calendar:
-        tab: Home
-        style: row
-        columns: 1
       # -- Media tab --
       Movies & TV:
         tab: Media
@@ -185,6 +186,44 @@ data:
           hourCycle: h23
   services.yaml: |
     # ==================== HOME TAB ====================
+    - Calendar:
+        - Calendar:
+            widget:
+              type: calendar
+              view: monthly
+              maxEvents: 15
+              showTime: true
+              integrations:
+                - type: sonarr
+                  service_group: Movies & TV
+                  service_name: Sonarr
+                  color: "#3B82F6"
+                  params:
+                    unmonitored: true
+                - type: sonarr
+                  service_group: Movies & TV
+                  service_name: Sonarr RU
+                  color: "#60A5FA"
+                  params:
+                    unmonitored: true
+                - type: radarr
+                  service_group: Movies & TV
+                  service_name: Radarr
+                  color: "#DC2626"
+                  params:
+                    unmonitored: true
+                - type: radarr
+                  service_group: Movies & TV
+                  service_name: Radarr RU
+                  color: "#F87171"
+                  params:
+                    unmonitored: true
+                - type: lidarr
+                  service_group: Music & Books
+                  service_name: Lidarr
+                  color: "#22C55E"
+                  params:
+                    unmonitored: true
     - Streaming:
         - Jellyfin:
             icon: jellyfin.png
@@ -290,44 +329,6 @@ data:
             icon: mdi-movie-open-check
             href: https://cineplete.internal.starktastic.net
             description: Movie tracker
-    - Calendar:
-        - Calendar:
-            widget:
-              type: calendar
-              view: monthly
-              maxEvents: 15
-              showTime: true
-              integrations:
-                - type: sonarr
-                  service_group: Movies & TV
-                  service_name: Sonarr
-                  color: "#3B82F6"
-                  params:
-                    unmonitored: true
-                - type: sonarr
-                  service_group: Movies & TV
-                  service_name: Sonarr RU
-                  color: "#60A5FA"
-                  params:
-                    unmonitored: true
-                - type: radarr
-                  service_group: Movies & TV
-                  service_name: Radarr
-                  color: "#DC2626"
-                  params:
-                    unmonitored: true
-                - type: radarr
-                  service_group: Movies & TV
-                  service_name: Radarr RU
-                  color: "#F87171"
-                  params:
-                    unmonitored: true
-                - type: lidarr
-                  service_group: Music & Books
-                  service_name: Lidarr
-                  color: "#22C55E"
-                  params:
-                    unmonitored: true
     # ==================== MEDIA TAB ====================
     - Movies & TV:
         - Radarr:
@@ -531,10 +532,10 @@ data:
             icon: traefik.png
             href: https://traefik.internal.starktastic.net
             description: Reverse proxy
-            siteMonitor: http://traefik.traefik-system.svc.cluster.local:9000
+            siteMonitor: http://traefik-api.traefik-system.svc.cluster.local:8080
             widget:
               type: traefik
-              url: http://traefik.traefik-system.svc.cluster.local:9000
+              url: http://traefik-api.traefik-system.svc.cluster.local:8080
         - CrowdSec:
             icon: crowdsec.png
             href: https://app.crowdsec.net
@@ -592,9 +593,6 @@ data:
             href: https://search.starktastic.net
             description: Private search engine
             siteMonitor: http://searxng.operations.svc.cluster.local:8080
-            widget:
-              type: searxng
-              url: http://searxng.operations.svc.cluster.local:8080
         - CyberChef:
             icon: cyberchef.png
             href: https://cyberchef.starktastic.net

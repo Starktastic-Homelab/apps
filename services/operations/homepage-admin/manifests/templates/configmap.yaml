@@ -43,6 +43,7 @@ data:
     statusStyle: dot
     useEqualHeights: true
     hideVersion: true
+    hideErrors: true
     disableCollapse: false
     disableIndexing: true
     iconStyle: theme
@@ -555,10 +556,10 @@ data:
             icon: argocd.png
             href: https://argocd.internal.starktastic.net
             description: GitOps deployment
-            siteMonitor: http://argocd-server.argocd.svc.cluster.local:80
+            siteMonitor: https://argocd-server.argocd.svc.cluster.local:443
             widget:
               type: argocd
-              url: http://argocd-server.argocd.svc.cluster.local:80
+              url: https://argocd-server.argocd.svc.cluster.local:443
               key: {{ "{{" }}HOMEPAGE_VAR_ARGOCD_KEY{{ "}}" }}
     - Documents & Files:
         - Paperless-ngx:

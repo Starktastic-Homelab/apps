@@ -129,6 +129,11 @@ data:
         style: row
         columns: 4
         icon: mdi-tools
+      Development:
+        tab: Operations
+        style: row
+        columns: 4
+        icon: github.png
       # -- Infrastructure tab --
       Proxmox:
         tab: Infrastructure
@@ -630,6 +635,75 @@ data:
             icon: ntfy.png
             href: https://ntfy.starktastic.net
             description: Push notifications
+    - Development:
+        - apps:
+            icon: github.png
+            href: https://github.com/Starktastic-Homelab/apps/pulls
+            description: Open pull requests
+            widget:
+              type: customapi
+              url: https://api.github.com/repos/Starktastic-Homelab/apps/pulls?state=open&per_page=10
+              refreshInterval: 600000
+              display: dynamic-list
+              headers:
+                Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
+                X-GitHub-Api-Version: "2022-11-28"
+              mappings:
+                name: title
+                label: user.login
+                limit: 5
+                target: https://github.com/Starktastic-Homelab/apps/pull/{{ "{{" }}number{{ "}}" }}
+        - ansible:
+            icon: github.png
+            href: https://github.com/Starktastic-Homelab/ansible/pulls
+            description: Open pull requests
+            widget:
+              type: customapi
+              url: https://api.github.com/repos/Starktastic-Homelab/ansible/pulls?state=open&per_page=10
+              refreshInterval: 600000
+              display: dynamic-list
+              headers:
+                Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
+                X-GitHub-Api-Version: "2022-11-28"
+              mappings:
+                name: title
+                label: user.login
+                limit: 5
+                target: https://github.com/Starktastic-Homelab/ansible/pull/{{ "{{" }}number{{ "}}" }}
+        - packer:
+            icon: github.png
+            href: https://github.com/Starktastic-Homelab/packer/pulls
+            description: Open pull requests
+            widget:
+              type: customapi
+              url: https://api.github.com/repos/Starktastic-Homelab/packer/pulls?state=open&per_page=10
+              refreshInterval: 600000
+              display: dynamic-list
+              headers:
+                Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
+                X-GitHub-Api-Version: "2022-11-28"
+              mappings:
+                name: title
+                label: user.login
+                limit: 5
+                target: https://github.com/Starktastic-Homelab/packer/pull/{{ "{{" }}number{{ "}}" }}
+        - terraform:
+            icon: github.png
+            href: https://github.com/Starktastic-Homelab/terraform/pulls
+            description: Open pull requests
+            widget:
+              type: customapi
+              url: https://api.github.com/repos/Starktastic-Homelab/terraform/pulls?state=open&per_page=10
+              refreshInterval: 600000
+              display: dynamic-list
+              headers:
+                Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
+                X-GitHub-Api-Version: "2022-11-28"
+              mappings:
+                name: title
+                label: user.login
+                limit: 5
+                target: https://github.com/Starktastic-Homelab/terraform/pull/{{ "{{" }}number{{ "}}" }}
     # ==================== INFRASTRUCTURE TAB ====================
     - Proxmox:
         - Proxmox VE:

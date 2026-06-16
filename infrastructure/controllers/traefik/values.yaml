@@ -32,13 +32,12 @@ deployment:
     - name: crowdsec-bouncer-plugin
       emptyDir: {}
 
-logs:
-  access:
-    enabled: true
-    format: json
-    fields:
-      headers:
-        defaultMode: keep
+accessLog:
+  enabled: true
+  format: json
+  fields:
+    headers:
+      defaultMode: keep
 
 # Allow running on Master/Control Plane nodes
 tolerations:

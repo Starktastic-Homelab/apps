@@ -1,4 +1,6 @@
 controllers:
+  main:
+    enabled: false
   web:
     containers:
       main:
@@ -6,6 +8,7 @@ controllers:
           repository: ghcr.io/dispatcharr/dispatcharr
           tag: 0.27.0@sha256:425129020764037869c7d1a2e74ba57ca640cb5d551ef57d869b745b6ea71c7b
         env:
+          TZ: "Asia/Jerusalem"
           DISPATCHARR_ENV: "modular"
           POSTGRES_HOST: "postgres-postgresql.databases.svc.cluster.local"
           POSTGRES_PORT: "5432"
@@ -43,6 +46,7 @@ controllers:
         command:
           - /app/docker/entrypoint.celery.sh
         env:
+          TZ: "Asia/Jerusalem"
           DISPATCHARR_ENV: "modular"
           DISPATCHARR_WEB_HOST: "dispatcharr"
           DISPATCHARR_PORT: "9191"

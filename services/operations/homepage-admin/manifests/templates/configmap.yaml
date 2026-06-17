@@ -235,6 +235,11 @@ data:
               enableNowPlaying: true
               enableUser: true
               showEpisodeNumber: true
+        - Dispatcharr:
+            icon: dispatcharr.png
+            href: https://dispatcharr.internal.starktastic.net
+            description: Live TV & IPTV proxy
+            siteMonitor: http://dispatcharr.media.svc.cluster.local:9191
         - Immich:
             icon: immich.png
             href: https://photos.benplus.app

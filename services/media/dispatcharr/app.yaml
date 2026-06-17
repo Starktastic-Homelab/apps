@@ -7,7 +7,6 @@ ingress:
   enabled: true
   host: dispatcharr
   domainType: "internal"
-  serviceName: dispatcharr-web
   port: 9191
   auth: false
   rateLimit: false

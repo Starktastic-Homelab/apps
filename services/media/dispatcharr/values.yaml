@@ -44,7 +44,7 @@ controllers:
           - /app/docker/entrypoint.celery.sh
         env:
           DISPATCHARR_ENV: "modular"
-          DISPATCHARR_WEB_HOST: "dispatcharr-web"
+          DISPATCHARR_WEB_HOST: "dispatcharr"
           DISPATCHARR_PORT: "9191"
           POSTGRES_HOST: "postgres-postgresql.databases.svc.cluster.local"
           POSTGRES_PORT: "5432"

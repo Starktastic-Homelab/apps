@@ -6,6 +6,10 @@ controllers:
   main:
     containers:
       main:
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
         env:
           TZ: "Asia/Jerusalem"
           PUID: "1000"

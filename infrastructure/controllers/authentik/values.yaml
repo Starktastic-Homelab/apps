@@ -49,6 +49,17 @@ authentik:
   disable_update_check: true
   disable_startup_analytics: true
 server:
+  replicas: 2
+  pdb:
+    enabled: true
+    minAvailable: 1
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/component: server
   resources:
     requests:
       memory: 1Gi

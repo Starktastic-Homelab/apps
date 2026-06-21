@@ -74,9 +74,50 @@ jobs:
             echo "::endgroup::"
           done < images.txt
 
+      - name: Merge per-image SARIF into a single run
+        if: always()
+        run: |
+          set -uo pipefail
+          valid=()
+          for f in trivy-results/*.sarif; do
+            [ -e "$f" ] || continue
+            if jq -e 'has("runs") and (.runs | type == "array")' "$f" >/dev/null 2>&1; then
+              valid+=("$f")
+            else
+              echo "::warning::Skipping invalid SARIF file: ${f}"
+            fi
+          done
+
+          # An empty run still clears alerts from previous scans for this category.
+          if [ ${#valid[@]} -eq 0 ]; then
+            printf '%s' '{"version":"2.1.0","$schema":"https://json.schemastore.org/sarif-2.1.0.json","runs":[{"tool":{"driver":{"name":"Trivy","rules":[]}},"results":[]}]}' > trivy.sarif
+            echo "No valid SARIF inputs; uploading an empty result set"
+            exit 0
+          fi
+
+          # CodeQL no longer accepts multiple runs under one category, so collapse
+          # every per-image run into one: concatenate results, dedupe the rule set
+          # by id, and remap each result's ruleIndex into the merged rule list.
+          jq -s '
+            (map(.runs[0])) as $runs
+            | ([ $runs[] | .tool.driver.rules[]? ] | unique_by(.id)) as $rules
+            | ($rules | map(.id)) as $ids
+            | {
+                version: (.[0].version // "2.1.0"),
+                "$schema": (.[0]["$schema"] // "https://json.schemastore.org/sarif-2.1.0.json"),
+                runs: [{
+                  tool: { driver: ($runs[0].tool.driver | .rules = $rules) },
+                  results: [$runs[] | .results[]? | .ruleId as $rid | (.ruleIndex = ($ids | index($rid)))],
+                  columnKind: ($runs[0].columnKind // "utf16CodeUnits"),
+                  originalUriBaseIds: ($runs[0].originalUriBaseIds // {"ROOTPATH": {"uri": "file:///"}})
+                }]
+              }
+          ' "${valid[@]}" > trivy.sarif
+          echo "Merged $(jq '.runs[0].results | length' trivy.sarif) findings from ${#valid[@]} image(s)"
+
       - name: Upload SARIF results
         if: always()
         uses: github/codeql-action/upload-sarif@v4
         with:
-          sarif_file: trivy-results
+          sarif_file: trivy.sarif
           category: trivy-image-scan

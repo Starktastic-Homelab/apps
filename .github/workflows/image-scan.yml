@@ -1,0 +1,82 @@
+name: Image vulnerability scan
+
+# Scans every container image referenced in services/** and infrastructure/**
+# values.yaml with Trivy and publishes CRITICAL/HIGH findings to the GitHub
+# Security tab. Advisory only — it never fails the build or blocks merges.
+
+on:
+  schedule:
+    - cron: '0 6 * * 1' # Mondays 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    name: Trivy scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install yq
+        env:
+          # renovate: datasource=github-releases depName=mikefarah/yq
+          YQ_VERSION: 'v4.53.3'
+        run: |
+          curl -sSL "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64" -o /usr/local/bin/yq
+          chmod +x /usr/local/bin/yq
+          yq --version
+
+      - name: Collect image references
+        id: collect
+        run: |
+          set -euo pipefail
+          : > images.txt
+          while IFS= read -r -d '' f; do
+            yq -N '.. | select(tag == "!!map" and has("repository") and has("tag")) | .repository + ":" + .tag' "$f" 2>/dev/null >> images.txt || true
+          done < <(find services infrastructure -type f -name 'values.yaml' -print0)
+          sort -u images.txt -o images.txt
+          COUNT=$(grep -cve '^[[:space:]]*$' images.txt || true)
+          echo "Found ${COUNT} unique images"
+          cat images.txt
+
+      - name: Install Trivy
+        env:
+          # renovate: datasource=github-releases depName=aquasecurity/trivy
+          TRIVY_VERSION: 'v0.71.2'
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
+            | sh -s -- -b /usr/local/bin "${TRIVY_VERSION}"
+          trivy --version
+
+      - name: Scan images
+        run: |
+          set -uo pipefail
+          mkdir -p trivy-results
+          while IFS= read -r image; do
+            [ -z "$image" ] && continue
+            safe=$(printf '%s' "$image" | sed 's@[/:@]@_@g')
+            echo "::group::Scanning ${image}"
+            trivy image \
+              --quiet \
+              --scanners vuln \
+              --severity CRITICAL,HIGH \
+              --ignore-unfixed \
+              --format sarif \
+              --output "trivy-results/${safe}.sarif" \
+              "$image" || echo "::warning::Trivy scan failed for ${image}"
+            echo "::endgroup::"
+          done < images.txt
+
+      - name: Upload SARIF results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results
+          category: trivy-image-scan

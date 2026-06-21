@@ -1,6 +1,14 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
+  "extends": ["config:recommended", ":enablePreCommit"],
+  "timezone": "Asia/Jerusalem",
+  "schedule": ["after 10pm every weekday", "before 6am every weekday", "every weekend"],
+  "platformAutomerge": true,
+  "vulnerabilityAlerts": {
+    "labels": ["security"],
+    "automerge": true,
+    "minimumReleaseAge": "7 days"
+  },
   "argocd": {
     "managerFilePatterns": ["/\\.yaml$/"]
   },
@@ -8,6 +16,25 @@
     "managerFilePatterns": ["/\\.yaml$/"]
   },
   "packageRules": [
+    {
+      "description": "Auto-merge low-risk updates after a soak period for stability",
+      "matchUpdateTypes": ["minor", "patch", "digest", "pin", "pinDigest"],
+      "automerge": true,
+      "minimumReleaseAge": "14 days"
+    },
+    {
+      "description": "Require manual review for major updates",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "addLabels": ["major-update"]
+    },
+    {
+      "description": "Group and auto-merge GitHub Actions updates after a short soak",
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions",
+      "automerge": true,
+      "minimumReleaseAge": "7 days"
+    },
     {
       "description": "Block Ubuntu base-image version tags (e.g. 20.04.1) on LinuxServer images",
       "matchDatasources": ["docker"],

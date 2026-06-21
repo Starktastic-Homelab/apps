@@ -49,7 +49,7 @@ echo "================================"
 echo ""
 
 # Prompt for service details
-read -p "Service name (e.g., radarr): " SERVICE_NAME
+read -rp "Service name (e.g., radarr): " SERVICE_NAME
 if [[ -z $SERVICE_NAME ]]; then
   echo -e "${RED}Error: Service name is required${NC}"
   exit 1
@@ -70,30 +70,30 @@ for dir in "$REPO_ROOT/services"/*/; do
 done
 echo "  $i) [NEW] Create new category"
 
-read -p "Select category [1-$i]: " CAT_CHOICE
+read -rp "Select category [1-$i]: " CAT_CHOICE
 
 if [[ $CAT_CHOICE -eq $i ]]; then
-  read -p "Enter new category name: " CATEGORY
-  read -p "Enter namespace (default: $CATEGORY): " NAMESPACE
+  read -rp "Enter new category name: " CATEGORY
+  read -rp "Enter namespace (default: $CATEGORY): " NAMESPACE
   NAMESPACE=${NAMESPACE:-$CATEGORY}
   echo -e "${YELLOW}Will create new category: $CATEGORY${NC}"
 elif [[ $CAT_CHOICE -ge 1 && $CAT_CHOICE -lt $i ]]; then
   CATEGORY="${CATEGORIES[$((CAT_CHOICE - 1))]}"
-  read -p "Enter namespace (default: $CATEGORY): " NAMESPACE
+  read -rp "Enter namespace (default: $CATEGORY): " NAMESPACE
   NAMESPACE=${NAMESPACE:-$CATEGORY}
 else
   echo -e "${RED}Invalid choice${NC}"
   exit 1
 fi
 
-read -p "Container image (e.g., lscr.io/linuxserver/radarr:latest): " IMAGE
+read -rp "Container image (e.g., lscr.io/linuxserver/radarr:latest): " IMAGE
 
 # Fetch image digest
 DIGEST=""
 if DIGEST=$(get_image_digest "$IMAGE"); then
   echo -e "${GREEN}✓ Digest: $DIGEST${NC}"
 else
-  read -p "Continue without digest? [Y/n]: " SKIP_DIGEST
+  read -rp "Continue without digest? [Y/n]: " SKIP_DIGEST
   SKIP_DIGEST=${SKIP_DIGEST:-Y}
   if [[ ! $SKIP_DIGEST =~ ^[Yy] ]]; then
     echo -e "${RED}Aborted${NC}"
@@ -101,12 +101,12 @@ else
   fi
 fi
 
-read -p "Container port (e.g., 7878): " PORT
+read -rp "Container port (e.g., 7878): " PORT
 
 # Ingress configuration
 echo ""
 echo -e "${YELLOW}Ingress Configuration${NC}"
-read -p "Enable ingress? [Y/n]: " INGRESS_ENABLED
+read -rp "Enable ingress? [Y/n]: " INGRESS_ENABLED
 INGRESS_ENABLED=${INGRESS_ENABLED:-Y}
 
 if [[ $INGRESS_ENABLED =~ ^[Yy] ]]; then
@@ -114,7 +114,7 @@ if [[ $INGRESS_ENABLED =~ ^[Yy] ]]; then
   echo "  1) internal (*.$DOMAIN_INTERNAL)"
   echo "  2) public (*.$DOMAIN_PUBLIC)"
   echo "  3) media (*.$DOMAIN_MEDIA)"
-  read -p "Select [1-3, default=1]: " DOMAIN_CHOICE
+  read -rp "Select [1-3, default=1]: " DOMAIN_CHOICE
   DOMAIN_CHOICE=${DOMAIN_CHOICE:-1}
 
   case $DOMAIN_CHOICE in
@@ -124,13 +124,13 @@ if [[ $INGRESS_ENABLED =~ ^[Yy] ]]; then
     *) DOMAIN_TYPE="internal" ;;
   esac
 
-  read -p "Require Authentik middleware? [Y/n]: " AUTH
+  read -rp "Require Authentik middleware? [Y/n]: " AUTH
   AUTH=${AUTH:-Y}
 
-  read -p "Enable rate limiting? [Y/n]: " RATELIMIT
+  read -rp "Enable rate limiting? [Y/n]: " RATELIMIT
   RATELIMIT=${RATELIMIT:-Y}
 
-  read -p "Custom subdomain (default: $SERVICE_NAME): " SUBDOMAIN
+  read -rp "Custom subdomain (default: $SERVICE_NAME): " SUBDOMAIN
   SUBDOMAIN=${SUBDOMAIN:-$SERVICE_NAME}
 
   INGRESS_BLOCK="
@@ -148,11 +148,11 @@ fi
 # Persistence configuration
 echo ""
 echo -e "${YELLOW}Persistence Configuration${NC}"
-read -p "Need persistent storage? [Y/n]: " PERSISTENCE
+read -rp "Need persistent storage? [Y/n]: " PERSISTENCE
 PERSISTENCE=${PERSISTENCE:-Y}
 
 if [[ $PERSISTENCE =~ ^[Yy] ]]; then
-  read -p "Storage size (default: 1Gi): " STORAGE_SIZE
+  read -rp "Storage size (default: 1Gi): " STORAGE_SIZE
   STORAGE_SIZE=${STORAGE_SIZE:-1Gi}
 
   PERSISTENCE_BLOCK="

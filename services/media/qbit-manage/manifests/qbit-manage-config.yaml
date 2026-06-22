@@ -107,7 +107,7 @@ data:
       split_by_category: false
 
     orphaned:
-      empty_after_x_days: 7
+      empty_after_x_days: 3
       min_file_age_minutes: 60
       exclude_patterns:
         - "**/.DS_Store"

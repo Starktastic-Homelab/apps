@@ -1,0 +1,8 @@
+name: falco
+namespace: falco
+deployPhase: services
+manifests: true
+chart:
+  repo: https://falcosecurity.github.io/charts
+  name: falco
+  version: 9.1.0

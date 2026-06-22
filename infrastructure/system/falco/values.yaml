@@ -1,0 +1,65 @@
+# Falco runtime security — learning-mode deployment.
+# Detection only (no response actions, no heavy rule tuning).
+
+driver:
+  kind: modern_ebpf
+
+# Falco core
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: null # drop the chart's default 1000m CPU limit (avoid throttling/dropped events)
+    memory: 512Mi
+
+falco:
+  rules_files:
+    - /etc/falco/falco_rules.yaml
+    - /etc/falco/falco-incubating_rules.yaml
+    - /etc/falco/falco_rules.local.yaml
+    - /etc/falco/rules.d
+  json_output: true
+
+# Pull default + incubating rulesets (incubating:6 pairs with falco-rules:5 for Falco 0.44.x)
+# NOTE: refs live under falcoctl.config.artifact.* (falcoctl.artifact.* is the init/sidecar
+# container config and has no refs field — putting refs there is silently ignored).
+falcoctl:
+  config:
+    artifact:
+      install:
+        refs: [falco-rules:5, falco-incubating-rules:6]
+      follow:
+        refs: [falco-rules:5, falco-incubating-rules:6]
+
+falcosidekick:
+  enabled: true
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      memory: 128Mi
+  config:
+    # High-severity events -> existing Alertmanager -> alertmanager-ntfy -> ntfy
+    alertmanager:
+      hostport: "http://kube-prometheus-stack-alertmanager.monitoring.svc.cluster.local:9093"
+      endpoint: "/api/v2/alerts"
+      minimumpriority: "critical"
+      extralabels: "source:falco"
+  webui:
+    enabled: true
+    # UI is protected by Authentik forward-auth at the ingress; disable built-in basic auth.
+    disableauth: true
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        memory: 128Mi
+    redis:
+      # Ephemeral, in-namespace event store for the UI (transient exploration data).
+      storageEnabled: false
+      customConfig:
+        - "maxmemory 256mb"
+        - "maxmemory-policy allkeys-lfu"

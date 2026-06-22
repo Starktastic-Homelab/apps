@@ -10,6 +10,7 @@ resources:
     cpu: 100m
     memory: 256Mi
   limits:
+    cpu: null # drop the chart's default 1000m CPU limit (avoid throttling/dropped events)
     memory: 512Mi
 
 falco:

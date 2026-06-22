@@ -108,8 +108,6 @@ data:
 
     orphaned:
       empty_after_x_days: 7
-      # Protect freshly-completed downloads from being moved to .orphaned before
-      # the *arr apps have had a chance to import them (rem_orphaned runs every 30m).
       min_file_age_minutes: 60
       exclude_patterns:
         - "**/.DS_Store"

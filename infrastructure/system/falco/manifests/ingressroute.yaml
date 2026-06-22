@@ -1,0 +1,21 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: falco-ui
+  namespace: falco
+spec:
+  entryPoints:
+    - websec-int
+  routes:
+    - match: Host(`falco.internal.starktastic.net`)
+      kind: Rule
+      services:
+        - name: falco-falcosidekick-ui
+          port: 2802
+      middlewares:
+        - name: authentik-middleware
+          namespace: authentik
+  tls:
+    store:
+      name: default
+      namespace: traefik-system

@@ -370,7 +370,6 @@ Each ArgoCD Application pulls from up to 4 sources: the Helm chart repo, the Git
 |--------|---------|
 | `scripts/new-service.sh` | Interactive scaffolding — prompts for image, ingress, persistence and generates `app.yaml` + `values.yaml` |
 | `scripts/seal.sh` | Encrypts secrets into SealedSecret YAML using the cluster's pre-seeded certificate |
-| `scripts/get-kubeconfig.sh` | Fetches kubeconfig from the control plane and patches the server IP |
 | `scripts/ntfy-manager.sh` | CLI wrapper for managing ntfy users and access rules inside the running pod |
 
 ---

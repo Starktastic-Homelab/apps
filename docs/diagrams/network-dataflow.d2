@@ -1,0 +1,48 @@
+# Cluster network + data-flow: ingress security chain, VLAN/VIP/LB topology, and storage path.
+direction: right
+
+clients: Clients {
+  ext: "External\n*.starktastic.net\n*.benplus.app"
+  int: "Internal\n*.internal.starktastic.net"
+}
+
+net: Network Fabric {
+  vip: "Kube-VIP\nControl-plane VIP\n10.9.9.99"
+  mgmt: "Management VLAN\nvmbr0 · 10.9.9.0/24"
+  svc: "Services VLAN\nvmbr1 · 10.9.8.0/24"
+  lb: MetalLB (L2) {
+    icon: ./icons/metallb.svg
+    ext_ip: External IP pool
+    int_ip: Internal IP pool
+  }
+}
+
+chain: Ingress Security Chain {
+  traefik: "Traefik\nDaemonSet · TLS termination" {icon: ./icons/traefik.svg}
+  crowdsec: "CrowdSec Bouncer\n(external only)" {icon: ./icons/crowdsec.svg}
+  authentik: "Authentik ForwardAuth\n(if auth enabled)" {icon: ./icons/authentik.svg}
+  ratelimit: "Rate Limiter\n(if enabled)"
+  pod: Service Pod
+}
+
+storage: Storage Path {
+  truenas: "TrueNAS\nNFS 10.9.8.30" {icon: ./icons/truenas.svg}
+  provisioner: nfs-provisioner
+  pv: Persistent Volumes {shape: cylinder}
+}
+
+clients.ext -> net.lb.ext_ip
+clients.int -> net.lb.int_ip
+net.lb.ext_ip -> chain.traefik
+net.lb.int_ip -> chain.traefik
+chain.traefik -> chain.crowdsec: external
+chain.crowdsec -> chain.authentik
+chain.traefik -> chain.authentik: internal
+chain.authentik -> chain.ratelimit
+chain.ratelimit -> chain.pod
+chain.pod -> storage.provisioner: mounts
+storage.truenas -> storage.provisioner: NFS export
+storage.provisioner -> storage.pv
+
+net.lb -> net.svc: announces on
+net.vip -> net.mgmt: hosted on

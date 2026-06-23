@@ -22,7 +22,7 @@
 - [Value Cascade Design](#value-cascade-design)
 - [Infrastructure Layers](#infrastructure-layers)
 - [Service Categories](#service-categories)
-- [Traffic Flow](#traffic-flow)
+- [Network & Data Flow](#network--data-flow)
 - [Observability](#observability)
 - [Key Design Patterns](#key-design-patterns)
 - [Helper Scripts](#helper-scripts)
@@ -53,67 +53,14 @@ The repo manages infrastructure controllers (Traefik, Authentik, cert-manager, d
 
 Two ApplicationSets at the bootstrap level drive all deployments:
 
-```mermaid
-flowchart TB
-    BOOT{{"cluster-bootstrap\n(Ansible-deployed)"}}
-    BOOT ==> CS(["cluster-apps\nApplicationSet"])
-    BOOT ==> CFG(["config-apps\nApplicationSet"])
-
-    CS ==>|"Matrix: List × Git"| DISCOVER["Scan repo for\n**/app.yaml"]
-
-    DISCOVER --> P1["Phase 1: CRDs\nPrometheus Operator CRDs"]
-    DISCOVER --> P2["Phase 2: Foundation\ncert-manager · sealed-secrets\nnfs-provisioner · metallb"]
-    DISCOVER --> P3["Phase 3: Controllers\nTraefik · Authentik\nPostgreSQL · Redis · CrowdSec"]
-    DISCOVER --> P4["Phase 4: Services\n60+ applications"]
-
-    CFG --> BC["base-configs\nStorage PVs · Backup CronJobs"]
-    CFG --> IC["infra-configs\nIngressRoutes · Middlewares\nCertificates · Notifications"]
-
-    P1 ~~~ P2 ~~~ P3 ~~~ P4
-
-    classDef boot fill:#EE0000,stroke:#CC0000,color:#fff
-    classDef appset fill:#EF7B4D,stroke:#D66A3D,color:#fff
-    classDef p1 fill:#3C3C3C,stroke:#2D2D2D,color:#fff
-    classDef p2 fill:#7B42BC,stroke:#6A35A3,color:#fff
-    classDef p3 fill:#326CE5,stroke:#2B5FC2,color:#fff
-    classDef p4 fill:#0F1689,stroke:#0D1270,color:#fff
-    class BOOT boot
-    class CS,CFG appset
-    class P1 p1
-    class P2 p2
-    class P3 p3
-    class P4 p4
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/applicationset-discovery-dark.png">
+  <img alt="ApplicationSet discovery and multi-source resolution" src="docs/diagrams/applicationset-discovery.png">
+</picture>
 
 The **Matrix generator** combines a list of categories (infrastructure, services) with a Git file scanner. Every directory containing an `app.yaml` is automatically discovered and deployed — no manual Application manifests needed.
 
-Under the hood, the `templatePatch` resolves each discovered `app.yaml` into a multi-source ArgoCD Application — handling variant inheritance, value layering, and optional ingress injection:
-
-```mermaid
-flowchart TB
-    subgraph matrix["Matrix Generator"]
-        LIST["List Generator\n─────\ninfrastructure → (no common file)\nservices → common.yaml"] ---|"×"| GIT["Git Generator\n─────\nScan **/app.yaml\nExtract fields"]
-    end
-
-    matrix ==> PATCH{{"templatePatch\n(Go template)"}}
-
-    PATCH -->|"baseApp defined?"| VARIANT["Variant Path\nInherit base values.yaml\n+ optional delta override"]
-    PATCH -->|"standard app"| STANDARD["Standard Path\nOwn values.yaml"]
-
-    VARIANT & STANDARD ==> SOURCES
-
-    subgraph SOURCES["Multi-Source Application"]
-        S1(["Source 1\nHelm Chart Repo"])
-        S2(["Source 2\nglobals + common + values"])
-        S3(["Source 3\nIngress Chart\n(if ingress.enabled)"])
-        S4(["Source 4\nRaw manifests/\n(if directory exists)"])
-    end
-
-    classDef gen fill:#EF7B4D,stroke:#D66A3D,color:#fff
-    classDef gate fill:#3C3C3C,stroke:#2D2D2D,color:#fff
-    class LIST,GIT gen
-    class PATCH gate
-```
+Under the hood, the `templatePatch` resolves each discovered `app.yaml` into a multi-source ArgoCD Application — handling variant inheritance, value layering, and optional ingress injection — as shown in the diagram above.
 
 ### Phased RollingSync
 
@@ -215,38 +162,14 @@ The operational backbone: full observability stack (metrics, logs, traces, dashb
 
 ---
 
-## Traffic Flow
+## Network & Data Flow
 
-All external and internal traffic follows a layered security path:
+External and internal traffic follow a layered security path; persistent data is served from TrueNAS over NFS:
 
-```mermaid
-flowchart LR
-    EXT(["🌍 External\n*.starktastic.net\n*.benplus.app"])
-    INT(["🏠 Internal\n*.internal.starktastic.net"])
-
-    EXT ==> LB_EXT["MetalLB\nExternal IP"]
-    INT ==> LB_INT["MetalLB\nInternal IP"]
-
-    LB_EXT ==> TFK["Traefik\nDaemonSet"]
-    LB_INT ==> TFK
-
-    TFK ==> CS{{"CrowdSec Bouncer\n(external only)"}}
-    CS ==> AUTH{{"Authentik ForwardAuth\n(if auth enabled)"}}
-    TFK --> AUTH
-    AUTH ==> RL{{"Rate Limiter\n(if enabled)"}}
-    RL ==> SVC(["Service Pod"])
-
-    classDef external fill:#E57000,stroke:#CC6300,color:#fff
-    classDef internal fill:#326CE5,stroke:#2B5FC2,color:#fff
-    classDef gate fill:#3C3C3C,stroke:#2D2D2D,color:#fff
-    classDef auth fill:#7B42BC,stroke:#6A35A3,color:#fff
-    classDef svc fill:#0F1689,stroke:#0D1270,color:#fff
-    class EXT external
-    class INT internal
-    class CS gate
-    class AUTH auth
-    class SVC svc
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/network-dataflow-dark.png">
+  <img alt="Cluster network and data-flow map" src="docs/diagrams/network-dataflow.png">
+</picture>
 
 | Layer | Scope | Function |
 |-------|-------|----------|
@@ -262,48 +185,10 @@ flowchart LR
 
 A full observability stack provides metrics, logs, traces, and alerting:
 
-```mermaid
-flowchart TB
-    subgraph collection["Collection"]
-        ALLOY(["Alloy\nPod logs + GeoIP"])
-        TFK_TRACE(["Traefik\nOTLP traces"])
-        NE(["Node Exporter\nHost metrics"])
-        KSM(["Kube-State-Metrics\nK8s object metrics"])
-    end
-
-    subgraph storage["Storage & Query"]
-        PROM[(Prometheus\nMetrics · 15d)]
-        LOKI[(Loki\nLogs · 30d)]
-        TEMPO[(Tempo\nTraces · 72h)]
-    end
-
-    subgraph viz["Visualization & Alerting"]
-        GRAF["Grafana\nDashboards + Explore"]
-        AM["AlertManager"]
-        NTFY(["ntfy\nPush notifications"])
-    end
-
-    ALLOY ==> LOKI
-    ALLOY ==> PROM
-    TFK_TRACE ==> TEMPO
-    NE ==> PROM
-    KSM ==> PROM
-
-    PROM ==> GRAF
-    LOKI ==> GRAF
-    TEMPO ==> GRAF
-    PROM --> AM
-    AM --> NTFY
-
-    classDef grafana fill:#F46800,stroke:#D95D00,color:#fff
-    classDef prometheus fill:#E6522C,stroke:#C9441F,color:#fff
-    classDef loki fill:#F46800,stroke:#D95D00,color:#fff
-    classDef tempo fill:#F46800,stroke:#D95D00,color:#fff
-    class GRAF grafana
-    class PROM prometheus
-    class LOKI loki
-    class TEMPO tempo
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/observability-dark.png">
+  <img alt="Observability data flow" src="docs/diagrams/observability.png">
+</picture>
 
 ---
 
@@ -376,7 +261,7 @@ Each ArgoCD Application pulls from up to 4 sources: the Helm chart repo, the Git
 
 ## CI/CD Automation
 
-Three workflows ensure safe, validated deployments:
+Four workflows ensure safe, validated, and secure deployments:
 
 ```mermaid
 flowchart TD
@@ -384,19 +269,26 @@ flowchart TD
         PR([Pull Request]) --> VAL[validate-and-diff.yml]
         VAL --> LINT["YAML Lint +\nKubeconform"]
         VAL --> DIFF>ArgoCD Diff\nPreview]
-        PR --> FMT[format.yml\nPrettier formatting]
+        PR --> FMT[format.yaml\nPrettier formatting]
     end
 
     subgraph merge["Merge Phase"]
-        MERGE([Push to Main]) ==> REF[refresh.yml]
+        MERGE([Push to Main]) ==> REF[refresh.yaml]
         REF ==> SCOPE{{"Scope Detection\nWhich apps changed?"}}
         SCOPE ==> SYNC(["ArgoCD Sync\nOnly affected apps"])
     end
 
+    subgraph sched["Scheduled Phase"]
+        CRON([Mondays 06:00 UTC]) ==> SCAN[image-scan.yml\nTrivy image scan]
+        SCAN ==> SEC>"GitHub Security tab\nCRITICAL/HIGH findings"]
+    end
+
     classDef val fill:#EF7B4D,stroke:#D66A3D,color:#fff
     classDef ref fill:#326CE5,stroke:#2B5FC2,color:#fff
+    classDef scan fill:#1904DA,stroke:#1403B0,color:#fff
     class VAL val
     class REF ref
+    class SCAN scan
 ```
 
 | Workflow | Trigger | Purpose |
@@ -404,6 +296,7 @@ flowchart TD
 | **validate-and-diff** | PR | YAML lint + Kubeconform schema validation + ArgoCD diff preview |
 | **format** | PR | Prettier formatting for YAML/JSON/shell files |
 | **refresh** | Push to main | Smart scope detection — only syncs ArgoCD apps affected by the change |
+| **image-scan** | Schedule (Mondays 06:00 UTC) + manual | Trivy scan of deployed images — publishes CRITICAL/HIGH findings to the GitHub Security tab |
 
 The refresh workflow is **scope-aware**: it analyzes the git diff to determine whether to refresh all apps, all services, all infrastructure, or just specific applications — avoiding unnecessary reconciliation cycles.
 

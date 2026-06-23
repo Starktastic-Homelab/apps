@@ -22,7 +22,7 @@
 - [Value Cascade Design](#value-cascade-design)
 - [Infrastructure Layers](#infrastructure-layers)
 - [Service Categories](#service-categories)
-- [Traffic Flow](#traffic-flow)
+- [Network & Data Flow](#network--data-flow)
 - [Observability](#observability)
 - [Key Design Patterns](#key-design-patterns)
 - [Helper Scripts](#helper-scripts)
@@ -162,38 +162,14 @@ The operational backbone: full observability stack (metrics, logs, traces, dashb
 
 ---
 
-## Traffic Flow
+## Network & Data Flow
 
-All external and internal traffic follows a layered security path:
+External and internal traffic follow a layered security path; persistent data is served from TrueNAS over NFS:
 
-```mermaid
-flowchart LR
-    EXT(["🌍 External\n*.starktastic.net\n*.benplus.app"])
-    INT(["🏠 Internal\n*.internal.starktastic.net"])
-
-    EXT ==> LB_EXT["MetalLB\nExternal IP"]
-    INT ==> LB_INT["MetalLB\nInternal IP"]
-
-    LB_EXT ==> TFK["Traefik\nDaemonSet"]
-    LB_INT ==> TFK
-
-    TFK ==> CS{{"CrowdSec Bouncer\n(external only)"}}
-    CS ==> AUTH{{"Authentik ForwardAuth\n(if auth enabled)"}}
-    TFK --> AUTH
-    AUTH ==> RL{{"Rate Limiter\n(if enabled)"}}
-    RL ==> SVC(["Service Pod"])
-
-    classDef external fill:#E57000,stroke:#CC6300,color:#fff
-    classDef internal fill:#326CE5,stroke:#2B5FC2,color:#fff
-    classDef gate fill:#3C3C3C,stroke:#2D2D2D,color:#fff
-    classDef auth fill:#7B42BC,stroke:#6A35A3,color:#fff
-    classDef svc fill:#0F1689,stroke:#0D1270,color:#fff
-    class EXT external
-    class INT internal
-    class CS gate
-    class AUTH auth
-    class SVC svc
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/network-dataflow-dark.png">
+  <img alt="Cluster network and data-flow map" src="docs/diagrams/network-dataflow.png">
+</picture>
 
 | Layer | Scope | Function |
 |-------|-------|----------|

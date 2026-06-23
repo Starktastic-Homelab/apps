@@ -1,0 +1,54 @@
+name: Diagrams
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - docs/diagrams/**
+      - scripts/render-diagrams.sh
+      - .github/workflows/diagrams.yml
+
+concurrency:
+  group: diagrams-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  render:
+    name: Render D2 diagrams
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install rsvg-convert
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends librsvg2-bin
+
+      - name: Check D2 formatting
+        env:
+          # renovate: datasource=docker depName=terrastruct/d2
+          D2_VERSION: 'v0.7.1'
+        run: |
+          set -euo pipefail
+          docker run --rm -v "$PWD:/work" -w /work "terrastruct/d2:${D2_VERSION}" \
+            fmt docs/diagrams/*.d2
+          if ! git diff --quiet -- 'docs/diagrams/*.d2'; then
+            echo "ERROR: .d2 sources are not canonically formatted (run d2 fmt):"
+            git --no-pager diff --stat -- 'docs/diagrams/*.d2'
+            exit 1
+          fi
+
+      - name: Render diagrams
+        run: bash scripts/render-diagrams.sh
+
+      - name: Commit rendered diagrams
+        uses: stefanzweifel/git-auto-commit-action@v7.1.0
+        with:
+          commit_message: "docs: render D2 diagrams"
+          file_pattern: docs/diagrams/*.svg docs/diagrams/*.png

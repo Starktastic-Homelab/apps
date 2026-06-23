@@ -1,0 +1,35 @@
+# Observability stack: collection -> storage -> visualization & alerting.
+direction: down
+
+collection: Collection {
+  alloy: Alloy\nPod logs + GeoIP
+  traefik: Traefik\nOTLP traces {icon: ./icons/traefik.svg}
+  node: Node Exporter\nHost metrics
+  ksm: Kube-State-Metrics\nK8s object metrics
+  blackbox: Blackbox Exporter\nEndpoint probes {icon: ./icons/blackbox.svg}
+}
+
+storage: Storage & Query {
+  prom: Prometheus\nMetrics - 15d {icon: ./icons/prometheus.svg; shape: cylinder}
+  loki: Loki\nLogs - 30d {icon: ./icons/loki.svg; shape: cylinder}
+  tempo: Tempo\nTraces - 72h {icon: ./icons/tempo.svg; shape: cylinder}
+}
+
+viz: Visualization & Alerting {
+  grafana: Grafana\nDashboards + Explore {icon: ./icons/grafana.svg}
+  am: AlertManager {icon: ./icons/prometheus.svg}
+  ntfy: ntfy\nPush notifications {icon: ./icons/ntfy.svg}
+}
+
+collection.alloy -> storage.loki
+collection.alloy -> storage.prom
+collection.traefik -> storage.tempo
+collection.node -> storage.prom
+collection.ksm -> storage.prom
+collection.blackbox -> storage.prom: probes
+
+storage.prom -> viz.grafana
+storage.loki -> viz.grafana
+storage.tempo -> viz.grafana
+storage.prom -> viz.am
+viz.am -> viz.ntfy

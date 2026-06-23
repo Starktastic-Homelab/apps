@@ -262,48 +262,10 @@ flowchart LR
 
 A full observability stack provides metrics, logs, traces, and alerting:
 
-```mermaid
-flowchart TB
-    subgraph collection["Collection"]
-        ALLOY(["Alloy\nPod logs + GeoIP"])
-        TFK_TRACE(["Traefik\nOTLP traces"])
-        NE(["Node Exporter\nHost metrics"])
-        KSM(["Kube-State-Metrics\nK8s object metrics"])
-    end
-
-    subgraph storage["Storage & Query"]
-        PROM[(Prometheus\nMetrics · 15d)]
-        LOKI[(Loki\nLogs · 30d)]
-        TEMPO[(Tempo\nTraces · 72h)]
-    end
-
-    subgraph viz["Visualization & Alerting"]
-        GRAF["Grafana\nDashboards + Explore"]
-        AM["AlertManager"]
-        NTFY(["ntfy\nPush notifications"])
-    end
-
-    ALLOY ==> LOKI
-    ALLOY ==> PROM
-    TFK_TRACE ==> TEMPO
-    NE ==> PROM
-    KSM ==> PROM
-
-    PROM ==> GRAF
-    LOKI ==> GRAF
-    TEMPO ==> GRAF
-    PROM --> AM
-    AM --> NTFY
-
-    classDef grafana fill:#F46800,stroke:#D95D00,color:#fff
-    classDef prometheus fill:#E6522C,stroke:#C9441F,color:#fff
-    classDef loki fill:#F46800,stroke:#D95D00,color:#fff
-    classDef tempo fill:#F46800,stroke:#D95D00,color:#fff
-    class GRAF grafana
-    class PROM prometheus
-    class LOKI loki
-    class TEMPO tempo
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/observability-dark.png">
+  <img alt="Observability data flow" src="docs/diagrams/observability.png">
+</picture>
 
 ---
 

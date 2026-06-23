@@ -20,7 +20,7 @@
       "description": "Auto-merge low-risk updates after a soak period for stability",
       "matchUpdateTypes": ["minor", "patch", "digest", "pin", "pinDigest"],
       "automerge": true,
-      "minimumReleaseAge": "14 days"
+      "minimumReleaseAge": "3 days"
     },
     {
       "description": "Require manual review for major updates",

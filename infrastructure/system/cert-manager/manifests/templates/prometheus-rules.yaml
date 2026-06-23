@@ -1,0 +1,27 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cert-manager-alerts
+  namespace: cert-manager
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: cert-manager
+      rules:
+        - alert: CertManagerCertNotReady
+          expr: certmanager_certificate_ready_status{condition="True"} == 0
+          for: 15m
+          labels:
+            severity: critical
+          annotations:
+            summary: {{ `"Certificate not ready ({{ $labels.name }})"` }}
+            description: {{ `"Certificate {{ $labels.namespace }}/{{ $labels.name }} has not been Ready for 15 minutes (renewal likely failing)."` }}
+        - alert: CertManagerCertExpiringSoon
+          expr: certmanager_certificate_expiration_timestamp_seconds > 0 and certmanager_certificate_expiration_timestamp_seconds - time() < 10 * 24 * 3600
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: {{ `"Certificate expiring soon ({{ $labels.name }})"` }}
+            description: {{ `"Certificate {{ $labels.namespace }}/{{ $labels.name }} expires in less than 10 days."` }}

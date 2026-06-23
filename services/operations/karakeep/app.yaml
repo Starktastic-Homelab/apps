@@ -9,3 +9,4 @@ ingress:
   port: 3000
   auth: false
   rateLimit: true
+  probe: true

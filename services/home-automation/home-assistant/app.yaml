@@ -11,3 +11,4 @@ ingress:
   port: 8123
   auth: false
   rateLimit: false
+  probe: true

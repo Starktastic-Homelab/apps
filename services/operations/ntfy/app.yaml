@@ -10,3 +10,4 @@ ingress:
   port: 80
   auth: false
   rateLimit: true
+  probe: true

@@ -1,0 +1,126 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: external-deps
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  interval: 60s
+  module: icmp
+  prober:
+    url: prometheus-blackbox-exporter.monitoring.svc.cluster.local:9115
+    scheme: http
+  targets:
+    staticConfig:
+      static:
+        - 1.1.1.1
+      labels:
+        tier: external
+        probe_kind: icmp
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: external-dns
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  interval: 60s
+  module: dns_cloudflare
+  prober:
+    url: prometheus-blackbox-exporter.monitoring.svc.cluster.local:9115
+    scheme: http
+  targets:
+    staticConfig:
+      static:
+        - 1.1.1.1
+      labels:
+        tier: external
+        probe_kind: dns
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: external-https
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  interval: 60s
+  module: http_2xx
+  prober:
+    url: prometheus-blackbox-exporter.monitoring.svc.cluster.local:9115
+    scheme: http
+  targets:
+    staticConfig:
+      static:
+        - https://1.1.1.1
+      labels:
+        tier: external
+        probe_kind: https
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: alert-sink-ntfy-adapter
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  interval: 60s
+  module: tcp_connect
+  prober:
+    url: prometheus-blackbox-exporter.monitoring.svc.cluster.local:9115
+    scheme: http
+  targets:
+    staticConfig:
+      static:
+        - alertmanager-ntfy.monitoring.svc.cluster.local:8000
+      labels:
+        service: alertmanager-ntfy
+        tier: alert-pipeline
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: infra-authentik
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  interval: 60s
+  module: http_auth
+  prober:
+    url: prometheus-blackbox-exporter.monitoring.svc.cluster.local:9115
+    scheme: http
+  targets:
+    staticConfig:
+      static:
+        - https://auth.starktastic.net
+      labels:
+        service: authentik
+        tier: infra
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: infra-argocd
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  interval: 60s
+  module: http_auth
+  prober:
+    url: prometheus-blackbox-exporter.monitoring.svc.cluster.local:9115
+    scheme: http
+  targets:
+    staticConfig:
+      static:
+        - https://argocd.internal.starktastic.net
+      labels:
+        service: argocd
+        tier: infra

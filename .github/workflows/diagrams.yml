@@ -5,7 +5,9 @@ on:
     branches: [main]
     paths:
       - docs/diagrams/**
+      - '**/*.md'
       - scripts/render-diagrams.sh
+      - scripts/check-readme-images.py
       - .github/workflows/diagrams.yml
 
 concurrency:
@@ -46,6 +48,9 @@ jobs:
 
       - name: Render diagrams
         run: bash scripts/render-diagrams.sh
+
+      - name: Verify Markdown image references resolve
+        run: python3 scripts/check-readme-images.py
 
       - name: Commit rendered diagrams
         uses: stefanzweifel/git-auto-commit-action@v7.1.0

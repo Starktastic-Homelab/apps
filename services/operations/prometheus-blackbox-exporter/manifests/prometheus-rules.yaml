@@ -28,7 +28,7 @@ spec:
               "External-tier probe to {{ $labels.instance }} has been failing for 5 minutes (possible internet/DNS
               outage)."
         - alert: BlackboxProbeCertExpiringSoon
-          expr: probe_ssl_earliest_cert_expiry - time() < 10 * 24 * 3600
+          expr: probe_ssl_earliest_cert_expiry{tier=~"external|infra"} - time() < 10 * 24 * 3600
           for: 1h
           labels:
             severity: warning

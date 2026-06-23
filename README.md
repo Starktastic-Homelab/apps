@@ -261,7 +261,7 @@ Each ArgoCD Application pulls from up to 4 sources: the Helm chart repo, the Git
 
 ## CI/CD Automation
 
-Three workflows ensure safe, validated deployments:
+Four workflows ensure safe, validated, and secure deployments:
 
 ```mermaid
 flowchart TD
@@ -269,19 +269,26 @@ flowchart TD
         PR([Pull Request]) --> VAL[validate-and-diff.yml]
         VAL --> LINT["YAML Lint +\nKubeconform"]
         VAL --> DIFF>ArgoCD Diff\nPreview]
-        PR --> FMT[format.yml\nPrettier formatting]
+        PR --> FMT[format.yaml\nPrettier formatting]
     end
 
     subgraph merge["Merge Phase"]
-        MERGE([Push to Main]) ==> REF[refresh.yml]
+        MERGE([Push to Main]) ==> REF[refresh.yaml]
         REF ==> SCOPE{{"Scope Detection\nWhich apps changed?"}}
         SCOPE ==> SYNC(["ArgoCD Sync\nOnly affected apps"])
     end
 
+    subgraph sched["Scheduled Phase"]
+        CRON([Mondays 06:00 UTC]) ==> SCAN[image-scan.yml\nTrivy image scan]
+        SCAN ==> SEC>"GitHub Security tab\nCRITICAL/HIGH findings"]
+    end
+
     classDef val fill:#EF7B4D,stroke:#D66A3D,color:#fff
     classDef ref fill:#326CE5,stroke:#2B5FC2,color:#fff
+    classDef scan fill:#1904DA,stroke:#1403B0,color:#fff
     class VAL val
     class REF ref
+    class SCAN scan
 ```
 
 | Workflow | Trigger | Purpose |
@@ -289,6 +296,7 @@ flowchart TD
 | **validate-and-diff** | PR | YAML lint + Kubeconform schema validation + ArgoCD diff preview |
 | **format** | PR | Prettier formatting for YAML/JSON/shell files |
 | **refresh** | Push to main | Smart scope detection — only syncs ArgoCD apps affected by the change |
+| **image-scan** | Schedule (Mondays 06:00 UTC) + manual | Trivy scan of deployed images — publishes CRITICAL/HIGH findings to the GitHub Security tab |
 
 The refresh workflow is **scope-aware**: it analyzes the git diff to determine whether to refresh all apps, all services, all infrastructure, or just specific applications — avoiding unnecessary reconciliation cycles.
 

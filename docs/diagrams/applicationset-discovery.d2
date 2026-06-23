@@ -1,0 +1,57 @@
+# ApplicationSet discovery: bootstrap -> generators -> templatePatch -> multi-source app,
+# plus the phased RollingSync rollout and the config-apps branch. Merged from two diagrams.
+direction: down
+
+bootstrap: "cluster-bootstrap\n(Ansible-deployed)" {
+  icon: ./icons/argocd.svg
+}
+
+appsets: Bootstrap ApplicationSets {
+  cluster_apps: "cluster-apps\nApplicationSet" {icon: ./icons/argocd.svg}
+  config_apps: "config-apps\nApplicationSet" {icon: ./icons/argocd.svg}
+}
+
+matrix: Matrix Generator {
+  list: "List Generator\ninfrastructure: no common file\nservices: common.yaml"
+  git: "Git Generator\nScan **/app.yaml\nExtract fields"
+  list -> git: "×"
+}
+
+patch: "templatePatch\n(Go template)" {shape: diamond}
+
+paths: Resolution {
+  variant: "Variant Path\nInherit base values.yaml\n+ optional delta override"
+  standard: "Standard Path\nOwn values.yaml"
+}
+
+sources: Multi-Source Application {
+  s1: "Source 1\nHelm Chart Repo"
+  s2: "Source 2\nglobals + common + values"
+  s3: "Source 3\nIngress Chart\n(if ingress.enabled)"
+  s4: "Source 4\nRaw manifests/\n(if directory exists)"
+}
+
+phases: RollingSync Phases {
+  p1: "Phase 1: CRDs\nPrometheus Operator CRDs"
+  p2: "Phase 2: Foundation\ncert-manager · sealed-secrets\nnfs-provisioner · metallb"
+  p3: "Phase 3: Controllers\nTraefik · Authentik\nPostgreSQL · Redis · CrowdSec"
+  p4: "Phase 4: Services\n60+ applications"
+  p1 -> p2 -> p3 -> p4: ordered
+}
+
+configs: config-apps Targets {
+  base: "base-configs\nStorage PVs · Backup CronJobs"
+  infra: "infra-configs\nIngressRoutes · Middlewares\nCertificates · Notifications"
+}
+
+bootstrap -> appsets.cluster_apps
+bootstrap -> appsets.config_apps
+appsets.cluster_apps -> matrix: "Matrix: List × Git"
+matrix -> patch
+patch -> paths.variant: "baseApp defined?"
+patch -> paths.standard: standard app
+paths.variant -> sources
+paths.standard -> sources
+sources -> phases: deploy in order
+appsets.config_apps -> configs.base
+appsets.config_apps -> configs.infra

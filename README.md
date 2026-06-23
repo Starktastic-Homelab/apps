@@ -53,67 +53,14 @@ The repo manages infrastructure controllers (Traefik, Authentik, cert-manager, d
 
 Two ApplicationSets at the bootstrap level drive all deployments:
 
-```mermaid
-flowchart TB
-    BOOT{{"cluster-bootstrap\n(Ansible-deployed)"}}
-    BOOT ==> CS(["cluster-apps\nApplicationSet"])
-    BOOT ==> CFG(["config-apps\nApplicationSet"])
-
-    CS ==>|"Matrix: List × Git"| DISCOVER["Scan repo for\n**/app.yaml"]
-
-    DISCOVER --> P1["Phase 1: CRDs\nPrometheus Operator CRDs"]
-    DISCOVER --> P2["Phase 2: Foundation\ncert-manager · sealed-secrets\nnfs-provisioner · metallb"]
-    DISCOVER --> P3["Phase 3: Controllers\nTraefik · Authentik\nPostgreSQL · Redis · CrowdSec"]
-    DISCOVER --> P4["Phase 4: Services\n60+ applications"]
-
-    CFG --> BC["base-configs\nStorage PVs · Backup CronJobs"]
-    CFG --> IC["infra-configs\nIngressRoutes · Middlewares\nCertificates · Notifications"]
-
-    P1 ~~~ P2 ~~~ P3 ~~~ P4
-
-    classDef boot fill:#EE0000,stroke:#CC0000,color:#fff
-    classDef appset fill:#EF7B4D,stroke:#D66A3D,color:#fff
-    classDef p1 fill:#3C3C3C,stroke:#2D2D2D,color:#fff
-    classDef p2 fill:#7B42BC,stroke:#6A35A3,color:#fff
-    classDef p3 fill:#326CE5,stroke:#2B5FC2,color:#fff
-    classDef p4 fill:#0F1689,stroke:#0D1270,color:#fff
-    class BOOT boot
-    class CS,CFG appset
-    class P1 p1
-    class P2 p2
-    class P3 p3
-    class P4 p4
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/applicationset-discovery-dark.png">
+  <img alt="ApplicationSet discovery and multi-source resolution" src="docs/diagrams/applicationset-discovery.png">
+</picture>
 
 The **Matrix generator** combines a list of categories (infrastructure, services) with a Git file scanner. Every directory containing an `app.yaml` is automatically discovered and deployed — no manual Application manifests needed.
 
-Under the hood, the `templatePatch` resolves each discovered `app.yaml` into a multi-source ArgoCD Application — handling variant inheritance, value layering, and optional ingress injection:
-
-```mermaid
-flowchart TB
-    subgraph matrix["Matrix Generator"]
-        LIST["List Generator\n─────\ninfrastructure → (no common file)\nservices → common.yaml"] ---|"×"| GIT["Git Generator\n─────\nScan **/app.yaml\nExtract fields"]
-    end
-
-    matrix ==> PATCH{{"templatePatch\n(Go template)"}}
-
-    PATCH -->|"baseApp defined?"| VARIANT["Variant Path\nInherit base values.yaml\n+ optional delta override"]
-    PATCH -->|"standard app"| STANDARD["Standard Path\nOwn values.yaml"]
-
-    VARIANT & STANDARD ==> SOURCES
-
-    subgraph SOURCES["Multi-Source Application"]
-        S1(["Source 1\nHelm Chart Repo"])
-        S2(["Source 2\nglobals + common + values"])
-        S3(["Source 3\nIngress Chart\n(if ingress.enabled)"])
-        S4(["Source 4\nRaw manifests/\n(if directory exists)"])
-    end
-
-    classDef gen fill:#EF7B4D,stroke:#D66A3D,color:#fff
-    classDef gate fill:#3C3C3C,stroke:#2D2D2D,color:#fff
-    class LIST,GIT gen
-    class PATCH gate
-```
+Under the hood, the `templatePatch` resolves each discovered `app.yaml` into a multi-source ArgoCD Application — handling variant inheritance, value layering, and optional ingress injection — as shown in the diagram above.
 
 ### Phased RollingSync
 

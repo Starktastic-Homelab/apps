@@ -10,3 +10,4 @@ ingress:
   serviceName: qbittorrent-main
   auth: true
   rateLimit: true
+  probe: true

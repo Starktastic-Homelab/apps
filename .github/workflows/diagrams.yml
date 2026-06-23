@@ -17,7 +17,7 @@ concurrency:
 jobs:
   render:
     name: Render D2 diagrams
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
       contents: write
@@ -30,7 +30,13 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install rsvg-convert
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends librsvg2-bin
+        run: |
+          sudo apt-get update
+          # Pinned to the ubuntu-24.04 release-pocket version for reproducible PNG
+          # output. The release pocket is immutable for the LTS lifetime, so this
+          # exact version stays installable. Bump together with runs-on when
+          # changing the runner.
+          sudo apt-get install -y --no-install-recommends librsvg2-bin=2.58.0+dfsg-1build1
 
       - name: Check D2 formatting
         env:

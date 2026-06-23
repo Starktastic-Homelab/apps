@@ -25,20 +25,23 @@ fi
 shopt -s nullglob
 sources=("${DIAGRAM_DIR}"/*.d2)
 if [ ${#sources[@]} -eq 0 ]; then
-  echo "No .d2 sources found in ${DIAGRAM_DIR}"; exit 0
+  echo "No .d2 sources found in ${DIAGRAM_DIR}"
+  exit 0
 fi
 
 render_one() {
   local src="$1" base svg png pngdark
   base="${src%.d2}"
-  svg="${base}.svg"; png="${base}.png"; pngdark="${base}-dark.png"
+  svg="${base}.svg"
+  png="${base}.png"
+  pngdark="${base}-dark.png"
 
   d2_run --layout "$LAYOUT" --pad "$PAD" --theme 0 "$src" "$svg"
   d2_run --layout "$LAYOUT" --pad "$PAD" --theme 200 "$src" "${base}-dark.svg"
 
   rsvg-convert "$svg" -o "$png"
   rsvg-convert "${base}-dark.svg" -o "$pngdark"
-  rm -f "${base}-dark.svg"   # dark SVG is transient; only dark PNG is committed
+  rm -f "${base}-dark.svg" # dark SVG is transient; only dark PNG is committed
   echo "rendered: $svg, $png, $pngdark"
 }
 

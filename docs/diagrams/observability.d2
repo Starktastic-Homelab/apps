@@ -1,9 +1,10 @@
 # Observability stack: collection -> storage -> visualization & alerting.
+# Solid arrows = push; dashed arrows = Prometheus scrape (pull).
 direction: down
 
 collection: Collection {
-  alloy: Alloy\nPod logs + GeoIP
-  traefik: Traefik\nOTLP traces {icon: ./icons/traefik.svg}
+  alloy: Alloy\nPod logs + events, GeoIP, OTLP relay
+  traefik: Traefik\nIngress + OTLP traces {icon: ./icons/traefik.svg}
   node: Node Exporter\nHost metrics
   ksm: Kube-State-Metrics\nK8s object metrics
   blackbox: Blackbox Exporter\nEndpoint probes {icon: ./icons/blackbox.svg}
@@ -18,18 +19,25 @@ storage: Storage & Query {
 viz: Visualization & Alerting {
   grafana: Grafana\nDashboards + Explore {icon: ./icons/grafana.svg}
   am: AlertManager {icon: ./icons/prometheus.svg}
+  adapter: alertmanager-ntfy\nadapter
   ntfy: ntfy\nPush notifications {icon: ./icons/ntfy.svg}
 }
 
-collection.alloy -> storage.loki
-collection.alloy -> storage.prom
-collection.traefik -> storage.tempo
-collection.node -> storage.prom
-collection.ksm -> storage.prom
-collection.blackbox -> storage.prom: probes
+# Push pipelines
+collection.traefik -> collection.alloy: OTLP
+collection.alloy -> storage.loki: logs
+collection.alloy -> storage.tempo: traces
+storage.tempo -> storage.prom: RED metrics
+
+# Prometheus scrapes (pull)
+collection.node -> storage.prom: scrape {style.stroke-dash: 4}
+collection.ksm -> storage.prom: scrape {style.stroke-dash: 4}
+collection.blackbox -> storage.prom: probes {style.stroke-dash: 4}
+collection.traefik -> storage.prom: scrape {style.stroke-dash: 4}
+collection.alloy -> storage.prom: scrape {style.stroke-dash: 4}
 
 storage.prom -> viz.grafana
 storage.loki -> viz.grafana
 storage.tempo -> viz.grafana
 storage.prom -> viz.am
-viz.am -> viz.ntfy
+viz.am -> viz.adapter -> viz.ntfy

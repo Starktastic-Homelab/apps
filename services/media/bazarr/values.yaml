@@ -4,7 +4,7 @@ controllers:
       main:
         image:
           repository: lscr.io/linuxserver/bazarr
-          tag: 1.5.6@sha256:8e48a2950e3806a2a914fe031fa21b1c0a0f2824eede4ea747e26213e941fbf2
+          tag: 1.5.6@sha256:047222423d6d8556a88581b189175bec57f286f120b52ba29c0390fe6babaa5a
         envFrom:
           - secretRef:
               name: bazarr-secret

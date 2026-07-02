@@ -6,4 +6,4 @@ manifests: true
 chart:
   repo: https://traefik.github.io/charts
   name: traefik
-  version: 41.0.0
+  version: 41.0.1

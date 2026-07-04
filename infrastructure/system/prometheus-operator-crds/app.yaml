@@ -4,4 +4,4 @@ deployPhase: crds
 chart:
   repo: https://prometheus-community.github.io/helm-charts
   name: prometheus-operator-crds
-  version: 30.0.0
+  version: 30.0.1

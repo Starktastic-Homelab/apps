@@ -49,7 +49,7 @@ jobs:
       - name: Install Trivy
         env:
           # renovate: datasource=github-releases depName=aquasecurity/trivy
-          TRIVY_VERSION: 'v0.71.2'
+          TRIVY_VERSION: 'v0.72.0'
         run: |
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
             | sh -s -- -b /usr/local/bin "${TRIVY_VERSION}"

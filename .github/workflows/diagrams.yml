@@ -59,7 +59,7 @@ jobs:
         run: python3 scripts/check-readme-images.py
 
       - name: Commit rendered diagrams
-        uses: stefanzweifel/git-auto-commit-action@v7.1.0
+        uses: stefanzweifel/git-auto-commit-action@v7.2.0
         with:
           commit_message: "docs: render D2 diagrams"
           file_pattern: docs/diagrams/*.svg docs/diagrams/*.png

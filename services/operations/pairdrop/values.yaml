@@ -4,7 +4,7 @@ controllers:
       main:
         image:
           repository: lscr.io/linuxserver/pairdrop
-          tag: 1.11.2@sha256:37552a17d755c0151189fa106fb6a25460bf1465a80762f4cc784b0e339c17bc
+          tag: 1.11.2@sha256:4c989b99fc3587641739bb05201273bab8c81e8f6c0ef7e298e343434ca6dcb8
         env:
           WS_FALLBACK: "true"
           RATE_LIMIT: "false"

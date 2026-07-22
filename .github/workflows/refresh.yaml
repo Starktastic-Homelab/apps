@@ -145,7 +145,7 @@ jobs:
       - name: Setup ArgoCD CLI
         if: steps.guard.outputs.scope != 'skip'
         # renovate: datasource=github-tags depName=clowdhaus/argo-cd-action
-        uses: clowdhaus/argo-cd-action@01179ece40f5cbdf16f0a4c950372998e179b277  # main
+        uses: clowdhaus/argo-cd-action@8d1e5d52f2c9accd9cb0de3905e5cfaedfe353b1  # main
         with:
           command: version
           options: --client

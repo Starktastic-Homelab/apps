@@ -10,7 +10,7 @@ controllers:
       main:
         image:
           repository: filebrowser/filebrowser
-          tag: v2.63.21@sha256:b1d9980d79d6d0ad334e327eea3501324a07fe2bce94a4cd84187bccbcfbe3f8
+          tag: v2.63.23@sha256:a469ea076d4a1b4b1d86a41d130f2f536cd9da996a2b1fb39c0d7635f9d89b9a
         securityContext:
           runAsUser: 1000
           runAsGroup: 1000

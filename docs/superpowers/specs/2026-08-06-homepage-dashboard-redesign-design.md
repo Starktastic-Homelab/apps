@@ -14,10 +14,15 @@ household member looking for the recipe app has to know it lives under
 
 Two further gaps follow from the same drift:
 
-- **Services are missing.** Falco, Cineplete, Lingarr, Dispatcharr and pgAdmin
-  all have ingress endpoints and appear on neither dashboard. Every service
-  without a web UI (Recyclarr, Unpackerr, Subgen, Cross-seed, qbit-manage,
-  Loki, Tempo, Alloy, MetalLB, cert-manager) is invisible by construction.
+- **Services are missing.** Falco has an ingress at
+  `falco.internal.starktastic.net` and appears on neither dashboard. Every
+  service without a web UI (Recyclarr, Unpackerr, Subgen, Cross-seed,
+  qbit-manage, Loki, Tempo, Alloy, MetalLB, cert-manager) is invisible by
+  construction, because a dashboard entry is only ever written for something
+  with a URL.
+- **Two icons are broken.** `argocd.png` and `changedetection-io.png` do not
+  exist in the dashboard-icons set; the correct names are `argo-cd` and
+  `changedetection`.
 - **Widgets are under-used.** Homepage v1.13.2 ships widget types for CrowdSec,
   ntfy, Dispatcharr and Filebrowser, all of which are link-only today. The
   `prometheusmetric` widget — arbitrary PromQL against the in-cluster
@@ -36,6 +41,7 @@ Two further gaps follow from the same drift:
    outside-world data.
 5. Make the "new service added but not put on the dashboard" failure loud
    instead of silent.
+6. Fix the two broken icon references encountered in the rewritten config.
 
 ## Non-goals
 
@@ -185,10 +191,15 @@ All six are approved. Seal with `scripts/seal.sh` and add to the relevant
 | `HOMEPAGE_VAR_CROWDSEC_USER` / `_PASS` | admin | `crowdsec` widget — alerts and bans |
 | `HOMEPAGE_VAR_HASS_KEY` | user | `homeassistant` widget for the *At Home* section |
 
-The CrowdSec LAPI uses mutual TLS between agent and LAPI. If machine
-credentials cannot be issued for Homepage, the `crowdsec` widget is dropped and
-the *Security* PromQL card covers ban counts instead. This is a fallback, not a
-blocker.
+The CrowdSec LAPI runs in mutual-TLS mode. A comment in
+`infrastructure/system/crowdsec/values.yaml` records that the chart's own
+startup fails with "user/password and TLS are mutually exclusive" when both are
+configured, which strongly suggests the password auth the `crowdsec` widget
+requires is unavailable on this deployment. The widget is therefore attempted
+but not assumed: if machine credentials cannot be issued, it is dropped and the
+*Security* PromQL card covers ban counts via the metrics CrowdSec already
+exports to Prometheus. `HOMEPAGE_VAR_CROWDSEC_USER` / `_PASS` are only sealed
+if the widget proves viable.
 
 ## Settings changes
 

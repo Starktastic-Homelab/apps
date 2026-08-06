@@ -35,6 +35,19 @@ data:
     li.service[data-name="Calendar"] .service-title {
       display: none;
     }
+
+    /* Merge the site-monitor and Kubernetes dots into a single indicator.
+       The site-monitor dot is hidden but stays mounted and polling, so its
+       result is folded into the clickable Kubernetes dot below. */
+    .service-tags:has(.k8s-status) .service-site-monitor {
+      display: none;
+    }
+
+    /* A failing HTTP check turns the surviving dot red (Tailwind rose-500),
+       overriding the green/orange pod status. */
+    .service-tags:has(.site-monitor-status .bg-rose-500) .k8s-status > div {
+      background-color: rgb(244 63 94);
+    }
   kubernetes.yaml: |
     mode: cluster
   settings.yaml: |

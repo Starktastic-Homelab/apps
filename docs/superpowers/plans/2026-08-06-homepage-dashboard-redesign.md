@@ -16,7 +16,7 @@
 - Service icons must be a real file in `homarr-labs/dashboard-icons` (referenced as `name.png`) or a real Material Design icon (referenced as `mdi-name`). Verified fallbacks are listed in the File Structure section.
 - In-cluster URLs always use the form `http://<service>.<namespace>.svc.cluster.local:<port>`. They are used for `widget.url` and `siteMonitor`; the public FQDN is used for `href`.
 - `columns` for a layout section equals the number of services in that section, capped at **4** on the admin instance and **3** on the user instance, with a floor of **2**.
-- Every service on the **user** instance that has an `href` must also have a `siteMonitor`.
+- Every **self-hosted** service on the **user** instance that has an `href` must also have a `siteMonitor`, so it shows a status dot under `statusStyle: dot`. Purely external destinations (for example the Hacker News tile) are exempt: health-polling a third-party site would generate pointless outbound traffic, so they intentionally show no dot.
 - The user instance must contain **no** `*.internal.starktastic.net` URL anywhere, including `siteMonitor` and `widget.url`. Its `kubernetes.yaml` stays `mode: disabled`.
 - Section names are globally unique within one instance's `layout`.
 - Repeated widget blocks are shared with **YAML anchors** rather than copied. Homepage v1.13.2 parses with `js-yaml` v4 and the coverage script uses PyYAML; both resolve anchors, aliases and `<<:` merge keys. An anchor must be defined before its first alias in document order, so transcribe anchored blocks verbatim and do not reorder the services around them. `<<:` merges only top-level keys, so a nested map that differs per service (such as `mappings`) is restated in full.

@@ -949,25 +949,133 @@ data:
                 label: user.login
                 limit: 5
                 target: https://github.com/Starktastic-Homelab/terraform/pull/{number}
+    # ==================== IRON ====================
+    - Compute:
+        - Proxmox VE:
+            icon: proxmox.png
+            href: https://10.9.9.20:8006
+            description: Hypervisor
+            widget:
+              type: proxmox
+              url: https://10.9.9.20:8006
+              username: {{ "{{" }}HOMEPAGE_VAR_PROXMOX_USER{{ "}}" }}
+              password: {{ "{{" }}HOMEPAGE_VAR_PROXMOX_PASS{{ "}}" }}
+              node: pve
+        - kube-master-01:
+            icon: proxmox.png
+            description: Control plane (4c / 16GB)
+            proxmoxNode: pve
+            proxmoxVMID: 200
+        - kube-worker-01:
+            icon: proxmox.png
+            description: Worker (6c / 28GB / GPU)
+            proxmoxNode: pve
+            proxmoxVMID: 201
+        - kube-worker-02:
+            icon: proxmox.png
+            description: Worker (6c / 28GB / GPU)
+            proxmoxNode: pve
+            proxmoxVMID: 202
+        - Intel Device Operator:
+            icon: mdi-chip
+            description: GPU device plugin
+            namespace: kube-system
+            app: intel-device-operator
+    - Network:
+        - OPNsense:
+            icon: opnsense.png
+            href: https://10.9.9.1
+            description: Firewall & router
+            widget:
+              type: opnsense
+              url: https://10.9.9.1
+              username: {{ "{{" }}HOMEPAGE_VAR_OPNSENSE_USER{{ "}}" }}
+              password: {{ "{{" }}HOMEPAGE_VAR_OPNSENSE_PASS{{ "}}" }}
+        - AdGuard Home:
+            icon: adguard-home.png
+            href: http://10.9.9.1:3000
+            description: DNS filtering
+            widget:
+              type: adguard
+              url: http://10.9.9.1:3000
+              username: {{ "{{" }}HOMEPAGE_VAR_ADGUARD_USER{{ "}}" }}
+              password: {{ "{{" }}HOMEPAGE_VAR_ADGUARD_PASS{{ "}}" }}
+        - Traefik:
+            icon: traefik.png
+            href: https://traefik.internal.starktastic.net
+            description: Ingress & reverse proxy
+            siteMonitor: http://traefik-api.traefik-system.svc.cluster.local:8080/ping
+            widget:
+              type: traefik
+              url: http://traefik-api.traefik-system.svc.cluster.local:8080
+        - MetalLB:
+            icon: metallb.png
+            description: "Load balancer (ext 10.9.8.90 / int 10.9.9.90)"
+            namespace: metallb-system
+            app: metallb
+    - Storage:
+        - TrueNAS:
+            icon: truenas.png
+            href: https://10.9.9.30
+            description: NAS & shared storage
+            widget:
+              type: truenas
+              url: https://10.9.9.30
+              version: 2
+              key: {{ "{{" }}HOMEPAGE_VAR_TRUENAS_KEY{{ "}}" }}
+              enablePools: true
+        - NFS Provisioner:
+            icon: mdi-nas
+            description: Dynamic PV provisioning
+            namespace: kube-system
+            app: nfs-provisioner
+    - Data:
+        - PostgreSQL:
+            icon: postgres.png
+            description: Primary database
+            namespace: databases
+            app: postgres
+        - Redis:
+            icon: redis.png
+            description: Cache & session store
+            namespace: databases
+            app: redis
+        - pgAdmin:
+            icon: pgadmin.png
+            href: https://pgadmin.internal.starktastic.net
+            description: Database administration
+            siteMonitor: http://pgadmin-pgadmin4.databases.svc.cluster.local:80
   bookmarks.yaml: |
-    - Developer:
-        - GitHub:
-            - abbr: GH
-              href: https://github.com/Starktastic-Homelab
-        - ArgoCD:
-            - abbr: CD
-              href: https://argocd.internal.starktastic.net
-    - Documentation:
+    - Code:
+        - apps:
+            - abbr: AP
+              href: https://github.com/Starktastic-Homelab/apps
+        - ansible:
+            - abbr: AN
+              href: https://github.com/Starktastic-Homelab/ansible
+        - packer:
+            - abbr: PK
+              href: https://github.com/Starktastic-Homelab/packer
+        - terraform:
+            - abbr: TF
+              href: https://github.com/Starktastic-Homelab/terraform
+    - Reference:
         - Homepage:
             - abbr: HP
-              href: https://gethomepage.dev
+              href: https://gethomepage.dev/configs/services/
         - Kubernetes:
             - abbr: K8
-              href: https://kubernetes.io/docs
-    - External:
-        - Cloudflare:
-            - abbr: CF
-              href: https://dash.cloudflare.com
-        - Mailgun:
-            - abbr: MG
-              href: https://app.mailgun.com
+              href: https://kubernetes.io/docs/home/
+        - TRaSH Guides:
+            - abbr: TR
+              href: https://trash-guides.info
+        - Dashboard Icons:
+            - abbr: IC
+              href: https://github.com/homarr-labs/dashboard-icons/tree/main/png
+    - Accounts:
+        - CrowdSec Console:
+            - abbr: CS
+              href: https://app.crowdsec.net
+        - Finnhub:
+            - abbr: FH
+              href: https://finnhub.io/dashboard

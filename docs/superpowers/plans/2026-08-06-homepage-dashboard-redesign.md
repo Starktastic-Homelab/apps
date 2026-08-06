@@ -352,6 +352,13 @@ MSG
 
 `HOMEPAGE_VAR_CROWDSEC_USER` / `_PASS` are deliberately **not** part of this task. The CrowdSec LAPI in this cluster runs TLS-only and rejects password auth (see the comment in `infrastructure/system/crowdsec/values.yaml`), so the `crowdsec` widget is expected to be unusable. CrowdSec is covered by the PromQL *Security* card in Task 4 instead.
 
+> **Amended during execution — verified against the live cluster.** Only *four* of the seven values were needed:
+> - `HOMEPAGE_VAR_FILEBROWSER_USER` / `_PASS` are **not** required. Filebrowser runs with `FB_NOAUTH=true` (`services/operations/filebrowser/values.yaml:20`); `POST /api/login` returns a valid JWT with an empty body. Both fields were removed from the widget instead of sealed.
+> - `HOMEPAGE_VAR_NTFY_TOKEN`, `HOMEPAGE_VAR_DISPATCHARR_USER` / `_PASS` and `HOMEPAGE_VAR_HASS_KEY` were created as dedicated least-privilege service accounts and sealed.
+> - `HOMEPAGE_VAR_FINNHUB_KEY` still requires an external signup at finnhub.io and remains owner-operated.
+>
+> Step 3's expected counts therefore become **39** (36 + 3) for admin and **19** (18 + 1) for user.
+
 - [ ] **Step 1: Gather the six admin values**
 
 These come from the running services, not from this repository:

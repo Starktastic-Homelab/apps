@@ -620,8 +620,6 @@ data:
             widget:
               type: filebrowser
               url: http://filebrowser.operations.svc.cluster.local:80
-              username: {{ "{{" }}HOMEPAGE_VAR_FILEBROWSER_USER{{ "}}" }}
-              password: {{ "{{" }}HOMEPAGE_VAR_FILEBROWSER_PASS{{ "}}" }}
         - Mealie:
             icon: mealie.png
             href: https://mealie.starktastic.net

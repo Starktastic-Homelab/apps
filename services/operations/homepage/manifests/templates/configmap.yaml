@@ -158,22 +158,21 @@ data:
     - At Home:
         - Home:
             icon: home-assistant.png
-            description: Temperature, doors, lights
+            description: Weather and who is home
             widget:
               type: homeassistant
               url: http://home-assistant-main.home-automation.svc.cluster.local:8123
               key: {{ "{{" }}HOMEPAGE_VAR_HASS_KEY{{ "}}" }}
               custom:
-                - state: sensor.living_room_temperature
-                  label: Living room
-                - state: sensor.outdoor_temperature
+                - state: weather.forecast_home
                   label: Outside
-                - template: >-
-                    {{ "{{" }} states.light|selectattr('state','equalto','on')|list|length {{ "}}" }}
-                  label: Lights on
-                - template: >-
-                    {{ "{{" }} states.binary_sensor|selectattr('attributes.device_class','equalto','door')|selectattr('state','equalto','on')|list|length {{ "}}" }}
-                  label: Doors open
+                  value: "{attributes.temperature}{attributes.temperature_unit}"
+                - state: weather.forecast_home
+                  label: Humidity
+                  value: "{attributes.humidity}%"
+                - state: person.ben_faingold
+                  label: Ben
+                  value: "{state}"
     - Now Playing:
         - Jellyfin:
             icon: jellyfin.png

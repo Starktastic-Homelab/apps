@@ -30,6 +30,11 @@ jobs:
       - name: Install yamllint
         run: pip install yamllint
 
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.16.2
+
       - name: YAML Lint
         id: yamllint
         run: |
@@ -63,6 +68,17 @@ jobs:
           EXIT_CODE=$?
           echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
           if [ $EXIT_CODE -ne 0 ]; then echo "❌ Kubeconform Failed"; else echo "✅ Kubeconform Passed"; fi
+
+      - name: Check Homepage dashboard coverage
+        id: homepage
+        run: |
+          pip install pyyaml
+          set +e
+          python3 scripts/check-homepage-coverage.py > homepage.txt 2>&1
+          EXIT_CODE=$?
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+          cat homepage.txt
+          if [ $EXIT_CODE -ne 0 ]; then echo "❌ Homepage Coverage Failed"; else echo "✅ Homepage Coverage Passed"; fi
 
       - name: Create validation report
         if: always()
@@ -109,6 +125,21 @@ jobs:
              echo "</details>" >> validation-report.md
           fi
 
+          if [ "${{ steps.homepage.outputs.exit_code }}" -eq 0 ]; then
+            echo "✅ **Homepage Coverage:** Passed" >> validation-report.md
+          else
+            echo "❌ **Homepage Coverage:** FAILED" >> validation-report.md
+            echo "" >> validation-report.md
+            echo "<details>" >> validation-report.md
+            echo "<summary>Log</summary>" >> validation-report.md
+            echo "" >> validation-report.md
+            echo '```' >> validation-report.md
+            cat homepage.txt >> validation-report.md
+            echo '```' >> validation-report.md
+            echo "" >> validation-report.md
+            echo "</details>" >> validation-report.md
+          fi
+
           echo "" >> validation-report.md
 
       - name: Upload validation report artifact
@@ -120,7 +151,7 @@ jobs:
           retention-days: 1
 
       - name: Check status
-        if: steps.yamllint.outputs.exit_code != 0 || steps.kubeconform.outputs.exit_code != 0
+        if: steps.yamllint.outputs.exit_code != 0 || steps.kubeconform.outputs.exit_code != 0 || steps.homepage.outputs.exit_code != 0
         run: exit 1
 
   diff:

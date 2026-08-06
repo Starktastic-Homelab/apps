@@ -151,7 +151,13 @@ jobs:
           retention-days: 1
 
       - name: Check status
-        if: steps.yamllint.outputs.exit_code != 0 || steps.kubeconform.outputs.exit_code != 0 || steps.homepage.outputs.exit_code != 0
+        if: >-
+          steps.yamllint.outputs.exit_code != 0 ||
+          steps.yamllint.outputs.exit_code == '' ||
+          steps.kubeconform.outputs.exit_code != 0 ||
+          steps.kubeconform.outputs.exit_code == '' ||
+          steps.homepage.outputs.exit_code != 0 ||
+          steps.homepage.outputs.exit_code == ''
         run: exit 1
 
   diff:

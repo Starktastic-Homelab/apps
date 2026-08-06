@@ -95,7 +95,7 @@ jobs:
             echo "<summary>Log</summary>" >> validation-report.md
             echo "" >> validation-report.md
             echo '```' >> validation-report.md
-            cat yamllint.txt 2>/dev/null || echo "(log unavailable — step was skipped)" >> validation-report.md
+            { cat yamllint.txt 2>/dev/null || echo "(log unavailable — step was skipped)"; } >> validation-report.md
             echo '```' >> validation-report.md
             echo "" >> validation-report.md
             echo "</details>" >> validation-report.md
@@ -108,7 +108,7 @@ jobs:
              echo "<summary>Summary</summary>" >> validation-report.md
              echo "" >> validation-report.md
              echo '```' >> validation-report.md
-             tail -n 5 kubeconform.txt 2>/dev/null || echo "(log unavailable — step was skipped)" >> validation-report.md
+             { tail -n 5 kubeconform.txt 2>/dev/null || echo "(log unavailable — step was skipped)"; } >> validation-report.md
              echo '```' >> validation-report.md
              echo "" >> validation-report.md
              echo "</details>" >> validation-report.md
@@ -119,7 +119,7 @@ jobs:
              echo "<summary>Log</summary>" >> validation-report.md
              echo "" >> validation-report.md
              echo '```' >> validation-report.md
-             cat kubeconform.txt 2>/dev/null || echo "(log unavailable — step was skipped)" >> validation-report.md
+             { cat kubeconform.txt 2>/dev/null || echo "(log unavailable — step was skipped)"; } >> validation-report.md
              echo '```' >> validation-report.md
              echo "" >> validation-report.md
              echo "</details>" >> validation-report.md
@@ -134,7 +134,7 @@ jobs:
             echo "<summary>Log</summary>" >> validation-report.md
             echo "" >> validation-report.md
             echo '```' >> validation-report.md
-            cat homepage.txt 2>/dev/null || echo "(log unavailable — step was skipped)" >> validation-report.md
+            { cat homepage.txt 2>/dev/null || echo "(log unavailable — step was skipped)"; } >> validation-report.md
             echo '```' >> validation-report.md
             echo "" >> validation-report.md
             echo "</details>" >> validation-report.md

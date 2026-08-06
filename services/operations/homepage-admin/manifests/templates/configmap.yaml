@@ -43,11 +43,13 @@ data:
     statusStyle: dot
     useEqualHeights: true
     hideVersion: true
-    hideErrors: true
+    hideErrors: false
     disableCollapse: false
     disableIndexing: true
     iconStyle: theme
     favicon: /icons/favicon.svg
+    providers:
+      finnhub: {{ "{{" }}HOMEPAGE_VAR_FINNHUB_KEY{{ "}}" }}
     quicklaunch:
       searchDescriptions: true
       hideInternetSearch: false
@@ -56,109 +58,141 @@ data:
       url: https://search.starktastic.net/search?q=
     pwa:
       shortcuts:
-        - name: Home
-          url: "/#home"
-        - name: Media
-          url: "/#media"
-        - name: Operations
-          url: "/#operations"
-        - name: Infrastructure
-          url: "/#infrastructure"
+        - name: Pulse
+          url: "/#pulse"
+        - name: Play
+          url: "/#play"
+        - name: Make
+          url: "/#make"
+        - name: Run
+          url: "/#run"
+        - name: Iron
+          url: "/#iron"
     layout:
-      # -- Home tab --
-      Calendar:
-        tab: Home
+      # -- Pulse: is everything OK? --
+      At a Glance:
+        tab: Pulse
         style: row
-        columns: 1
+        columns: 3
+        icon: mdi-heart-pulse
+      In Flight:
+        tab: Pulse
+        style: row
+        columns: 4
+        icon: mdi-airplane-takeoff
+      Coming Up:
+        tab: Pulse
+        style: row
+        columns: 3
         icon: mdi-calendar-month
-        header: false
-      Streaming:
-        tab: Home
+      Out There:
+        tab: Pulse
         style: row
-        columns: 5
+        columns: 2
+        icon: mdi-newspaper-variant
+      # -- Play: consume something --
+      Watch:
+        tab: Play
+        style: row
+        columns: 4
         icon: jellyfin.png
-      Requests:
-        tab: Home
+      Listen:
+        tab: Play
+        style: row
+        columns: 2
+        icon: navidrome.png
+      Read:
+        tab: Play
+        style: row
+        columns: 2
+        icon: calibre-web.png
+      Look Back:
+        tab: Play
+        style: row
+        columns: 2
+        icon: immich.png
+      Ask For It:
+        tab: Play
         style: row
         columns: 3
         icon: overseerr.png
-      Home & Life:
-        tab: Home
+      # -- Make: produce something --
+      Create:
+        tab: Make
+        style: row
+        columns: 3
+        icon: excalidraw.png
+      Convert:
+        tab: Make
         style: row
         columns: 4
-        icon: home-assistant.png
-      # -- Media tab --
-      Movies & TV:
-        tab: Media
+        icon: convertx.png
+      Find:
+        tab: Make
+        style: row
+        columns: 3
+        icon: searxng.png
+      Organise:
+        tab: Make
+        style: row
+        columns: 4
+        icon: paperless-ngx.png
+      Send:
+        tab: Make
+        style: row
+        columns: 3
+        icon: ntfy.png
+      # -- Run: keep the machine fed --
+      Acquire:
+        tab: Run
         style: row
         columns: 4
         icon: radarr.png
-      Music & Books:
-        tab: Media
-        style: row
-        columns: 5
-        icon: navidrome.png
-      Downloads:
-        tab: Media
-        style: row
-        columns: 2
-        icon: qbittorrent.png
-      # -- Operations tab --
-      Productivity:
-        tab: Operations
+      Refine:
+        tab: Run
         style: row
         columns: 4
-        icon: vikunja.png
-      Monitoring:
-        tab: Operations
+        icon: bazarr.png
+      Home:
+        tab: Run
+        style: row
+        columns: 3
+        icon: home-assistant.png
+      Observe:
+        tab: Run
         style: row
         columns: 4
         icon: grafana.png
-      Security:
-        tab: Operations
+      Guard:
+        tab: Run
         style: row
-        columns: 3
+        columns: 4
         icon: authentik.png
-      Documents & Files:
-        tab: Operations
-        style: row
-        columns: 3
-        icon: paperless-ngx.png
-      Utilities:
-        tab: Operations
+      Ship:
+        tab: Run
         style: row
         columns: 4
-        icon: mdi-tools
-      Development:
-        tab: Operations
+        icon: argo-cd.png
+      # -- Iron: the metal underneath --
+      Compute:
+        tab: Iron
         style: row
         columns: 4
-        icon: github.png
-      # -- Infrastructure tab --
-      Proxmox:
-        tab: Infrastructure
-        style: row
-        columns: 1
         icon: proxmox.png
-      Cluster VMs:
-        tab: Infrastructure
+      Network:
+        tab: Iron
         style: row
-        columns: 3
-        icon: proxmox.png
-      Networking:
-        tab: Infrastructure
-        style: row
-        columns: 3
-        icon: traefik.png
+        columns: 4
+        icon: opnsense.png
       Storage:
-        tab: Infrastructure
-        style: row
-        columns: 1
-        icon: truenas.png
-      Databases:
-        tab: Infrastructure
+        tab: Iron
         style: row
         columns: 2
+        icon: truenas.png
+      Data:
+        tab: Iron
+        style: row
+        columns: 3
         icon: postgres.png
   widgets.yaml: |
     - logo:
@@ -185,6 +219,18 @@ data:
         longitude: 34.78
         timezone: Asia/Jerusalem
         units: metric
+    - stocks:
+        provider: finnhub
+        color: true
+        cache: 5
+        watchlist:
+          - NVDA
+          - AMD
+          - INTC
+          - MSFT
+          - GOOGL
+          - AAPL
+          - TSM
     - datetime:
         text_size: xl
         format:

@@ -77,7 +77,12 @@ def app_yaml_hosts(doms: dict[str, str]) -> dict[str, str]:
             # from the app they are based on.
             base = app.get("baseApp")
             base_ingress = (apps.get(f"{base}/app.yaml") or {}).get("ingress") or {}
-            domain_type = base_ingress.get("domainType", "internal")
+            domain_type = base_ingress.get("domainType")
+            if domain_type is None:
+                raise ValueError(
+                    f"{path}: cannot determine domainType; baseApp={base!r} "
+                    "not found or has no ingress.domainType"
+                )
         found[fqdn(ingress.get("host", ""), domain_type, doms)] = path
     return found
 
@@ -122,8 +127,34 @@ def hrefs(node) -> list[str]:
     return []
 
 
-def dashboard_hosts(chart: str) -> set[str]:
-    """Render a Homepage chart and collect every host it links to.
+def all_urls(node) -> list[str]:
+    """Every href, siteMonitor, and widget url value in a parsed YAML tree."""
+    if isinstance(node, dict):
+        out = []
+        for key, value in node.items():
+            if key in ("href", "siteMonitor") and isinstance(value, str):
+                out.append(value)
+            elif key == "url" and isinstance(value, str):
+                out.append(value)
+            else:
+                out.extend(all_urls(value))
+        return out
+    if isinstance(node, list):
+        return [url for item in node for url in all_urls(item)]
+    return []
+
+
+def is_internal_host(host: str, internal_domain: str) -> bool:
+    """True when host is exactly the internal domain or a subdomain of it."""
+    return host == internal_domain or host.endswith("." + internal_domain)
+
+
+def dashboard_hosts(chart: str) -> tuple[set[str], set[str]]:
+    """Render a Homepage chart and collect hosts for coverage and leak checks.
+
+    Returns (coverage_hosts, all_url_hosts) where coverage_hosts contains only
+    href-derived hosts (used for coverage), and all_url_hosts is the union of
+    href, siteMonitor, and widget.url hosts (used for the internal-leak check).
 
     Also asserts that the embedded YAML parses; a syntax error here fails the
     check rather than silently shipping a blank dashboard.
@@ -133,7 +164,8 @@ def dashboard_hosts(chart: str) -> set[str]:
         capture_output=True, text=True, check=True,
     ).stdout
 
-    hosts: set[str] = set()
+    coverage: set[str] = set()
+    all_url_hosts: set[str] = set()
     found_expected_keys = False
     for doc in yaml.safe_load_all(out):
         if not doc or doc.get("kind") != "ConfigMap":
@@ -147,14 +179,34 @@ def dashboard_hosts(chart: str) -> set[str]:
                 for href in hrefs(parsed):
                     match = re.match(r"https?://([^/]+)", href)
                     if match:
-                        hosts.add(match.group(1))
+                        coverage.add(match.group(1))
+                for url in all_urls(parsed):
+                    match = re.match(r"https?://([^/]+)", url)
+                    if match:
+                        all_url_hosts.add(match.group(1))
     if not found_expected_keys:
         print(
             "ERROR: %s/templates/configmap.yaml missing expected keys: "
             "services.yaml and/or bookmarks.yaml" % chart,
             file=sys.stderr,
         )
-    return hosts
+    return coverage, all_url_hosts
+
+
+def check_secrets(chart_label: str, chart_path: str) -> list[str]:
+    """Return failure messages for any HOMEPAGE_VAR_* referenced but not sealed."""
+    configmap_path = f"{chart_path}/templates/configmap.yaml"
+    secrets_path = f"{chart_path}/templates/secrets.yaml"
+
+    with open(configmap_path) as fh:
+        referenced = set(re.findall(r"HOMEPAGE_VAR_[A-Z0-9_]+", fh.read()))
+
+    sealed = set((load_yaml(secrets_path).get("spec") or {}).get("encryptedData") or {})
+
+    missing = sorted(referenced - sealed)
+    return [
+        f"secret not sealed ({chart_label}): {var}" for var in missing
+    ]
 
 
 def main() -> int:
@@ -164,23 +216,26 @@ def main() -> int:
     all_hosts = {**app_yaml_hosts(doms), **rendered_hosts(), **static_hosts()}
     all_hosts = {h: src for h, src in all_hosts.items() if h not in EXCLUDED_HOSTS}
 
-    admin = dashboard_hosts(DASHBOARDS["admin"])
-    user = dashboard_hosts(DASHBOARDS["user"])
+    admin, admin_all = dashboard_hosts(DASHBOARDS["admin"])
+    user, user_all = dashboard_hosts(DASHBOARDS["user"])
 
     failures: list[str] = []
+
+    for chart_label, chart_path in DASHBOARDS.items():
+        failures.extend(check_secrets(chart_label, chart_path))
 
     for host, source in sorted(all_hosts.items()):
         if host not in admin:
             failures.append(f"missing from admin dashboard: {host}  ({source})")
 
     for host, source in sorted(all_hosts.items()):
-        if host.endswith(internal):
+        if is_internal_host(host, internal):
             continue
         if host not in user:
             failures.append(f"missing from user dashboard: {host}  ({source})")
 
-    for host in sorted(user):
-        if host.endswith(internal):
+    for host in sorted(user_all):
+        if is_internal_host(host, internal):
             failures.append(f"internal host leaked onto user dashboard: {host}")
 
     if failures:

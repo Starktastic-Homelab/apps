@@ -86,7 +86,7 @@ jobs:
           echo "## Static Validation" > validation-report.md
           echo "" >> validation-report.md
 
-          if [ "${{ steps.yamllint.outputs.exit_code }}" -eq 0 ]; then
+          if [ "${{ steps.yamllint.outputs.exit_code }}" = "0" ]; then
             echo "✅ **YAML Lint:** Passed" >> validation-report.md
           else
             echo "❌ **YAML Lint:** FAILED" >> validation-report.md
@@ -95,20 +95,20 @@ jobs:
             echo "<summary>Log</summary>" >> validation-report.md
             echo "" >> validation-report.md
             echo '```' >> validation-report.md
-            cat yamllint.txt >> validation-report.md
+            cat yamllint.txt 2>/dev/null || echo "(log unavailable — step was skipped)" >> validation-report.md
             echo '```' >> validation-report.md
             echo "" >> validation-report.md
             echo "</details>" >> validation-report.md
           fi
 
-          if [ "${{ steps.kubeconform.outputs.exit_code }}" -eq 0 ]; then
+          if [ "${{ steps.kubeconform.outputs.exit_code }}" = "0" ]; then
              echo "✅ **Kubeconform:** Passed" >> validation-report.md
              echo "" >> validation-report.md
              echo "<details>" >> validation-report.md
              echo "<summary>Summary</summary>" >> validation-report.md
              echo "" >> validation-report.md
              echo '```' >> validation-report.md
-             tail -n 5 kubeconform.txt >> validation-report.md
+             tail -n 5 kubeconform.txt 2>/dev/null || echo "(log unavailable — step was skipped)" >> validation-report.md
              echo '```' >> validation-report.md
              echo "" >> validation-report.md
              echo "</details>" >> validation-report.md
@@ -119,13 +119,13 @@ jobs:
              echo "<summary>Log</summary>" >> validation-report.md
              echo "" >> validation-report.md
              echo '```' >> validation-report.md
-             cat kubeconform.txt >> validation-report.md
+             cat kubeconform.txt 2>/dev/null || echo "(log unavailable — step was skipped)" >> validation-report.md
              echo '```' >> validation-report.md
              echo "" >> validation-report.md
              echo "</details>" >> validation-report.md
           fi
 
-          if [ "${{ steps.homepage.outputs.exit_code }}" -eq 0 ]; then
+          if [ "${{ steps.homepage.outputs.exit_code }}" = "0" ]; then
             echo "✅ **Homepage Coverage:** Passed" >> validation-report.md
           else
             echo "❌ **Homepage Coverage:** FAILED" >> validation-report.md
@@ -134,7 +134,7 @@ jobs:
             echo "<summary>Log</summary>" >> validation-report.md
             echo "" >> validation-report.md
             echo '```' >> validation-report.md
-            cat homepage.txt >> validation-report.md
+            cat homepage.txt 2>/dev/null || echo "(log unavailable — step was skipped)" >> validation-report.md
             echo '```' >> validation-report.md
             echo "" >> validation-report.md
             echo "</details>" >> validation-report.md

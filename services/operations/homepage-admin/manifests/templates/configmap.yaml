@@ -980,7 +980,7 @@ data:
             icon: mdi-chip
             description: GPU device plugin
             namespace: kube-system
-            app: intel-device-operator
+            app: intel-device-plugins-operator
     - Network:
         - OPNsense:
             icon: opnsense.png
@@ -1028,14 +1028,13 @@ data:
             icon: mdi-nas
             description: Dynamic PV provisioning
             namespace: kube-system
-            app: nfs-provisioner
+            podSelector: app=nfs-subdir-external-provisioner
     - Data:
         - PostgreSQL:
             icon: postgres.png
             description: Primary database
             namespace: databases
-            app: postgres
-        - Redis:
+            app: postgresql
             icon: redis.png
             description: Cache & session store
             namespace: databases

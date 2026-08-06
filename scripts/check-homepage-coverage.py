@@ -201,7 +201,10 @@ def check_secrets(chart_label: str, chart_path: str) -> list[str]:
     with open(configmap_path) as fh:
         referenced = set(re.findall(r"HOMEPAGE_VAR_[A-Z0-9_]+", fh.read()))
 
-    sealed = set((load_yaml(secrets_path).get("spec") or {}).get("encryptedData") or {})
+    try:
+        sealed = set((load_yaml(secrets_path).get("spec") or {}).get("encryptedData") or {})
+    except FileNotFoundError:
+        sealed = set()
 
     missing = sorted(referenced - sealed)
     return [

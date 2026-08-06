@@ -1035,6 +1035,7 @@ data:
             description: Primary database
             namespace: databases
             app: postgresql
+        - Redis:
             icon: redis.png
             description: Cache & session store
             namespace: databases

@@ -19,6 +19,7 @@
 - Every service on the **user** instance that has an `href` must also have a `siteMonitor`.
 - The user instance must contain **no** `*.internal.starktastic.net` URL anywhere, including `siteMonitor` and `widget.url`. Its `kubernetes.yaml` stays `mode: disabled`.
 - Section names are globally unique within one instance's `layout`.
+- Repeated widget blocks are shared with **YAML anchors** rather than copied. Homepage v1.13.2 parses with `js-yaml` v4 and the coverage script uses PyYAML; both resolve anchors, aliases and `<<:` merge keys. An anchor must be defined before its first alias in document order, so transcribe anchored blocks verbatim and do not reorder the services around them. `<<:` merges only top-level keys, so a nested map that differs per service (such as `mappings`) is restated in full.
 - Domains come from `templates/globals.yaml`: public `starktastic.net`, internal `internal.starktastic.net`, media `benplus.app`.
 - Every task ends with a commit. Commit messages follow Conventional Commits and include the trailers:
 
@@ -336,6 +337,8 @@ MSG
 ---
 
 ### Task 2: Seal the new Homepage secrets
+
+> **Owner-operated — not executed by an implementer subagent.** These values require interactive logins to ntfy, Finnhub, Dispatcharr and Filebrowser that only the repository owner can perform, so this task is done by hand before the branch merges. Tasks 3-7 still reference the variable names below as planned. Nothing validates `HOMEPAGE_VAR_*` against `spec.encryptedData`, so the branch builds and CI passes without this task; until it is done the seven affected widgets render without credentials and fail closed, and the rest of both dashboards is unaffected.
 
 **Files:**
 - Modify: `services/operations/homepage-admin/manifests/templates/secrets.yaml`
@@ -1322,7 +1325,7 @@ Insert the following immediately after the `Shelfmark` entry added in Task 4, st
               url: http://radarr.media.svc.cluster.local:7878
               key: {{ "{{" }}HOMEPAGE_VAR_RADARR_KEY{{ "}}" }}
               enableQueue: true
-              highlight:
+              highlight: &queue_depth
                 queued:
                   numeric:
                     - level: danger
@@ -1344,18 +1347,7 @@ Insert the following immediately after the `Shelfmark` entry added in Task 4, st
               url: http://radarr-ru.media.svc.cluster.local:7878
               key: {{ "{{" }}HOMEPAGE_VAR_RADARR_RU_KEY{{ "}}" }}
               enableQueue: true
-              highlight:
-                queued:
-                  numeric:
-                    - level: danger
-                      when: gte
-                      value: 50
-                    - level: warn
-                      when: gte
-                      value: 20
-                    - level: good
-                      when: eq
-                      value: 0
+              highlight: *queue_depth
         - Sonarr:
             icon: sonarr.png
             href: https://sonarr.internal.starktastic.net
@@ -1366,18 +1358,7 @@ Insert the following immediately after the `Shelfmark` entry added in Task 4, st
               url: http://sonarr.media.svc.cluster.local:8989
               key: {{ "{{" }}HOMEPAGE_VAR_SONARR_KEY{{ "}}" }}
               enableQueue: true
-              highlight:
-                queued:
-                  numeric:
-                    - level: danger
-                      when: gte
-                      value: 50
-                    - level: warn
-                      when: gte
-                      value: 20
-                    - level: good
-                      when: eq
-                      value: 0
+              highlight: *queue_depth
         - Sonarr RU:
             icon: sonarr.png
             href: https://sonarr-ru.internal.starktastic.net
@@ -1388,18 +1369,7 @@ Insert the following immediately after the `Shelfmark` entry added in Task 4, st
               url: http://sonarr-ru.media.svc.cluster.local:8989
               key: {{ "{{" }}HOMEPAGE_VAR_SONARR_RU_KEY{{ "}}" }}
               enableQueue: true
-              highlight:
-                queued:
-                  numeric:
-                    - level: danger
-                      when: gte
-                      value: 50
-                    - level: warn
-                      when: gte
-                      value: 20
-                    - level: good
-                      when: eq
-                      value: 0
+              highlight: *queue_depth
         - Lidarr:
             icon: lidarr.png
             href: https://lidarr.internal.starktastic.net
@@ -1599,7 +1569,7 @@ Insert the following immediately after the `Shelfmark` entry added in Task 4, st
             icon: github.png
             href: https://github.com/Starktastic-Homelab/apps/pulls
             description: Open pull requests
-            widget:
+            widget: &github_prs
               type: customapi
               url: https://api.github.com/repos/Starktastic-Homelab/apps/pulls?state=open&per_page=10
               refreshInterval: 600000
@@ -1618,14 +1588,8 @@ Insert the following immediately after the `Shelfmark` entry added in Task 4, st
             href: https://github.com/Starktastic-Homelab/ansible/pulls
             description: Open pull requests
             widget:
-              type: customapi
+              <<: *github_prs
               url: https://api.github.com/repos/Starktastic-Homelab/ansible/pulls?state=open&per_page=10
-              refreshInterval: 600000
-              display: dynamic-list
-              headers:
-                Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
-                X-GitHub-Api-Version: "2022-11-28"
-                User-Agent: Homepage-Dashboard
               mappings:
                 name: title
                 label: user.login
@@ -1636,14 +1600,8 @@ Insert the following immediately after the `Shelfmark` entry added in Task 4, st
             href: https://github.com/Starktastic-Homelab/packer/pulls
             description: Open pull requests
             widget:
-              type: customapi
+              <<: *github_prs
               url: https://api.github.com/repos/Starktastic-Homelab/packer/pulls?state=open&per_page=10
-              refreshInterval: 600000
-              display: dynamic-list
-              headers:
-                Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
-                X-GitHub-Api-Version: "2022-11-28"
-                User-Agent: Homepage-Dashboard
               mappings:
                 name: title
                 label: user.login
@@ -1654,14 +1612,8 @@ Insert the following immediately after the `Shelfmark` entry added in Task 4, st
             href: https://github.com/Starktastic-Homelab/terraform/pulls
             description: Open pull requests
             widget:
-              type: customapi
+              <<: *github_prs
               url: https://api.github.com/repos/Starktastic-Homelab/terraform/pulls?state=open&per_page=10
-              refreshInterval: 600000
-              display: dynamic-list
-              headers:
-                Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
-                X-GitHub-Api-Version: "2022-11-28"
-                User-Agent: Homepage-Dashboard
               mappings:
                 name: title
                 label: user.login

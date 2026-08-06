@@ -134,6 +134,7 @@ def dashboard_hosts(chart: str) -> set[str]:
     ).stdout
 
     hosts: set[str] = set()
+    found_expected_keys = False
     for doc in yaml.safe_load_all(out):
         if not doc or doc.get("kind") != "ConfigMap":
             continue
@@ -142,10 +143,17 @@ def dashboard_hosts(chart: str) -> set[str]:
                 continue
             parsed = yaml.safe_load(VAR_RE.sub("x", body))
             if name in ("services.yaml", "bookmarks.yaml"):
+                found_expected_keys = True
                 for href in hrefs(parsed):
                     match = re.match(r"https?://([^/]+)", href)
                     if match:
                         hosts.add(match.group(1))
+    if not found_expected_keys:
+        print(
+            "ERROR: %s/templates/configmap.yaml missing expected keys: "
+            "services.yaml and/or bookmarks.yaml" % chart,
+            file=sys.stderr,
+        )
     return hosts
 
 

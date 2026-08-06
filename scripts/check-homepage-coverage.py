@@ -1,0 +1,189 @@
+#!/usr/bin/env python3
+"""Verify both Homepage dashboards list every service that has an ingress.
+
+The two Homepage instances are configured by hand-written ConfigMaps. Nothing
+otherwise connects a new service's IngressRoute to those ConfigMaps, so a
+service can be deployed and reachable while remaining invisible on every
+dashboard. This check closes that gap.
+
+Hosts are discovered from three places, mirroring how the cluster actually
+defines them:
+
+  * ``app.yaml`` files consumed by ``templates/ingress-chart`` (the common case,
+    including variants that inherit ``domainType`` from a ``baseApp``)
+  * the ``infrastructure/configs`` chart, which templates its hostnames through
+    ``templates/globals.yaml``
+  * standalone IngressRoute manifests that hard-code a ``Host()`` rule
+
+Dashboard coverage is read by rendering each Homepage manifests chart and
+walking the embedded ``services.yaml`` and ``bookmarks.yaml`` for ``href``
+values. Rendering also proves the embedded YAML still parses, which is easy to
+break because it is YAML nested inside a Helm-escaped ConfigMap.
+
+Run with no arguments from the repository root.
+"""
+
+from __future__ import annotations
+
+import glob
+import re
+import subprocess
+import sys
+
+import yaml
+
+GLOBALS = "templates/globals.yaml"
+CONFIGS_CHART = "infrastructure/configs"
+DASHBOARDS = {
+    "admin": "services/operations/homepage-admin/manifests",
+    "user": "services/operations/homepage/manifests",
+}
+
+# Neither dashboard lists itself as a service.
+EXCLUDED_HOSTS = {"starktastic.net", "admin.starktastic.net"}
+
+HOST_RE = re.compile(r"Host\(`([^`]+)`\)")
+VAR_RE = re.compile(r"\{\{HOMEPAGE_VAR_[A-Z0-9_]+\}\}")
+
+
+def load_yaml(path: str) -> dict:
+    with open(path) as handle:
+        return yaml.safe_load(handle) or {}
+
+
+def domains() -> dict[str, str]:
+    return load_yaml(GLOBALS)["global"]["domains"]
+
+
+def fqdn(host: str, domain_type: str, doms: dict[str, str]) -> str:
+    domain = doms[domain_type]
+    return domain if not host else f"{host}.{domain}"
+
+
+def app_yaml_hosts(doms: dict[str, str]) -> dict[str, str]:
+    """Map FQDN -> app.yaml path for every ingress-enabled app."""
+    apps = {}
+    for path in glob.glob("services/*/*/app.yaml") + glob.glob("infrastructure/*/*/app.yaml"):
+        apps[path] = load_yaml(path)
+
+    found = {}
+    for path, app in apps.items():
+        ingress = app.get("ingress") or {}
+        if not ingress.get("enabled"):
+            continue
+        domain_type = ingress.get("domainType")
+        if domain_type is None:
+            # Variants (e.g. radarr-ru) inherit every ingress field but `host`
+            # from the app they are based on.
+            base = app.get("baseApp")
+            base_ingress = (apps.get(f"{base}/app.yaml") or {}).get("ingress") or {}
+            domain_type = base_ingress.get("domainType", "internal")
+        found[fqdn(ingress.get("host", ""), domain_type, doms)] = path
+    return found
+
+
+def rendered_hosts() -> dict[str, str]:
+    """Hostnames templated by the infrastructure/configs chart."""
+    out = subprocess.run(
+        ["helm", "template", "configs", CONFIGS_CHART, "-f", GLOBALS],
+        capture_output=True, text=True, check=True,
+    ).stdout
+    return {host: CONFIGS_CHART for host in HOST_RE.findall(out)}
+
+
+def static_hosts() -> dict[str, str]:
+    """Hostnames hard-coded in standalone IngressRoute manifests."""
+    found = {}
+    for path in glob.glob("services/*/*/manifests/**/*.yaml", recursive=True) + glob.glob(
+        "infrastructure/*/*/manifests/**/*.yaml", recursive=True
+    ):
+        with open(path) as handle:
+            text = handle.read()
+        if "IngressRoute" not in text:
+            continue
+        for host in HOST_RE.findall(text):
+            if "{{" not in host:
+                found[host] = path
+    return found
+
+
+def hrefs(node) -> list[str]:
+    """Every href value anywhere in a parsed services.yaml or bookmarks.yaml."""
+    if isinstance(node, dict):
+        out = []
+        for key, value in node.items():
+            if key == "href" and isinstance(value, str):
+                out.append(value)
+            else:
+                out.extend(hrefs(value))
+        return out
+    if isinstance(node, list):
+        return [href for item in node for href in hrefs(item)]
+    return []
+
+
+def dashboard_hosts(chart: str) -> set[str]:
+    """Render a Homepage chart and collect every host it links to.
+
+    Also asserts that the embedded YAML parses; a syntax error here fails the
+    check rather than silently shipping a blank dashboard.
+    """
+    out = subprocess.run(
+        ["helm", "template", "homepage", chart],
+        capture_output=True, text=True, check=True,
+    ).stdout
+
+    hosts: set[str] = set()
+    for doc in yaml.safe_load_all(out):
+        if not doc or doc.get("kind") != "ConfigMap":
+            continue
+        for name, body in (doc.get("data") or {}).items():
+            if not name.endswith(".yaml") or not body.strip():
+                continue
+            parsed = yaml.safe_load(VAR_RE.sub("x", body))
+            if name in ("services.yaml", "bookmarks.yaml"):
+                for href in hrefs(parsed):
+                    match = re.match(r"https?://([^/]+)", href)
+                    if match:
+                        hosts.add(match.group(1))
+    return hosts
+
+
+def main() -> int:
+    doms = domains()
+    internal = doms["internal"]
+
+    all_hosts = {**app_yaml_hosts(doms), **rendered_hosts(), **static_hosts()}
+    all_hosts = {h: src for h, src in all_hosts.items() if h not in EXCLUDED_HOSTS}
+
+    admin = dashboard_hosts(DASHBOARDS["admin"])
+    user = dashboard_hosts(DASHBOARDS["user"])
+
+    failures: list[str] = []
+
+    for host, source in sorted(all_hosts.items()):
+        if host not in admin:
+            failures.append(f"missing from admin dashboard: {host}  ({source})")
+
+    for host, source in sorted(all_hosts.items()):
+        if host.endswith(internal):
+            continue
+        if host not in user:
+            failures.append(f"missing from user dashboard: {host}  ({source})")
+
+    for host in sorted(user):
+        if host.endswith(internal):
+            failures.append(f"internal host leaked onto user dashboard: {host}")
+
+    if failures:
+        print(f"Homepage coverage check FAILED ({len(failures)} problems)\n")
+        for failure in failures:
+            print(f"  {failure}")
+        return 1
+
+    print(f"Homepage coverage OK: {len(all_hosts)} hosts, both dashboards consistent")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

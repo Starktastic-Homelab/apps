@@ -244,6 +244,8 @@ data:
             icon: kubernetes.png
             href: https://grafana.internal.starktastic.net
             description: Nodes, pods, alerts, volumes
+            namespace: monitoring
+            app: prometheus
             widget:
               type: prometheusmetric
               url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
@@ -263,6 +265,8 @@ data:
             icon: traefik.png
             href: https://traefik.internal.starktastic.net
             description: Probes, certificates, traffic
+            namespace: monitoring
+            app: prometheus
             widget:
               type: prometheusmetric
               url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
@@ -297,6 +301,8 @@ data:
             icon: crowdsec.png
             href: https://grafana.internal.starktastic.net
             description: Bans, detections, bad requests
+            namespace: monitoring
+            app: prometheus
             widget:
               type: prometheusmetric
               url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
@@ -326,6 +332,8 @@ data:
             href: https://benplus.app
             description: Who is watching what
             siteMonitor: http://jellyfin-main.media.svc.cluster.local:8096
+            namespace: media
+            app: jellyfin
             widget:
               type: jellyfin
               url: http://jellyfin-main.media.svc.cluster.local:8096
@@ -339,6 +347,8 @@ data:
             href: https://qbittorrent.internal.starktastic.net
             description: Active transfers
             siteMonitor: http://qbittorrent-main.media.svc.cluster.local:8080
+            namespace: media
+            app: qbittorrent
             widget:
               type: qbittorrent
               url: http://qbittorrent-main.media.svc.cluster.local:8080
@@ -347,6 +357,8 @@ data:
             href: https://qbittorrent-ru.internal.starktastic.net
             description: Active transfers (RU)
             siteMonitor: http://qbittorrent-ru-main.media.svc.cluster.local:8080
+            namespace: media
+            app: qbittorrent-ru
             widget:
               type: qbittorrent
               url: http://qbittorrent-ru-main.media.svc.cluster.local:8080
@@ -355,6 +367,8 @@ data:
             href: https://argocd.internal.starktastic.net
             description: Sync and health of every app
             siteMonitor: https://argocd-server.argocd.svc.cluster.local:443
+            namespace: argocd
+            app: argocd-server
             widget:
               type: argocd
               url: https://argocd-server.argocd.svc.cluster.local:443
@@ -364,6 +378,8 @@ data:
             href: https://ntfy.starktastic.net
             description: Latest alert
             siteMonitor: http://ntfy.operations.svc.cluster.local:80
+            namespace: operations
+            app: ntfy
             widget:
               type: ntfy
               url: http://ntfy.operations.svc.cluster.local:80
@@ -377,31 +393,33 @@ data:
               maxEvents: 15
               showTime: true
               integrations:
-                - type: ical
-                  url: http://sonarr.media.svc.cluster.local:8989/feed/v3/calendar/Sonarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_SONARR_KEY{{ "}}" }}
-                  name: Sonarr
+                - type: sonarr
+                  service_group: Acquire
+                  service_name: Sonarr
                   color: blue
-                - type: ical
-                  url: http://sonarr-ru.media.svc.cluster.local:8989/feed/v3/calendar/Sonarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_SONARR_RU_KEY{{ "}}" }}
-                  name: Sonarr RU
+                - type: sonarr
+                  service_group: Acquire
+                  service_name: Sonarr RU
                   color: sky
-                - type: ical
-                  url: http://radarr.media.svc.cluster.local:7878/feed/v3/calendar/Radarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_RADARR_KEY{{ "}}" }}
-                  name: Radarr
+                - type: radarr
+                  service_group: Acquire
+                  service_name: Radarr
                   color: red
-                - type: ical
-                  url: http://radarr-ru.media.svc.cluster.local:7878/feed/v3/calendar/Radarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_RADARR_RU_KEY{{ "}}" }}
-                  name: Radarr RU
+                - type: radarr
+                  service_group: Acquire
+                  service_name: Radarr RU
                   color: rose
-                - type: ical
-                  url: http://lidarr.media.svc.cluster.local:8686/feed/v1/calendar/Lidarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_LIDARR_KEY{{ "}}" }}
-                  name: Lidarr
+                - type: lidarr
+                  service_group: Acquire
+                  service_name: Lidarr
                   color: green
         - Vikunja:
             icon: vikunja.png
             href: https://vikunja.starktastic.net
             description: What is due
             siteMonitor: http://vikunja.operations.svc.cluster.local:3456
+            namespace: operations
+            app: vikunja
             widget:
               type: vikunja
               url: http://vikunja.operations.svc.cluster.local:3456
@@ -413,6 +431,8 @@ data:
             href: https://mealie.starktastic.net
             description: Tonight's meal plan
             siteMonitor: http://mealie.operations.svc.cluster.local:9000
+            namespace: operations
+            app: mealie
             widget:
               type: mealie
               url: http://mealie.operations.svc.cluster.local:9000
@@ -441,12 +461,16 @@ data:
             icon: jellyfin.png
             href: https://benplus.app
             description: Movies, TV & anime
+            namespace: media
+            app: jellyfin
             siteMonitor: http://jellyfin-main.media.svc.cluster.local:8096
         - Dispatcharr:
             icon: dispatcharr.png
             href: https://dispatcharr.internal.starktastic.net
             description: Live TV & IPTV proxy
             siteMonitor: http://dispatcharr.media.svc.cluster.local:9191
+            namespace: media
+            app: dispatcharr
             widget:
               type: dispatcharr
               url: http://dispatcharr.media.svc.cluster.local:9191
@@ -457,18 +481,17 @@ data:
             icon: mdi-movie-open-check
             href: https://cineplete.internal.starktastic.net
             description: What is left to watch
-            siteMonitor: http://cineplete.media.svc.cluster.local:8787
-        - Samsung TV+:
-            icon: samsung-tv-plus.png
-            description: Free channel playlists
             namespace: media
-            app: samsung-tvplus
+            app: cineplete
+            siteMonitor: http://cineplete.media.svc.cluster.local:8787
     - Listen:
         - Navidrome:
             icon: navidrome.png
             href: https://music.benplus.app
             description: Music streaming
             siteMonitor: http://navidrome.media.svc.cluster.local:4533
+            namespace: media
+            app: navidrome
             widget:
               type: navidrome
               url: http://navidrome.media.svc.cluster.local:4533
@@ -480,6 +503,8 @@ data:
             href: https://audiobooks.benplus.app
             description: Audiobooks & podcasts
             siteMonitor: http://audiobookshelf.media.svc.cluster.local:80
+            namespace: media
+            app: audiobookshelf
             widget:
               type: audiobookshelf
               url: http://audiobookshelf.media.svc.cluster.local:80
@@ -490,6 +515,8 @@ data:
             href: https://books.benplus.app
             description: E-book library
             siteMonitor: http://calibre-web.media.svc.cluster.local:8083/opds
+            namespace: media
+            app: calibre-web
             widget:
               type: calibreweb
               url: http://calibre-web.media.svc.cluster.local:8083
@@ -501,6 +528,8 @@ data:
             href: https://photos.benplus.app
             description: Photos & videos
             siteMonitor: http://immich-main.media.svc.cluster.local:2283
+            namespace: media
+            app: immich
             widget:
               type: immich
               url: http://immich-main.media.svc.cluster.local:2283
@@ -512,6 +541,8 @@ data:
             href: https://request.benplus.app
             description: Request movies & TV
             siteMonitor: http://seerr.media.svc.cluster.local:5055
+            namespace: media
+            app: seerr
             widget:
               type: seerr
               url: http://seerr.media.svc.cluster.local:5055
@@ -521,6 +552,8 @@ data:
             href: https://request-ru.benplus.app
             description: Request movies & TV (RU)
             siteMonitor: http://seerr-ru.media.svc.cluster.local:5055
+            namespace: media
+            app: seerr-ru
             widget:
               type: seerr
               url: http://seerr-ru.media.svc.cluster.local:5055
@@ -529,6 +562,8 @@ data:
             icon: mdi-bookshelf
             href: https://request-books.benplus.app
             description: Request books
+            namespace: media
+            app: shelfmark
             siteMonitor: http://shelfmark.media.svc.cluster.local:8084
     # ==================== MAKE ====================
     - Create:
@@ -536,54 +571,67 @@ data:
             icon: excalidraw.png
             href: https://excalidash.starktastic.net
             description: Whiteboard & diagrams
+            namespace: operations
+            app: excalidash
             siteMonitor: http://excalidash.operations.svc.cluster.local:80
         - ByteStash:
             icon: bytestash.png
             href: https://bytestash.internal.starktastic.net
             description: Code snippets
+            namespace: operations
+            app: bytestash
             siteMonitor: http://bytestash.operations.svc.cluster.local:5000
         - MicroBin:
             icon: microbin.png
             href: https://microbin.starktastic.net
             description: Paste & share
+            namespace: operations
+            app: microbin
             siteMonitor: http://microbin.operations.svc.cluster.local:8080
     - Convert:
         - ConvertX:
             icon: convertx.png
             href: https://convertx.starktastic.net
             description: File format converter
+            namespace: operations
+            app: convertx
             siteMonitor: http://convertx.operations.svc.cluster.local:3000
         - Stirling PDF:
             icon: stirling-pdf.png
             href: https://pdf.starktastic.net
             description: PDF toolbox
+            namespace: operations
+            app: stirling-pdf
             siteMonitor: http://stirling-pdf.operations.svc.cluster.local:8080
         - CyberChef:
             icon: cyberchef.png
             href: https://cyberchef.starktastic.net
             description: Encode, decode, analyse
+            namespace: operations
+            app: cyberchef
             siteMonitor: http://cyberchef.operations.svc.cluster.local:8000
         - MeTube:
             icon: metube.png
             href: https://metube.benplus.app
             description: Download video & audio
-            siteMonitor: http://metube.media.svc.cluster.local:8081
-        - LibreTranslate:
-            icon: libretranslate.png
-            description: Translation API
             namespace: media
-            app: libretranslate
+            app: metube
+            siteMonitor: http://metube.media.svc.cluster.local:8081
     - Find:
         - SearXNG:
             icon: searxng.png
             href: https://search.starktastic.net
             description: Private metasearch
+            namespace: operations
+            app: searxng
             siteMonitor: http://searxng.operations.svc.cluster.local:8080
         - Karakeep:
             icon: karakeep.png
             href: https://karakeep.starktastic.net
             description: Bookmarks & read-later
             siteMonitor: http://karakeep.operations.svc.cluster.local:3000
+            namespace: operations
+            app: karakeep
             widget:
               type: karakeep
               url: http://karakeep.operations.svc.cluster.local:3000
@@ -593,6 +641,8 @@ data:
             href: https://changedetection.internal.starktastic.net
             description: Watch pages for changes
             siteMonitor: http://changedetection.operations.svc.cluster.local:5000
+            namespace: operations
+            app: changedetection
             widget:
               type: changedetectionio
               url: http://changedetection.operations.svc.cluster.local:5000
@@ -602,12 +652,16 @@ data:
             icon: vikunja.png
             href: https://vikunja.starktastic.net
             description: Tasks & projects
+            namespace: operations
+            app: vikunja
             siteMonitor: http://vikunja.operations.svc.cluster.local:3456
         - Paperless-ngx:
             icon: paperless-ngx.png
             href: https://paperless.internal.starktastic.net
             description: Scanned documents
             siteMonitor: http://paperless-ngx.operations.svc.cluster.local:8000
+            namespace: operations
+            app: paperless-ngx
             widget:
               type: paperlessngx
               url: http://paperless-ngx.operations.svc.cluster.local:8000
@@ -617,6 +671,8 @@ data:
             href: https://files.internal.starktastic.net
             description: Web file manager
             siteMonitor: http://filebrowser.operations.svc.cluster.local:80
+            namespace: operations
+            app: filebrowser
             widget:
               type: filebrowser
               url: http://filebrowser.operations.svc.cluster.local:80
@@ -624,22 +680,30 @@ data:
             icon: mealie.png
             href: https://mealie.starktastic.net
             description: Recipes & shopping lists
+            namespace: operations
+            app: mealie
             siteMonitor: http://mealie.operations.svc.cluster.local:9000
     - Send:
         - PairDrop:
             icon: pairdrop.png
             href: https://pairdrop.starktastic.net
             description: Device-to-device transfer
+            namespace: operations
+            app: pairdrop
             siteMonitor: http://pairdrop.operations.svc.cluster.local:3000
         - ntfy:
             icon: ntfy.png
             href: https://ntfy.starktastic.net
             description: Push notifications
+            namespace: operations
+            app: ntfy
             siteMonitor: http://ntfy.operations.svc.cluster.local:80
         - Listmonk:
             icon: listmonk.png
             href: https://listmonk.starktastic.net
             description: Newsletters & mailing lists
+            namespace: operations
+            app: listmonk
             siteMonitor: http://listmonk.operations.svc.cluster.local:9000
     # ==================== RUN ====================
     - Acquire:
@@ -648,6 +712,8 @@ data:
             href: https://radarr.internal.starktastic.net
             description: Movies
             siteMonitor: http://radarr.media.svc.cluster.local:7878
+            namespace: media
+            app: radarr
             widget:
               type: radarr
               url: http://radarr.media.svc.cluster.local:7878
@@ -670,6 +736,8 @@ data:
             href: https://radarr-ru.internal.starktastic.net
             description: Movies (RU)
             siteMonitor: http://radarr-ru.media.svc.cluster.local:7878
+            namespace: media
+            app: radarr-ru
             widget:
               type: radarr
               url: http://radarr-ru.media.svc.cluster.local:7878
@@ -681,6 +749,8 @@ data:
             href: https://sonarr.internal.starktastic.net
             description: TV series
             siteMonitor: http://sonarr.media.svc.cluster.local:8989
+            namespace: media
+            app: sonarr
             widget:
               type: sonarr
               url: http://sonarr.media.svc.cluster.local:8989
@@ -692,6 +762,8 @@ data:
             href: https://sonarr-ru.internal.starktastic.net
             description: TV series (RU)
             siteMonitor: http://sonarr-ru.media.svc.cluster.local:8989
+            namespace: media
+            app: sonarr-ru
             widget:
               type: sonarr
               url: http://sonarr-ru.media.svc.cluster.local:8989
@@ -703,6 +775,8 @@ data:
             href: https://lidarr.internal.starktastic.net
             description: Music
             siteMonitor: http://lidarr.media.svc.cluster.local:8686
+            namespace: media
+            app: lidarr
             widget:
               type: lidarr
               url: http://lidarr.media.svc.cluster.local:8686
@@ -712,6 +786,8 @@ data:
             href: https://prowlarr.internal.starktastic.net
             description: Indexer manager
             siteMonitor: http://prowlarr.media.svc.cluster.local:9696
+            namespace: media
+            app: prowlarr
             widget:
               type: prowlarr
               url: http://prowlarr.media.svc.cluster.local:9696
@@ -721,6 +797,8 @@ data:
             href: https://autobrr.internal.starktastic.net
             description: Release automation
             siteMonitor: http://autobrr.media.svc.cluster.local:7474
+            namespace: media
+            app: autobrr
             widget:
               type: autobrr
               url: http://autobrr.media.svc.cluster.local:7474
@@ -729,11 +807,15 @@ data:
             icon: qbittorrent.png
             href: https://qbittorrent.internal.starktastic.net
             description: Torrent client
+            namespace: media
+            app: qbittorrent
             siteMonitor: http://qbittorrent-main.media.svc.cluster.local:8080
         - qBittorrent RU:
             icon: qbittorrent.png
             href: https://qbittorrent-ru.internal.starktastic.net
             description: Torrent client (RU)
+            namespace: media
+            app: qbittorrent-ru
             siteMonitor: http://qbittorrent-ru-main.media.svc.cluster.local:8080
     - Refine:
         - Bazarr:
@@ -741,6 +823,8 @@ data:
             href: https://bazarr.internal.starktastic.net
             description: Subtitle fetching
             siteMonitor: http://bazarr.media.svc.cluster.local:6767
+            namespace: media
+            app: bazarr
             widget:
               type: bazarr
               url: http://bazarr.media.svc.cluster.local:6767
@@ -749,48 +833,17 @@ data:
             icon: mdi-translate
             href: https://lingarr.internal.starktastic.net
             description: Subtitle translation
+            namespace: media
+            app: lingarr
             siteMonitor: http://lingarr.media.svc.cluster.local:8080
-        - Subgen:
-            icon: mdi-subtitles
-            description: Whisper subtitle generation
-            namespace: media
-            app: subgen
-        - Recyclarr:
-            icon: recyclarr.png
-            description: TRaSH guide sync
-            namespace: media
-            app: recyclarr
-        - Unpackerr:
-            icon: unpackerr.png
-            description: Archive extraction
-            namespace: media
-            app: unpackerr
-        - Cross-seed:
-            icon: cross-seed.png
-            description: Cross-seeding automation
-            namespace: media
-            app: cross-seed
-        - qbit-manage:
-            icon: qbitmanage.png
-            description: Torrent housekeeping
-            namespace: media
-            app: qbit-manage
-        - qbit-manage RU:
-            icon: qbitmanage.png
-            description: Torrent housekeeping (RU)
-            namespace: media
-            app: qbit-manage-ru
-        - FlareSolverr:
-            icon: flaresolverr.png
-            description: Cloudflare challenge solver
-            namespace: media
-            app: flaresolverr
     - Home:
         - Home Assistant:
             icon: home-assistant.png
             href: https://ha.internal.starktastic.net
             description: Smart home control
             siteMonitor: http://home-assistant-main.home-automation.svc.cluster.local:8123
+            namespace: home-automation
+            app: home-assistant
             widget:
               type: homeassistant
               url: http://home-assistant-main.home-automation.svc.cluster.local:8123
@@ -799,18 +852,17 @@ data:
             icon: zigbee2mqtt.png
             href: https://zigbee2mqtt.internal.starktastic.net
             description: Zigbee device bridge
-            siteMonitor: http://zigbee2mqtt.home-automation.svc.cluster.local:8080
-        - Mosquitto:
-            icon: mosquitto.png
-            description: MQTT broker
             namespace: home-automation
-            app: mosquitto
+            app: zigbee2mqtt
+            siteMonitor: http://zigbee2mqtt.home-automation.svc.cluster.local:8080
     - Observe:
         - Grafana:
             icon: grafana.png
             href: https://grafana.internal.starktastic.net
             description: Dashboards & alerting
             siteMonitor: http://kube-prometheus-stack-grafana.monitoring.svc.cluster.local:80/api/health
+            namespace: monitoring
+            app: grafana
             widget:
               type: grafana
               alerts: alertmanager
@@ -823,40 +875,19 @@ data:
             href: https://grafana.internal.starktastic.net/explore
             description: Metrics store
             siteMonitor: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/-/healthy
+            namespace: monitoring
+            app: prometheus
             widget:
               type: prometheus
               url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
-        - Loki:
-            icon: loki.png
-            description: Log aggregation
-            namespace: monitoring
-            app: loki
-        - Tempo:
-            icon: tempo.png
-            description: Distributed tracing
-            namespace: monitoring
-            app: tempo
-        - Alloy:
-            icon: alloy.png
-            description: Telemetry collector
-            namespace: monitoring
-            app: alloy
-        - Blackbox Exporter:
-            icon: prometheus.png
-            description: Endpoint probing
-            namespace: monitoring
-            app: prometheus-blackbox-exporter
-        - Alertmanager ntfy:
-            icon: ntfy.png
-            description: Alert-to-push bridge
-            namespace: monitoring
-            app: alertmanager-ntfy
     - Guard:
         - Authentik:
             icon: authentik.png
             href: https://auth.starktastic.net
             description: Identity provider & SSO
             siteMonitor: http://authentik-server.authentik.svc.cluster.local:80
+            namespace: authentik
+            app: authentik
             widget:
               type: authentik
               url: http://authentik-server.authentik.svc.cluster.local:80
@@ -866,32 +897,23 @@ data:
             icon: vaultwarden.png
             href: https://vaultwarden.internal.starktastic.net
             description: Password manager
+            namespace: operations
+            app: vaultwarden
             siteMonitor: http://vaultwarden.operations.svc.cluster.local:8080
         - Falco:
             icon: mdi-shield-search
             href: https://falco.internal.starktastic.net
             description: Runtime threat detection
+            namespace: falco
+            app: falcosidekick
             siteMonitor: http://falco-falcosidekick-ui.falco.svc.cluster.local:2802
-        - CrowdSec:
-            icon: crowdsec.png
-            description: Intrusion detection & bans
-            namespace: crowdsec
-            app: crowdsec
-        - cert-manager:
-            icon: cert-manager.png
-            description: TLS certificate lifecycle
-            namespace: cert-manager
-            app: cert-manager
-        - Sealed Secrets:
-            icon: mdi-lock-check
-            description: Encrypted secrets controller
-            namespace: kube-system
-            app: sealed-secrets
     - Ship:
         - Argo CD:
             icon: argo-cd.png
             href: https://argocd.internal.starktastic.net
             description: GitOps controller
+            namespace: argocd
+            app: argocd-server
             siteMonitor: https://argocd-server.argocd.svc.cluster.local:443
         - apps:
             icon: github.png
@@ -974,11 +996,6 @@ data:
             description: Worker (6c / 28GB / GPU)
             proxmoxNode: pve
             proxmoxVMID: 202
-        - Intel Device Operator:
-            icon: mdi-chip
-            description: GPU device plugin
-            namespace: kube-system
-            app: intel-device-plugins-operator
     - Network:
         - OPNsense:
             icon: opnsense.png
@@ -1003,14 +1020,11 @@ data:
             href: https://traefik.internal.starktastic.net
             description: Ingress & reverse proxy
             siteMonitor: http://traefik-api.traefik-system.svc.cluster.local:8080/ping
+            namespace: traefik-system
+            app: traefik
             widget:
               type: traefik
               url: http://traefik-api.traefik-system.svc.cluster.local:8080
-        - MetalLB:
-            icon: metallb.png
-            description: "Load balancer (ext 10.9.8.90 / int 10.9.9.90)"
-            namespace: metallb-system
-            app: metallb
     - Storage:
         - TrueNAS:
             icon: truenas.png
@@ -1022,26 +1036,13 @@ data:
               version: 2
               key: {{ "{{" }}HOMEPAGE_VAR_TRUENAS_KEY{{ "}}" }}
               enablePools: true
-        - NFS Provisioner:
-            icon: mdi-nas
-            description: Dynamic PV provisioning
-            namespace: kube-system
-            podSelector: app=nfs-subdir-external-provisioner
     - Data:
-        - PostgreSQL:
-            icon: postgres.png
-            description: Primary database
-            namespace: databases
-            app: postgresql
-        - Redis:
-            icon: redis.png
-            description: Cache & session store
-            namespace: databases
-            app: redis
         - pgAdmin:
             icon: pgadmin.png
             href: https://pgadmin.internal.starktastic.net
             description: Database administration
+            namespace: databases
+            app: pgadmin4
             siteMonitor: http://pgadmin-pgadmin4.databases.svc.cluster.local:80
   bookmarks.yaml: |
     - Code:

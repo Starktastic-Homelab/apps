@@ -238,8 +238,138 @@ data:
           timeStyle: short
           hourCycle: h23
   services.yaml: |
-    # ==================== HOME TAB ====================
-    - Calendar:
+    # ==================== PULSE ====================
+    - At a Glance:
+        - Cluster Health:
+            icon: kubernetes.png
+            href: https://grafana.internal.starktastic.net
+            description: Nodes, pods, alerts, volumes
+            widget:
+              type: prometheusmetric
+              url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+              refreshInterval: 30000
+              metrics:
+                - label: Nodes Ready
+                  query: 'sum(kube_node_status_condition{condition="Ready",status="true"})'
+                - label: Unhealthy Pods
+                  query: 'sum(kube_pod_status_phase{phase=~"Pending|Failed|Unknown"}) or vector(0)'
+                - label: Firing Alerts
+                  query: 'sum(ALERTS{alertstate="firing"}) or vector(0)'
+                - label: Fullest Volume
+                  query: 'max(kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes)'
+                  format:
+                    type: percent
+        - Edge & Certs:
+            icon: traefik.png
+            href: https://traefik.internal.starktastic.net
+            description: Probes, certificates, traffic
+            widget:
+              type: prometheusmetric
+              url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+              refreshInterval: 30000
+              metrics:
+                - label: Failed Probes
+                  query: 'count(probe_success == 0) or vector(0)'
+                - label: Cert Expiry
+                  query: 'min(probe_ssl_earliest_cert_expiry) - time()'
+                  format:
+                    type: number
+                    scale: "1/86400"
+                    suffix: " days"
+                    options:
+                      maximumFractionDigits: 0
+                - label: Requests
+                  query: 'sum(rate(traefik_entrypoint_requests_total[5m]))'
+                  format:
+                    type: number
+                    suffix: " req/s"
+                    options:
+                      maximumFractionDigits: 1
+                - label: p95 Latency
+                  query: 'histogram_quantile(0.95, sum by (le) (rate(traefik_entrypoint_request_duration_seconds_bucket[5m])))'
+                  format:
+                    type: number
+                    scale: 1000
+                    suffix: " ms"
+                    options:
+                      maximumFractionDigits: 0
+        - Security:
+            icon: crowdsec.png
+            href: https://grafana.internal.starktastic.net
+            description: Bans, detections, bad requests
+            widget:
+              type: prometheusmetric
+              url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+              refreshInterval: 60000
+              metrics:
+                - label: Active Bans
+                  query: 'sum(cs_active_decisions) or vector(0)'
+                  format:
+                    type: number
+                    options:
+                      maximumFractionDigits: 0
+                - label: Falco 24h
+                  query: 'sum(increase(falcosecurity_falcosidekick_falco_events_total[24h])) or vector(0)'
+                  format:
+                    type: number
+                    options:
+                      maximumFractionDigits: 0
+                - label: 4xx/5xx 1h
+                  query: 'sum(increase(traefik_entrypoint_requests_total{code=~"4..|5.."}[1h])) or vector(0)'
+                  format:
+                    type: number
+                    options:
+                      maximumFractionDigits: 0
+    - In Flight:
+        - Jellyfin:
+            icon: jellyfin.png
+            href: https://benplus.app
+            description: Who is watching what
+            siteMonitor: http://jellyfin-main.media.svc.cluster.local:8096
+            widget:
+              type: jellyfin
+              url: http://jellyfin-main.media.svc.cluster.local:8096
+              key: {{ "{{" }}HOMEPAGE_VAR_JELLYFIN_KEY{{ "}}" }}
+              enableBlocks: false
+              enableNowPlaying: true
+              enableUser: true
+              showEpisodeNumber: true
+        - qBittorrent:
+            icon: qbittorrent.png
+            href: https://qbittorrent.internal.starktastic.net
+            description: Active transfers
+            siteMonitor: http://qbittorrent-main.media.svc.cluster.local:8080
+            widget:
+              type: qbittorrent
+              url: http://qbittorrent-main.media.svc.cluster.local:8080
+        - qBittorrent RU:
+            icon: qbittorrent.png
+            href: https://qbittorrent-ru.internal.starktastic.net
+            description: Active transfers (RU)
+            siteMonitor: http://qbittorrent-ru-main.media.svc.cluster.local:8080
+            widget:
+              type: qbittorrent
+              url: http://qbittorrent-ru-main.media.svc.cluster.local:8080
+        - Argo CD:
+            icon: argo-cd.png
+            href: https://argocd.internal.starktastic.net
+            description: Sync and health of every app
+            siteMonitor: https://argocd-server.argocd.svc.cluster.local:443
+            widget:
+              type: argocd
+              url: https://argocd-server.argocd.svc.cluster.local:443
+              key: {{ "{{" }}HOMEPAGE_VAR_ARGOCD_KEY{{ "}}" }}
+        - ntfy:
+            icon: ntfy.png
+            href: https://ntfy.starktastic.net
+            description: Latest alert
+            siteMonitor: http://ntfy.operations.svc.cluster.local:80
+            widget:
+              type: ntfy
+              url: http://ntfy.operations.svc.cluster.local:80
+              topic: alerts
+              key: {{ "{{" }}HOMEPAGE_VAR_NTFY_TOKEN{{ "}}" }}
+    - Coming Up:
         - Calendar:
             widget:
               type: calendar
@@ -267,35 +397,73 @@ data:
                   url: http://lidarr.media.svc.cluster.local:8686/feed/v1/calendar/Lidarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_LIDARR_KEY{{ "}}" }}
                   name: Lidarr
                   color: green
-    - Streaming:
+        - Vikunja:
+            icon: vikunja.png
+            href: https://vikunja.starktastic.net
+            description: What is due
+            siteMonitor: http://vikunja.operations.svc.cluster.local:3456
+            widget:
+              type: vikunja
+              url: http://vikunja.operations.svc.cluster.local:3456
+              key: {{ "{{" }}HOMEPAGE_VAR_VIKUNJA_KEY{{ "}}" }}
+              enableTaskList: true
+              version: 2
+        - Mealie:
+            icon: mealie.png
+            href: https://mealie.starktastic.net
+            description: Tonight's meal plan
+            siteMonitor: http://mealie.operations.svc.cluster.local:9000
+            widget:
+              type: mealie
+              url: http://mealie.operations.svc.cluster.local:9000
+              key: {{ "{{" }}HOMEPAGE_VAR_MEALIE_KEY{{ "}}" }}
+              version: 2
+    - Out There:
+        - News:
+            icon: mdi-newspaper-variant
+            href: https://news.ycombinator.com
+            description: Hacker News front page
+            widget:
+              type: customapi
+              url: https://hn.algolia.com/api/v1/search?tags=front_page
+              refreshInterval: 600000
+              display: dynamic-list
+              mappings:
+                items: hits
+                name: title
+                label: points
+                limit: 6
+                format: number
+                target: https://news.ycombinator.com/item?id={objectID}
+    # ==================== PLAY ====================
+    - Watch:
         - Jellyfin:
             icon: jellyfin.png
             href: https://benplus.app
-            description: Movies, TV & Anime
+            description: Movies, TV & anime
             siteMonitor: http://jellyfin-main.media.svc.cluster.local:8096
-            widget:
-              type: jellyfin
-              url: http://jellyfin-main.media.svc.cluster.local:8096
-              key: {{ "{{" }}HOMEPAGE_VAR_JELLYFIN_KEY{{ "}}" }}
-              enableBlocks: true
-              enableNowPlaying: true
-              enableUser: true
-              showEpisodeNumber: true
         - Dispatcharr:
             icon: dispatcharr.png
             href: https://dispatcharr.internal.starktastic.net
             description: Live TV & IPTV proxy
             siteMonitor: http://dispatcharr.media.svc.cluster.local:9191
-        - Immich:
-            icon: immich.png
-            href: https://photos.benplus.app
-            description: Photos & Videos
-            siteMonitor: http://immich-main.media.svc.cluster.local:2283
             widget:
-              type: immich
-              url: http://immich-main.media.svc.cluster.local:2283
-              key: {{ "{{" }}HOMEPAGE_VAR_IMMICH_KEY{{ "}}" }}
-              version: 2
+              type: dispatcharr
+              url: http://dispatcharr.media.svc.cluster.local:9191
+              username: {{ "{{" }}HOMEPAGE_VAR_DISPATCHARR_USER{{ "}}" }}
+              password: {{ "{{" }}HOMEPAGE_VAR_DISPATCHARR_PASS{{ "}}" }}
+              enableActiveStreams: true
+        - Cineplete:
+            icon: mdi-movie-open-check
+            href: https://cineplete.internal.starktastic.net
+            description: What is left to watch
+            siteMonitor: http://cineplete.media.svc.cluster.local:8787
+        - Samsung TV+:
+            icon: samsung-tv-plus.png
+            description: Free channel playlists
+            namespace: media
+            app: samsung-tvplus
+    - Listen:
         - Navidrome:
             icon: navidrome.png
             href: https://music.benplus.app
@@ -310,12 +478,13 @@ data:
         - Audiobookshelf:
             icon: audiobookshelf.png
             href: https://audiobooks.benplus.app
-            description: Audiobooks & Podcasts
+            description: Audiobooks & podcasts
             siteMonitor: http://audiobookshelf.media.svc.cluster.local:80
             widget:
               type: audiobookshelf
               url: http://audiobookshelf.media.svc.cluster.local:80
               key: {{ "{{" }}HOMEPAGE_VAR_AUDIOBOOKSHELF_KEY{{ "}}" }}
+    - Read:
         - Calibre-Web:
             icon: calibre-web.png
             href: https://books.benplus.app
@@ -326,7 +495,18 @@ data:
               url: http://calibre-web.media.svc.cluster.local:8083
               username: {{ "{{" }}HOMEPAGE_VAR_CALIBRE_USER{{ "}}" }}
               password: {{ "{{" }}HOMEPAGE_VAR_CALIBRE_PASS{{ "}}" }}
-    - Requests:
+    - Look Back:
+        - Immich:
+            icon: immich.png
+            href: https://photos.benplus.app
+            description: Photos & videos
+            siteMonitor: http://immich-main.media.svc.cluster.local:2283
+            widget:
+              type: immich
+              url: http://immich-main.media.svc.cluster.local:2283
+              key: {{ "{{" }}HOMEPAGE_VAR_IMMICH_KEY{{ "}}" }}
+              version: 2
+    - Ask For It:
         - Seerr:
             icon: overseerr.png
             href: https://request.benplus.app
@@ -348,481 +528,8 @@ data:
         - Shelfmark:
             icon: mdi-bookshelf
             href: https://request-books.benplus.app
-            description: Book requests
-    - Home & Life:
-        - Home Assistant:
-            icon: home-assistant.png
-            href: https://ha.internal.starktastic.net
-            description: Smart home control
-            siteMonitor: http://home-assistant-main.home-automation.svc.cluster.local:8123
-            widget:
-              type: homeassistant
-              url: http://home-assistant-main.home-automation.svc.cluster.local:8123
-              key: {{ "{{" }}HOMEPAGE_VAR_HASS_KEY{{ "}}" }}
-        - Zigbee2MQTT:
-            icon: zigbee2mqtt.png
-            href: https://zigbee2mqtt.internal.starktastic.net
-            description: Zigbee device management
-        - Mealie:
-            icon: mealie.png
-            href: https://mealie.starktastic.net
-            description: Recipe manager
-            siteMonitor: http://mealie.operations.svc.cluster.local:9000
-            widget:
-              type: mealie
-              url: http://mealie.operations.svc.cluster.local:9000
-              key: {{ "{{" }}HOMEPAGE_VAR_MEALIE_KEY{{ "}}" }}
-              version: 2
-        - Cineplete:
-            icon: mdi-movie-open-check
-            href: https://cineplete.internal.starktastic.net
-            description: Movie tracker
-    # ==================== MEDIA TAB ====================
-    - Movies & TV:
-        - Radarr:
-            icon: radarr.png
-            href: https://radarr.internal.starktastic.net
-            description: Movie management
-            siteMonitor: http://radarr.media.svc.cluster.local:7878
-            widget:
-              type: radarr
-              url: http://radarr.media.svc.cluster.local:7878
-              key: {{ "{{" }}HOMEPAGE_VAR_RADARR_KEY{{ "}}" }}
-              enableQueue: true
-              highlight:
-                queued:
-                  numeric:
-                    - level: danger
-                      when: gte
-                      value: 50
-                    - level: warn
-                      when: gte
-                      value: 20
-                    - level: good
-                      when: eq
-                      value: 0
-        - Radarr RU:
-            icon: radarr.png
-            href: https://radarr-ru.internal.starktastic.net
-            description: Movie management (RU)
-            siteMonitor: http://radarr-ru.media.svc.cluster.local:7878
-            widget:
-              type: radarr
-              url: http://radarr-ru.media.svc.cluster.local:7878
-              key: {{ "{{" }}HOMEPAGE_VAR_RADARR_RU_KEY{{ "}}" }}
-              enableQueue: true
-              highlight:
-                queued:
-                  numeric:
-                    - level: danger
-                      when: gte
-                      value: 50
-                    - level: warn
-                      when: gte
-                      value: 20
-                    - level: good
-                      when: eq
-                      value: 0
-        - Sonarr:
-            icon: sonarr.png
-            href: https://sonarr.internal.starktastic.net
-            description: TV series management
-            siteMonitor: http://sonarr.media.svc.cluster.local:8989
-            widget:
-              type: sonarr
-              url: http://sonarr.media.svc.cluster.local:8989
-              key: {{ "{{" }}HOMEPAGE_VAR_SONARR_KEY{{ "}}" }}
-              enableQueue: true
-              highlight:
-                queued:
-                  numeric:
-                    - level: danger
-                      when: gte
-                      value: 50
-                    - level: warn
-                      when: gte
-                      value: 20
-                    - level: good
-                      when: eq
-                      value: 0
-        - Sonarr RU:
-            icon: sonarr.png
-            href: https://sonarr-ru.internal.starktastic.net
-            description: TV series management (RU)
-            siteMonitor: http://sonarr-ru.media.svc.cluster.local:8989
-            widget:
-              type: sonarr
-              url: http://sonarr-ru.media.svc.cluster.local:8989
-              key: {{ "{{" }}HOMEPAGE_VAR_SONARR_RU_KEY{{ "}}" }}
-              enableQueue: true
-              highlight:
-                queued:
-                  numeric:
-                    - level: danger
-                      when: gte
-                      value: 50
-                    - level: warn
-                      when: gte
-                      value: 20
-                    - level: good
-                      when: eq
-                      value: 0
-    - Music & Books:
-        - Lidarr:
-            icon: lidarr.png
-            href: https://lidarr.internal.starktastic.net
-            description: Music management
-            siteMonitor: http://lidarr.media.svc.cluster.local:8686
-            widget:
-              type: lidarr
-              url: http://lidarr.media.svc.cluster.local:8686
-              key: {{ "{{" }}HOMEPAGE_VAR_LIDARR_KEY{{ "}}" }}
-        - Bazarr:
-            icon: bazarr.png
-            href: https://bazarr.internal.starktastic.net
-            description: Subtitle management
-            siteMonitor: http://bazarr.media.svc.cluster.local:6767
-            widget:
-              type: bazarr
-              url: http://bazarr.media.svc.cluster.local:6767
-              key: {{ "{{" }}HOMEPAGE_VAR_BAZARR_KEY{{ "}}" }}
-        - Lingarr:
-            icon: mdi-translate
-            href: https://lingarr.internal.starktastic.net
-            description: Subtitle translation
-        - Prowlarr:
-            icon: prowlarr.png
-            href: https://prowlarr.internal.starktastic.net
-            description: Indexer management
-            siteMonitor: http://prowlarr.media.svc.cluster.local:9696
-            widget:
-              type: prowlarr
-              url: http://prowlarr.media.svc.cluster.local:9696
-              key: {{ "{{" }}HOMEPAGE_VAR_PROWLARR_KEY{{ "}}" }}
-        - Autobrr:
-            icon: autobrr.png
-            href: https://autobrr.internal.starktastic.net
-            description: Torrent automation
-            siteMonitor: http://autobrr.media.svc.cluster.local:7474
-            widget:
-              type: autobrr
-              url: http://autobrr.media.svc.cluster.local:7474
-              key: {{ "{{" }}HOMEPAGE_VAR_AUTOBRR_KEY{{ "}}" }}
-    - Downloads:
-        - qBittorrent:
-            icon: qbittorrent.png
-            href: https://qbittorrent.internal.starktastic.net
-            description: Torrent client
-            siteMonitor: http://qbittorrent-main.media.svc.cluster.local:8080
-            widget:
-              type: qbittorrent
-              url: http://qbittorrent-main.media.svc.cluster.local:8080
-        - qBittorrent RU:
-            icon: qbittorrent.png
-            href: https://qbittorrent-ru.internal.starktastic.net
-            description: Torrent client (RU)
-            siteMonitor: http://qbittorrent-ru-main.media.svc.cluster.local:8080
-            widget:
-              type: qbittorrent
-              url: http://qbittorrent-ru-main.media.svc.cluster.local:8080
-    # ==================== OPERATIONS TAB ====================
-    - Productivity:
-        - Vikunja:
-            icon: vikunja.png
-            href: https://vikunja.starktastic.net
-            description: Tasks & to-dos
-            siteMonitor: http://vikunja.operations.svc.cluster.local:3456
-            widget:
-              type: vikunja
-              url: http://vikunja.operations.svc.cluster.local:3456
-              key: {{ "{{" }}HOMEPAGE_VAR_VIKUNJA_KEY{{ "}}" }}
-              enableTaskList: true
-              version: 2
-        - Karakeep:
-            icon: karakeep.png
-            href: https://karakeep.starktastic.net
-            description: Bookmarks & Read-later
-            siteMonitor: http://karakeep.operations.svc.cluster.local:3000
-            widget:
-              type: karakeep
-              url: http://karakeep.operations.svc.cluster.local:3000
-              key: {{ "{{" }}HOMEPAGE_VAR_KARAKEEP_KEY{{ "}}" }}
-        - Listmonk:
-            icon: listmonk.png
-            href: https://listmonk.starktastic.net
-            description: Newsletter manager
-        - ByteStash:
-            icon: bytestash.png
-            href: https://bytestash.internal.starktastic.net
-            description: Code snippets
-    - Monitoring:
-        - Grafana:
-            icon: grafana.png
-            href: https://grafana.internal.starktastic.net
-            description: Dashboards & Alerting
-            siteMonitor: http://kube-prometheus-stack-grafana.monitoring.svc.cluster.local:80/api/health
-            widget:
-              type: grafana
-              alerts: alertmanager
-              url: http://kube-prometheus-stack-grafana.monitoring.svc.cluster.local:80
-              username: {{ "{{" }}HOMEPAGE_VAR_GRAFANA_USER{{ "}}" }}
-              password: {{ "{{" }}HOMEPAGE_VAR_GRAFANA_PASS{{ "}}" }}
-              version: 2
-        - Prometheus:
-            icon: prometheus.png
-            href: https://grafana.internal.starktastic.net/explore
-            description: Metrics collection
-            siteMonitor: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
-            widget:
-              type: prometheus
-              url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
-        - Traefik:
-            icon: traefik.png
-            href: https://traefik.internal.starktastic.net
-            description: Reverse proxy
-            siteMonitor: http://traefik-api.traefik-system.svc.cluster.local:8080
-            widget:
-              type: traefik
-              url: http://traefik-api.traefik-system.svc.cluster.local:8080
-        - CrowdSec:
-            icon: crowdsec.png
-            href: https://app.crowdsec.net
-            description: Security engine
-    - Security:
-        - Authentik:
-            icon: authentik.png
-            href: https://auth.starktastic.net
-            description: Identity provider
-            siteMonitor: http://authentik-server.authentik.svc.cluster.local:80
-            widget:
-              type: authentik
-              url: http://authentik-server.authentik.svc.cluster.local:80
-              key: {{ "{{" }}HOMEPAGE_VAR_AUTHENTIK_KEY{{ "}}" }}
-              version: 2
-        - Vaultwarden:
-            icon: vaultwarden.png
-            href: https://vaultwarden.internal.starktastic.net
-            description: Password manager
-        - ArgoCD:
-            icon: argocd.png
-            href: https://argocd.internal.starktastic.net
-            description: GitOps deployment
-            siteMonitor: https://argocd-server.argocd.svc.cluster.local:443
-            widget:
-              type: argocd
-              url: https://argocd-server.argocd.svc.cluster.local:443
-              key: {{ "{{" }}HOMEPAGE_VAR_ARGOCD_KEY{{ "}}" }}
-    - Documents & Files:
-        - Paperless-ngx:
-            icon: paperless-ngx.png
-            href: https://paperless.internal.starktastic.net
-            description: Document management
-            siteMonitor: http://paperless-ngx.operations.svc.cluster.local:8000
-            widget:
-              type: paperlessngx
-              url: http://paperless-ngx.operations.svc.cluster.local:8000
-              key: {{ "{{" }}HOMEPAGE_VAR_PAPERLESS_KEY{{ "}}" }}
-        - Filebrowser:
-            icon: filebrowser.png
-            href: https://files.internal.starktastic.net
-            description: Web file manager
-        - Changedetection:
-            icon: changedetection-io.png
-            href: https://changedetection.internal.starktastic.net
-            description: Website change monitor
-            siteMonitor: http://changedetection.operations.svc.cluster.local:5000
-            widget:
-              type: changedetectionio
-              url: http://changedetection.operations.svc.cluster.local:5000
-              key: {{ "{{" }}HOMEPAGE_VAR_CHANGEDETECTION_KEY{{ "}}" }}
-    - Utilities:
-        - SearXNG:
-            icon: searxng.png
-            href: https://search.starktastic.net
-            description: Private search engine
-            siteMonitor: http://searxng.operations.svc.cluster.local:8080
-        - CyberChef:
-            icon: cyberchef.png
-            href: https://cyberchef.starktastic.net
-            description: Data transformation
-        - Stirling PDF:
-            icon: stirling-pdf.png
-            href: https://pdf.starktastic.net
-            description: PDF tools
-        - MeTube:
-            icon: metube.png
-            href: https://metube.benplus.app
-            description: Video downloader
-        - MicroBin:
-            icon: microbin.png
-            href: https://microbin.starktastic.net
-            description: Paste & share
-        - PairDrop:
-            icon: pairdrop.png
-            href: https://pairdrop.starktastic.net
-            description: Local file sharing
-        - Excalidash:
-            icon: excalidraw.png
-            href: https://excalidash.starktastic.net
-            description: Collaborative whiteboard
-        - ConvertX:
-            icon: convertx.png
-            href: https://convertx.starktastic.net
-            description: File converter
-        - ntfy:
-            icon: ntfy.png
-            href: https://ntfy.starktastic.net
-            description: Push notifications
-    - Development:
-        - apps:
-            icon: github.png
-            href: https://github.com/Starktastic-Homelab/apps/pulls
-            description: Open pull requests
-            widget:
-              type: customapi
-              url: https://api.github.com/repos/Starktastic-Homelab/apps/pulls?state=open&per_page=10
-              refreshInterval: 600000
-              display: dynamic-list
-              headers:
-                Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
-                X-GitHub-Api-Version: "2022-11-28"
-                User-Agent: Homepage-Dashboard
-              mappings:
-                name: title
-                label: user.login
-                limit: 5
-                target: https://github.com/Starktastic-Homelab/apps/pull/{{ "{{" }}number{{ "}}" }}
-        - ansible:
-            icon: github.png
-            href: https://github.com/Starktastic-Homelab/ansible/pulls
-            description: Open pull requests
-            widget:
-              type: customapi
-              url: https://api.github.com/repos/Starktastic-Homelab/ansible/pulls?state=open&per_page=10
-              refreshInterval: 600000
-              display: dynamic-list
-              headers:
-                Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
-                X-GitHub-Api-Version: "2022-11-28"
-                User-Agent: Homepage-Dashboard
-              mappings:
-                name: title
-                label: user.login
-                limit: 5
-                target: https://github.com/Starktastic-Homelab/ansible/pull/{{ "{{" }}number{{ "}}" }}
-        - packer:
-            icon: github.png
-            href: https://github.com/Starktastic-Homelab/packer/pulls
-            description: Open pull requests
-            widget:
-              type: customapi
-              url: https://api.github.com/repos/Starktastic-Homelab/packer/pulls?state=open&per_page=10
-              refreshInterval: 600000
-              display: dynamic-list
-              headers:
-                Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
-                X-GitHub-Api-Version: "2022-11-28"
-                User-Agent: Homepage-Dashboard
-              mappings:
-                name: title
-                label: user.login
-                limit: 5
-                target: https://github.com/Starktastic-Homelab/packer/pull/{{ "{{" }}number{{ "}}" }}
-        - terraform:
-            icon: github.png
-            href: https://github.com/Starktastic-Homelab/terraform/pulls
-            description: Open pull requests
-            widget:
-              type: customapi
-              url: https://api.github.com/repos/Starktastic-Homelab/terraform/pulls?state=open&per_page=10
-              refreshInterval: 600000
-              display: dynamic-list
-              headers:
-                Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
-                X-GitHub-Api-Version: "2022-11-28"
-                User-Agent: Homepage-Dashboard
-              mappings:
-                name: title
-                label: user.login
-                limit: 5
-                target: https://github.com/Starktastic-Homelab/terraform/pull/{{ "{{" }}number{{ "}}" }}
-    # ==================== INFRASTRUCTURE TAB ====================
-    - Proxmox:
-        - Proxmox VE:
-            icon: proxmox.png
-            href: https://10.9.9.20:8006
-            description: Hypervisor
-            widget:
-              type: proxmox
-              url: https://10.9.9.20:8006
-              username: {{ "{{" }}HOMEPAGE_VAR_PROXMOX_USER{{ "}}" }}
-              password: {{ "{{" }}HOMEPAGE_VAR_PROXMOX_PASS{{ "}}" }}
-              node: pve
-    - Cluster VMs:
-        - kube-master-01:
-            icon: proxmox.png
-            description: Control plane (4c / 16GB)
-            proxmoxNode: pve
-            proxmoxVMID: 200
-        - kube-worker-01:
-            icon: proxmox.png
-            description: Worker node (6c / 28GB / GPU)
-            proxmoxNode: pve
-            proxmoxVMID: 201
-        - kube-worker-02:
-            icon: proxmox.png
-            description: Worker node (6c / 28GB / GPU)
-            proxmoxNode: pve
-            proxmoxVMID: 202
-    - Networking:
-        - Traefik Dashboard:
-            icon: traefik.png
-            href: https://traefik.internal.starktastic.net
-            description: Reverse proxy dashboard
-        - MetalLB:
-            icon: metallb.png
-            description: "Load balancer (ext: 10.9.8.90 / int: 10.9.9.90)"
-        - CrowdSec LAPI:
-            icon: crowdsec.png
-            href: https://app.crowdsec.net
-            description: Security decisions API
-        - OPNsense:
-            icon: opnsense.png
-            href: https://10.9.9.1
-            description: Firewall & router
-            widget:
-              type: opnsense
-              url: https://10.9.9.1
-              username: {{ "{{" }}HOMEPAGE_VAR_OPNSENSE_USER{{ "}}" }}
-              password: {{ "{{" }}HOMEPAGE_VAR_OPNSENSE_PASS{{ "}}" }}
-        - AdGuard Home:
-            icon: adguard-home.png
-            href: http://10.9.9.1:3000
-            description: DNS ad-blocker
-            widget:
-              type: adguard
-              url: http://10.9.9.1:3000
-              username: {{ "{{" }}HOMEPAGE_VAR_ADGUARD_USER{{ "}}" }}
-              password: {{ "{{" }}HOMEPAGE_VAR_ADGUARD_PASS{{ "}}" }}
-    - Storage:
-        - TrueNAS:
-            icon: truenas.png
-            href: https://10.9.9.30
-            description: NAS & storage
-            widget:
-              type: truenas
-              url: https://10.9.9.30
-              version: 2
-              key: {{ "{{" }}HOMEPAGE_VAR_TRUENAS_KEY{{ "}}" }}
-              enablePools: true
-    - Databases:
-        - PostgreSQL:
-            icon: postgres.png
-            description: Database server
-        - pgAdmin:
-            icon: pgadmin.png
-            href: https://pgadmin.internal.starktastic.net
-            description: Database management
+            description: Request books
+            siteMonitor: http://shelfmark.media.svc.cluster.local:8084
   bookmarks.yaml: |
     - Developer:
         - GitHub:

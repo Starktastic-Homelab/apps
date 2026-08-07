@@ -26,19 +26,109 @@ data:
   docker.yaml: ""
   custom.js: ""
   custom.css: |
-    /* Hide the redundant card title above the calendar widget */
-    li.service[data-name="Calendar"] .service-title {
-      display: none;
+    /* The "Calendar" card title just repeats the widget below it, but the
+       description carries the colour legend and Homepage nests it inside
+       .service-title — so drop the name only, not the whole row. */
+    li.service[data-name="Calendar"] .service-name {
+      font-size: 0;
+      padding-top: 0;
+    }
+
+    li.service[data-name="Calendar"] .service-description {
+      font-size: 0.75rem;
+    }
+
+    /* A failing service must not be signalled by colour alone: give it a
+       square outline and a slow pulse so it reads without colour vision. */
+    .service-tags div.bg-rose-500 {
+      border-radius: 2px;
+      animation: status-down 1.6s ease-in-out infinite;
+    }
+
+    @keyframes status-down {
+      50% {
+        opacity: 0.35;
+      }
+    }
+
+    /* A dot that is neither up nor down is still being checked. Fade it
+       gently so first paint reads as "checking", not "broken". */
+    .service-tags div.rounded-full:not(.bg-emerald-500):not(.bg-rose-500) {
+      animation: status-pending 1.4s ease-in-out infinite;
+    }
+
+    @keyframes status-pending {
+      50% {
+        opacity: 0.4;
+      }
+    }
+
+    /* Group headers collapse on click, but the chevron only appears on
+       hover, which never happens on touch. Keep it permanently visible. */
+    button.w-full.select-none.items-center.group svg {
+      opacity: 0.45;
+    }
+
+    button.w-full.select-none.items-center.group:hover svg {
+      opacity: 1;
+    }
+
+    /* WCAG 2.5.8: interactive controls need a 44px target. Tabs, group
+       headers, the search button and the calendar arrows all ship shorter. */
+    li:has(> button.w-full.rounded-md.m-1) {
+      height: auto;
+    }
+
+    li > button.w-full.rounded-md.m-1,
+    button.w-full.select-none.items-center.group,
+    button.rounded-r-md.px-4.py-2,
+    li.service[data-name="Calendar"] button {
+      min-height: 2.75rem;
+    }
+
+    /* Homepage 1.13.2 renders the quicklaunch button's label as the raw
+       i18n key "search.search"; substitute a real label until it is fixed. */
+    button.rounded-r-md.px-4.py-2 {
+      font-size: 0;
+    }
+
+    button.rounded-r-md.px-4.py-2::after {
+      content: "Search";
+      font-size: 0.875rem;
+    }
+
+    @media (max-width: 640px) {
+      /* Below the sm breakpoint the tab list stacks one row per tab, which
+         pushes every service below the fold. Scroll them sideways instead. */
+      ul:has(> li > button.w-full.rounded-md.m-1) {
+        display: flex;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+
+      ul:has(> li > button.w-full.rounded-md.m-1) > li {
+        width: auto;
+        flex: 1 0 auto;
+      }
+
+      li > button.w-full.rounded-md.m-1 {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+      }
     }
   kubernetes.yaml: |
     mode: disabled
   settings.yaml: |
     title: Starktastic
+    language: en
     headerStyle: boxedWidgets
     statusStyle: dot
-    useEqualHeights: true
+    # Cards size to their content; equal heights inflate widget-less services
+    # into tall empty boxes when a group mixes widgets with plain links.
+    useEqualHeights: false
     hideVersion: true
-    hideErrors: true
+    # Surface widget failures instead of silently rendering an empty card.
+    hideErrors: false
     disableCollapse: false
     disableIndexing: true
     iconStyle: theme
@@ -59,78 +149,73 @@ data:
           url: "/#make"
     layout:
       # -- Pulse --
-      At Home:
-        tab: Pulse
-        style: row
-        columns: 2
-        icon: home-assistant.png
       Now Playing:
         tab: Pulse
         style: row
         columns: 2
-        icon: mdi-heart-pulse
+        icon: mdi-play-circle
       Coming Up:
         tab: Pulse
         style: row
-        columns: 3
+        columns: 2
         icon: mdi-calendar-month
-      Out There:
+      Links:
         tab: Pulse
         style: row
         columns: 2
-        icon: mdi-newspaper-variant
+        icon: mdi-bookmark-outline
       # -- Play --
       Watch:
         tab: Play
         style: row
-        columns: 2
-        icon: jellyfin.png
+        columns: 1
+        icon: mdi-television-play
       Listen:
         tab: Play
         style: row
         columns: 2
-        icon: navidrome.png
+        icon: mdi-headphones
       Read:
         tab: Play
         style: row
-        columns: 2
-        icon: calibre-web.png
+        columns: 1
+        icon: mdi-book-open-page-variant
       Look Back:
         tab: Play
         style: row
-        columns: 2
-        icon: immich.png
+        columns: 1
+        icon: mdi-image-multiple
       Ask For It:
         tab: Play
         style: row
         columns: 3
-        icon: overseerr.png
+        icon: mdi-hand-heart
       # -- Make --
       Create:
         tab: Make
         style: row
         columns: 2
-        icon: excalidraw.png
+        icon: mdi-draw
       Convert:
         tab: Make
         style: row
-        columns: 3
-        icon: convertx.png
+        columns: 4
+        icon: mdi-file-swap
       Find:
         tab: Make
         style: row
         columns: 2
-        icon: searxng.png
+        icon: mdi-magnify
       Organise:
         tab: Make
         style: row
         columns: 2
-        icon: vikunja.png
+        icon: mdi-clipboard-check
       Send:
         tab: Make
         style: row
         columns: 3
-        icon: ntfy.png
+        icon: mdi-send
   widgets.yaml: |
     - logo:
         icon: /icons/favicon.svg
@@ -155,29 +240,11 @@ data:
           hourCycle: h23
   services.yaml: |
     # ==================== PULSE ====================
-    - At Home:
-        - Home:
-            icon: home-assistant.png
-            description: Weather and who is home
-            widget:
-              type: homeassistant
-              url: http://home-assistant-main.home-automation.svc.cluster.local:8123
-              key: {{ "{{" }}HOMEPAGE_VAR_HASS_KEY{{ "}}" }}
-              custom:
-                - state: weather.forecast_home
-                  label: Outside
-                  value: "{attributes.temperature}{attributes.temperature_unit}"
-                - state: weather.forecast_home
-                  label: Humidity
-                  value: "{attributes.humidity}%"
-                - state: person.ben_faingold
-                  label: Ben
-                  value: "{state}"
     - Now Playing:
-        - Jellyfin:
+        - On TV:
             icon: jellyfin.png
             href: https://benplus.app
-            description: Movies, TV & anime
+            description: Who is watching what
             siteMonitor: http://jellyfin-main.media.svc.cluster.local:8096
             widget:
               type: jellyfin
@@ -187,10 +254,10 @@ data:
               enableNowPlaying: true
               enableUser: false
               showEpisodeNumber: true
-        - Navidrome:
+        - Music Playing:
             icon: navidrome.png
             href: https://music.benplus.app
-            description: Music streaming
+            description: What is on the speakers
             siteMonitor: http://navidrome.media.svc.cluster.local:4533
             widget:
               type: navidrome
@@ -200,11 +267,13 @@ data:
               salt: {{ "{{" }}HOMEPAGE_VAR_NAVIDROME_SALT{{ "}}" }}
     - Coming Up:
         - Calendar:
+            description: Blue = TV · Red = Movies
             widget:
               type: calendar
               view: monthly
               maxEvents: 10
               showTime: true
+              firstDayInWeek: sunday
               integrations:
                 - type: ical
                   url: http://sonarr.media.svc.cluster.local:8989/feed/v3/calendar/Sonarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_SONARR_KEY{{ "}}" }}
@@ -214,14 +283,10 @@ data:
                   url: http://radarr.media.svc.cluster.local:7878/feed/v3/calendar/Radarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_RADARR_KEY{{ "}}" }}
                   name: Movies
                   color: red
-                - type: ical
-                  url: http://lidarr.media.svc.cluster.local:8686/feed/v1/calendar/Lidarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_LIDARR_KEY{{ "}}" }}
-                  name: Music
-                  color: green
-        - Vikunja:
+        - Tasks Due:
             icon: vikunja.png
             href: https://vikunja.starktastic.net
-            description: What is due
+            description: Shared to-do lists
             siteMonitor: http://vikunja.operations.svc.cluster.local:3456
             widget:
               type: vikunja
@@ -229,33 +294,6 @@ data:
               key: {{ "{{" }}HOMEPAGE_VAR_VIKUNJA_KEY{{ "}}" }}
               enableTaskList: true
               version: 2
-        - Mealie:
-            icon: mealie.png
-            href: https://mealie.starktastic.net
-            description: Tonight's meal plan
-            siteMonitor: http://mealie.operations.svc.cluster.local:9000
-            widget:
-              type: mealie
-              url: http://mealie.operations.svc.cluster.local:9000
-              key: {{ "{{" }}HOMEPAGE_VAR_MEALIE_KEY{{ "}}" }}
-              version: 2
-    - Out There:
-        - News:
-            icon: mdi-newspaper-variant
-            href: https://news.ycombinator.com
-            description: Hacker News front page
-            widget:
-              type: customapi
-              url: https://hn.algolia.com/api/v1/search?tags=front_page
-              refreshInterval: 600000
-              display: dynamic-list
-              mappings:
-                items: hits
-                name: title
-                label: points
-                limit: 5
-                format: number
-                target: https://news.ycombinator.com/item?id={objectID}
     # ==================== PLAY ====================
     - Watch:
         - Jellyfin:
@@ -274,10 +312,6 @@ data:
             href: https://audiobooks.benplus.app
             description: Audiobooks & podcasts
             siteMonitor: http://audiobookshelf.media.svc.cluster.local:80
-            widget:
-              type: audiobookshelf
-              url: http://audiobookshelf.media.svc.cluster.local:80
-              key: {{ "{{" }}HOMEPAGE_VAR_AUDIOBOOKSHELF_KEY{{ "}}" }}
     - Read:
         - Calibre-Web:
             icon: calibre-web.png
@@ -334,7 +368,7 @@ data:
         - MicroBin:
             icon: microbin.png
             href: https://microbin.starktastic.net
-            description: Paste & share
+            description: Paste & share text
             siteMonitor: http://microbin.operations.svc.cluster.local:8080
     - Convert:
         - ConvertX:
@@ -347,16 +381,16 @@ data:
             href: https://pdf.starktastic.net
             description: PDF toolbox
             siteMonitor: http://stirling-pdf.operations.svc.cluster.local:8080
-        - CyberChef:
-            icon: cyberchef.png
-            href: https://cyberchef.starktastic.net
-            description: Encode, decode, analyse
-            siteMonitor: http://cyberchef.operations.svc.cluster.local:8000
         - MeTube:
             icon: metube.png
             href: https://metube.benplus.app
             description: Download video & audio
             siteMonitor: http://metube.media.svc.cluster.local:8081
+        - CyberChef:
+            icon: cyberchef.png
+            href: https://cyberchef.starktastic.net
+            description: Encode, decode, analyse
+            siteMonitor: http://cyberchef.operations.svc.cluster.local:8000
     - Find:
         - SearXNG:
             icon: searxng.png
@@ -400,11 +434,10 @@ data:
             description: Newsletters & mailing lists
             siteMonitor: http://listmonk.operations.svc.cluster.local:9000
   bookmarks.yaml: |
-    - Account:
+    - Links:
         - My Account:
             - abbr: AC
               href: https://auth.starktastic.net
-    - Elsewhere:
         - GitHub:
             - abbr: GH
               href: https://github.com/Starktastic-Homelab

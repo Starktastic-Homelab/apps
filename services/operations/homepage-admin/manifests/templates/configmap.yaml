@@ -31,9 +31,16 @@ data:
   docker.yaml: ""
   custom.js: ""
   custom.css: |
-    /* Hide the redundant card title above the calendar widget */
-    li.service[data-name="Calendar"] .service-title {
-      display: none;
+    /* The "Calendar" card title just repeats the widget below it, but the
+       description carries the colour legend and Homepage nests it inside
+       .service-title — so drop the name only, not the whole row. */
+    li.service[data-name="Calendar"] .service-name {
+      font-size: 0;
+      padding-top: 0;
+    }
+
+    li.service[data-name="Calendar"] .service-description {
+      font-size: 0.75rem;
     }
 
     /* Merge the site-monitor and Kubernetes dots into a single indicator.
@@ -44,17 +51,96 @@ data:
     }
 
     /* A failing HTTP check turns the surviving dot red (Tailwind rose-500),
-       overriding the green/orange pod status. */
-    .service-tags:has(.site-monitor-status .bg-rose-500) .k8s-status > div {
+       overriding the green/orange pod status. Colour alone is not an
+       accessible cue, so a down dot also goes square and pulses. */
+    .service-tags:has(.site-monitor-status .bg-rose-500) .k8s-status > div,
+    .service-tags div.bg-rose-500 {
       background-color: rgb(244 63 94);
+      border-radius: 2px;
+      animation: status-down 1.6s ease-in-out infinite;
+    }
+
+    @keyframes status-down {
+      50% {
+        opacity: 0.35;
+      }
+    }
+
+    /* A dot that is neither up nor down is still being checked. Fade it
+       gently so first paint reads as "checking", not "broken". */
+    .service-tags div.rounded-full:not(.bg-emerald-500):not(.bg-rose-500) {
+      animation: status-pending 1.4s ease-in-out infinite;
+    }
+
+    @keyframes status-pending {
+      50% {
+        opacity: 0.4;
+      }
+    }
+
+    /* Group headers collapse on click, but the chevron only appears on
+       hover, which never happens on touch. Keep it permanently visible. */
+    button.w-full.select-none.items-center.group svg {
+      opacity: 0.45;
+    }
+
+    button.w-full.select-none.items-center.group:hover svg {
+      opacity: 1;
+    }
+
+    /* WCAG 2.5.8: interactive controls need a 44px target. Tabs, group
+       headers, the search button and the calendar arrows all ship shorter. */
+    li:has(> button.w-full.rounded-md.m-1) {
+      height: auto;
+    }
+
+    li > button.w-full.rounded-md.m-1,
+    button.w-full.select-none.items-center.group,
+    button.rounded-r-md.px-4.py-2,
+    li.service[data-name="Calendar"] button {
+      min-height: 2.75rem;
+    }
+
+    /* Homepage 1.13.2 renders the quicklaunch button's label as the raw
+       i18n key "search.search"; substitute a real label until it is fixed. */
+    button.rounded-r-md.px-4.py-2 {
+      font-size: 0;
+    }
+
+    button.rounded-r-md.px-4.py-2::after {
+      content: "Search";
+      font-size: 0.875rem;
+    }
+
+    @media (max-width: 640px) {
+      /* Below the sm breakpoint the tab list stacks one row per tab, which
+         pushes every service below the fold. Scroll them sideways instead. */
+      ul:has(> li > button.w-full.rounded-md.m-1) {
+        display: flex;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+
+      ul:has(> li > button.w-full.rounded-md.m-1) > li {
+        width: auto;
+        flex: 1 0 auto;
+      }
+
+      li > button.w-full.rounded-md.m-1 {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+      }
     }
   kubernetes.yaml: |
     mode: cluster
   settings.yaml: |
     title: Starktastic Services
+    language: en
     headerStyle: boxedWidgets
     statusStyle: dot
-    useEqualHeights: true
+    # Cards size to their content; equal heights inflate widget-less services
+    # into tall empty boxes when a group mixes widgets with plain links.
+    useEqualHeights: false
     hideVersion: true
     hideErrors: false
     disableCollapse: false
@@ -91,7 +177,7 @@ data:
       In Flight:
         tab: Pulse
         style: row
-        columns: 4
+        columns: 5
         icon: mdi-airplane-takeoff
       Coming Up:
         tab: Pulse
@@ -101,112 +187,116 @@ data:
       Out There:
         tab: Pulse
         style: row
-        columns: 2
+        columns: 1
         icon: mdi-newspaper-variant
       # -- Play: consume something --
       Watch:
         tab: Play
         style: row
-        columns: 4
-        icon: jellyfin.png
+        columns: 3
+        icon: mdi-television-play
       Listen:
         tab: Play
         style: row
         columns: 2
-        icon: navidrome.png
+        icon: mdi-headphones
       Read:
         tab: Play
         style: row
-        columns: 2
-        icon: calibre-web.png
+        columns: 1
+        icon: mdi-book-open-page-variant
       Look Back:
         tab: Play
         style: row
-        columns: 2
-        icon: immich.png
+        columns: 1
+        icon: mdi-image-multiple
       Ask For It:
         tab: Play
         style: row
         columns: 3
-        icon: overseerr.png
+        icon: mdi-hand-heart
       # -- Make: produce something --
       Create:
         tab: Make
         style: row
         columns: 3
-        icon: excalidraw.png
+        icon: mdi-draw
       Convert:
         tab: Make
         style: row
         columns: 4
-        icon: convertx.png
+        icon: mdi-file-swap
       Find:
         tab: Make
         style: row
         columns: 3
-        icon: searxng.png
+        icon: mdi-magnify
       Organise:
         tab: Make
         style: row
         columns: 4
-        icon: paperless-ngx.png
+        icon: mdi-clipboard-check
       Send:
         tab: Make
         style: row
         columns: 3
-        icon: ntfy.png
+        icon: mdi-send
       # -- Run: keep the machine fed --
       Acquire:
         tab: Run
         style: row
-        columns: 4
-        icon: radarr.png
+        columns: 3
+        icon: mdi-download
       Refine:
         tab: Run
         style: row
-        columns: 4
-        icon: bazarr.png
+        columns: 2
+        icon: mdi-auto-fix
       Home:
         tab: Run
         style: row
-        columns: 3
-        icon: home-assistant.png
+        columns: 2
+        icon: mdi-home-automation
       Observe:
         tab: Run
         style: row
-        columns: 4
-        icon: grafana.png
+        columns: 2
+        icon: mdi-chart-line
       Guard:
         tab: Run
         style: row
-        columns: 4
-        icon: authentik.png
+        columns: 3
+        icon: mdi-shield-lock
       Ship:
         tab: Run
         style: row
-        columns: 4
-        icon: argo-cd.png
+        columns: 5
+        icon: mdi-rocket-launch
+      Code:
+        tab: Run
+        icon: mdi-source-branch
       # -- Iron: the metal underneath --
       Compute:
         tab: Iron
         style: row
         columns: 4
-        icon: proxmox.png
+        icon: mdi-server
       Network:
         tab: Iron
         style: row
-        columns: 4
-        icon: opnsense.png
-      Storage:
+        columns: 3
+        icon: mdi-lan
+      Store:
         tab: Iron
         style: row
         columns: 2
-        icon: truenas.png
-      Data:
+        icon: mdi-database
+      Reference:
         tab: Iron
-        style: row
-        columns: 3
-        icon: postgres.png
+        icon: mdi-book-open-variant
+      Accounts:
+        tab: Iron
+        icon: mdi-account-key
   widgets.yaml: |
     - logo:
         icon: /icons/favicon.svg
@@ -217,11 +307,10 @@ data:
           memory: true
           showLabel: true
           label: "cluster"
+        # Per-node detail lives on Iron > Compute, where each node is a
+        # labelled, clickable tile; repeating it here doubled the header.
         nodes:
-          show: true
-          cpu: true
-          memory: true
-          showLabel: true
+          show: false
     - search:
         provider: custom
         url: https://search.starktastic.net/search?q=
@@ -340,7 +429,7 @@ data:
                     options:
                       maximumFractionDigits: 0
     - In Flight:
-        - Jellyfin:
+        - Streaming Now:
             icon: jellyfin.png
             href: https://benplus.app
             description: Who is watching what
@@ -355,7 +444,7 @@ data:
               enableNowPlaying: true
               enableUser: true
               showEpisodeNumber: true
-        - qBittorrent:
+        - Downloads:
             icon: qbittorrent.png
             href: https://qbittorrent.internal.starktastic.net
             description: Active transfers
@@ -365,17 +454,17 @@ data:
             widget:
               type: qbittorrent
               url: http://qbittorrent-main.media.svc.cluster.local:8080
-        - qBittorrent RU:
+        - Downloads RU:
             icon: qbittorrent.png
             href: https://qbittorrent-ru.internal.starktastic.net
-            description: Active transfers (RU)
+            description: Active transfers — Russian trackers
             siteMonitor: http://qbittorrent-ru-main.media.svc.cluster.local:8080
             namespace: media
             app: qbittorrent-ru
             widget:
               type: qbittorrent
               url: http://qbittorrent-ru-main.media.svc.cluster.local:8080
-        - Argo CD:
+        - Deployments:
             icon: argo-cd.png
             href: https://argocd.internal.starktastic.net
             description: Sync and health of every app
@@ -386,10 +475,10 @@ data:
               type: argocd
               url: https://argocd-server.argocd.svc.cluster.local:443
               key: {{ "{{" }}HOMEPAGE_VAR_ARGOCD_KEY{{ "}}" }}
-        - ntfy:
+        - Latest Alert:
             icon: ntfy.png
             href: https://ntfy.starktastic.net
-            description: Latest alert
+            description: Most recent notification
             siteMonitor: http://ntfy.operations.svc.cluster.local:80
             namespace: operations
             app: ntfy
@@ -400,11 +489,13 @@ data:
               key: {{ "{{" }}HOMEPAGE_VAR_NTFY_TOKEN{{ "}}" }}
     - Coming Up:
         - Calendar:
+            description: TV blue · Movies red · Music green · RU lighter
             widget:
               type: calendar
               view: monthly
               maxEvents: 15
               showTime: true
+              firstDayInWeek: sunday
               integrations:
                 - type: sonarr
                   service_group: Acquire
@@ -426,10 +517,10 @@ data:
                   service_group: Acquire
                   service_name: Lidarr
                   color: green
-        - Vikunja:
+        - Tasks Due:
             icon: vikunja.png
             href: https://vikunja.starktastic.net
-            description: What is due
+            description: Open tasks
             siteMonitor: http://vikunja.operations.svc.cluster.local:3456
             namespace: operations
             app: vikunja
@@ -439,10 +530,10 @@ data:
               key: {{ "{{" }}HOMEPAGE_VAR_VIKUNJA_KEY{{ "}}" }}
               enableTaskList: true
               version: 2
-        - Mealie:
+        - Recipe Box:
             icon: mealie.png
             href: https://mealie.starktastic.net
-            description: Tonight's meal plan
+            description: Recipe library
             siteMonitor: http://mealie.operations.svc.cluster.local:9000
             namespace: operations
             app: mealie
@@ -563,7 +654,7 @@ data:
         - Seerr RU:
             icon: overseerr.png
             href: https://request-ru.benplus.app
-            description: Request movies & TV (RU)
+            description: Requests — Russian trackers
             siteMonitor: http://seerr-ru.media.svc.cluster.local:5055
             namespace: media
             app: seerr-ru
@@ -724,7 +815,7 @@ data:
             icon: radarr.png
             href: https://radarr.internal.starktastic.net
             description: Movies
-            siteMonitor: http://radarr.media.svc.cluster.local:7878
+            siteMonitor: http://radarr.media.svc.cluster.local:7878/ping
             namespace: media
             app: radarr
             widget:
@@ -747,8 +838,8 @@ data:
         - Radarr RU:
             icon: radarr.png
             href: https://radarr-ru.internal.starktastic.net
-            description: Movies (RU)
-            siteMonitor: http://radarr-ru.media.svc.cluster.local:7878
+            description: Movies — Russian trackers
+            siteMonitor: http://radarr-ru.media.svc.cluster.local:7878/ping
             namespace: media
             app: radarr-ru
             widget:
@@ -761,7 +852,7 @@ data:
             icon: sonarr.png
             href: https://sonarr.internal.starktastic.net
             description: TV series
-            siteMonitor: http://sonarr.media.svc.cluster.local:8989
+            siteMonitor: http://sonarr.media.svc.cluster.local:8989/ping
             namespace: media
             app: sonarr
             widget:
@@ -773,8 +864,8 @@ data:
         - Sonarr RU:
             icon: sonarr.png
             href: https://sonarr-ru.internal.starktastic.net
-            description: TV series (RU)
-            siteMonitor: http://sonarr-ru.media.svc.cluster.local:8989
+            description: TV series — Russian trackers
+            siteMonitor: http://sonarr-ru.media.svc.cluster.local:8989/ping
             namespace: media
             app: sonarr-ru
             widget:
@@ -787,7 +878,7 @@ data:
             icon: lidarr.png
             href: https://lidarr.internal.starktastic.net
             description: Music
-            siteMonitor: http://lidarr.media.svc.cluster.local:8686
+            siteMonitor: http://lidarr.media.svc.cluster.local:8686/ping
             namespace: media
             app: lidarr
             widget:
@@ -798,7 +889,7 @@ data:
             icon: prowlarr.png
             href: https://prowlarr.internal.starktastic.net
             description: Indexer manager
-            siteMonitor: http://prowlarr.media.svc.cluster.local:9696
+            siteMonitor: http://prowlarr.media.svc.cluster.local:9696/ping
             namespace: media
             app: prowlarr
             widget:
@@ -826,7 +917,7 @@ data:
         - qBittorrent RU:
             icon: qbittorrent.png
             href: https://qbittorrent-ru.internal.starktastic.net
-            description: Torrent client (RU)
+            description: Torrent client — Russian trackers
             namespace: media
             app: qbittorrent-ru
             siteMonitor: http://qbittorrent-ru-main.media.svc.cluster.local:8080
@@ -928,10 +1019,10 @@ data:
             namespace: argocd
             app: argocd-server
             siteMonitor: https://argocd-server.argocd.svc.cluster.local:443
-        - apps:
+        - Apps:
             icon: github.png
             href: https://github.com/Starktastic-Homelab/apps/pulls
-            description: Open pull requests
+            description: Cluster manifests — open PRs
             widget: &github_prs
               type: customapi
               url: https://api.github.com/repos/Starktastic-Homelab/apps/pulls?state=open&per_page=10
@@ -946,10 +1037,10 @@ data:
                 label: user.login
                 limit: 5
                 target: https://github.com/Starktastic-Homelab/apps/pull/{number}
-        - ansible:
+        - Ansible:
             icon: github.png
             href: https://github.com/Starktastic-Homelab/ansible/pulls
-            description: Open pull requests
+            description: Host playbooks — open PRs
             widget:
               <<: *github_prs
               url: https://api.github.com/repos/Starktastic-Homelab/ansible/pulls?state=open&per_page=10
@@ -958,10 +1049,10 @@ data:
                 label: user.login
                 limit: 5
                 target: https://github.com/Starktastic-Homelab/ansible/pull/{number}
-        - packer:
+        - Packer:
             icon: github.png
             href: https://github.com/Starktastic-Homelab/packer/pulls
-            description: Open pull requests
+            description: VM images — open PRs
             widget:
               <<: *github_prs
               url: https://api.github.com/repos/Starktastic-Homelab/packer/pulls?state=open&per_page=10
@@ -970,10 +1061,10 @@ data:
                 label: user.login
                 limit: 5
                 target: https://github.com/Starktastic-Homelab/packer/pull/{number}
-        - terraform:
+        - Terraform:
             icon: github.png
             href: https://github.com/Starktastic-Homelab/terraform/pulls
-            description: Open pull requests
+            description: Infrastructure — open PRs
             widget:
               <<: *github_prs
               url: https://api.github.com/repos/Starktastic-Homelab/terraform/pulls?state=open&per_page=10
@@ -1014,6 +1105,7 @@ data:
             icon: opnsense.png
             href: https://10.9.9.1
             description: Firewall & router
+            siteMonitor: https://10.9.9.1/ui/
             widget:
               type: opnsense
               url: https://10.9.9.1
@@ -1023,6 +1115,7 @@ data:
             icon: adguard-home.png
             href: http://10.9.9.1:3000
             description: DNS filtering
+            siteMonitor: http://10.9.9.1:3000/
             widget:
               type: adguard
               url: http://10.9.9.1:3000
@@ -1038,18 +1131,18 @@ data:
             widget:
               type: traefik
               url: http://traefik-api.traefik-system.svc.cluster.local:8080
-    - Storage:
+    - Store:
         - TrueNAS:
             icon: truenas.png
             href: https://10.9.9.30
             description: NAS & shared storage
+            siteMonitor: https://10.9.9.30/ui/
             widget:
               type: truenas
               url: https://10.9.9.30
               version: 2
               key: {{ "{{" }}HOMEPAGE_VAR_TRUENAS_KEY{{ "}}" }}
               enablePools: true
-    - Data:
         - pgAdmin:
             icon: pgadmin.png
             href: https://pgadmin.internal.starktastic.net

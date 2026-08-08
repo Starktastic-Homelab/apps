@@ -31,9 +31,9 @@ jobs:
         run: pip install yamllint
 
       - name: Setup Helm
-        uses: azure/setup-helm@v4
+        uses: azure/setup-helm@v5
         with:
-          version: v3.21.3
+          version: v4.2.3
 
       - name: YAML Lint
         id: yamllint

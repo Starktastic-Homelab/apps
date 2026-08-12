@@ -1,0 +1,11 @@
+name: cleanuparr
+namespace: media
+deployPhase: services
+
+ingress:
+  enabled: true
+  host: cleanuparr
+  domainType: "internal"
+  port: 11011
+  auth: true
+  rateLimit: true

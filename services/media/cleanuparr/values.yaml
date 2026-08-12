@@ -1,0 +1,42 @@
+# Cleanuparr sweeps *arr queue items that can never import. Sonarr keeps
+# completed-but-rejected downloads in the queue forever (removeCompletedDownloads
+# only fires after a successful import), and autobrr's push grabs regularly
+# produce them: the release *title* is scored at grab time, the *filenames*
+# inside the torrent are scored at import time, and the two disagree.
+#
+# Config lives in a SQLite DB under /config and is set through the web UI, so
+# there is no ConfigMap here. Only the Queue Cleaner is intended to be enabled —
+# qbit-manage already owns share limits and orphan/noHL removal, so Cleanuparr's
+# Download Cleaner is deliberately left off and /data is not mounted.
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: ghcr.io/cleanuparr/cleanuparr
+          tag: 2.10.5@sha256:c7cd53ad559a67147637de3d825f66ef6e6a5498490b73f49c6e4d72f13bed76
+        env:
+          PORT: "11011"
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            path: /health
+            port: 11011
+          readiness:
+            enabled: true
+            type: HTTP
+            path: /health
+            port: 11011
+          startup:
+            enabled: true
+            type: HTTP
+            path: /health
+            port: 11011
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 11011

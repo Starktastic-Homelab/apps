@@ -907,6 +907,13 @@ data:
               type: autobrr
               url: http://autobrr.media.svc.cluster.local:7474
               key: {{ "{{" }}HOMEPAGE_VAR_AUTOBRR_KEY{{ "}}" }}
+        - Cleanuparr:
+            icon: cleanuparr.png
+            href: https://cleanuparr.internal.starktastic.net
+            description: Stuck queue cleanup
+            siteMonitor: http://cleanuparr.media.svc.cluster.local:11011/health
+            namespace: media
+            app: cleanuparr
         - qBittorrent:
             icon: qbittorrent.png
             href: https://qbittorrent.internal.starktastic.net

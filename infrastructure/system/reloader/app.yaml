@@ -1,0 +1,7 @@
+name: reloader
+namespace: kube-system
+deployPhase: controllers
+chart:
+  repo: https://stakater.github.io/stakater-charts
+  name: reloader
+  version: 2.2.16

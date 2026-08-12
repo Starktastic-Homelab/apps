@@ -126,6 +126,7 @@ infrastructure/
 │   ├── metallb              L2 load balancer (multiple IP pools)
 │   ├── intel-device-operator GPU scheduling (SR-IOV virtual functions)
 │   ├── crowdsec             Intrusion detection with mTLS
+│   ├── reloader             Restarts workloads on ConfigMap/Secret change
 │   └── prometheus-crds      Phase 1 — CRD-only (no Prometheus yet)
 │
 ├── controllers/         Phase 3 (Controllers)

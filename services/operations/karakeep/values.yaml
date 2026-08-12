@@ -44,7 +44,7 @@ controllers:
         image:
           # ponytail: gcr.io/zenika-hub mirror returns 403 (GCR retired); Docker Hub has the same digest
           repository: zenika/alpine-chrome
-          tag: "124@sha256:1a0046448e0bb6c275c88f86e01faf0de62b02ec8572901256ada0a8c08be23f"
+          tag: "124@sha256:8ff273195ae2d040b72b3da1199821f32ac07f5ca52b878eb5078be1d0c3488d"
         args:
           - --no-sandbox
           - --disable-gpu

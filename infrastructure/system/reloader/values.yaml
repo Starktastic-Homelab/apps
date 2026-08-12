@@ -1,0 +1,21 @@
+reloader:
+  # GitOps-safe strategy: stamps a pod-template annotation instead of injecting
+  # STAKATER_* env vars into the workload spec. The annotation is excluded from
+  # diffing in bootstrap/appsets/cluster-apps.yaml, so Argo's selfHeal doesn't
+  # fight Reloader over every restart.
+  reloadStrategy: annotations
+
+  # Opt-in only: workloads must carry reloader.stakater.com/auto: "true".
+  autoReloadAll: false
+
+  # ServiceMonitor is deprecated upstream in favour of PodMonitor.
+  podMonitor:
+    enabled: true
+
+  deployment:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 64Mi
+      limits:
+        memory: 128Mi

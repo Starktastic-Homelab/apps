@@ -86,6 +86,10 @@ data:
       movies:
       tv:
       music:
+      # Safe only because the cross-seed link dir is re-mounted inside root_dir (see
+      # values.yaml): nlink - inode_count then equals the number of *library* links, so a
+      # cross-seed whose content is still in the library can never be tagged noHL.
+      cross-seed:
 
     share_limits:
       noHL:

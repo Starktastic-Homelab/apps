@@ -125,11 +125,36 @@ Cleanuparr UI once it goes wrong.
 
 Either of these restores access:
 
-- Revert `auth: false` in `app.yaml`, restoring forward-auth.
-- Clear the OIDC columns in `/config/users.db` with `kubectl exec` and
-  `sqlite3`. `AuthController.Login` rejects credential logins with HTTP 403
-  only while `ExclusiveMode` is true, so clearing that column re-enables the
-  local password.
+- Revert `auth: false` in `app.yaml`, restoring forward-auth. Note this alone
+  does **not** cure an Exclusive Mode lockout: forward-auth authenticates the
+  request to Traefik, not the user to Cleanuparr.
+- Clear Exclusive Mode in the database. `AuthController.Login` rejects
+  credential logins with HTTP 403 only while `oidc_exclusive_mode` is set, so
+  clearing that column re-enables the local password.
+
+The Cleanuparr image does not ship `sqlite3`, so the database edit needs a
+rescue pod. The `cleanuparr` PVC is `RWX`, but the deployment is still scaled
+down first so nothing writes to the SQLite WAL concurrently:
+
+```bash
+kubectl -n media scale deploy/cleanuparr --replicas=0
+
+kubectl -n media run cleanuparr-rescue --rm -it --restart=Never \
+  --image=alpine:3.20 \
+  --overrides='{"spec":{"containers":[{"name":"cleanuparr-rescue","image":"alpine:3.20","stdin":true,"tty":true,"command":["sh"],"volumeMounts":[{"name":"config","mountPath":"/config"}]}],"volumes":[{"name":"config","persistentVolumeClaim":{"claimName":"cleanuparr"}}]}}'
+
+# inside the rescue pod:
+apk add --no-cache sqlite
+sqlite3 /config/users.db "UPDATE users SET oidc_exclusive_mode = 0;"
+exit
+
+kubectl -n media scale deploy/cleanuparr --replicas=1
+```
+
+The relevant columns on the `users` table are `oidc_enabled`,
+`oidc_exclusive_mode`, `oidc_issuer_url`, `oidc_client_id`,
+`oidc_client_secret`, `oidc_scopes`, `oidc_provider_name`,
+`oidc_redirect_url` and `oidc_authorized_subject`.
 
 ### Rejected: local address auth bypass
 

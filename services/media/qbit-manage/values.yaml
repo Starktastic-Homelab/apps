@@ -52,3 +52,24 @@ persistence:
             readOnly: true
   media:
     enabled: true
+  # cross-seed hardlinks its matches into /data/cross-seed-links, which sits
+  # OUTSIDE root_dir (/data/torrents). qbit-manage decides "no hardlinks" with
+  # `st_nlink - (links found under root_dir) > 0`, and it only walks root_dir,
+  # orphaned_dir and recycle_bin — there is no option to exclude an outside
+  # directory (checked through v4.11.0: nohardlinks accepts only `exclude_tags`
+  # and `ignore_root_dir`). So a cross-seed link alone makes a torrent look like
+  # it is in the library, and it is grouped as seed-forever instead of noHL.
+  #
+  # Re-mounting the same subdirectory inside root_dir puts those links where the
+  # existing `ignore_root_dir: true` default already looks, so they get counted
+  # and subtracted. Read-only because nothing here should ever write to it, and
+  # `**/.cross-seed-links/**` is excluded in orphaned.exclude_patterns so the
+  # orphan scan does not treat them as untracked (qBittorrent reports these
+  # torrents under /data/cross-seed-links, so the paths would not match).
+  cross-seed-links:
+    enabled: true
+    existingClaim: media-library-pvc
+    globalMounts:
+      - path: /data/torrents/.cross-seed-links
+        subPath: cross-seed-links
+        readOnly: true

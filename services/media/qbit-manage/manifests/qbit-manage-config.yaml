@@ -114,3 +114,8 @@ data:
         - "**/.DS_Store"
         - "**/*.!qB"
         - "**/incomplete/**"
+        # Read-only re-mount of /data/cross-seed-links so the hardlink check
+        # counts those links (see qbit-manage values.yaml). qBittorrent reports
+        # these torrents under /data/cross-seed-links, so the paths never match
+        # what the orphan scan sees and every one would look untracked.
+        - "**/.cross-seed-links/**"

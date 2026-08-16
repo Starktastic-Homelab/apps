@@ -99,6 +99,9 @@ jobs:
             echo '```' >> validation-report.md
             echo "" >> validation-report.md
             echo "</details>" >> validation-report.md
+            # Required: GitHub keeps parsing raw HTML until a blank line, so
+            # without this the next status line renders its **bold** literally.
+            echo "" >> validation-report.md
           fi
 
           if [ "${{ steps.kubeconform.outputs.exit_code }}" = "0" ]; then
@@ -112,6 +115,7 @@ jobs:
              echo '```' >> validation-report.md
              echo "" >> validation-report.md
              echo "</details>" >> validation-report.md
+             echo "" >> validation-report.md
           else
              echo "❌ **Kubeconform:** FAILED" >> validation-report.md
              echo "" >> validation-report.md
@@ -123,6 +127,7 @@ jobs:
              echo '```' >> validation-report.md
              echo "" >> validation-report.md
              echo "</details>" >> validation-report.md
+             echo "" >> validation-report.md
           fi
 
           if [ "${{ steps.homepage.outputs.exit_code }}" = "0" ]; then
@@ -138,6 +143,7 @@ jobs:
             echo '```' >> validation-report.md
             echo "" >> validation-report.md
             echo "</details>" >> validation-report.md
+            echo "" >> validation-report.md
           fi
 
           echo "" >> validation-report.md

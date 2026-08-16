@@ -7,7 +7,7 @@ controllers:
           tag: 1.11.2@sha256:db0b99532f262410d4ca932d61eec248e4b6756a05f1516546f4b7baa96f1594
         env:
           WS_FALLBACK: "true"
-          RATE_LIMIT: "true"
+          RATE_LIMIT: "false"
         probes:
           liveness:
             enabled: true

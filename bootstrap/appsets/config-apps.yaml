@@ -3,6 +3,13 @@ kind: ApplicationSet
 metadata:
   name: config-apps
   namespace: argocd
+  annotations:
+    # argocd-diff-preview filters ApplicationSets by their OWN metadata.annotations
+    # *before* expanding them into Applications, so this coarse gate is required in
+    # addition to the per-Application pattern in spec.template below. Without it the
+    # appset is skipped and every PR reports an empty diff.
+    # Keep it as the union of the patterns spec.template can render.
+    argocd-diff-preview/watch-pattern: '^infrastructure/base-configs/.*, ^infrastructure/configs/.*, ^templates/globals\.yaml'
 spec:
   goTemplate: true
   goTemplateOptions: ["missingkey=error"]
@@ -39,7 +46,7 @@ spec:
       annotations:
         notifications.argoproj.io/subscribe.on-sync-failed.ntfy: ""
         notifications.argoproj.io/subscribe.on-health-degraded.ntfy: ""
-        argocd-diff-preview/watch-pattern: "{{.path}}/.*, templates/globals.yaml"
+        argocd-diff-preview/watch-pattern: '^{{.path}}/.*, ^templates/globals\.yaml'
     spec:
       project: default
       sources:

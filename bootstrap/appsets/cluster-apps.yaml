@@ -3,6 +3,12 @@ kind: ApplicationSet
 metadata:
   name: cluster-apps
   namespace: argocd
+  annotations:
+    # See config-apps.yaml: argocd-diff-preview filters ApplicationSets by their OWN
+    # metadata.annotations *before* expanding them, so this coarse gate is required
+    # in addition to the per-Application pattern in spec.template below.
+    # Keep it as the union of the patterns spec.template can render.
+    argocd-diff-preview/watch-pattern: '^infrastructure/.*, ^services/.*, ^templates/.*'
 spec:
   goTemplate: true
   goTemplateOptions: ["missingkey=error"]
@@ -66,7 +72,9 @@ spec:
       annotations:
         notifications.argoproj.io/subscribe.on-sync-failed.ntfy: ""
         notifications.argoproj.io/subscribe.on-health-degraded.ntfy: ""
-        argocd-diff-preview/watch-pattern: '{{.path.path}}/.*, templates/.*'
+        # Anchored: unanchored 'templates/.*' also matches every app's own
+        # manifests/templates/ dir, which selected all 74 apps on any such PR.
+        argocd-diff-preview/watch-pattern: '^{{.path.path}}/.*, ^templates/.*'
     spec:
       project: default
       sources: []

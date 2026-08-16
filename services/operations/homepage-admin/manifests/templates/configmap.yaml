@@ -472,9 +472,18 @@ data:
             namespace: argocd
             app: argocd-server
             widget:
-              type: argocd
-              url: https://argocd-server.argocd.svc.cluster.local:443
-              key: {{ "{{" }}HOMEPAGE_VAR_ARGOCD_KEY{{ "}}" }}
+              type: prometheusmetric
+              url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+              refreshInterval: 30000
+              metrics:
+                - label: Apps
+                  query: 'count(argocd_app_info) or vector(0)'
+                - label: Synced
+                  query: 'count(argocd_app_info{sync_status="Synced"}) or vector(0)'
+                - label: OutOfSync
+                  query: 'count(argocd_app_info{sync_status="OutOfSync"}) or vector(0)'
+                - label: Unhealthy
+                  query: 'count(argocd_app_info{health_status!~"Healthy|Progressing"}) or vector(0)'
         - Latest Alert:
             icon: ntfy.png
             href: https://ntfy.starktastic.net

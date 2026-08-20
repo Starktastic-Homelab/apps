@@ -33,7 +33,7 @@ jobs:
       - name: Setup Helm
         uses: azure/setup-helm@v5
         with:
-          version: v4.2.3
+          version: v4.2.4
 
       - name: YAML Lint
         id: yamllint

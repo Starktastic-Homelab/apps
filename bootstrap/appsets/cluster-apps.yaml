@@ -32,7 +32,7 @@ spec:
                   commonValues: "templates/common.yaml"
                   defaultChartRepo: "https://bjw-s-labs.github.io/helm-charts"
                   defaultChartName: "app-template"
-                  defaultChartVersion: "5.0.1"
+                  defaultChartVersion: "5.1.0"
           - git:
               repoURL: https://github.com/Starktastic-Homelab/apps.git
               revision: HEAD

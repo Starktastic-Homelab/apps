@@ -39,8 +39,12 @@ DASHBOARDS = {
     "user": "services/operations/homepage/manifests",
 }
 
-# Neither dashboard lists itself as a service.
-EXCLUDED_HOSTS = {"starktastic.net", "admin.starktastic.net"}
+# Neither dashboard lists itself as a service. ha.starktastic.net is a
+# machine-only alias: it exists so Yandex Smart Home can reach Home Assistant's
+# OAuth and API endpoints, and Home Assistant itself is already listed on the
+# admin dashboard under ha.internal.starktastic.net, so nothing is reachable
+# but invisible.
+EXCLUDED_HOSTS = {"starktastic.net", "admin.starktastic.net", "ha.starktastic.net"}
 
 HOST_RE = re.compile(r"Host\(`([^`]+)`\)")
 VAR_RE = re.compile(r"\{\{HOMEPAGE_VAR_[A-Z0-9_]+\}\}")

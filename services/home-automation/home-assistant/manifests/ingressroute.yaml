@@ -1,0 +1,41 @@
+# Public route for the Yandex Smart Home (Alice) direct connection.
+# The ingress-chart emits exactly one IngressRoute per app, and home-assistant
+# already spends it on the internal host (`ha.internal.starktastic.net` on the
+# websec-int entrypoint / 10.9.9.90). The public VIP is a different entrypoint,
+# so the second hostname has to be a standalone manifest — same pattern as
+# navidrome and microbin.
+#
+# Whole-host route on purpose: the Yandex OAuth flow needs /auth/authorize,
+# /auth/token, the login page and its static assets, not just
+# /api/yandex_smart_home.
+#
+# ponytail: no dedicated Certificate — the default TLSStore already serves the
+# `*.starktastic.net` wildcard from starktastic-net-cert (traefik-system).
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: home-assistant-public
+  namespace: home-automation
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    # Bare Host() already matches every path; no PathPrefix, no rewrites, no
+    # StripPrefix. Traefik passes Host through and sets X-Forwarded-Proto=https
+    # and X-Forwarded-For itself, which is what HA's trusted_proxies expects.
+    - match: Host(`ha.starktastic.net`)
+      kind: Rule
+      services:
+        - name: home-assistant-main
+          port: 8123
+      middlewares:
+        # Same bouncer every other public route carries. No authentik-middleware
+        # here: forward-auth would break the Yandex OAuth callback. No
+        # rate-limit-strong either — app.yaml keeps rateLimit false for HA, and
+        # its frontend is request-heavy over the websocket.
+        - name: crowdsec-bouncer
+          namespace: traefik-system
+  tls:
+    store:
+      name: default
+      namespace: traefik-system

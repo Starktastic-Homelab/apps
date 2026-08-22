@@ -10,7 +10,7 @@ spec:
   interval: 60s
   module: icmp
   prober:
-    url: prometheus-blackbox-exporter.monitoring.svc.cluster.local:9115
+    url: prometheus-blackbox-exporter.monitoring:9115
     scheme: http
   targets:
     staticConfig:
@@ -31,7 +31,7 @@ spec:
   interval: 60s
   module: dns_cloudflare
   prober:
-    url: prometheus-blackbox-exporter.monitoring.svc.cluster.local:9115
+    url: prometheus-blackbox-exporter.monitoring:9115
     scheme: http
   targets:
     staticConfig:
@@ -52,7 +52,7 @@ spec:
   interval: 60s
   module: http_2xx
   prober:
-    url: prometheus-blackbox-exporter.monitoring.svc.cluster.local:9115
+    url: prometheus-blackbox-exporter.monitoring:9115
     scheme: http
   targets:
     staticConfig:
@@ -73,12 +73,12 @@ spec:
   interval: 60s
   module: tcp_connect
   prober:
-    url: prometheus-blackbox-exporter.monitoring.svc.cluster.local:9115
+    url: prometheus-blackbox-exporter.monitoring:9115
     scheme: http
   targets:
     staticConfig:
       static:
-        - alertmanager-ntfy.monitoring.svc.cluster.local:8000
+        - alertmanager-ntfy.monitoring:8000
       labels:
         service: alertmanager-ntfy
         tier: alert-pipeline
@@ -94,7 +94,7 @@ spec:
   interval: 60s
   module: http_auth
   prober:
-    url: prometheus-blackbox-exporter.monitoring.svc.cluster.local:9115
+    url: prometheus-blackbox-exporter.monitoring:9115
     scheme: http
   targets:
     staticConfig:
@@ -115,7 +115,7 @@ spec:
   interval: 60s
   module: http_auth
   prober:
-    url: prometheus-blackbox-exporter.monitoring.svc.cluster.local:9115
+    url: prometheus-blackbox-exporter.monitoring:9115
     scheme: http
   targets:
     staticConfig:

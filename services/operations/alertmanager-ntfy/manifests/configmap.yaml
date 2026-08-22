@@ -8,7 +8,7 @@ data:
     http:
       addr: :8000
     ntfy:
-      baseurl: http://ntfy.operations.svc.cluster.local
+      baseurl: http://ntfy.operations
       notification:
         topic: alerts
         priority: |

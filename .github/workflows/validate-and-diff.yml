@@ -80,6 +80,21 @@ jobs:
           cat homepage.txt
           if [ $EXIT_CODE -ne 0 ]; then echo "❌ Homepage Coverage Failed"; else echo "✅ Homepage Coverage Passed"; fi
 
+      # ponytail: plain grep, no script. Pods run with ndots:5, so a 4-dot name like
+      # svc.ns.svc.cluster.local tries every search suffix — including the node's
+      # mgmt.arpa — before the absolute name, leaking one upstream query per lookup.
+      # `service` (same ns) or `service.namespace` (cross ns) hit on attempt 1 or 2.
+      - name: No cluster.local FQDNs
+        run: |
+          hits=$(git grep -n 'svc\.cluster\.local' -- . ':!docs' ':!.github' \
+            | grep -v 'crowdsecLapiHost\|https://argocd-server' || true)
+          if [ -n "$hits" ]; then
+            echo "$hits"
+            echo "❌ Use 'service' or 'service.namespace' instead of a .svc.cluster.local FQDN."
+            exit 1
+          fi
+          echo "✅ No cluster.local FQDNs"
+
       - name: Create validation report
         if: always()
         run: |

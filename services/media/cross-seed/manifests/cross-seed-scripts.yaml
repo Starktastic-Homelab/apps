@@ -11,7 +11,7 @@ data:
     apk add --no-cache jq >/dev/null 2>&1
 
     echo "Fetching private torrent indexers from Prowlarr..."
-    PROWLARR_URL="http://prowlarr.media.svc.cluster.local:9696"
+    PROWLARR_URL="http://prowlarr.media:9696"
     INDEXERS=$(curl -sf "${PROWLARR_URL}/api/v1/indexer" \
       -H "X-Api-Key: ${PROWLARR_API_KEY}")
 
@@ -30,7 +30,7 @@ data:
     cat > /config/config.js << CONFIGJS
     export default {
       torrentClients: [
-        "qbittorrent:http://qbittorrent-main.media.svc.cluster.local:8080",
+        "qbittorrent:http://qbittorrent-main.media:8080",
       ],
       action: "inject",
       useClientTorrents: true,
@@ -50,13 +50,13 @@ data:
     ${TORZNAB}
       ],
       sonarr: [
-        "http://sonarr.media.svc.cluster.local:8989/?apikey=${SONARR_API_KEY}",
+        "http://sonarr.media:8989/?apikey=${SONARR_API_KEY}",
       ],
       radarr: [
-        "http://radarr.media.svc.cluster.local:7878/?apikey=${RADARR_API_KEY}",
+        "http://radarr.media:7878/?apikey=${RADARR_API_KEY}",
       ],
       lidarr: [
-        "http://lidarr.media.svc.cluster.local:8686/?apikey=${LIDARR_API_KEY}",
+        "http://lidarr.media:8686/?apikey=${LIDARR_API_KEY}",
       ],
       searchCadence: "1 day",
       rssCadence: "30 minutes",

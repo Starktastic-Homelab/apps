@@ -245,10 +245,10 @@ data:
             icon: jellyfin.png
             href: https://benplus.app
             description: Who is watching what
-            siteMonitor: http://jellyfin-main.media.svc.cluster.local:8096
+            siteMonitor: http://jellyfin-main.media:8096
             widget:
               type: jellyfin
-              url: http://jellyfin-main.media.svc.cluster.local:8096
+              url: http://jellyfin-main.media:8096
               key: {{ "{{" }}HOMEPAGE_VAR_JELLYFIN_KEY{{ "}}" }}
               enableBlocks: false
               enableNowPlaying: true
@@ -258,10 +258,10 @@ data:
             icon: navidrome.png
             href: https://music.benplus.app
             description: What is on the speakers
-            siteMonitor: http://navidrome.media.svc.cluster.local:4533
+            siteMonitor: http://navidrome.media:4533
             widget:
               type: navidrome
-              url: http://navidrome.media.svc.cluster.local:4533
+              url: http://navidrome.media:4533
               user: {{ "{{" }}HOMEPAGE_VAR_NAVIDROME_USER{{ "}}" }}
               token: {{ "{{" }}HOMEPAGE_VAR_NAVIDROME_TOKEN{{ "}}" }}
               salt: {{ "{{" }}HOMEPAGE_VAR_NAVIDROME_SALT{{ "}}" }}
@@ -276,21 +276,21 @@ data:
               firstDayInWeek: sunday
               integrations:
                 - type: ical
-                  url: http://sonarr.media.svc.cluster.local:8989/feed/v3/calendar/Sonarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_SONARR_KEY{{ "}}" }}
+                  url: http://sonarr.media:8989/feed/v3/calendar/Sonarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_SONARR_KEY{{ "}}" }}
                   name: TV
                   color: blue
                 - type: ical
-                  url: http://radarr.media.svc.cluster.local:7878/feed/v3/calendar/Radarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_RADARR_KEY{{ "}}" }}
+                  url: http://radarr.media:7878/feed/v3/calendar/Radarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_RADARR_KEY{{ "}}" }}
                   name: Movies
                   color: red
         - Tasks Due:
             icon: vikunja.png
             href: https://vikunja.starktastic.net
             description: Shared to-do lists
-            siteMonitor: http://vikunja.operations.svc.cluster.local:3456
+            siteMonitor: http://vikunja.operations:3456
             widget:
               type: vikunja
-              url: http://vikunja.operations.svc.cluster.local:3456
+              url: http://vikunja.operations:3456
               key: {{ "{{" }}HOMEPAGE_VAR_VIKUNJA_KEY{{ "}}" }}
               enableTaskList: true
               version: 2
@@ -300,27 +300,27 @@ data:
             icon: jellyfin.png
             href: https://benplus.app
             description: Movies, TV & anime
-            siteMonitor: http://jellyfin-main.media.svc.cluster.local:8096
+            siteMonitor: http://jellyfin-main.media:8096
     - Listen:
         - Navidrome:
             icon: navidrome.png
             href: https://music.benplus.app
             description: Music streaming
-            siteMonitor: http://navidrome.media.svc.cluster.local:4533
+            siteMonitor: http://navidrome.media:4533
         - Audiobookshelf:
             icon: audiobookshelf.png
             href: https://audiobooks.benplus.app
             description: Audiobooks & podcasts
-            siteMonitor: http://audiobookshelf.media.svc.cluster.local:80
+            siteMonitor: http://audiobookshelf.media:80
     - Read:
         - Calibre-Web:
             icon: calibre-web.png
             href: https://books.benplus.app
             description: E-book library
-            siteMonitor: http://calibre-web.media.svc.cluster.local:8083/opds
+            siteMonitor: http://calibre-web.media:8083/opds
             widget:
               type: calibreweb
-              url: http://calibre-web.media.svc.cluster.local:8083
+              url: http://calibre-web.media:8083
               username: {{ "{{" }}HOMEPAGE_VAR_CALIBRE_USER{{ "}}" }}
               password: {{ "{{" }}HOMEPAGE_VAR_CALIBRE_PASS{{ "}}" }}
     - Look Back:
@@ -328,10 +328,10 @@ data:
             icon: immich.png
             href: https://photos.benplus.app
             description: Photos & videos
-            siteMonitor: http://immich-main.media.svc.cluster.local:2283
+            siteMonitor: http://immich-main.media:2283
             widget:
               type: immich
-              url: http://immich-main.media.svc.cluster.local:2283
+              url: http://immich-main.media:2283
               key: {{ "{{" }}HOMEPAGE_VAR_IMMICH_KEY{{ "}}" }}
               version: 2
     - Ask For It:
@@ -339,100 +339,100 @@ data:
             icon: overseerr.png
             href: https://request.benplus.app
             description: Request movies & TV
-            siteMonitor: http://seerr.media.svc.cluster.local:5055
+            siteMonitor: http://seerr.media:5055
             widget:
               type: seerr
-              url: http://seerr.media.svc.cluster.local:5055
+              url: http://seerr.media:5055
               key: {{ "{{" }}HOMEPAGE_VAR_SEERR_KEY{{ "}}" }}
         - Seerr RU:
             icon: overseerr.png
             href: https://request-ru.benplus.app
             description: Request movies & TV (RU)
-            siteMonitor: http://seerr-ru.media.svc.cluster.local:5055
+            siteMonitor: http://seerr-ru.media:5055
             widget:
               type: seerr
-              url: http://seerr-ru.media.svc.cluster.local:5055
+              url: http://seerr-ru.media:5055
               key: {{ "{{" }}HOMEPAGE_VAR_SEERR_RU_KEY{{ "}}" }}
         - Shelfmark:
             icon: mdi-bookshelf
             href: https://request-books.benplus.app
             description: Request books
-            siteMonitor: http://shelfmark.media.svc.cluster.local:8084
+            siteMonitor: http://shelfmark.media:8084
     # ==================== MAKE ====================
     - Create:
         - Excalidash:
             icon: excalidraw.png
             href: https://excalidash.starktastic.net
             description: Whiteboard & diagrams
-            siteMonitor: http://excalidash.operations.svc.cluster.local:80
+            siteMonitor: http://excalidash.operations:80
         - MicroBin:
             icon: microbin.png
             href: https://microbin.starktastic.net
             description: Paste & share text
-            siteMonitor: http://microbin.operations.svc.cluster.local:8080
+            siteMonitor: http://microbin.operations:8080
     - Convert:
         - ConvertX:
             icon: convertx.png
             href: https://convertx.starktastic.net
             description: File format converter
-            siteMonitor: http://convertx.operations.svc.cluster.local:3000
+            siteMonitor: http://convertx.operations:3000
         - Stirling PDF:
             icon: stirling-pdf.png
             href: https://pdf.starktastic.net
             description: PDF toolbox
-            siteMonitor: http://stirling-pdf.operations.svc.cluster.local:8080
+            siteMonitor: http://stirling-pdf.operations:8080
         - MeTube:
             icon: metube.png
             href: https://metube.benplus.app
             description: Download video & audio
-            siteMonitor: http://metube.media.svc.cluster.local:8081
+            siteMonitor: http://metube.media:8081
         - CyberChef:
             icon: cyberchef.png
             href: https://cyberchef.starktastic.net
             description: Encode, decode, analyse
-            siteMonitor: http://cyberchef.operations.svc.cluster.local:8000
+            siteMonitor: http://cyberchef.operations:8000
     - Find:
         - SearXNG:
             icon: searxng.png
             href: https://search.starktastic.net
             description: Private metasearch
-            siteMonitor: http://searxng.operations.svc.cluster.local:8080
+            siteMonitor: http://searxng.operations:8080
         - Karakeep:
             icon: karakeep.png
             href: https://karakeep.starktastic.net
             description: Bookmarks & read-later
-            siteMonitor: http://karakeep.operations.svc.cluster.local:3000
+            siteMonitor: http://karakeep.operations:3000
             widget:
               type: karakeep
-              url: http://karakeep.operations.svc.cluster.local:3000
+              url: http://karakeep.operations:3000
               key: {{ "{{" }}HOMEPAGE_VAR_KARAKEEP_KEY{{ "}}" }}
     - Organise:
         - Vikunja:
             icon: vikunja.png
             href: https://vikunja.starktastic.net
             description: Tasks & projects
-            siteMonitor: http://vikunja.operations.svc.cluster.local:3456
+            siteMonitor: http://vikunja.operations:3456
         - Mealie:
             icon: mealie.png
             href: https://mealie.starktastic.net
             description: Recipes & shopping lists
-            siteMonitor: http://mealie.operations.svc.cluster.local:9000
+            siteMonitor: http://mealie.operations:9000
     - Send:
         - PairDrop:
             icon: pairdrop.png
             href: https://pairdrop.starktastic.net
             description: Device-to-device transfer
-            siteMonitor: http://pairdrop.operations.svc.cluster.local:3000
+            siteMonitor: http://pairdrop.operations:3000
         - ntfy:
             icon: ntfy.png
             href: https://ntfy.starktastic.net
             description: Push notifications
-            siteMonitor: http://ntfy.operations.svc.cluster.local:80
+            siteMonitor: http://ntfy.operations:80
         - Listmonk:
             icon: listmonk.png
             href: https://listmonk.starktastic.net
             description: Newsletters & mailing lists
-            siteMonitor: http://listmonk.operations.svc.cluster.local:9000
+            siteMonitor: http://listmonk.operations:9000
   bookmarks.yaml: |
     - Links:
         - My Account:

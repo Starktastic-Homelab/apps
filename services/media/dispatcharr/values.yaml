@@ -10,11 +10,11 @@ controllers:
         env:
           TZ: "Asia/Jerusalem"
           DISPATCHARR_ENV: "modular"
-          POSTGRES_HOST: "postgres-postgresql.databases.svc.cluster.local"
+          POSTGRES_HOST: "postgres-postgresql.databases"
           POSTGRES_PORT: "5432"
           POSTGRES_DB: "dispatcharr"
           POSTGRES_USER: "dispatch"
-          REDIS_HOST: "redis-master.databases.svc.cluster.local"
+          REDIS_HOST: "redis-master.databases"
           REDIS_PORT: "6379"
           REDIS_DB: "4"
         envFrom:
@@ -50,11 +50,11 @@ controllers:
           DISPATCHARR_ENV: "modular"
           DISPATCHARR_WEB_HOST: "dispatcharr"
           DISPATCHARR_PORT: "9191"
-          POSTGRES_HOST: "postgres-postgresql.databases.svc.cluster.local"
+          POSTGRES_HOST: "postgres-postgresql.databases"
           POSTGRES_PORT: "5432"
           POSTGRES_DB: "dispatcharr"
           POSTGRES_USER: "dispatch"
-          REDIS_HOST: "redis-master.databases.svc.cluster.local"
+          REDIS_HOST: "redis-master.databases"
           REDIS_PORT: "6379"
           REDIS_DB: "4"
         envFrom:

@@ -20,7 +20,7 @@ data:
       skip_cleanup: false
 
     qbt:
-      host: "http://qbittorrent-ru-main.media.svc.cluster.local:8080"
+      host: "http://qbittorrent-ru-main.media:8080"
 
     settings:
       force_auto_tmm: false

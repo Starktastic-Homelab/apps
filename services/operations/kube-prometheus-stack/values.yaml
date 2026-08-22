@@ -88,7 +88,7 @@ alertmanager:
         webhook_configs:
           # Routes through alertmanager-ntfy adapter for formatted notifications
           # with proper titles, descriptions, priority, and tags
-          - url: "http://alertmanager-ntfy.monitoring.svc.cluster.local:8000/hook"
+          - url: "http://alertmanager-ntfy.monitoring:8000/hook"
             send_resolved: true
     inhibit_rules:
       - source_matchers:
@@ -147,14 +147,14 @@ grafana:
       type: loki
       uid: loki
       access: proxy
-      url: http://loki-gateway.monitoring.svc.cluster.local
+      url: http://loki-gateway.monitoring
       jsonData:
         maxLines: 250
     - name: Tempo
       type: tempo
       uid: tempo
       access: proxy
-      url: http://tempo.monitoring.svc.cluster.local:3200
+      url: http://tempo.monitoring:3200
       jsonData:
         tracesToLogsV2:
           datasourceUid: loki

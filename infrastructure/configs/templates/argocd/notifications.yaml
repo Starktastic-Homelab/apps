@@ -13,7 +13,7 @@ data:
     argocdUrl: https://argocd.{{ .Values.global.domains.internal }}
 
   service.webhook.ntfy: |
-    url: http://ntfy.operations.svc.cluster.local
+    url: http://ntfy.operations
     headers:
       - name: Authorization
         value: $ntfy-header

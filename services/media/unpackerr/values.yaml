@@ -11,19 +11,19 @@ controllers:
           UN_WEBSERVER_METRICS: "true"
           UN_WEBSERVER_LISTEN_ADDR: "0.0.0.0:5656"
 
-          UN_RADARR_0_URL: "http://radarr.media.svc.cluster.local:7878"
+          UN_RADARR_0_URL: "http://radarr.media:7878"
           UN_RADARR_0_PATHS_0: "/data/torrents"
           UN_RADARR_0_PROTOCOLS: "torrent"
 
-          UN_RADARR_1_URL: "http://radarr-ru.media.svc.cluster.local:7878"
+          UN_RADARR_1_URL: "http://radarr-ru.media:7878"
           UN_RADARR_1_PATHS_0: "/data/torrents"
           UN_RADARR_1_PROTOCOLS: "torrent"
 
-          UN_SONARR_0_URL: "http://sonarr.media.svc.cluster.local:8989"
+          UN_SONARR_0_URL: "http://sonarr.media:8989"
           UN_SONARR_0_PATHS_0: "/data/torrents"
           UN_SONARR_0_PROTOCOLS: "torrent"
 
-          UN_SONARR_1_URL: "http://sonarr-ru.media.svc.cluster.local:8989"
+          UN_SONARR_1_URL: "http://sonarr-ru.media:8989"
           UN_SONARR_1_PATHS_0: "/data/torrents"
           UN_SONARR_1_PROTOCOLS: "torrent"
         envFrom:

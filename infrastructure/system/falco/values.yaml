@@ -43,7 +43,7 @@ falcosidekick:
   config:
     # High-severity events -> existing Alertmanager -> alertmanager-ntfy -> ntfy
     alertmanager:
-      hostport: "http://kube-prometheus-stack-alertmanager.monitoring.svc.cluster.local:9093"
+      hostport: "http://kube-prometheus-stack-alertmanager.monitoring:9093"
       endpoint: "/api/v2/alerts"
       minimumpriority: "critical"
       extralabels: "source:falco"

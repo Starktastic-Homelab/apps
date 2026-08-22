@@ -1,6 +1,6 @@
 {
   "ldap": {
-    "server": "ak-outpost-ldap-outpost.authentik.svc.cluster.local",
+    "server": "ak-outpost-ldap-outpost.authentik",
     "port": 389,
     "bind_dn": "cn=ldapservice,ou=users,dc=ldap,dc=benplus,dc=app",
     "base_dn": "ou=users,dc=ldap,dc=benplus,dc=app",
@@ -8,7 +8,7 @@
     "group_base_dn": "ou=groups,dc=ldap,dc=benplus,dc=app"
   },
   "jellyfin": {
-    "url": "http://jellyfin-main.media.svc.cluster.local:8096"
+    "url": "http://jellyfin-main.media:8096"
   },
   "group_library_map": {
     "jellyfin-admins": ["*"],

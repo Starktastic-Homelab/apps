@@ -20,7 +20,7 @@ spec:
               command: ["/bin/sh", "/scripts/backup.sh"]
               env:
                 - name: PGHOST
-                  value: postgres-postgresql.databases.svc.cluster.local
+                  value: postgres-postgresql.databases
                 - name: PGPORT
                   value: "5432"
                 - name: PGUSER

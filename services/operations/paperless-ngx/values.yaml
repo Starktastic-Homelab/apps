@@ -10,7 +10,7 @@ controllers:
             memory: 640Mi
         env:
           # Database
-          PAPERLESS_DBHOST: "postgres-postgresql.databases.svc.cluster.local"
+          PAPERLESS_DBHOST: "postgres-postgresql.databases"
           PAPERLESS_DBPORT: "5432"
           PAPERLESS_DBNAME: "paperless"
           PAPERLESS_DBUSER: "paperless"

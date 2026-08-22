@@ -27,11 +27,11 @@ data:
     import urllib.parse
     import urllib.request
 
-    JELLYFIN_URL = "http://jellyfin-main.media.svc.cluster.local:8096"
+    JELLYFIN_URL = "http://jellyfin-main.media:8096"
     JELLYFIN_TOKEN = os.environ.get("JELLYFIN_API_KEY", "")
     BAZARR_URL = "http://localhost:6767"
     BAZARR_APIKEY = os.environ.get("BAZARR_APIKEY", "")
-    LINGARR_URL = "http://lingarr.media.svc.cluster.local:8080"
+    LINGARR_URL = "http://lingarr.media:8080"
 
 
     def get_translate_targets():

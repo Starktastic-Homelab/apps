@@ -11,7 +11,7 @@ controllers:
           VIKUNJA_SERVICE_ENABLEREGISTRATION: "false"
           # Database (shared PostgreSQL)
           VIKUNJA_DATABASE_TYPE: "postgres"
-          VIKUNJA_DATABASE_HOST: "postgres-postgresql.databases.svc.cluster.local"
+          VIKUNJA_DATABASE_HOST: "postgres-postgresql.databases"
           VIKUNJA_DATABASE_DATABASE: "vikunja"
           VIKUNJA_DATABASE_USER: "vikunja"
           VIKUNJA_DATABASE_SSLMODE: "disable"

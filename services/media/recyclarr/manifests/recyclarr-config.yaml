@@ -10,7 +10,7 @@ data:
 
     radarr:
       radarr_main:
-        base_url: http://radarr.media.svc.cluster.local:7878
+        base_url: http://radarr.media:7878
         api_key: !env_var RADARR_API_KEY
 
         delete_old_custom_formats: true
@@ -146,7 +146,7 @@ data:
                 score: 1000
 
       radarr_ru:
-        base_url: http://radarr-ru.media.svc.cluster.local:7878
+        base_url: http://radarr-ru.media:7878
         api_key: !env_var RADARR_RU_API_KEY
         delete_old_custom_formats: true
 
@@ -197,7 +197,7 @@ data:
 
     sonarr:
       sonarr_main:
-        base_url: http://sonarr.media.svc.cluster.local:8989
+        base_url: http://sonarr.media:8989
         api_key: !env_var SONARR_API_KEY
 
         delete_old_custom_formats: true
@@ -392,7 +392,7 @@ data:
               - name: Remux-1080p - Anime
 
       sonarr_ru:
-        base_url: http://sonarr-ru.media.svc.cluster.local:8989
+        base_url: http://sonarr-ru.media:8989
         api_key: !env_var SONARR_RU_API_KEY
         delete_old_custom_formats: true
 

@@ -170,7 +170,7 @@ alloy:
 
       loki.write "default" {
         endpoint {
-          url = "http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push"
+          url = "http://loki-gateway.monitoring/loki/api/v1/push"
         }
       }
 
@@ -192,7 +192,7 @@ alloy:
 
       otelcol.exporter.otlp "tempo" {
         client {
-          endpoint = "tempo.monitoring.svc.cluster.local:4317"
+          endpoint = "tempo.monitoring:4317"
           tls {
             insecure = true
           }

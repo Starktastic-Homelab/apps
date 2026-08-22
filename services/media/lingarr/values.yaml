@@ -8,18 +8,18 @@ controllers:
         env:
           # Translation backend
           SERVICE_TYPE: "libretranslate"
-          LIBRE_TRANSLATE_URL: "http://libretranslate.media.svc.cluster.local:5000"
+          LIBRE_TRANSLATE_URL: "http://libretranslate.media:5000"
 
           # Database
           DB_CONNECTION: "postgres"
-          DB_HOST: "postgres-postgresql.databases.svc.cluster.local"
+          DB_HOST: "postgres-postgresql.databases"
           DB_PORT: "5432"
           DB_DATABASE: "lingarr"
           DB_USERNAME: "lingarr"
 
           # Sonarr / Radarr (EN instances only)
-          SONARR_URL: "http://sonarr.media.svc.cluster.local:8989"
-          RADARR_URL: "http://radarr.media.svc.cluster.local:7878"
+          SONARR_URL: "http://sonarr.media:8989"
+          RADARR_URL: "http://radarr.media:7878"
 
           # Languages
           SOURCE_LANGUAGES: '[{"name":"English","code":"en"}]'

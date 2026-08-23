@@ -18,31 +18,20 @@ spec:
         elements:
           - name: base-configs
             path: infrastructure/base-configs
-            deployPhase: foundation
           - name: infra-configs
             path: infrastructure/configs
-            deployPhase: services
-  strategy:
-    type: RollingSync
-    rollingSync:
-      steps:
-        - matchExpressions:
-            - key: deploy-phase
-              operator: In
-              values:
-                - foundation
-        - matchExpressions:
-            - key: deploy-phase
-              operator: In
-              values:
-                - services
+  # No strategy: RollingSync would force autosync off on both Applications (see
+  # the ArgoCDAppOutOfSync alert), and it bought no ordering here. base-configs is
+  # storage PVs/PVCs plus backup CronJobs, infra-configs is IngressRoutes,
+  # Middlewares and Certificates -- neither depends on the other. Ordering against
+  # the CRD providers in cluster-apps was never provided anyway, since RollingSync
+  # only sequences within a single ApplicationSet; spec.template's retry (30
+  # attempts, backing off to 5m) is what actually covers that race.
   template:
     metadata:
       name: "{{.name}}"
       namespace: argocd
       finalizers: ["resources-finalizer.argocd.argoproj.io"]
-      labels:
-        deploy-phase: "{{.deployPhase}}"
       annotations:
         notifications.argoproj.io/subscribe.on-sync-failed.ntfy: ""
         notifications.argoproj.io/subscribe.on-health-degraded.ntfy: ""

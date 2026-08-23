@@ -43,6 +43,7 @@ persistence:
     enabled: false
   libretranslate-models:
     type: persistentVolumeClaim
+    storageClass: nfs-pv
     size: 2Gi
     accessMode: ReadWriteMany
     globalMounts:

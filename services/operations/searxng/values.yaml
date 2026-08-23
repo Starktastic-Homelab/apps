@@ -47,6 +47,7 @@ persistence:
   cache:
     enabled: true
     type: persistentVolumeClaim
+    storageClass: nfs-pv
     size: 256Mi
     accessMode: ReadWriteMany
     globalMounts:

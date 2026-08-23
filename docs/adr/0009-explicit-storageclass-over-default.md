@@ -116,3 +116,34 @@ This is safe _here_, and was checked before making the change: both StatefulSets
 The same is _not_ true of `loki`, whose STS is `whenDeleted: Delete` and whose PVC **is** owner-referenced — deleting
 that StatefulSet would delete its volume. Loki and tempo were already pinned, so no change was needed there; the check
 is recorded here because the next person to touch a `volumeClaimTemplate` needs to run it first.
+
+## Update (2026-08-24): the second pass was incomplete too — `commonValues` does not reach `infrastructure/**`
+
+The pass above pinned every service by adding `storageClass: nfs-pv` to `templates/common.yaml`. That file reaches an
+app only if the ApplicationSet generator passes it as `commonValues`, and in `bootstrap/appsets/cluster-apps.yaml` only
+the `services/**` generator does — `infrastructure/**` is generated with `commonValues: ""`.
+
+So `crowdsec` and `pgadmin` kept rendering `storageClassName: null` against live PVCs bound to `nfs-pv`. With the
+`ignoreDifferences` entry now gone, Argo tried to null an immutable field and the API server refused:
+
+```text
+PersistentVolumeClaim "crowdsec-db-pvc" is invalid: spec: Forbidden:
+spec is immutable after creation except resources.requests and
+volumeAttributesClassName for bound claims
+```
+
+A bound PVC's spec is immutable, so this never converges — it just retries. crowdsec reached retry #7 and pgadmin #10
+before it was noticed. Fixed by pinning in each app's own `values.yaml`.
+
+**The generalisable part:** `templates/common.yaml` is a `services/**` mechanism, not a repo-wide one. Anything under
+`infrastructure/**` must set storage explicitly in its own values file, using **that chart's** key — they are not
+interchangeable, and none of these three are:
+
+| Chart                  | Key                                           |
+| ---------------------- | --------------------------------------------- |
+| `app-template` (5.1.0) | `persistence.<name>.storageClass`             |
+| `pgadmin4` (1.66.0)    | `persistentVolume.storageClass`               |
+| `crowdsec` (0.24.0)    | `lapi.persistentVolume.data.storageClassName` |
+
+`app-template` additionally **ignores** `global.storageClass`, so there is no repo-wide shortcut available even for the
+services. Read the key out of `helm show values` rather than assuming it.

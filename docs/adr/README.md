@@ -22,3 +22,4 @@ that supersedes the old one (don't rewrite history).
 | 0006 | [kube-vip for the control-plane VIP](0006-kube-vip-control-plane-vip.md) | Accepted |
 | 0007 | [CNI: Flannel + kube-router; defer Cilium](0007-cni-flannel-kube-router.md) | Accepted |
 | 0008 | [NetworkPolicies declined](0008-networkpolicies-declined.md) | Accepted |
+| 0009 | [Explicit `storageClassName` over a default class](0009-explicit-storageclass-over-default.md) | Accepted |

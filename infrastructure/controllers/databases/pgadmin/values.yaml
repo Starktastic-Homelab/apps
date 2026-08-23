@@ -18,6 +18,10 @@ envVarsExtra:
 persistentVolume:
   enabled: true
   size: 1Gi
+  # Must stay explicit. infrastructure/** apps get commonValues: "" from the
+  # appset, so templates/common.yaml never reaches them and this has to be
+  # pinned per chart. See docs/adr/0009-explicit-storageclass-over-default.md.
+  storageClass: nfs-pv
 serverDefinitions:
   enabled: true
   resourceType: ConfigMap

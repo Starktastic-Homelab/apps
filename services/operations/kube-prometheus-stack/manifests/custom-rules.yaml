@@ -50,3 +50,22 @@ spec:
           annotations:
             summary: "Alertmanager target down"
             description: "An Alertmanager scrape target ({{ $labels.job }}) has been down for 5 minutes."
+    # Both appsets use strategy.type RollingSync, which force-disables autosync on
+    # every Application it generates and only re-queues one when its target revision
+    # or generated spec changes. Cluster drift is neither, so a drifted app sits
+    # OutOfSync indefinitely with nothing to heal it -- and because it never attempts
+    # a sync, on-sync-failed never fires and nothing notifies. This is the only thing
+    # that catches that class of rot. `for` outlasts the OutOfSync window of a normal
+    # rollout, so ordinary deploys stay quiet.
+    - name: argocd
+      rules:
+        - alert: ArgoCDAppOutOfSync
+          expr: argocd_app_info{sync_status="OutOfSync"} == 1
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "ArgoCD application out of sync ({{ $labels.name }})"
+            description:
+              "Application {{ $labels.name }} has been OutOfSync for over an hour. Autosync is disabled by RollingSync,
+              so this will not heal on its own -- sync it manually or land a commit that changes it."

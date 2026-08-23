@@ -57,6 +57,10 @@ lapi:
       accessModes:
         - ReadWriteMany
       size: 1Gi
+      # Must stay explicit. infrastructure/** apps get commonValues: "" from the
+      # appset, so templates/common.yaml never reaches them and this has to be
+      # pinned per chart. See docs/adr/0009-explicit-storageclass-over-default.md.
+      storageClassName: nfs-pv
     config:
       # Disabled with TLS: the chart's persistent config startup command (cp -nR)
       # copies default local_api_credentials.yaml with login/password into the PVC,

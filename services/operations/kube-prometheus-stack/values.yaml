@@ -35,6 +35,13 @@ prometheus:
     storageSpec:
       volumeClaimTemplate:
         spec:
+          # Must stay explicit: k3s's local-path StorageClass is recreated as
+          # a default on every restart, so it always wins the newest-wins
+          # tiebreak. Changing this on a live STS is an immutable-field update;
+          # prometheus-operator handles it by deleting and recreating the STS
+          # (ForceUpdateStatefulSet). PVCs survive - they have no ownerRefs and
+          # persistentVolumeClaimRetentionPolicy is Retain - but pods restart.
+          storageClassName: nfs-pv
           accessModes: ["ReadWriteMany"]
           resources:
             requests:
@@ -49,6 +56,9 @@ alertmanager:
     storage:
       volumeClaimTemplate:
         spec:
+          # See the prometheus storageSpec comment above: same immutable-STS
+          # caveat, same Retain retention policy, same ownerRef-free PVC.
+          storageClassName: nfs-pv
           accessModes: ["ReadWriteMany"]
           resources:
             requests:
@@ -140,6 +150,7 @@ grafana:
       capture: true
   persistence:
     enabled: true
+    storageClassName: nfs-pv
     accessModes: ["ReadWriteMany"]
     size: 2Gi
   additionalDataSources:

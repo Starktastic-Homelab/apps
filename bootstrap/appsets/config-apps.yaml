@@ -76,11 +76,3 @@ spec:
             duration: 15s
             factor: 2
             maxDuration: 5m
-      ignoreDifferences:
-        - group: ""
-          kind: PersistentVolumeClaim
-          jsonPointers:
-            # See cluster-apps.yaml for the rationale (PVC spec.storageClassName
-            # is immutable post-bind, but dropped from desired manifests now
-            # that nfs-pv is the sole cluster default).
-            - /spec/storageClassName

@@ -32,6 +32,11 @@ persistence:
   config:
     enabled: true
     type: persistentVolumeClaim
+    # Must stay explicit. k3s recreates its local-path StorageClass (also
+    # annotated default) on every restart, so it is always the newest default
+    # and always wins the DefaultStorageClass newest-wins tiebreak. Omitting
+    # this silently puts an RWX volume on node-local RWO storage.
+    storageClass: nfs-pv
     size: 1Gi
     accessMode: ReadWriteMany
     globalMounts:

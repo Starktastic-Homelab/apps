@@ -59,6 +59,7 @@ persistence:
     enabled: false
   lingarr-config:
     type: persistentVolumeClaim
+    storageClass: nfs-pv
     size: 1Gi
     accessMode: ReadWriteMany
     globalMounts:

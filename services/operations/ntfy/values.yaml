@@ -36,6 +36,7 @@ persistence:
 
   cache:
     enabled: true
+    storageClass: nfs-pv
     accessMode: ReadWriteMany
     size: 5Gi
     globalMounts:

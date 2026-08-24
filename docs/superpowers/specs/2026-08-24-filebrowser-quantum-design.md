@@ -161,11 +161,16 @@ Host(`files.{{ .Values.global.domains.public }}`) && PathPrefix(`/public/`)
 
 Every unauthenticated share route in Quantum lives under one prefix
 (`backend/http/httpRouter.go:222`: `publicPath := config.Server.BaseURL + "public"`),
-covering `/public/share/<hash>`, `/public/api/...` and `/public/static/`. All
-public API handlers are wrapped in `withHashFile`, so they require the share
-hash. The internet-facing surface is therefore exactly the hash-gated share
-handlers; the file tree, the authenticated API and the login page are
-unreachable from outside.
+covering `/public/share/<hash>`, `/public/api/...` and `/public/static/`. Every
+public handler that returns file data or directory contents — `/resources`,
+`/resources/items`, `/raw`, `/resources/download`, `/resources/preview`,
+`/share/image` — is wrapped in `withHashFile`, so it requires the share hash.
+The three public handlers that are not: `/public/api/health` is unauthenticated
+by design and returns no file data, `/public/api/users` is `withUser` (401 for
+anonymous), and `/public/api/share/info` is `withOrWithoutUser` and validates
+the hash inside the handler. The internet-facing surface is therefore exactly
+the hash-gated share handlers plus a health probe; the file tree, the
+authenticated API and the login page are unreachable from outside.
 
 TLS needs no work: `*.starktastic.net` is already covered by
 `starktastic-net-tls` via the default Traefik store.

@@ -5,8 +5,20 @@ reloader:
   # fight Reloader over every restart.
   reloadStrategy: annotations
 
-  # Opt-in only: workloads must carry reloader.stakater.com/auto: "true".
-  autoReloadAll: false
+  # Reload every workload that mounts a changed ConfigMap or Secret. Opt a
+  # workload out with reloader.stakater.com/auto: "false".
+  #
+  # This was opt-in until a widget deleted from the homepage ConfigMap kept
+  # running: the config is mounted with subPath, which Kubernetes never
+  # updates in a live pod, and homepage carried no annotation. 27 workloads
+  # mount config that way and only 2 had opted in, so the same trap was set
+  # 25 more times.
+  autoReloadAll: true
+
+  # monitoring is excluded because Prometheus and Alertmanager already
+  # hot-reload through their config-reloader sidecars — a pod restart there
+  # is redundant and costs a WAL replay.
+  ignoreNamespaces: "monitoring"
 
   # ServiceMonitor is deprecated upstream in favour of PodMonitor.
   podMonitor:

@@ -106,10 +106,18 @@ from two directories under one root to two named sources.
 | `/srv/apps` | `filebrowser-apps-pvc` (NFS RWX) | existing, unchanged |
 | `/srv/media` | `filebrowser-media-pvc` (NFS RWX) | existing, unchanged |
 | `/home/filebrowser/data` | new 20Gi `local-path` RWO | BoltDB, SQLite index, thumbnails, archive spool |
+| `/config` | `filebrowser-config` ConfigMap | read-only, `config.yaml` only |
 
-`/home/filebrowser/data` is Quantum's Docker default data directory, so no
-`FILEBROWSER_CONFIG` override is needed — the config file is found at
-`/home/filebrowser/data/config.yaml`.
+`/home/filebrowser/data` is Quantum's Docker default data directory, which is
+also where it looks for `config.yaml`. Mounting the ConfigMap there directly
+would mask the data volume, and a `subPath` mount would pin the file to its
+value at pod creation, defeating Reloader. Instead the ConfigMap mounts at its
+own path and `FILEBROWSER_CONFIG=/config/config.yaml` points Quantum at it.
+
+`backend/cmd/cli.go:37-46` resolves the config path as `-c` flag →
+`FILEBROWSER_CONFIG` → `config.yaml`, and fatals outright if the env var names a
+file that does not exist. A missing or misnamed ConfigMap therefore fails fast
+and loudly rather than silently starting on defaults.
 
 The `local-path` PVC follows `services/media/jellyfin/manifests/cache-pvc.yaml`:
 RWO, `storageClassName: local-path` stated explicitly. It must stay explicit;
@@ -177,8 +185,8 @@ is needed and CI stays green.
 
 ## Configuration
 
-`manifests/templates/config.yaml`, mounted at
-`/home/filebrowser/data/config.yaml`:
+`manifests/templates/config.yaml`, mounted read-only at `/config/config.yaml`
+and selected via `FILEBROWSER_CONFIG`:
 
 ```yaml
 server:
@@ -321,7 +329,8 @@ cover branding and flows only, not per-application providers.
 
 1. Authentik → OAuth2/OpenID provider; redirect URI
    `https://files.internal.starktastic.net/api/auth/oidc/callback`; application
-   slug `filebrowser`.
+   slug `filebrowser`. **This must exist before the Deployment rolls out** —
+   Quantum validates OIDC discovery during startup and crashloops without it.
 2. `./scripts/seal.sh filebrowser-secret operations` with the client ID, client
    secret, and a generated JWT secret.
 3. Confirm `files.starktastic.net` resolves publicly. Existing public hosts such
@@ -333,6 +342,8 @@ cover branding and flows only, not per-application providers.
 | Failure | Surface | Recovery |
 |---|---|---|
 | Unknown/typo'd config key | CrashLoopBackOff. The decoder uses `DisallowUnknownField()`; Quantum sleeps 5s before fatal specifically so k8s captures the error | fix the ConfigMap |
+| Authentik provider missing, or Authentik down at pod start | CrashLoopBackOff — `[FATAL] Error validating OIDC auth: ... failed to create OIDC provider`. Quantum fetches OIDC discovery during startup validation, so Authentik is a hard boot dependency | create the provider before rollout; if Authentik is down, the pod recovers on its own once discovery succeeds |
+| ConfigMap absent or `FILEBROWSER_CONFIG` misspelled | CrashLoopBackOff with an explicit "config file does not exist" fatal | fix the mount or the env var |
 | `trustedHeaders` missing | Authentik rejects `redirect_uri` | add the header list |
 | `groups` claim absent | login succeeds but the account is not admin, or is denied by `userGroups` | fix the Authentik scope mapping |
 | Index DB corruption | `startupIntegrityCheck: quickCheck` detects and recreates it | none — self-healing |
@@ -349,6 +360,22 @@ config load. CI's kubeconform step explicitly skips `*/manifests/templates/*`,
 so nothing in the pipeline validates this file, and the decoder rejects unknown
 fields outright. This is the single highest-value check in the change.
 
+This was already exercised against the real image while writing the spec, and
+the intended config boots clean:
+
+```
+[INFO ] Using Config file        : /config/config.yaml
+[INFO ] Auth Methods             : [oidc]
+[INFO ] Sources                  : [apps: /srv/apps media: /srv/media]
+[INFO ] OIDC Auth configured successfully
+[INFO ] Running at               : http://0.0.0.0/
+```
+
+Confirmed at the same time: `/api/health` and `/public/api/health` both return
+200 unauthenticated, and every asset referenced by `/public/share/<hash>` is
+served from `/public/static/` — so ``PathPrefix(`/public/`)`` alone is a
+sufficient public route, with no top-level `/static/` exception needed.
+
 **CI** — expected to pass unchanged: yamllint, kubeconform, homepage coverage,
 `argocd-diff-preview`.
 
@@ -360,11 +387,7 @@ fields outright. This is the single highest-value check in the change.
 4. Index build completes; search returns results from `media`.
 5. A share link created from the UI opens over cellular, with the internal host
    unreachable.
-6. Confirm the share page's assets resolve under `/public/static/`. If the built
-   frontend also references top-level `/static/`, widen the public route to
-   ``PathPrefix(`/public/`) || PathPrefix(`/static/`)`` — this exposes JS/CSS
-   only and adds no data surface.
-7. A file created via the UI under `/srv/media` is owned `1000:1000`.
+6. A file created via the UI under `/srv/media` is owned `1000:1000`.
 
 ## Out of scope
 

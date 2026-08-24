@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: filebrowser-config
+  namespace: operations
+data:
+  config.yaml: |
+    server:
+      port: 80
+      database: /home/filebrowser/data/database.db
+      cacheDir: /home/filebrowser/data/cache
+      externalUrl: "https://files.{{ .Values.global.domains.public }}"
+      numImageProcessors: 2
+      maxArchiveSize: 5
+      logging:
+        - levels: "info|warning|error"
+      sources:
+        - path: /srv/apps
+          name: apps
+          config:
+            defaultEnabled: true
+        - path: /srv/media
+          name: media
+          config:
+            defaultEnabled: true
+    http:
+      trustedHeaders:
+        - X-Forwarded-Proto
+        - X-Forwarded-Host
+        - X-Forwarded-For
+        - X-Real-IP
+    auth:
+      methods:
+        password:
+          enabled: false
+        oidc:
+          enabled: true
+          issuerUrl: "https://auth.{{ .Values.global.domains.public }}/application/o/filebrowser/"
+          adminGroup: "authentik Admins"
+          userGroups: ["authentik Admins"]
+    userDefaults:
+      account:
+        permissions:
+          admin: false
+          modify: true
+          create: true
+          delete: true
+          share: true
+          download: true
+          api: false

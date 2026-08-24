@@ -1,11 +1,14 @@
 name: filebrowser
 namespace: operations
 deployPhase: services
+manifests: true
+helmManifests: true
 ingress:
   enabled: true
   host: files
   domainType: "internal"
   port: 80
-  auth: true
+  auth: false
   rateLimit: true
   probe: true
+  probePath: /api/health

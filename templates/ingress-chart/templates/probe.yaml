@@ -17,7 +17,7 @@ spec:
   targets:
     staticConfig:
       static:
-        - https://{{ $fqdn }}
+        - https://{{ $fqdn }}{{ .Values.ingress.probePath | default "" }}
       labels:
         service: {{ .Values.name }}
         tier: ingress

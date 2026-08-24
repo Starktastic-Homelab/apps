@@ -11,3 +11,4 @@ ingress:
   serviceName: ""
   auth: false
   rateLimit: false
+  probePath: ""  # optional path (must start with /) appended to the blackbox probe target

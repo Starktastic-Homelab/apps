@@ -48,6 +48,12 @@
       "allowedVersions": "< 6.0.0"
     },
     {
+      "description": "Track only FileBrowser Quantum's stable channel; the registry also publishes -beta tags for the same version",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["gtstef/filebrowser"],
+      "allowedVersions": "/-stable$/"
+    },
+    {
       "description": "Group the Authentik Helm chart and its outpost docker images into a single PR — they release in lockstep and must be upgraded together",
       "matchPackageNames": ["authentik", "/^ghcr\\.io/goauthentik//"],
       "groupName": "authentik"

@@ -50,22 +50,23 @@ ingress:
   serviceName: ""
   auth: false
   rateLimit: false
-  probePath: ""  # optional path appended to the blackbox probe target
+  probePath: ""  # optional path (must start with /) appended to the blackbox probe target
 ```
 
 - [ ] **Step 2: Capture the current probe output as a baseline**
 
-This proves the next edit changes nothing for apps that do not set `probePath`.
+This proves the next edit changes nothing for apps that do not set `probePath`. Note that only 12 apps set `probe: true` — an app without it renders no Probe at all, so an empty render is a broken check rather than a passing one.
 
 ```bash
 cd /home/ben/Developer/homelab/apps
-helm template ing templates/ingress-chart \
-  -f templates/globals.yaml -f services/media/jellyfin/app.yaml \
-  --show-only templates/probe.yaml > /tmp/probe-before.yaml
-grep -A2 'static:' /tmp/probe-before.yaml
+rm -rf /tmp/oldchart && mkdir -p /tmp/oldchart
+git archive HEAD templates/ingress-chart | tar -x -C /tmp/oldchart
+helm template ing /tmp/oldchart/templates/ingress-chart \
+  -f templates/globals.yaml -f services/operations/stirling-pdf/app.yaml \
+  --show-only templates/probe.yaml | grep -A2 'static:'
 ```
 
-Expected: a `- https://jellyfin.benplus.app` line with no path suffix.
+Expected: a `- https://pdf.starktastic.net` line with no path suffix.
 
 - [ ] **Step 3: Append the path to the probe target**
 
@@ -81,29 +82,39 @@ with:
         - https://{{ $fqdn }}{{ .Values.ingress.probePath | default "" }}
 ```
 
-- [ ] **Step 4: Verify unset `probePath` is byte-identical**
+- [ ] **Step 4: Verify every existing probe is byte-identical**
+
+Checks all 12 probe-enabled apps against the pre-change chart, and fails loudly on an empty render so a silently-skipped app cannot pass as success.
 
 ```bash
 cd /home/ben/Developer/homelab/apps
-helm template ing templates/ingress-chart \
-  -f templates/globals.yaml -f services/media/jellyfin/app.yaml \
-  --show-only templates/probe.yaml > /tmp/probe-after.yaml
-diff /tmp/probe-before.yaml /tmp/probe-after.yaml && echo "IDENTICAL"
+fail=0
+for app in $(grep -rl 'probe: true' services/*/*/app.yaml); do
+  helm template ing /tmp/oldchart/templates/ingress-chart \
+    -f templates/globals.yaml -f "$app" --show-only templates/probe.yaml > /tmp/b.yaml 2>/dev/null
+  helm template ing templates/ingress-chart \
+    -f templates/globals.yaml -f "$app" --show-only templates/probe.yaml > /tmp/a.yaml 2>/dev/null
+  if ! diff -q /tmp/b.yaml /tmp/a.yaml >/dev/null || [ ! -s /tmp/a.yaml ]; then
+    echo "PROBLEM: $app"; fail=1
+  fi
+done
+[ $fail -eq 0 ] && echo "ALL 12 PROBE APPS BYTE-IDENTICAL AND NON-EMPTY"
 ```
 
-Expected: `IDENTICAL`. Any diff means the default leaked a value and every existing probe would change — stop and fix before continuing.
+Expected: `ALL 12 PROBE APPS BYTE-IDENTICAL AND NON-EMPTY`. Any `PROBLEM:` line means the default leaked a value and that app's probe target would change — stop and fix before continuing.
 
 - [ ] **Step 5: Verify a set `probePath` lands in the target**
 
 ```bash
 cd /home/ben/Developer/homelab/apps
 helm template ing templates/ingress-chart \
-  -f templates/globals.yaml -f services/media/jellyfin/app.yaml \
+  -f templates/globals.yaml -f services/operations/stirling-pdf/app.yaml \
   --set ingress.probePath=/api/health \
   --show-only templates/probe.yaml | grep -A2 'static:'
+rm -rf /tmp/oldchart /tmp/a.yaml /tmp/b.yaml
 ```
 
-Expected: `- https://jellyfin.benplus.app/api/health`.
+Expected: `- https://pdf.starktastic.net/api/health`.
 
 - [ ] **Step 6: Commit**
 

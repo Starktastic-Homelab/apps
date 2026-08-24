@@ -742,9 +742,13 @@ Expected: no output. Note that `.github/yamllint.yaml` ignores `**/templates/`, 
 
 - [ ] **Step 2: Confirm no `cluster.local` FQDN was introduced**
 
+Use CI's exact expression rather than a bare `cluster.local` grep. CI matches `svc.cluster.local` and excludes `docs`, so a loose grep produces false positives from the spec and plan, which quote the rule.
+
 ```bash
 cd /home/ben/Developer/homelab/apps
-git diff main...HEAD | grep -n 'cluster\.local' && echo "FOUND — fix before pushing" || echo "CLEAN"
+hits=$(git grep -n 'svc\.cluster\.local' -- . ':!docs' ':!.github' \
+  | grep -v 'crowdsecLapiHost\|https://argocd-server' || true)
+if [ -n "$hits" ]; then echo "$hits"; echo "WOULD FAIL"; else echo "CLEAN"; fi
 ```
 
 Expected: `CLEAN`.

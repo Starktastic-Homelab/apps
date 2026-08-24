@@ -1,34 +1,38 @@
 controllers:
   main:
-    initContainers:
-      init-db-dir:
-        image:
-          repository: busybox
-          tag: latest
-        command: ["sh", "-c", "mkdir -p /srv/apps/filebrowser && chown 1000:1000 /srv/apps/filebrowser"]
+    annotations:
+      reloader.stakater.com/auto: "true"
     containers:
       main:
         image:
-          repository: filebrowser/filebrowser
-          tag: v2.63.23@sha256:a469ea076d4a1b4b1d86a41d130f2f536cd9da996a2b1fb39c0d7635f9d89b9a
+          repository: gtstef/filebrowser
+          tag: 1.5.3-stable@sha256:e2ac55ccbe53d63b3f1d7d5ea5b82edf589b005a4b747b59912f97c6ba4f969e
         securityContext:
           runAsUser: 1000
           runAsGroup: 1000
         env:
-          FB_ROOT: /srv
-          FB_DATABASE: /srv/apps/filebrowser/filebrowser.db
-          FB_NOAUTH: "true"
+          FILEBROWSER_CONFIG: /config/config.yaml
+        envFrom:
+          - secretRef:
+              name: filebrowser-secret
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
         probes:
           liveness:
             enabled: true
             type: HTTP
             port: 80
-            path: /health
+            path: /api/health
           readiness:
             enabled: true
             type: HTTP
             port: 80
-            path: /health
+            path: /api/health
           startup:
             enabled: true
             type: TCP
@@ -47,6 +51,16 @@ service:
 persistence:
   config:
     enabled: false
+  fbconfig:
+    type: configMap
+    name: filebrowser-config
+    globalMounts:
+      - path: /config
+        readOnly: true
+  data:
+    existingClaim: filebrowser-data-pvc
+    globalMounts:
+      - path: /home/filebrowser/data
   apps:
     existingClaim: filebrowser-apps-pvc
     globalMounts:

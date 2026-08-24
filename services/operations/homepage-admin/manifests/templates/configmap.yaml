@@ -786,9 +786,6 @@ data:
             siteMonitor: http://filebrowser.operations:80
             namespace: operations
             app: filebrowser
-            widget:
-              type: filebrowser
-              url: http://filebrowser.operations:80
         - Mealie:
             icon: mealie.png
             href: https://mealie.starktastic.net

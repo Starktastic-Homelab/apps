@@ -1,0 +1,25 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: filebrowser-public
+  namespace: operations
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    # Share links only. Everything under /public/ is unauthenticated by
+    # design: the share page, its assets, and the hash-scoped API.
+    - match: Host(`files.{{ .Values.global.domains.public }}`) && PathPrefix(`/public/`)
+      kind: Rule
+      services:
+        - name: filebrowser
+          port: 80
+      middlewares:
+        - name: crowdsec-bouncer
+          namespace: traefik-system
+        - name: rate-limit-strong
+          namespace: traefik-system
+  tls:
+    store:
+      name: default
+      namespace: traefik-system

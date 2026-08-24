@@ -331,6 +331,20 @@ cover branding and flows only, not per-application providers.
    `https://files.internal.starktastic.net/api/auth/oidc/callback`; application
    slug `filebrowser`. **This must exist before the Deployment rolls out** —
    Quantum validates OIDC discovery during startup and crashloops without it.
+
+   Leave the provider's scope mappings at their defaults. `groups` is not a
+   scope in Authentik; it is a claim emitted by the default `profile` mapping
+   (`goauthentik.io/providers/oauth2/scope-profile`:
+   `"groups": [group.name for group in request.user.groups.all()]`). Verified
+   against this instance: its discovery document lists `scopes_supported`
+   `[openid, email, profile]` and `claims_supported` including `groups`.
+   Quantum's default `scopes` are `openid email profile`, and it reads the
+   claim from the ID token, falling back to the UserInfo endpoint
+   (`backend/http/oidc.go:46-47`, `243-289`) — Authentik populates both.
+
+   Note that the mapping enumerates **direct** group membership, so the
+   account must be a direct member of `authentik Admins` rather than
+   inheriting it through a parent group.
 2. `./scripts/seal.sh filebrowser-secret operations` with the client ID, client
    secret, and a generated JWT secret.
 3. Confirm `files.starktastic.net` resolves publicly. Existing public hosts such
@@ -345,7 +359,8 @@ cover branding and flows only, not per-application providers.
 | Authentik provider missing, or Authentik down at pod start | CrashLoopBackOff — `[FATAL] Error validating OIDC auth: ... failed to create OIDC provider`. Quantum fetches OIDC discovery during startup validation, so Authentik is a hard boot dependency | create the provider before rollout; if Authentik is down, the pod recovers on its own once discovery succeeds |
 | ConfigMap absent or `FILEBROWSER_CONFIG` misspelled | CrashLoopBackOff with an explicit "config file does not exist" fatal | fix the mount or the env var |
 | `trustedHeaders` missing | Authentik rejects `redirect_uri` | add the header list |
-| `groups` claim absent | login succeeds but the account is not admin, or is denied by `userGroups` | fix the Authentik scope mapping |
+| `groups` claim absent | login succeeds but the account is not admin, or is denied by `userGroups` | re-add the default `profile` scope mapping to the provider; it carries the claim |
+| Admin group inherited, not direct | same as above — the default mapping enumerates `request.user.groups.all()` | make the account a direct member of `authentik Admins` |
 | Index DB corruption | `startupIntegrityCheck: quickCheck` detects and recreates it | none — self-healing |
 | `cacheDir` full | archive/preview operations fail | lower `maxArchiveSize` or grow the PVC |
 | Node backing the PVC lost | pod Pending, PVC unschedulable | delete PVC, rebind, re-index; **share links are lost** |

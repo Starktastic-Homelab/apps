@@ -430,16 +430,17 @@ FILEBROWSER_OIDC_CLIENT_SECRET=<client secret from Step 1>
 FILEBROWSER_JWT_TOKEN_SECRET=<hex string from Step 2>
 ```
 
-- [ ] **Step 4: Move it into the chart and add the template block**
+- [ ] **Step 4: Move it into the chart**
 
-`seal.sh` does not emit `spec.template`; `bytestash-secret.yaml` and `karakeep-secret.yaml` both carry one, so match them.
+kubeseal 0.33.1 already emits both the leading `---` and the `spec.template` block, matching `bytestash-secret.yaml` and `karakeep-secret.yaml`. Confirm rather than append — an appended duplicate `template:` key would make the file invalid.
 
 ```bash
 cd /home/ben/Developer/homelab/apps
 mv filebrowser-secret.yaml services/operations/filebrowser/manifests/templates/
+tail -5 services/operations/filebrowser/manifests/templates/filebrowser-secret.yaml
 ```
 
-Append to `services/operations/filebrowser/manifests/templates/filebrowser-secret.yaml`, keeping the generated `encryptedData` untouched:
+Expected:
 
 ```yaml
   template:
@@ -447,6 +448,8 @@ Append to `services/operations/filebrowser/manifests/templates/filebrowser-secre
       name: filebrowser-secret
       namespace: operations
 ```
+
+If that block is absent (older kubeseal), append exactly it, keeping `encryptedData` untouched.
 
 - [ ] **Step 5: Verify no plaintext leaked**
 

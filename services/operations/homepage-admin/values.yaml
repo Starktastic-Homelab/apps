@@ -1,7 +1,5 @@
 controllers:
   main:
-    annotations:
-      reloader.stakater.com/auto: "true"
     serviceAccount:
       name: homepage-admin
     containers:

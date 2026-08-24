@@ -107,8 +107,17 @@ spec:
             - '.spec.template.metadata.annotations["checksum/lapi-configmap"]'
             # Stakater Reloader stamps this on restart; without ignoring it,
             # selfHeal strips it and Reloader re-adds it, forever.
-            # Only Deployments opt in today — add StatefulSet/DaemonSet blocks
-            # if a workload of those kinds ever gets reloader.stakater.com/auto.
+            - '.spec.template.metadata.annotations["reloader.stakater.com/last-reloaded-from"]'
+        # Reloader runs with autoReloadAll, so it stamps StatefulSets and
+        # DaemonSets too — Traefik is a DaemonSet, and the monitoring and
+        # logging charts generate both kinds.
+        - group: apps
+          kind: StatefulSet
+          jqPathExpressions:
+            - '.spec.template.metadata.annotations["reloader.stakater.com/last-reloaded-from"]'
+        - group: apps
+          kind: DaemonSet
+          jqPathExpressions:
             - '.spec.template.metadata.annotations["reloader.stakater.com/last-reloaded-from"]'
   templatePatch: |
     {{- $repo := "https://github.com/Starktastic-Homelab/apps.git" }}

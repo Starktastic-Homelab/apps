@@ -251,15 +251,7 @@ data:
             upgrade:
               allowed: true
               until_quality: Bluray-1080p
-              # The TRaSH default of 10000 is unreachable for this profile, so
-              # every file stayed cutoff-unmet forever and Sonarr re-hunted the
-              # whole anime library on every RSS/search pass. The best release
-              # actually obtainable here is Anime BD Tier 01 + Anime Dual Audio
-              # + FLAC + Season Pack = 3652 (measured across the library; the
-              # next tier down, Tier 03, scores 3450). 3600 sits just under
-              # that ceiling, so a Tier 01 grab satisfies the cutoff and the
-              # search stops, while Tier 03 files still upgrade toward it.
-              until_score: 3600
+              until_score: 10000
             qualities:
               - name: Bluray-1080p
                 qualities:

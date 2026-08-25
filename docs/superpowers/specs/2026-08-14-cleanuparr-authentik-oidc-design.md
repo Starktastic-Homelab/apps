@@ -1,7 +1,7 @@
 # Cleanuparr Authentik OIDC integration
 
 Date: 2026-08-14
-Status: Approved, not yet implemented
+Status: Implemented (2026-08-25)
 
 ## Problem
 
@@ -120,6 +120,14 @@ the request path.
 
 Step 5 is last because it is the only step that cannot be undone from the
 Cleanuparr UI once it goes wrong.
+
+Step 2's **Link Account** is load-bearing, not tidiness. `OidcConfig.Validate()`
+only checks that `Enabled` is set before allowing `ExclusiveMode`, despite the
+upstream doc comment claiming exclusive mode "requires OIDC to be fully
+configured with an authorized subject". With an empty `AuthorizedSubject`,
+Cleanuparr accepts *any* Authentik identity that can reach the application and
+signs it in as the admin. Enabling Exclusive Mode before linking therefore
+widens access rather than narrowing it.
 
 ### Rollback
 

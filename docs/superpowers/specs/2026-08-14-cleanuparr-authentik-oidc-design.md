@@ -136,13 +136,22 @@ Either of these restores access:
 - Revert `auth: false` in `app.yaml`, restoring forward-auth. Note this alone
   does **not** cure an Exclusive Mode lockout: forward-auth authenticates the
   request to Traefik, not the user to Cleanuparr.
-- Clear Exclusive Mode in the database. `AuthController.Login` rejects
-  credential logins with HTTP 403 only while `oidc_exclusive_mode` is set, so
-  clearing that column re-enables the local password.
+- Clear Exclusive Mode. `AuthController.Login` rejects credential logins with
+  HTTP 403 only while `oidc_exclusive_mode` is set, so clearing it re-enables
+  the local password.
 
-The Cleanuparr image does not ship `sqlite3`, so the database edit needs a
-rescue pod. The `cleanuparr` PVC is `RWX`, but the deployment is still scaled
-down first so nothing writes to the SQLite WAL concurrently:
+**Preferred: clear it over the API.** API-key authentication is independent of
+Exclusive Mode, so no database access is needed. Verified 2026-08-25: with
+Exclusive Mode on, password login returned `403` while `X-Api-Key` requests
+still returned `200`. `PUT /api/account/oidc` with the current object and
+`exclusiveMode: false` is sufficient; the masked client secret (`••••••••`) is
+preserved server-side by `OidcConfig.IsPlaceholder()`. See the plan's Rollback
+section for the exact command.
+
+Only if the API key is also lost is a database edit required. The Cleanuparr
+image does not ship `sqlite3`, so that needs a rescue pod. The `cleanuparr` PVC
+is `RWX`, but the deployment is still scaled down first so nothing writes to the
+SQLite WAL concurrently:
 
 ```bash
 kubectl -n media scale deploy/cleanuparr --replicas=0

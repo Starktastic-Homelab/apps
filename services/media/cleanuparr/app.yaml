@@ -7,5 +7,5 @@ ingress:
   host: cleanuparr
   domainType: "internal"
   port: 11011
-  auth: true
+  auth: false
   rateLimit: true

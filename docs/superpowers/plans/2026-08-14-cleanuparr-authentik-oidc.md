@@ -354,7 +354,7 @@ Expected: `403`.
 
 Sign in once more from a fresh private window.
 
-This is the last point at which the recovery procedure is cheap. If login fails here, use the rescue-pod rollback in the spec to clear `oidc_exclusive_mode`.
+This is the last point at which the recovery procedure is cheap. If login fails here, clear `exclusiveMode` with the API-key rollback below — it works even while Exclusive Mode is active.
 
 - [ ] **Step 6: Update the spec status**
 
@@ -389,7 +389,26 @@ git push
 
 ## Rollback
 
-If Exclusive Mode locks you out, reverting `auth: false` does **not** help — forward-auth authenticates the request to Traefik, not the user to Cleanuparr. Clear the flag in the database instead. The Cleanuparr image has no `sqlite3`, so this needs a rescue pod:
+If Exclusive Mode locks you out, reverting `auth: false` does **not** help — forward-auth authenticates the request to Traefik, not the user to Cleanuparr.
+
+API-key authentication is **independent of Exclusive Mode**, so the flag can be cleared over the API without touching the database. Verified 2026-08-25: with Exclusive Mode on, password login returned `403` while `X-Api-Key` requests still returned `200`.
+
+```bash
+KEY=<Cleanuparr API key>   # Settings -> General, or GET /api/account/api-key
+BASE=https://cleanuparr.internal.starktastic.net
+
+# Echo the current object back with exclusiveMode flipped off. The masked client
+# secret ("••••••••") is preserved server-side by OidcConfig.IsPlaceholder(), so
+# a round-trip does not corrupt it.
+curl -s "$BASE/api/account/oidc" -H "X-Api-Key: $KEY" \
+  | python3 -c 'import json,sys; d=json.load(sys.stdin); d["exclusiveMode"]=False; print(json.dumps(d))' \
+  | curl -s -X PUT "$BASE/api/account/oidc" -H "X-Api-Key: $KEY" \
+      -H "Content-Type: application/json" --data-binary @-
+```
+
+Password login works again immediately; no restart required.
+
+Only if the API key is **also** lost, fall back to editing the database directly. The Cleanuparr image has no `sqlite3`, so this needs a rescue pod:
 
 ```bash
 kubectl -n media scale deploy/cleanuparr --replicas=0

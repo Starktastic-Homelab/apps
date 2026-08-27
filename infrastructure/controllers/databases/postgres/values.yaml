@@ -7,10 +7,16 @@ primary:
   resources:
     requests:
       cpu: 100m
-      memory: 256Mi
+      # Steady-state working set is ~265Mi; request must reflect that or the
+      # scheduler overcommits the node.
+      memory: 512Mi
     limits:
       cpu: "1"
-      memory: 512Mi
+      # Page cache counts against the cgroup limit, so usage sat pinned at
+      # ~490Mi/512Mi (96%) for days and OOMKilled on any allocation spike,
+      # taking every dependent app down with it. Retune if usage_bytes
+      # (not working_set) again approaches the limit.
+      memory: 1Gi
   persistence:
     enabled: true
     # storageClass provided by global.storageClass in globals.yaml

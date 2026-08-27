@@ -63,6 +63,13 @@ server:
   resources:
     requests:
       memory: 1Gi
+  # /-/health/live/ runs a DB query (django-tenants middleware resolves the
+  # tenant on every request), so the stock 3x10s threshold restarts BOTH
+  # replicas ~30s into any Postgres blip - which never fixes a DB outage, it
+  # just adds an SSO cold start on top of it. 10 failures = ~100s, enough to
+  # ride out a Postgres restart. Readiness stays tight so traffic still drains.
+  livenessProbe:
+    failureThreshold: 10
   metrics:
     enabled: true
     serviceMonitor:

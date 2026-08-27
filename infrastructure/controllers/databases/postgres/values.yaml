@@ -21,6 +21,9 @@ auth:
 # from automerge so a human sizes up the major/glibc risk first.
 # Docker resolves repo:tag@digest by digest, so the tag is cosmetic - do not
 # also set image.digest, which would drop the tag and re-hide the dependency.
+# The same treatment is applied to the other three images in this pod
+# (os-shell, busybox, postgres-exporter) further down: all four are rolling
+# tags, and any one of them breaking takes the whole database offline.
 image:
   repository: bitnami/postgresql
   tag: "latest@sha256:40a261ed77f3b8dc65eeeec98bb79c4d3ef3410d7e2af7cfcf3785a6af00e4c5"
@@ -61,7 +64,10 @@ primary:
     failureThreshold: 30
   initContainers:
     - name: rm-postmaster-lock-file
-      image: busybox:latest
+      # Pinned to the digest already running. An init container that fails
+      # leaves the pod stuck in Init forever, i.e. database down, so this
+      # floats no more freely than the server image does.
+      image: busybox:latest@sha256:dc2d74b28e4cf8984fa52af1f39bc7c3d9c73760b41a74d629f5d11b1ab28616
       imagePullPolicy: IfNotPresent
       securityContext:
         # Match the main container's uid/gid so we don't need to escalate to
@@ -94,8 +100,21 @@ primary:
     enabled: true
 volumePermissions:
   enabled: true
+  # Runs before the server as an init container to chmod/chown the data dir.
+  # repository restates the chart default so Renovate can see the pin.
+  image:
+    repository: bitnami/os-shell
+    tag: "latest@sha256:52f04d8e29dc3d77929fca8d75890c4cabe6182f650e0e921057a744559a9736"
 
 metrics:
   enabled: true
+  # The exporter has a readiness probe, and a pod is Ready only when every
+  # container is. A broken exporter therefore drops postgres-postgresql from
+  # its Service endpoints and takes the database away from every app - the
+  # same outage as an OOM, reached through the metrics sidecar. Pinned for
+  # that reason, not for the metrics themselves.
+  image:
+    repository: bitnami/postgres-exporter
+    tag: "latest@sha256:b672b54e6dbb277d098182cf9708aaaea3b7f2bc2d4f1917c5fb34ffcaa19e05"
   serviceMonitor:
     enabled: true

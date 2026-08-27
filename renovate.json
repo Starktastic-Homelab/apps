@@ -54,9 +54,9 @@
       "allowedVersions": "/-stable$/"
     },
     {
-      "description": "Never auto-merge the PostgreSQL image. bitnami/postgresql publishes only a rolling :latest, so a digest bump can silently cross a PostgreSQL major version -- and Postgres refuses to start on a data directory written by a different major. A glibc change also invalidates collation-dependent indexes. Both need a human and a REINDEX plan.",
+      "description": "Never auto-merge any image in the PostgreSQL pod. All four are rolling :latest tags pinned by digest. A postgresql digest bump can silently cross a PostgreSQL major, and Postgres refuses to start on a data directory written by a different major; a glibc change also invalidates collation-dependent indexes. The others are no safer to take blind: a broken os-shell or busybox init container leaves the pod stuck in Init, and postgres-exporter has a readiness probe, so if it fails the pod goes NotReady and the database drops out of its Service endpoints. File-scoped so images added to this chart later are covered too.",
       "matchDatasources": ["docker"],
-      "matchPackageNames": ["/bitnami\\/postgresql$/"],
+      "matchFileNames": ["infrastructure/controllers/databases/postgres/values.yaml"],
       "automerge": false,
       "addLabels": ["major-update"]
     },

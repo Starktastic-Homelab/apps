@@ -37,9 +37,11 @@ falcosidekick:
   resources:
     requests:
       cpu: 50m
-      memory: 64Mi
+      # Peak working set is 113Mi, so 64Mi under-declared it to the scheduler.
+      memory: 96Mi
     limits:
-      memory: 128Mi
+      # 113Mi peak was 88% of the old 128Mi cap.
+      memory: 192Mi
   config:
     # High-severity events -> existing Alertmanager -> alertmanager-ntfy -> ntfy
     alertmanager:

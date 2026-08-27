@@ -82,10 +82,13 @@ lapi:
 
   resources:
     limits:
-      memory: 256Mi
+      # Peak working set is 226Mi, 88% of the old 256Mi cap - the tightest
+      # margin in the cluster after the Postgres OOM.
+      memory: 384Mi
     requests:
       cpu: 50m
-      memory: 128Mi
+      # Steady state is ~163-226Mi, so 128Mi under-declared it to the scheduler.
+      memory: 192Mi
 
 # ---------------------------------------------------------------------------
 # Agent - reads log sources and sends alerts to LAPI

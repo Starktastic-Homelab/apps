@@ -5,9 +5,11 @@ replicas: 1
 resources:
   requests:
     cpu: 25m
-    memory: 32Mi
+    # Peak working set is 51Mi, so 32Mi under-declared it to the scheduler.
+    memory: 48Mi
   limits:
-    memory: 64Mi
+    # 51Mi peak was 80% of the old 64Mi cap.
+    memory: 96Mi
 
 # Default chart securityContext drops ALL caps; NET_RAW is required for the
 # icmp prober (external-dependency reachability to 1.1.1.1).

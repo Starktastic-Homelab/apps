@@ -15,10 +15,17 @@ controllers:
           PUID: "1000"
           PGID: "1000"
         probes:
+          # Liveness restarts a container; it cannot fix a dependency outage,
+          # it only adds a cold start on top of one. A Postgres restart took
+          # the DB away for 93s and the stock 5x10s=50s threshold killed
+          # mealie, paperless-ngx and vaultwarden mid-outage. 30x10s=300s
+          # rides out a restart with room for a reschedule or WAL replay.
+          # Readiness deliberately stays tight: that is the probe that should
+          # track dependencies, so traffic drains without anything restarting.
           liveness:
             spec:
               timeoutSeconds: 5
-              failureThreshold: 5
+              failureThreshold: 30
           readiness:
             spec:
               timeoutSeconds: 5

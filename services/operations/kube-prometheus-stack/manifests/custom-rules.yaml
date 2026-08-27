@@ -72,16 +72,25 @@ spec:
     # Nothing watched container memory before, so Postgres sat at 94-98% of its
     # limit for four days and OOMKilled with no warning, which 503'd Authentik's
     # DB-backed liveness probe and restarted every SSO replica at once.
-    # These deliberately use container_memory_usage_bytes, not working_set:
-    # page cache counts toward the cgroup limit and is what actually triggers
-    # the kernel OOM killer, while working_set excludes it and read a healthy
-    # ~50% throughout. Alerting on working_set would have stayed silent.
+    #
+    # NearLimit deliberately uses working_set, not usage_bytes. usage_bytes
+    # counts reclaimable page cache, which a file server legitimately pins at
+    # 100% of its limit forever - filebrowser peaks at 1024Mi/1024Mi on 846Mi of
+    # cache against just 128Mi RSS, and paging on that trains everyone to ignore
+    # the alert. working_set excludes inactive cache and currently fires for
+    # nothing cluster-wide.
+    #
+    # The tradeoff is that working_set under-reads shm-heavy databases: Postgres
+    # was only at 68% by working_set when it died, because shared_buffers counts
+    # as cache but is not reclaimable. OOMKilled is the backstop for that case,
+    # and right-sizing is the actual fix - neither threshold predicts it cleanly.
     - name: container-memory
       rules:
         - alert: ContainerMemoryNearLimit
           expr:
-            max by (namespace, pod, container) (container_memory_usage_bytes{container!=""}) / on (namespace, pod,
-            container) max by (namespace, pod, container) (kube_pod_container_resource_limits{resource="memory"}) > 0.90
+            max by (namespace, pod, container) (container_memory_working_set_bytes{container!=""}) / on (namespace,
+            pod, container) max by (namespace, pod, container)
+            (kube_pod_container_resource_limits{resource="memory"}) > 0.90
           for: 30m
           labels:
             severity: warning

@@ -13,8 +13,17 @@ auth:
 # Pinning the digest is the only way to make this reproducible. Bump it
 # deliberately, and run REINDEX + ALTER DATABASE ... REFRESH COLLATION
 # VERSION afterwards if the base OS glibc changed.
+# The digest lives in `tag` rather than the chart's own `image.digest` key so
+# that Renovate can actually see it: its helm-values manager builds a
+# dependency from repository+tag only, so a bare `digest:` is extracted as
+# nothing and would sit here unwatched forever. In this form Renovate reads
+# currentDigest and opens a digest-update PR, which renovate.json holds back
+# from automerge so a human sizes up the major/glibc risk first.
+# Docker resolves repo:tag@digest by digest, so the tag is cosmetic - do not
+# also set image.digest, which would drop the tag and re-hide the dependency.
 image:
-  digest: "sha256:40a261ed77f3b8dc65eeeec98bb79c4d3ef3410d7e2af7cfcf3785a6af00e4c5"
+  repository: bitnami/postgresql
+  tag: "latest@sha256:40a261ed77f3b8dc65eeeec98bb79c4d3ef3410d7e2af7cfcf3785a6af00e4c5"
 primary:
   resourcesPreset: "none"
   resources:

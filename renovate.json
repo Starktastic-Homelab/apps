@@ -54,6 +54,13 @@
       "allowedVersions": "/-stable$/"
     },
     {
+      "description": "Never auto-merge the PostgreSQL image. bitnami/postgresql publishes only a rolling :latest, so a digest bump can silently cross a PostgreSQL major version -- and Postgres refuses to start on a data directory written by a different major. A glibc change also invalidates collation-dependent indexes. Both need a human and a REINDEX plan.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["/bitnami\\/postgresql$/"],
+      "automerge": false,
+      "addLabels": ["major-update"]
+    },
+    {
       "description": "Group the Authentik Helm chart and its outpost docker images into a single PR — they release in lockstep and must be upgraded together",
       "matchPackageNames": ["authentik", "/^ghcr\\.io/goauthentik//"],
       "groupName": "authentik"

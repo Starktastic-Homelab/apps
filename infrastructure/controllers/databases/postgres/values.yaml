@@ -2,6 +2,19 @@ auth:
   existingSecret: postgres-admin-secret
   secretKeys:
     adminPasswordKey: postgres-password
+# Since Bitnami's Aug-2025 registry change, bitnami/postgresql publishes only
+# a rolling `:latest` - every other tag is a sha256 signature artifact, so
+# there is no version to pin. Left alone, `latest` silently moves across
+# PostgreSQL majors, and PostgreSQL refuses to start on a data directory
+# written by a different major: the pod survives only while the old image
+# stays cached on its node (pullPolicy IfNotPresent) and dies the moment it
+# reschedules. It has already drifted once, moving glibc 2.36 -> 2.43 and
+# invalidating every collation-dependent index.
+# Pinning the digest is the only way to make this reproducible. Bump it
+# deliberately, and run REINDEX + ALTER DATABASE ... REFRESH COLLATION
+# VERSION afterwards if the base OS glibc changed.
+image:
+  digest: "sha256:40a261ed77f3b8dc65eeeec98bb79c4d3ef3410d7e2af7cfcf3785a6af00e4c5"
 primary:
   resourcesPreset: "none"
   resources:
@@ -55,7 +68,15 @@ primary:
             rm -f /bitnami/postgresql/data/postmaster.pid
           fi
   extendedConfiguration: |
-    max_connections = 200
+    # Peak observed usage is ~35 connections. 200 was never reachable within
+    # the memory limit: worst case is max_connections x work_mem (4MB) of
+    # sort/hash memory on top of shared_buffers, i.e. 800MB against a 1Gi cap.
+    # 100 keeps >2x headroom over real usage while halving that exposure.
+    max_connections = 100
+    # Planner hint only, allocates nothing, but it was inherited as 4GB - 8x
+    # the container's entire limit - so the planner assumed everything was
+    # cached and under-costed index scans. Keep this ~50% of the memory limit.
+    effective_cache_size = 512MB
   podSecurityContext:
     fsGroup: 1001
     enabled: true

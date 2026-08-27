@@ -69,3 +69,36 @@ spec:
             description:
               "Application {{ $labels.name }} has been OutOfSync for over an hour. Autosync is disabled by RollingSync,
               so this will not heal on its own -- sync it manually or land a commit that changes it."
+    # Nothing watched container memory before, so Postgres sat at 94-98% of its
+    # limit for four days and OOMKilled with no warning, which 503'd Authentik's
+    # DB-backed liveness probe and restarted every SSO replica at once.
+    # These deliberately use container_memory_usage_bytes, not working_set:
+    # page cache counts toward the cgroup limit and is what actually triggers
+    # the kernel OOM killer, while working_set excludes it and read a healthy
+    # ~50% throughout. Alerting on working_set would have stayed silent.
+    - name: container-memory
+      rules:
+        - alert: ContainerMemoryNearLimit
+          expr:
+            max by (namespace, pod, container) (container_memory_usage_bytes{container!=""}) / on (namespace, pod,
+            container) max by (namespace, pod, container) (kube_pod_container_resource_limits{resource="memory"}) > 0.90
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Container near its memory limit ({{ $labels.namespace }}/{{ $labels.container }})"
+            description:
+              "{{ $labels.namespace }}/{{ $labels.pod }}/{{ $labels.container }} has been above 90% of its memory limit
+              for 30 minutes and will be OOMKilled by any allocation spike. Raise the limit or reduce usage."
+        - alert: ContainerOOMKilled
+          expr:
+            increase(kube_pod_container_status_restarts_total[15m]) > 0 and on (namespace, pod, container)
+            kube_pod_container_status_last_terminated_reason{reason="OOMKilled"} == 1
+          for: 0m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Container was OOMKilled ({{ $labels.namespace }}/{{ $labels.container }})"
+            description:
+              "{{ $labels.namespace }}/{{ $labels.pod }}/{{ $labels.container }} was killed for exceeding its memory
+              limit and restarted. Check dependent services -- a database OOM takes its clients down with it."

@@ -20,8 +20,16 @@ controllers:
           # the DB away for 93s and the stock 5x10s=50s threshold killed
           # mealie, paperless-ngx and vaultwarden mid-outage. 30x10s=300s
           # rides out a restart with room for a reschedule or WAL replay.
-          # Readiness deliberately stays tight: that is the probe that should
-          # track dependencies, so traffic drains without anything restarting.
+          #
+          # Readiness matches it, which #1109 got wrong: "traffic drains"
+          # assumes somewhere to drain to, and every app on this template is
+          # single-replica, so failing readiness removes the only endpoint and
+          # Traefik 502s. Ejecting is exactly as user-visible as restarting,
+          # so it must not trigger sooner. Sonarr proved it: its /ping shares
+          # the thread pool its download-client polling starves, so a busy
+          # 20s stall tripped 5x10s=50s and blackholed a UI that was slow but
+          # answering. Startup probe still gates rollouts, so a genuinely
+          # broken new pod is caught before it ever serves traffic.
           liveness:
             spec:
               timeoutSeconds: 5
@@ -29,7 +37,7 @@ controllers:
           readiness:
             spec:
               timeoutSeconds: 5
-              failureThreshold: 5
+              failureThreshold: 30
           startup:
             spec:
               failureThreshold: 30

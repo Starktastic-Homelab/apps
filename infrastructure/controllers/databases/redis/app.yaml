@@ -5,4 +5,4 @@ manifests: true
 chart:
   repo: https://charts.bitnami.com/bitnami
   name: redis
-  version: 28.0.10
+  version: 28.0.12

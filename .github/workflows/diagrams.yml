@@ -41,7 +41,7 @@ jobs:
       - name: Check D2 formatting
         env:
           # renovate: datasource=docker depName=terrastruct/d2
-          D2_VERSION: 'v0.7.1'
+          D2_VERSION: 'v0.8.2'
         run: |
           set -euo pipefail
           docker run --rm -v "$PWD:/work" -w /work "terrastruct/d2:${D2_VERSION}" \

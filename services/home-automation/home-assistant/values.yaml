@@ -28,6 +28,39 @@ controllers:
               initialDelaySeconds: 10
               failureThreshold: 60
               periodSeconds: 10
+      matter-server:
+        image:
+          repository: ghcr.io/matter-js/matterjs-server
+          tag: 1.4.0@sha256:54232d0d3e7dff5a54759469d2753399270412b4c30c55b31750a4595e4cb236
+        env:
+          PRIMARY_INTERFACE: eth1
+          LISTEN_ADDRESS: "127.0.0.1"
+          STORAGE_PATH: /data
+        resources:
+          requests:
+            cpu: 10m
+            memory: 128Mi
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                host: 127.0.0.1
+                port: 5580
+              failureThreshold: 3
+              periodSeconds: 10
+              timeoutSeconds: 2
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                host: 127.0.0.1
+                port: 5580
+              failureThreshold: 30
+              periodSeconds: 2
+              timeoutSeconds: 2
 
 defaultPodOptions:
   hostNetwork: true
@@ -59,7 +92,15 @@ persistence:
     enabled: false
   home-assistant-config:
     existingClaim: home-assistant-config
-    globalMounts:
-      - path: /config
+    advancedMounts:
+      main:
+        main:
+          - path: /config
+  matter-server-data:
+    existingClaim: matter-server-data
+    advancedMounts:
+      main:
+        matter-server:
+          - path: /data
   media:
     enabled: false

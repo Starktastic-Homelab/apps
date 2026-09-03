@@ -260,8 +260,8 @@ controllers:
               tcpSocket:
                 host: 127.0.0.1
                 port: 5580
-              failureThreshold: 30
-              periodSeconds: 2
+              failureThreshold: 180
+              periodSeconds: 5
               timeoutSeconds: 2
 
 defaultPodOptions:
@@ -308,8 +308,13 @@ persistence:
     enabled: false
 ```
 
-The 128 MiB value is a scheduling request, not a limit. Measure real use during
-the trial before changing it or constraining the Node.js heap.
+The startup probe keeps the same loopback TCP target and 2-second timeout, but
+expands the first-start budget to 900 seconds (`180 * 5`) so it mirrors the
+upstream Matter.js Server 1.4.0 initialization window while still succeeding
+as soon as port 5580 opens. Task 2 records observed startup latency for later
+evidence-based tuning. The 128 MiB value is a scheduling request, not a limit.
+Measure real use during the trial before changing it or constraining the
+Node.js heap.
 
 **Step 5: Add the Home Assistant Renovate guard**
 
@@ -413,6 +418,9 @@ yq -e '
   | select(
       .startupProbe.tcpSocket.host == "127.0.0.1"
       and .startupProbe.tcpSocket.port == 5580
+      and .startupProbe.failureThreshold == 180
+      and .startupProbe.periodSeconds == 5
+      and .startupProbe.timeoutSeconds == 2
     )
   | select(
       .livenessProbe.tcpSocket.host == "127.0.0.1"
@@ -458,8 +466,9 @@ echo "Rendered Matter contract passed"
 ```
 
 Expected: `Rendered Matter contract passed`. A missing sidecar, wrong digest,
-non-loopback probe, leaked mount, readiness probe, resource limit, Bluetooth
-configuration, or port-5580 exposure makes this step fail.
+wrong startup-probe host, port, failure threshold, period, or timeout,
+non-loopback liveness probe, leaked mount, readiness probe, resource limit,
+Bluetooth configuration, or port-5580 exposure makes this step fail.
 
 **Step 10: Validate every changed and rendered Kubernetes object**
 
@@ -609,14 +618,22 @@ container as root, or add a privileged init container.
 kubectl -n home-automation exec \
   deployment/home-assistant \
   -c main \
-  -- cat /proc/sys/net/netfilter/nf_conntrack_udp_timeout_stream
+  -- sh -ceu '
+    if [ -r /proc/sys/net/netfilter/nf_conntrack_udp_timeout_stream ]; then
+      cat /proc/sys/net/netfilter/nf_conntrack_udp_timeout_stream
+    else
+      echo "conntrack module not loaded"
+    fi
+  '
 ```
 
-Expected: one integer value from the host-network pod's kernel namespace. A
-value below `1800` is not itself a failure when no stateful firewall on that
-kernel filters the Matter flow. Inspect this on the k3s node kernel, or on
-Proxmox only when its firewall is enabled, before blaming that timeout. Do
-not change a sysctl in this phase.
+Expected: either one integer value from the host-network pod's kernel
+namespace or the clear zero-exit result `conntrack module not loaded`. An
+absent file means that kernel has nothing to tune for this check. A value
+below `1800` is not itself a failure unless a stateful firewall on that kernel
+filters the Matter flow. Inspect this on the k3s node kernel, or on Proxmox
+only when its firewall is enabled, before blaming that timeout. Do not change
+a sysctl in this phase.
 
 **Step 6: Check startup state and resource use**
 
@@ -624,7 +641,11 @@ not change a sysctl in this phase.
 kubectl -n home-automation logs \
   deployment/home-assistant \
   -c matter-server \
-  --since=10m
+  --since=10m \
+  --timestamps
+kubectl -n home-automation get pod \
+  -l app.kubernetes.io/instance=home-assistant \
+  -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.startTime}{"\t"}{range .status.containerStatuses[?(@.name=="matter-server")]}{.state.running.startedAt}{"\n"}{end}{end}'
 kubectl -n home-automation top pod \
   -l app.kubernetes.io/instance=home-assistant \
   --containers
@@ -632,7 +653,9 @@ kubectl -n home-automation top pod \
 
 Expected: Matter Server reports `/data` as its storage location, listens on
 loopback port 5580, and has no crash, bind, or permission error. Record the
-sidecar's initial memory use; do not add a limit based on a single sample.
+timestamped first-start latency evidence and the sidecar's initial memory use;
+do not retune the 900-second startup budget or add a memory limit from a
+single sample.
 
 **Verification:** Tasks 2 Steps 1-6 are the deployment acceptance check.
 

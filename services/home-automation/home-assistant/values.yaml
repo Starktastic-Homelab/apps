@@ -58,8 +58,8 @@ controllers:
               tcpSocket:
                 host: 127.0.0.1
                 port: 5580
-              failureThreshold: 30
-              periodSeconds: 2
+              failureThreshold: 180
+              periodSeconds: 5
               timeoutSeconds: 2
 
 defaultPodOptions:

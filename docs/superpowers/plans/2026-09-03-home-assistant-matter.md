@@ -7,7 +7,7 @@ Assistant pod, preserve its fabric state, and compare a Roborock S8 MaxV Ultra
 through native Roborock and Matter integrations.
 
 **Architecture:** Home Assistant and Matter Server share the existing
-host-network pod. Home Assistant connects to `ws://localhost:5580/ws`; Matter
+host-network pod. Home Assistant connects to `ws://127.0.0.1:5580/ws`; Matter
 Server uses `eth1` for Matter traffic and a dedicated NFS-backed `/data` claim.
 Port 5580 binds only to the node-local loopback shared by the host-network pod;
 no LAN or IOT interface, Service, or ingress exposes it.
@@ -24,6 +24,7 @@ Run repository commands from the isolated `apps` worktree on branch
 
 Change only:
 
+- `renovate.json`
 - `services/home-automation/home-assistant/values.yaml`
 - `services/home-automation/home-assistant/manifests/pvc.yaml`
 
@@ -35,6 +36,11 @@ Keep these constraints throughout:
   this trial.
 - Pin `ghcr.io/matter-js/matterjs-server` to release `1.4.0` and digest
   `sha256:54232d0d3e7dff5a54759469d2753399270412b4c30c55b31750a4595e4cb236`.
+- Keep Renovate proposing Home Assistant pod image updates, but require manual
+  review because Home Assistant and Matter Server are a compatibility pair.
+- Treat the relayed cross-VLAN mDNS path as an explicitly unsupported,
+  likely-failure boundary; this trial gathers evidence for keep-or-promote
+  decisions without changing that network design.
 - Bind the Matter WebSocket to `127.0.0.1`, use `eth1` as the primary
   interface, and persist state under `/data`.
 - Add no Service, ingress, Bluetooth device, D-Bus mount, privilege,
@@ -45,6 +51,8 @@ Keep these constraints throughout:
 
 ## File Responsibilities
 
+- `renovate.json` keeps the Home Assistant pod's Docker image updates in the
+  normal Renovate queue while disabling automerge for that one chart.
 - `values.yaml` declares the Matter Server container, its probes and resource
   request, and container-specific volume mounts. It continues to expose only
   Home Assistant on port 8123.
@@ -61,17 +69,20 @@ the failure in this order:
 1. Matter Server process and loopback WebSocket health.
 2. Commissionable mDNS advertisement reaching the host.
 3. Device IPv6 address and route reachability.
-4. OPNsense PF state, advertised UDP port, and state-timeout behavior.
+4. Stateful-firewall evidence on the filtering kernel: inspect conntrack on
+   the k3s node, or Proxmox only if its firewall is enabled, then inspect
+   OPNsense PF state, advertised UDP port, and state-timeout behavior.
 5. Roborock firmware or device-attestation behavior.
 
 Capture evidence at the first failing layer and end this phase as blocked.
 Do not expose port 5580, disable attestation, add host Bluetooth, broaden
 IOT-to-MAIN access, or stack another discovery proxy as a diagnostic shortcut.
 
-### Task 1: Add the persistent Matter Server sidecar
+### Task 1: Add the persistent Matter Server sidecar and guard its image updates
 
 **Files:**
 
+- Modify: `renovate.json`
 - Modify: `services/home-automation/home-assistant/values.yaml:1-65`
 - Modify: `services/home-automation/home-assistant/manifests/pvc.yaml:1-10`
 - Test inputs: `templates/globals.yaml`, `templates/common.yaml`,
@@ -80,13 +91,36 @@ IOT-to-MAIN access, or stack another discovery proxy as a diagnostic shortcut.
 
 **Interface contract:**
 
-- Input: app-template 5.1.0 plus the repository's global, common, and
-  Home Assistant values.
-- Output: one Deployment with `main` and `matter-server` containers; only
+- Input: Renovate package rules plus app-template 5.1.0 and the repository's
+  global, common, and Home Assistant values.
+- Output: a file-scoped Docker Renovate rule disables automerge for image
+  updates declared in `services/home-automation/home-assistant/values.yaml`;
+  one Deployment has `main` and `matter-server` containers; only
   `matter-server` mounts `/data`; only `main` mounts `/config`; all exposed
   Services and ingress routes still target port 8123.
 
-**Step 1: Prove the current render has no Matter Server**
+**Step 1: RED — prove no Home Assistant image guard exists yet**
+
+```bash
+if yq -e '
+  .packageRules[]
+  | select(
+      .matchDatasources == ["docker"]
+      and .matchFileNames == ["services/home-automation/home-assistant/values.yaml"]
+      and .automerge == false
+    )
+' renovate.json >/dev/null; then
+  status=0
+else
+  status=$?
+fi
+
+test "$status" -eq 4
+```
+
+Expected: the query exits `4` because no matching file-scoped rule exists yet.
+
+**Step 2: Prove the current render has no Matter Server**
 
 ```bash
 helm template home-assistant \
@@ -114,7 +148,7 @@ test "$status" -eq 4
 Expected: Helm renders successfully, the Matter container assertion returns
 `4` because no matching container exists, and the final `test` succeeds.
 
-**Step 2: Add the Matter data claim**
+**Step 3: Add the Matter data claim**
 
 Replace
 `services/home-automation/home-assistant/manifests/pvc.yaml` with:
@@ -148,7 +182,7 @@ spec:
 The `nfs-pv` StorageClass has a `Retain` reclaim policy. Keeping this manifest
 through rollback preserves the fabric data without a chart-owned claim.
 
-**Step 3: Add the sidecar and isolate both data mounts**
+**Step 4: Add the sidecar and isolate both data mounts**
 
 Replace `services/home-automation/home-assistant/values.yaml` with:
 
@@ -264,19 +298,52 @@ persistence:
 The 128 MiB value is a scheduling request, not a limit. Measure real use during
 the trial before changing it or constraining the Node.js heap.
 
-**Step 4: Run the repository formatter and YAML linter**
+**Step 5: Add the Home Assistant Renovate guard**
+
+Add this file-scoped rule to `renovate.json`, following the existing
+PostgreSQL pattern and changing no other Renovate behavior:
+
+```json
+{
+  "description": "Require manual review for Home Assistant pod image updates because Home Assistant and Matter Server are a compatibility pair",
+  "matchDatasources": ["docker"],
+  "matchFileNames": ["services/home-automation/home-assistant/values.yaml"],
+  "automerge": false
+}
+```
+
+This keeps Renovate proposing Home Assistant and Matter Server image updates,
+but prevents blind automerge for a compatibility-sensitive pod.
+
+**Step 6: Run the repository formatter and YAML/JSON linter**
 
 ```bash
 pre-commit run --files \
+  renovate.json \
   services/home-automation/home-assistant/values.yaml \
   services/home-automation/home-assistant/manifests/pvc.yaml
 ```
 
-Expected: every applicable hook passes. If Prettier reformats either file,
+Expected: every applicable hook passes. If Prettier reformats any file,
 inspect the result and run the same command again until it exits zero without
 changes.
 
-**Step 5: Render the application and ingress**
+**Step 7: GREEN — verify the new Renovate guard**
+
+```bash
+yq -e '
+  .packageRules[]
+  | select(
+      .matchDatasources == ["docker"]
+      and .matchFileNames == ["services/home-automation/home-assistant/values.yaml"]
+      and .automerge == false
+    )
+' renovate.json
+```
+
+Expected: the query prints the new rule and exits zero.
+
+**Step 8: Render the application and ingress**
 
 ```bash
 helm template home-assistant \
@@ -297,7 +364,7 @@ helm template home-assistant-ingress \
 Expected: both commands exit zero. Helm reports app-template digest
 `sha256:0d039f7760db66790168e9de13780327ad1adecca0a3b31621e32146d8be503c`.
 
-**Step 6: Assert the rendered security and mount contract**
+**Step 9: Assert the rendered security and mount contract**
 
 ```bash
 set -euo pipefail
@@ -378,7 +445,7 @@ Expected: `Rendered Matter contract passed`. A missing sidecar, wrong digest,
 non-loopback probe, leaked mount, readiness probe, resource limit, Bluetooth
 configuration, or port-5580 exposure makes this step fail.
 
-**Step 7: Validate every changed and rendered Kubernetes object**
+**Step 10: Validate every changed and rendered Kubernetes object**
 
 ```bash
 kubeconform \
@@ -396,11 +463,12 @@ kubeconform \
 Expected summary: `8 resources found in 3 files - Valid: 8, Invalid: 0,
 Errors: 0, Skipped: 0`.
 
-**Step 8: Inspect the focused change and clean generated files**
+**Step 11: Inspect the focused change and clean generated files**
 
 ```bash
 git diff --check
 git diff -- \
+  renovate.json \
   services/home-automation/home-assistant/values.yaml \
   services/home-automation/home-assistant/manifests/pvc.yaml
 rm -f \
@@ -409,13 +477,15 @@ rm -f \
 git status --short
 ```
 
-Expected: only the two intended Home Assistant files are modified; the diff
-contains one new PVC, one sidecar, and two container-scoped mounts.
+Expected: only the three intended files are modified; the diff contains one
+file-scoped Renovate rule, one new PVC, one sidecar, and two
+container-scoped mounts.
 
-**Step 9: Commit the deployable change**
+**Step 12: Commit the phase-one change**
 
 ```bash
 git add \
+  renovate.json \
   services/home-automation/home-assistant/values.yaml \
   services/home-automation/home-assistant/manifests/pvc.yaml
 git commit \
@@ -423,13 +493,14 @@ git commit \
   -m "Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 ```
 
-Expected: one focused manifest commit. Do not push, open or merge a pull
+Expected: one focused phase-one commit. Do not push, open or merge a pull
 request, or resolve review threads on the user's behalf.
 
-**Verification:** Task 1 Steps 4-8 prove formatting, schema validity, the
-two-container render, loopback-only port 5580, and mount isolation.
+**Verification:** Task 1 Steps 6-11 prove formatting, the Renovate guard,
+schema validity, the two-container render, loopback-only port 5580, and mount
+isolation.
 
-**Commit:** Task 1 Step 9 creates the single deployable manifest commit.
+**Commit:** Task 1 Step 12 creates the single focused phase-one commit.
 
 ### Task 2: Verify the GitOps deployment
 
@@ -512,7 +583,22 @@ Expected: exit zero with no retained test file. If this fails, inspect the
 Matter Server logs for a permission error; do not make the container
 privileged or run it as root.
 
-**Step 5: Check startup state and resource use**
+**Step 5: Capture the kernel UDP assured-timeout value without changing it**
+
+```bash
+kubectl -n home-automation exec \
+  deployment/home-assistant \
+  -c main \
+  -- cat /proc/sys/net/netfilter/nf_conntrack_udp_timeout_stream
+```
+
+Expected: one integer value from the host-network pod's kernel namespace. A
+value below `1800` is not itself a failure when no stateful firewall on that
+kernel filters the Matter flow. Inspect this on the k3s node kernel, or on
+Proxmox only when its firewall is enabled, before blaming that timeout. Do
+not change a sysctl in this phase.
+
+**Step 6: Check startup state and resource use**
 
 ```bash
 kubectl -n home-automation logs \
@@ -528,7 +614,7 @@ Expected: Matter Server reports `/data` as its storage location, listens on
 loopback port 5580, and has no crash, bind, or permission error. Record the
 sidecar's initial memory use; do not add a limit based on a single sample.
 
-**Verification:** Tasks 2 Steps 1-5 are the deployment acceptance check.
+**Verification:** Tasks 2 Steps 1-6 are the deployment acceptance check.
 
 **Commit:** None; this task must not mutate repository or cluster
 configuration.
@@ -545,7 +631,7 @@ In Home Assistant:
 1. Open **Settings > Devices & services > Add integration > Matter**.
 2. On **Select the connection method**, deselect the option to use the
    official Matter Server app, then submit.
-3. Enter `ws://localhost:5580/ws`.
+3. Enter `ws://127.0.0.1:5580/ws`.
 4. Finish the config flow before opening a pairing window on the vacuum.
 
 Expected: the Matter integration loads without a repair or compatibility
@@ -632,8 +718,8 @@ report the resulting cleaning and dock states correctly.
 Leave the vacuum idle for at least 30 minutes. Then issue one command through
 Matter and one through native Roborock, and verify both state paths update.
 
-Expected: neither path needs a reload or re-pair after ordinary PF UDP state
-expiry windows.
+Expected: neither path needs a reload or re-pair after ordinary
+stateful-firewall UDP state expiry windows.
 
 **Step 3: Replace the Home Assistant pod without changing Git state**
 
@@ -747,9 +833,9 @@ Review:
 - Keep the sidecar if pairing, subscriptions, commands, idle recovery, and pod
   replacement stayed reliable.
 - Start a separate dedicated-VM design only if Matter Server and Home
-  Assistant stayed healthy while packet or PF-state evidence repeatedly
-  identified the VLAN boundary, multicast relay, IPv6 routing, or state
-  timeout as the failure.
+  Assistant stayed healthy while packet, conntrack, or PF-state evidence
+  repeatedly identified the VLAN boundary, relayed mDNS, IPv6 routing, or
+  state timeout as the failure.
 - Start a separate Home Assistant OS migration design only if unsupported
   server maintenance or an owned, supported Thread stack justifies the larger
   migration.
@@ -771,7 +857,9 @@ Matter integration cannot pass version negotiation.
 1. If Home Assistant is reachable, remove its Matter integration entry first.
    If it is not reachable, perform the Git rollback first and remove the stale
    entry after Home Assistant returns.
-2. In `values.yaml`, delete only
+2. In `renovate.json`, delete only the file-scoped Docker package rule for
+   `services/home-automation/home-assistant/values.yaml`. In `values.yaml`,
+   delete only
    `controllers.main.containers.matter-server` and
    `persistence.matter-server-data`.
 3. Keep the Home Assistant `/config` `advancedMounts` conversion and keep the
@@ -782,6 +870,7 @@ Matter integration cannot pass version negotiation.
 set -euo pipefail
 
 pre-commit run --files \
+  renovate.json \
   services/home-automation/home-assistant/values.yaml \
   services/home-automation/home-assistant/manifests/pvc.yaml
 
@@ -798,6 +887,15 @@ helm template home-assistant-ingress \
   -f templates/globals.yaml \
   -f services/home-automation/home-assistant/app.yaml \
   > /tmp/home-assistant-ingress-rollback.yaml
+
+! yq -e '
+  .packageRules[]
+  | select(
+      .matchDatasources == ["docker"]
+      and .matchFileNames == ["services/home-automation/home-assistant/values.yaml"]
+      and .automerge == false
+    )
+' renovate.json >/dev/null
 
 test "$(yq -r '
   select(.kind == "Deployment")
@@ -855,7 +953,9 @@ reports all eight objects valid.
 5. Commit the rollback:
 
 ```bash
-git add services/home-automation/home-assistant/values.yaml
+git add \
+  renovate.json \
+  services/home-automation/home-assistant/values.yaml
 git commit \
   -m "revert: disable Home Assistant Matter server sidecar" \
   -m "Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"

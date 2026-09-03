@@ -60,7 +60,7 @@ existing Home Assistant configuration volume; it is not host infrastructure.
 
 | Approach | Advantages | Costs |
 | --- | --- | --- |
-| Matter Server sidecar in the existing Home Assistant pod | Smallest change; exact localhost URL; no exposed WebSocket; reuses host networking | Self-managed deployment is unsupported upstream; cross-VLAN Matter remains experimental; sidecar health is coupled to the Home Assistant pod |
+| Matter Server sidecar in the existing Home Assistant pod | Smallest change; exact `127.0.0.1` WebSocket URL; no exposed WebSocket; reuses host networking | Self-managed deployment is unsupported upstream; cross-VLAN Matter remains experimental; sidecar health is coupled to the Home Assistant pod |
 | Dedicated dual-homed Matter Server VM | Direct IOT attachment; stable address and firewall target; Home Assistant remains on k3s | Adds a VM, Terraform and Ansible work, and an exposed inter-host WebSocket; still a self-managed unsupported server |
 | Full Home Assistant OS migration | Official Matter app and the best-tested Matter/Thread host behavior | Full Home Assistant migration and larger network/storage blast radius; direct VLAN placement still needs design |
 
@@ -75,6 +75,9 @@ insufficient.
 
 Phase one modifies only:
 
+- `renovate.json` to require manual review for every Docker image declared in
+  the Home Assistant pod because Home Assistant and Matter Server are a
+  compatibility pair even when Renovate proposes the update.
 - `services/home-automation/home-assistant/values.yaml` for the sidecar,
   loopback probes, and volume mount.
 - `services/home-automation/home-assistant/manifests/pvc.yaml` for a named
@@ -92,7 +95,7 @@ changed in phase one. Its pod gains a second container:
 ```text
 Home Assistant container
         |
-        | ws://localhost:5580/ws
+        | ws://127.0.0.1:5580/ws
         v
 Matter Server sidecar -- eth1 / IPv6 --> OPNsense --> IOT --> Roborock
         |
@@ -135,7 +138,7 @@ provides the pairing code; no Bluetooth hardware is required on a k3s node.
 
 ### Home Assistant Matter Integration
 
-The Matter integration connects to `ws://localhost:5580/ws`. Its config flow
+The Matter integration connects to `ws://127.0.0.1:5580/ws`. Its config flow
 must establish a real WebSocket connection and validate the server version
 before creating the config entry.
 
@@ -158,8 +161,9 @@ differences.
 ### Network
 
 Phase one reuses the current MAIN-to-IOT IPv6 routing and mDNS repeater without
-changing OPNsense. This tests whether the existing topology is good enough for
-the actual device.
+changing OPNsense. The relayed cross-VLAN mDNS path remains an explicitly
+unsupported, likely-failure boundary; the seven-day trial keeps it unchanged so
+promotion decisions rely on packet evidence instead of assumptions.
 
 The existing port-5540 rule is not expanded, replaced, or cited as a
 requirement in this phase. If packet evidence later proves a PF rule or state
@@ -172,8 +176,9 @@ and designed separately. It must not assume a fixed Matter UDP port.
   reachable from MAIN or IOT.
 - Device attestation remains enabled. Certificate or firmware failures are
   surfaced rather than bypassed.
-- The image is version- and digest-pinned. Renovate can propose later updates
-  through the existing review path.
+- The image is version- and digest-pinned. Renovate can still propose later
+  Home Assistant pod image updates, but the file-scoped rule requires manual
+  review because Home Assistant and Matter Server are a compatibility pair.
 - Fabric state is isolated on persistent storage and survives pod replacement.
 - A startup probe prevents premature liveness failures while Matter Server
   initializes.
@@ -191,7 +196,9 @@ Failures are classified in this order:
 1. Matter Server process and loopback WebSocket health.
 2. Commissionable mDNS advertisement reaching the host.
 3. IPv6 address and route reachability.
-4. OPNsense PF state, advertised UDP port, and state timeout behavior.
+4. Stateful-firewall evidence on the filtering kernel: inspect conntrack on
+   the k3s node, or Proxmox only if its firewall is enabled, then inspect
+   OPNsense PF state, advertised UDP port, and timeout behavior.
 5. Roborock device attestation or firmware behavior.
 
 Do not respond to a failure by exposing port 5580, disabling attestation,
@@ -214,7 +221,7 @@ add a test framework.
 
 ### Runtime Acceptance
 
-1. Confirm Home Assistant reaches `ws://localhost:5580/ws` and creates the
+1. Confirm Home Assistant reaches `ws://127.0.0.1:5580/ws` and creates the
    Matter integration.
 2. Configure the native Roborock integration and verify local status, map,
    start, pause, dock, and one room-clean action.
@@ -222,7 +229,8 @@ add a test framework.
    exercise every Matter control it exposes.
 4. Complete one normal cleaning cycle.
 5. Leave the vacuum idle for at least 30 minutes, then verify that state
-   changes and commands still work after ordinary PF UDP state expiry windows.
+   changes and commands still work after ordinary stateful-firewall UDP state
+   expiry windows.
 6. Restart or reschedule the Home Assistant pod once. Verify that Matter
    pairings, the native entry, and both control paths recover without
    re-pairing.
@@ -251,8 +259,9 @@ Roborock for rich controls and Matter for interoperability.
 Create a separate design for a dual-homed MAIN/IOT VM only when:
 
 - Matter Server and Home Assistant remain healthy; and
-- packet or PF-state evidence repeatedly identifies the VLAN boundary,
-  multicast relay, IPv6 route handling, or state timeout as the failure.
+- packet, conntrack, or PF-state evidence repeatedly identifies the VLAN
+  boundary, relayed mDNS, IPv6 route handling, or state timeout as the
+  failure.
 
 The VM would place Matter traffic directly on IOT while binding its WebSocket
 only to a MAIN address allowed from Home Assistant. A future owned Thread
@@ -269,11 +278,13 @@ unexplained commissioning failure is not sufficient evidence.
 ## Rollback
 
 1. Remove the Matter integration entry from Home Assistant.
-2. Remove the Matter Server container configuration from the Home Assistant
+2. Remove the file-scoped Home Assistant Docker automerge guard from
+   `renovate.json`.
+3. Remove the Matter Server container configuration from the Home Assistant
    values.
-3. Leave the Matter data claim in the PVC manifest until the trial decision is
+4. Leave the Matter data claim in the PVC manifest until the trial decision is
    final.
-4. Keep the native Roborock integration.
+5. Keep the native Roborock integration.
 
 No OPNsense, Terraform, Ansible, or k3s host rollback is needed because phase
 one changes none of them.

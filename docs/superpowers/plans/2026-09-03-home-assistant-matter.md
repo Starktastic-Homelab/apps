@@ -136,25 +136,27 @@ Expected: the query exits `4` because no matching file-scoped rule exists yet.
 **Step 2: Prove the current render has no Matter Server**
 
 ```bash
+mkdir -p .superpowers/home-assistant-matter
+
 helm template home-assistant \
   oci://ghcr.io/bjw-s-labs/helm/app-template \
   --version 5.1.0 \
   -f templates/globals.yaml \
   -f templates/common.yaml \
   -f services/home-automation/home-assistant/values.yaml \
-  > /tmp/home-assistant-prechange.yaml
+  > .superpowers/home-assistant-matter/prechange.yaml
 
 if yq -e '
   select(.kind == "Deployment")
   | .spec.template.spec.containers[]
   | select(.name == "matter-server")
-' /tmp/home-assistant-prechange.yaml >/dev/null; then
+' .superpowers/home-assistant-matter/prechange.yaml >/dev/null; then
   status=0
 else
   status=$?
 fi
 
-rm -f /tmp/home-assistant-prechange.yaml
+rm -f .superpowers/home-assistant-matter/prechange.yaml
 test "$status" -eq 4
 ```
 
@@ -367,19 +369,21 @@ Expected: the query prints the new rule and exits zero.
 **Step 8: Render the application and ingress**
 
 ```bash
+mkdir -p .superpowers/home-assistant-matter
+
 helm template home-assistant \
   oci://ghcr.io/bjw-s-labs/helm/app-template \
   --version 5.1.0 \
   -f templates/globals.yaml \
   -f templates/common.yaml \
   -f services/home-automation/home-assistant/values.yaml \
-  > /tmp/home-assistant-rendered.yaml
+  > .superpowers/home-assistant-matter/rendered.yaml
 
 helm template home-assistant-ingress \
   templates/ingress-chart \
   -f templates/globals.yaml \
   -f services/home-automation/home-assistant/app.yaml \
-  > /tmp/home-assistant-ingress-rendered.yaml
+  > .superpowers/home-assistant-matter/ingress-rendered.yaml
 ```
 
 Expected: both commands exit zero. Helm reports app-template digest
@@ -394,7 +398,7 @@ test "$(yq -r '
   select(.kind == "Deployment")
   | [.spec.template.spec.containers[].name]
   | length
-' /tmp/home-assistant-rendered.yaml)" = "2"
+' .superpowers/home-assistant-matter/rendered.yaml)" = "2"
 
 yq -e '
   select(.kind == "Deployment")
@@ -432,7 +436,7 @@ yq -e '
       .name == "matter-server-data" and .mountPath == "/data"))
   | select(all(.volumeMounts[];
       .name == "matter-server-data" and .mountPath == "/data"))
-' /tmp/home-assistant-rendered.yaml >/dev/null
+' .superpowers/home-assistant-matter/rendered.yaml >/dev/null
 
 yq -e '
   select(.kind == "Deployment")
@@ -442,25 +446,25 @@ yq -e '
       .name == "home-assistant-config" and .mountPath == "/config"))
   | select(all(.volumeMounts[];
       .name != "matter-server-data"))
-' /tmp/home-assistant-rendered.yaml >/dev/null
+' .superpowers/home-assistant-matter/rendered.yaml >/dev/null
 
 ! yq -e '
   select(.kind == "Service")
   | .spec.ports[]
   | select(.port == 5580 or .targetPort == 5580)
-' /tmp/home-assistant-rendered.yaml >/dev/null
+' .superpowers/home-assistant-matter/rendered.yaml >/dev/null
 
 yq -e '
   select(.kind == "IngressRoute")
   | .spec.routes[].services[]
   | select(.name == "home-assistant-main" and .port == 8123)
-' /tmp/home-assistant-ingress-rendered.yaml >/dev/null
+' .superpowers/home-assistant-matter/ingress-rendered.yaml >/dev/null
 
 ! yq -e '
   select(.kind == "IngressRoute")
   | .spec.routes[].services[]
   | select(.port == 5580)
-' /tmp/home-assistant-ingress-rendered.yaml >/dev/null
+' .superpowers/home-assistant-matter/ingress-rendered.yaml >/dev/null
 
 echo "Rendered Matter contract passed"
 ```
@@ -481,8 +485,8 @@ kubeconform \
   -schema-location \
   'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
   services/home-automation/home-assistant/manifests/pvc.yaml \
-  /tmp/home-assistant-rendered.yaml \
-  /tmp/home-assistant-ingress-rendered.yaml
+  .superpowers/home-assistant-matter/rendered.yaml \
+  .superpowers/home-assistant-matter/ingress-rendered.yaml
 ```
 
 Expected summary: `8 resources found in 3 files - Valid: 8, Invalid: 0,
@@ -497,8 +501,8 @@ git diff -- \
   services/home-automation/home-assistant/values.yaml \
   services/home-automation/home-assistant/manifests/pvc.yaml
 rm -f \
-  /tmp/home-assistant-rendered.yaml \
-  /tmp/home-assistant-ingress-rendered.yaml
+  .superpowers/home-assistant-matter/rendered.yaml \
+  .superpowers/home-assistant-matter/ingress-rendered.yaml
 git status --short
 ```
 
@@ -912,6 +916,8 @@ Matter integration cannot pass version negotiation.
 ```bash
 set -euo pipefail
 
+mkdir -p .superpowers/home-assistant-matter
+
 pre-commit run --files \
   renovate.json \
   services/home-automation/home-assistant/values.yaml \
@@ -923,13 +929,13 @@ helm template home-assistant \
   -f templates/globals.yaml \
   -f templates/common.yaml \
   -f services/home-automation/home-assistant/values.yaml \
-  > /tmp/home-assistant-rollback.yaml
+  > .superpowers/home-assistant-matter/rollback.yaml
 
 helm template home-assistant-ingress \
   templates/ingress-chart \
   -f templates/globals.yaml \
   -f services/home-automation/home-assistant/app.yaml \
-  > /tmp/home-assistant-ingress-rollback.yaml
+  > .superpowers/home-assistant-matter/ingress-rollback.yaml
 
 ! yq -e '
   .packageRules[]
@@ -944,13 +950,13 @@ test "$(yq -r '
   select(.kind == "Deployment")
   | [.spec.template.spec.containers[].name]
   | length
-' /tmp/home-assistant-rollback.yaml)" = "1"
+' .superpowers/home-assistant-matter/rollback.yaml)" = "1"
 
 ! yq -e '
   select(.kind == "Deployment")
   | .spec.template.spec.containers[]
   | select(.name == "matter-server")
-' /tmp/home-assistant-rollback.yaml >/dev/null
+' .superpowers/home-assistant-matter/rollback.yaml >/dev/null
 
 yq -e '
   select(.kind == "Deployment")
@@ -958,19 +964,19 @@ yq -e '
   | select(.name == "main")
   | select(any(.volumeMounts[];
       .name == "home-assistant-config" and .mountPath == "/config"))
-' /tmp/home-assistant-rollback.yaml >/dev/null
+' .superpowers/home-assistant-matter/rollback.yaml >/dev/null
 
 ! yq -e '
   select(.kind == "Service")
   | .spec.ports[]
   | select(.port == 5580 or .targetPort == 5580)
-' /tmp/home-assistant-rollback.yaml >/dev/null
+' .superpowers/home-assistant-matter/rollback.yaml >/dev/null
 
 ! yq -e '
   select(.kind == "IngressRoute")
   | .spec.routes[].services[]
   | select(.port == 5580)
-' /tmp/home-assistant-ingress-rollback.yaml >/dev/null
+' .superpowers/home-assistant-matter/ingress-rollback.yaml >/dev/null
 
 kubeconform \
   -verbose \
@@ -980,13 +986,13 @@ kubeconform \
   -schema-location \
   'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
   services/home-automation/home-assistant/manifests/pvc.yaml \
-  /tmp/home-assistant-rollback.yaml \
-  /tmp/home-assistant-ingress-rollback.yaml
+  .superpowers/home-assistant-matter/rollback.yaml \
+  .superpowers/home-assistant-matter/ingress-rollback.yaml
 
 git diff --check
 rm -f \
-  /tmp/home-assistant-rollback.yaml \
-  /tmp/home-assistant-ingress-rollback.yaml
+  .superpowers/home-assistant-matter/rollback.yaml \
+  .superpowers/home-assistant-matter/ingress-rollback.yaml
 ```
 
 Expected: applicable hooks pass; the render has one `main` container, no

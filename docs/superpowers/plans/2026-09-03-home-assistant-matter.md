@@ -36,8 +36,11 @@ Keep these constraints throughout:
   this trial.
 - Pin `ghcr.io/matter-js/matterjs-server` to release `1.4.0` and digest
   `sha256:54232d0d3e7dff5a54759469d2753399270412b4c30c55b31750a4595e4cb236`.
-- Keep Renovate proposing Home Assistant pod image updates, but require manual
-  review because Home Assistant and Matter Server are a compatibility pair.
+- Keep Renovate proposing routine Home Assistant pod Docker version/digest
+  updates, but require manual review through the file-scoped guard because
+  Home Assistant and Matter Server are a compatibility pair. Keep the
+  repository-wide `vulnerabilityAlerts.automerge: true` policy unchanged for
+  security remediations.
 - Treat the relayed cross-VLAN mDNS path as an explicitly unsupported,
   likely-failure boundary; this trial gathers evidence for keep-or-promote
   decisions without changing that network design.
@@ -51,8 +54,10 @@ Keep these constraints throughout:
 
 ## File Responsibilities
 
-- `renovate.json` keeps the Home Assistant pod's Docker image updates in the
-  normal Renovate queue while disabling automerge for that one chart.
+- `renovate.json` keeps routine Docker version/digest updates for the Home
+  Assistant values file in the normal Renovate queue while disabling
+  automerge for that one chart. It does not change the repository-wide
+  `vulnerabilityAlerts.automerge: true` security-remediation policy.
 - `values.yaml` declares the Matter Server container, its probes and resource
   request, and container-specific volume mounts. It continues to expose only
   Home Assistant on port 8123.
@@ -67,12 +72,20 @@ If commissioning or control fails, stop changing configuration and classify
 the failure in this order:
 
 1. Matter Server process and loopback WebSocket health.
-2. Commissionable mDNS advertisement reaching the host.
+2. Commissionable mDNS data arrives intact at the host: complete, internally
+   consistent PTR/SRV/TXT/AAAA records, and the advertised endpoint reaches
+   the host.
 3. Device IPv6 address and route reachability.
 4. Stateful-firewall evidence on the filtering kernel: inspect conntrack on
    the k3s node, or Proxmox only if its firewall is enabled, then inspect
    OPNsense PF state, advertised UDP port, and state-timeout behavior.
 5. Roborock firmware or device-attestation behavior.
+
+A receiving-side packet capture showing missing, malformed, or inconsistent
+records is sufficient evidence against the relayed cross-VLAN path. A same-L2
+control experiment requires a separately approved dedicated-VM or Home
+Assistant OS design; do not move the device, the current Home Assistant
+workload, or network configuration ad hoc in phase one.
 
 Capture evidence at the first failing layer and end this phase as blocked.
 Do not expose port 5580, disable attestation, add host Bluetooth, broaden
@@ -83,7 +96,7 @@ IOT-to-MAIN access, or stack another discovery proxy as a diagnostic shortcut.
 **Files:**
 
 - Modify: `renovate.json`
-- Modify: `services/home-automation/home-assistant/values.yaml:1-65`
+- Modify: `services/home-automation/home-assistant/values.yaml:1-106`
 - Modify: `services/home-automation/home-assistant/manifests/pvc.yaml:1-10`
 - Test inputs: `templates/globals.yaml`, `templates/common.yaml`,
   `templates/ingress-chart/`, and
@@ -300,8 +313,8 @@ the trial before changing it or constraining the Node.js heap.
 
 **Step 5: Add the Home Assistant Renovate guard**
 
-Add this file-scoped rule to `renovate.json`, following the existing
-PostgreSQL pattern and changing no other Renovate behavior:
+Add this file-scoped rule to `renovate.json`, changing no other Renovate
+behavior:
 
 ```json
 {
@@ -312,8 +325,11 @@ PostgreSQL pattern and changing no other Renovate behavior:
 }
 ```
 
-This keeps Renovate proposing Home Assistant and Matter Server image updates,
-but prevents blind automerge for a compatibility-sensitive pod.
+This file-scoped guard controls routine Docker version/digest updates declared
+in `services/home-automation/home-assistant/values.yaml`. It does not change
+the repository-wide `vulnerabilityAlerts.automerge: true`
+security-remediation policy, and it does not add a `major-update` label to
+non-major Home Assistant updates.
 
 **Step 6: Run the repository formatter and YAML/JSON linter**
 
@@ -579,9 +595,13 @@ kubectl -n home-automation exec \
   '
 ```
 
-Expected: exit zero with no retained test file. If this fails, inspect the
-Matter Server logs for a permission error; do not make the container
-privileged or run it as root.
+Expected: exit zero with no retained test file. `nfs-subdir-external-provisioner`
+should create the claim directory with mode `0777`, which already permits the
+image's built-in `1000:1000` user. If this fails, inspect the Matter Server
+logs for a permission error, classify it as a storage-provisioning defect, and
+fix NFS/provisioner ownership or permissions through separate
+infrastructure-as-code. Do not run an ad-hoc `chown` on the NFS host, run the
+container as root, or add a privileged init container.
 
 **Step 5: Capture the kernel UDP assured-timeout value without changing it**
 

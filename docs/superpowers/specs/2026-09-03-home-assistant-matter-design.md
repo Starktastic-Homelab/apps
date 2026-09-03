@@ -77,7 +77,10 @@ Phase one modifies only:
 
 - `renovate.json` to require manual review for every Docker image declared in
   the Home Assistant pod because Home Assistant and Matter Server are a
-  compatibility pair even when Renovate proposes the update.
+  compatibility pair even when Renovate proposes the update. This file-scoped
+  guard covers routine Docker version/digest updates; the repository-wide
+  `vulnerabilityAlerts.automerge: true` security-remediation policy stays
+  unchanged.
 - `services/home-automation/home-assistant/values.yaml` for the sidecar,
   loopback probes, and volume mount.
 - `services/home-automation/home-assistant/manifests/pvc.yaml` for a named
@@ -112,8 +115,8 @@ config flow remains the final compatibility check before any device is paired.
 The container inherits the pod's existing host network and uses:
 
 - `PRIMARY_INTERFACE=eth1` for Matter discovery and device traffic.
-- `LISTEN_ADDRESS=127.0.0.1` so only Home Assistant in the shared network
-  namespace can reach the WebSocket.
+- `LISTEN_ADDRESS=127.0.0.1` so the unauthenticated WebSocket and dashboard
+  bind to the k3s node's loopback namespace shared by this `hostNetwork` pod.
 - `STORAGE_PATH=/data` for persistent fabric state.
 - No Bluetooth adapter, D-Bus socket, privileged mode, Service, LoadBalancer,
   or ingress.
@@ -130,7 +133,8 @@ The Home Assistant configuration volume is not exposed to the sidecar.
 ### Matter Server
 
 Matter Server owns the Matter fabric, device credentials, subscriptions, and
-local device communication. Home Assistant is its sole WebSocket client.
+local device communication. Home Assistant is its sole configured WebSocket
+client.
 
 The Home Assistant Companion app handles commissioning. For the already
 networked Roborock, the Roborock app opens a Matter commissioning window and
@@ -172,8 +176,11 @@ and designed separately. It must not assume a fixed Matter UDP port.
 
 ## Security and Failure Handling
 
-- Matter Server binds only to loopback. Its dashboard and WebSocket are not
-  reachable from MAIN or IOT.
+- With `hostNetwork: true`, Matter Server binds its unauthenticated dashboard
+  and WebSocket to the k3s node's loopback namespace. Home Assistant is the
+  sole configured client, but other host processes or host-network pods on the
+  same node could also reach it. MAIN and IOT still cannot reach it through a
+  network interface, Service, or ingress.
 - Device attestation remains enabled. Certificate or firmware failures are
   surfaced rather than bypassed.
 - The image is version- and digest-pinned. Renovate can still propose later
@@ -194,12 +201,20 @@ to provide vacuum control.
 Failures are classified in this order:
 
 1. Matter Server process and loopback WebSocket health.
-2. Commissionable mDNS advertisement reaching the host.
+2. Commissionable mDNS data arrives intact at the host: complete, internally
+   consistent PTR/SRV/TXT/AAAA records, and the advertised endpoint reaches
+   the host.
 3. IPv6 address and route reachability.
 4. Stateful-firewall evidence on the filtering kernel: inspect conntrack on
    the k3s node, or Proxmox only if its firewall is enabled, then inspect
    OPNsense PF state, advertised UDP port, and timeout behavior.
 5. Roborock device attestation or firmware behavior.
+
+A receiving-side packet capture showing missing, malformed, or inconsistent
+records is sufficient evidence against the relayed cross-VLAN path. A same-L2
+control experiment requires a separately approved dedicated-VM or Home
+Assistant OS design; do not move the device, the current Home Assistant
+workload, or network configuration ad hoc in phase one.
 
 Do not respond to a failure by exposing port 5580, disabling attestation,
 mounting host Bluetooth, opening all IOT-to-MAIN traffic, or stacking another

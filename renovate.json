@@ -61,6 +61,12 @@
       "addLabels": ["major-update"]
     },
     {
+      "description": "Require manual review for Home Assistant pod image updates because Home Assistant and Matter Server are a compatibility pair",
+      "matchDatasources": ["docker"],
+      "matchFileNames": ["services/home-automation/home-assistant/values.yaml"],
+      "automerge": false
+    },
+    {
       "description": "Group the Authentik Helm chart and its outpost docker images into a single PR — they release in lockstep and must be upgraded together",
       "matchPackageNames": ["authentik", "/^ghcr\\.io/goauthentik//"],
       "groupName": "authentik"

@@ -12,17 +12,17 @@ controllers:
           liveness:
             enabled: true
             type: HTTP
-            path: /
+            path: /login
             port: 8083
           readiness:
             enabled: true
             type: HTTP
-            path: /
+            path: /login
             port: 8083
           startup:
             enabled: true
             type: HTTP
-            path: /
+            path: /login
             port: 8083
 
 service:

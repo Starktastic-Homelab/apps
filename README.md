@@ -197,6 +197,11 @@ alerts; capacity alerts for other pools and MetalLB configuration alerts remain
 enabled. Jellyfin LDAP sync Jobs expire after 24 hours, bounding historical failure
 alerts without suppressing new failures. Watchdog remains the intentional heartbeat.
 
+Calibre-Web probes use `/login`; Excalidash backend probes send
+`X-Forwarded-Proto: https` to its existing trusted-proxy middleware. Both receive
+direct HTTP 200 responses instead of cross-host redirects. Probe timing and normal
+application redirects remain unchanged.
+
 Falco exempts only the pinned FlareSolverr image's expected ChromeDriver execution
 in `media`, with its executable path, process ancestry, and UID constrained. Update
 that exception alongside the FlareSolverr image pin; unrelated executions remain

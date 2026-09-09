@@ -47,16 +47,27 @@ controllers:
           - secretRef:
               name: excalidash-secret
         probes:
+          # Match the HTTPS context normally supplied by the trusted ingress.
           liveness:
             enabled: true
-            type: HTTP
-            port: 8000
-            path: /health
+            custom: true
+            spec:
+              httpGet:
+                path: /health
+                port: 8000
+                httpHeaders:
+                  - name: X-Forwarded-Proto
+                    value: https
           readiness:
             enabled: true
-            type: HTTP
-            port: 8000
-            path: /health
+            custom: true
+            spec:
+              httpGet:
+                path: /health
+                port: 8000
+                httpHeaders:
+                  - name: X-Forwarded-Proto
+                    value: https
           startup:
             enabled: true
             type: TCP

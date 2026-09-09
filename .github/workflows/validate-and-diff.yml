@@ -80,6 +80,21 @@ jobs:
           cat homepage.txt
           if [ $EXIT_CODE -ne 0 ]; then echo "❌ Homepage Coverage Failed"; else echo "✅ Homepage Coverage Passed"; fi
 
+      - name: Check alert policy
+        id: alerts
+        env:
+          # renovate: datasource=docker depName=prom/prometheus
+          PROMETHEUS_VERSION: 'v3.14.0'
+        run: |
+          set +e
+          python3 scripts/check-alert-policy.py \
+            docker run --rm -i --network none --entrypoint promtool \
+            "prom/prometheus:${PROMETHEUS_VERSION}" > alerts.txt 2>&1
+          EXIT_CODE=$?
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+          cat alerts.txt
+          if [ $EXIT_CODE -ne 0 ]; then echo "❌ Alert Policy Failed"; else echo "✅ Alert Policy Passed"; fi
+
       # ponytail: plain grep, no script. Pods run with ndots:5, so a 4-dot name like
       # svc.ns.svc.cluster.local tries every search suffix — including the node's
       # mgmt.arpa — before the absolute name, leaking one upstream query per lookup.
@@ -161,6 +176,22 @@ jobs:
             echo "" >> validation-report.md
           fi
 
+          if [ "${{ steps.alerts.outputs.exit_code }}" = "0" ]; then
+            echo "✅ **Alert Policy:** Passed" >> validation-report.md
+          else
+            echo "❌ **Alert Policy:** FAILED" >> validation-report.md
+            echo "" >> validation-report.md
+            echo "<details>" >> validation-report.md
+            echo "<summary>Log</summary>" >> validation-report.md
+            echo "" >> validation-report.md
+            echo '```' >> validation-report.md
+            { cat alerts.txt 2>/dev/null || echo "(log unavailable — step was skipped)"; } >> validation-report.md
+            echo '```' >> validation-report.md
+            echo "" >> validation-report.md
+            echo "</details>" >> validation-report.md
+            echo "" >> validation-report.md
+          fi
+
           echo "" >> validation-report.md
 
       - name: Upload validation report artifact
@@ -178,7 +209,9 @@ jobs:
           steps.kubeconform.outputs.exit_code != 0 ||
           steps.kubeconform.outputs.exit_code == '' ||
           steps.homepage.outputs.exit_code != 0 ||
-          steps.homepage.outputs.exit_code == ''
+          steps.homepage.outputs.exit_code == '' ||
+          steps.alerts.outputs.exit_code != 0 ||
+          steps.alerts.outputs.exit_code == ''
         run: exit 1
 
   diff:

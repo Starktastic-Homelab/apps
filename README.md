@@ -191,6 +191,22 @@ A full observability stack provides metrics, logs, traces, and alerting:
   <img alt="Observability data flow" src="docs/diagrams/observability.png">
 </picture>
 
+The `homelab` MetalLB pool contains fixed `/32` reservations, so it is excluded from
+capacity alerts. A LoadBalancer without an ingress address for 10 minutes still
+alerts; capacity alerts for other pools and MetalLB configuration alerts remain
+enabled. Jellyfin LDAP sync Jobs expire after 24 hours, bounding historical failure
+alerts without suppressing new failures. Watchdog remains the intentional heartbeat.
+
+Falco exempts only the pinned FlareSolverr image's expected ChromeDriver execution
+in `media`, with its executable path, process ancestry, and UID constrained. Update
+that exception alongside the FlareSolverr image pin; unrelated executions remain
+subject to the original rule.
+
+Run `python3 scripts/check-alert-policy.py` with Helm, Docker, PyYAML, and `promtool`
+installed. It resolves the pinned image's config ID without pulling the FlareSolverr
+image. The check also accepts a command prefix, for example
+`python3 scripts/check-alert-policy.py docker run --rm -i --network none --entrypoint promtool prom/prometheus:v3.14.0`.
+
 ---
 
 ## Key Design Patterns
@@ -257,6 +273,7 @@ Each ArgoCD Application pulls from up to 4 sources: the Helm chart repo, the Git
 | `scripts/new-service.sh` | Interactive scaffolding — prompts for image, ingress, persistence and generates `app.yaml` + `values.yaml` |
 | `scripts/seal.sh` | Encrypts secrets into SealedSecret YAML using the cluster's pre-seeded certificate |
 | `scripts/ntfy-manager.sh` | CLI wrapper for managing ntfy users and access rules inside the running pod |
+| `scripts/check-alert-policy.py` | Checks rendered alert behavior, bounded Job retention, and the scoped Falco exception |
 
 ---
 

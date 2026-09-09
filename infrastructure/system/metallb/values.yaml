@@ -5,6 +5,24 @@ prometheus:
     enabled: true
   prometheusRule:
     enabled: true
+    # ponytail: fixed /32 reservations stay full; alert on missing service addresses instead.
+    addressPoolExhausted:
+      excludePools: "homelab|^$"
+    addressPoolUsage:
+      excludePools: "homelab|^$"
+    extraAlerts:
+      - alert: KubeServiceLoadBalancerPending
+        expr: |
+          max by (namespace, service) (kube_service_spec_type{type="LoadBalancer"} == 1)
+          unless on (namespace, service) kube_service_status_load_balancer_ingress
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: LoadBalancer service has no assigned address
+          description: >-
+            Service {{ $labels.namespace }}/{{ $labels.service }} has had no load-balancer ingress address for more than
+            10 minutes.
 
 frr-k8s:
   prometheus:

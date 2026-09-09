@@ -13,6 +13,7 @@ spec:
     spec:
       backoffLimit: 3
       activeDeadlineSeconds: 120
+      ttlSecondsAfterFinished: 86400
       template:
         spec:
           restartPolicy: Never

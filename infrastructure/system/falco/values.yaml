@@ -21,6 +21,32 @@ falco:
     - /etc/falco/rules.d
   json_output: true
 
+# FlareSolverr patches its bundled driver; this runtime reports the image config ID as its tag.
+customRules:
+  flaresolverr-chromedriver.yaml: |
+    - rule: Drop and execute new binary in container
+      override:
+        exceptions: append
+      exceptions:
+        - name: flaresolverr_patched_chromedriver
+          fields:
+            - k8s.ns.name
+            - container.image.repository
+            - container.image.tag
+            - proc.exepath
+            - proc.pname
+            - proc.aname[2]
+            - user.uid
+          comps: ["=", "=", "=", "=", "=", "=", "="]
+          values:
+            - - media
+              - ghcr.io/flaresolverr/flaresolverr
+              - "894893ed4d4557764df3e74d27c5bc1b3944e5a33ed410e62ab7c744b348f415"
+              - /app/chromedriver
+              - python
+              - dumb-init
+              - 1000
+
 # Pull default + incubating rulesets (incubating:6 pairs with falco-rules:5 for Falco 0.44.x)
 # NOTE: refs live under falcoctl.config.artifact.* (falcoctl.artifact.* is the init/sidecar
 # container config and has no refs field — putting refs there is silently ignored).

@@ -1,5 +1,7 @@
 controllers:
   main:
+    # Maintenance hold: follow README.md before resuming or upgrading.
+    replicas: 0
     containers:
       main:
         image:

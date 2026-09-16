@@ -39,6 +39,30 @@ The separate node-local `/config/cache` volume does **not** move the database of
 NFS. Jellyfin recommends local database storage; treat the existing NFS placement
 as a migration risk, not something silently changed alongside the image.
 
+### Preserve transcoding settings
+
+Jellyfin 12 changed `EncoderPreset` from nullable to non-nullable. An old
+`<EncoderPreset xsi:nil="true" />` or empty preset can make it reject and overwrite
+the **entire `encoding.xml` with defaults**
+([jellyfin/jellyfin#17861](https://github.com/jellyfin/jellyfin/issues/17861)).
+The server can still report `Healthy` while VA-API, tone mapping, HEVC, and
+low-power hardware encoders have been disabled.
+
+Before the production upgrade, explicitly save the encoder preset as **Auto**
+while still on 10.11.11. Use the dashboard or retrieve the complete
+`GET /System/Configuration/encoding` object, set only `EncoderPreset` to `"auto"`,
+and send it back with `POST /System/Configuration/encoding`. Never POST only the
+single field: omitted options can reset other settings. Verify the saved XML
+contains `<EncoderPreset>auto</EncoderPreset>` without `xsi:nil`, preserve all
+other encoding options, and include that configuration in the cold backup.
+
+The rehearsal restore helper and startup gate normalize only a private copy's
+nil/empty preset; the source snapshot and explicit presets are unchanged. If 12 has
+already reset a configuration, changing its preset alone cannot recover lost
+settings. Restore the complete original encoding options from the pre-upgrade
+copy or still-running production instance through the supported API, normalize
+the preset, retain new 12-specific defaults, and verify persistence after restart.
+
 ## Isolated rehearsal
 
 `services/media/jellyfin-rehearsal` restores only Jellyfin's subtree from the live
@@ -78,12 +102,13 @@ integrity check. Require successful plugin startup and a real Kodi sync request
 after installing the compatible replacement on the clone. Unrecognized `.db`
 files still fail preparation rather than being silently skipped.
 
-The init container only requires that marker and the private database; it never
-accesses the NAS snapshot or recopies data. An empty, partial, or unrecognized
-restore cannot start Jellyfin. Later starts preserve migrated data and newly
-installed plugins. If restoration fails, stop and inspect the error; retry only
-after explicitly cleaning the disposable rehearsal directory. Never repoint the
-helper at production or roll back the shared dataset.
+The init container requires that marker, the private database, and readable
+encoding configuration. It applies the preset safeguard even to previously
+prepared volumes, but never accesses the NAS snapshot or recopies data. An empty,
+partial, or unrecognized restore cannot start Jellyfin. Later starts preserve
+migrated data and newly installed plugins. If restoration fails, stop and inspect
+the error; retry only after explicitly cleaning the disposable rehearsal
+directory. Never repoint the helper at production or roll back the shared dataset.
 
 This live snapshot is crash-consistent, not a guaranteed clean application
 checkpoint. A successful rehearsal does not replace the fresh cold backup before
@@ -112,6 +137,13 @@ Install these stable replacements **only on the 12.1 clone**, then run a full sc
 File Transformation needs a different binary despite the unchanged version
 number; load it before enabling Intro Skipper's optional web enhancements.
 The Intro Skipper feed selects its manifest using Jellyfin's server version.
+
+On the clone only, remove the **Update Plugins** scheduled task's startup and
+interval triggers so the reviewed versions cannot change during the rehearsal.
+Find its `Key: PluginUpdates` in `GET /ScheduledTasks`, then send `[]` to
+`POST /ScheduledTasks/{taskId}/Triggers` and verify the empty trigger list survives
+restart. The Renovate exclusion freezes deployment dependencies, not this in-app
+updater.
 
 Check local and LDAP administrator access, ordinary-user library restrictions,
 full-scan results, direct play, forced VA-API transcoding, HDR tone mapping,
@@ -166,8 +198,8 @@ existing Helm/PyYAML tooling and `curl`. These checks protect the repository
 configuration; they do not replace a database restore/migration rehearsal.
 `python3 scripts/check-jellyfin-rehearsal.py` additionally checks NAS-local WAL
 restoration, preservation of Kodi's LiteDB data/log, corrupt/partial-copy
-rejection, marker gating without snapshot access, restart safety, and the rendered
-clone's isolation.
+rejection, encoding-preset normalization without losing other settings, marker
+gating without snapshot access, restart safety, and the rendered clone's isolation.
 
 - [Jellyfin 12 announcement and updating instructions](https://jellyfin.org/posts/jellyfin-release-12.0/)
 - [Jellyfin backup and restore](https://jellyfin.org/docs/general/administration/backup-and-restore/)

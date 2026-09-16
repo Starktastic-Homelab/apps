@@ -4,7 +4,7 @@ controllers:
       main:
         image:
           repository: ghcr.io/navidrome/navidrome
-          tag: 0.62.0@sha256:c4b5cb36a790b3eb63ca6a68bbe2fe149c2d7fa2e586f7a480e61db630e6664b
+          tag: 0.64.0@sha256:a384948b81bd1529986c5960169e7fc4fa00f46bde6bd517971a4c36671db2af
         env:
           ND_MUSICFOLDER: "/data/library/music"
           ND_DATAFOLDER: "/config"

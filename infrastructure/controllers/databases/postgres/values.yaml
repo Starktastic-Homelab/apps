@@ -26,7 +26,7 @@ auth:
 # tags, and any one of them breaking takes the whole database offline.
 image:
   repository: bitnami/postgresql
-  tag: "latest@sha256:40a261ed77f3b8dc65eeeec98bb79c4d3ef3410d7e2af7cfcf3785a6af00e4c5"
+  tag: "latest@sha256:b69d1fca390fb131639e86e820f248acfc5d911339dc884796f8009260c598d7"
 primary:
   resourcesPreset: "none"
   resources:

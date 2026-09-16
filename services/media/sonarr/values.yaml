@@ -4,7 +4,7 @@ controllers:
       main:
         image:
           repository: lscr.io/linuxserver/sonarr
-          tag: 4.0.17@sha256:02bc962946fef994e67a38152446df25c10a52f8583aefeeb6467f9dd44cab99
+          tag: 4.0.19@sha256:82172b363f9eddc02aca544f880a044f2ceb9aaf190bc87e4454e2f705eb91d0
         probes:
           liveness:
             port: 8989

@@ -115,6 +115,6 @@ metrics:
   # that reason, not for the metrics themselves.
   image:
     repository: bitnami/postgres-exporter
-    tag: "latest@sha256:b672b54e6dbb277d098182cf9708aaaea3b7f2bc2d4f1917c5fb34ffcaa19e05"
+    tag: "latest@sha256:c6b5bd91427e5fad89c4995c198c9cf2851555cbc7d8f720d37f0ba201933a3b"
   serviceMonitor:
     enabled: true

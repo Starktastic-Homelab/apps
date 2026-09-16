@@ -10,6 +10,7 @@ import sqlite3
 import subprocess
 from tempfile import TemporaryDirectory
 from unittest import TestCase
+import xml.etree.ElementTree as ET
 
 import yaml
 
@@ -38,6 +39,15 @@ with TemporaryDirectory() as temporary:
     configurations.mkdir()
     (configurations / "Example.xml").write_text("<setting>keep</setting>")
     (source / "system.xml").write_text("<configuration>keep</configuration>")
+    encoding_xml = """<EncodingOptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <HardwareAccelerationType>vaapi</HardwareAccelerationType>
+  <VaapiDevice>/dev/dri/renderD128</VaapiDevice>
+  <EnableTonemapping>true</EnableTonemapping>
+  <EnableVppTonemapping>true</EnableVppTonemapping>
+  <HardwareDecodingCodecs><string>hevc</string><string>av1</string></HardwareDecodingCodecs>
+  <EncoderPreset xsi:nil="true" />
+</EncodingOptions>"""
+    (source / "encoding.xml").write_text(encoding_xml)
     (source / "cache").mkdir()
     (source / "cache/disposable").touch()
     litedb_files = {
@@ -73,6 +83,62 @@ with TemporaryDirectory() as temporary:
         assert (target / "data/data" / name).read_bytes() == content
     assert target.stat().st_uid == source.stat().st_uid
     assert target.stat().st_gid == source.stat().st_gid
+
+    encoded = ET.parse(target / "encoding.xml").getroot()
+    preset = encoded.find("EncoderPreset")
+    assert preset is not None and preset.text == "auto", "A nil encoder preset must not reset Jellyfin 12's transcoding configuration"
+    assert not preset.attrib
+    encoded.remove(preset)
+    original_encoding = ET.fromstring(encoding_xml)
+    original_preset = original_encoding.find("EncoderPreset")
+    assert original_preset is not None
+    original_encoding.remove(original_preset)
+    assert ET.tostring(encoded) == ET.tostring(original_encoding), "All other encoding settings must be preserved"
+    assert (source / "encoding.xml").read_text() == encoding_xml
+    assert (target / "encoding.xml").stat().st_uid == (source / "encoding.xml").stat().st_uid
+
+    (target / "encoding.xml").write_text(encoding_xml)
+    require_ready(target)
+    assert ET.parse(target / "encoding.xml").getroot().findtext("EncoderPreset") == "auto", "Previously prepared volumes need the startup safeguard too"
+    malformed_ready = root / "malformed-ready"
+    shutil.copytree(target, malformed_ready)
+    (malformed_ready / "encoding.xml").write_text("<EncodingOptions>")
+    with checks.assertRaises(ET.ParseError):
+        require_ready(malformed_ready)
+
+    normalize_encoder_preset = helpers["normalize_encoder_preset"]
+    for field, expected in (
+        ('<EncoderPreset xsi:nil="1" />', "auto"),
+        ("<EncoderPreset />", "auto"),
+        ("<EncoderPreset> </EncoderPreset>", "auto"),
+        ("<EncoderPreset>slow</EncoderPreset>", "slow"),
+        ("<EncoderPreset>auto</EncoderPreset>", "auto"),
+        ("", None),
+    ):
+        example = root / "encoding-example.xml"
+        example.write_text(encoding_xml.replace('<EncoderPreset xsi:nil="true" />', field))
+        normalize_encoder_preset(example)
+        assert ET.parse(example).getroot().findtext("EncoderPreset") == expected
+        normalized = (example.read_bytes(), example.stat().st_mtime_ns)
+        normalize_encoder_preset(example)
+        assert (example.read_bytes(), example.stat().st_mtime_ns) == normalized
+
+    malformed = root / "malformed-config"
+    shutil.copytree(source, malformed)
+    (malformed / "encoding.xml").write_text("<EncodingOptions><EncoderPreset>")
+    with checks.assertRaises(ET.ParseError):
+        prepare(malformed, root / "malformed-rejected")
+    assert not (root / "malformed-rejected/.rehearsal-ready").exists()
+
+    linked = root / "linked-config"
+    shutil.copytree(source, linked)
+    (linked / "encoding.xml").unlink()
+    protected_encoding = root / "protected-encoding.xml"
+    protected_encoding.write_text(encoding_xml)
+    (linked / "encoding.xml").symlink_to(protected_encoding)
+    with checks.assertRaises(RuntimeError):
+        prepare(linked, root / "linked-rejected")
+    assert protected_encoding.read_text() == encoding_xml
 
     source.rename(root / "offline-snapshot")
     require_ready(target)

@@ -8,12 +8,28 @@ from pathlib import Path
 import shutil
 import sqlite3
 import subprocess
+import xml.etree.ElementTree as ET
 
 
 SNAPSHOT = Path("/mnt/apps/pv/.zfs/snapshot/jellyfin-rehearsal-20260916-359cdcb9/media/jellyfin-config")
 DESTINATION = Path("/mnt/apps/pv/media/jellyfin-rehearsal")
 DATABASE = Path("data/data/jellyfin.db")
 READY_TEXT = f"Validated restore of {SNAPSHOT}\n"
+
+
+def normalize_encoder_preset(path: Path):
+    if path.is_symlink() or not path.is_file():
+        raise RuntimeError("Encoding configuration must be a regular file in the private copy")
+    tree = ET.parse(path)
+    preset = tree.getroot().find("EncoderPreset")
+    nil = "{http://www.w3.org/2001/XMLSchema-instance}nil"
+    if preset is None or ((preset.text or "").strip() and preset.get(nil) not in ("true", "1")):
+        return
+    # Jellyfin 12 made this enum non-nullable; nil resets the entire encoding config.
+    preset.text = "auto"
+    preset.attrib.pop(nil, None)
+    tree.write(path, encoding="utf-8", xml_declaration=True)
+    print("Normalized unset encoder preset to auto; preserved other encoding settings")
 
 
 def require_ready(target: Path):
@@ -24,6 +40,7 @@ def require_ready(target: Path):
     database = target / DATABASE
     if not database.is_file() or not database.resolve().is_relative_to(target):
         raise RuntimeError("Prepared rehearsal has lost its private database")
+    normalize_encoder_preset(target / "encoding.xml")
     print("Rehearsal already prepared; preserving data and plugins")
 
 
@@ -72,6 +89,8 @@ def prepare(source: Path, target: Path):
         if result != [("ok",)]:
             raise RuntimeError(f"SQLite integrity check failed: {relative}: {result}")
         print(f"SQLite integrity OK: {relative}")
+
+    normalize_encoder_preset(target / "encoding.xml")
 
     plugins = target / "data/plugins"
     if plugins.exists():

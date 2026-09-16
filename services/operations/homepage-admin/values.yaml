@@ -6,7 +6,7 @@ controllers:
       main:
         image:
           repository: ghcr.io/gethomepage/homepage
-          tag: v2.0.0@sha256:638dacf5c844e908dc06c1fd57a2b5694f8efd91f91f152829ea0c2f547458f2
+          tag: v2.3.0@sha256:f820276654539cdc2cf0169f28188d135919a7984fad76d83d8d5ff1383f3705
         env:
           HOMEPAGE_ALLOWED_HOSTS: "admin.starktastic.net"
           LOG_TARGETS: "stdout"

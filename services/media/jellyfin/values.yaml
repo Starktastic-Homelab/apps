@@ -18,9 +18,15 @@ controllers:
             port: 8096
           readiness:
             enabled: true
-            type: HTTP
-            path: /health
-            port: 8096
+            # Jellyfin 12 returns HTTP 200 with "Degraded" during migrations.
+            # Gate traffic on the body, without turning migration into a liveness failure.
+            custom: true
+            spec:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - test "$(curl -fsS --max-time 4 http://127.0.0.1:8096/health)" = Healthy
           startup:
             enabled: true
             type: HTTP

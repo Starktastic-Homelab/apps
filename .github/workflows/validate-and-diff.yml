@@ -10,6 +10,7 @@ on:
       - 'services/**'
       - 'templates/**'
       - 'scripts/**'
+      - 'renovate.json'
       - '.github/workflows/**'
       - '.github/yamllint.yaml'
 
@@ -109,6 +110,9 @@ jobs:
             exit 1
           fi
           echo "✅ No cluster.local FQDNs"
+
+      - name: Check LinuxServer full-tag policy
+        run: node scripts/check-linuxserver-tags.mjs
 
       - name: Create validation report
         if: always()

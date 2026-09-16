@@ -36,16 +36,28 @@
       "minimumReleaseAge": "7 days"
     },
     {
-      "description": "Block Ubuntu base-image version tags (e.g. 20.04.1) on LinuxServer images",
+      "description": "Track stable LinuxServer full build tags; preserve libtorrent-major compatibility and exclude legacy Ubuntu base-image tags",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["/^lscr\\.io/linuxserver//"],
+      "versioning": "regex:^v?(?<major>\\d+)\\.(?<minor>\\d+)(?:\\.(?<patch>\\d+))?(?:ubu\\d+|_v(?<compatibility>\\d+)\\.\\d+\\.\\d+)?-ls(?<build>\\d+)$",
       "allowedVersions": "!/^\\d{2}\\.04/"
+    },
+    {
+      "description": "Order four-part arr application versions before LinuxServer rebuild numbers",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": [
+        "lscr.io/linuxserver/lidarr",
+        "lscr.io/linuxserver/prowlarr",
+        "lscr.io/linuxserver/radarr",
+        "lscr.io/linuxserver/sonarr"
+      ],
+      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)\\.(?<build>\\d+)-ls(?<revision>\\d+)$"
     },
     {
       "description": "Stay on libtorrent v2 (qBittorrent 5.x); block the 6.x release which switches to libtorrent v3",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["lscr.io/linuxserver/qbittorrent"],
-      "allowedVersions": "< 6.0.0"
+      "allowedVersions": "/^[0-5]\\./"
     },
     {
       "description": "Track only FileBrowser Quantum's stable channel; the registry also publishes -beta tags for the same version",

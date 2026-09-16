@@ -16,7 +16,7 @@ controllers:
       main:
         image:
           repository: ghcr.io/stuffanthings/qbit_manage
-          tag: v4.8.1@sha256:38afe4cf17e983dd1758f5a7437beebab2679d2c77fc18a790d5e2abef657b8f
+          tag: v4.13.0@sha256:ea04167f627e506b3691304f4c639a52c05584cc9aea4af7ec87d4ed1299e7f5
         env:
           QBT_SCHEDULE: "30"
         securityContext:

@@ -36,28 +36,18 @@
       "minimumReleaseAge": "7 days"
     },
     {
-      "description": "Track stable LinuxServer full build tags; preserve libtorrent-major compatibility and exclude legacy Ubuntu base-image tags",
+      "description": "Use native ordering for stable LinuxServer build tags; exclude commit hashes, prereleases, branch/arch aliases and legacy Ubuntu tags",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["/^lscr\\.io/linuxserver//"],
-      "versioning": "regex:^v?(?<major>\\d+)\\.(?<minor>\\d+)(?:\\.(?<patch>\\d+))?(?:ubu\\d+|_v(?<compatibility>\\d+)\\.\\d+\\.\\d+)?-ls(?<build>\\d+)$",
+      "versioning": "loose",
+      "extractVersion": "^(?<version>v?\\d+(?:\\.\\d+)+(?:ubu\\d+|_v\\d+(?:\\.\\d+)+)?-ls\\d+)$",
       "allowedVersions": "!/^\\d{2}\\.04/"
-    },
-    {
-      "description": "Order four-part arr application versions before LinuxServer rebuild numbers",
-      "matchDatasources": ["docker"],
-      "matchPackageNames": [
-        "lscr.io/linuxserver/lidarr",
-        "lscr.io/linuxserver/prowlarr",
-        "lscr.io/linuxserver/radarr",
-        "lscr.io/linuxserver/sonarr"
-      ],
-      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)\\.(?<build>\\d+)-ls(?<revision>\\d+)$"
     },
     {
       "description": "Stay on libtorrent v2 (qBittorrent 5.x); block the 6.x release which switches to libtorrent v3",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["lscr.io/linuxserver/qbittorrent"],
-      "allowedVersions": "/^[0-5]\\./"
+      "allowedVersions": "/^[0-5]\\..*_v2\\./"
     },
     {
       "description": "Track only FileBrowser Quantum's stable channel; the registry also publishes -beta tags for the same version",

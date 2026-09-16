@@ -17,7 +17,7 @@ controllers:
       main:
         image:
           repository: lscr.io/linuxserver/qbittorrent
-          tag: 5.2.2@sha256:bca2cf536c00900f0b8fb62ca3dcbed8ee64293165d41c8240d2cc952d4ef048
+          tag: 5.2.3@sha256:2be038f3421f60f62e8e4bf201f66f385b68e4fbc9ed3ab79051069ea22e2650
         env:
           WEBUI_PORT: "8080"
           DOCKER_MODS: "ghcr.io/gabe565/linuxserver-mod-vuetorrent"

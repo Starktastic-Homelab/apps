@@ -54,7 +54,7 @@ def ldap_get_users(cfg, bind_password):
 def jellyfin_api(base_url, api_key, path, method="GET", data=None):
     """Make a Jellyfin API request."""
     url = f"{base_url}{path}"
-    headers = {"X-Emby-Token": api_key, "Content-Type": "application/json"}
+    headers = {"Authorization": f'MediaBrowser Token="{api_key}"', "Content-Type": "application/json"}
     body = json.dumps(data).encode() if data else None
     req = urllib.request.Request(url, data=body, headers=headers, method=method)
     try:

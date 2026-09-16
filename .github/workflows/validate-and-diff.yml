@@ -81,6 +81,9 @@ jobs:
           cat homepage.txt
           if [ $EXIT_CODE -ne 0 ]; then echo "❌ Homepage Coverage Failed"; else echo "✅ Homepage Coverage Passed"; fi
 
+      - name: Check Jellyfin compatibility
+        run: python3 scripts/check-jellyfin-compat.py
+
       - name: Check alert policy
         id: alerts
         env:

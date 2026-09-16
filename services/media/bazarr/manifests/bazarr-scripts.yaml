@@ -71,7 +71,7 @@ data:
             f"{JELLYFIN_URL}/Library/Media/Updated",
             data=data,
             headers={
-                "X-Emby-Token": JELLYFIN_TOKEN,
+                "Authorization": f'MediaBrowser Token="{JELLYFIN_TOKEN}"',
                 "Content-Type": "application/json",
             },
             method="POST",

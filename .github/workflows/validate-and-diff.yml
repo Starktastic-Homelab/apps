@@ -84,6 +84,9 @@ jobs:
       - name: Check Jellyfin compatibility
         run: python3 scripts/check-jellyfin-compat.py
 
+      - name: Check Jellyfin rehearsal isolation
+        run: python3 scripts/check-jellyfin-rehearsal.py
+
       - name: Check alert policy
         id: alerts
         env:

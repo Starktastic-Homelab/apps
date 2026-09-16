@@ -1,0 +1,12 @@
+name: jellyfin-rehearsal
+namespace: media
+deployPhase: services
+baseApp: services/media/jellyfin
+valuesOverride: true
+manifests: true
+chart:
+  repo: ghcr.io/bjw-s-labs/helm
+  name: app-template
+  version: "5.1.0"
+ingress:
+  enabled: false

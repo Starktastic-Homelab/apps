@@ -1,0 +1,68 @@
+defaultPodOptions:
+  automountServiceAccountToken: false
+  nodeSelector:
+    kubernetes.io/hostname: kube-worker-02
+
+controllers:
+  main:
+    initContainers:
+      prepare:
+        image:
+          repository: python
+          tag: alpine@sha256:c6ead215bfd31f1e433d968853b7a769989117115b728874824e6c0a27cb96fc
+        command: ["python", "/scripts/prepare.py"]
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: "1"
+            memory: 512Mi
+    containers:
+      main:
+        image:
+          tag: 12.1ubu2604-ls50@sha256:51252e7a416e703cdc3cd91e8a54673a2430cc80409be8a38abe511411577b95
+        env:
+          JELLYFIN_PublishedServerUrl: "http://jellyfin-rehearsal.media:8096"
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: "2"
+            memory: 8Gi
+
+service:
+  discovery:
+    enabled: false
+
+persistence:
+  config:
+    enabled: true
+    size: 50Gi
+  jellyfin-config:
+    enabled: false
+  jellyfin-cache:
+    enabled: false
+  cache:
+    type: emptyDir
+    sizeLimit: 10Gi
+    advancedMounts:
+      main:
+        main:
+          - path: /config/cache
+  media:
+    globalMounts: []
+    advancedMounts:
+      main:
+        main:
+          - path: /data
+            readOnly: true
+  prepare-script:
+    type: configMap
+    name: jellyfin-rehearsal-prepare
+    advancedMounts:
+      main:
+        prepare:
+          - path: /scripts
+            readOnly: true

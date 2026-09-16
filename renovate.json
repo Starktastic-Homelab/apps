@@ -69,6 +69,11 @@
       "automerge": false
     },
     {
+      "description": "Freeze the disposable Jellyfin rehearsal at the exact reviewed images",
+      "matchFileNames": ["services/media/jellyfin-rehearsal/**"],
+      "enabled": false
+    },
+    {
       "description": "Group the Authentik Helm chart and its outpost docker images into a single PR — they release in lockstep and must be upgraded together",
       "matchPackageNames": ["authentik", "/^ghcr\\.io/goauthentik//"],
       "groupName": "authentik"

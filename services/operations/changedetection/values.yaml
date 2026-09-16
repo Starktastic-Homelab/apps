@@ -30,7 +30,7 @@ controllers:
       sockpuppetbrowser:
         image:
           repository: dgtlmoon/sockpuppetbrowser
-          tag: latest@sha256:7116c61ef9cfce3d48a7efd9355d2fbe19f593ea3cfb52a5ded40ecbcb0a3f9d
+          tag: latest@sha256:1d8f72d2ce2085faed4232e5ae1e65c02efe5b831a18e127829b267c260b4fb2
         env:
           SCREEN_WIDTH: "1920"
           SCREEN_HEIGHT: "1024"

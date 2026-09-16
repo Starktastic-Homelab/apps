@@ -138,6 +138,13 @@ File Transformation needs a different binary despite the unchanged version
 number; load it before enabling Intro Skipper's optional web enhancements.
 The Intro Skipper feed selects its manifest using Jellyfin's server version.
 
+On the clone only, remove the **Update Plugins** scheduled task's startup and
+interval triggers so the reviewed versions cannot change during the rehearsal.
+Find its `Key: PluginUpdates` in `GET /ScheduledTasks`, then send `[]` to
+`POST /ScheduledTasks/{taskId}/Triggers` and verify the empty trigger list survives
+restart. The Renovate exclusion freezes deployment dependencies, not this in-app
+updater.
+
 Check local and LDAP administrator access, ordinary-user library restrictions,
 full-scan results, direct play, forced VA-API transcoding, HDR tone mapping,
 subtitles, seeking, and the clients actually used. Record peak memory, not just

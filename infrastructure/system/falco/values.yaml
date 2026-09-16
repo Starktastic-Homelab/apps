@@ -41,7 +41,7 @@ customRules:
           values:
             - - media
               - ghcr.io/flaresolverr/flaresolverr
-              - "894893ed4d4557764df3e74d27c5bc1b3944e5a33ed410e62ab7c744b348f415"
+              - "cd2872fa4a3e0bb10acee4063771adeba71feb8bf75311dd481a7a1ce3c32d36"
               - /app/chromedriver
               - python
               - dumb-init

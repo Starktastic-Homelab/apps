@@ -204,8 +204,10 @@ application redirects remain unchanged.
 
 Falco exempts only the pinned FlareSolverr image's expected ChromeDriver execution
 in `media`, with its executable path, process ancestry, and UID constrained. Update
-that exception alongside the FlareSolverr image pin; unrelated executions remain
-subject to the original rule.
+the exception in `infrastructure/system/falco/values.yaml` alongside every FlareSolverr
+image pin update, including Renovate PRs. Use the Linux/amd64 image config digest
+without `sha256:`, not the manifest digest; unrelated executions remain subject to
+the original rule.
 
 Run `python3 scripts/check-alert-policy.py` with Helm, Docker, PyYAML, and `promtool`
 installed. It resolves the pinned image's config ID without pulling the FlareSolverr

@@ -5,6 +5,8 @@ defaultPodOptions:
 
 controllers:
   main:
+    # Do not inherit the production maintenance hold.
+    replicas: 1
     initContainers:
       prepare:
         image:

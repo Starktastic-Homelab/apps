@@ -56,6 +56,11 @@ single field: omitted options can reset other settings. Verify the saved XML
 contains `<EncoderPreset>auto</EncoderPreset>` without `xsi:nil`, preserve all
 other encoding options, and include that configuration in the cold backup.
 
+If the maintenance hold has already stopped Jellyfin, take the untouched cold
+backup first, then normalize the nil/empty preset in production's **working
+volume**, not in the backup, before starting 12. Keep the backup unchanged.
+Do not restart against a nil preset or try to recover lost settings from defaults.
+
 The rehearsal restore helper and startup gate normalize only a private copy's
 nil/empty preset; the source snapshot and explicit presets are unchanged. If 12 has
 already reset a configuration, changing its preset alone cannot recover lost
@@ -153,19 +158,30 @@ less memory headroom than the rehearsal worker.
 
 ## Controlled production upgrade
 
+The temporary maintenance state retains the 10.11.11 image and all storage,
+but sets production to zero replicas and suspends LDAP policy synchronization.
+Merging that maintenance change starts the outage; simply preparing the PR does
+not change the running service. The rehearsal explicitly stays at one replica
+instead of inheriting production's maintenance hold.
+
 1. Through GitOps, suspend `jellyfin-ldap-library-sync` with `spec.suspend: true`
    and stop Jellyfin with `controllers.main.replicas: 0`. Wait for existing
-   writers and the pod to terminate. Do not rely on live scaling that
-   reconciliation can undo.
+   writers and the pod to terminate: suspending a CronJob does not cancel an
+   already-running Job. Confirm no active LDAP-sync Job remains. Do not rely on
+   live scaling that reconciliation can undo.
 2. With Jellyfin stopped, back up the **complete `/config` volume**, including
    configuration, databases, metadata, plugin binaries and plugin configuration.
    Preserve ownership/permissions and keep an untouched copy outside that PVC.
    The separate disposable cache need not be copied. If using a snapshot of a
    shared NAS dataset, restore/clone only Jellyfin's directory, not every app.
 3. Only after the isolated rehearsal succeeds and the fresh cold backup is
-   secured, remove installed add-on binaries before starting the pinned 12.1
-   image. Keep the complete original plugin state in the backup, retain plugin
-   configurations, and reinstall the matching 12.1 builds afterward.
+   secured, normalize the encoder preset if needed and remove installed add-on
+   binaries before starting the pinned 12.1 image. Keep the complete original
+   plugin state in the backup, retain plugin configurations, and reinstall the
+   matching 12.1 builds afterward. An image-only dependency PR does **not** release
+   the zero-replica hold. Once backup and configuration/plugin preparation are
+   verified, remove `replicas: 0` (or set it to `1`) through a separate GitOps
+   change to start the reviewed image. Keep the LDAP CronJob suspended.
 4. Require completed migration logs and `/health` body **`Healthy`**, not merely
    HTTP 200 or a new `/System/Info/Public` version. The temporary startup server
    can report `Degraded` with HTTP 200. Readiness checks the body; startup and

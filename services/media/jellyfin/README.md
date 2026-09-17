@@ -210,6 +210,15 @@ while LDAP synchronization stays suspended. Use the local recovery administrator
 to reinstall the compatible add-ons after migration; LDAP login is not ready
 until LDAP-Auth has been installed and loaded.
 
+Production migration, the compatible add-ons, local/LDAP administrator access,
+ordinary-user library restrictions, and playback were verified before releasing
+the LDAP synchronization hold. Keep the cold snapshot and old plugin archive.
+
+During the first production full scan, a SQLite `database is locked` timeout
+interrupted a playback-progress write. Library requests returned to normal after the scan.
+The database remains on NFS; concurrent scans and playback remain a contention
+risk, and moving database storage should be handled separately from this upgrade.
+
 ## Rollback
 
 Stop Jellyfin and keep writers suspended. Restore the **complete pre-upgrade

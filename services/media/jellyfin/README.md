@@ -195,6 +195,21 @@ instead of inheriting production's maintenance hold.
    are verified, then remove the maintenance overrides through GitOps. Do not
    replace production's data volume with the disposable rehearsal copy.
 
+### Verified checkpoint for the 12.1 cutover
+
+The cold rollback snapshot is
+`apps/pv@jellyfin-pre12-cold-20260917T061613Z-359cdcb9`. It preserves the complete
+production configuration and original 10.11.11 plugin state; its SQLite databases
+and WAL were checked on independent temporary restores.
+
+Production's working copy now has an explicit `auto` encoder preset and its old
+add-ons archived at `/config/data/plugins-before-12`, with plugin configurations
+retained in the active directory. The databases and cold snapshot are unchanged.
+The resume change pins the exact rehearsed 12.1 image and starts one replica,
+while LDAP synchronization stays suspended. Use the local recovery administrator
+to reinstall the compatible add-ons after migration; LDAP login is not ready
+until LDAP-Auth has been installed and loaded.
+
 ## Rollback
 
 Stop Jellyfin and keep writers suspended. Restore the **complete pre-upgrade

@@ -1,9 +1,9 @@
 # Jellyfin 12 upgrade
 
-The compatibility preparation keeps Jellyfin on **10.11.11**. Its canonical
-`Authorization: MediaBrowser Token="..."` headers, Homepage widget `version: 2`,
-and body-aware readiness probe work with both 10.11.11 and 12.1.
-The image upgrade remains a separate change.
+Production was upgraded from **10.11.11 to 12.1** on September 17, 2026.
+The canonical `Authorization: MediaBrowser Token="..."` headers, Homepage widget
+`version: 2`, and body-aware readiness probe remain in place and work with both
+versions. This runbook retains the upgrade safeguards and rollback checkpoint.
 
 ## Why this needs a maintenance window
 
@@ -61,72 +61,49 @@ backup first, then normalize the nil/empty preset in production's **working
 volume**, not in the backup, before starting 12. Keep the backup unchanged.
 Do not restart against a nil preset or try to recover lost settings from defaults.
 
-The rehearsal restore helper and startup gate normalize only a private copy's
-nil/empty preset; the source snapshot and explicit presets are unchanged. If 12 has
-already reset a configuration, changing its preset alone cannot recover lost
-settings. Restore the complete original encoding options from the pre-upgrade
-copy or still-running production instance through the supported API, normalize
-the preset, retain new 12-specific defaults, and verify persistence after restart.
+If 12 has already reset a configuration, changing its preset alone cannot recover
+lost settings. Restore the complete original encoding options from the pre-upgrade
+copy through the supported API, normalize the preset, retain new 12-specific
+defaults, and verify persistence after restart.
 
-## Isolated rehearsal
+## Completed rehearsal and retirement
 
-`services/media/jellyfin-rehearsal` restores only Jellyfin's subtree from the live
-snapshot `apps/pv@jellyfin-rehearsal-20260916-359cdcb9`. Production remains on
-10.11.11. The clone runs on worker-02 with its own 50 GiB NFS config claim,
-10 GiB disposable cache, read-only media, and an 8 GiB memory / 2 CPU limit.
-It has no ingress, discovery service, Kubernetes API token, or LDAP-sync job.
-It uses the official OCI distribution of the same app-template 5.1.0 chart;
-production's chart source and values are not changed.
+The isolated 12.1 rehearsal used a private configuration copy on worker-02,
+read-only media, disposable cache, and bounded resources without production
+ingress, discovery, or LDAP policy synchronization. Migration, compatible
+add-ons, user access, the full scan, and hardware playback were verified before
+the production cutover.
+
+The temporary GitOps app, snapshot-specific restore helper, and rehearsal-only
+CI check are retired after production acceptance. Their implementation remains
+in Git history; do not blindly reuse its old fixed snapshot and destination.
+The permanent compatibility checks remain enabled.
+
+Removing the app lets ArgoCD delete its owned runtime resources and PVC.
+The NFS PV has **Retain** policy, so this GitOps-only cleanup does not delete
+`/mnt/apps/pv/media/jellyfin-rehearsal` or its retained PV
+`pvc-b26fa377-ee5f-441c-827e-882fbccfd445`. The old live rehearsal snapshot
+`apps/pv@jellyfin-rehearsal-20260916-359cdcb9` is also retained. Deleting those
+requires separate approval after confirming the rehearsal pod is gone.
+Snapshot references can retain blocks even after a directory is deleted.
 
 NFS snapshot exposure is unavailable on this TrueNAS installation: the `.zfs`
 snapshot directories appear empty to NFS clients. Restore **on the NAS itself**,
-not through an NFS snapshot mount. The tracked helper has a fixed snapshot source
-and a fixed private destination, `/mnt/apps/pv/media/jellyfin-rehearsal`, matching
-the provisioner's `media/jellyfin-rehearsal` claim path. No new NAS share, service,
-dataset, or host configuration is needed.
-
-Before merging the rehearsal PR, copy and run the checked-in helper using an
-existing trusted SSH connection:
-
-```sh
-scp services/media/jellyfin-rehearsal/manifests/prepare.py truenas_admin@10.9.9.30:/tmp/jellyfin-rehearsal-prepare.py
-ssh -t truenas_admin@10.9.9.30 'sudo python3 /tmp/jellyfin-rehearsal-prepare.py --restore'
-ssh truenas_admin@10.9.9.30 'rm /tmp/jellyfin-rehearsal-prepare.py'
-```
-
-The helper copies into an empty private directory, preserves ownership and
-permissions, checks the copied SQLite databases (including WAL state), and
-archives old plugin binaries while retaining their configurations. It writes a
-snapshot-specific completion marker only after success. Confirm the restored
-database and marker are visible through the ordinary NFS share before deployment.
+not through an NFS snapshot mount. Future rehearsals must use an empty private
+destination, preserve ownership and permissions, validate the restored databases
+including WAL state, and refuse to start from an incomplete copy.
 
 Kodi Sync Queue's `kodisyncqueue.db` and `kodisyncqueue-log.db` use
 [LiteDB, not SQLite](https://github.com/jellyfin/jellyfin-plugin-kodisyncqueue/blob/v15/Jellyfin.Plugin.KodiSyncQueue/Data/DbRepo.cs).
-The helper preserves both files byte-for-byte; it does not claim a native LiteDB
-integrity check. Require successful plugin startup and a real Kodi sync request
-after installing the compatible replacement on the clone. Unrecognized `.db`
-files still fail preparation rather than being silently skipped.
+Preserve both files; SQLite checks cannot validate them. Require successful
+plugin startup and a real Kodi sync request after installing a compatible build.
+A live snapshot remains crash-consistent and does not replace the fresh cold
+checkpoint required before production migration.
 
-The init container requires that marker, the private database, and readable
-encoding configuration. It applies the preset safeguard even to previously
-prepared volumes, but never accesses the NAS snapshot or recopies data. An empty,
-partial, or unrecognized restore cannot start Jellyfin. Later starts preserve
-migrated data and newly installed plugins. If restoration fails, stop and inspect
-the error; retry only after explicitly cleaning the disposable rehearsal
-directory. Never repoint the helper at production or roll back the shared dataset.
+## Compatible add-ons
 
-This live snapshot is crash-consistent, not a guaranteed clean application
-checkpoint. A successful rehearsal does not replace the fresh cold backup before
-production cutover. No new backup service or automatic dependency updates are
-introduced for this temporary deployment.
-
-After the rehearsal PR is merged, access it with
-`kubectl -n media port-forward service/jellyfin-rehearsal 18096:8096`.
-Use `http://127.0.0.1:18096` in a private browser window, not the production client
-profile. Require completed migration logs and `/health` body **`Healthy`**, not
-merely HTTP 200 or a new `/System/Info/Public` version.
-
-Install these stable replacements **only on the 12.1 clone**, then run a full scan:
+These stable 12.1 builds were verified in the rehearsal and installed in
+production. Do not install them into 10.11.11:
 
 | Add-on | Installed on 10.11.11 | Replacement for 12.1 |
 |---|---|---|
@@ -143,26 +120,18 @@ File Transformation needs a different binary despite the unchanged version
 number; load it before enabling Intro Skipper's optional web enhancements.
 The Intro Skipper feed selects its manifest using Jellyfin's server version.
 
-On the clone only, remove the **Update Plugins** scheduled task's startup and
-interval triggers so the reviewed versions cannot change during the rehearsal.
-Find its `Key: PluginUpdates` in `GET /ScheduledTasks`, then send `[]` to
-`POST /ScheduledTasks/{taskId}/Triggers` and verify the empty trigger list survives
-restart. The Renovate exclusion freezes deployment dependencies, not this in-app
-updater.
-
 Check local and LDAP administrator access, ordinary-user library restrictions,
 full-scan results, direct play, forced VA-API transcoding, HDR tone mapping,
 subtitles, seeking, and the clients actually used. Record peak memory, not just
-idle usage; the production cache currently pins Jellyfin to worker-01, which has
-less memory headroom than the rehearsal worker.
+idle usage; the production cache pins Jellyfin to worker-01, so check that node's
+headroom rather than extrapolating from a rehearsal worker.
 
 ## Controlled production upgrade
 
 The temporary maintenance state retains the 10.11.11 image and all storage,
 but sets production to zero replicas and suspends LDAP policy synchronization.
 Merging that maintenance change starts the outage; simply preparing the PR does
-not change the running service. The rehearsal explicitly stays at one replica
-instead of inheriting production's maintenance hold.
+not change the running service.
 
 1. Through GitOps, suspend `jellyfin-ldap-library-sync` with `spec.suspend: true`
    and stop Jellyfin with `controllers.main.replicas: 0`. Wait for existing
@@ -202,17 +171,13 @@ The cold rollback snapshot is
 production configuration and original 10.11.11 plugin state; its SQLite databases
 and WAL were checked on independent temporary restores.
 
-Production's working copy now has an explicit `auto` encoder preset and its old
-add-ons archived at `/config/data/plugins-before-12`, with plugin configurations
-retained in the active directory. The databases and cold snapshot are unchanged.
-The resume change pins the exact rehearsed 12.1 image and starts one replica,
-while LDAP synchronization stays suspended. Use the local recovery administrator
-to reinstall the compatible add-ons after migration; LDAP login is not ready
-until LDAP-Auth has been installed and loaded.
-
-Production migration, the compatible add-ons, local/LDAP administrator access,
-ordinary-user library restrictions, and playback were verified before releasing
-the LDAP synchronization hold. Keep the cold snapshot and old plugin archive.
+Before migration, production's working copy received an explicit `auto` encoder
+preset and its old add-ons were archived at `/config/data/plugins-before-12`,
+retaining plugin configurations without changing the database files.
+Production now runs the reviewed 12.1 image with all compatible add-ons active.
+Local/LDAP administrator access, ordinary-user library restrictions, and playback
+were verified before LDAP synchronization resumed. Keep the untouched cold
+snapshot and old plugin archive.
 
 During the first production full scan, a SQLite `database is locked` timeout
 interrupted a playback-progress write. Library requests returned to normal after the scan.
@@ -236,10 +201,6 @@ Run `python3 scripts/check-jellyfin-compat.py` and
 `python3 scripts/check-homepage-coverage.py` from the repository root with the
 existing Helm/PyYAML tooling and `curl`. These checks protect the repository
 configuration; they do not replace a database restore/migration rehearsal.
-`python3 scripts/check-jellyfin-rehearsal.py` additionally checks NAS-local WAL
-restoration, preservation of Kodi's LiteDB data/log, corrupt/partial-copy
-rejection, encoding-preset normalization without losing other settings, marker
-gating without snapshot access, restart safety, and the rendered clone's isolation.
 
 - [Jellyfin 12 announcement and updating instructions](https://jellyfin.org/posts/jellyfin-release-12.0/)
 - [Jellyfin backup and restore](https://jellyfin.org/docs/general/administration/backup-and-restore/)

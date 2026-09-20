@@ -93,26 +93,32 @@ def vm_config(vmid):
 
 
 def stop_owned(manifest):
+    errors = []
     for vmid in LAB_IDS:
-        config = vm_config(vmid)
-        if config is None:
-            continue
-        if not owns_vm(vmid, config, manifest):
-            print(json.dumps({'vmid': vmid, 'action': 'refuse-foreign-identity'}), flush=True)
-            continue
-        if 'stopped' in run(['qm', 'status', str(vmid)]):
-            continue
-        print(json.dumps({'vmid': vmid, 'action': 'shutdown'}), flush=True)
         try:
-            run(['qm', 'shutdown', str(vmid), '--timeout', '10'], timeout=15)
-        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
-            pass
-        if 'running' in run(['qm', 'status', str(vmid)]):
-            if not owns_vm(vmid, vm_config(vmid) or {}, manifest):
-                raise RuntimeError('VM identity changed before forced stop')
-            run(['qm', 'stop', str(vmid)], timeout=20)
-        if 'stopped' not in run(['qm', 'status', str(vmid)]):
-            raise RuntimeError('Lab guest failed to stop')
+            config = vm_config(vmid)
+            if config is None:
+                continue
+            if not owns_vm(vmid, config, manifest):
+                print(json.dumps({'vmid': vmid, 'action': 'refuse-foreign-identity'}), flush=True)
+                continue
+            if 'stopped' in run(['qm', 'status', str(vmid)]):
+                continue
+            print(json.dumps({'vmid': vmid, 'action': 'shutdown'}), flush=True)
+            try:
+                run(['qm', 'shutdown', str(vmid), '--timeout', '10'], timeout=15)
+            except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+                pass
+            if 'running' in run(['qm', 'status', str(vmid)]):
+                if not owns_vm(vmid, vm_config(vmid) or {}, manifest):
+                    raise RuntimeError('VM identity changed before forced stop')
+                run(['qm', 'stop', str(vmid)], timeout=20)
+            if 'stopped' not in run(['qm', 'status', str(vmid)]):
+                raise RuntimeError('Lab guest failed to stop')
+        except Exception as error:
+            errors.append(f'{vmid}: {type(error).__name__}: {error}')
+    if errors:
+        raise RuntimeError('Lab shutdown failures: ' + '; '.join(errors))
 
 
 def main():

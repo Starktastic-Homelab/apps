@@ -1,0 +1,9 @@
+{
+  "host_oom_matching_lines": 0,
+  "host_query_exit": 1,
+  "guests": [
+    { "vmid": 200, "oom_matching_lines": 0, "query_exit": 1 },
+    { "vmid": 201, "oom_matching_lines": 0, "query_exit": 1 },
+    { "vmid": 202, "oom_matching_lines": 0, "query_exit": 1 }
+  ]
+}

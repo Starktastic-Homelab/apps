@@ -51,9 +51,9 @@ Files: tests/iscsi-platform/manifests, lifecycle.py, test_lifecycle.py, external
 ### Task 4: Cleanup and report
 
 Files: tests/iscsi-platform/README.md and reports/evidence.
-- [ ] Stop and delete exact owned VMs/disks; remove only this run's bridges/nft table/guard/listeners/private artifacts.
-- [ ] Verify original production identities/health and reconciled capacity; retain source, checksums and sanitized evidence.
-- [ ] Run whole-branch review, fix important findings with regression tests, report outcomes and stop.
+- [x] Stop and delete exact owned VMs/disks; remove only this run's bridges/nft table/guard/listeners/private artifacts.
+- [x] Verify original production identities/health and reconciled capacity; retain source, checksums and sanitized evidence.
+- [x] Run whole-branch review, fix important findings with regression tests, report outcomes and stop.
 
 ## Execution ledger
 
@@ -89,3 +89,7 @@ Files: tests/iscsi-platform/README.md and reports/evidence.
 
 - Second full replacement passed: new VM disks, CA, node/PV/PVC identities; unchanged4Gi/2Gi NAS GUIDs; zero CreateVolume requests. All26 prior acknowledgements per service survived; five post-rebuild writes each verified (31 total per service). Application/PVC removal before this rebuild retained NAS data.
 - Acceptance boundary: runtime storage recovery is demonstrated. Actual Argo prune/drift, Sealed Secrets-key restoration, production fencing and exhaustive lost-response cases remain unaccepted; report lists them explicitly. Production rollout remains blocked on supported API/permission design and those gates. Cleanup proceeds rather than extending this constrained fixture into production controllers.
+
+- Cleanup complete: all owned VM/disks, bridges, nft table, transient services, ISOs/staging, loopback listeners, private runtime and downloads removed. Runner300/service active; production125 ready pods,77 Synced/Healthy apps,68 Bound PVCs with unchanged NFS mappings. No journal OOM matches; vm-pool136.13GiB free and host29.31GiB available after runner start.
+- Final review: no Critical/Minor; one Important shutdown-starvation finding. Regression test RED(status timeout skipped remaining VMs)→GREEN(per-VM error isolation, aggregate failure after all attempts). Suite17/17. Corrected source was not live redeployed after cleanup; no outstanding Important findings.
+- Remaining acceptance cases in Task3 are deliberately unchecked, explicitly listed in the report, and block production rollout. This completed bounded rehearsal does not claim the full production matrix passed.

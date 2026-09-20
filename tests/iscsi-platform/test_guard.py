@@ -50,6 +50,21 @@ class ShutdownSafetyTests(unittest.TestCase):
             guard.stop_owned(MANIFEST)
         run.assert_not_called()
 
+    def test_failed_vm_does_not_skip_other_owned_vms(self):
+        from unittest.mock import patch
+        import guard
+        manifest = {**MANIFEST, 'vms': {str(v): MANIFEST['vms']['910'] for v in guard.LAB_IDS}}
+        calls = []
+        def command(args, timeout=15):
+            calls.append(args)
+            if args[2] == '913':
+                raise guard.subprocess.TimeoutExpired(args, timeout)
+            return 'status: stopped'
+        with patch.object(guard, 'vm_config', return_value=CONFIG), patch.object(guard, 'run', side_effect=command):
+            with self.assertRaises(RuntimeError):
+                guard.stop_owned(manifest)
+        self.assertEqual([args[2] for args in calls], ['913', '912', '911', '910'])
+
     def test_identity_change_prevents_force_stop(self):
         from unittest.mock import patch
         import guard

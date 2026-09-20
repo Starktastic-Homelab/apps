@@ -5,7 +5,7 @@ synthetic evidence. It is not production deployment configuration. Read the
 [design](../../docs/superpowers/specs/2026-09-20-retained-iscsi-rehearsal-design.md)
 and [execution ledger](../../docs/superpowers/plans/2026-09-20-isolated-iscsi-fixture.md).
 
-The current run uses only Proxmox VM IDs910–913, with exact names, SMBIOS UUIDs
+The completed run used only Proxmox VM IDs910–913, with exact names, SMBIOS UUIDs
 and a unique tag in a private manifest. Never reuse a manifest for another run.
 The host guard stops only matching identities. Separate control/storage bridges
 have no uplinks; nftables denies host ingress and forwarding from lab guests.
@@ -66,3 +66,12 @@ services, private bridges and nft table. Stop its local tunnels, remove private
 keys/tokens/kubeconfigs and downloaded artifacts, then reconcile production
 node identities/health and host storage/memory. Preserve sanitized source,
 checksums, mappings and evidence. A failed rehearsal still requires cleanup.
+
+## Run status
+
+Both complete cluster rebuilds passed, with 31 acknowledged transactions per
+service verified afterward. The lab has been removed and runner300 restarted.
+See the [final report](../../docs/superpowers/reports/2026-09-21-retained-iscsi-rehearsal.md)
+for evidence, API/permission blockers and untested production acceptance gates.
+These scripts preserve the executed run; they depend on run-specific identities
+and staged inputs that were removed at cleanup. They are not a turnkey installer.

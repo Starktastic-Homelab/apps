@@ -1,7 +1,7 @@
 # Retained iSCSI rehearsal
 
 Date:2026-09-21 Asia/Jerusalem (most recorded events are September20 UTC).
-Status: two full recoveries passed; cleanup and final review in progress.
+Status: two full recoveries passed; lab cleanup and final review complete.
 
 ## Decision supported by this run
 
@@ -63,7 +63,7 @@ app-template5.2.1, snapshot-controller8.2.1.
 | Credentials | Fresh cluster CSI blocked on missing secret; external credentials restored explicitly. Invalid API credential returned401 on allocation attempt |
 | Retention | Applications and service B PVC removed after writers stopped; native datasets/GUIDs remained unchanged |
 | Second full rebuild | Fresh VM disks/CA/node/PV/PVC identities again; same4Gi/2Gi NAS volumes; all26 prior acknowledgements per service recovered, then five new writes each verified; zero CreateVolume calls |
-| Cleanup/production reconciliation | Pending final evidence |
+| Cleanup/production reconciliation | All four lab VMs/disks, bridges, firewall table, ISOs, staging, tunnel listeners and private runtime removed; runner300 running with service active; production125/125 pods ready,77/77 apps Synced/Healthy,68/68 claims Bound with no NFS mapping changes |
 
 The external ledger fsyncs each acknowledgement only after the SQLite commit
 returns. Verification compares transaction IDs and deterministic values, then
@@ -116,3 +116,33 @@ with [first rebuild](../../../tests/iscsi-platform/rebuild-result-1.json),
 [isolation](evidence/2026-09-21-lab-isolation.json),
 [fencing](evidence/2026-09-21-lab-fencing.json) and
 [artifact checksums](evidence/2026-09-21-lab-inputs.json).
+
+## Final cleanup and review
+
+The owned lab infrastructure and private credentials/downloads were removed.
+The runner VM and its GitHub Actions service are running again. Host available
+memory was 29.31 GiB after runner startup; vm-pool free capacity returned to
+136.13 GiB (the pre-lab baseline). Production VM identities and K3s node UIDs
+were unchanged during the isolated rehearsal. All three nodes were Ready with
+no pressure, 125 pods were ready, 77 Argo applications were Synced/Healthy,
+68 PVCs were Bound with no NFS mapping/retention differences, 38 Sealed Secrets
+were synced and seven certificates were ready. The kernel journal check found
+no matching OOM lines on Proxmox or VMs200–202 during the rehearsal window.
+Existing restart counters are retained in the evidence; readiness is a point-in-time check.
+
+Workers remain at the user-merged temporary 20 GiB configuration. Restoring
+28 GiB belongs in a separate Terraform PR with a reviewed plan; this run made
+no imperative production RAM change. TrueNAS remains32 GiB and master16 GiB.
+
+The independent final review found no Critical or Minor issues and one Important
+issue: a status/stop failure on the first lab VM could prevent shutdown attempts
+on the remaining owned VMs. A new regression test failed before the fix; shutdown
+now isolates each VM's errors, attempts all remaining identities and reports
+aggregate failures. All17 safety tests pass. The source fix was made after the
+successful live cleanup; it was unit-tested, not redeployed into another lab.
+Configured pre-commit checks passed. Review did not independently authenticate
+live evidence or accept production readiness. No production manifests changed.
+
+Final evidence: [cleanup and capacity](evidence/2026-09-21-lab-cleanup.json),
+[production health and identities](evidence/2026-09-21-production-after-lab.json),
+[OOM journal check](evidence/2026-09-21-lab-oom-check.json).

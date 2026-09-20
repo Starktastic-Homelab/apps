@@ -4,26 +4,43 @@
 #
 # Per-service values.yaml still owns:
 #   - controllers.main.containers.main.image
-#   - probe ports (liveness/readiness/startup) and service.main.ports.http.port
+#   - probe spec.httpGet.port and service.main.ports.http.port
 #   - service-specific extras (e.g. bazarr's envFrom and scripts mount,
 #     prowlarr's persistence.media.enabled: false override)
 controllers:
   main:
     containers:
       main:
+        # A pod IP can change after recreation and fail the app's AllowedHosts.
+        # Keep probing that IP, with a stable hostname accepted by the app.
         probes:
           liveness:
             enabled: true
-            type: HTTP
-            path: /ping
+            custom: true
+            spec:
+              httpGet:
+                path: /ping
+                httpHeaders:
+                  - name: Host
+                    value: localhost
           readiness:
             enabled: true
-            type: HTTP
-            path: /ping
+            custom: true
+            spec:
+              httpGet:
+                path: /ping
+                httpHeaders:
+                  - name: Host
+                    value: localhost
           startup:
             enabled: true
-            type: HTTP
-            path: /ping
+            custom: true
+            spec:
+              httpGet:
+                path: /ping
+                httpHeaders:
+                  - name: Host
+                    value: localhost
 
 service:
   main:

@@ -1,0 +1,90 @@
+{
+  "capturedAt": "2026-09-20T18:08:51.171619+00:00",
+  "node": "pve",
+  "memory": {
+    "available": 5339955200,
+    "free": 5835296768,
+    "total": 134812356608,
+    "used": 129472401408
+  },
+  "swap": {
+    "free": 0,
+    "total": 0,
+    "used": 0
+  },
+  "vmPool": {
+    "active": 1,
+    "avail": 146171772928,
+    "content": "rootdir,images",
+    "enabled": 1,
+    "shared": 0,
+    "total": 495263416320,
+    "type": "zfspool",
+    "used": 349091643392
+  },
+  "activeTasks": [],
+  "runningVMs": [
+    {
+      "vmid": 100,
+      "name": "truenas",
+      "status": "running",
+      "maxmem": 34359738368,
+      "mem": 34428628992
+    },
+    {
+      "vmid": 200,
+      "name": "kube-master-01",
+      "status": "running",
+      "maxmem": 17179869184,
+      "mem": 15663308800
+    },
+    {
+      "vmid": 201,
+      "name": "kube-worker-01",
+      "status": "running",
+      "maxmem": 30064771072,
+      "mem": 30174285824
+    },
+    {
+      "vmid": 202,
+      "name": "kube-worker-02",
+      "status": "running",
+      "maxmem": 30064771072,
+      "mem": 30174298112
+    },
+    {
+      "vmid": 300,
+      "name": "runner",
+      "status": "running",
+      "maxmem": 4294967296,
+      "mem": 677621760
+    }
+  ],
+  "detail": {
+    "100": ["agent: 1", "balloon: 0", "memory: 32768", "name: truenas", "numa: 0", "onboot: 1"],
+    "200": ["agent: 1", "balloon: 0", "memory: 16384", "name: kube-master-01", "numa: 0", "onboot: 1"],
+    "201": ["agent: 1", "balloon: 0", "memory: 28672", "name: kube-worker-01", "numa: 0", "onboot: 1"],
+    "202": ["agent: 1", "balloon: 0", "memory: 28672", "name: kube-worker-02", "numa: 0", "onboot: 1"],
+    "300": ["agent: 1", "balloon: 1024", "memory: 4096", "name: runner", "numa: 0", "onboot: 1"],
+    "arc": [
+      "c                               4    13481541632",
+      "c_min                           4    4212886144",
+      "c_max                           4    13481541632",
+      "size                            4    13369563136",
+      "memory_throttle_count           4    0",
+      "memory_available_bytes          3    1445848448"
+    ],
+    "ksm": ["372689"],
+    "pools": ["rpool\t230G\t198G\t31.9G\t39%\t86%\tONLINE", "vm-pool\t476G\t93.7G\t382G\t45%\t19%\tONLINE"],
+    "meminfo": [
+      "MemTotal:       131652692 kB",
+      "MemFree:         5860368 kB",
+      "MemAvailable:    5376816 kB",
+      "Cached:           215140 kB",
+      "SwapTotal:             0 kB",
+      "SwapFree:              0 kB",
+      "SReclaimable:     576508 kB"
+    ],
+    "capturedAt": "2026-09-20T18:09:46.663325+00:00"
+  }
+}

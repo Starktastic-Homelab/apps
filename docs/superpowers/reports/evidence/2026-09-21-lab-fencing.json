@@ -1,0 +1,8 @@
+{
+  "operation": "lab-fence",
+  "vmid": 913,
+  "uuid": "a26517b7-961e-4513-8b52-a589f1b43724",
+  "authorized_scope": "approved isolated fault rehearsal",
+  "start": 1789939343.374667,
+  "verified_off": 1789939344.5192716
+}

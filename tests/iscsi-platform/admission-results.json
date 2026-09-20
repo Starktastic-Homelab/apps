@@ -1,0 +1,26 @@
+[
+  {
+    "test": "dynamic ordinary claim",
+    "denied": true
+  },
+  {
+    "test": "substituted class",
+    "denied": true
+  },
+  {
+    "test": "foreign binding",
+    "denied": true
+  },
+  {
+    "test": "spoofed onboarding label",
+    "denied": true
+  },
+  {
+    "test": "second PV alias",
+    "denied": true
+  },
+  {
+    "test": "reclaim policy update",
+    "denied": true
+  }
+]

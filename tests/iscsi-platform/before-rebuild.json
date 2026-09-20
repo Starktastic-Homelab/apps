@@ -1,0 +1,37 @@
+{
+  "nodes": [
+    {
+      "name": "iscsi-lab-server-1d3e8de3",
+      "uid": "a29611ac-b70a-439e-b98b-a1113253437a"
+    },
+    {
+      "name": "iscsi-lab-worker-a-1d3e8de3",
+      "uid": "959e586a-cbd5-404d-89b3-fb52c6b16292"
+    },
+    {
+      "name": "iscsi-lab-worker-b-1d3e8de3",
+      "uid": "8445449a-5827-4c8d-9f75-d0a5259147ba"
+    }
+  ],
+  "pv": [
+    {
+      "name": "pvc-af488e5a-9df0-462f-9653-6b769391f06a",
+      "uid": "6f2d14c2-73ed-4809-9416-9116f226f0a6"
+    },
+    {
+      "name": "pvc-ce4af33b-0b9a-462e-8980-f57aa3876603",
+      "uid": "0f610bf5-1c2b-42a1-acd9-e5c2b9404b85"
+    }
+  ],
+  "pvc": [
+    {
+      "name": "service-a",
+      "uid": "f656465a-9178-410b-a42b-592f849a0fd8"
+    },
+    {
+      "name": "service-b",
+      "uid": "703696c9-82ac-4f20-b42e-5706dfc904dd"
+    }
+  ],
+  "ca_sha256": "4539e20af165ef7ebfda4febac2af5d0cda088f11815e56d9778bf37c526bc75"
+}

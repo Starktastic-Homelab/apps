@@ -146,3 +146,11 @@ live evidence or accept production readiness. No production manifests changed.
 Final evidence: [cleanup and capacity](evidence/2026-09-21-lab-cleanup.json),
 [production health and identities](evidence/2026-09-21-production-after-lab.json),
 [OOM journal check](evidence/2026-09-21-lab-oom-check.json).
+
+## Follow-up driver evaluation
+
+The [pinned driver source evaluation](2026-09-21-truenas-csi-evaluation.md)
+found an authentication/initiator-preservation blocker in official
+truenas-csi1.3.0 clone and retry paths. No production deployment was attempted.
+The next bounded candidate is democratic-csi1.9.5 node-manual, subject to accepting
+external NAS lifecycle management and completing the shared recovery/fencing gates.

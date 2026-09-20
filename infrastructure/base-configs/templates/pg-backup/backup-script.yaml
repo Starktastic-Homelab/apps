@@ -6,7 +6,8 @@ metadata:
 data:
   backup.sh: |
     #!/bin/sh
-    set -e
+    set -eu
+    umask 077
 
     BACKUP_DIR=/backup
     RETENTION_DAYS=7
@@ -15,16 +16,23 @@ data:
 
     echo "Starting PostgreSQL backup at ${TIMESTAMP}"
 
+    # Separate commands preserve producer failures on POSIX sh (no pipefail).
+    SQL_FILE="${DUMP_FILE}.sql.tmp"
+    trap 'rm -f "$SQL_FILE" "${DUMP_FILE}.tmp"' EXIT
+    trap 'exit 1' HUP INT TERM
+
     echo "Running pg_dumpall..."
-    if pg_dumpall --clean --if-exists | gzip > "${DUMP_FILE}.tmp"; then
-      mv "${DUMP_FILE}.tmp" "${DUMP_FILE}"
-      SIZE=$(du -h "${DUMP_FILE}" | cut -f1)
-      echo "  ✓ Backup saved: ${DUMP_FILE} (${SIZE})"
-    else
-      echo "  ✗ pg_dumpall failed!"
-      rm -f "${DUMP_FILE}.tmp"
+    pg_dumpall --clean --if-exists > "$SQL_FILE"
+    if [ ! -s "$SQL_FILE" ] || ! grep -q '^-- PostgreSQL database cluster dump complete$' "$SQL_FILE"; then
+      echo "  ✗ Empty or incomplete PostgreSQL dump" >&2
       exit 1
     fi
+    gzip -c "$SQL_FILE" > "${DUMP_FILE}.tmp"
+    gzip -t "${DUMP_FILE}.tmp"
+    mv "${DUMP_FILE}.tmp" "$DUMP_FILE"
+    rm -f "$SQL_FILE"
+    SIZE=$(du -h "$DUMP_FILE" | cut -f1)
+    echo "  ✓ Backup saved: ${DUMP_FILE} (${SIZE})"
 
     echo "Cleaning backups older than ${RETENTION_DAYS} days..."
     find "${BACKUP_DIR}" -name "pg_dumpall_*.sql.gz" -mtime +${RETENTION_DAYS} -print -delete

@@ -1,0 +1,67 @@
+{
+  "captured_at": 1789944611.8005924,
+  "compressed_bytes": 33127974,
+  "sha256": "35af7021e2963888c03db93ebf89eb9252dbfaa85959adcfa658673682a8346d",
+  "restore_exit_code": 0,
+  "restore_network": "none",
+  "restore_image": "bitnami/postgresql:latest@sha256:b74b23f091dcc87041bcae557d840c36458af46b955279cb13aedec4c32d7f71",
+  "databases": [
+    {
+      "database": "authentik",
+      "user_tables": 230,
+      "total_rows": 505190
+    },
+    {
+      "database": "dispatcharr",
+      "user_tables": 61,
+      "total_rows": 41903
+    },
+    {
+      "database": "lingarr",
+      "user_tables": 26,
+      "total_rows": 101556
+    },
+    {
+      "database": "listmonk",
+      "user_tables": 16,
+      "total_rows": 169
+    },
+    {
+      "database": "mealie",
+      "user_tables": 69,
+      "total_rows": 10
+    },
+    {
+      "database": "paperless",
+      "user_tables": 74,
+      "total_rows": 9521
+    },
+    {
+      "database": "postgres",
+      "user_tables": 0,
+      "total_rows": 0
+    },
+    {
+      "database": "vaultwarden",
+      "user_tables": 29,
+      "total_rows": 61
+    },
+    {
+      "database": "vikunja",
+      "user_tables": 37,
+      "total_rows": 196
+    }
+  ],
+  "uncompressed_bytes": 156803747,
+  "restore_warnings": 0,
+  "backup_space_probe": "Filesystem           1024-blocks    Used Available Capacity Mounted on\n10.9.8.30:/mnt/apps/pv/databases/pg-backup                       459072512  72960000 386112512  16% /backup\n292585\t/backup\n0\n",
+  "source_database_version": "18.6",
+  "backup_client_image": "postgres:18.6-alpine@sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd",
+  "cleanup": {
+    "temporary_pods_deleted": true,
+    "temporary_configmap_deleted": true,
+    "restore_container_deleted": true,
+    "private_dump_and_restore_logs_removed": true,
+    "production_cronjob_unchanged": true
+  }
+}

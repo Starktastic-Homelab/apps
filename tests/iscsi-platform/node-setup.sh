@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 # Runs only inside a newly created lab guest, from read-only seed media.
-case "$(hostname)" in iscsi-lab-server-*|iscsi-lab-worker-a-*|iscsi-lab-worker-b-*) ;; *) exit 1 ;; esac
+case "$(hostname)" in iscsi-lab-server-* | iscsi-lab-worker-a-* | iscsi-lab-worker-b-*) ;; *) exit 1 ;; esac
 cd /mnt/iscsi-seed
 sha256sum -c SHA256SUMS >/dev/null
 dpkg -i packages/*.deb >/dev/null

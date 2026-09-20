@@ -7,11 +7,17 @@ controllers:
           tag: 2.6.5.5623-ls161@sha256:c96b56d94d116a9f4de94bc23d3381689492e6c3cfb7435320e8d982e406f99a
         probes:
           liveness:
-            port: 9696
+            spec:
+              httpGet:
+                port: 9696
           readiness:
-            port: 9696
+            spec:
+              httpGet:
+                port: 9696
           startup:
-            port: 9696
+            spec:
+              httpGet:
+                port: 9696
 service:
   main:
     ports:

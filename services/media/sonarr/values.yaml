@@ -7,11 +7,17 @@ controllers:
           tag: 4.0.20.3014-ls325@sha256:a5c1a5fecbef946927ab90ad68df319ac5fe644057e5fc18cd993f01ac07b2b2
         probes:
           liveness:
-            port: 8989
+            spec:
+              httpGet:
+                port: 8989
           readiness:
-            port: 8989
+            spec:
+              httpGet:
+                port: 8989
           startup:
-            port: 8989
+            spec:
+              httpGet:
+                port: 8989
 service:
   main:
     ports:

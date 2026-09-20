@@ -7,11 +7,17 @@ controllers:
           tag: 6.4.4.10685-ls317@sha256:c960f2b52ec6542dbe6707c5a21e696a7c74fd8b17997454f4d10a55dacee133
         probes:
           liveness:
-            port: 7878
+            spec:
+              httpGet:
+                port: 7878
           readiness:
-            port: 7878
+            spec:
+              httpGet:
+                port: 7878
           startup:
-            port: 7878
+            spec:
+              httpGet:
+                port: 7878
 service:
   main:
     ports:

@@ -94,3 +94,34 @@ the immutable Ansible helper on `PYTHONPATH`, the verified runner marker, and th
 original `MAINTENANCE_OWNER` / `MAINTENANCE_NONCE`; never log the nonce. Tests also
 need that pinned helper on `PYTHONPATH` and use a temporary root to exercise real
 missing-owner, mismatched-owner/nonce/marker and ownership-loss cases.
+## Retained target lifecycle
+
+`storage/services/jellyfin.json` is an **allocation intent**, not a deployable
+volume identity. The one-time onboarding tool creates the reviewed 64 GiB ZVOL,
+dedicated export and restrictions; it preserves the existing global IQN basename
+and verifies portal 1 before reuse. It returns native identifiers, but does not
+format a filesystem or authorize a workload. Keep the private CHAP file and
+allocation journal on the runner. No normal recovery code creates or repairs
+storage. An interrupted create requires explicit inspection/reconciliation;
+missing partial objects are not automatically recreated.
+
+`verify_existing` checks native identity read-only. `probe_filesystem` uses a
+reviewed SSH worker route under the external lock, refuses existing CSI sessions
+before node updates, checks device identity, and mounts only clean matching ext4
+as `ro,noload`. SQLite integrity runs on private DB/WAL copies. It never invokes
+mkfs or fsck. Failed unmount intentionally prevents logout; leave the operation
+held for inspection. Plugin readability still requires the independent restored
+Jellyfin startup, not merely a SQLite check.
+
+`snapshot_policy` is a separate explicit operation for `apps/iscsi`, recursive,
+one-week retention. It reads the actual existing `apps/pv` schedule before
+recording its intent, preserves unrelated tasks and refuses conflicting rules.
+An ambiguous create reply has a read-only reconciliation path. The existing
+`apps/pv` task does not protect the sibling iSCSI dataset.
+
+Target restore is also a separate operation: hold writers, verify/fence the
+previous owner, clone the selected snapshot to a **new** reviewed dataset/export,
+verify that clone's returned native identities and filesystem state, and perform
+an independent restore test before authorizing it. Never overwrite or roll back
+the active production ZVOL automatically. Keep original target and source until
+an explicit cleanup decision.

@@ -1,0 +1,67 @@
+name: Explicit retained storage maintenance
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        type: choice
+        options: [inspect, nfs-inspect, nfs-apply, nfs-reconcile, onboard, reconcile-onboarding, snapshot, snapshot-reconcile, hold, verify, release, render]
+        required: true
+      resume_owner:
+        description: Original owner for a continued held operation; nonce comes from environment secret
+        type: string
+        default: ''
+      expected_stage:
+        type: string
+        default: acquired
+permissions:
+  contents: read
+concurrency:
+  group: retained-storage-maintenance
+  cancel-in-progress: false
+jobs:
+  maintenance:
+    runs-on: self-hosted
+    environment: storage-maintenance
+    container:
+      image: python:trixie
+      volumes:
+        - /var/lib/homelab-maintenance:/maintenance
+    env:
+      HOMELAB_RUNNER_INSTANCE: cc1aeeb7-4827-466c-9d4b-5dc6c881f193
+      MAINTENANCE_OWNER: ${{ inputs.resume_owner || format('{0}/{1}/{2}', github.repository, github.run_id, github.run_attempt) }}
+      MAINTENANCE_NONCE: ${{ secrets.MAINTENANCE_NONCE }}
+      RESUME_OWNER: ${{ inputs.resume_owner }}
+      EXPECTED_STAGE: ${{ inputs.expected_stage }}
+      OPERATION: ${{ inputs.operation }}
+      PYTHONPATH: ${{ github.workspace }}/maintenance-helper/scripts
+      STORAGE_CHAP_FILE: /maintenance/private/jellyfin-chap.json
+      KUBECONFIG: /maintenance/private/kubeconfig
+      KUBECTL_KUBERC: 'false'
+    steps:
+      - uses: actions/checkout@v7
+      - name: Checkout reviewed maintenance and fencing helpers
+        uses: actions/checkout@v7
+        with:
+          repository: Starktastic-Homelab/ansible
+          ref: 2542043676a7af1cd5d8ddfbbe7d39ce59b68a95
+          path: maintenance-helper
+          persist-credentials: false
+      - name: Install pinned transport
+        run: pip install -r scripts/storage/requirements.txt
+      - uses: azure/setup-kubectl@v5.1.0
+      - name: Establish exact maintenance ownership
+        run: |
+          case "$OPERATION" in
+            inspect|nfs-inspect|render) exit 0 ;;
+          esac
+          if [ -n "$RESUME_OWNER" ]; then
+            python3 maintenance-helper/scripts/maintenance_lock.py verify --stage "$EXPECTED_STAGE"
+          else
+            test "$EXPECTED_STAGE" = acquired
+            case "$OPERATION" in nfs-apply|onboard|hold|snapshot) ;; *) exit 1 ;; esac
+            python3 maintenance-helper/scripts/maintenance_lock.py acquire --operation "storage-$OPERATION" --github-env
+          fi
+      - name: Run only the reviewed storage operation
+        run: python3 scripts/storage/maintenance_cli.py "$OPERATION"
+      # Keep ownership across migration stages and on all failures. Completion
+      # requires explicit reconciliation and original-owner release on VM300.

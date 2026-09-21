@@ -1,0 +1,7 @@
+name: retained-iscsi
+namespace: retained-iscsi
+deployPhase: foundation
+chart:
+  repo: https://democratic-csi.github.io/charts/
+  name: democratic-csi
+  version: 0.15.1

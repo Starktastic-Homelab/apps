@@ -107,7 +107,8 @@ normal GitHub checks before merge. Those workflows filter on the main base, so
 local full-stack validation is the current evidence for the three stacked drafts.
 The initial NFS and Ansible GitHub checks passed, including Ansible syntax.
 Terraform's first plan attempt failed downloading the unchanged provider with a
-GitHub HTTP 504; a single failed-job retry was requested. This was not an apply.
+GitHub HTTP 504; the single failed-job retry passed validation, planning and
+artifact publication. This was not an apply.
 
 ## Recorded decisions
 

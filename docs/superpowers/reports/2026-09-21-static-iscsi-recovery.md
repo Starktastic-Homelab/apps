@@ -62,4 +62,15 @@ After the lab review, prepare one Jellyfin pilot with a complete cold backup, a 
 
 ## Validation and review
 
-Static identity/capacity/disk tests: 11 passed. Existing isolation/guard/lifecycle tests: 17 passed. Repository pre-commit formatting, YAML, JSON, shell checks and diff checks passed after formatting. The archived Kubernetes manifests were exercised by the real lab API and compared semantically with the live-tested Git source; a separate kubeconform binary was not available. Final independent review is pending.
+Static identity/capacity/disk/session-ownership tests: 14 passed. Existing isolation/guard/lifecycle tests: 17 passed. Repository pre-commit formatting, YAML, JSON, shell checks and diff checks passed after formatting. The archived Kubernetes manifests were exercised by the real lab API and compared semantically with the live-tested Git source; a separate kubeconform binary was not available. One fresh independent review found one Important issue and no Critical or Minor findings: verification could log out an existing CSI session after refusing a mounted device. The fix rejects existing sessions before changing node records, accepts only a newly created probe session, and requires quiescence before releasing writers. Three regression methods (both guest scripts) reproduced the bug and passed after the fix; all 14 static and 17 prior tests pass. This final safety fix was tested with command-mocked regressions after lab cleanup; the live cluster was not recreated again.
+
+### Review scope decisions
+
+- Production fencing authorization and replacement coordination remain unqualified external-operator work. The cost of an incorrect assumption is unsafe replacement, so a production pilot must qualify this first.
+- General onboarding interruption recovery remains inspection-required. The cost is manual recovery time; the fixture must not allocate again after an unknown outcome.
+- Damaged-media NodeStage behavior remains unqualified beyond the tested blank case. The external gate must remain mandatory; bypassing it could permit unsafe device mutation.
+- Workload performance, host/NAS HA and host-loss backup recovery were outside the synthetic rehearsal. The cost is additional qualification and an independent failure-domain backup before production reliance.
+- The reviewer made no live calls against infrastructure already destroyed. Regression coverage verifies the final session-ownership fix; it does not constitute another live rollout.
+- Previously reviewed REST and driver internals remain historical evidence. The fresh review checked narrative coherence and concentrated code review on this static continuation; the prior controller is not the selected production candidate.
+
+No minor findings were deferred.

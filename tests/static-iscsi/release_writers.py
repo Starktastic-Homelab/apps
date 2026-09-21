@@ -1,6 +1,8 @@
 """Release only this fresh cluster after external native/filesystem/marker checks."""
 import base64,json,subprocess,sys,time
 from lab import ROOT,PRIVATE,apply,kubectl,receipt
+from quiescence import require_quiesced
+require_quiesced()
 subprocess.run([sys.executable,str(ROOT/'verify_filesystems.py')],check=True)
 secret=kubectl('get','secret','static-iscsi-chap','-n','static-iscsi-system','-o','json',check=False)
 assert secret.returncode==0,'CHAP has not been recovered'

@@ -5,11 +5,15 @@ def run(args,check=True):
  p=subprocess.run(args,capture_output=True,text=True)
  if check and p.returncode:raise RuntimeError("Initiator command failed: "+args[0]+" ("+str(p.returncode)+")")
  return p
+# A CSI-owned session is not ours to update or disconnect.
+sessions=run(['iscsiadm','-m','session'],False)
+assert sessions.returncode in (0,21), 'Cannot determine existing sessions'
+assert r['iqn'] not in sessions.stdout.split(), 'Existing target session refused before node updates'
 base=['iscsiadm','-m','node','-T',r['iqn'],'-p',r['portal']]
 run(base+['--op','new'])
 for key,value in [('node.session.auth.authmethod','CHAP'),('node.session.auth.username',r['chap']['user']),('node.session.auth.password',r['chap']['secret']),('node.startup','manual')]:
  run(base+['--op','update','-n',key,'-v',value])
-login=run(base+['--login'],False);assert login.returncode in [0,15]
+login=run(base+['--login'],False);assert login.returncode==0, 'Probe did not create a session; do not disconnect an existing owner'
 try:
  path=pathlib.Path('/dev/disk/by-path/ip-'+r['portal']+'-iscsi-'+r['iqn']+'-lun-'+str(r['lun']))
  for _ in range(30):

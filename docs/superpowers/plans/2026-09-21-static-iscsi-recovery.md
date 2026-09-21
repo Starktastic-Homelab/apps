@@ -85,7 +85,7 @@ python3 -m unittest discover -s tests/iscsi-platform -p 'test_*.py'
 
 - [x] Stop writers, validate current exact VM ownership/disk identities, delete only the run's VMs/disks/bridges/firewall/transient services/downloads and private artifacts.
 - [x] Restore runner, compare original production identities/storage and health; reconcile host memory/storage headroom.
-- [ ] Run relevant local checks and one fresh whole-branch review, fix important findings with regression tests. Update the existing draft PR with passed/failed/untested gates. Do not claim production acceptance from incomplete lab evidence.
+- [x] Run relevant local checks and one fresh whole-branch review, fix important findings with regression tests. Update the existing draft PR with passed/failed/untested gates. Do not claim production acceptance from incomplete lab evidence.
 
 ## Execution ledger
 
@@ -107,3 +107,5 @@ python3 -m unittest discover -s tests/iscsi-platform -p 'test_*.py'
 
 - Completed live evidence is summarized in ../reports/2026-09-21-static-iscsi-recovery.md. Both complete rebuilds, native clone, client timeout, damaged-media gate, Argo prune/cascading deletion, direct retained rebinding, interrupted 2→3GiB growth and independent NAS-off backup restore passed their scoped checks. Onboarding interruption automation and production fencing permissions remain explicitly unqualified.
 - Cleanup removed all four owned VMs/disks and run networks/private artifacts. Runner service is active; production125/125pods,77/77apps,68/68bindings remain healthy and unchanged.
+
+- Final independent review: one Important session-ownership bug fixed; three regression methods reproduced four failing subcases before the fix and passed afterward. Full suites14+17pass. No Critical/Minor findings. The final fix was unit-tested after cleanup, not rerun in live VMs. Production limitations and review scope decisions remain explicit in the report.

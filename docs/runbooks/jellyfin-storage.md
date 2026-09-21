@@ -1,9 +1,9 @@
 # Jellyfin retained-storage maintenance
 
 The approved design keeps the cluster disposable while retaining Jellyfin's
-supported SQLite backend on a dedicated TrueNAS ext4/iSCSI target. Preparation
-is not deployment. The user owns PR merges. No production migration, NAS setting,
-account, token, test VM or power state was changed while preparing this package.
+supported SQLite backend on a dedicated TrueNAS ext4/iSCSI target. The user owns PR merges. The prerequisite platform and native NAS allocation
+are now deployed and verified; Jellyfin still uses its original NFS storage.
+See the [allocation and next-stage report](../superpowers/reports/2026-09-21-jellyfin-allocation.md).
 
 ## Sequence and ownership
 
@@ -26,7 +26,7 @@ account, token, test VM or power state was changed while preparing this package.
    review the resulting static bindings and target-held/release revisions.
 7. Verify exact worker placement and old-writer quiescence/fencing before release.
    Complete application checks, one clean worker handoff and 24-hour observation.
-   Add the explicit `apps/iscsi` snapshot task and restore a new independent backup.
+   Verify execution of the configured `apps/iscsi` snapshot task and restore a new independent backup.
 
 The external workflow keeps ownership across manual stages. Continue with the
 original owner/nonce and exact stage. Cancellation or uncertainty leaves it held.

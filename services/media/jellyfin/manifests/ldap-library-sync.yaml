@@ -1,3 +1,4 @@
+---
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -23,9 +24,10 @@ spec:
               command:
                 - sh
                 - -c
-                - "PYTHONPATH=/pip-cache python -c 'import ldap3' 2>/dev/null \\\n  &&\
-                  \ echo \"ldap3 already cached, skipping install\" \\\n  || pip install\
-                  \ --quiet --root-user-action=ignore --target=/pip-cache ldap3\n"
+                - |
+                  PYTHONPATH=/pip-cache python -c 'import ldap3' 2>/dev/null \
+                    && echo "ldap3 already cached, skipping install" \
+                    || pip install --quiet --root-user-action=ignore --target=/pip-cache ldap3
               volumeMounts:
                 - name: pip-cache
                   mountPath: /pip-cache

@@ -5,7 +5,7 @@
     "pool_guid": "13727056474840796773",
     "dataset": "iscsi_lab/volumes/service-a",
     "zvol_guid": "6253329045690822869",
-    "bytes": 2147483648,
+    "bytes": 3221225472,
     "extent_id": 2,
     "serial": "9eac7b075821444a",
     "naa": "0x6589cfc000000e1e9b22d0a5c0f6a990",
@@ -39,9 +39,7 @@
         "capacity": {
           "storage": "2Gi"
         },
-        "accessModes": [
-          "ReadWriteOncePod"
-        ],
+        "accessModes": ["ReadWriteOncePod"],
         "persistentVolumeReclaimPolicy": "Retain",
         "storageClassName": "",
         "volumeMode": "Filesystem",
@@ -80,9 +78,7 @@
       "spec": {
         "volumeName": "static-service-a",
         "storageClassName": "",
-        "accessModes": [
-          "ReadWriteOncePod"
-        ],
+        "accessModes": ["ReadWriteOncePod"],
         "resources": {
           "requests": {
             "storage": "2Gi"
@@ -131,9 +127,7 @@
         "capacity": {
           "storage": "2Gi"
         },
-        "accessModes": [
-          "ReadWriteOncePod"
-        ],
+        "accessModes": ["ReadWriteOncePod"],
         "persistentVolumeReclaimPolicy": "Retain",
         "storageClassName": "",
         "volumeMode": "Filesystem",
@@ -172,9 +166,7 @@
       "spec": {
         "volumeName": "static-service-b",
         "storageClassName": "",
-        "accessModes": [
-          "ReadWriteOncePod"
-        ],
+        "accessModes": ["ReadWriteOncePod"],
         "resources": {
           "requests": {
             "storage": "2Gi"

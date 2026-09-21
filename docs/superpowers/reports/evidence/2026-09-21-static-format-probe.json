@@ -1,0 +1,27 @@
+{
+  "image": "ghcr.io/democratic-csi/democratic-csi@sha256:746bf6b373ae75f5da8b1e412d13c3e8d0e2e1494654268b9dd6fe1f1e55aade",
+  "scope": "real stock Filesystem.formatDevice helper; regular files only; not NodeStage",
+  "results": [
+    {
+      "name": "control",
+      "before": "080acf35a507ac9849cfcba47dc2ad83e01b75663a516279c8b9d243b719643e",
+      "after": "a711a14d7603f61c10ef374986d9cdabe42211e28fb9d57573bb5a421a513b35",
+      "changed": true,
+      "filesystem": "ext4"
+    },
+    {
+      "name": "blank-no-write",
+      "before": "080acf35a507ac9849cfcba47dc2ad83e01b75663a516279c8b9d243b719643e",
+      "after": "080acf35a507ac9849cfcba47dc2ad83e01b75663a516279c8b9d243b719643e",
+      "changed": false,
+      "filesystem": null
+    },
+    {
+      "name": "unrecognized-no-write",
+      "before": "69348f8a2ab1bcdf8d64752c92cb78a32faffadca3d8ae2b63e3e7a19a3e51fe",
+      "after": "69348f8a2ab1bcdf8d64752c92cb78a32faffadca3d8ae2b63e3e7a19a3e51fe",
+      "changed": false,
+      "filesystem": null
+    }
+  ]
+}

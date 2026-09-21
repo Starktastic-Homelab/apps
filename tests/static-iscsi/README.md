@@ -17,3 +17,11 @@ Fixture scripts adapted from the prior rehearsal pin TrueNAS25.10.7. Reuse the
 corrected `../iscsi-platform/guard.py` and its tests. Never reuse historical private
 manifests or temporary scripts containing embedded copies of older guard code.
 The lab is incomplete until the execution ledger records every acceptance result.
+
+The [completed-run report](../../docs/superpowers/reports/2026-09-21-static-iscsi-recovery.md)
+distinguishes live CSI tests from external verification and production gaps.
+`gitops/` archives the nonsecret manifests exercised by actual Argo. These are
+run-specific fixtures and evidence, not a reusable production bootstrap: native
+identities and VM ownership refer to this disposable run, whose private inputs
+are removed at cleanup. Never run these host scripts against another VM generation
+without independently establishing its ownership.

@@ -1,5 +1,5 @@
 import pathlib,sys,json,shlex,subprocess,time
-root=pathlib.Path('/home/benf/.codex/worktrees/retained-iscsi-lab/apps/tests/static-iscsi');sys.path.insert(0,str(root))
+root=pathlib.Path(__file__).resolve().parent;sys.path.insert(0,str(root))
 from ssh import ssh
 records=json.loads((root/'.runtime/native-records.json').read_text());iqns=records[0]['initiators']
 for i,port in enumerate((19111,19112,19113)):
@@ -14,5 +14,5 @@ for i,port in enumerate((19111,19112,19113)):
  ssh(port,'sudo systemctl restart iscsid',capture_output=True)
  print('Offline node staged with recorded initiator:',port,flush=True)
 subprocess.run(['python3',str(root/'start_k3s.py'),'19111','19112','19113'],check=True)
-subprocess.run(['python3','/tmp/static-iscsi-prep-route.py'],check=True)
-subprocess.run(['python3','/tmp/static-iscsi-get-kubeconfig.py'],check=True)
+subprocess.run(['python3',str(root/'prepare_route.py')],check=True)
+subprocess.run(['python3',str(root/'get_kubeconfig.py')],check=True)

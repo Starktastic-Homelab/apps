@@ -65,9 +65,9 @@ metadata:
     app.kubernetes.io/managed-by: Helm
 rules:
   # Allow listing and creating CRDs
-  - apiGroups: ['apiextensions.k8s.io']
-    resources: ['customresourcedefinitions']
-    verbs: ['list', 'create']
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources: ["customresourcedefinitions"]
+    verbs: ["list", "create"]
   - apiGroups: [""]
     resources: ["nodes"]
     verbs: ["get", "list", "watch", "update"]
@@ -77,7 +77,6 @@ rules:
   - apiGroups: ["storage.k8s.io"]
     resources: ["volumeattachments"]
     verbs: ["get", "list", "watch", "update"]
-
 
 ---
 # Source: democratic-csi/templates/node-rbac.yaml
@@ -95,9 +94,9 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   name: static-csi-democratic-csi-node-cr
 subjects:
-- kind: ServiceAccount
-  name: static-csi-democratic-csi-node-sa
-  namespace: static-iscsi-system
+  - kind: ServiceAccount
+    name: static-csi-democratic-csi-node-sa
+    namespace: static-iscsi-system
 
 ---
 # Source: democratic-csi/templates/node.yaml
@@ -143,175 +142,180 @@ spec:
       hostIPC: true
       hostPID: false
       containers:
-      - name: csi-driver
-        image: "ghcr.io/democratic-csi/democratic-csi:v1.9.5@sha256:746bf6b373ae75f5da8b1e412d13c3e8d0e2e1494654268b9dd6fe1f1e55aade"
-        imagePullPolicy: IfNotPresent
-        args:
-        - --csi-version=1.5.0
-        - --csi-name=org.democratic-csi.static-lab
-        - --driver-config-file=/config/driver-config-file.yaml
-        - --log-level=info
-        - --csi-mode=node
-        - --server-socket=/csi-data/csi.sock.internal
-
-        securityContext:
-          allowPrivilegeEscalation: true
-          capabilities:
-            add:
-            - SYS_ADMIN
-          privileged: true
-        env:
-        - name: CSI_NODE_ID
-          valueFrom:
-            fieldRef:
-              apiVersion: v1
-              fieldPath: spec.nodeName
-        - name: NODE_EXTRA_CA_CERTS
-          value: "/tmp/certs/extra-ca-certs.crt"
-
-        # prevent crazy error messages due to the /dev host mount
-        terminationMessagePath: /tmp/termination-log
-        terminationMessagePolicy: File
-        livenessProbe:
-          failureThreshold: 3
-          exec:
-            command:
-            - bin/liveness-probe
+        - name: csi-driver
+          image: "ghcr.io/democratic-csi/democratic-csi:v1.9.5@sha256:746bf6b373ae75f5da8b1e412d13c3e8d0e2e1494654268b9dd6fe1f1e55aade"
+          imagePullPolicy: IfNotPresent
+          args:
             - --csi-version=1.5.0
-            - --csi-address=/csi-data/csi.sock.internal
-          initialDelaySeconds: 10
-          timeoutSeconds: 15
-          periodSeconds: 60
+            - --csi-name=org.democratic-csi.static-lab
+            - --driver-config-file=/config/driver-config-file.yaml
+            - --log-level=info
+            - --csi-mode=node
+            - --server-socket=/csi-data/csi.sock.internal
 
-        volumeMounts:
-        - name: socket-dir
-          mountPath: /csi-data
-        - name: kubelet-dir
-          mountPath: /var/lib/kubelet
-          mountPropagation: Bidirectional
-        - name: modules-dir
-          mountPath: /lib/modules
-          readOnly: true
-        - name: localtime
-          mountPath: /etc/localtime
-          readOnly: true
-        - name: udev-data
-          mountPath: /run/udev
-        - name: host-dir
-          mountPath: /host
-          mountPropagation: Bidirectional
-        - mountPath: /sys
-          name: sys-dir
-        - name: dev-dir
-          mountPath: /dev
-        - name: config
-          mountPath: /config
-        - name: extra-ca-certs
-          mountPath: /tmp/certs
-      - name: csi-proxy
-        image: "ghcr.io/democratic-csi/csi-grpc-proxy:v0.5.7@sha256:78e86badadfe67a9afdbe2c9a3afc02bc50aa43b86203c9ca6fc046ab3519e3f"
-        env:
-        - name: BIND_TO
-          value: "unix:///csi-data/csi.sock"
-        - name: PROXY_TO
-          value: "unix:///csi-data/csi.sock.internal"
-        volumeMounts:
-        - mountPath: /csi-data
-          name: socket-dir
-      - name: driver-registrar
-        image: "registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.9.0@sha256:4da2674bae016b1011c2042cb719cffd9a80d34f3cf933c705b425054f86cea9"
-        args:
-        - --v=5
-        - --csi-address=/csi-data/csi.sock
-        - --kubelet-registration-path=/var/lib/kubelet/plugins/org.democratic-csi.static-lab/csi.sock
-        env:
-        - name: KUBE_NODE_NAME
-          valueFrom:
-            fieldRef:
-              apiVersion: v1
-              fieldPath: spec.nodeName
+          securityContext:
+            allowPrivilegeEscalation: true
+            capabilities:
+              add:
+                - SYS_ADMIN
+            privileged: true
+          env:
+            - name: CSI_NODE_ID
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: NODE_EXTRA_CA_CERTS
+              value: "/tmp/certs/extra-ca-certs.crt"
 
-        livenessProbe:
-          exec:
-            command:
-            - /csi-node-driver-registrar
-            - --kubelet-registration-path=/var/lib/kubelet/plugins/org.democratic-csi.static-lab/csi.sock
-            - --mode=kubelet-registration-probe
-
-        volumeMounts:
-        - mountPath: /csi-data
-          name: socket-dir
-        - name: registration-dir
-          mountPath: /registration
-        - name: kubelet-dir
-          mountPath: /var/lib/kubelet
-
-      - name: cleanup
-        image: "docker.io/library/busybox:1.37.0@sha256:7a3ebe5bfd1a4a19797d20b0c0bb39d44393e9a03fd852c0865b0f540d868df0"
-        command:
-          - "/bin/sh"
-          - "-c"
-          - "--"
-        args: [ "while true; do sleep 2; done;" ]
-        lifecycle:
-          # note this runs *before* other containers are terminated
-          preStop:
+          # prevent crazy error messages due to the /dev host mount
+          terminationMessagePath: /tmp/termination-log
+          terminationMessagePolicy: File
+          livenessProbe:
+            failureThreshold: 3
             exec:
-              command: ["/bin/sh", "-c", "rm -rf /plugins/org.democratic-csi.static-lab /registration/org.democratic-csi.static-lab-reg.sock"]
+              command:
+                - bin/liveness-probe
+                - --csi-version=1.5.0
+                - --csi-address=/csi-data/csi.sock.internal
+            initialDelaySeconds: 10
+            timeoutSeconds: 15
+            periodSeconds: 60
 
-        volumeMounts:
-        - name: plugins-dir
-          mountPath: /plugins
-        - name: registration-dir
-          mountPath: /registration
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /csi-data
+            - name: kubelet-dir
+              mountPath: /var/lib/kubelet
+              mountPropagation: Bidirectional
+            - name: modules-dir
+              mountPath: /lib/modules
+              readOnly: true
+            - name: localtime
+              mountPath: /etc/localtime
+              readOnly: true
+            - name: udev-data
+              mountPath: /run/udev
+            - name: host-dir
+              mountPath: /host
+              mountPropagation: Bidirectional
+            - mountPath: /sys
+              name: sys-dir
+            - name: dev-dir
+              mountPath: /dev
+            - name: config
+              mountPath: /config
+            - name: extra-ca-certs
+              mountPath: /tmp/certs
+        - name: csi-proxy
+          image: "ghcr.io/democratic-csi/csi-grpc-proxy:v0.5.7@sha256:78e86badadfe67a9afdbe2c9a3afc02bc50aa43b86203c9ca6fc046ab3519e3f"
+          env:
+            - name: BIND_TO
+              value: "unix:///csi-data/csi.sock"
+            - name: PROXY_TO
+              value: "unix:///csi-data/csi.sock.internal"
+          volumeMounts:
+            - mountPath: /csi-data
+              name: socket-dir
+        - name: driver-registrar
+          image: "registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.9.0@sha256:4da2674bae016b1011c2042cb719cffd9a80d34f3cf933c705b425054f86cea9"
+          args:
+            - --v=5
+            - --csi-address=/csi-data/csi.sock
+            - --kubelet-registration-path=/var/lib/kubelet/plugins/org.democratic-csi.static-lab/csi.sock
+          env:
+            - name: KUBE_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+
+          livenessProbe:
+            exec:
+              command:
+                - /csi-node-driver-registrar
+                - --kubelet-registration-path=/var/lib/kubelet/plugins/org.democratic-csi.static-lab/csi.sock
+                - --mode=kubelet-registration-probe
+
+          volumeMounts:
+            - mountPath: /csi-data
+              name: socket-dir
+            - name: registration-dir
+              mountPath: /registration
+            - name: kubelet-dir
+              mountPath: /var/lib/kubelet
+
+        - name: cleanup
+          image: "docker.io/library/busybox:1.37.0@sha256:7a3ebe5bfd1a4a19797d20b0c0bb39d44393e9a03fd852c0865b0f540d868df0"
+          command:
+            - "/bin/sh"
+            - "-c"
+            - "--"
+          args: ["while true; do sleep 2; done;"]
+          lifecycle:
+            # note this runs *before* other containers are terminated
+            preStop:
+              exec:
+                command:
+                  [
+                    "/bin/sh",
+                    "-c",
+                    "rm -rf /plugins/org.democratic-csi.static-lab /registration/org.democratic-csi.static-lab-reg.sock"
+                  ]
+
+          volumeMounts:
+            - name: plugins-dir
+              mountPath: /plugins
+            - name: registration-dir
+              mountPath: /registration
 
       volumes:
-      - name: socket-dir
-        hostPath:
-          path: /var/lib/kubelet/plugins/org.democratic-csi.static-lab
-          type: DirectoryOrCreate
-      - name: plugins-dir
-        hostPath:
-          path: /var/lib/kubelet/plugins
-          type: Directory
-      - name: registration-dir
-        hostPath:
-          path: /var/lib/kubelet/plugins_registry
-          type: DirectoryOrCreate
-      - name: kubelet-dir
-        hostPath:
-          path: /var/lib/kubelet
-          type: Directory
-      - name: dev-dir
-        hostPath:
-          path: /dev
-          type: Directory
-      - name: modules-dir
-        hostPath:
-          path: /lib/modules
-      - name: localtime
-        hostPath:
-          path: /etc/localtime
-      - name: udev-data
-        hostPath:
-          path: /run/udev
-      - name: sys-dir
-        hostPath:
-          path: /sys
-          type: Directory
-      - name: host-dir
-        hostPath:
-          path: /
-          type: Directory
-      - name: config
-        secret:
-          secretName: static-csi-democratic-csi-driver-config
-      - name: extra-ca-certs
-        configMap:
-          name: static-csi-democratic-csi
-          items:
-          - key: extra-ca-certs
-            path: extra-ca-certs.crt
+        - name: socket-dir
+          hostPath:
+            path: /var/lib/kubelet/plugins/org.democratic-csi.static-lab
+            type: DirectoryOrCreate
+        - name: plugins-dir
+          hostPath:
+            path: /var/lib/kubelet/plugins
+            type: Directory
+        - name: registration-dir
+          hostPath:
+            path: /var/lib/kubelet/plugins_registry
+            type: DirectoryOrCreate
+        - name: kubelet-dir
+          hostPath:
+            path: /var/lib/kubelet
+            type: Directory
+        - name: dev-dir
+          hostPath:
+            path: /dev
+            type: Directory
+        - name: modules-dir
+          hostPath:
+            path: /lib/modules
+        - name: localtime
+          hostPath:
+            path: /etc/localtime
+        - name: udev-data
+          hostPath:
+            path: /run/udev
+        - name: sys-dir
+          hostPath:
+            path: /sys
+            type: Directory
+        - name: host-dir
+          hostPath:
+            path: /
+            type: Directory
+        - name: config
+          secret:
+            secretName: static-csi-democratic-csi-driver-config
+        - name: extra-ca-certs
+          configMap:
+            name: static-csi-democratic-csi
+            items:
+              - key: extra-ca-certs
+                path: extra-ca-certs.crt
       nodeSelector:
         kubernetes.io/os: linux
       tolerations:

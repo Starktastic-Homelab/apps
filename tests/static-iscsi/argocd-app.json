@@ -10,9 +10,7 @@
         "namespace": "argocd"
       },
       "spec": {
-        "sourceRepos": [
-          "git://fixture-git.iscsi-fixture.svc.cluster.local:9418/fixture.git"
-        ],
+        "sourceRepos": ["git://fixture-git.iscsi-fixture.svc.cluster.local:9418/fixture.git"],
         "destinations": [
           {
             "server": "https://kubernetes.default.svc",
@@ -62,9 +60,7 @@
             "prune": true,
             "selfHeal": true
           },
-          "syncOptions": [
-            "ServerSideApply=true"
-          ]
+          "syncOptions": ["ServerSideApply=true"]
         }
       }
     }

@@ -10,5 +10,7 @@ subprocess.run([sys.executable,str(ROOT/'bootstrap_controllers.py'),*sys.argv[1:
 subprocess.run([sys.executable,str(ROOT/'set_replicas.py'),'1'],check=True)
 subprocess.run([sys.executable,str(ROOT/'publish_git.py'),'Restore existing retained volumes on fresh cluster'],check=True)
 print(kubectl('rollout','status','deployment/fixture-git','-n','iscsi-fixture','--timeout=90s').stdout)
+print(kubectl('rollout','status','deployment/argocd-repo-server','-n','argocd','--timeout=90s').stdout)
+print(kubectl('rollout','status','statefulset/argocd-application-controller','-n','argocd','--timeout=90s').stdout)
 print(kubectl('apply','-f',str(ROOT/'argocd-app.json')).stdout)
 print('GitOps restored; verification object absent, so writers must remain held.')

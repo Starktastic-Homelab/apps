@@ -12,8 +12,8 @@ verify_native(source,capture(n));snapshot=source['dataset']+'@recovery-checkpoin
 assert not n.call('pool.snapshot.query',[['id','=',snapshot]])
 assert not n.call('pool.dataset.query',[['id','=',destination]])
 receipt({'operation':'snapshot-create','state':'intent','source_guid':source['zvol_guid'],'snapshot':snapshot})
-# Deliberately close without reading the mutation response. Reconcile, never retry create.
-n.sequence+=1;n.ws.send(json.dumps({'jsonrpc':'2.0','id':n.sequence,'method':'pool.snapshot.create','params':[{'dataset':source['dataset'],'name':'recovery-checkpoint'}]}));n.ws.close()
+# Discard the reply before interpreting/persisting success, then reconnect and reconcile.
+n.sequence+=1;n.ws.send(json.dumps({'jsonrpc':'2.0','id':n.sequence,'method':'pool.snapshot.create','params':[{'dataset':source['dataset'],'name':'recovery-checkpoint'}]}));n.ws.recv();n.ws.close()
 n=NAS()
 for _ in range(20):
  snapshots=n.call('pool.snapshot.query',[['id','=',snapshot]])

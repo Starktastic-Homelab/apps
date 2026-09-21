@@ -5,7 +5,7 @@ driver:
       format:
         ext4:
           customOptions:
-          - -n
+            - -n
       mount:
         checkFilesystem:
           ext4:
@@ -17,9 +17,9 @@ controller:
   enabled: false
 node:
   tolerations:
-  - key: node-role.kubernetes.io/control-plane
-    operator: Exists
-    effect: NoSchedule
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
   cleanup:
     image:
       registry: docker.io/library/busybox

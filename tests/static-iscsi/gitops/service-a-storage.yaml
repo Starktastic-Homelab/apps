@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: static-service-a
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  capacity:
+    storage: 3Gi
+  accessModes:
+    - ReadWriteOncePod
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  volumeMode: Filesystem
+  claimRef:
+    namespace: iscsi-fixture
+    name: service-a
+  csi:
+    driver: org.democratic-csi.static-lab
+    volumeHandle: 7108c096-03c4-4026-8fb9-ee51bffcf562
+    fsType: ext4
+    nodeStageSecretRef:
+      name: static-iscsi-chap
+      namespace: static-iscsi-system
+    volumeAttributes:
+      node_attach_driver: iscsi
+      provisioner_driver: node-manual
+      portal: 172.30.91.10:3260
+      iqn: iqn.2026-09.lab.static:service-a
+      lun: "0"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: service-a
+  namespace: iscsi-fixture
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  volumeName: static-service-a
+  storageClassName: ""
+  accessModes:
+    - ReadWriteOncePod
+  resources:
+    requests:
+      storage: 3Gi

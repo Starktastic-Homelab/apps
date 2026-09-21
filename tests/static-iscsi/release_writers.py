@@ -10,4 +10,9 @@ for key,value in [('node-db.node.session.auth.username',chap['user']),('node-db.
 ns=json.loads(kubectl('get','ns','iscsi-fixture','-o','json').stdout)
 uid=ns['metadata']['uid'];assert ns['metadata']['annotations']['storage-lab/namespace-uid']==uid
 receipt({'external_verification_completed':True,'namespace_uid':uid,'at':time.time()})
-print(apply([{'apiVersion':'v1','kind':'ConfigMap','metadata':{'name':'storage-recovery-verification','namespace':'iscsi-fixture'},'data':{'released':'true','namespaceUID':uid}}]).stdout)
+data={'released':'true','namespaceUID':uid}
+existing=kubectl('get','cm','storage-recovery-verification','-n','iscsi-fixture',check=False)
+if existing.returncode:
+ print(apply([{'apiVersion':'v1','kind':'ConfigMap','metadata':{'name':'storage-recovery-verification','namespace':'iscsi-fixture'},'data':data}]).stdout)
+else:
+ print(kubectl('patch','cm','storage-recovery-verification','-n','iscsi-fixture','--type=merge','-p',json.dumps({'data':data})).stdout)

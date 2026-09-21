@@ -1,5 +1,5 @@
 """Publish the private lab Git source through a read-only in-cluster fixture."""
-import base64, json, pathlib, subprocess, sys
+import base64, json, pathlib, subprocess, sys, time
 from lab import PRIVATE, ROOT, apply, kubectl
 repo=PRIVATE/'repo'
 def git(*args):
@@ -17,7 +17,7 @@ for i,path in enumerate(sorted(files)):
     key='file'+str(i);data[key]=base64.b64encode(path.read_bytes()).decode();items.append({'key':key,'path':'fixture.git/'+str(path.relative_to(repo/'.git'))})
 cm={'apiVersion':'v1','kind':'ConfigMap','metadata':{'name':config_name,'namespace':'iscsi-fixture'},'immutable':True,'binaryData':data}
 image='quay.io/argoproj/argocd:v3.5.3@sha256:5a7367b15ab5c9fcce917954ec74527c8e401671756611654a9d998d9fff0662'
-deploy={'apiVersion':'apps/v1','kind':'Deployment','metadata':{'name':'fixture-git','namespace':'iscsi-fixture'},'spec':{'replicas':1,'strategy':{'type':'Recreate','rollingUpdate':None},'selector':{'matchLabels':{'app':'fixture-git'}},'template':{'metadata':{'labels':{'app':'fixture-git'}},'spec':{'automountServiceAccountToken':False,'containers':[{'name':'git','image':image,'imagePullPolicy':'IfNotPresent','command':['git','-c','safe.directory=/git/fixture.git','daemon','--reuseaddr','--export-all','--base-path=/git','--listen=0.0.0.0','--port=9418'],'ports':[{'containerPort':9418}],'resources':{'requests':{'cpu':'5m','memory':'24Mi'},'limits':{'memory':'64Mi'}},'volumeMounts':[{'name':'git','mountPath':'/git','readOnly':True}]}],'volumes':[{'name':'git','configMap':{'name':config_name,'items':items}}]}}}}
+deploy={'apiVersion':'apps/v1','kind':'Deployment','metadata':{'name':'fixture-git','namespace':'iscsi-fixture'},'spec':{'replicas':1,'strategy':{'type':'Recreate','rollingUpdate':None},'selector':{'matchLabels':{'app':'fixture-git'}},'template':{'metadata':{'labels':{'app':'fixture-git'}},'spec':{'automountServiceAccountToken':False,'containers':[{'name':'git','image':image,'imagePullPolicy':'IfNotPresent','command':['git','-c','safe.directory=/git/fixture.git','daemon','--reuseaddr','--export-all','--base-path=/git','--listen=0.0.0.0','--port=9418'],'ports':[{'containerPort':9418}],'readinessProbe':{'tcpSocket':{'port':9418},'periodSeconds':1},'resources':{'requests':{'cpu':'5m','memory':'24Mi'},'limits':{'memory':'64Mi'}},'volumeMounts':[{'name':'git','mountPath':'/git','readOnly':True}]}],'volumes':[{'name':'git','configMap':{'name':config_name,'items':items}}]}}}}
 service={'apiVersion':'v1','kind':'Service','metadata':{'name':'fixture-git','namespace':'iscsi-fixture'},'spec':{'selector':{'app':'fixture-git'},'ports':[{'port':9418,'targetPort':9418}]}}
 print(apply([cm,deploy,service]).stdout)
 print('Lab Git commit',git('rev-parse','HEAD').stdout.strip())
@@ -25,3 +25,11 @@ print('Lab Git commit',git('rev-parse','HEAD').stdout.strip())
 print(kubectl('rollout','status','deployment/fixture-git','-n','iscsi-fixture','--timeout=90s').stdout)
 served=kubectl('exec','-n','iscsi-fixture','deployment/fixture-git','--','git','-c','safe.directory=/git/fixture.git','--git-dir=/git/fixture.git','rev-parse','HEAD').stdout.strip()
 assert served==revision,'Lab Git server still serves an older revision'
+
+# Readiness of the pod alone does not prove Service routing from Argo is ready.
+print(kubectl('rollout','status','deployment/argocd-repo-server','-n','argocd','--timeout=90s').stdout)
+for attempt in range(30):
+ remote=kubectl('exec','-n','argocd','deployment/argocd-repo-server','--','git','ls-remote','git://fixture-git.iscsi-fixture.svc.cluster.local:9418/fixture.git','HEAD',check=False)
+ if remote.returncode==0 and remote.stdout.split()[0]==revision:break
+ time.sleep(1)
+else:raise RuntimeError('Argo cannot reach the published Git revision; do not refresh yet')

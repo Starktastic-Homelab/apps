@@ -3,9 +3,9 @@ controllers:
     containers:
       main:
         command:
-        - python
-        - /fixture/fixture.py
-        - serve
+          - python
+          - /fixture/fixture.py
+          - serve
         env:
           SERVICE_MARKER: 7975bf75-5486-439a-bd1e-3d6f099674d0
         image:
@@ -19,9 +19,9 @@ controllers:
             spec:
               exec:
                 command:
-                - python
-                - /fixture/fixture.py
-                - verify
+                  - python
+                  - /fixture/fixture.py
+                  - verify
               periodSeconds: 10
         resources:
           limits:
@@ -37,10 +37,10 @@ persistence:
   data:
     existingClaim: service-b
     globalMounts:
-    - path: /data
+      - path: /data
   fixture:
     globalMounts:
-    - path: /fixture
-      readOnly: true
+      - path: /fixture
+        readOnly: true
     name: sqlite-fixture
     type: configMap

@@ -1,5 +1,5 @@
 import sys,pathlib,secrets,json,importlib.util
-spec=importlib.util.spec_from_file_location('labssh','/home/benf/.codex/worktrees/retained-iscsi-lab/apps/tests/static-iscsi/ssh.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+spec=importlib.util.spec_from_file_location('labssh',str(pathlib.Path(__file__).with_name('ssh.py')));m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 p=m.p
 if not (p/'k3s-token').exists():
  (p/'k3s-token').write_text(secrets.token_hex(32));(p/'k3s-token').chmod(0o600)

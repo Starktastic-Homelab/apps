@@ -51,7 +51,7 @@ docker run --rm --user "$(id -u):$(id -g)" --network none --cap-drop ALL \
 - [x] Prepare fresh cleanup, run the existing guard suite, install guard, create isolated network and stopped VMs; validate UUIDs, disks and NICs before boot.
 - [x] Install NAS, node guests and pinned K3s; prove production addresses unreachable from guests. Only lab API credentials are allowed.
 - [x] Provision two synthetic volumes over WSS once, with CHAP and exact initiator ACLs. Capture pool/ZVOL GUID, extent ID/serial/NAA, target ID/IQN, portal/LUN, size, filesystem UUID/type and service marker.
-- [ ] Test changed/missing native identities and simulated lost responses before implementing read-only reconcile. Reconcile existing objects after interrupted responses; no blind allocation retries.
+- [x] Test changed/missing native identities and simulated lost responses before implementing read-only reconcile. Reconcile existing objects after interrupted responses; no blind allocation retries.
 
 ```sh
 python3 -m unittest discover -s tests/iscsi-platform -p 'test_*.py'
@@ -64,9 +64,9 @@ python3 -m unittest discover -s tests/iscsi-platform -p 'test_*.py'
 
 - [x] Render pinned node-manual with `controller.enabled: false`, `node.format.ext4.customOptions: ["-n"]`, filesystem checks disabled. Inspect final chart resources for unintended provisioner, API credentials or mutation controller.
 - [x] Install actual Argo and Sealed Secrets; preserve a dedicated lab sealing key externally. Put CHAP only in a SealedSecret. Reconcile from a lab Git source containing nonsecret records and encrypted manifests.
-- [ ] Exercise server-side rejection of alias PVs, foreign/dynamic claims, non-Retain deletion, changed storage identity and substituted driver/fsType. Missing key and wrong CHAP must leave writers held.
+- [x] Exercise server-side rejection of alias PVs, foreign/dynamic claims, non-Retain deletion, changed storage identity and substituted driver/fsType. Missing key and wrong CHAP must leave writers held.
 - [x] Initialize each synthetic SQLite dataset once and record exact acknowledged values outside the cluster. Normal application startup requires an existing DB/service marker.
-- [ ] Destroy/recreate only the three owned K3s VM disks twice. Restore the sealing key, Argo source and existing bindings; prove new CAs/object UIDs, unchanged NAS/filesystem identities and every acknowledged SQLite value. Verify Argo deletion/prune retention and native volume count.
+- [x] Destroy/recreate only the three owned K3s VM disks twice. Restore the sealing key, Argo source and existing bindings; prove new CAs/object UIDs, unchanged NAS/filesystem identities and every acknowledged SQLite value. Verify Argo deletion/prune retention and native volume count.
 
 ### Task 4: Writer, maintenance and restore failure cases
 
@@ -74,17 +74,17 @@ python3 -m unittest discover -s tests/iscsi-platform -p 'test_*.py'
 **Interface:** exact-UUID external power fence; explicit maintenance receipts; independent backups outside NAS.
 
 - [x] Verify RWOP contention and clean movement, then disconnect only an owned worker control NIC while storage remains reachable. Record witness writes.
-- [ ] Inject stale UUID, failed fence and timeout; require replacement held. Only after exact VM power-off confirmation remove stale pod objects and release a replacement.
-- [ ] Snapshot and restore to distinct authenticated targets over WSS; verify CHAP/ACLs and source identity unchanged, with wrong credentials/initiator rejected.
-- [ ] Quiesce/unmount and interrupt expansion after NAS growth, initiator rescan and filesystem growth. Reconcile each from observed native state, then prove actual Argo PV/PVC capacity convergence and retained values.
-- [ ] Restore externally captured backups to separate storage while lab NAS is verified off; verify integrity and exact backup-time values.
+- [x] Inject stale UUID, failed fence and timeout; require replacement held. Only after exact VM power-off confirmation remove stale pod objects and release a replacement.
+- [x] Snapshot and restore to distinct authenticated targets over WSS; verify CHAP/ACLs and source identity unchanged, with wrong credentials/initiator rejected.
+- [x] Quiesce/unmount and interrupt expansion after NAS growth, initiator rescan and filesystem growth. Reconcile each from observed native state, then prove actual Argo PV/PVC capacity convergence and retained values.
+- [x] Restore externally captured backups to separate storage while lab NAS is verified off; verify integrity and exact backup-time values.
 
 ### Task 5: Cleanup and delivery
 
 **Files:** reports/2026-09-21-static-iscsi-recovery.md; source, sanitized evidence and this ledger.
 
-- [ ] Stop writers, validate current exact VM ownership/disk identities, delete only the run's VMs/disks/bridges/firewall/transient services/downloads and private artifacts.
-- [ ] Restore runner, compare original production identities/storage and health; reconcile host memory/storage headroom.
+- [x] Stop writers, validate current exact VM ownership/disk identities, delete only the run's VMs/disks/bridges/firewall/transient services/downloads and private artifacts.
+- [x] Restore runner, compare original production identities/storage and health; reconcile host memory/storage headroom.
 - [ ] Run relevant local checks and one fresh whole-branch review, fix important findings with regression tests. Update the existing draft PR with passed/failed/untested gates. Do not claim production acceptance from incomplete lab evidence.
 
 ## Execution ledger
@@ -104,3 +104,6 @@ python3 -m unittest discover -s tests/iscsi-platform -p 'test_*.py'
 - Clean drain and RWOP contention passed. During a control-NIC-only partition both services acknowledged a witness write. Stale UUID and unauthenticated Proxmox fence were rejected; admission blocked replacement until exact-UUID VM913 power-off. Replacements recovered11/11 acknowledgements per service, then added5each.
 - Before rebuild1:125/125 production pods Ready,77/77 applications Synced/Healthy,68 original bindings unchanged,38/38 SealedSecrets and7/7 certificates healthy.
 - Rebuild1 paused before deletion on graceful worker shutdown timeout; exact-owned disposable workers are explicitly fenced before their OS disks are replaced.
+
+- Completed live evidence is summarized in ../reports/2026-09-21-static-iscsi-recovery.md. Both complete rebuilds, native clone, client timeout, damaged-media gate, Argo prune/cascading deletion, direct retained rebinding, interrupted 2→3GiB growth and independent NAS-off backup restore passed their scoped checks. Onboarding interruption automation and production fencing permissions remain explicitly unqualified.
+- Cleanup removed all four owned VMs/disks and run networks/private artifacts. Runner service is active; production125/125pods,77/77apps,68/68bindings remain healthy and unchanged.

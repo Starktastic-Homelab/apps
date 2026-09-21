@@ -1,0 +1,1777 @@
+{
+  "captured_at": "2026-09-21T16:34:04+00:00",
+  "reviewed_at": "2026-09-21T17:59:08.035779+00:00",
+  "scope": "apps/pv backup restoration prerequisite, not complete application or NAS disaster recovery",
+  "dataset_guid": "14547210392972608779",
+  "claims": [
+    {
+      "namespace": "operations",
+      "claim": "filebrowser-apps-pvc",
+      "relative_path": ".",
+      "directory_in_manifest": true,
+      "regular_files": null,
+      "regular_bytes": null,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": [],
+      "acceptance": "excluded-local-database",
+      "limitations": ["Filebrowser is a view over the shared dataset; its worker-local DB is excluded by the user."]
+    },
+    {
+      "namespace": "operations",
+      "claim": "searxng",
+      "relative_path": "operations/searxng",
+      "directory_in_manifest": true,
+      "regular_files": null,
+      "regular_bytes": null,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": [],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "cert-backup",
+      "claim": "cert-backup",
+      "relative_path": "cert-backup/cert-backup",
+      "directory_in_manifest": true,
+      "regular_files": 3,
+      "regular_bytes": 23280,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": [],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "media",
+      "claim": "lingarr",
+      "relative_path": "media/lingarr",
+      "directory_in_manifest": true,
+      "regular_files": 7,
+      "regular_bytes": 14586234,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 2,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "media",
+      "claim": "audiobookshelf",
+      "relative_path": "media/audiobookshelf",
+      "directory_in_manifest": true,
+      "regular_files": 16,
+      "regular_bytes": 454409,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 1,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 0,
+      "native_evidence": [],
+      "acceptance": "excluded-by-user",
+      "limitations": ["Files and SQLite included; application acceptance is not mandatory."]
+    },
+    {
+      "namespace": "operations",
+      "claim": "listmonk",
+      "relative_path": "operations/listmonk",
+      "directory_in_manifest": true,
+      "regular_files": null,
+      "regular_bytes": null,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": [],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "databases",
+      "claim": "data-postgres-postgresql-0",
+      "relative_path": "databases/data-postgres-postgresql-0",
+      "directory_in_manifest": true,
+      "regular_files": 7126,
+      "regular_bytes": 646112763,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["postgresql-physical-restore.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "media",
+      "claim": "cwa-book-ingest",
+      "relative_path": "media/cwa-book-ingest",
+      "directory_in_manifest": true,
+      "regular_files": null,
+      "regular_bytes": null,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": [],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "media",
+      "claim": "calibre-web",
+      "relative_path": "media/calibre-web",
+      "directory_in_manifest": true,
+      "regular_files": 22,
+      "regular_bytes": 7247180,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 3,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 4,
+      "native_evidence": ["sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": ["Known source relationship exceptions retained; see application-level review."]
+    },
+    {
+      "namespace": "media",
+      "claim": "dispatcharr-data",
+      "relative_path": "media/dispatcharr-data",
+      "directory_in_manifest": true,
+      "regular_files": 31,
+      "regular_bytes": 92913269,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": [],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "media",
+      "claim": "radarr",
+      "relative_path": "media/radarr",
+      "directory_in_manifest": true,
+      "regular_files": 1782,
+      "regular_bytes": 789214419,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 2,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "media",
+      "claim": "libretranslate",
+      "relative_path": "media/libretranslate",
+      "directory_in_manifest": true,
+      "regular_files": 34,
+      "regular_bytes": 661470771,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": [],
+      "acceptance": "accepted",
+      "limitations": ["Derived packages/model cache byte-restored; model execution not tested."]
+    },
+    {
+      "namespace": "media",
+      "claim": "cineplete-config",
+      "relative_path": "media/cineplete-config",
+      "directory_in_manifest": true,
+      "regular_files": 1,
+      "regular_bytes": 2347,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["application-format-checks.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "media",
+      "claim": "cineplete-data",
+      "relative_path": "media/cineplete-data",
+      "directory_in_manifest": true,
+      "regular_files": 8,
+      "regular_bytes": 35158529,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["application-format-checks.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "operations",
+      "claim": "mealie-data",
+      "relative_path": "operations/mealie-data",
+      "directory_in_manifest": true,
+      "regular_files": 8,
+      "regular_bytes": 31338367,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": [],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "media",
+      "claim": "bazarr",
+      "relative_path": "media/bazarr",
+      "directory_in_manifest": true,
+      "regular_files": 643,
+      "regular_bytes": 126774924,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 1,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "media",
+      "claim": "qbittorrent-ru",
+      "relative_path": "media/qbittorrent-ru",
+      "directory_in_manifest": true,
+      "regular_files": 17,
+      "regular_bytes": 14973288,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["application-format-checks.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "crowdsec",
+      "claim": "crowdsec-db-pvc",
+      "relative_path": "crowdsec/crowdsec-db-pvc",
+      "directory_in_manifest": true,
+      "regular_files": 1,
+      "regular_bytes": 31064064,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 1,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "operations",
+      "claim": "stirling-pdf-config",
+      "relative_path": "operations/stirling-pdf-config",
+      "directory_in_manifest": true,
+      "regular_files": 11,
+      "regular_bytes": 487357,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["h2-restore.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "operations",
+      "claim": "karakeep-meilisearch",
+      "relative_path": "operations/karakeep-meilisearch",
+      "directory_in_manifest": true,
+      "regular_files": 6,
+      "regular_bytes": 176281,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["native-check-evidence/meilisearch-restore.json"],
+      "acceptance": "accepted",
+      "limitations": [
+        "Native store opens with zero indexes, matching the copied store; does not establish Karakeep indexing functionality."
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "lidarr",
+      "relative_path": "media/lidarr",
+      "directory_in_manifest": true,
+      "regular_files": 445,
+      "regular_bytes": 192878119,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 2,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "operations",
+      "claim": "listmonk-uploads",
+      "relative_path": "operations/listmonk-uploads",
+      "directory_in_manifest": true,
+      "regular_files": 6,
+      "regular_bytes": 1154952,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": [],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "operations",
+      "claim": "convertx-config",
+      "relative_path": "operations/convertx-config",
+      "directory_in_manifest": true,
+      "regular_files": 3,
+      "regular_bytes": 1709520,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 1,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 6,
+      "native_evidence": ["sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": ["Known source relationship exceptions retained; see application-level review."]
+    },
+    {
+      "namespace": "operations",
+      "claim": "karakeep-data",
+      "relative_path": "operations/karakeep-data",
+      "directory_in_manifest": true,
+      "regular_files": 10,
+      "regular_bytes": 834128,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 2,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "media",
+      "claim": "radarr-ru",
+      "relative_path": "media/radarr-ru",
+      "directory_in_manifest": true,
+      "regular_files": 314,
+      "regular_bytes": 170362493,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 2,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "operations",
+      "claim": "ntfy-config",
+      "relative_path": "operations/ntfy-config",
+      "directory_in_manifest": true,
+      "regular_files": 2,
+      "regular_bytes": 167936,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 2,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "monitoring",
+      "claim": "alertmanager-kube-prometheus-stack-alertmanager-db-alertmanager-kube-prometheus-stack-alertmanager-0",
+      "relative_path": "monitoring/alertmanager-kube-prometheus-stack-alertmanager-db-alertmanager-kube-prometheus-stack-alertmanager-0",
+      "directory_in_manifest": true,
+      "regular_files": 2,
+      "regular_bytes": 255,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["native-check-evidence/alertmanager-restore.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "home-automation",
+      "claim": "zigbee2mqtt-config",
+      "relative_path": "home-automation/zigbee2mqtt-config",
+      "directory_in_manifest": true,
+      "regular_files": 15,
+      "regular_bytes": 139016,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["other-database-checks.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "operations",
+      "claim": "bytestash-data",
+      "relative_path": "operations/bytestash-data",
+      "directory_in_manifest": true,
+      "regular_files": 2,
+      "regular_bytes": 303104,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 2,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "media",
+      "claim": "sonarr",
+      "relative_path": "media/sonarr",
+      "directory_in_manifest": true,
+      "regular_files": 1307,
+      "regular_bytes": 582343770,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 2,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "operations",
+      "claim": "bytestash",
+      "relative_path": "operations/bytestash",
+      "directory_in_manifest": true,
+      "regular_files": null,
+      "regular_bytes": null,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": [],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "media",
+      "claim": "seerr-ru",
+      "relative_path": "media/seerr-ru",
+      "directory_in_manifest": true,
+      "regular_files": 39,
+      "regular_bytes": 6982581,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 1,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "monitoring",
+      "claim": "storage-loki-0",
+      "relative_path": "monitoring/storage-loki-0",
+      "directory_in_manifest": true,
+      "regular_files": 52433,
+      "regular_bytes": 1982086604,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["native-check-evidence/loki-restore.json"],
+      "acceptance": "pending-source-replay-exception",
+      "limitations": ["Production and isolated restored WAL replay report errors; complete log history is not proven."]
+    },
+    {
+      "namespace": "media",
+      "claim": "jellyfin-ldap-pip-cache",
+      "relative_path": "media/jellyfin-ldap-pip-cache",
+      "directory_in_manifest": true,
+      "regular_files": 302,
+      "regular_bytes": 5374133,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": [],
+      "acceptance": "accepted",
+      "limitations": ["Derived packages/model cache byte-restored; model execution not tested."]
+    },
+    {
+      "namespace": "home-automation",
+      "claim": "home-assistant-config",
+      "relative_path": "home-automation/home-assistant-config",
+      "directory_in_manifest": true,
+      "regular_files": 3544,
+      "regular_bytes": 213547623,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 1,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["sqlite-results.json", "application-format-checks.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "media",
+      "claim": "cleanuparr",
+      "relative_path": "media/cleanuparr",
+      "directory_in_manifest": true,
+      "regular_files": 39,
+      "regular_bytes": 4389431,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 3,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "home-automation",
+      "claim": "matter-server-data",
+      "relative_path": "home-automation/matter-server-data",
+      "directory_in_manifest": true,
+      "regular_files": 13,
+      "regular_bytes": 7264679,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["application-format-checks.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "media",
+      "claim": "immich-pgdata",
+      "relative_path": "media/immich-pgdata",
+      "directory_in_manifest": true,
+      "regular_files": 1780,
+      "regular_bytes": 405335225,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["immich-physical-restore.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "home-automation",
+      "claim": "mosquitto-config",
+      "relative_path": "home-automation/mosquitto-config",
+      "directory_in_manifest": true,
+      "regular_files": null,
+      "regular_bytes": null,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": [],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "media",
+      "claim": "shelfmark",
+      "relative_path": "media/shelfmark",
+      "directory_in_manifest": true,
+      "regular_files": 160,
+      "regular_bytes": 7619427,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 1,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "media",
+      "claim": "qbittorrent",
+      "relative_path": "media/qbittorrent",
+      "directory_in_manifest": true,
+      "regular_files": 8030,
+      "regular_bytes": 494189125,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["application-format-checks.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "operations",
+      "claim": "paperless-ngx-data",
+      "relative_path": "operations/paperless-ngx-data",
+      "directory_in_manifest": true,
+      "regular_files": 68,
+      "regular_bytes": 37561858,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["other-database-checks.json"],
+      "acceptance": "accepted",
+      "limitations": [
+        "Tantivy search index byte-restored; derived from tested PostgreSQL document records. Index rebuild not exercised."
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "immich-model-cache",
+      "relative_path": "media/immich-model-cache",
+      "directory_in_manifest": true,
+      "regular_files": 38397,
+      "regular_bytes": 8370370348,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": [],
+      "acceptance": "accepted",
+      "limitations": ["Derived packages/model cache byte-restored; model execution not tested."]
+    },
+    {
+      "namespace": "operations",
+      "claim": "mealie",
+      "relative_path": "operations/mealie",
+      "directory_in_manifest": true,
+      "regular_files": null,
+      "regular_bytes": null,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": [],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "operations",
+      "claim": "excalidash-data",
+      "relative_path": "operations/excalidash-data",
+      "directory_in_manifest": true,
+      "regular_files": 32,
+      "regular_bytes": 317671,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 1,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "operations",
+      "claim": "microbin-config",
+      "relative_path": "operations/microbin-config",
+      "directory_in_manifest": true,
+      "regular_files": 1,
+      "regular_bytes": 8192,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 1,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "media",
+      "claim": "seerr",
+      "relative_path": "media/seerr",
+      "directory_in_manifest": true,
+      "regular_files": 41,
+      "regular_bytes": 7256396,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 1,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "operations",
+      "claim": "vaultwarden-data",
+      "relative_path": "operations/vaultwarden-data",
+      "directory_in_manifest": true,
+      "regular_files": 3,
+      "regular_bytes": 15835,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": [],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "operations",
+      "claim": "ntfy-cache",
+      "relative_path": "operations/ntfy-cache",
+      "directory_in_manifest": true,
+      "regular_files": 1,
+      "regular_bytes": 364544,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 1,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "databases",
+      "claim": "pgadmin-pgadmin4",
+      "relative_path": "databases/pgadmin-pgadmin4",
+      "directory_in_manifest": true,
+      "regular_files": 7,
+      "regular_bytes": 393216,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 2,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "monitoring",
+      "claim": "kube-prometheus-stack-grafana",
+      "relative_path": "monitoring/kube-prometheus-stack-grafana",
+      "directory_in_manifest": true,
+      "regular_files": 313,
+      "regular_bytes": 167037104,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 1,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "media",
+      "claim": "navidrome",
+      "relative_path": "media/navidrome",
+      "directory_in_manifest": true,
+      "regular_files": 464,
+      "regular_bytes": 31310438,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 1,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "operations",
+      "claim": "changedetection-data",
+      "relative_path": "operations/changedetection-data",
+      "directory_in_manifest": true,
+      "regular_files": 20,
+      "regular_bytes": 45729,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["application-format-checks.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "monitoring",
+      "claim": "storage-tempo-0",
+      "relative_path": "monitoring/storage-tempo-0",
+      "directory_in_manifest": true,
+      "regular_files": 403,
+      "regular_bytes": 78398714,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["native-check-evidence/tempo-restore.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "databases",
+      "claim": "pg-backup",
+      "relative_path": "databases/pg-backup",
+      "directory_in_manifest": true,
+      "regular_files": 11,
+      "regular_bytes": 375264874,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": [],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "operations",
+      "claim": "paperless-ngx",
+      "relative_path": "operations/paperless-ngx",
+      "directory_in_manifest": true,
+      "regular_files": null,
+      "regular_bytes": null,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": [],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "media",
+      "claim": "prowlarr",
+      "relative_path": "media/prowlarr",
+      "directory_in_manifest": true,
+      "regular_files": 793,
+      "regular_bytes": 355619630,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 2,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "operations",
+      "claim": "vikunja-files",
+      "relative_path": "operations/vikunja-files",
+      "directory_in_manifest": true,
+      "regular_files": 1,
+      "regular_bytes": 15465852,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": [],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "databases",
+      "claim": "redis-data-redis-master-0",
+      "relative_path": "databases/redis-data-redis-master-0",
+      "directory_in_manifest": true,
+      "regular_files": 3,
+      "regular_bytes": 17599123,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["redis-restore.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "media",
+      "claim": "sonarr-ru",
+      "relative_path": "media/sonarr-ru",
+      "directory_in_manifest": true,
+      "regular_files": 315,
+      "regular_bytes": 132575038,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 2,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "monitoring",
+      "claim": "prometheus-kube-prometheus-stack-prometheus-db-prometheus-kube-prometheus-stack-prometheus-0",
+      "relative_path": "monitoring/prometheus-kube-prometheus-stack-prometheus-db-prometheus-kube-prometheus-stack-prometheus-0",
+      "directory_in_manifest": true,
+      "regular_files": 77,
+      "regular_bytes": 8247353123,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 0,
+      "sqlite_structural_integrity": "not-applicable",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["native-check-evidence/prometheus-restore.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "media",
+      "claim": "jellyfin-config",
+      "relative_path": "media/jellyfin-config",
+      "directory_in_manifest": true,
+      "regular_files": 82742,
+      "regular_bytes": 28941313870,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 5,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 0,
+      "native_evidence": ["jellyfin-application-restore.json", "sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": []
+    },
+    {
+      "namespace": "media",
+      "claim": "autobrr",
+      "relative_path": "media/autobrr",
+      "directory_in_manifest": true,
+      "regular_files": 4,
+      "regular_bytes": 104331447,
+      "filesystem_restore": "passed",
+      "sqlite_databases": 3,
+      "sqlite_structural_integrity": "passed",
+      "foreign_key_exceptions": 47332,
+      "native_evidence": ["sqlite-results.json"],
+      "acceptance": "accepted",
+      "limitations": ["Known source relationship exceptions retained; see application-level review."]
+    }
+  ],
+  "applications": [
+    {
+      "application": "crowdsec/crowdsec-lapi",
+      "claims": ["crowdsec-db-pvc"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "sqlite-results.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "databases/pgadmin-pgadmin4",
+      "claims": ["pgadmin-pgadmin4"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "sqlite-results.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "home-automation/home-assistant",
+      "claims": ["home-assistant-config", "matter-server-data"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "application-format-checks.json", "sqlite-results.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "home-automation/mosquitto",
+      "claims": ["mosquitto-config"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "home-automation/zigbee2mqtt",
+      "claims": ["zigbee2mqtt-config"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "other-database-checks.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "media/audiobookshelf",
+      "claims": ["audiobookshelf"],
+      "acceptance": "excluded-by-user",
+      "restore_evidence": ["filesystem-restore.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "media/autobrr",
+      "claims": ["autobrr"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "sqlite-results.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "media/bazarr",
+      "claims": ["bazarr"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "sqlite-results.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "media/calibre-web",
+      "claims": ["calibre-web", "cwa-book-ingest"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "sqlite-results.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "media/cineplete",
+      "claims": ["cineplete-config", "cineplete-data"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "application-format-checks.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "media/cleanuparr",
+      "claims": ["cleanuparr"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "sqlite-results.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "media/dispatcharr-celery",
+      "claims": ["dispatcharr-data"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "postgresql-physical-restore.json"],
+      "postgresql_database": "dispatcharr"
+    },
+    {
+      "application": "media/dispatcharr-web",
+      "claims": ["dispatcharr-data"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "postgresql-physical-restore.json"],
+      "postgresql_database": "dispatcharr"
+    },
+    {
+      "application": "media/immich-machine-learning",
+      "claims": ["immich-model-cache"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "media/immich-postgres",
+      "claims": ["immich-pgdata"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "immich-physical-restore.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "media/jellyfin",
+      "claims": ["jellyfin-config"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "jellyfin-application-restore.json", "sqlite-results.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "media/libretranslate",
+      "claims": ["libretranslate"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "media/lidarr",
+      "claims": ["lidarr"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "sqlite-results.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "media/lingarr",
+      "claims": ["lingarr"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "sqlite-results.json", "postgresql-physical-restore.json"],
+      "postgresql_database": "lingarr"
+    },
+    {
+      "application": "media/navidrome",
+      "claims": ["navidrome"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "sqlite-results.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "media/prowlarr",
+      "claims": ["prowlarr"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "sqlite-results.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "media/qbittorrent",
+      "claims": ["qbittorrent"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "application-format-checks.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "media/qbittorrent-ru",
+      "claims": ["qbittorrent-ru"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "application-format-checks.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "media/radarr",
+      "claims": ["radarr"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "sqlite-results.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "media/radarr-ru",
+      "claims": ["radarr-ru"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "sqlite-results.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "media/seerr",
+      "claims": ["seerr"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "sqlite-results.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "media/seerr-ru",
+      "claims": ["seerr-ru"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "sqlite-results.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "media/shelfmark",
+      "claims": ["cwa-book-ingest", "shelfmark"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "sqlite-results.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "media/sonarr",
+      "claims": ["sonarr"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "sqlite-results.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "media/sonarr-ru",
+      "claims": ["sonarr-ru"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "sqlite-results.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "monitoring/kube-prometheus-stack-grafana",
+      "claims": ["kube-prometheus-stack-grafana"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "sqlite-results.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "operations/bytestash",
+      "claims": ["bytestash", "bytestash-data"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "sqlite-results.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "operations/changedetection",
+      "claims": ["changedetection-data"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "application-format-checks.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "operations/convertx",
+      "claims": ["convertx-config"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "sqlite-results.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "operations/excalidash",
+      "claims": ["excalidash-data"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "sqlite-results.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "operations/filebrowser",
+      "claims": ["filebrowser-apps-pvc"],
+      "acceptance": "excluded-by-user",
+      "restore_evidence": ["filesystem-restore.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "operations/karakeep",
+      "claims": ["karakeep-data", "karakeep-meilisearch"],
+      "acceptance": "accepted",
+      "restore_evidence": [
+        "filesystem-restore.json",
+        "native-check-evidence/meilisearch-restore.json",
+        "sqlite-results.json"
+      ],
+      "postgresql_database": null
+    },
+    {
+      "application": "operations/listmonk",
+      "claims": ["listmonk", "listmonk-uploads"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "postgresql-physical-restore.json"],
+      "postgresql_database": "listmonk"
+    },
+    {
+      "application": "operations/mealie",
+      "claims": ["mealie", "mealie-data"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "postgresql-physical-restore.json"],
+      "postgresql_database": "mealie"
+    },
+    {
+      "application": "operations/microbin",
+      "claims": ["microbin-config"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "sqlite-results.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "operations/ntfy",
+      "claims": ["ntfy-cache", "ntfy-config"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "sqlite-results.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "operations/paperless-ngx",
+      "claims": ["paperless-ngx", "paperless-ngx-data"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "other-database-checks.json", "postgresql-physical-restore.json"],
+      "postgresql_database": "paperless"
+    },
+    {
+      "application": "operations/searxng",
+      "claims": ["searxng"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "operations/stirling-pdf",
+      "claims": ["stirling-pdf-config"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "h2-restore.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "operations/vaultwarden",
+      "claims": ["vaultwarden-data"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "postgresql-physical-restore.json"],
+      "postgresql_database": "vaultwarden"
+    },
+    {
+      "application": "operations/vikunja",
+      "claims": ["vikunja-files"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "postgresql-physical-restore.json"],
+      "postgresql_database": "vikunja"
+    },
+    {
+      "application": "postgresql",
+      "claims": ["data-postgres-postgresql-0"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "postgresql-physical-restore.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "databases/redis-master",
+      "claims": ["redis-data-redis-master-0"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "redis-restore.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "monitoring/alertmanager-kube-prometheus-stack-alertmanager",
+      "claims": [
+        "alertmanager-kube-prometheus-stack-alertmanager-db-alertmanager-kube-prometheus-stack-alertmanager-0"
+      ],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "native-check-evidence/alertmanager-restore.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "monitoring/loki",
+      "claims": ["storage-loki-0"],
+      "acceptance": "pending-source-replay-exception",
+      "restore_evidence": ["filesystem-restore.json", "native-check-evidence/loki-restore.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "monitoring/prometheus-kube-prometheus-stack-prometheus",
+      "claims": ["prometheus-kube-prometheus-stack-prometheus-db-prometheus-kube-prometheus-stack-prometheus-0"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "native-check-evidence/prometheus-restore.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "monitoring/tempo",
+      "claims": ["storage-tempo-0"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json", "native-check-evidence/tempo-restore.json"],
+      "postgresql_database": null
+    },
+    {
+      "application": "shared-postgresql/authentik",
+      "claims": [],
+      "acceptance": "accepted",
+      "restore_evidence": ["postgresql-physical-restore.json"],
+      "postgresql_database": "authentik",
+      "scope": "Database dependency on apps/pv; no direct affected PVC in the workload inventory."
+    },
+    {
+      "application": "cert-backup/cert-backup",
+      "claims": ["cert-backup"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json"],
+      "scope": "Stored archive/certificate files byte-restored; not a replacement for external recovery-key protection."
+    },
+    {
+      "application": "databases/pg-backup",
+      "claims": ["pg-backup"],
+      "acceptance": "accepted",
+      "restore_evidence": ["filesystem-restore.json"],
+      "scope": "Stored archive/certificate files byte-restored; not a replacement for external recovery-key protection."
+    }
+  ],
+  "format_checks": {
+    "source": "Read-only pristine cold archive extraction",
+    "checks": {
+      "home_assistant_json": {
+        "files": 375,
+        "passed": 375,
+        "failed": 0,
+        "failure_categories": []
+      },
+      "home_assistant_storage_json": {
+        "files": 38,
+        "passed": 38,
+        "failed": 0,
+        "failure_categories": []
+      },
+      "matter_json": {
+        "files": 5,
+        "passed": 5,
+        "failed": 0,
+        "failure_categories": []
+      },
+      "matter_gzip": {
+        "files": 4,
+        "passed": 4,
+        "failed": 0,
+        "failure_categories": []
+      },
+      "matter_jsonl": {
+        "files": 4,
+        "passed": 4,
+        "failed": 0,
+        "failure_categories": []
+      },
+      "cineplete_json": {
+        "files": 4,
+        "passed": 4,
+        "failed": 0,
+        "failure_categories": []
+      },
+      "changedetection_json": {
+        "files": 16,
+        "passed": 16,
+        "failed": 0,
+        "failure_categories": []
+      },
+      "changedetection_gzip": {
+        "files": 3,
+        "passed": 3,
+        "failed": 0,
+        "failure_categories": []
+      },
+      "changedetection_jsonl": {
+        "files": 0,
+        "passed": 0,
+        "failed": 0,
+        "failure_categories": []
+      },
+      "qbittorrent_torrent": {
+        "files": 3895,
+        "passed": 3895,
+        "failed": 0,
+        "failure_categories": []
+      },
+      "qbittorrent_fastresume": {
+        "files": 3895,
+        "passed": 3895,
+        "failed": 0,
+        "failure_categories": []
+      },
+      "qbittorrent_ru_torrent": {
+        "files": 2,
+        "passed": 2,
+        "failed": 0,
+        "failure_categories": []
+      },
+      "qbittorrent_ru_fastresume": {
+        "files": 2,
+        "passed": 2,
+        "failed": 0,
+        "failure_categories": []
+      }
+    },
+    "passed": true,
+    "limitations": [
+      "Syntax/container checks only; no application login, device reconnect, torrent announce or payload verification.",
+      "gzip validity is checked without interpreting decompressed private contents.",
+      "Two Home Assistant .storage PEM files are ordinary files, excluded from JSON parsing; their byte/metadata restore is already verified."
+    ]
+  },
+  "native_checks": {
+    "prometheus": {
+      "application": "prometheus",
+      "image": "quay.io/prometheus/prometheus@sha256:50c707e96da5ade383cb1707790576480485e93de06aa60ad8802cb5f744bd0a",
+      "network": "none",
+      "source": "Further disposable copy of verified cold archive restore",
+      "passed": true,
+      "started": true,
+      "ready": {
+        "http_status": 200
+      },
+      "source_blocks": 17,
+      "queries": [
+        {
+          "at": 1789988400.03,
+          "result_count": 1,
+          "values": ["196479"]
+        },
+        {
+          "at": 1789484400.0105,
+          "result_count": 1,
+          "values": ["173804"]
+        },
+        {
+          "at": 1789938000.0,
+          "result_count": 1,
+          "values": ["215833"]
+        },
+        {
+          "at": 1789808400.0,
+          "result_count": 1,
+          "values": ["192239"]
+        },
+        {
+          "at": 1789419600.0085,
+          "result_count": 1,
+          "values": ["173010"]
+        },
+        {
+          "at": 1789743600.051,
+          "result_count": 1,
+          "values": ["197299"]
+        },
+        {
+          "at": 1789981200.004,
+          "result_count": 1,
+          "values": ["195858"]
+        },
+        {
+          "at": 1789614000.0105,
+          "result_count": 1,
+          "values": ["221137"]
+        },
+        {
+          "at": 1789354800.022,
+          "result_count": 1,
+          "values": ["172613"]
+        },
+        {
+          "at": 1789995600.021,
+          "result_count": 1,
+          "values": ["197265"]
+        },
+        {
+          "at": 1789225200.0105,
+          "result_count": 1,
+          "values": ["170698"]
+        },
+        {
+          "at": 1789678800.003,
+          "result_count": 1,
+          "values": ["194495"]
+        },
+        {
+          "at": 1789160400.033,
+          "result_count": 1,
+          "values": ["170571"]
+        },
+        {
+          "at": 1789974000.002,
+          "result_count": 1,
+          "values": ["195681"]
+        },
+        {
+          "at": 1789873200.035,
+          "result_count": 1,
+          "values": ["215795"]
+        },
+        {
+          "at": 1789549200.0,
+          "result_count": 1,
+          "values": ["218396"]
+        },
+        {
+          "at": 1789290000.009,
+          "result_count": 1,
+          "values": ["170308"]
+        }
+      ],
+      "head_query": {
+        "result_count": 1,
+        "values": ["4316"]
+      },
+      "log_markers": {
+        "corruption": 0,
+        "checksum mismatch": 0,
+        "WAL repair": 0,
+        "level=error": 0,
+        "level=ERROR": 0
+      },
+      "container_removed": true,
+      "query_scope": "One midpoint sample across all 17 source blocks plus near-shutdown head query. Not an exhaustive scan of billions of stored samples."
+    },
+    "alertmanager": {
+      "application": "alertmanager",
+      "image": "quay.io/prometheus/alertmanager@sha256:690c7b525f4367aa91f73e2f91c632206d32e97c6384bdbf2fb7a861b420340d",
+      "network": "none",
+      "source": "Further disposable copy of verified cold archive restore",
+      "passed": true,
+      "started": true,
+      "ready": {
+        "http_status": 200
+      },
+      "api": {
+        "silences": 0
+      },
+      "log_markers": {
+        "corruption": 0,
+        "checksum mismatch": 0,
+        "repair": 0,
+        "level=error": 0
+      },
+      "container_removed": true
+    },
+    "loki": {
+      "application": "loki",
+      "image": "docker.io/grafana/loki@sha256:44148ad243c07957113baea950ee5ba9b0c8eff8d7e38ff3cc1c0af705790945",
+      "network": "none",
+      "source": "Further disposable copy of verified cold archive restore",
+      "started": true,
+      "ready": {
+        "http_status": 200
+      },
+      "query": {
+        "streams": 62,
+        "entries": 1000
+      },
+      "log_markers": {
+        "corruption": 1,
+        "checksum mismatch": 0,
+        "repair": 0,
+        "level=error": 2
+      },
+      "container_removed": true,
+      "acceptance": "pending-source-replay-exception",
+      "raw_probe_passed": true,
+      "restore_without_replay_warning": false,
+      "production_restart_same_warning": true,
+      "physical_wal_scan": {
+        "source": "pristine read-only cold archive extraction",
+        "path": "monitoring/storage-loki-0/wal/00060003",
+        "bytes": 1245184,
+        "method": "Independent framing/CRC32C scanner matching v3.6.11 vendored Prometheus wlog.Reader; no payload contents emitted",
+        "crc32c_known_answer_test": "passed",
+        "passed": true,
+        "fragments": 291,
+        "records": 254,
+        "zero_padding_bytes": 28567,
+        "compressed_records": 0,
+        "record_type_counts": {
+          "5": 251,
+          "1": 3
+        },
+        "limitations": [
+          "Physical framing and checksums only; does not decode Loki labels/entries, replay checkpoint references, or establish completeness of recovered logs."
+        ]
+      }
+    },
+    "tempo": {
+      "application": "tempo",
+      "image": "docker.io/grafana/tempo@sha256:65a5789759435f1ef696f1953258b9bbdb18eb571d5ce711ff812d2e128288a4",
+      "network": "none",
+      "source": "Further disposable copy of verified cold archive restore",
+      "passed": true,
+      "started": true,
+      "ready": {
+        "http_status": 200
+      },
+      "query": {
+        "traces": 100,
+        "metrics": {
+          "inspectedBytes": "81015",
+          "totalBlocks": 75,
+          "completedJobs": 1,
+          "totalJobs": 75,
+          "totalBlockBytes": "65317989"
+        }
+      },
+      "log_markers": {
+        "corruption": 0,
+        "checksum mismatch": 0,
+        "WAL repair": 0,
+        "level=error": 1,
+        "level=ERROR": 1
+      },
+      "container_removed": true,
+      "reviewed_warnings": [
+        "Source has one empty WAL directory containing only a zero-byte segment and no metadata; production and isolated restore both discard it. The nonempty WAL replays successfully.",
+        "One initial poll raced with cleanup of an already-compacted source block. Query returned 100 traces; this is a bounded query, not every trace."
+      ]
+    },
+    "meilisearch": {
+      "application": "meilisearch",
+      "image": "getmeili/meilisearch@sha256:c94e58ca09662dd6e65e8f1b0fd145767be3da7d5422a863a27b8d2b68e090c9",
+      "network": "none",
+      "source": "Further disposable copy of verified cold archive restore",
+      "passed": true,
+      "started": true,
+      "ready": {
+        "http_status": 200
+      },
+      "stats": {
+        "databaseSize": 102400,
+        "indexes": {}
+      },
+      "log_markers": {
+        "corruption": 0,
+        "checksum mismatch": 0,
+        "WAL repair": 0,
+        "level=error": 0,
+        "level=ERROR": 0
+      },
+      "container_removed": true
+    }
+  },
+  "counts": {
+    "claims": 63,
+    "applications_reviewed": 55,
+    "applications_by_status": {
+      "accepted": 52,
+      "excluded-by-user": 2,
+      "pending-source-replay-exception": 1
+    }
+  },
+  "complete_acceptance_receipt_issued": false,
+  "remaining_decision": "Resolve Loki source WAL recovery warning, or explicitly accept a log-history recovery exception while preserving the entire archive.",
+  "excluded_external_state": [
+    "Original media, including Immich uploads and Calibre library, on main/media",
+    "Filebrowser worker-local DB",
+    "Audiobookshelf application acceptance",
+    "External sealing/Vault recovery material"
+  ],
+  "live_storage_changed": false,
+  "preparation_state": {
+    "at": "2026-09-21T18:00:42.325781+00:00",
+    "vm_states": {
+      "100": "running",
+      "200": "running",
+      "201": "running",
+      "202": "running",
+      "300": "running"
+    },
+    "maintenance": {
+      "operation_marker_exists": false
+    },
+    "workloads": {
+      "checked": 97,
+      "not_ready": []
+    },
+    "nodes": [
+      {
+        "name": "kube-master-01",
+        "ready": true
+      },
+      {
+        "name": "kube-worker-01",
+        "ready": true
+      },
+      {
+        "name": "kube-worker-02",
+        "ready": true
+      }
+    ]
+  },
+  "preparation_nas": {
+    "captured_at": "2026-09-21T17:55:38.214587+00:00",
+    "version": "TrueNAS-25.10.7",
+    "policy_inspection": {
+      "dataset_guid": "14547210392972608779",
+      "sync": "DISABLED"
+    },
+    "pools": [
+      {
+        "name": "apps",
+        "guid": "9917900421692286909",
+        "status": "ONLINE",
+        "healthy": true,
+        "size": 506806140928,
+        "allocated": 95891206144,
+        "free": 410914934784
+      },
+      {
+        "name": "main",
+        "guid": "17660228766169896105",
+        "status": "ONLINE",
+        "healthy": true,
+        "size": 111978387341312,
+        "allocated": 61296159965184,
+        "free": 50682227376128
+      },
+      {
+        "name": "nvme-cache",
+        "guid": "9943296121680839743",
+        "status": "ONLINE",
+        "healthy": true,
+        "size": 1460288880640,
+        "allocated": 74633216,
+        "free": 1460214247424
+      }
+    ],
+    "iscsi_service": [
+      {
+        "service": "iscsitarget",
+        "enable": false,
+        "state": "STOPPED"
+      }
+    ],
+    "iscsi_targets": 0,
+    "iscsi_extents": 0
+  },
+  "validation": {
+    "storage_unit_tests": 20,
+    "all_passed": true,
+    "incomplete_draft_receipt_rejected": true,
+    "task_restore_containers_remaining": 0,
+    "independent_review": "No material findings"
+  }
+}

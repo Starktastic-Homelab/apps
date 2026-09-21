@@ -191,3 +191,12 @@ acceptance limitations. The cold backup reaches the tool's 24-hour age limit at
 obtain authorization for changing only `apps/pv` from local `DISABLED` to
 `STANDARD` and observing readiness, application errors and storage latency.
 The approved backup-only outage did not authorize that production update.
+
+## Subsequent coverage review
+
+The [per-application review and proposed change window](2026-09-21-nfs-change-window.md)
+now map all 63 claims and add native monitoring/search and application-format
+checks. Of 55 workload/dependency/archive entries, 52 meet the scoped backup
+restore prerequisite, two retain the user's prior exclusions, and Loki requires
+an explicit decision about its existing WAL replay warning. The strict
+executable receipt remains blocked pending that decision; storage is unchanged.

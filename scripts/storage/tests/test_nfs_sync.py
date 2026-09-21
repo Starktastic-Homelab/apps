@@ -6,6 +6,9 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+import os
+from unittest.mock import patch
+from maintenance_lock import acquire
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from nfs_sync import inspect, apply_standard, reconcile
@@ -50,6 +53,37 @@ class SyncTests(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
         self.journal=Path(self.tmp.name)/'intent.jsonl'
+        self.lock_root=Path(self.tmp.name)/'maintenance';self.lock_root.mkdir()
+        (self.lock_root/'runner-instance').write_text('test-runner')
+        env=patch.dict(os.environ,{'HOMELAB_RUNNER_INSTANCE':'test-runner','MAINTENANCE_OWNER':'tests/nfs'})
+        env.start();self.addCleanup(env.stop)
+        nonce=acquire(self.lock_root,'nfs-standard','tests/nfs')
+        env2=patch.dict(os.environ,{'MAINTENANCE_NONCE':nonce});env2.start();self.addCleanup(env2.stop)
+        # Redirect only the filesystem fixture; exercise the actual shared lock helper.
+        root=patch('maintenance.Path',return_value=self.lock_root);root.start();self.addCleanup(root.stop)
+
+    def test_missing_or_mismatched_ownership_never_updates(self):
+        for variable,value in [('MAINTENANCE_NONCE','wrong'),('MAINTENANCE_OWNER','other'),('HOMELAB_RUNNER_INSTANCE','wrong')]:
+            self.journal.unlink(missing_ok=True)
+            nas=FakeNAS()
+            with patch.dict(os.environ,{variable:value}),self.assertRaises((PermissionError,ValueError)):
+                apply_standard(nas,EXPECTED,backup(),self.journal)
+            self.assertFalse(nas.updates)
+        self.journal.unlink(missing_ok=True)
+        (self.lock_root/'operation.json').unlink()
+        nas=FakeNAS()
+        with self.assertRaises(FileNotFoundError):apply_standard(nas,EXPECTED,backup(),self.journal)
+        self.assertFalse(nas.updates)
+
+    def test_ownership_lost_after_intent_blocks_update(self):
+        from nfs_sync import journal_event
+        nas=FakeNAS()
+        def lose(*args,**kwargs):
+            journal_event(*args,**kwargs)
+            if kwargs.get('create'):(self.lock_root/'operation.json').unlink()
+        with patch('nfs_sync.journal_event',side_effect=lose),self.assertRaises(FileNotFoundError):
+            apply_standard(nas,EXPECTED,backup(),self.journal)
+        self.assertFalse(nas.updates)
 
     def test_inspect_never_mutates(self):
         nas=FakeNAS()

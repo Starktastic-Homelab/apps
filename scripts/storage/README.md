@@ -87,3 +87,10 @@ python3 scripts/test-pg-backup.py
 The NFS tool is prepared first; the shared-lock workflow and later storage
 operations are companion changes. Do not deploy the tool before that runner
 coordination has been reviewed and qualified.
+
+The standalone NFS apply entry point requires the same external ownership as the
+workflow, both before inspection and immediately before updating TrueNAS. Supply
+the immutable Ansible helper on `PYTHONPATH`, the verified runner marker, and the
+original `MAINTENANCE_OWNER` / `MAINTENANCE_NONCE`; never log the nonce. Tests also
+need that pinned helper on `PYTHONPATH` and use a temporary root to exercise real
+missing-owner, mismatched-owner/nonce/marker and ownership-loss cases.

@@ -151,5 +151,5 @@ Approved VM identities to recheck before any power action:
 | 202 | kube-worker-02 | d6c40da9-aaa5-4b5c-a9ce-70d3cfdcc4b4 |
 | 300 | runner | cc1aeeb7-4827-466c-9d4b-5dc6c881f193 |
 
-The backup scope is approved. The all-application outage window is presented for
-explicit approval; no shutdown/snapshot command has been executed.
+The user subsequently approved the backup-only outage. Execution and restore
+results are tracked in the [cold-backup report](2026-09-21-cold-backup-window.md).

@@ -1,0 +1,1082 @@
+{
+  "snapshot": {
+    "id": "apps/pv@pre-nfs-standard-20260921T162744Z",
+    "properties": {
+      "guid": {
+        "value": "10509111943305369503",
+        "rawvalue": "10509111943305369503",
+        "source": "NONE",
+        "parsed": "10509111943305369503"
+      },
+      "creation": {
+        "value": "Mon Sep 21 19:34 2026",
+        "rawvalue": "1790008444",
+        "source": "NONE",
+        "parsed": {
+          "$date": 1790008444000
+        }
+      },
+      "createtxg": {
+        "value": "3937181",
+        "rawvalue": "3937181",
+        "source": "NONE",
+        "parsed": "3937181"
+      },
+      "referenced": {
+        "value": "69.8G",
+        "rawvalue": "74980823040",
+        "source": "NONE",
+        "parsed": 74980823040
+      }
+    }
+  },
+  "archive": {
+    "archive": "/mnt/apps/.pre-nfs-backup-20260921T162744Z/apps-pv.tar.zst",
+    "bytes": 65600779609,
+    "sha256": "c6d01940982d48d8fd2a90554db77b8ef7c39d54c0f51f6172976b8bc3878507",
+    "snapshot": "apps/pv@pre-nfs-standard-20260921T162744Z",
+    "completed_at": 1790009293.7607362
+  },
+  "encrypted_backup_directory": "/home/benf/Backups/homelab/pre-nfs-standard/20260921T162744Z",
+  "claims": [
+    {
+      "namespace": "operations",
+      "claim": "filebrowser-apps-pvc",
+      "relative_path": ".",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "operations",
+      "claim": "searxng",
+      "relative_path": "operations/searxng",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "cert-backup",
+      "claim": "cert-backup",
+      "relative_path": "cert-backup/cert-backup",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "lingarr",
+      "relative_path": "media/lingarr",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "audiobookshelf",
+      "relative_path": "media/audiobookshelf",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "operations",
+      "claim": "listmonk",
+      "relative_path": "operations/listmonk",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "databases",
+      "claim": "data-postgres-postgresql-0",
+      "relative_path": "databases/data-postgres-postgresql-0",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "cwa-book-ingest",
+      "relative_path": "media/cwa-book-ingest",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "calibre-web",
+      "relative_path": "media/calibre-web",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "dispatcharr-data",
+      "relative_path": "media/dispatcharr-data",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "radarr",
+      "relative_path": "media/radarr",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "libretranslate",
+      "relative_path": "media/libretranslate",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "cineplete-config",
+      "relative_path": "media/cineplete-config",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "cineplete-data",
+      "relative_path": "media/cineplete-data",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "operations",
+      "claim": "mealie-data",
+      "relative_path": "operations/mealie-data",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "bazarr",
+      "relative_path": "media/bazarr",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "qbittorrent-ru",
+      "relative_path": "media/qbittorrent-ru",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "crowdsec",
+      "claim": "crowdsec-db-pvc",
+      "relative_path": "crowdsec/crowdsec-db-pvc",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "operations",
+      "claim": "stirling-pdf-config",
+      "relative_path": "operations/stirling-pdf-config",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "operations",
+      "claim": "karakeep-meilisearch",
+      "relative_path": "operations/karakeep-meilisearch",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "lidarr",
+      "relative_path": "media/lidarr",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "operations",
+      "claim": "listmonk-uploads",
+      "relative_path": "operations/listmonk-uploads",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "operations",
+      "claim": "convertx-config",
+      "relative_path": "operations/convertx-config",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "operations",
+      "claim": "karakeep-data",
+      "relative_path": "operations/karakeep-data",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "radarr-ru",
+      "relative_path": "media/radarr-ru",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "operations",
+      "claim": "ntfy-config",
+      "relative_path": "operations/ntfy-config",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "monitoring",
+      "claim": "alertmanager-kube-prometheus-stack-alertmanager-db-alertmanager-kube-prometheus-stack-alertmanager-0",
+      "relative_path": "monitoring/alertmanager-kube-prometheus-stack-alertmanager-db-alertmanager-kube-prometheus-stack-alertmanager-0",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "home-automation",
+      "claim": "zigbee2mqtt-config",
+      "relative_path": "home-automation/zigbee2mqtt-config",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "operations",
+      "claim": "bytestash-data",
+      "relative_path": "operations/bytestash-data",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "sonarr",
+      "relative_path": "media/sonarr",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "operations",
+      "claim": "bytestash",
+      "relative_path": "operations/bytestash",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "seerr-ru",
+      "relative_path": "media/seerr-ru",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "monitoring",
+      "claim": "storage-loki-0",
+      "relative_path": "monitoring/storage-loki-0",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "jellyfin-ldap-pip-cache",
+      "relative_path": "media/jellyfin-ldap-pip-cache",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "home-automation",
+      "claim": "home-assistant-config",
+      "relative_path": "home-automation/home-assistant-config",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "cleanuparr",
+      "relative_path": "media/cleanuparr",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "home-automation",
+      "claim": "matter-server-data",
+      "relative_path": "home-automation/matter-server-data",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "immich-pgdata",
+      "relative_path": "media/immich-pgdata",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "home-automation",
+      "claim": "mosquitto-config",
+      "relative_path": "home-automation/mosquitto-config",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "shelfmark",
+      "relative_path": "media/shelfmark",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "qbittorrent",
+      "relative_path": "media/qbittorrent",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "operations",
+      "claim": "paperless-ngx-data",
+      "relative_path": "operations/paperless-ngx-data",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "immich-model-cache",
+      "relative_path": "media/immich-model-cache",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "operations",
+      "claim": "mealie",
+      "relative_path": "operations/mealie",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "operations",
+      "claim": "excalidash-data",
+      "relative_path": "operations/excalidash-data",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "operations",
+      "claim": "microbin-config",
+      "relative_path": "operations/microbin-config",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "seerr",
+      "relative_path": "media/seerr",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "operations",
+      "claim": "vaultwarden-data",
+      "relative_path": "operations/vaultwarden-data",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "operations",
+      "claim": "ntfy-cache",
+      "relative_path": "operations/ntfy-cache",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "databases",
+      "claim": "pgadmin-pgadmin4",
+      "relative_path": "databases/pgadmin-pgadmin4",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "monitoring",
+      "claim": "kube-prometheus-stack-grafana",
+      "relative_path": "monitoring/kube-prometheus-stack-grafana",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "navidrome",
+      "relative_path": "media/navidrome",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "operations",
+      "claim": "changedetection-data",
+      "relative_path": "operations/changedetection-data",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "monitoring",
+      "claim": "storage-tempo-0",
+      "relative_path": "monitoring/storage-tempo-0",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "databases",
+      "claim": "pg-backup",
+      "relative_path": "databases/pg-backup",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "operations",
+      "claim": "paperless-ngx",
+      "relative_path": "operations/paperless-ngx",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "prowlarr",
+      "relative_path": "media/prowlarr",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "operations",
+      "claim": "vikunja-files",
+      "relative_path": "operations/vikunja-files",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "databases",
+      "claim": "redis-data-redis-master-0",
+      "relative_path": "databases/redis-data-redis-master-0",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "sonarr-ru",
+      "relative_path": "media/sonarr-ru",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "monitoring",
+      "claim": "prometheus-kube-prometheus-stack-prometheus-db-prometheus-kube-prometheus-stack-prometheus-0",
+      "relative_path": "monitoring/prometheus-kube-prometheus-stack-prometheus-db-prometheus-kube-prometheus-stack-prometheus-0",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "jellyfin-config",
+      "relative_path": "media/jellyfin-config",
+      "directory_in_manifest": true
+    },
+    {
+      "namespace": "media",
+      "claim": "autobrr",
+      "relative_path": "media/autobrr",
+      "directory_in_manifest": true
+    }
+  ],
+  "workload_recovery": {
+    "checked": 52,
+    "not_ready": []
+  },
+  "verification": {
+    "filesystem-restore": {
+      "passed": true,
+      "source_entries": 378752,
+      "restored_entries": 378752,
+      "mismatch_count": 0,
+      "excluded_runtime_socket_count": 3,
+      "reference_correction": "root-metadata-reconciliation.json"
+    },
+    "postgresql-physical-restore": {
+      "application": "postgresql",
+      "image": "bitnami/postgresql:latest@sha256:b74b23f091dcc87041bcae557d840c36458af46b955279cb13aedec4c32d7f71",
+      "network": "none",
+      "source": "cold snapshot filesystem copy",
+      "configuration": "Isolated scratch config; production ConfigMap settings are not part of this filesystem archive",
+      "source_control_state": "shut down",
+      "checksum_version": 1,
+      "page_checksums": "passed",
+      "listen_addresses": "",
+      "databases": [
+        {
+          "database": "authentik",
+          "tables": 230,
+          "rows": 513634
+        },
+        {
+          "database": "dispatcharr",
+          "tables": 61,
+          "rows": 41921
+        },
+        {
+          "database": "lingarr",
+          "tables": 26,
+          "rows": 21134
+        },
+        {
+          "database": "listmonk",
+          "tables": 16,
+          "rows": 169
+        },
+        {
+          "database": "mealie",
+          "tables": 69,
+          "rows": 10
+        },
+        {
+          "database": "paperless",
+          "tables": 74,
+          "rows": 9664
+        },
+        {
+          "database": "postgres",
+          "tables": 0,
+          "rows": 0
+        },
+        {
+          "database": "vaultwarden",
+          "tables": 29,
+          "rows": 61
+        },
+        {
+          "database": "vikunja",
+          "tables": 37,
+          "rows": 196
+        }
+      ],
+      "passed": true,
+      "container_removed": true
+    },
+    "immich-physical-restore": {
+      "application": "immich",
+      "image": "ghcr.io/immich-app/postgres:17-vectorchord0.4.3-pgvector0.8.1@sha256:79b95b795f0911e95ffa4d092a2162c4d81a984d5629bc8f786afe0bc0657671",
+      "network": "none",
+      "source": "cold snapshot filesystem copy",
+      "configuration": "Isolated scratch config; production ConfigMap settings are not part of this filesystem archive",
+      "source_control_state": "shut down",
+      "checksum_version": 1,
+      "page_checksums": "passed",
+      "listen_addresses": "",
+      "databases": [
+        {
+          "database": "immich",
+          "tables": 71,
+          "rows": 319751
+        },
+        {
+          "database": "postgres",
+          "tables": 0,
+          "rows": 0
+        }
+      ],
+      "extensions": [
+        "cube:1.5",
+        "earthdistance:1.2",
+        "pg_trgm:1.6",
+        "plpgsql:1.0",
+        "unaccent:1.1",
+        "uuid-ossp:1.1",
+        "vchord:0.4.3",
+        "vector:0.8.1"
+      ],
+      "passed": true,
+      "container_removed": true
+    },
+    "jellyfin-application-restore": {
+      "image": "lscr.io/linuxserver/jellyfin:12.1ubu2604-ls50@sha256:51252e7a416e703cdc3cd91e8a54673a2430cc80409be8a38abe511411577b95",
+      "network": "none",
+      "comparison_baseline_timing": "post-restart; not a pre-hold baseline",
+      "healthy": true,
+      "wizard_complete": true,
+      "server_id_matches": true,
+      "user_count": 14,
+      "user_count_matches": true,
+      "item_counts_match": true,
+      "plugins_match": true,
+      "database_error_markers": {
+        "LiteException": 0,
+        "SQLite Error": 0,
+        "database disk image is malformed": 0
+      },
+      "passed": true,
+      "container_removed": true
+    },
+    "litedb-restore": {
+      "exit_code": 0,
+      "source_sha256": "f84766c37c8a0e7f84a1c1a0e7f660fa4b0d1534729f1f202022d6f6e5f16227",
+      "library_sha256": "ae31ac6a93549217b9e8b81497d1ee831658ade6df9e1ee20f2838f22de5e218",
+      "source": "independent snapshot file copy matching cold-archive manifest",
+      "passed": true,
+      "harness_correction": "Qualified System.Text.Json.JsonSerializer to resolve compiler name ambiguity; initial attempt did not open database.",
+      "readable": true,
+      "collections": {
+        "items": 7295,
+        "user_info": 2368
+      }
+    },
+    "redis-restore": {
+      "image": "registry-1.docker.io/bitnami/redis@sha256:ef8442c1ec2e28cef662999f348a4369c22343dc0c86c3bc23041fad22f13ca1",
+      "exit_code": 0,
+      "passed": true,
+      "mode": "multipart AOF/RDB verification on writable disposable copy; no repair flag",
+      "harness_correction": "Checker opens files read-write even without repair; pristine restore remains read-only to the checker",
+      "container_removed": true,
+      "files_unchanged": true,
+      "checked_files": 3
+    },
+    "h2-restore": {
+      "image": "stirlingtools/stirling-pdf@sha256:3b3670fce70b396ec56ba380a3cc7858e0abf83fe13f31c88f7737847763a396",
+      "source_filename_version": "2.3.232",
+      "bundled_library_version": "2.4.240",
+      "network": "none",
+      "passed": true,
+      "export_exit_code": 0,
+      "export_bytes": 52440,
+      "import_exit_code": 0,
+      "table_query_exit_code": 0,
+      "public_tables": 22,
+      "tables_scanned": 22,
+      "rows_counted": 11,
+      "recovery_error_comments": 0
+    },
+    "other-database-checks": {
+      "zigbee2mqtt_database": {
+        "records": 2,
+        "unique_ids": 2,
+        "passed": true
+      },
+      "paperless_celery_schedule": {
+        "format": "GNU dbm",
+        "keys_read": 4,
+        "value_bytes_read": 1729,
+        "passed": true,
+        "pickle_deserialization": "not performed"
+      },
+      "foreign_key_issues": [
+        {
+          "database": "media/autobrr/autobrr.db",
+          "groups": [
+            {
+              "child_table": "release_action_status",
+              "parent_table": "action",
+              "constraint_id": 2,
+              "violations": 23663
+            },
+            {
+              "child_table": "release_action_status",
+              "parent_table": "filter",
+              "constraint_id": 1,
+              "violations": 2
+            }
+          ]
+        },
+        {
+          "database": "media/calibre-web/app.db",
+          "groups": [
+            {
+              "child_table": "magic_shelf",
+              "parent_table": "user",
+              "constraint_id": 0,
+              "violations": 4
+            }
+          ]
+        },
+        {
+          "database": "operations/convertx-config/mydb.sqlite",
+          "groups": [
+            {
+              "child_table": "file_names",
+              "parent_table": "jobs",
+              "constraint_id": 0,
+              "violations": 6
+            }
+          ]
+        }
+      ]
+    },
+    "sqlite": {
+      "checked": 57,
+      "structural_integrity_passed": 57,
+      "passed": 52,
+      "failed": 5,
+      "by_directory": {
+        "crowdsec/crowdsec-db-pvc": {
+          "passed": 1,
+          "failed": 0
+        },
+        "databases/pgadmin-pgadmin4": {
+          "passed": 2,
+          "failed": 0
+        },
+        "home-automation/home-assistant-config": {
+          "passed": 1,
+          "failed": 0
+        },
+        "media/audiobookshelf": {
+          "passed": 1,
+          "failed": 0
+        },
+        "media/autobrr": {
+          "passed": 0,
+          "failed": 3
+        },
+        "media/bazarr": {
+          "passed": 1,
+          "failed": 0
+        },
+        "media/calibre-web": {
+          "passed": 2,
+          "failed": 1
+        },
+        "media/cleanuparr": {
+          "passed": 3,
+          "failed": 0
+        },
+        "media/cross-seed": {
+          "passed": 1,
+          "failed": 0
+        },
+        "media/jellyfin": {
+          "passed": 1,
+          "failed": 0
+        },
+        "media/jellyfin-config": {
+          "passed": 5,
+          "failed": 0
+        },
+        "media/jellyfin-rehearsal": {
+          "passed": 5,
+          "failed": 0
+        },
+        "media/lazylibrarian": {
+          "passed": 1,
+          "failed": 0
+        },
+        "media/lidarr": {
+          "passed": 2,
+          "failed": 0
+        },
+        "media/lingarr": {
+          "passed": 2,
+          "failed": 0
+        },
+        "media/navidrome": {
+          "passed": 1,
+          "failed": 0
+        },
+        "media/prowlarr": {
+          "passed": 2,
+          "failed": 0
+        },
+        "media/radarr": {
+          "passed": 2,
+          "failed": 0
+        },
+        "media/radarr-ru": {
+          "passed": 2,
+          "failed": 0
+        },
+        "media/seerr": {
+          "passed": 1,
+          "failed": 0
+        },
+        "media/seerr-ru": {
+          "passed": 1,
+          "failed": 0
+        },
+        "media/shelfmark": {
+          "passed": 1,
+          "failed": 0
+        },
+        "media/sonarr": {
+          "passed": 2,
+          "failed": 0
+        },
+        "media/sonarr-ru": {
+          "passed": 2,
+          "failed": 0
+        },
+        "monitoring/kube-prometheus-stack-grafana": {
+          "passed": 1,
+          "failed": 0
+        },
+        "operations/bytestash-data": {
+          "passed": 2,
+          "failed": 0
+        },
+        "operations/convertx-config": {
+          "passed": 0,
+          "failed": 1
+        },
+        "operations/excalidash-data": {
+          "passed": 1,
+          "failed": 0
+        },
+        "operations/karakeep-data": {
+          "passed": 2,
+          "failed": 0
+        },
+        "operations/microbin-config": {
+          "passed": 1,
+          "failed": 0
+        },
+        "operations/ntfy-cache": {
+          "passed": 1,
+          "failed": 0
+        },
+        "operations/ntfy-config": {
+          "passed": 2,
+          "failed": 0
+        }
+      },
+      "failures": [
+        {
+          "path": "media/autobrr/autobrr.db",
+          "error_type": null,
+          "integrity_ok": true,
+          "foreign_key_violations": 23665
+        },
+        {
+          "path": "media/autobrr/autobrr.db_sv0_2026-05-13.05-59-26.backup",
+          "error_type": null,
+          "integrity_ok": true,
+          "foreign_key_violations": 2
+        },
+        {
+          "path": "media/autobrr/autobrr.db_sv0_2026-09-16.07-43-50.backup",
+          "error_type": null,
+          "integrity_ok": true,
+          "foreign_key_violations": 23665
+        },
+        {
+          "path": "media/calibre-web/app.db",
+          "error_type": null,
+          "integrity_ok": true,
+          "foreign_key_violations": 4
+        },
+        {
+          "path": "operations/convertx-config/mydb.sqlite",
+          "error_type": null,
+          "integrity_ok": true,
+          "foreign_key_violations": 6
+        }
+      ]
+    }
+  },
+  "status": "independent_archive_and_filesystem_restore_verified_with_application_findings",
+  "complete_critical_application_receipt_issued": false,
+  "nfs_policy_changed": false,
+  "iscsi_changed": false,
+  "metadata_observed": {
+    "xattrs": 0,
+    "hardlink_members": 0
+  },
+  "original_manifest_sha256": "bffd0cf038438e4c701ddfdba97854ba5752b8ab1d7902d7170451852b6b6b39",
+  "corrected_manifest_sha256": "ad795e69bdd3ce0a132779be4186dba6e77c5881d4be25af2902117f2e709c7f",
+  "root_reference_correction": "Mounted immutable snapshot root, archive header and restored root agree; original inventory captured mountpoint metadata. Original manifest and reconciliation receipt retained.",
+  "limitations": [
+    "Three active SQLite databases have orphan relationships; two historical Autobrr backups also fail foreign-key checks.",
+    "Jellyfin API comparison baseline was captured after restart, not before the hold; this does not replace the future pilot pre-hold baseline.",
+    "Filebrowser local database and Audiobookshelf application acceptance are excluded as agreed.",
+    "Original media outside apps/pv and external sealing/Vault recovery material are not in this archive.",
+    "Not every workload was booted independently; general files and monitoring indexes have filesystem-restore evidence, not complete application acceptance."
+  ],
+  "timeline": [
+    {
+      "at": "2026-09-21T16:27:52.098347+00:00",
+      "event": "approved-preflight-complete",
+      "detail": {
+        "100": "running",
+        "200": "running",
+        "201": "running",
+        "202": "running",
+        "300": "running"
+      }
+    },
+    {
+      "at": "2026-09-21T16:28:06.713896+00:00",
+      "event": "stop-intent",
+      "detail": {
+        "vm": 200,
+        "uuid": "459b5ce3-d527-4edb-9617-206b50476a3f"
+      }
+    },
+    {
+      "at": "2026-09-21T16:29:51.478223+00:00",
+      "event": "stop-confirmed",
+      "detail": 200
+    },
+    {
+      "at": "2026-09-21T16:30:15.818368+00:00",
+      "event": "stop-intent",
+      "detail": {
+        "vm": 201,
+        "uuid": "8b2aa6c7-b54f-4323-9900-bdbb85098f62"
+      }
+    },
+    {
+      "at": "2026-09-21T16:32:02.509219+00:00",
+      "event": "stop-confirmed",
+      "detail": 201
+    },
+    {
+      "at": "2026-09-21T16:32:06.516101+00:00",
+      "event": "stop-intent",
+      "detail": {
+        "vm": 202,
+        "uuid": "d6c40da9-aaa5-4b5c-a9ce-70d3cfdcc4b4"
+      }
+    },
+    {
+      "at": "2026-09-21T16:33:41.018925+00:00",
+      "event": "stop-confirmed",
+      "detail": 202
+    },
+    {
+      "at": "2026-09-21T16:34:01.963193+00:00",
+      "event": "writers-quiesced",
+      "detail": {
+        "nfs_clients": 0,
+        "local_open_writers": 0,
+        "vms": [200, 201, 202]
+      }
+    },
+    {
+      "at": "2026-09-21T16:34:03.371450+00:00",
+      "event": "snapshot-create-intent",
+      "detail": "apps/pv@pre-nfs-standard-20260921T162744Z"
+    },
+    {
+      "at": "2026-09-21T16:34:05.176921+00:00",
+      "event": "snapshot-confirmed",
+      "detail": {
+        "id": "apps/pv@pre-nfs-standard-20260921T162744Z",
+        "properties": {
+          "guid": {
+            "value": "10509111943305369503",
+            "rawvalue": "10509111943305369503",
+            "source": "NONE",
+            "parsed": "10509111943305369503"
+          },
+          "creation": {
+            "value": "Mon Sep 21 19:34 2026",
+            "rawvalue": "1790008444",
+            "source": "NONE",
+            "parsed": {
+              "$date": 1790008444000
+            }
+          },
+          "createtxg": {
+            "value": "3937181",
+            "rawvalue": "3937181",
+            "source": "NONE",
+            "parsed": "3937181"
+          },
+          "referenced": {
+            "value": "69.8G",
+            "rawvalue": "74980823040",
+            "source": "NONE",
+            "parsed": 74980823040
+          }
+        }
+      }
+    },
+    {
+      "at": "2026-09-21T16:34:20.817167+00:00",
+      "event": "start-intent",
+      "detail": {
+        "vm": 200,
+        "uuid": "459b5ce3-d527-4edb-9617-206b50476a3f"
+      }
+    },
+    {
+      "at": "2026-09-21T16:34:25.127345+00:00",
+      "event": "start-confirmed",
+      "detail": 200
+    },
+    {
+      "at": "2026-09-21T16:35:16.029431+00:00",
+      "event": "master-api-ready",
+      "detail": null
+    },
+    {
+      "at": "2026-09-21T16:35:21.240299+00:00",
+      "event": "start-intent",
+      "detail": {
+        "vm": 201,
+        "uuid": "8b2aa6c7-b54f-4323-9900-bdbb85098f62"
+      }
+    },
+    {
+      "at": "2026-09-21T16:35:30.261733+00:00",
+      "event": "start-confirmed",
+      "detail": 201
+    },
+    {
+      "at": "2026-09-21T16:35:34.478352+00:00",
+      "event": "start-intent",
+      "detail": {
+        "vm": 202,
+        "uuid": "d6c40da9-aaa5-4b5c-a9ce-70d3cfdcc4b4"
+      }
+    },
+    {
+      "at": "2026-09-21T16:36:41.752268+00:00",
+      "event": "start-confirmed",
+      "detail": 202
+    },
+    {
+      "at": "2026-09-21T16:38:01.897695+00:00",
+      "event": "cluster-recovered-all-52",
+      "detail": null
+    },
+    {
+      "at": "2026-09-21T16:38:02.904918+00:00",
+      "event": "archive-start-intent",
+      "detail": {
+        "stage": "/mnt/apps/.pre-nfs-backup-20260921T162744Z",
+        "snapshot": "apps/pv@pre-nfs-standard-20260921T162744Z"
+      }
+    },
+    {
+      "at": "2026-09-21T16:38:05.714558+00:00",
+      "event": "archive-launched",
+      "detail": "/mnt/apps/.pre-nfs-backup-20260921T162744Z"
+    },
+    {
+      "at": "2026-09-21T16:58:10.337827+00:00",
+      "event": "independent-copy-verified",
+      "detail": {
+        "path": "/home/benf/Backups/homelab/pre-nfs-standard/20260921T162744Z",
+        "archive": {
+          "archive": "/mnt/apps/.pre-nfs-backup-20260921T162744Z/apps-pv.tar.zst",
+          "bytes": 65600779609,
+          "sha256": "c6d01940982d48d8fd2a90554db77b8ef7c39d54c0f51f6172976b8bc3878507",
+          "snapshot": "apps/pv@pre-nfs-standard-20260921T162744Z",
+          "completed_at": 1790009293.7607362
+        },
+        "manifest": {
+          "bytes": 103563703,
+          "sha256": "bffd0cf038438e4c701ddfdba97854ba5752b8ab1d7902d7170451852b6b6b39"
+        }
+      }
+    },
+    {
+      "at": "2026-09-21T17:09:25.762847+00:00",
+      "event": "filesystem-restore-verified",
+      "detail": {
+        "entries": 378752,
+        "root_reference_corrected": true,
+        "all_other_entries_unchanged": true
+      }
+    },
+    {
+      "at": "2026-09-21T17:20:04.827303+00:00",
+      "event": "nas-temporary-stage-cleanup-intent",
+      "detail": "/mnt/apps/.pre-nfs-backup-20260921T162744Z"
+    },
+    {
+      "at": "2026-09-21T17:20:09.639264+00:00",
+      "event": "nas-temporary-stage-removed",
+      "detail": {
+        "temporary_stage_removed": true,
+        "retained_snapshot": "apps/pv@pre-nfs-standard-20260921T162744Z",
+        "retained_snapshot_guid": "10509111943305369503"
+      }
+    },
+    {
+      "at": "2026-09-21T17:21:57.405874+00:00",
+      "event": "operation-reconciled-with-findings",
+      "detail": {
+        "all_five_original_vms_running": true,
+        "all_97_deployments_statefulsets_ready": true,
+        "affected_workloads_ready": 52,
+        "sqlite_structural_checks_passed": 57,
+        "active_apps_with_foreign_key_findings": ["autobrr", "calibre-web", "convertx"],
+        "nfs_sync": "DISABLED",
+        "iscsi_changed": false,
+        "complete_coverage_receipt_issued": false
+      }
+    },
+    {
+      "at": "2026-09-21T17:21:58.330886+00:00",
+      "event": "maintenance-ownership-released",
+      "status": "backup-complete-with-findings"
+    }
+  ],
+  "all_cluster_workloads": {
+    "checked": 97,
+    "not_ready": []
+  },
+  "maintenance": {
+    "at": "2026-09-21T17:21:58.330886+00:00",
+    "event": "maintenance-ownership-released",
+    "status": "backup-complete-with-findings"
+  },
+  "cleanup": {
+    "temporary_stage_removed": true,
+    "retained_snapshot": "apps/pv@pre-nfs-standard-20260921T162744Z",
+    "retained_snapshot_guid": "10509111943305369503"
+  },
+  "final_nas": {
+    "captured_at": "2026-09-21T17:20:51.370290+00:00",
+    "version": "TrueNAS-25.10.7",
+    "policy_inspection": {
+      "dataset_guid": "14547210392972608779",
+      "sync": "DISABLED"
+    },
+    "iscsi_service": [
+      {
+        "service": "iscsitarget",
+        "enable": false,
+        "state": "STOPPED"
+      }
+    ],
+    "iscsi_targets": 0,
+    "iscsi_extents": 0
+  }
+}

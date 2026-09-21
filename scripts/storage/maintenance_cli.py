@@ -126,11 +126,15 @@ def observe_release(nas, record):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('operation', choices=['inspect', 'nfs-inspect', 'nfs-apply', 'nfs-reconcile', 'onboard',
-        'reconcile-onboarding', 'snapshot', 'snapshot-reconcile', 'hold', 'verify', 'release', 'render'])
+        'reconcile-onboarding', 'snapshot', 'snapshot-reconcile', 'hold', 'verify', 'release', 'render', 'prepare-reader', 'delete-reader'])
     args = parser.parse_args()
     record_path = ROOT/'record.json'
     if args.operation not in ('inspect', 'nfs-inspect', 'reconcile-onboarding', 'render'):
         require_maintenance()
+    if args.operation in ('prepare-reader', 'delete-reader'):
+        from backup_reader import prepare_reader, delete_reader
+        result = prepare_reader(kube, ROOT, os.environ['MAINTENANCE_OWNER']) if args.operation == 'prepare-reader' else delete_reader(kube, ROOT/'reader.json')
+        print(json.dumps(result)); return
     with NAS(PRIVATE/'nas.credentials', PRIVATE/'nas-ca.pem', PRIVATE/'nas-leaf.sha256') if args.operation not in ('hold', 'render') else nullcontext() as nas:
         if args.operation.startswith('nfs-'):
             policy = json.loads(Path(__file__).with_name('nfs-sync.json').read_text())

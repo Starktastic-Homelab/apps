@@ -4,7 +4,7 @@ on:
     inputs:
       operation:
         type: choice
-        options: [inspect, nfs-inspect, nfs-apply, nfs-reconcile, onboard, reconcile-onboarding, snapshot, snapshot-reconcile, hold, verify, release, render]
+        options: [inspect, nfs-inspect, nfs-apply, nfs-reconcile, onboard, reconcile-onboarding, snapshot, snapshot-reconcile, hold, verify, release, render, prepare-reader, delete-reader]
         required: true
       resume_owner:
         description: Original owner for a continued held operation; nonce comes from environment secret

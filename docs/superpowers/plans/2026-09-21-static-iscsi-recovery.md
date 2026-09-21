@@ -37,7 +37,7 @@
 ```sh
 docker run --rm --user "$(id -u):$(id -g)" --network none --cap-drop ALL \
   --security-opt no-new-privileges --read-only \
-  --mount type=bind,src="$probe_dir",dst=/probe --entrypoint node \
+  --mount type=bind,source="$probe_dir",target=/probe --entrypoint node \
   ghcr.io/democratic-csi/democratic-csi:v1.9.5@sha256:746bf6b373ae75f5da8b1e412d13c3e8d0e2e1494654268b9dd6fe1f1e55aade \
   /probe/probe.js
 ```

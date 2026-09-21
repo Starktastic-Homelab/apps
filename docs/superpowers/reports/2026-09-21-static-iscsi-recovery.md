@@ -74,3 +74,9 @@ Static identity/capacity/disk/session-ownership tests: 14 passed. Existing isola
 - Previously reviewed REST and driver internals remain historical evidence. The fresh review checked narrative coherence and concentrated code review on this static continuation; the prior controller is not the selected production candidate.
 
 No minor findings were deferred.
+
+## Production preparation follow-up
+
+Terraform #223 was subsequently merged by the user. Its [apply](https://github.com/Starktastic-Homelab/terraform/actions/runs/35552452258) restored both workers to 28 GiB with no pending memory changes. The downstream [Ansible run](https://github.com/Starktastic-Homelab/ansible/actions/runs/35552723693) passed after a retry for a transient master privilege-escalation timeout during startup I/O load. Recovery reached 125/125 Ready pods, 77/77 Synced/Healthy applications and 68 unchanged storage bindings.
+
+The [Jellyfin production pilot design](../specs/2026-09-21-jellyfin-iscsi-pilot-design.md) now records the read-only production audit and proposed fencing, backup, cache, cutover and rollback procedures. It found `sync=disabled` on the existing `apps/pv` dataset, no dedicated fencing account and no installed worker iSCSI initiator packages. These are preparation findings, not completed production qualifications. No NAS property, ACL, target or application storage was changed.

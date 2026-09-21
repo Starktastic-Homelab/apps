@@ -1,0 +1,812 @@
+{
+  "nas": {
+    "captured_at": "2026-09-21T15:56:48.898074+00:00",
+    "version": "TrueNAS-25.10.7",
+    "policy_inspection": {
+      "dataset_guid": "14547210392972608779",
+      "sync": "DISABLED"
+    },
+    "pools": [
+      {
+        "name": "apps",
+        "guid": "9917900421692286909",
+        "status": "ONLINE",
+        "healthy": true,
+        "size": 506806140928,
+        "allocated": 95189622784,
+        "free": 411616518144
+      },
+      {
+        "name": "main",
+        "guid": "17660228766169896105",
+        "status": "ONLINE",
+        "healthy": true,
+        "size": 111978387341312,
+        "allocated": 61296158285824,
+        "free": 50682229055488
+      },
+      {
+        "name": "nvme-cache",
+        "guid": "9943296121680839743",
+        "status": "ONLINE",
+        "healthy": true,
+        "size": 1460288880640,
+        "allocated": 74633216,
+        "free": 1460214247424
+      }
+    ],
+    "dataset": [
+      {
+        "id": "apps/pv",
+        "guid": {
+          "parsed": 14547210392972608779,
+          "rawvalue": "14547210392972608779",
+          "value": "14547210392972608779",
+          "source": "NONE",
+          "source_info": null
+        },
+        "sync": {
+          "parsed": "disabled",
+          "rawvalue": "disabled",
+          "value": "DISABLED",
+          "source": "LOCAL",
+          "source_info": null
+        },
+        "available": {
+          "parsed": 395917107200,
+          "rawvalue": "395917107200",
+          "value": "368.73 GiB",
+          "source": "NONE",
+          "source_info": null
+        },
+        "used": {
+          "parsed": 115757834240,
+          "rawvalue": "115757834240",
+          "value": "107.81 GiB",
+          "source": "NONE",
+          "source_info": null
+        },
+        "children": []
+      }
+    ],
+    "snapshot_tasks": [
+      {
+        "id": 1,
+        "dataset": "apps/pv",
+        "recursive": true,
+        "exclude": [],
+        "enabled": true,
+        "lifetime_value": 1,
+        "lifetime_unit": "WEEK",
+        "schedule": {
+          "minute": "0",
+          "hour": "*/6",
+          "dom": "*",
+          "month": "*",
+          "dow": "*",
+          "begin": "00:00",
+          "end": "23:59"
+        },
+        "state": {
+          "state": "FINISHED",
+          "datetime": {
+            "$date": 1790002800000
+          },
+          "last_snapshot": "apps/pv@auto-2026-09-21_18-00"
+        }
+      }
+    ],
+    "nfs_exports": [
+      {
+        "id": 1,
+        "path": "/mnt/main/media",
+        "enabled": true,
+        "ro": false,
+        "networks": ["10.9.8.0/24"],
+        "hosts": []
+      },
+      {
+        "id": 2,
+        "path": "/mnt/apps/pv",
+        "enabled": true,
+        "ro": false,
+        "networks": ["10.9.8.0/24", "10.9.9.10/32"],
+        "hosts": []
+      },
+      {
+        "id": 5,
+        "path": "/mnt/nvme-cache/incomplete",
+        "enabled": true,
+        "ro": false,
+        "networks": ["10.9.8.0/24"],
+        "hosts": []
+      }
+    ],
+    "snapshot_query_methods": ["pool.snapshot.query", "pool.snapshottask.query"],
+    "iscsi_service": [
+      {
+        "service": "iscsitarget",
+        "enable": false,
+        "state": "STOPPED"
+      }
+    ],
+    "iscsi_targets": 0,
+    "iscsi_extents": 0
+  },
+  "affected_nfs_claims": 63,
+  "affected_workloads": [
+    {
+      "namespace": "crowdsec",
+      "kind": "Deployment",
+      "name": "crowdsec-lapi",
+      "claims": ["crowdsec-db-pvc"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "databases",
+      "kind": "Deployment",
+      "name": "pgadmin-pgadmin4",
+      "claims": ["pgadmin-pgadmin4"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "home-automation",
+      "kind": "Deployment",
+      "name": "home-assistant",
+      "claims": ["home-assistant-config", "matter-server-data"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "home-automation",
+      "kind": "Deployment",
+      "name": "mosquitto",
+      "claims": ["mosquitto-config"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "home-automation",
+      "kind": "Deployment",
+      "name": "zigbee2mqtt",
+      "claims": ["zigbee2mqtt-config"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "media",
+      "kind": "Deployment",
+      "name": "audiobookshelf",
+      "claims": ["audiobookshelf"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "media",
+      "kind": "Deployment",
+      "name": "autobrr",
+      "claims": ["autobrr"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "media",
+      "kind": "Deployment",
+      "name": "bazarr",
+      "claims": ["bazarr"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "media",
+      "kind": "Deployment",
+      "name": "calibre-web",
+      "claims": ["calibre-web", "cwa-book-ingest"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "media",
+      "kind": "Deployment",
+      "name": "cineplete",
+      "claims": ["cineplete-config", "cineplete-data"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "media",
+      "kind": "Deployment",
+      "name": "cleanuparr",
+      "claims": ["cleanuparr"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "media",
+      "kind": "Deployment",
+      "name": "dispatcharr-celery",
+      "claims": ["dispatcharr-data"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "media",
+      "kind": "Deployment",
+      "name": "dispatcharr-web",
+      "claims": ["dispatcharr-data"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "media",
+      "kind": "Deployment",
+      "name": "immich-machine-learning",
+      "claims": ["immich-model-cache"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "media",
+      "kind": "Deployment",
+      "name": "immich-postgres",
+      "claims": ["immich-pgdata"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "media",
+      "kind": "Deployment",
+      "name": "jellyfin",
+      "claims": ["jellyfin-config"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "media",
+      "kind": "Deployment",
+      "name": "libretranslate",
+      "claims": ["libretranslate"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "media",
+      "kind": "Deployment",
+      "name": "lidarr",
+      "claims": ["lidarr"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "media",
+      "kind": "Deployment",
+      "name": "lingarr",
+      "claims": ["lingarr"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "media",
+      "kind": "Deployment",
+      "name": "navidrome",
+      "claims": ["navidrome"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "media",
+      "kind": "Deployment",
+      "name": "prowlarr",
+      "claims": ["prowlarr"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "media",
+      "kind": "Deployment",
+      "name": "qbittorrent",
+      "claims": ["qbittorrent"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "media",
+      "kind": "Deployment",
+      "name": "qbittorrent-ru",
+      "claims": ["qbittorrent-ru"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "media",
+      "kind": "Deployment",
+      "name": "radarr",
+      "claims": ["radarr"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "media",
+      "kind": "Deployment",
+      "name": "radarr-ru",
+      "claims": ["radarr-ru"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "media",
+      "kind": "Deployment",
+      "name": "seerr",
+      "claims": ["seerr"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "media",
+      "kind": "Deployment",
+      "name": "seerr-ru",
+      "claims": ["seerr-ru"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "media",
+      "kind": "Deployment",
+      "name": "shelfmark",
+      "claims": ["cwa-book-ingest", "shelfmark"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "media",
+      "kind": "Deployment",
+      "name": "sonarr",
+      "claims": ["sonarr"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "media",
+      "kind": "Deployment",
+      "name": "sonarr-ru",
+      "claims": ["sonarr-ru"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "monitoring",
+      "kind": "Deployment",
+      "name": "kube-prometheus-stack-grafana",
+      "claims": ["kube-prometheus-stack-grafana"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "operations",
+      "kind": "Deployment",
+      "name": "bytestash",
+      "claims": ["bytestash", "bytestash-data"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "operations",
+      "kind": "Deployment",
+      "name": "changedetection",
+      "claims": ["changedetection-data"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "operations",
+      "kind": "Deployment",
+      "name": "convertx",
+      "claims": ["convertx-config"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "operations",
+      "kind": "Deployment",
+      "name": "excalidash",
+      "claims": ["excalidash-data"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "operations",
+      "kind": "Deployment",
+      "name": "filebrowser",
+      "claims": ["filebrowser-apps-pvc"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "operations",
+      "kind": "Deployment",
+      "name": "karakeep",
+      "claims": ["karakeep-data", "karakeep-meilisearch"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "operations",
+      "kind": "Deployment",
+      "name": "listmonk",
+      "claims": ["listmonk", "listmonk-uploads"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "operations",
+      "kind": "Deployment",
+      "name": "mealie",
+      "claims": ["mealie", "mealie-data"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "operations",
+      "kind": "Deployment",
+      "name": "microbin",
+      "claims": ["microbin-config"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "operations",
+      "kind": "Deployment",
+      "name": "ntfy",
+      "claims": ["ntfy-cache", "ntfy-config"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "operations",
+      "kind": "Deployment",
+      "name": "paperless-ngx",
+      "claims": ["paperless-ngx", "paperless-ngx-data"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "operations",
+      "kind": "Deployment",
+      "name": "searxng",
+      "claims": ["searxng"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "operations",
+      "kind": "Deployment",
+      "name": "stirling-pdf",
+      "claims": ["stirling-pdf-config"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "operations",
+      "kind": "Deployment",
+      "name": "vaultwarden",
+      "claims": ["vaultwarden-data"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "operations",
+      "kind": "Deployment",
+      "name": "vikunja",
+      "claims": ["vikunja-files"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "databases",
+      "kind": "StatefulSet",
+      "name": "postgres-postgresql",
+      "claims": ["data-postgres-postgresql-0"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "databases",
+      "kind": "StatefulSet",
+      "name": "redis-master",
+      "claims": ["redis-data-redis-master-0"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "monitoring",
+      "kind": "StatefulSet",
+      "name": "alertmanager-kube-prometheus-stack-alertmanager",
+      "claims": [
+        "alertmanager-kube-prometheus-stack-alertmanager-db-alertmanager-kube-prometheus-stack-alertmanager-0"
+      ],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "monitoring",
+      "kind": "StatefulSet",
+      "name": "loki",
+      "claims": ["storage-loki-0"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "monitoring",
+      "kind": "StatefulSet",
+      "name": "prometheus-kube-prometheus-stack-prometheus",
+      "claims": ["prometheus-kube-prometheus-stack-prometheus-db-prometheus-kube-prometheus-stack-prometheus-0"],
+      "replicas": 1,
+      "ready": 1
+    },
+    {
+      "namespace": "monitoring",
+      "kind": "StatefulSet",
+      "name": "tempo",
+      "claims": ["storage-tempo-0"],
+      "replicas": 1,
+      "ready": 1
+    }
+  ],
+  "allocated_source_bytes": 74070674432,
+  "independent_restore_checks": [
+    {
+      "application": "postgresql",
+      "captured_at": "2026-09-21T16:06:09.622217+00:00",
+      "sha256": "8dc1984f0bc93aa233ea1408caeba09b8c7d6c65a2e0f0f24ae213acb17712e4",
+      "bytes": 33143428,
+      "restore_exit_code": 0,
+      "image": "bitnami/postgresql:latest@sha256:b74b23f091dcc87041bcae557d840c36458af46b955279cb13aedec4c32d7f71",
+      "network": "none",
+      "listen_addresses": "",
+      "databases": [
+        {
+          "database": "authentik",
+          "user_tables": 230,
+          "total_rows": 505492
+        },
+        {
+          "database": "dispatcharr",
+          "user_tables": 61,
+          "total_rows": 41903
+        },
+        {
+          "database": "lingarr",
+          "user_tables": 26,
+          "total_rows": 101556
+        },
+        {
+          "database": "listmonk",
+          "user_tables": 16,
+          "total_rows": 169
+        },
+        {
+          "database": "mealie",
+          "user_tables": 69,
+          "total_rows": 10
+        },
+        {
+          "database": "paperless",
+          "user_tables": 74,
+          "total_rows": 9527
+        },
+        {
+          "database": "postgres",
+          "user_tables": 0,
+          "total_rows": 0
+        },
+        {
+          "database": "vaultwarden",
+          "user_tables": 29,
+          "total_rows": 61
+        },
+        {
+          "database": "vikunja",
+          "user_tables": 37,
+          "total_rows": 196
+        }
+      ],
+      "warnings": 0,
+      "elapsed_seconds": 5.9,
+      "restore_container_removed": true,
+      "backup_created_at": "2026-09-20T23:21:03.745627+00:00",
+      "integrity": "passed",
+      "restore": "passed",
+      "consistency": "database-native",
+      "scope": "Database logical backup only; attachments and other application files are not included."
+    },
+    {
+      "application": "immich",
+      "captured_at": "2026-09-21T16:06:25.237196+00:00",
+      "sha256": "7d67ff771379041bde83ed3f2ae96b873e858c3788206b854c8f7463bb618967",
+      "bytes": 50630315,
+      "restore_exit_code": 0,
+      "image": "ghcr.io/immich-app/postgres:17-vectorchord0.4.3-pgvector0.8.1@sha256:79b95b795f0911e95ffa4d092a2162c4d81a984d5629bc8f786afe0bc0657671",
+      "network": "none",
+      "listen_addresses": "",
+      "databases": [
+        {
+          "database": "immich",
+          "user_tables": 71,
+          "total_rows": 319716
+        },
+        {
+          "database": "postgres",
+          "user_tables": 0,
+          "total_rows": 0
+        }
+      ],
+      "warnings": 0,
+      "elapsed_seconds": 13.8,
+      "extensions": [
+        "cube:1.5",
+        "earthdistance:1.2",
+        "pg_trgm:1.6",
+        "plpgsql:1.0",
+        "unaccent:1.1",
+        "uuid-ossp:1.1",
+        "vchord:0.4.3",
+        "vector:0.8.1"
+      ],
+      "restore_container_removed": true,
+      "backup_created_at": "2026-09-20T23:00:08.139228+00:00",
+      "integrity": "passed",
+      "restore": "passed",
+      "consistency": "database-native",
+      "scope": "Database logical backup only; attachments and other application files are not included."
+    }
+  ],
+  "transport": {
+    "snapshot": "apps/pv@auto-2026-09-21_18-00",
+    "archive_bytes": 33121780,
+    "archive_sha256": "407f1fe1f21b8eff8a008d554cd835da7caa30f266bb36917afdf0fc08236430",
+    "source_member_sha256": "8dc1984f0bc93aa233ea1408caeba09b8c7d6c65a2e0f0f24ae213acb17712e4",
+    "verification": "passed",
+    "transport": "NAS-local tar.zst then CA+leaf-pinned HTTPS download",
+    "scope": "one existing backup file; not full cold-application restore"
+  },
+  "nfs_sync_changed": false,
+  "cold_snapshot_taken": false,
+  "backup_scope_user_choice": "All remaining application state; Filebrowser local DB and Audiobookshelf are not mandatory restore gates.",
+  "backup_candidates": [
+    {
+      "application_directory": "databases/pg-backup",
+      "candidate_count": 11,
+      "latest": {
+        "path": "databases/pg-backup/pg_dumpall_2026-09-20_232056.sql.gz",
+        "bytes": 33143428,
+        "mtime": "2026-09-20T23:21:03.745627+00:00"
+      }
+    },
+    {
+      "application_directory": "databases/pgadmin-pgadmin4",
+      "candidate_count": 1,
+      "latest": {
+        "path": "databases/pgadmin-pgadmin4/pgadmin4.db.prev.bak",
+        "bytes": 184320,
+        "mtime": "2026-05-28T17:36:45.236284+00:00"
+      }
+    },
+    {
+      "application_directory": "home-automation/home-assistant-config",
+      "candidate_count": 3,
+      "latest": {
+        "path": "home-automation/home-assistant-config/backups/Automatic_backup_2026.9.3_2026-09-20_05.00_28000628.tar",
+        "bytes": 36710400,
+        "mtime": "2026-09-20T02:00:37.596217+00:00"
+      }
+    },
+    {
+      "application_directory": "media/bazarr",
+      "candidate_count": 5,
+      "latest": {
+        "path": "media/bazarr/backup/bazarr_backup_v1.6.1_2026.09.20_03.00.00.zip",
+        "bytes": 7513733,
+        "mtime": "2026-09-20T00:00:03.346352+00:00"
+      }
+    },
+    {
+      "application_directory": "media/calibre-web",
+      "candidate_count": 3,
+      "latest": {
+        "path": "media/calibre-web/processed_books/fixed_originals/2026-03-15-fixed_originals.zip",
+        "bytes": 1827242,
+        "mtime": "2026-03-15T21:59:00.272166+00:00"
+      }
+    },
+    {
+      "application_directory": "media/lazylibrarian",
+      "candidate_count": 2,
+      "latest": {
+        "path": "media/lazylibrarian/config.ini.bak",
+        "bytes": 1264,
+        "mtime": "2026-03-15T12:36:52.115467+00:00"
+      }
+    },
+    {
+      "application_directory": "media/lidarr",
+      "candidate_count": 4,
+      "latest": {
+        "path": "media/lidarr/Backups/scheduled/lidarr_backup_v3.1.0.4875_2026.09.16_23.02.08.zip",
+        "bytes": 8336514,
+        "mtime": "2026-09-16T20:02:11.263674+00:00"
+      }
+    },
+    {
+      "application_directory": "media/prowlarr",
+      "candidate_count": 4,
+      "latest": {
+        "path": "media/prowlarr/Backups/scheduled/prowlarr_backup_v2.4.0.5397_2026.09.15_01.26.37.zip",
+        "bytes": 13512459,
+        "mtime": "2026-09-14T22:26:44.412192+00:00"
+      }
+    },
+    {
+      "application_directory": "media/radarr",
+      "candidate_count": 4,
+      "latest": {
+        "path": "media/radarr/Backups/scheduled/radarr_backup_v6.2.1.10461_2026.09.15_01.34.57.zip",
+        "bytes": 7061802,
+        "mtime": "2026-09-14T22:34:59.667349+00:00"
+      }
+    },
+    {
+      "application_directory": "media/radarr-ru",
+      "candidate_count": 4,
+      "latest": {
+        "path": "media/radarr-ru/Backups/scheduled/radarr_backup_v6.2.1.10461_2026.09.15_01.34.30.zip",
+        "bytes": 931626,
+        "mtime": "2026-09-14T22:34:31.170219+00:00"
+      }
+    },
+    {
+      "application_directory": "media/sonarr",
+      "candidate_count": 4,
+      "latest": {
+        "path": "media/sonarr/Backups/scheduled/sonarr_backup_v4.0.17.2952_2026.09.15_01.39.07.zip",
+        "bytes": 14441734,
+        "mtime": "2026-09-14T22:39:17.701706+00:00"
+      }
+    },
+    {
+      "application_directory": "media/sonarr-ru",
+      "candidate_count": 4,
+      "latest": {
+        "path": "media/sonarr-ru/Backups/scheduled/sonarr_backup_v4.0.17.2952_2026.09.15_01.37.09.zip",
+        "bytes": 1586098,
+        "mtime": "2026-09-14T22:38:11.275019+00:00"
+      }
+    },
+    {
+      "application_directory": "operations/changedetection-data",
+      "candidate_count": 3,
+      "latest": {
+        "path": "operations/changedetection-data/before-update-33-1789544582.tar.gz",
+        "bytes": 2065,
+        "mtime": "2026-09-16T07:43:02.084509+00:00"
+      }
+    },
+    {
+      "application_directory": "operations/stirling-pdf-config",
+      "candidate_count": 8,
+      "latest": {
+        "path": "operations/stirling-pdf-config/backup/db/backup_202609210000.sql",
+        "bytes": 23696,
+        "mtime": "2026-09-20T21:00:00.081789+00:00"
+      }
+    }
+  ],
+  "limits": [
+    "Backup search was bounded to depth 4 and known backup locations; missing candidates do not prove no backup exists elsewhere.",
+    "BT_backup is live qBittorrent resume state, not an independent backup.",
+    "The PostgreSQL and Immich checks cover logical databases only, not attachments/uploads/media.",
+    "The five-second idle pool I/O sample is not a workload latency benchmark.",
+    "No complete critical-application coverage receipt has been issued."
+  ]
+}

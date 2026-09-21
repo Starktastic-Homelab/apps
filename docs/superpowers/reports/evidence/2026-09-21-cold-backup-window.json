@@ -1078,5 +1078,129 @@
     ],
     "iscsi_targets": 0,
     "iscsi_extents": 0
+  },
+  "relationship_review": {
+    "reviewed_at": "2026-09-21T17:40:51.139434+00:00",
+    "method": "Read-only aggregate SQLite queries on disposable restored copies; deployed-version upstream source review. No application runtime reproduction or historical deletion audit.",
+    "counts": {
+      "autobrr": {
+        "action_id": {
+          "orphans": 23663,
+          "zero_sentinel": 0,
+          "positive_ids": 23663,
+          "negative_ids": 0,
+          "distinct_missing_ids": 1
+        },
+        "filter_id": {
+          "orphans": 2,
+          "zero_sentinel": 0,
+          "positive_ids": 2,
+          "negative_ids": 0,
+          "distinct_missing_ids": 1
+        },
+        "release_fk_violations": 0,
+        "missing_action_rows_with_stored_label": 23663
+      },
+      "calibre_web": {
+        "users": 3,
+        "shelves": 12,
+        "orphan_details": [
+          {
+            "system_shelf": 1,
+            "public_shelf": 0,
+            "zero_user": 0,
+            "rows": 4
+          }
+        ],
+        "orphan_shelves_visible_to_existing_users": 0,
+        "distinct_missing_users": 1
+      },
+      "convertx": {
+        "users": 0,
+        "jobs": 0,
+        "file_rows": 6,
+        "orphan_statuses": [
+          {
+            "status": "Done",
+            "rows": 4
+          },
+          {
+            "status": "Failed, check logs",
+            "rows": 2
+          }
+        ]
+      }
+    },
+    "source_files": [
+      {
+        "application": "autobrr",
+        "tag": "v1.86.0",
+        "local_review_filename": "autobrr-sqlite.go",
+        "sha256": "4e43087bace000df87ab60760c384e45c7051925407d0d7f5dc4b867d9ba50ad"
+      },
+      {
+        "application": "autobrr",
+        "tag": "v1.86.0",
+        "local_review_filename": "autobrr-action.go",
+        "sha256": "eda9fcb49d5e394a987a3b00e87eb757d461781f436f55c71d0c9b6832ccf67c"
+      },
+      {
+        "application": "autobrr",
+        "tag": "v1.86.0",
+        "local_review_filename": "autobrr-filter.go",
+        "sha256": "78491631ca5f4ae5d612c4e66591cd7e6cb21de725e67216d4484918de600628"
+      },
+      {
+        "application": "autobrr",
+        "tag": "v1.86.0",
+        "local_review_filename": "autobrr-release.go",
+        "sha256": "009309955b6859c7769ccbf463ab8340223b3b2e13f7f8041d78e6af24310140"
+      },
+      {
+        "application": "calibre",
+        "tag": "v4.0.6",
+        "local_review_filename": "calibre-admin.py",
+        "sha256": "b95422ec897c19b95b1e6329c4acfd1f37d9132f8b512866f947992599d3d62a"
+      },
+      {
+        "application": "calibre",
+        "tag": "v4.0.6",
+        "local_review_filename": "calibre-magic-shelf.py",
+        "sha256": "c3a8729e41de829868c637eedaab8e8a464a2969d931eefef0eee4cceb01b12c"
+      },
+      {
+        "application": "calibre",
+        "tag": "v4.0.6",
+        "local_review_filename": "calibre-ub.py",
+        "sha256": "9b2cc9f65f6f7ab3a283d81c9b09c9d0adc8aa762fe4998e9dc329491b06dcf9"
+      },
+      {
+        "application": "convertx",
+        "tag": "v0.18.0",
+        "local_review_filename": "convertx-db.ts",
+        "sha256": "b594603a8f40ed990af42f0755a52aff7ef95c41ef2aaab928b9cc618c6dd918"
+      },
+      {
+        "application": "convertx",
+        "tag": "v0.18.0",
+        "local_review_filename": "convertx-deleteJob.tsx",
+        "sha256": "98ce9f83eb336a6049ca4a910a1993496f7697bb468b3328e8853202c445bfdb"
+      },
+      {
+        "application": "convertx",
+        "tag": "v0.18.0",
+        "local_review_filename": "convertx-index.tsx",
+        "sha256": "3b43fdca26461c207d03a5a139ac8ab5123aa75cf0d7290738e28451fc67ebdf"
+      },
+      {
+        "application": "convertx",
+        "tag": "v0.18.0",
+        "local_review_filename": "convertx-history.tsx",
+        "sha256": "2392601586ad65438331e6e56f504fb98b2d6c037c3516276903182e0f395d8e"
+      }
+    ],
+    "disposition": "Preserve source rows as documented relationship exceptions; not evidence of SQLite structural corruption or failed backup restoration. Complete critical-application coverage receipt still pending.",
+    "live_data_changed": false,
+    "foreign_key_failures_waived_or_relabelled": false
   }
 }

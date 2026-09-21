@@ -118,13 +118,55 @@ its May 13 backup contains two. Thus the five strict SQLite-check failures cover
 three active databases and two historical backups. No rows were deleted, no
 repair was attempted, and no live application setting changed.
 
-Autobrr v1.86.0 enables SQLite foreign-key enforcement only in its test environment
-in [the upstream connection code](https://github.com/autobrr/autobrr/blob/v1.86.0/internal/database/sqlite.go#L68).
-This supports treating the relationship findings separately from evidence of
-filesystem corruption; it does not by itself explain every orphan's origin.
-The Calibre-Web and ConvertX findings need application-level disposition too.
-No complete critical-application acceptance receipt was issued, and this window
-did not authorize the NFS durability change.
+### Application-level review
+
+Read-only aggregate queries against the disposable restored databases were
+compared with the upstream source tags matching the deployed versions. This
+identifies plausible application mechanisms, not a proven historical deletion
+event. No live SQL writes or repairs were performed.
+
+**Autobrr v1.86.0:** all 23,663 missing-action references point to one positive
+action ID and retain a nonempty stored action label. The two missing-filter
+references point to one positive filter ID. Every history row still has its
+release parent. The normal SQLite connection enables foreign-key enforcement
+[only in tests](https://github.com/autobrr/autobrr/blob/v1.86.0/internal/database/sqlite.go#L68).
+The [action delete](https://github.com/autobrr/autobrr/blob/v1.86.0/internal/database/action.go#L676)
+and [filter delete](https://github.com/autobrr/autobrr/blob/v1.86.0/internal/database/filter.go#L1669)
+paths do not remove release-action history. The
+[history reader](https://github.com/autobrr/autobrr/blob/v1.86.0/internal/database/release.go#L598)
+uses the stored action/filter labels without joining their current parent rows.
+This is consistent with retained history after configuration deletion. Preserve
+these rows; deleting them merely to satisfy a foreign-key check would discard
+readable history.
+
+**Calibre-Web Automated v4.0.6:** all four rows are private system shelves for
+one missing positive user ID. None is visible to the three existing users under
+the application's [visibility predicate](https://github.com/crocodilestick/Calibre-Web-Automated/blob/v4.0.6/cps/magic_shelf.py#L114).
+The [user-deletion routine](https://github.com/crocodilestick/Calibre-Web-Automated/blob/v4.0.6/cps/admin.py#L2561)
+bulk-deletes the user and ordinary shelves but omits magic shelves. This provides
+a plausible cleanup gap. These rows describe shelves, not lost book records.
+Preserve them in the backup; any later cleanup is a separate application change.
+
+**ConvertX v0.18.0:** the restored database contains zero users, zero jobs and
+six file-name records (four marked Done, two Failed). Both
+[manual job deletion](https://github.com/C4illin/ConvertX/blob/v0.18.0/src/pages/deleteJob.tsx#L35)
+and [automatic expiry](https://github.com/C4illin/ConvertX/blob/v0.18.0/src/index.tsx#L72)
+delete job rows without deleting their file-name rows. The
+[schema](https://github.com/C4illin/ConvertX/blob/v0.18.0/src/db/db.ts#L15)
+has no delete cascade, and connection initialization does not enable foreign-key
+enforcement. The [history page](https://github.com/C4illin/ConvertX/blob/v0.18.0/src/pages/history.tsx#L22)
+starts from current jobs, so these rows cannot appear there. Job deletion/expiry
+is a plausible explanation for the orphan file records; the absence of users
+is not explained by these deletion paths. The backup preserves that observed
+state without claiming to recover previously removed accounts or outputs.
+
+**Disposition:** retain these as documented source-data exceptions. They do not
+invalidate the verified filesystem/database restore and do not, by themselves,
+justify delaying the NFS durability correction. All five original foreign-key
+checks remain recorded as failures; none has been relabeled as passing. The
+review does not establish the cause of earlier service outages, eliminate
+SQLite's NFS constraints, or constitute a complete application acceptance test.
+No complete critical-application acceptance receipt has been issued.
 
 ## Final disposition
 
@@ -141,5 +183,11 @@ disabled and empty. No Packer build, VM replacement or storage cutover ran.
 
 The [sanitized evidence](evidence/2026-09-21-cold-backup-window.json) records the
 hashes, identity readbacks, claim coverage, checks, findings and operation timeline.
-The next storage step remains gated on reviewing these application findings and
-separately authorizing the durability change and its observation window.
+The application findings have now been reviewed and dispositioned above. Before
+the next storage operation, finish the per-application backup coverage receipt
+from the actual restore evidence, retaining these exceptions and the stated
+acceptance limitations. The cold backup reaches the tool's 24-hour age limit at
+16:34:04 UTC on September 22, 2026. Recheck identities and baseline health, then
+obtain authorization for changing only `apps/pv` from local `DISABLED` to
+`STANDARD` and observing readiness, application errors and storage latency.
+The approved backup-only outage did not authorize that production update.

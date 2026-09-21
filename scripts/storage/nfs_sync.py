@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import re
 import stat
+from maintenance import require_maintenance
 
 
 def inspect(nas, expected):
@@ -71,6 +72,7 @@ def apply_standard(nas, expected, backup_receipt, journal):
     # Even STANDARD after a lost response must take the explicit reconciliation path.
     if os.path.lexists(journal):
         raise FileExistsError('Existing intent: inspect and reconcile; never retry allocation/update')
+    require_maintenance()
     before = inspect(nas, expected)
     if before['sync'] == 'STANDARD':
         return {'changed': False, 'verified': True}
@@ -81,6 +83,7 @@ def apply_standard(nas, expected, backup_receipt, journal):
                   'started_at': datetime.now(timezone.utc).isoformat(),
                   'backup': backup_receipt}, create=True)
     try:
+        require_maintenance()
         nas.call('pool.dataset.update', expected['dataset'], {'sync': 'STANDARD'})
         if inspect(nas, expected)['sync'] != 'STANDARD':
             raise RuntimeError('Sync readback did not confirm STANDARD')

@@ -87,7 +87,17 @@ jobs:
       - name: Check PostgreSQL backup failure handling
         run: python3 scripts/test-pg-backup.py
 
+      - name: Checkout immutable maintenance helper for integration tests
+        uses: actions/checkout@v7
+        with:
+          repository: Starktastic-Homelab/ansible
+          ref: 887269798650e88fed791bb4f22a47bf50ad17be
+          path: maintenance-test-helper
+          persist-credentials: false
+
       - name: Check storage maintenance failure handling
+        env:
+          PYTHONPATH: ${{ github.workspace }}/maintenance-test-helper/scripts
         run: |
           pip install -r scripts/storage/requirements.txt
           python3 -m unittest discover -s scripts/storage/tests -v

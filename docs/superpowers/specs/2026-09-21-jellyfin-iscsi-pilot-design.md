@@ -1,6 +1,6 @@
 # Jellyfin retained iSCSI production pilot
 
-Status: proposed production design, prepared after Terraform #223 restored both workers to 28 GiB. No production iSCSI, credentials, ACLs, workloads or storage properties were changed during preparation. User approval of the migration and its maintenance window remains separate from preparation and PR review.
+Status: design approved by the user on September 21, 2026, after Terraform #223 restored both workers to 28 GiB. No production iSCSI, credentials, ACLs, workloads or storage properties were changed during preparation. User approval of the migration and its maintenance window remains separate from preparation and PR review.
 
 ## Intent and scope
 
@@ -79,7 +79,7 @@ Clean planned handoff: hold the workload, stop the pod, prove the mount and CSI 
 
 ## Cold backup and cutover procedure
 
-The proposed independent backup location is this laptop's encrypted `/home` filesystem (approximately 900 GiB free), under a private 0700 directory such as `/home/benf/Backups/homelab/jellyfin/<UTC-stamp>`. Destination selection is pending the user's answer. Do not use `/tmp` (a 16 GiB tmpfs), a K3s worker disk, or only another dataset on the same NAS as the independent copy. Include the sealing-key recovery material through the existing protected key-backup procedure; never put keys in the evidence report.
+The user confirmed this laptop's encrypted `/home` filesystem as the independent backup destination on September 21, 2026. Use `/home/benf/Backups/homelab/jellyfin/<UTC-stamp>` with mode 0700 (approximately 900 GiB was free at preflight). Do not use `/tmp` (a 16 GiB tmpfs), a K3s worker disk, or only another dataset on the same NAS as the independent copy. Include the sealing-key recovery material through the existing protected key-backup procedure; never put keys in the evidence report.
 
 Before downtime, prefetch pinned tool/application images and verify every prerequisite above. Prepare two reviewed Git states: held/cutover (`replicas: 0`, replacement admission closed) and release (`replicas: 1`). Ensure Argo cannot restore the source writer during copying. Inspect/suspend any Jellyfin-specific API jobs or other consumers that can write `/config`. A replica patch alone is insufficient if Git immediately restores it.
 

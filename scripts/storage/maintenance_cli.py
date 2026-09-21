@@ -16,6 +16,7 @@ from verify import verify_existing
 from initiator_probe import probe_filesystem, SSHRunner
 from render_storage import render, record_hash, STAMP
 from release import authorize, hold
+from cutover_guards import verify_target_hold, mark_possible_write
 
 ROOT = Path('/maintenance/operations/jellyfin')
 PRIVATE = Path('/maintenance/private')
@@ -42,6 +43,10 @@ def observe_release(nas, record):
     """Construct release evidence from live reads, never from a supplied passed=true JSON."""
     require_maintenance()
     ns = kube('get', 'namespace', record['namespace'], '-o', 'json')
+    verify_target_hold(record, json.loads((ROOT/'stages.json').read_text()),
+        kube('-n', 'argocd', 'get', 'application', 'jellyfin', '-o', 'json'),
+        kube('get', 'pv', record['pv'], '-o', 'json'),
+        kube('-n', record['namespace'], 'get', 'pvc', record['pvc'], '-o', 'json'))
     placement = json.loads((ROOT/'placement.json').read_text())
     node = placement['next']
     live = kube('get', 'node', node['hostname'], '-o', 'json')
@@ -163,6 +168,8 @@ def main():
                 verification = observe_release(nas, record)
                 if args.operation == 'release':
                     cm = authorize(record, verification, verification['namespace_uid'], verification['node'])
+                    # Conservative boundary: even a lost authorization reply means the target may have opened.
+                    mark_possible_write(record, ROOT/'target-may-have-written.json')
                     mutate_kube('annotate', 'namespace', record['namespace'], STAMP+'='+verification['namespace_uid'], '--overwrite', '-o', 'json')
                     result = mutate_kube('apply', '-f', '-', '-o', 'json', data=cm)
                 else: result = verification

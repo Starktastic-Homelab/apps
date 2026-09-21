@@ -70,6 +70,12 @@ jobs:
           echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
           if [ $EXIT_CODE -ne 0 ]; then echo "❌ Kubeconform Failed"; else echo "✅ Kubeconform Passed"; fi
 
+      - name: Render Jellyfin maintenance stages with current value layers
+        run: |
+          pip install pyyaml
+          helm pull app-template --repo https://bjw-s-labs.github.io/helm-charts --version 5.2.1 --destination /tmp
+          python3 scripts/storage/tests/jellyfin_render.py --chart /tmp/app-template-5.2.1.tgz
+
       - name: Check Homepage dashboard coverage
         id: homepage
         run: |

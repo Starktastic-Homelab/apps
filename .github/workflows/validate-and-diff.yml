@@ -87,6 +87,11 @@ jobs:
       - name: Check PostgreSQL backup failure handling
         run: python3 scripts/test-pg-backup.py
 
+      - name: Check storage maintenance failure handling
+        run: |
+          pip install -r scripts/storage/requirements.txt
+          python3 -m unittest discover -s scripts/storage/tests -v
+
       - name: Check alert policy
         id: alerts
         env:

@@ -45,9 +45,22 @@ def inventory(source):
 
 
 def write_json(path, value):
-    with open(path, 'x', opener=lambda p, f: os.open(p, f, 0o600)) as stream:
-        json.dump(value, stream, sort_keys=True)
-        stream.flush(); os.fsync(stream.fileno())
+    path = Path(path)
+    temporary = path.with_name('.' + path.name + '.' + uuid.uuid4().hex + '.partial')
+    published = False
+    try:
+        with open(temporary, 'x', opener=lambda p, f: os.open(p, f, 0o600)) as stream:
+            json.dump(value, stream, sort_keys=True)
+            stream.flush(); os.fsync(stream.fileno())
+        os.link(temporary, path)  # Exclusive publication; never replace an old receipt.
+        published = True
+        temporary.unlink()
+        _sync(path.parent)
+    except Exception:
+        if published:
+            path.unlink(missing_ok=True)
+        temporary.unlink(missing_ok=True)
+        raise
 
 
 def _sync(directory):

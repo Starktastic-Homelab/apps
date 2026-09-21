@@ -200,3 +200,7 @@ checks. Of 55 workload/dependency/archive entries, 52 meet the scoped backup
 restore prerequisite, two retain the user's prior exclusions, and Loki requires
 an explicit decision about its existing WAL replay warning. The strict
 executable receipt remains blocked pending that decision; storage is unchanged.
+
+The user subsequently approved the narrow Loki recovery exception and the NFS
+durability window. The [execution report](2026-09-21-nfs-durability-execution.md)
+records the resulting scoped receipt, verified STANDARD and completed observation.

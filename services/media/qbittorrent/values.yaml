@@ -59,6 +59,12 @@ service:
         port: 56881
         protocol: UDP
 persistence:
+  config:
+    globalMounts:
+      - path: /config
+      # Keep downloaded mods available when the registry is unreachable at startup.
+      - path: /modcache
+        subPath: modcache
   media:
     enabled: true
   incomplete:

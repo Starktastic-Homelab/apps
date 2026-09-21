@@ -1,0 +1,145 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "admissionregistration.k8s.io/v1",
+      "kind": "ValidatingAdmissionPolicy",
+      "metadata": {
+        "name": "static-iscsi-writer-label",
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "-5"
+        }
+      },
+      "spec": {
+        "failurePolicy": "Fail",
+        "matchConstraints": {
+          "resourceRules": [
+            {
+              "apiGroups": [
+                ""
+              ],
+              "apiVersions": [
+                "v1"
+              ],
+              "operations": [
+                "CREATE"
+              ],
+              "resources": [
+                "pods"
+              ]
+            }
+          ]
+        },
+        "matchConditions": [
+          {
+            "name": "sqlite-writers",
+            "expression": "object.metadata.namespace == 'iscsi-fixture' && has(object.spec.volumes) && object.spec.volumes.exists(v, has(v.persistentVolumeClaim) && v.persistentVolumeClaim.claimName in ['service-a','service-b'])"
+          }
+        ],
+        "validations": [
+          {
+            "expression": "has(object.metadata.labels) && 'storage-lab/writer' in object.metadata.labels && object.metadata.labels['storage-lab/writer'] == 'true'",
+            "message": "Storage writer pods require the guarded writer label."
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "admissionregistration.k8s.io/v1",
+      "kind": "ValidatingAdmissionPolicyBinding",
+      "metadata": {
+        "name": "static-iscsi-writer-label",
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "-5"
+        }
+      },
+      "spec": {
+        "policyName": "static-iscsi-writer-label",
+        "validationActions": [
+          "Deny"
+        ]
+      }
+    },
+    {
+      "apiVersion": "admissionregistration.k8s.io/v1",
+      "kind": "ValidatingAdmissionPolicy",
+      "metadata": {
+        "name": "static-iscsi-writer-hold",
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "-5"
+        }
+      },
+      "spec": {
+        "failurePolicy": "Fail",
+        "paramKind": {
+          "apiVersion": "v1",
+          "kind": "ConfigMap"
+        },
+        "matchConstraints": {
+          "resourceRules": [
+            {
+              "apiGroups": [
+                ""
+              ],
+              "apiVersions": [
+                "v1"
+              ],
+              "operations": [
+                "CREATE"
+              ],
+              "resources": [
+                "pods"
+              ]
+            }
+          ]
+        },
+        "matchConditions": [
+          {
+            "name": "sqlite-writers",
+            "expression": "object.metadata.namespace == 'iscsi-fixture' && has(object.spec.volumes) && object.spec.volumes.exists(v, has(v.persistentVolumeClaim) && v.persistentVolumeClaim.claimName in ['service-a','service-b'])"
+          }
+        ],
+        "validations": [
+          {
+            "expression": "has(params.data) && 'released' in params.data && params.data.released == 'true' && 'namespaceUID' in params.data && has(namespaceObject.metadata.annotations) && 'storage-lab/namespace-uid' in namespaceObject.metadata.annotations && params.data.namespaceUID == namespaceObject.metadata.annotations['storage-lab/namespace-uid']",
+            "message": "External storage verification for this cluster is required before creating a writer."
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "admissionregistration.k8s.io/v1",
+      "kind": "ValidatingAdmissionPolicyBinding",
+      "metadata": {
+        "name": "static-iscsi-writer-hold",
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "-5"
+        }
+      },
+      "spec": {
+        "policyName": "static-iscsi-writer-hold",
+        "paramRef": {
+          "name": "storage-recovery-verification",
+          "namespace": "iscsi-fixture",
+          "parameterNotFoundAction": "Deny"
+        },
+        "validationActions": [
+          "Deny"
+        ],
+        "matchResources": {
+          "namespaceSelector": {
+            "matchLabels": {
+              "kubernetes.io/metadata.name": "iscsi-fixture"
+            }
+          },
+          "objectSelector": {
+            "matchLabels": {
+              "storage-lab/writer": "true"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

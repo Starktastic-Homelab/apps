@@ -1,0 +1,262 @@
+{
+  "records": [
+    {
+      "service": "blank-probe",
+      "marker": "c4ea9023-5c30-45f4-bf83-05e947ec325e",
+      "pool_guid": "13727056474840796773",
+      "dataset": "iscsi_lab/volumes/blank-probe",
+      "zvol_guid": "7626720058537866970",
+      "bytes": 134217728,
+      "extent_id": 1,
+      "serial": "a6bbb245657f44e6",
+      "naa": "0x6589cfc00000017f27d769c37555f690",
+      "target_id": 1,
+      "iqn": "iqn.2026-09.lab.static:blank-probe",
+      "lun": 0,
+      "portal": "172.30.91.10:3260",
+      "initiators": [
+        "iqn.1993-08.org.debian:01:a5cf60adc2a8",
+        "iqn.1993-08.org.debian:01:4eeb3d2d7cf",
+        "iqn.1993-08.org.debian:01:de4dc869f37d"
+      ],
+      "group": {
+        "portal": 1,
+        "initiator": 1,
+        "authmethod": "CHAP",
+        "auth": 1
+      }
+    },
+    {
+      "service": "service-a",
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "pool_guid": "13727056474840796773",
+      "dataset": "iscsi_lab/volumes/service-a",
+      "zvol_guid": "6253329045690822869",
+      "bytes": 2147483648,
+      "extent_id": 2,
+      "serial": "9eac7b075821444a",
+      "naa": "0x6589cfc000000e1e9b22d0a5c0f6a990",
+      "target_id": 2,
+      "iqn": "iqn.2026-09.lab.static:service-a",
+      "lun": 0,
+      "portal": "172.30.91.10:3260",
+      "initiators": [
+        "iqn.1993-08.org.debian:01:a5cf60adc2a8",
+        "iqn.1993-08.org.debian:01:4eeb3d2d7cf",
+        "iqn.1993-08.org.debian:01:de4dc869f37d"
+      ],
+      "group": {
+        "portal": 1,
+        "initiator": 1,
+        "authmethod": "CHAP",
+        "auth": 1
+      }
+    },
+    {
+      "service": "service-b",
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "pool_guid": "13727056474840796773",
+      "dataset": "iscsi_lab/volumes/service-b",
+      "zvol_guid": "16588590146616901328",
+      "bytes": 2147483648,
+      "extent_id": 3,
+      "serial": "892959617a02496d",
+      "naa": "0x6589cfc000000c1563b065dd6362a37f",
+      "target_id": 3,
+      "iqn": "iqn.2026-09.lab.static:service-b",
+      "lun": 0,
+      "portal": "172.30.91.10:3260",
+      "initiators": [
+        "iqn.1993-08.org.debian:01:a5cf60adc2a8",
+        "iqn.1993-08.org.debian:01:4eeb3d2d7cf",
+        "iqn.1993-08.org.debian:01:de4dc869f37d"
+      ],
+      "group": {
+        "portal": 1,
+        "initiator": 1,
+        "authmethod": "CHAP",
+        "auth": 1
+      }
+    }
+  ],
+  "state": {
+    "pools": [
+      {
+        "id": 1,
+        "name": "iscsi_lab",
+        "guid": "13727056474840796773"
+      }
+    ],
+    "datasets": [
+      {
+        "id": "iscsi_lab/volumes/blank-probe",
+        "guid": {
+          "parsed": 7626720058537866970,
+          "rawvalue": "7626720058537866970",
+          "value": "7626720058537866970",
+          "source": "NONE",
+          "source_info": null
+        },
+        "volsize": {
+          "parsed": 134217728,
+          "rawvalue": "134217728",
+          "value": "128 MiB",
+          "source": "LOCAL",
+          "source_info": null
+        }
+      },
+      {
+        "id": "iscsi_lab/volumes/service-a",
+        "guid": {
+          "parsed": 6253329045690822869,
+          "rawvalue": "6253329045690822869",
+          "value": "6253329045690822869",
+          "source": "NONE",
+          "source_info": null
+        },
+        "volsize": {
+          "parsed": 2147483648,
+          "rawvalue": "2147483648",
+          "value": "2 GiB",
+          "source": "LOCAL",
+          "source_info": null
+        }
+      },
+      {
+        "id": "iscsi_lab/volumes/service-b",
+        "guid": {
+          "parsed": 16588590146616901328,
+          "rawvalue": "16588590146616901328",
+          "value": "16588590146616901328",
+          "source": "NONE",
+          "source_info": null
+        },
+        "volsize": {
+          "parsed": 2147483648,
+          "rawvalue": "2147483648",
+          "value": "2 GiB",
+          "source": "LOCAL",
+          "source_info": null
+        }
+      }
+    ],
+    "extents": [
+      {
+        "id": 1,
+        "disk": "zvol/iscsi_lab/volumes/blank-probe",
+        "serial": "a6bbb245657f44e6",
+        "naa": "0x6589cfc00000017f27d769c37555f690",
+        "enabled": true,
+        "ro": false,
+        "insecure_tpc": false
+      },
+      {
+        "id": 2,
+        "disk": "zvol/iscsi_lab/volumes/service-a",
+        "serial": "9eac7b075821444a",
+        "naa": "0x6589cfc000000e1e9b22d0a5c0f6a990",
+        "enabled": true,
+        "ro": false,
+        "insecure_tpc": false
+      },
+      {
+        "id": 3,
+        "disk": "zvol/iscsi_lab/volumes/service-b",
+        "serial": "892959617a02496d",
+        "naa": "0x6589cfc000000c1563b065dd6362a37f",
+        "enabled": true,
+        "ro": false,
+        "insecure_tpc": false
+      }
+    ],
+    "targets": [
+      {
+        "id": 1,
+        "name": "blank-probe",
+        "groups": [
+          {
+            "portal": 1,
+            "initiator": 1,
+            "authmethod": "CHAP",
+            "auth": 1
+          }
+        ],
+        "auth_networks": [
+          "172.30.91.0/24"
+        ]
+      },
+      {
+        "id": 2,
+        "name": "service-a",
+        "groups": [
+          {
+            "portal": 1,
+            "initiator": 1,
+            "authmethod": "CHAP",
+            "auth": 1
+          }
+        ],
+        "auth_networks": [
+          "172.30.91.0/24"
+        ]
+      },
+      {
+        "id": 3,
+        "name": "service-b",
+        "groups": [
+          {
+            "portal": 1,
+            "initiator": 1,
+            "authmethod": "CHAP",
+            "auth": 1
+          }
+        ],
+        "auth_networks": [
+          "172.30.91.0/24"
+        ]
+      }
+    ],
+    "mappings": [
+      {
+        "id": 1,
+        "target": 1,
+        "extent": 1,
+        "lunid": 0
+      },
+      {
+        "id": 2,
+        "target": 2,
+        "extent": 2,
+        "lunid": 0
+      },
+      {
+        "id": 3,
+        "target": 3,
+        "extent": 3,
+        "lunid": 0
+      }
+    ],
+    "portals": [
+      {
+        "id": 1,
+        "listen": [
+          {
+            "ip": "172.30.91.10",
+            "port": 3260
+          }
+        ]
+      }
+    ],
+    "initiators": [
+      {
+        "id": 1,
+        "initiators": [
+          "iqn.1993-08.org.debian:01:a5cf60adc2a8",
+          "iqn.1993-08.org.debian:01:4eeb3d2d7cf",
+          "iqn.1993-08.org.debian:01:de4dc869f37d"
+        ]
+      }
+    ],
+    "basename": "iqn.2026-09.lab.static"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "argoproj.io/v1alpha1",
+      "kind": "AppProject",
+      "metadata": {
+        "name": "static-iscsi-lab",
+        "namespace": "argocd"
+      },
+      "spec": {
+        "sourceRepos": [
+          "git://fixture-git.iscsi-fixture.svc.cluster.local:9418/fixture.git"
+        ],
+        "destinations": [
+          {
+            "server": "https://kubernetes.default.svc",
+            "namespace": "iscsi-fixture"
+          },
+          {
+            "server": "https://kubernetes.default.svc",
+            "namespace": "static-iscsi-system"
+          }
+        ],
+        "clusterResourceWhitelist": [
+          {
+            "group": "",
+            "kind": "PersistentVolume"
+          },
+          {
+            "group": "admissionregistration.k8s.io",
+            "kind": "ValidatingAdmissionPolicy"
+          },
+          {
+            "group": "admissionregistration.k8s.io",
+            "kind": "ValidatingAdmissionPolicyBinding"
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "argoproj.io/v1alpha1",
+      "kind": "Application",
+      "metadata": {
+        "name": "static-iscsi-fixture",
+        "namespace": "argocd"
+      },
+      "spec": {
+        "project": "static-iscsi-lab",
+        "source": {
+          "repoURL": "git://fixture-git.iscsi-fixture.svc.cluster.local:9418/fixture.git",
+          "targetRevision": "main",
+          "path": "manifests"
+        },
+        "destination": {
+          "server": "https://kubernetes.default.svc",
+          "namespace": "iscsi-fixture"
+        },
+        "syncPolicy": {
+          "automated": {
+            "prune": true,
+            "selfHeal": true
+          },
+          "syncOptions": [
+            "ServerSideApply=true"
+          ]
+        }
+      }
+    }
+  ]
+}

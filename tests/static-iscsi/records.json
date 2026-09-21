@@ -1,0 +1,186 @@
+[
+  {
+    "service": "service-a",
+    "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+    "pool_guid": "13727056474840796773",
+    "dataset": "iscsi_lab/volumes/service-a",
+    "zvol_guid": "6253329045690822869",
+    "bytes": 2147483648,
+    "extent_id": 2,
+    "serial": "9eac7b075821444a",
+    "naa": "0x6589cfc000000e1e9b22d0a5c0f6a990",
+    "target_id": 2,
+    "iqn": "iqn.2026-09.lab.static:service-a",
+    "lun": 0,
+    "portal": "172.30.91.10:3260",
+    "initiators": [
+      "iqn.1993-08.org.debian:01:a5cf60adc2a8",
+      "iqn.1993-08.org.debian:01:4eeb3d2d7cf",
+      "iqn.1993-08.org.debian:01:de4dc869f37d"
+    ],
+    "group": {
+      "portal": 1,
+      "initiator": 1,
+      "authmethod": "CHAP",
+      "auth": 1
+    },
+    "filesystem_uuid": "ab4369ad-a0d0-42ed-8987-a733d82889d2",
+    "pv": {
+      "apiVersion": "v1",
+      "kind": "PersistentVolume",
+      "metadata": {
+        "name": "static-service-a",
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=false,Delete=false",
+          "argocd.argoproj.io/sync-wave": "-1"
+        }
+      },
+      "spec": {
+        "capacity": {
+          "storage": "2Gi"
+        },
+        "accessModes": [
+          "ReadWriteOncePod"
+        ],
+        "persistentVolumeReclaimPolicy": "Retain",
+        "storageClassName": "",
+        "volumeMode": "Filesystem",
+        "claimRef": {
+          "namespace": "iscsi-fixture",
+          "name": "service-a"
+        },
+        "csi": {
+          "driver": "org.democratic-csi.static-lab",
+          "volumeHandle": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+          "fsType": "ext4",
+          "nodeStageSecretRef": {
+            "name": "static-iscsi-chap",
+            "namespace": "static-iscsi-system"
+          },
+          "volumeAttributes": {
+            "node_attach_driver": "iscsi",
+            "provisioner_driver": "node-manual",
+            "portal": "172.30.91.10:3260",
+            "iqn": "iqn.2026-09.lab.static:service-a",
+            "lun": "0"
+          }
+        }
+      }
+    },
+    "pvc": {
+      "apiVersion": "v1",
+      "kind": "PersistentVolumeClaim",
+      "metadata": {
+        "name": "service-a",
+        "namespace": "iscsi-fixture",
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=false,Delete=false"
+        }
+      },
+      "spec": {
+        "volumeName": "static-service-a",
+        "storageClassName": "",
+        "accessModes": [
+          "ReadWriteOncePod"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "2Gi"
+          }
+        }
+      }
+    }
+  },
+  {
+    "service": "service-b",
+    "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+    "pool_guid": "13727056474840796773",
+    "dataset": "iscsi_lab/volumes/service-b",
+    "zvol_guid": "16588590146616901328",
+    "bytes": 2147483648,
+    "extent_id": 3,
+    "serial": "892959617a02496d",
+    "naa": "0x6589cfc000000c1563b065dd6362a37f",
+    "target_id": 3,
+    "iqn": "iqn.2026-09.lab.static:service-b",
+    "lun": 0,
+    "portal": "172.30.91.10:3260",
+    "initiators": [
+      "iqn.1993-08.org.debian:01:a5cf60adc2a8",
+      "iqn.1993-08.org.debian:01:4eeb3d2d7cf",
+      "iqn.1993-08.org.debian:01:de4dc869f37d"
+    ],
+    "group": {
+      "portal": 1,
+      "initiator": 1,
+      "authmethod": "CHAP",
+      "auth": 1
+    },
+    "filesystem_uuid": "99603805-4822-46fd-af5d-1a54f1d6fb7e",
+    "pv": {
+      "apiVersion": "v1",
+      "kind": "PersistentVolume",
+      "metadata": {
+        "name": "static-service-b",
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=false,Delete=false",
+          "argocd.argoproj.io/sync-wave": "-1"
+        }
+      },
+      "spec": {
+        "capacity": {
+          "storage": "2Gi"
+        },
+        "accessModes": [
+          "ReadWriteOncePod"
+        ],
+        "persistentVolumeReclaimPolicy": "Retain",
+        "storageClassName": "",
+        "volumeMode": "Filesystem",
+        "claimRef": {
+          "namespace": "iscsi-fixture",
+          "name": "service-b"
+        },
+        "csi": {
+          "driver": "org.democratic-csi.static-lab",
+          "volumeHandle": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+          "fsType": "ext4",
+          "nodeStageSecretRef": {
+            "name": "static-iscsi-chap",
+            "namespace": "static-iscsi-system"
+          },
+          "volumeAttributes": {
+            "node_attach_driver": "iscsi",
+            "provisioner_driver": "node-manual",
+            "portal": "172.30.91.10:3260",
+            "iqn": "iqn.2026-09.lab.static:service-b",
+            "lun": "0"
+          }
+        }
+      }
+    },
+    "pvc": {
+      "apiVersion": "v1",
+      "kind": "PersistentVolumeClaim",
+      "metadata": {
+        "name": "service-b",
+        "namespace": "iscsi-fixture",
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=false,Delete=false"
+        }
+      },
+      "spec": {
+        "volumeName": "static-service-b",
+        "storageClassName": "",
+        "accessModes": [
+          "ReadWriteOncePod"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "2Gi"
+          }
+        }
+      }
+    }
+  }
+]

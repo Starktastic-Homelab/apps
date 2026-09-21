@@ -1,0 +1,32 @@
+{
+  "witness": {
+    "witness_at": 1789952134.303036,
+    "acks": [
+      {
+        "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+        "id": "partition-witness",
+        "value": "cfab62b121777f1d25e6d0ff284cee064857a3fadfcf1315e9c97e671c9a44c0"
+      },
+      {
+        "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+        "id": "partition-witness",
+        "value": "ac412a3847039a909dd58175f1dd0080d8a8d188d3f9d98f7b4a87263f91a51f"
+      }
+    ]
+  },
+  "failed_fence": {
+    "vmid": 913,
+    "stale_uuid_rejected": true,
+    "unauthenticated_stop_http_status": 401,
+    "still_running": true,
+    "at": 1789952171.2037537
+  },
+  "confirmed_fence": {
+    "vmid": 913,
+    "uuid": "cdf6f5f5-3960-4981-919b-9e6d15839054",
+    "power_off_confirmed": true,
+    "at": 1789952172.7063007
+  },
+  "replacement_denied_before_fence": true,
+  "acknowledgements_recovered_per_service": 11
+}

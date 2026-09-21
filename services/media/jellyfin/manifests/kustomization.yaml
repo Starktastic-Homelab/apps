@@ -1,5 +1,6 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+
 resources:
   - cache-pvc.yaml
   - jellyfin-ldap-sync-secret.yaml
@@ -7,6 +8,7 @@ resources:
   - pip-cache-pvc.yaml
   - pvc.yaml
   - retained-storage.yaml
+
 configMapGenerator:
   - name: jellyfin-ldap-sync
     namespace: media

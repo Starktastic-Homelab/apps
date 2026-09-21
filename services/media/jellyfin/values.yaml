@@ -7,7 +7,7 @@ controllers:
           repository: lscr.io/linuxserver/jellyfin
           tag: 12.1ubu2604-ls50@sha256:51252e7a416e703cdc3cd91e8a54673a2430cc80409be8a38abe511411577b95
         env:
-          JELLYFIN_PublishedServerUrl: https://benplus.app
+          JELLYFIN_PublishedServerUrl: "https://benplus.app" # source: globals.yaml → global.domains.media
         resources:
           limits:
             gpu.intel.com/i915: "1"
@@ -19,6 +19,8 @@ controllers:
             port: 8096
           readiness:
             enabled: true
+            # Jellyfin 12 returns HTTP 200 with "Degraded" during migrations.
+            # Gate traffic on the body, without turning migration into a liveness failure.
             custom: true
             spec:
               exec:
@@ -35,6 +37,7 @@ controllers:
               initialDelaySeconds: 30
               failureThreshold: 60
               periodSeconds: 10
+
 service:
   main:
     controller: main
@@ -48,6 +51,7 @@ service:
       discovery:
         port: 7359
         protocol: UDP
+
 persistence:
   config:
     enabled: false

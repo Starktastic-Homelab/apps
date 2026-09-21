@@ -92,3 +92,37 @@ enrollment/mounts/fencing, real restore/acceptance, future target/rollback artif
 and out-of-lock administrator actions outside this offline verdict. Each remains
 an explicit gate or the documented trusted-administrator boundary; none is
 certified by this preparation.
+
+## Published drafts
+
+- [Apps #1235 — NFS durability](https://github.com/Starktastic-Homelab/apps/pull/1235).
+- [Ansible #267 — shared maintenance, initiators and fencing](https://github.com/Starktastic-Homelab/ansible/pull/267). Bootstrap VM300 before merging: merge triggers its normal deployment.
+- [Terraform #224 — maintenance coordination](https://github.com/Starktastic-Homelab/terraform/pull/224). No destructive checkbox selected.
+- [Apps #1236 — retained platform](https://github.com/Starktastic-Homelab/apps/pull/1236), based on #1235.
+- [Apps #1237 — cold backup and migration tools](https://github.com/Starktastic-Homelab/apps/pull/1237), based on #1236.
+- [Apps #1238 — source hold / outage](https://github.com/Starktastic-Homelab/apps/pull/1238), based on #1237. **Do not merge before the approved downtime window.**
+
+Retarget each stacked Apps PR to main after its predecessor lands, then run its
+normal GitHub checks before merge. Those workflows filter on the main base, so
+local full-stack validation is the current evidence for the three stacked drafts.
+The initial NFS and Ansible GitHub checks passed, including Ansible syntax.
+Terraform's first plan attempt failed downloading the unchanged provider with a
+GitHub HTTP 504; a single failed-job retry was requested. This was not an apply.
+
+## Recorded decisions
+
+- preserve the planning-time GUID policy, but block live qualification until a fresh identity check — prior /tmp NAS credentials and CA files no longer exist in this execution environment — cost if wrong: stale policy refuses safely and delays execution; no NAS mutation during preparation.
+- keep Terraform drain/apply/recovery in one job, with masked GITHUB_ENV nonce rather than cross-job secret outputs — GitHub explicitly suppresses secret-bearing job outputs (https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax) — cost if wrong: longer single job/container setup, but no lock credential loss or unowned mutation.
+- runner address must remain a required explicit inventory input until VM300 can be inspected again — prior access files absent; no invented address — cost if wrong: bootstrap cannot run until the operator supplies reviewed VM300 inventory.
+- make worker enrollment an explicit deploy input defaulting off, while placing its worker play before join — no reviewed live generation/retirement records exist yet, so merge must not silently reuse an IQN — cost if wrong: one explicit enrollment run is required before CSI can schedule.
+- namespace UID must use a protected external stamp plus a Namespace CREATE rule forbidding replayed stamps — real disposable K3s v1.37.0 API rejects namespaceObject.metadata.uid with undefined field uid — cost if wrong: namespace remains held; stamp writes must be restricted to the maintenance/admin trust boundary and never stored in Git.
+- prepare tested target stage generators now, but defer concrete target-held/released commits and the destructive initialization command sheet until actual NAS/filesystem IDs and cold-restore evidence exist — the spec forbids invented bindings, and the required real objects do not exist during code-only preparation — cost if wrong: more reviewed preparation during the outage; target release remains blocked meanwhile. No target initialization or migration readiness is claimed.
+- target release keeps ingress closed and LDAP suspended until a later acceptance commit — production clients must not write during operator acceptance/rollback — cost if wrong: public service remains unavailable longer.
+- live NAS/PVE identities, permissions, firmware/API behavior and credentials were outside the review — retain fresh live qualification as a deployment gate because no access or mutation authorization exists — cost if wrong: preparation tests cannot predict a deployment API mismatch.
+- real runner bootstrap, cross-container permissions and cancellation recovery were outside the review — require qualification before coordination workflow merges — cost if wrong: deployments remain blocked or ownership cannot be recovered.
+- production worker enrollment, mounts and fencing were outside the review — keep them as separately scoped live operations — cost if wrong: pilot cannot safely release a writer.
+- real cold restore, sealing-key recovery, playback, handoff and 24-hour operation were outside the review — keep the full acceptance gates — cost if wrong: synthetic tests can miss real-data or workload problems.
+- concrete target commits, initialization and post-write rollback bindings were outside the review — preserve the earlier actual-identity/restore-dependent staging decision — cost if wrong: additional reviewed work extends the outage.
+- concurrent administrator actions outside the persistent lock were outside the review — retain the explicit operator prohibition during maintenance and external-admin trust boundary — cost if wrong: out-of-band actions can defeat writer exclusivity.
+
+Deferred minor review findings: none.

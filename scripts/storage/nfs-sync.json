@@ -1,0 +1,8 @@
+{
+  "version": "TrueNAS-25.10.7",
+  "pool": "apps",
+  "pool_guid": "9917900421692286909",
+  "dataset": "apps/pv",
+  "dataset_guid": "14547210392972608779",
+  "sync": "STANDARD"
+}

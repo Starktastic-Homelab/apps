@@ -102,6 +102,13 @@ jobs:
           pip install -r scripts/storage/requirements.txt
           python3 -m unittest discover -s scripts/storage/tests -v
 
+      - name: Check actual retained CSI chart render
+        run: |
+          helm template retained-iscsi democratic-csi --repo https://democratic-csi.github.io/charts/ \
+            --version 0.15.1 --namespace retained-iscsi -f templates/globals.yaml \
+            -f infrastructure/system/retained-iscsi/values.yaml > /tmp/retained-csi.yaml
+          python3 scripts/storage/tests/check_csi_render.py /tmp/retained-csi.yaml
+
       - name: Check alert policy
         id: alerts
         env:

@@ -1,0 +1,15 @@
+{
+  "service": "jellyfin",
+  "dataset": "apps/iscsi/jellyfin-config",
+  "pool_guid": "9917900421692286909",
+  "bytes": 68719476736,
+  "sync": "STANDARD",
+  "portal": "10.9.8.30:3260",
+  "portal_id": 1,
+  "chap_tag": 19701,
+  "initiators": ["iqn.2026-09.net.starktastic:k3s-worker-01", "iqn.2026-09.net.starktastic:k3s-worker-02"],
+  "auth_networks": ["10.9.8.0/24"],
+  "namespace": "media",
+  "pv": "jellyfin-config-iscsi",
+  "pvc": "jellyfin-config-iscsi"
+}

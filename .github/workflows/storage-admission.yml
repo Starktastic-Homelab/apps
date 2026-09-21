@@ -1,0 +1,38 @@
+name: Retained storage admission qualification
+on:
+  pull_request:
+    branches: [main]
+    paths: ['scripts/storage/**', 'infrastructure/system/retained-iscsi/**', '.github/workflows/storage-admission.yml']
+permissions:
+  contents: read
+jobs:
+  admission:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: azure/setup-kubectl@v5.1.0
+      - name: Exercise real disposable Kubernetes admission
+        shell: bash
+        run: |
+          set -euo pipefail
+          container="retained-admission-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          private_dir=$(mktemp -d)
+          trap 'docker rm -f "$container" >/dev/null 2>&1 || true; rm -rf "$private_dir"' EXIT
+          docker run -d --name "$container" --privileged --memory=1536m --cpus=2 \
+            -p 127.0.0.1::6443 \
+            rancher/k3s:v1.37.0-k3s1@sha256:d33b1973401a60410681d66c007f5c3a51d565a7c03608904764aef3321fee4d \
+            server --disable-agent --disable=traefik,servicelb,metrics-server --disable-network-policy --flannel-backend=none
+          for attempt in $(seq 1 60); do
+            if docker exec "$container" test -s /etc/rancher/k3s/k3s.yaml; then break; fi
+            sleep 1
+          done
+          docker exec "$container" cat /etc/rancher/k3s/k3s.yaml > "$private_dir/kubeconfig"
+          chmod 600 "$private_dir/kubeconfig"
+          port=$(docker port "$container" 6443/tcp | cut -d: -f2)
+          sed -i "s/127.0.0.1:6443/127.0.0.1:$port/" "$private_dir/kubeconfig"
+          for attempt in $(seq 1 60); do
+            if kubectl --kubeconfig "$private_dir/kubeconfig" get --raw /readyz; then break; fi
+            sleep 1
+          done
+          python3 -u scripts/storage/tests/admission_api.py --kubeconfig "$private_dir/kubeconfig"

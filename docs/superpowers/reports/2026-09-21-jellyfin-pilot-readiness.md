@@ -9,8 +9,8 @@ No production storage, credentials, VM power or application deployment changed.
 | Group | Change | Effect of merge |
 | --- | --- | --- |
 | A — Apps NFS durability | Pinned NAS transport, identity/backup checks, durable intent and readback | Adds tools/tests; no automatic NAS update |
-| B — Ansible | Persistent VM300 lock, opt-in worker enrollment, scoped fencing role/command | Changes subsequent deployment coordination; runner bootstrap is required first; no implicit token creation or fencing |
-| B — Terraform | Shared lock around drain/apply/recovery | Changes subsequent deployment coordination; no Terraform resource settings changed |
+| B — Ansible | Persistent VM300 lock, opt-in worker enrollment, scoped fencing role/command | Push-to-main triggers normal K3s deployment with the lock requirement; bootstrap is required before merge; no implicit token creation or fencing |
+| B — Terraform | Shared lock around drain/apply/recovery | The merged-PR apply workflow runs; a valid no-change plan skips resource apply; no Terraform settings changed |
 | C — Apps platform | Native onboarding/reconciliation, worker verifier, CSI node plugin, generated admission/static bindings | Installs the node plugin on explicitly storage-ready workers; creates no target or app binding by itself |
 | D — Apps tools | Cold backup/restore, source reader, stage generation, first-write receipt | Tools only; existing Jellyfin service remains unchanged |
 | Source-held — Apps outage artifact | Zero replicas, ingress closed, LDAP suspended, source writer policy | Stops Jellyfin when merged/reconciled; keep draft until the approved outage |
@@ -41,7 +41,7 @@ invented filesystem identity is approved for formatting.
 
 ## Local validation
 
-- Apps storage unit/fault tests: 64 passed.
+- Apps storage unit/fault tests: 68 passed.
 - Actual disposable K3s v1.37.0 API: 24 admission/reader cases passed, including namespace recreation, wrong worker/generation, missing authorization, alias bindings, source writer denial and UID-precondition cleanup.
 - Actual democratic-csi 0.15.1 chart: rendered assertions and all seven resource kinds passed server schema dry-run.
 - Actual app-template 5.2.1 with globals/common/service layers: source-held, target-held and target-released passed image/probe/GPU/media/cache/placement checks.
@@ -75,3 +75,20 @@ correction. Before requesting that window: restore current access, qualify the
 runner lock, inspect current native identities and produce a fresh reviewed
 critical-database backup/restore coverage receipt. Account/test-VM qualification
 and the Jellyfin outage remain later scoped operations.
+
+## Final independent review
+
+One fresh reviewer checked all three repositories and the source-held artifact.
+No Critical or Minor findings were raised. Both Important findings were reproduced
+and fixed: standalone NFS updates now verify the actual shared lock before
+inspection and immediately before the update; restore receipts now publish
+exclusively through a fsynced temporary file and remove a new receipt on directory
+sync failure. Regression tests cover missing/mismatched ownership and loss after
+intent, plus application receipt and directory-sync failures. No re-review was
+substituted for those regression tests.
+
+The reviewer appropriately left live NAS/PVE behavior, runner bootstrap, worker
+enrollment/mounts/fencing, real restore/acceptance, future target/rollback artifacts
+and out-of-lock administrator actions outside this offline verdict. Each remains
+an explicit gate or the documented trusted-administrator boundary; none is
+certified by this preparation.

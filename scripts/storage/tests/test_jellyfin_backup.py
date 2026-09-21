@@ -11,7 +11,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from jellyfin_backup import capture, capture_stream, verify_restore, verify_application, IMAGE
+from jellyfin_backup import capture, capture_stream, verify_restore, verify_application, write_json, IMAGE
 
 class BackupTests(unittest.TestCase):
     def setUp(self):
@@ -94,6 +94,30 @@ class BackupTests(unittest.TestCase):
         launched=next(c for c in commands if c[1]=='run')
         self.assertIn('none',launched);self.assertEqual(launched[-1],IMAGE)
         self.assertEqual(commands[-1][1:3],['rm','-f'])
+
+    def test_fsync_failure_cannot_publish_accepted_application_receipt(self):
+        server_id='synthetic-server'
+        metadata=dict(self.meta,server_id_sha256=hashlib.sha256(server_id.encode()).hexdigest(),
+                      user_count=1,item_counts={'MovieCount':1},plugins=[])
+        archive=capture(self.source,self.destination,metadata)
+        key=self.root/'key';key.write_text('synthetic');key.chmod(0o600)
+        responses={'/health':'Healthy','/System/Info/Public':json.dumps({'StartupWizardCompleted':True,'Id':server_id}),
+                   '/Users':'[{}]','/Items/Counts':'{"MovieCount":1}','/Plugins':'[]'}
+        def docker(args,**kwargs):
+            output=next((v for k,v in responses.items() if args[-1].endswith(k)),'')
+            return subprocess.CompletedProcess(args,0,stdout=output)
+        with patch('jellyfin_backup.subprocess.run',side_effect=docker),patch('jellyfin_backup.subprocess.check_output',return_value=b''),patch('jellyfin_backup.os.fsync',side_effect=OSError('sync failed')):
+            with self.assertRaises(OSError):verify_application(archive,self.root/'app-copy',key)
+        self.assertFalse((self.destination/'passed.json').exists())
+
+    def test_directory_sync_failure_removes_new_receipt_without_overwriting_old(self):
+        path=self.root/'passed.json'
+        with patch('jellyfin_backup.os.fsync',side_effect=[None,OSError('directory sync failed')]):
+            with self.assertRaises(OSError):write_json(path,{'application_verified':True})
+        self.assertFalse(path.exists())
+        path.write_text('original')
+        with self.assertRaises(FileExistsError):write_json(path,{'replacement':True})
+        self.assertEqual(path.read_text(),'original')
 
     def test_sqlite_wal_is_recovered_on_copy(self):
         connection=sqlite3.connect(self.source/'data/data/jellyfin.db');connection.execute('pragma journal_mode=WAL')

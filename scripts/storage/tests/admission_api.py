@@ -104,3 +104,26 @@ apply({'apiVersion':'v1','kind':'Namespace','metadata':{'name':ns}})
 auth['data']['namespaceUID']=uid;apply(auth)
 expect(not admit(pod),'recreated namespace with replayed old authorization held')
 print('Disposable API admission qualification passed')
+
+# Cold-source hold and UID-safe cleanup use the same real API boundary.
+from backup_reader import source_hold_policy, reader_pod, delete_reader
+from unittest.mock import patch
+import tempfile
+for obj in source_hold_policy():apply(obj)
+reader=reader_pod('jellyfin-backup-reader-api-test','synthetic-owner')
+for _ in range(30):
+    bad=copy.deepcopy(reader);bad['spec']['volumes'][0]['persistentVolumeClaim']['readOnly']=False
+    if not admit(bad):break
+    time.sleep(1)
+else:raise AssertionError('Source hold did not propagate')
+expect(not admit(bad),'source writer denied')
+expect(admit(reader),'owned read-only reader admitted')
+created=json.loads(kubectl(['create','-f','-','-o','json'],reader).stdout)
+def reader_api(*arguments,data=None):
+    return json.loads(kubectl(list(arguments),data).stdout)
+with tempfile.TemporaryDirectory() as d:
+    receipt=Path(d)/'reader.json'
+    receipt.write_text(json.dumps(dict(name=reader['metadata']['name'],uid=created['metadata']['uid'])))
+    with patch('backup_reader.require_maintenance'):
+        deleted=delete_reader(reader_api,receipt)
+    expect(deleted['metadata']['uid']==created['metadata']['uid'],'UID-precondition reader delete')

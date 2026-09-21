@@ -1,11 +1,10 @@
----
 apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: jellyfin-ldap-library-sync
   namespace: media
 spec:
-  suspend: false
+  suspend: true
   schedule: "*/15 * * * *"
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
@@ -24,10 +23,9 @@ spec:
               command:
                 - sh
                 - -c
-                - |
-                  PYTHONPATH=/pip-cache python -c 'import ldap3' 2>/dev/null \
-                    && echo "ldap3 already cached, skipping install" \
-                    || pip install --quiet --root-user-action=ignore --target=/pip-cache ldap3
+                - "PYTHONPATH=/pip-cache python -c 'import ldap3' 2>/dev/null \\\n  &&\
+                  \ echo \"ldap3 already cached, skipping install\" \\\n  || pip install\
+                  \ --quiet --root-user-action=ignore --target=/pip-cache ldap3\n"
               volumeMounts:
                 - name: pip-cache
                   mountPath: /pip-cache

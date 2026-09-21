@@ -1,0 +1,58 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: jellyfin-source-maintenance-hold
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - pods
+  matchConditions:
+    - name: retained-scope
+      expression:
+        object.metadata.namespace == 'media' && has(object.spec.volumes) && object.spec.volumes.exists(v,
+        has(v.persistentVolumeClaim) && v.persistentVolumeClaim.claimName == 'jellyfin-config')
+  validations:
+    - expression:
+        object.metadata.name.startsWith('jellyfin-backup-reader-') && object.spec.serviceAccountName ==
+        'jellyfin-backup-reader' && has(object.spec.automountServiceAccountToken) &&
+        !object.spec.automountServiceAccountToken
+      message: Retained storage identity or writer authorization does not match.
+    - expression: object.spec.volumes.size() == 1 && object.spec.volumes[0].persistentVolumeClaim.readOnly == true
+      message: Retained storage identity or writer authorization does not match.
+    - expression:
+        object.spec.containers.size() == 1 && object.spec.containers[0].image ==
+        "python:3.14-slim-trixie@sha256:caaf356f40667c496d405780745b9ac25771c189a51dfcc42430d531ea09f8a2" &&
+        object.spec.containers[0].command == ['sleep','infinity'] && object.spec.containers[0].volumeMounts.size() == 1
+        && object.spec.containers[0].volumeMounts[0].readOnly == true
+      message: Retained storage identity or writer authorization does not match.
+    - expression: "!has(object.spec.initContainers) && !has(object.spec.ephemeralContainers)"
+      message: Retained storage identity or writer authorization does not match.
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: jellyfin-source-maintenance-hold
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+spec:
+  policyName: jellyfin-source-maintenance-hold
+  validationActions:
+    - Deny
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jellyfin-backup-reader
+  namespace: media
+automountServiceAccountToken: false

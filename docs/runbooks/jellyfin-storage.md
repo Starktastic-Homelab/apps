@@ -147,3 +147,80 @@ cold target backup, and restore to a **new NFS directory and retained claim**.
 Never restart the stale original or merge databases. Corrupt latest state
 requires an explicit restore-point/data-loss decision. Preserve both original
 source and ZVOL until acceptance and a separate cleanup approval.
+
+
+## Generate sequential review artifacts
+
+Group D merges tools only; it does not stop Jellyfin. The separate source-held
+PR is an outage artifact: merging it scales Jellyfin to zero, closes its ingress,
+suspends its LDAP job and denies new source writers. Keep that PR draft until the
+window is agreed. Generate it without native IDs:
+
+```sh
+python scripts/storage/jellyfin_stages.py source-held --output /private/source-held
+```
+
+The generator copies the entire service definition, preserving both original PVC
+manifests. After native onboarding, a successful independent cold restore and the
+explicit one-time initialization below, generate target-held and target-released
+in separate fresh output directories with `--record`, `--node`, `--passed` and
+`--sealed-chap`. These inputs are respectively the completed native/filesystem
+record, reviewed next-worker generation, laptop `passed.json`, and the actual
+SealedSecret produced by `scripts/seal.sh`. Inspect every diff and render it before
+committing. Do not commit private baseline counts, plaintext CHAP, namespace
+stamps or authorization ConfigMaps. Target stage generation rejects allocation
+intents and incomplete restore evidence.
+
+Record all actual immutable commit SHAs in `stages.json` outside Kubernetes.
+Deploy target-held first. The external verifier checks that exact Argo revision
+and Bound PV/PVC identity, closes authorization while probing, then writes a
+permanent `target-may-have-written.json` **before** publishing permission. The
+receipt is deliberately conservative: a failed release can still make the old
+source ineligible for rollback. Never delete/reset it to make rollback pass.
+Target-released changes replicas to one but leaves public ingress closed and the
+LDAP job suspended. Use restricted operator access for acceptance; reopen ingress
+and resume the job in a later reviewed acceptance commit.
+
+For a worker move, make a new target-held commit for the new reviewed generation
+and update its recorded SHA. Stop/unmount the old writer, hold authorization,
+verify/fence as required, authorize the next generation, then release its matching
+Git state. A new cluster begins held because the external authorization is not
+in Git. A destroyed/recreated old VM needs explicit retirement reconciliation;
+the current command only accepts a reachable clean old generation or the same
+old generation currently verified stopped. It refuses to guess from a reused VMID.
+
+## One-time initialization review gate
+
+Native onboarding creates a blank LUN; it does **not** format it. The regular
+verification/release command intentionally rejects it. The actual destructive
+format/copy command sheet is a later review artifact, generated against the
+returned native record and approved cold archive, not a runnable placeholder in
+this preparation PR. Before executing that sheet under the same external lock:
+
+1. Require the source-held SHA, cold restore receipt and exact NAS source snapshot
+   GUID/path from fresh API reads. Verify all other source/target consumers and
+   API writers are stopped. Both workers must prove no target session/mount, or
+   the uncertain exact generation must be fenced. No force deletion.
+2. On only the reviewed worker, log in using the returned IQN/LUN and owned CHAP
+   session. Verify exported serial/NAA, 64 GiB capacity, no partitions, no mount
+   and no filesystem/signature with independent readback. Preserve an exclusive
+   intent receipt before formatting. An existing intent means reconcile, never
+   repeat `mkfs` after a lost response. Never use a force-format option.
+3. Create ext4 only on that newly allocated verified device. Record its actual
+   UUID and a generated service UUID marker. Mount the cold NFS subtree read-only
+   and the target only for maintenance. Copy the full config with numeric
+   ownership, links, ACLs and xattrs, excluding only the two disposable paths.
+   Check both copy-process exit statuses. Require persistent data below 70% of
+   usable ext4 capacity and compare every file/metadata entry to the independently
+   verified source inventory. Keep the original source untouched.
+4. Write `.retained-volume.json` containing only service, marker and
+   filesystem_uuid. Flush, unmount cleanly, log out only the owned session, then
+   run the normal read-only native/filesystem/SQLite-copy verifier. Preserve
+   intent and errors on failure; do not automatically repair or start Jellyfin.
+5. Only the resulting completed record can generate static bindings and the two
+   target Git revisions. Review/seal/commit these during the scheduled hold.
+
+This gate is not claimed complete by fixture tests. Actual target commit IDs,
+initialization commands with returned device identity, and post-write NFS rollback
+bindings cannot be fabricated before those live identities and restore evidence
+exist. Their preparation and review are required before target release.

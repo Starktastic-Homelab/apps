@@ -1,5 +1,7 @@
 # Application backup coverage and proposed NFS durability window
 
+**Executed after explicit user approval.** The [execution report](2026-09-21-nfs-durability-execution.md) records verified STANDARD, the completed observation and released ownership. The proposal below preserves the scope that was approved.
+
 ## Decision requested
 
 Approve a 45-minute supervised, online change of **only `apps/pv`**, from local

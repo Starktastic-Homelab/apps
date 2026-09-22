@@ -56,3 +56,379 @@ metadata:
   name: jellyfin-backup-reader
   namespace: media
 automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: jellyfin-config-iscsi
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  capacity:
+    storage: "68719476736"
+  accessModes:
+    - ReadWriteOncePod
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  volumeMode: Filesystem
+  claimRef:
+    namespace: media
+    name: jellyfin-config-iscsi
+  csi:
+    driver: org.democratic-csi.retained
+    volumeHandle: 19b50cf8-a026-408e-83df-521d13bec20b
+    fsType: ext4
+    volumeAttributes:
+      node_attach_driver: iscsi
+      provisioner_driver: node-manual
+      portal: 10.9.8.30:3260
+      iqn: iqn.2005-10.org.freenas.ctl:jellyfin
+      lun: "0"
+    nodeStageSecretRef:
+      name: retained-jellyfin-chap
+      namespace: retained-iscsi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jellyfin-config-iscsi
+  namespace: media
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  storageClassName: ""
+  volumeName: jellyfin-config-iscsi
+  accessModes:
+    - ReadWriteOncePod
+  resources:
+    requests:
+      storage: "68719476736"
+  volumeMode: Filesystem
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: retained-jellyfin-volumes
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - persistentvolumes
+  matchConditions:
+    - name: retained-scope
+      expression:
+        object.metadata.name == "jellyfin-config-iscsi" || (has(object.spec.csi) && (object.spec.csi.driver ==
+        "org.democratic-csi.retained" || (has(object.spec.csi.volumeAttributes) && 'iqn' in
+        object.spec.csi.volumeAttributes && object.spec.csi.volumeAttributes.iqn ==
+        "iqn.2005-10.org.freenas.ctl:jellyfin"))) || (has(object.spec.iscsi) && object.spec.iscsi.iqn ==
+        "iqn.2005-10.org.freenas.ctl:jellyfin")
+  validations:
+    - expression:
+        'object.metadata.name == "jellyfin-config-iscsi" && has(object.spec.csi) && object.spec.csi.driver ==
+        "org.democratic-csi.retained" && object.spec.csi.volumeHandle == "19b50cf8-a026-408e-83df-521d13bec20b" &&
+        object.spec.csi.fsType == ''ext4'' && object.spec.csi.volumeAttributes == {"node_attach_driver": "iscsi",
+        "provisioner_driver": "node-manual", "portal": "10.9.8.30:3260", "iqn": "iqn.2005-10.org.freenas.ctl:jellyfin",
+        "lun": "0"} && object.spec.csi.nodeStageSecretRef.name == ''retained-jellyfin-chap'' &&
+        object.spec.csi.nodeStageSecretRef.namespace == ''retained-iscsi'' && (!has(object.spec.csi.readOnly) ||
+        !object.spec.csi.readOnly) && !has(object.spec.csi.nodePublishSecretRef) &&
+        !has(object.spec.csi.controllerPublishSecretRef) && object.spec.persistentVolumeReclaimPolicy == ''Retain'' &&
+        (!has(object.spec.storageClassName) || object.spec.storageClassName == '''') && object.spec.accessModes ==
+        [''ReadWriteOncePod''] && object.spec.claimRef.name == "jellyfin-config-iscsi" && object.spec.claimRef.namespace
+        == "media" && object.spec.volumeMode == ''Filesystem'''
+      message: Retained storage identity or writer authorization does not match.
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: retained-jellyfin-volumes
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+spec:
+  policyName: retained-jellyfin-volumes
+  validationActions:
+    - Deny
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: retained-jellyfin-claims
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - persistentvolumeclaims
+  matchConditions:
+    - name: retained-scope
+      expression:
+        (object.metadata.namespace == "media" && object.metadata.name == "jellyfin-config-iscsi") ||
+        (has(object.spec.volumeName) && object.spec.volumeName == "jellyfin-config-iscsi")
+  validations:
+    - expression:
+        object.metadata.namespace == "media" && object.metadata.name == "jellyfin-config-iscsi" &&
+        has(object.spec.volumeName) && object.spec.volumeName == "jellyfin-config-iscsi" && object.spec.storageClassName
+        == '' && object.spec.accessModes == ['ReadWriteOncePod'] && object.spec.volumeMode == 'Filesystem'
+      message: Retained storage identity or writer authorization does not match.
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: retained-jellyfin-claims
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+spec:
+  policyName: retained-jellyfin-claims
+  validationActions:
+    - Deny
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: retained-jellyfin-labels
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - pods
+  matchConditions:
+    - name: retained-scope
+      expression:
+        object.metadata.namespace == "media" && has(object.spec.volumes) && object.spec.volumes.exists(v,
+        has(v.persistentVolumeClaim) && v.persistentVolumeClaim.claimName == "jellyfin-config-iscsi")
+  validations:
+    - expression:
+        has(object.metadata.labels) && "storage.starktastic.net/writer" in object.metadata.labels &&
+        object.metadata.labels["storage.starktastic.net/writer"] == 'jellyfin'
+      message: Retained storage identity or writer authorization does not match.
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: retained-jellyfin-labels
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+spec:
+  policyName: retained-jellyfin-labels
+  validationActions:
+    - Deny
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: retained-jellyfin-writers
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - pods
+  matchConditions:
+    - name: retained-scope
+      expression:
+        object.metadata.namespace == "media" && has(object.spec.volumes) && object.spec.volumes.exists(v,
+        has(v.persistentVolumeClaim) && v.persistentVolumeClaim.claimName == "jellyfin-config-iscsi")
+  validations:
+    - expression:
+        has(object.metadata.labels) && "storage.starktastic.net/writer" in object.metadata.labels &&
+        object.metadata.labels["storage.starktastic.net/writer"] == 'jellyfin'
+      message: Retained storage identity or writer authorization does not match.
+    - expression:
+        has(params.data) && params.data.released == 'true' && params.data.recordHash ==
+        "6515cd395753fde8bb5e4a29533d1efcc9a8d9407548b49e9957cc997d3ad5e6"
+      message: Retained storage identity or writer authorization does not match.
+    - expression:
+        has(namespaceObject.metadata.annotations) && "storage.starktastic.net/namespace-uid" in
+        namespaceObject.metadata.annotations && params.data.namespaceUID ==
+        namespaceObject.metadata.annotations["storage.starktastic.net/namespace-uid"]
+      message: Retained storage identity or writer authorization does not match.
+    - expression:
+        (!has(object.spec.nodeName) || object.spec.nodeName == '') || (request.operation == 'UPDATE' &&
+        object.spec.nodeName == params.data.hostname)
+      message: Retained storage identity or writer authorization does not match.
+    - expression:
+        has(object.spec.affinity) && has(object.spec.affinity.nodeAffinity) &&
+        has(object.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution)
+      message: Retained storage identity or writer authorization does not match.
+    - expression:
+        object.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms.size() == 1
+        &&
+        !has(object.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchFields)
+        &&
+        object.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions.size()
+        == 3
+      message: Retained storage identity or writer authorization does not match.
+    - expression:
+        object.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions.exists(e,
+        e.key == "kubernetes.io/hostname" && e.operator == 'In' && e.values == [params.data.hostname])
+      message: Retained storage identity or writer authorization does not match.
+    - expression:
+        object.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions.exists(e,
+        e.key == "storage.starktastic.net/generation" && e.operator == 'In' && e.values == [params.data.smbiosUUID])
+      message: Retained storage identity or writer authorization does not match.
+    - expression:
+        object.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions.exists(e,
+        e.key == "storage.starktastic.net/node-uid" && e.operator == 'In' && e.values == [params.data.nodeUID])
+      message: Retained storage identity or writer authorization does not match.
+  paramKind:
+    apiVersion: v1
+    kind: ConfigMap
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: retained-jellyfin-writers
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+spec:
+  policyName: retained-jellyfin-writers
+  validationActions:
+    - Deny
+  paramRef:
+    name: retained-jellyfin-authorization
+    namespace: media
+    parameterNotFoundAction: Deny
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: media
+    objectSelector:
+      matchLabels:
+        storage.starktastic.net/writer: jellyfin
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: retained-namespace-generation
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - namespaces
+  matchConditions:
+    - name: retained-scope
+      expression: object.metadata.name == "media"
+  validations:
+    - expression:
+        request.operation != 'CREATE' || !has(object.metadata.annotations) || !("storage.starktastic.net/namespace-uid"
+        in object.metadata.annotations)
+      message: Retained storage identity or writer authorization does not match.
+    - expression:
+        request.operation != 'UPDATE' || !has(object.metadata.annotations) || !("storage.starktastic.net/namespace-uid"
+        in object.metadata.annotations) || (has(oldObject.metadata.annotations) &&
+        "storage.starktastic.net/namespace-uid" in oldObject.metadata.annotations &&
+        object.metadata.annotations["storage.starktastic.net/namespace-uid"] ==
+        oldObject.metadata.annotations["storage.starktastic.net/namespace-uid"]) || request.userInfo.groups.exists(g, g
+        == 'system:masters') || request.userInfo.username == 'system:serviceaccount:retained-iscsi:storage-maintenance'
+      message: Retained storage identity or writer authorization does not match.
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: retained-namespace-generation
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+spec:
+  policyName: retained-namespace-generation
+  validationActions:
+    - Deny
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: retained-scheduler-binding
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - pods/binding
+  matchConditions:
+    - name: retained-scope
+      expression: request.namespace == "media"
+  validations:
+    - expression: request.userInfo.username == 'system:kube-scheduler'
+      message: Retained storage identity or writer authorization does not match.
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: retained-scheduler-binding
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+spec:
+  policyName: retained-scheduler-binding
+  validationActions:
+    - Deny
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: retained-jellyfin-chap
+  namespace: retained-iscsi
+spec:
+  encryptedData:
+    node.session.auth.password: AgCrFTewY8zR9DVDyvSxbiRlG1Wej49aWi/s+b//Aw/zjmn+WtNTfLzPvkhNMa5r1856f6WGgiilsNCZs78ruAQvrpTtQmk4TY5udD3NrI9HLoYU6uXwbhV+LKWKuuCHZpdkeMBEjsrNPK2Zw4SVzSKMkU/3OI7BNEQrZ95bAFxBbrpD18ldQ6x7Zi//GVgUT5Oe/X7S/scJ9SPrbWx4yKeUJGHIc1TSX3EOPQkNjHzGWcGVlD6sd1z7CUQwEd8A7tse7JsvgYts1XSVB7YaEQ4KK4zGLGaS6CgL4s1/fp2r81L9Rv3UbnHOCVWzNgrfdYCRuIAdVzFhwOoPVmP3OlNZPP2xvvw0VGrPoHxguEn4Fxu1Wy9qyTHB3ekvQ6jRQdLShRmtf18YnNCi9/YvirQM7Lgh0wLTF4RFrvucIsskX4g38nKLP01if4lOSL3sP4xunEAohH5QwbM0GmW4FnH9k+IEDPLWybl0IbpWk0wWunhN3OQAKVbH5lzkot4M638dFpMzJHT3Q3klxCp66seyi0vHw2qH7sAtTMlupMBC7au6PXUlvyu06sDYsq4EuYMBTI8DasKozsNhyB8NwUKnZIrsS4XwhamgjRw6EBuRdtg9lgOd1GZ921o1Faey30qjPQFyQGfsG215NlgoyZKkdbyxG9JUpT4+hcCFPAdg+zdqtHfdwOiG7HWgTkZOhJHjKb4xWveVrUV6UX2JpKKT
+    node.session.auth.username: AgCiKOv2TZ0jVF8lLtqvnM2nUG2+oFU3ZfvTQvzvfJ1nfjeKevNCpRPi8uZUyZo4VIqYSB887lqHE+11Gui2tr/4I0B2yfrLj74b2h/HX3wOx6mZL9+vrlg2DzrX4iltZwLa9P8zg8YoYMWgWxYgTvp4yk40tKzNaU+hYNSY3vLE3+ar69dBOGEuZLVwfsNE2wtfQzdgQHw4/nkdp0KEUZsgHfaI1r2It+0LG9ehvHAw9TVWqSWzp5yJ0XI0xovTVtaWW8ODkkOBz2xWlBFWSYQ5o+DMc04aZrPq0DXtXZhArhVI6GXM32JkJ5wbS0wPgrMxh9Q2oGOR8z9Zt6PnqepPaqfIZiteBg8xJZaFAndGOpPYCNej1rSmerc1U3ei1vVwlBpyoSxxTpByF5ZoDT2PIN83WF1cj/c/opbVVDWzdUCh03enFVUHDF4qdxrLjtS3nnouvTfPXPBgbny3YghDW6rfOPndxrH+K2XPri+De6PddL1BxT3h5FqPGcQUz1VU8RKq8a8UFMmEjIEN24dKVr8nJfngv6J8A3ap8Dq1f62qJ0uiyPeBFAzDotBsCwYjsRLzImStqXp55/KPdn9hRNfLur1pRUdZ7SwZyTL+4dRVQMQg+cpZJ/7mruHvYXvP0wAbO6mhAbK1Yrqkrr/PEciRyeK/sOSN+4iMxDGr+bpZZ5zPsJb0p1ifhVV4t2/QZlrxIuReyw==
+  template:
+    metadata:
+      name: retained-jellyfin-chap
+      namespace: retained-iscsi

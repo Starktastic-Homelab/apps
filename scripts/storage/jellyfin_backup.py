@@ -79,7 +79,12 @@ def _destination(destination):
     return destination
 
 
-def capture_stream(command, destination, metadata, source_inventory, guard=None):
+def capture_stream(command, destination, metadata, source_inventory, guard=None,
+                   bytes_source="held-live-NFS-reader"):
+    if bytes_source not in ("held-live-NFS-reader", "held-live-iscsi-readonly-mount"):
+        raise ValueError("Unreviewed backup byte source")
+    if bytes_source == "held-live-iscsi-readonly-mount" and guard is None:
+        raise ValueError("Target capture requires a live ownership/hold/mount guard")
     if (metadata.get('image') != IMAGE or metadata.get('held') is not True or metadata.get('no_writers') is not True
             or not metadata.get('source', {}).get('dataset_guid') or not metadata.get('snapshot', {}).get('guid')):
         raise ValueError('Exact held-source/image/snapshot evidence required')
@@ -116,7 +121,7 @@ def capture_stream(command, destination, metadata, source_inventory, guard=None)
             digest = hashlib.file_digest(stream, 'sha256').hexdigest()
         manifest = dict(metadata, captured_at=datetime.now(timezone.utc).isoformat(), sha256=digest,
                         inventory=source_inventory, exclusions=EXCLUSIONS,
-                        bytes_source='held-live-NFS-reader', snapshot_role='additional-recovery-point')
+                        bytes_source=bytes_source, snapshot_role='additional-recovery-point')
         # Do not claim the stream was read from a mounted snapshot.
         write_json(destination/'config.json.partial', manifest)
         os.rename(partial, archive)

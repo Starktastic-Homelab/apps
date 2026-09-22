@@ -1,9 +1,12 @@
 # Jellyfin retained-storage maintenance
 
 The approved design keeps the cluster disposable while retaining Jellyfin's
-supported SQLite backend on a dedicated TrueNAS ext4/iSCSI target. The user owns PR merges. The prerequisite platform and native NAS allocation
-are now deployed and verified; Jellyfin still uses its original NFS storage.
-See the [allocation and next-stage report](../superpowers/reports/2026-09-21-jellyfin-allocation.md).
+supported SQLite backend on a dedicated TrueNAS ext4/iSCSI target. The user owns PR merges. Jellyfin now runs on the retained iSCSI volume; initial migration and operator
+acceptance passed. The original NFS source is stale and remains preserved.
+See the [next handoff and backup window](../superpowers/reports/2026-09-22-jellyfin-handoff-window.md)
+for current status and the unapproved next-window boundary. The numbered sequence
+below records the original migration procedure; its initial-window approval
+wording is historical.
 
 ## Sequence and ownership
 

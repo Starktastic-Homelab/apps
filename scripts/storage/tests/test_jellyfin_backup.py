@@ -12,7 +12,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from jellyfin_backup import capture, capture_stream, verify_restore, verify_application, write_json, IMAGE
+from jellyfin_backup import TAR_OPTIONS, inventory, capture, capture_stream, verify_restore, verify_application, write_json, IMAGE
 
 class BackupTests(unittest.TestCase):
     def setUp(self):
@@ -34,6 +34,18 @@ class BackupTests(unittest.TestCase):
         self.assertFalse(result['application_verified'])
         self.assertFalse((self.destination/'passed.json').exists())
         self.assertEqual(os.getxattr(self.root/'restored/system.xml','user.test'),b'metadata')
+    def test_target_capture_reports_actual_source_and_requires_live_guard(self):
+        command=['tar']+TAR_OPTIONS+['-C',str(self.source),'-cf','-','.']
+        with self.assertRaises(ValueError):
+            capture_stream(command,self.destination,self.meta,inventory(self.source),
+                           bytes_source='held-live-iscsi-readonly-mount')
+        self.assertFalse(self.destination.exists())
+        archive=capture_stream(command,self.destination,self.meta,inventory(self.source),
+                               guard=lambda: None, bytes_source='held-live-iscsi-readonly-mount')
+        manifest=json.loads(archive.with_suffix('.json').read_text())
+        self.assertEqual(manifest['bytes_source'],'held-live-iscsi-readonly-mount')
+        self.assertTrue(verify_restore(archive,self.root/'target-restored')['sqlite_verified'])
+
     def test_failed_partial_producer_never_publishes(self):
         command=[sys.executable,'-c',"import sys;sys.stdout.buffer.write(b'partial');sys.exit(1)"]
         with self.assertRaises(RuntimeError):capture_stream(command,self.destination,self.meta,{})

@@ -3,7 +3,7 @@ namespace: media
 deployPhase: services
 manifests: true
 ingress:
-  enabled: true
+  enabled: false
   host: ""
   domainType: "media"
   serviceName: jellyfin-main

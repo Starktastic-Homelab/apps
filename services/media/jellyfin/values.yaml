@@ -11,6 +11,9 @@ controllers:
         resources:
           limits:
             gpu.intel.com/i915: "1"
+            ephemeral-storage: 12Gi
+          requests:
+            ephemeral-storage: 12Gi
         probes:
           liveness:
             enabled: true
@@ -37,7 +40,40 @@ controllers:
               initialDelaySeconds: 30
               failureThreshold: 60
               periodSeconds: 10
-
+    strategy: Recreate
+    pod:
+      labels:
+        storage.starktastic.net/writer: jellyfin
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - kube-worker-02
+                  - key: storage.starktastic.net/generation
+                    operator: In
+                    values:
+                      - d6c40da9-aaa5-4b5c-a9ce-70d3cfdcc4b4
+                  - key: storage.starktastic.net/node-uid
+                    operator: In
+                    values:
+                      - 63d963c8-0c04-4be8-81a3-07e8aa1cc240
+      nodeSelector:
+        storage.starktastic.net/iscsi-ready: "true"
+    initContainers:
+      disposable-dirs:
+        image:
+          repository: lscr.io/linuxserver/jellyfin
+          tag: 12.1ubu2604-ls50@sha256:51252e7a416e703cdc3cd91e8a54673a2430cc80409be8a38abe511411577b95
+        command:
+          - /bin/sh
+          - -ec
+          - mkdir -p /disposable/cache /disposable/transcodes; chown 1000:1000 /disposable/cache /disposable/transcodes
+        securityContext:
+          runAsUser: 0
 service:
   main:
     controller: main
@@ -51,12 +87,11 @@ service:
       discovery:
         port: 7359
         protocol: UDP
-
 persistence:
   config:
     enabled: false
   jellyfin-config:
-    existingClaim: jellyfin-config
+    existingClaim: jellyfin-config-iscsi
     globalMounts:
       - path: /config
   media:
@@ -65,3 +100,17 @@ persistence:
     existingClaim: jellyfin-cache
     globalMounts:
       - path: /config/cache
+    enabled: false
+  disposable:
+    enabled: true
+    type: emptyDir
+    sizeLimit: 10Gi
+    advancedMounts:
+      main:
+        main:
+          - path: /config/cache
+            subPath: cache
+          - path: /config/data/transcodes
+            subPath: transcodes
+        disposable-dirs:
+          - path: /disposable

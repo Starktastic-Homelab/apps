@@ -1,4 +1,5 @@
 import hashlib
+import base64
 import io
 import json
 import os
@@ -37,6 +38,20 @@ class BackupTests(unittest.TestCase):
         command=[sys.executable,'-c',"import sys;sys.stdout.buffer.write(b'partial');sys.exit(1)"]
         with self.assertRaises(RuntimeError):capture_stream(command,self.destination,self.meta,{})
         self.assertFalse((self.destination/'config.tar').exists())
+
+    def test_nfs_mode_projection_restores_permissions_and_preserves_raw_evidence(self):
+        from test_nfs_mode_acl import FILE644
+        (self.source/'system.xml').chmod(0o644)
+        os.setxattr(self.source/'system.xml', 'user.test', b'metadata')
+        archive=capture(self.source,self.destination,self.meta)
+        path=archive.with_suffix('.json');manifest=json.loads(path.read_text())
+        manifest['inventory']['system.xml']['xattrs']['system.nfs4_acl']=base64.b64encode(bytes.fromhex(FILE644)).decode()
+        path.write_text(json.dumps(manifest));original=path.read_bytes()
+        result=verify_restore(archive,self.root/'nfs-restored')
+        self.assertEqual(result['nfs_mode_acls_verified'],1)
+        self.assertEqual((self.root/'nfs-restored/system.xml').stat().st_mode & 0o777,0o644)
+        self.assertEqual(os.getxattr(self.root/'nfs-restored/system.xml','user.test'),b'metadata')
+        self.assertEqual(path.read_bytes(),original)
     def test_disk_full_never_publishes(self):
         with patch('jellyfin_backup.shutil.copyfileobj',side_effect=OSError('No space')):
             with self.assertRaises(OSError):capture(self.source,self.destination,self.meta)

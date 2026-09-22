@@ -224,3 +224,15 @@ This gate is not claimed complete by fixture tests. Actual target commit IDs,
 initialization commands with returned device identity, and post-write NFS rollback
 bindings cannot be fabricated before those live identities and restore evidence
 exist. Their preparation and review are required before target release.
+
+### POSIX permissions exposed through NFSv4
+
+A POSIX-backed NFS export can expose `system.nfs4_acl` as a generated projection
+of Unix permissions. Local restore filesystems cannot necessarily set this
+NFS-specific attribute. The verifier accepts only exact, byte-for-byte reviewed
+three-ALLOW-ACE projections for file modes 0600/0644 and directory modes
+0700/0755/0777. It verifies the corresponding owner/group IDs and mode normally,
+preserves all raw ACL bytes in the archive manifest, and reports the count of
+verified projections. All other xattrs still must restore exactly. Named users,
+DENY/inheritance flags, extra rights, unknown modes or malformed ACLs fail closed.
+This is not a general NFSv4-to-POSIX ACL converter.

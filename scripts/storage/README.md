@@ -133,3 +133,10 @@ arguments. It refuses a pre-existing target record before creation. A completed
 probe deletes only its own node record after successful unmount and logout.
 A configuration failure or uncertain login retains that record: reconcile the
 actual session/device state under the original maintenance owner before retrying.
+
+The CSI Secret uses the driver's `node-db.` prefix: seal
+`node-db.node.session.auth.authmethod=CHAP`,
+`node-db.node.session.auth.username`, and `node-db.node.session.auth.password`.
+Bare `node.session.auth.*` keys are ignored by the pinned node-manual driver's
+Linux NodeStageVolume path. The native probe's private credential file has a
+different format; its success alone does not verify the CSI Secret mapping.

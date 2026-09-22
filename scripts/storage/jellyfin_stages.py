@@ -66,7 +66,7 @@ def generate(repo, output, stage, record=None, node=None, passed=None, sealed_ch
         if (not sealed_chap or sealed_chap.get('kind')!='SealedSecret'
                 or sealed_chap.get('metadata',{}).get('name')!='retained-jellyfin-chap'
                 or sealed_chap['metadata'].get('namespace')!='retained-iscsi'
-                or not all(sealed_chap.get('spec',{}).get('encryptedData',{}).get(k) for k in ('node.session.auth.username','node.session.auth.password'))):
+                or not all(sealed_chap.get('spec',{}).get('encryptedData',{}).get(k) for k in ('node-db.node.session.auth.authmethod','node-db.node.session.auth.username','node-db.node.session.auth.password'))):
             raise ValueError('Actual correctly scoped sealed CHAP required')
     target=output/'services/media/jellyfin'
     shutil.copytree(source,target)

@@ -12,10 +12,10 @@ from test_identity import R
 
 class Runner:
     def __init__(self,**changes):
-        self.calls=[];self.existing=False;self.mounted=False;self.login=0;self.fs='ext4';self.uuid=R['filesystem_uuid'];self.partition=False;self.dirty=False;self.bad_db=False;self.unmount_fail=False
+        self.calls=[];self.inputs=[];self.existing=False;self.mounted=False;self.login=0;self.fs='ext4';self.uuid=R['filesystem_uuid'];self.partition=False;self.dirty=False;self.bad_db=False;self.unmount_fail=False
         self.__dict__.update(changes)
     def run(self,args,**kwargs):
-        self.calls.append(args);rc=0;out=''
+        self.calls.append(args);self.inputs.append(kwargs.get('input'));rc=0;out=''
         if args[:3]==['iscsiadm','-m','session']:rc=0 if self.existing else 21;out='tcp: [1] '+R['portal']+' '+R['iqn']
         elif args[0]=='findmnt':rc=0 if self.mounted else 1
         elif args[0]=='test':rc=1 # No stale by-path device before login.
@@ -27,7 +27,7 @@ class Runner:
         elif args[0]=='blkid':out=f'TYPE={self.fs}\nUUID={self.uuid}'
         elif args[0]=='dumpe2fs':out='Filesystem state: clean\nFilesystem features: has_journal'+(' needs_recovery' if self.dirty else '')
         elif args[0]=='mktemp':out='/var/tmp/retained-probe.owned'
-        elif args[0]=='python3':rc=1 if self.bad_db else 0;out='{"sqlite_verified":true,"marker_verified":true}'
+        elif args[0]=='python3' and args[2]==SQLITE_COPY_CHECK:rc=1 if self.bad_db else 0;out='{"sqlite_verified":true,"marker_verified":true}'
         elif args[0]=='umount':rc=1 if self.unmount_fail else 0
         return subprocess.CompletedProcess(args,rc,stdout=out,stderr='')
     def called(self,text):return any(text in a for a in self.calls)
@@ -40,6 +40,13 @@ class ProbeTests(unittest.TestCase):
         runner=Runner(existing=True)
         with self.assertRaises(RuntimeError):probe_filesystem(R,runner)
         self.assertFalse(runner.called('--op'));self.assertFalse(runner.called('--logout'))
+    def test_credentials_use_stdin_never_arguments(self):
+        runner=Runner()
+        with patch('initiator_probe.read_chap',return_value=dict(user='chap-user-private',secret='chap-password-private')):
+            probe_filesystem(R,runner)
+        self.assertFalse(any('chap-password-private' in str(a) or 'chap-user-private' in str(a) for a in runner.calls))
+        self.assertTrue(any(v and 'chap-password-private' in v for v in runner.inputs))
+
     def test_login_15_is_not_owned(self):
         runner=Runner(login=15)
         with self.assertRaises(RuntimeError):probe_filesystem(R,runner)

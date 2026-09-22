@@ -126,3 +126,10 @@ verify that clone's returned native identities and filesystem state, and perform
 an independent restore test before authorizing it. Never overwrite or roll back
 the active production ZVOL automatically. Keep original target and source until
 an explicit cleanup decision.
+
+The initiator probe configures CHAP through SSH stdin and a private, fsynced
+Debian node record under `/var/lib/iscsi/nodes`; credentials never enter command
+arguments. It refuses a pre-existing target record before creation. A completed
+probe deletes only its own node record after successful unmount and logout.
+A configuration failure or uncertain login retains that record: reconcile the
+actual session/device state under the original maintenance owner before retrying.

@@ -7,6 +7,8 @@ import subprocess
 from maintenance import require_maintenance
 from onboard import read_chap
 
+NODE_CREDENTIALS = Path(__file__).with_name("node_credentials.py").read_text()
+
 # Executed on the selected worker against a read-only mount. SQLite opens only
 # private DB+WAL copies, never the mounted source.
 SQLITE_COPY_CHECK = r'''
@@ -58,10 +60,10 @@ def probe_filesystem(record, runner):
     if not record.get('filesystem_uuid') or not record.get('marker'):
         raise ValueError('Existing filesystem UUID and service marker are required')
 
-    def run(args, allowed=(0,), mutation=False):
+    def run(args, allowed=(0,), mutation=False, **kwargs):
         if mutation:
             require_maintenance()
-        result = runner.run(args)
+        result = runner.run(args, **kwargs)
         if result.returncode not in allowed:
             # Never log iscsiadm auth arguments or remote stderr.
             raise RuntimeError('Retained probe command failed: ' + args[0])
@@ -75,10 +77,10 @@ def probe_filesystem(record, runner):
         raise RuntimeError('Existing mount prevents probe node-record changes')
     base = ['iscsiadm', '-m', 'node', '-T', record['iqn'], '-p', record['portal']]
     chap = read_chap()
+    run(['python3', '-c', NODE_CREDENTIALS, 'check', record['iqn'], record['portal']])
     run(base + ['--op', 'new'], mutation=True)
-    for key, value in [('node.session.auth.authmethod', 'CHAP'), ('node.session.auth.username', chap['user']),
-                       ('node.session.auth.password', chap['secret']), ('node.startup', 'manual')]:
-        run(base + ['--op', 'update', '-n', key, '-v', value], mutation=True)
+    run(['python3', '-c', NODE_CREDENTIALS, 'configure', record['iqn'], record['portal']],
+        mutation=True, input=json.dumps(chap))
     # Exit 15 means an existing session, not ownership. Never logout after it.
     run(base + ['--login'], mutation=True)
     mounted = False
@@ -122,3 +124,4 @@ def probe_filesystem(record, runner):
         if directory:
             run(['rmdir', directory], mutation=True)
         run(base + ['--logout'], mutation=True)
+        run(base + ['--op', 'delete'], mutation=True)

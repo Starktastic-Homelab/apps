@@ -1,6 +1,6 @@
 controllers:
   main:
-    replicas: 1
+    replicas: 0
     containers:
       main:
         image:
@@ -52,15 +52,15 @@ controllers:
                   - key: kubernetes.io/hostname
                     operator: In
                     values:
-                      - kube-worker-02
+                      - kube-worker-01
                   - key: storage.starktastic.net/generation
                     operator: In
                     values:
-                      - d6c40da9-aaa5-4b5c-a9ce-70d3cfdcc4b4
+                      - 8b2aa6c7-b54f-4323-9900-bdbb85098f62
                   - key: storage.starktastic.net/node-uid
                     operator: In
                     values:
-                      - 63d963c8-0c04-4be8-81a3-07e8aa1cc240
+                      - ed4cb64c-0c87-414e-9538-110650ba2f34
       nodeSelector:
         storage.starktastic.net/iscsi-ready: "true"
     initContainers:

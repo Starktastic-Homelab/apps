@@ -39,6 +39,19 @@ def runner(node):
     return SSHRunner(node['ssh_host'], PRIVATE/'worker-key', PRIVATE/'worker-known-hosts')
 
 
+def verify_recovered_chap(data, expected):
+    required = {'node-db.node.session.auth.authmethod': 'CHAP',
+                'node-db.node.session.auth.username': expected['user'],
+                'node-db.node.session.auth.password': expected['secret']}
+    try:
+        matches = all(base64.b64decode(data.get(key, ''), validate=True).decode() == value
+                      for key, value in required.items())
+    except (ValueError, UnicodeError):
+        matches = False
+    if not matches:
+        raise ValueError('Recovered CSI CHAP configuration differs from the verified target')
+
+
 def observe_release(nas, record):
     """Construct release evidence from live reads, never from a supplied passed=true JSON."""
     require_maintenance()
@@ -70,12 +83,7 @@ def observe_release(nas, record):
     if authorization.get('data', {}).get('released') != 'false':
         raise ValueError('Placement changes require an existing closed authorization')
     chap = kube('-n', 'retained-iscsi', 'get', 'secret', 'retained-jellyfin-chap', '-o', 'json')
-    if not all(chap.get('data', {}).get(k) for k in ('node.session.auth.username', 'node.session.auth.password')):
-        raise ValueError('Sealed CHAP has not recovered')
-    expected_chap = read_chap()
-    if any(base64.b64decode(chap['data'][key]).decode() != expected_chap[field]
-           for key, field in [('node.session.auth.username', 'user'), ('node.session.auth.password', 'secret')]):
-        raise ValueError('Recovered CHAP differs from the verified target credential')
+    verify_recovered_chap(chap.get('data', {}), read_chap())
     previous = placement['previous']
     old_runner = runner(previous)
     if placement['old_writer_mode'] == 'clean-unmount':

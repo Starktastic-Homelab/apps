@@ -8,6 +8,7 @@ from pathlib import Path, PurePosixPath
 import shutil
 import sqlite3
 import stat
+import struct
 import subprocess
 import tarfile
 import threading
@@ -156,6 +157,27 @@ def _safe_member(member, destination):
     return member
 
 
+def portable_entry(entry):
+    """Recognize only reviewed Linux NFS mode projections; retain raw archive ACLs."""
+    attrs = dict(entry['xattrs'])
+    if 'system.nfs4_acl' in attrs:
+        allowed = {'file': (0o600, 0o644), 'directory': (0o700, 0o755, 0o777)}
+        if entry['mode'] not in allowed.get(entry['type'], ()):
+            raise ValueError('Unreviewed NFS ACL mode; cannot translate permissions')
+        expected = struct.pack('>I', 3)
+        for who, shift, base in [(b'OWNER@', 6, 0x160180), (b'GROUP@', 3, 0x120080),
+                                 (b'EVERYONE@', 0, 0x120080)]:
+            bits = (entry['mode'] >> shift) & 7
+            mask = base | (1 if bits & 4 else 0) | (0x20 if bits & 1 else 0)
+            if bits & 2:
+                mask |= 6 | (0x40 if entry['type'] == 'directory' else 0)
+            expected += struct.pack('>IIII', 0, 0, mask, len(who)) + who + b'\0' * (-len(who) % 4)
+        if base64.b64decode(attrs['system.nfs4_acl'], validate=True) != expected:
+            raise ValueError('NFS ACL differs from exact reviewed mode projection')
+        del attrs['system.nfs4_acl']
+    return dict(entry, xattrs=attrs)
+
+
 def verify_restore(archive: Path, scratch: Path) -> dict:
     archive = Path(archive); scratch = Path(scratch).absolute()
     manifest = json.loads(archive.with_suffix('.json').read_text())
@@ -170,7 +192,7 @@ def verify_restore(archive: Path, scratch: Path) -> dict:
             tar.extractall(scratch, filter=_safe_member, numeric_owner=True)
     except (tarfile.TarError, EOFError, OSError):
         raise ValueError('Archive is truncated or could not preserve metadata') from None
-    expected = manifest['inventory']
+    expected = {name: portable_entry(entry) for name, entry in manifest['inventory'].items()}
     actual = inventory(scratch)
     if set(actual) != set(expected):
         raise ValueError('Missing or extra restored configuration/plugin files')
@@ -195,6 +217,7 @@ def verify_restore(archive: Path, scratch: Path) -> dict:
         checked += 1
     if not checked: raise ValueError('No SQLite database verified')
     return {'files_verified': True, 'sqlite_verified': True, 'application_verified': False,
+            'nfs_mode_acls_verified': sum('system.nfs4_acl' in e['xattrs'] for e in manifest['inventory'].values()),
             'archive_sha256': manifest['sha256']}
 
 

@@ -1,0 +1,354 @@
+{
+  "phase": "final-state",
+  "ca_sha256": "e460a6e41b92cdbf6d3b2639a0c690f5904879c9c1d9b9c08304a482f724165e",
+  "nodes": {
+    "iscsi-lab-server-6c168a2e": "9c8f61ae-9621-4af1-8161-a9fc7feed0ef",
+    "iscsi-lab-worker-a-6c168a2e": "67183699-b7f8-4567-addf-6199ffc52311",
+    "iscsi-lab-worker-b-6c168a2e": "cf609ba1-4960-434d-b6d3-b520e3fe9b09"
+  },
+  "pv": {
+    "static-service-a": "2568c1dc-fad5-42e2-9730-8d963166a1e5",
+    "static-service-b": "5e811b54-0377-4aef-a8dd-7090f551eadb"
+  },
+  "pvc -n iscsi-fixture": {
+    "service-a": "8c53d472-a8b2-4b6c-9e13-3b9b8ace5766",
+    "service-b": "61ad4f85-d3cb-4bba-a3b2-56f96c742048"
+  },
+  "zvols": {
+    "iscsi_lab/volumes/blank-probe": "7626720058537866970",
+    "iscsi_lab/volumes/service-a": "6253329045690822869",
+    "iscsi_lab/volumes/snapshot-restore-a": "15766227262448048091",
+    "iscsi_lab/volumes/service-b": "16588590146616901328"
+  },
+  "acknowledgements": [
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "initial-0",
+      "value": "20be503991e9c491ff804560e925213ee3dbc1ce44fb817bb28f4a3eefea4ceb"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "initial-1",
+      "value": "aaf7fd9c58cd2e282e7efade4412fd6512f63b61ece0ce57ed5d92357be89135"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "initial-2",
+      "value": "96712afd88907ea0362495418dbf4120147f11076484fe765928b0579714f31e"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "initial-3",
+      "value": "bd01721017ff2b5bd397f0d9bd6759901cc95737c2dec3410a6e64d5e7e07a17"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "initial-4",
+      "value": "c5986594d3e518afa3f2ef7b8a48d5ff4989df458a2ac98daade2482cc7dfe59"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "initial-0",
+      "value": "9a60a4ef5665fec4f0687c65253743342bdbdbc40ce188b9316b68388a7d6ae0"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "initial-1",
+      "value": "46cf8208d38dd34879f6c05b9ef0ef7e8d09b66c5829bae3d3058239883355f5"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "initial-2",
+      "value": "3e879f57f3d707272e70cab38008f79efbdd3c5369e59bd285608eeae775894f"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "initial-3",
+      "value": "7a13373b3fa99fb8e1b3469f02e9550fe3715512bb9443f84bd6c2705e1099ea"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "initial-4",
+      "value": "286d1ab20da3422942443139101f4d4ddcf2f40452cc6d39277381d142589afe"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "post-drain-0",
+      "value": "4fb7c95d8c6b59a4dd07bddb8dcb5e99bc8644ddf509a2195f47f1ed22c85fbd"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "post-drain-1",
+      "value": "fa7283222b076321bec79ceee9af8f6f9f933433a8750270ed9739e04ba24f6e"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "post-drain-2",
+      "value": "d7dde3917f2234216b214abdb899392566dd69738a4bdf7ec85ae0a9eaf5c77e"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "post-drain-3",
+      "value": "4aa5b2f5051ec1a9d9cdb158e4dde20a6254b6e1cda3fc145e85e559a4ba73df"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "post-drain-4",
+      "value": "d37cf239951ec7d0b06c936c4fcba0de2b9b64b4c6ed42265f1f4cd929863672"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "post-drain-0",
+      "value": "3753252342b23480c984c7845c0aa5359b2b2c74028dd8a1ce4357b233880cdb"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "post-drain-1",
+      "value": "00b2a47cbc7af735c156e670062930a304989535b5af0d859b5df9d14938d11a"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "post-drain-2",
+      "value": "cfecf594d8094dcba9e7cd1177aedc5bfea35d283c909b25747596dd5c856feb"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "post-drain-3",
+      "value": "40ca94aa2d23ed3882055e9fdf4b8ea042c7c335ed474eaecdbaa487a0076097"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "post-drain-4",
+      "value": "60e1fa7f99bee1c7b45ad908a158b39bd0e192f2978940e1e1ba3ee63997e7be"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "partition-witness",
+      "value": "cfab62b121777f1d25e6d0ff284cee064857a3fadfcf1315e9c97e671c9a44c0"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "partition-witness",
+      "value": "ac412a3847039a909dd58175f1dd0080d8a8d188d3f9d98f7b4a87263f91a51f"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "post-fence-0",
+      "value": "c36a3bc7b71276ec42395f9853fe1308f7567e4938ac1caa6393efb5a5e9eaa2"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "post-fence-1",
+      "value": "1eea189374c1b04456ac5b7d81d3edbfdf6c48961374967026e1cfc2af661820"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "post-fence-2",
+      "value": "3a7bff505dd1a3ec0093f602cd434b6eec503b5642638d9a7511bfdc4a1388e7"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "post-fence-3",
+      "value": "1c555d8915772d8ca35ccccec2cac5dce6c5035a7e261e4fd71c1e6aed7593fc"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "post-fence-4",
+      "value": "2def262572b7f3ef447c65122d2f7044ed206930f58c4c908d74cc6be791cb32"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "post-fence-0",
+      "value": "37f1b7225dde2c197f2112ca911f1fa7ae0220f20035834e4f606fc6a958ba43"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "post-fence-1",
+      "value": "0ae50d573527fecbec8784b30bd00cf7286b0ec7d662ee192b2b0ab1b042be4a"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "post-fence-2",
+      "value": "c24c0be981c937609dc208c25d36054f204c203a91075d2d8c485c4c1abf2242"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "post-fence-3",
+      "value": "44516070c53f4a3698541f6ca6c4f47d9db96842eac035932cc3e7f6d0b030bd"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "post-fence-4",
+      "value": "b9255a64a1ed65518a520beae22c490b20f215d2511863fbf242fc97352db541"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "rebuild-1-0",
+      "value": "e4d91fe5ed563cc596556ac569160be892a4afc1a8e0cc6d94a42055a0f17e6d"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "rebuild-1-1",
+      "value": "51663feb70c47bf6eeaf6e6c62f7783406ab835a519540424325f088e4b8cc09"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "rebuild-1-2",
+      "value": "e439271b5be2fe40730e3a35cfafa4b2a8755df1efbcdb54de4416d033dfd706"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "rebuild-1-3",
+      "value": "551c85c526561738504b2b8da769175f7ad6554851acc093103daf4a528d5739"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "rebuild-1-4",
+      "value": "5c2074e6a2363de38c6e22f2f425b39cecab33f7a8cb13e95dd53d6ad1c43a61"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "rebuild-1-0",
+      "value": "8f03dc4f7b4ff886aacf81c12d804d431b44d362ba6ecac6e7d015cafb243fe4"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "rebuild-1-1",
+      "value": "e02a9ad881a4a24b454c9fea9a1f8b8cf3f446b0a75c956f965a6c7de18be289"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "rebuild-1-2",
+      "value": "32ffc2a9048be75e7842824e8325f089c7b2409a587e88810022d98a50d3701d"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "rebuild-1-3",
+      "value": "76c56ec1c55171e05de89ad0b316fd483f96ecb2d649ccd9748c62eea624fe8f"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "rebuild-1-4",
+      "value": "ab8c4d4f58bfa4375fa3d52eef442f55cf4ab9bf3f8d74d25a5fd7579033bc7b"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "rebuild-2-0",
+      "value": "3eeb175576ffeb1d0597028480a6944c722b58fc25516dac200ea31b6aa47dc2"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "rebuild-2-1",
+      "value": "768d7fc9395c9974e88f9e673aa068983e2ee5f9d5bd6e710224874791fd4812"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "rebuild-2-2",
+      "value": "db276f3bb10bdf431446f5da43e380891d7e54ec19ba7506b4c2a3bf9b6c9c9e"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "rebuild-2-3",
+      "value": "3588983b6592433f3470c31eadcc10f4be2bd7ebc332680b4b06aae2e556f5cf"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "rebuild-2-4",
+      "value": "fb4fb2b2e505b1ae58b441bef91c7233c71121f07c9a3705d87b682dfca87216"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "rebuild-2-0",
+      "value": "74e0e8235e8699efa1305cf1aba0a8e77caaf9bf0d1f1e7f0b99ad4e0047b0f5"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "rebuild-2-1",
+      "value": "2aaf724ccd6dff590db6c8165a008f875bdc6575696b2e0de5754470dfc78ca3"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "rebuild-2-2",
+      "value": "1d0d7b697f222bce0120dfb1b6563fcad8287601307776ba91e78255f0a84b84"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "rebuild-2-3",
+      "value": "6f61774197eafc00e5909e2fbe23edcc3c948bbd3f2b0cedf71c23de2fda7f9e"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "rebuild-2-4",
+      "value": "880d1a0941cbe1a99f2ccc55520131e51d5c4f5b3b07e3858df194c1db898548"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "post-expansion-0",
+      "value": "2685379f473fc018ae8a35ad2d6a7c8b445eedb3f3ace6401ac24cf6a8b9fb44"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "post-expansion-1",
+      "value": "c5ea9ce5cdfb224555d2cd549f6503afa74c3dcaf81ccc6cce12651cd3d37c77"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "post-expansion-2",
+      "value": "d3b133d976e801ed1fbb389fb98a2c1f784851c096ed11d5ff5c02a122cad36f"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "post-expansion-3",
+      "value": "ea78b9244063f34f3d78943c64612435205ddecbe92e0101c21705670123ede1"
+    },
+    {
+      "marker": "7108c096-03c4-4026-8fb9-ee51bffcf562",
+      "id": "post-expansion-4",
+      "value": "a029528d4a3ef09249173f3202c7d360e74348e2a65d35c6a925db82666641d8"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "post-expansion-0",
+      "value": "92383da3c0395f28b28319af8095374d300b6ff59b397ba1ff16757b5d9fe155"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "post-expansion-1",
+      "value": "70a48d8a50ebf1c56ad78fea4751920976c2a0cd15eb9870be54170dcc9d6ab8"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "post-expansion-2",
+      "value": "8620ed8bfc60d865e9c408f9cab7057177c999e55cc8e2fcf193e5886851a4db"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "post-expansion-3",
+      "value": "cb5b32f0ef1ff38869ed61295ef8f8db69737496806ae276d3c8cc68c62fa408"
+    },
+    {
+      "marker": "7975bf75-5486-439a-bd1e-3d6f099674d0",
+      "id": "post-expansion-4",
+      "value": "7af8352e9463af262245f83e79fe5bd4fab0c928b91a2d58ffb28c18a9975476"
+    }
+  ],
+  "argo": {
+    "comparedTo": {
+      "destination": {
+        "namespace": "iscsi-fixture",
+        "server": "https://kubernetes.default.svc"
+      },
+      "source": {
+        "path": "manifests",
+        "repoURL": "git://fixture-git.iscsi-fixture.svc.cluster.local:9418/fixture.git",
+        "targetRevision": "main"
+      }
+    },
+    "revision": "d66f63bc5e08093f9642a5b31fe80d5df97601b2",
+    "status": "Synced"
+  },
+  "capacities": {
+    "service-a": "3Gi",
+    "service-b": "2Gi"
+  }
+}

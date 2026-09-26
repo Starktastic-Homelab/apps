@@ -1,0 +1,50 @@
+{
+  "captured_at": 1789941976.8126695,
+  "cleanup_checks": {
+    "lab_vm_configs_absent": true,
+    "lab_disks_absent": true,
+    "bridges_absent": true,
+    "nft_table_absent": true,
+    "isos_absent": true,
+    "units_inactive": true
+  },
+  "host_available_bytes": 31473135616,
+  "storage": "Name             Type     Status     Total (KiB)      Used (KiB) Available (KiB)        %\nlocal             dir     active       197662464       172554880        25107584   87.30%\nlocal-zfs     zfspool     active        53358620        28251008        25107612   52.95%\nvm-pool       zfspool     active       483655680       340912412       142743268   70.49%\n",
+  "production_vms": {
+    "100": {
+      "name": "truenas",
+      "smbios1": "uuid=e6895d73-d782-46fb-951c-2f88405a14d8",
+      "memory": "32768"
+    },
+    "200": {
+      "name": "kube-master-01",
+      "smbios1": "uuid=459b5ce3-d527-4edb-9617-206b50476a3f",
+      "memory": "16384"
+    },
+    "201": {
+      "name": "kube-worker-01",
+      "smbios1": "uuid=8b2aa6c7-b54f-4323-9900-bdbb85098f62",
+      "memory": "20480"
+    },
+    "202": {
+      "name": "kube-worker-02",
+      "smbios1": "uuid=d6c40da9-aaa5-4b5c-a9ce-70d3cfdcc4b4",
+      "memory": "20480"
+    },
+    "300": {
+      "name": "runner",
+      "smbios1": "uuid=cc1aeeb7-4827-466c-9d4b-5dc6c881f193",
+      "memory": "4096"
+    }
+  },
+  "runner_service": "active",
+  "cleanup_receipt": {
+    "at": 1789941876.1726909,
+    "output": "purging VM 913 from related configurations..\npurging VM 912 from related configurations..\npurging VM 911 from related configurations..\npurging VM 910 from related configurations..\n{\"removed_vm_ids\": [910, 911, 912, 913], \"removed_bridges\": [\"ilabctl0\", \"ilabstor0\"], \"removed_nft_table\": \"iscsi_lab_20260920_1d3e8de3\"}\n"
+  },
+  "host_staging_removed": "/var/lib/vz/iscsi-lab-20260920-1d3e8de3",
+  "storage_after_staging_removal": "Name             Type     Status     Total (KiB)      Used (KiB) Available (KiB)        %\nlocal             dir     active       197662464       172554880        25107584   87.30%\nlocal-zfs     zfspool     active        53358596        28250900        25107696   52.95%\nvm-pool       zfspool     active       483655680       340911764       142743916   70.49%\n",
+  "local_private_runtime_removed": true,
+  "downloaded_artifacts_removed": true,
+  "lab_tunnel_listeners_closed": true
+}

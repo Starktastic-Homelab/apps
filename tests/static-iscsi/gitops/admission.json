@@ -1,0 +1,104 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "admissionregistration.k8s.io/v1",
+      "kind": "ValidatingAdmissionPolicy",
+      "metadata": {
+        "name": "iscsi-lab-claims",
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "-4"
+        }
+      },
+      "spec": {
+        "failurePolicy": "Fail",
+        "matchConstraints": {
+          "resourceRules": [
+            {
+              "apiGroups": [""],
+              "apiVersions": ["v1"],
+              "operations": ["CREATE", "UPDATE"],
+              "resources": ["persistentvolumeclaims"]
+            }
+          ]
+        },
+        "matchConditions": [
+          {
+            "name": "retained-storage",
+            "expression": "object.metadata.namespace == 'iscsi-fixture' || (has(object.spec.volumeName) && object.spec.volumeName in ['static-service-a','static-service-b'])"
+          }
+        ],
+        "validations": [
+          {
+            "expression": "(has(object.spec.volumeName) && object.metadata.namespace == 'iscsi-fixture' && object.metadata.name == \"service-a\" && object.spec.storageClassName == '' && object.spec.volumeName == \"static-service-a\" && object.spec.accessModes == ['ReadWriteOncePod']) || (has(object.spec.volumeName) && object.metadata.namespace == 'iscsi-fixture' && object.metadata.name == \"service-b\" && object.spec.storageClassName == '' && object.spec.volumeName == \"static-service-b\" && object.spec.accessModes == ['ReadWriteOncePod'])",
+            "message": "Retained storage must match the captured service binding; dynamic onboarding is closed."
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "admissionregistration.k8s.io/v1",
+      "kind": "ValidatingAdmissionPolicyBinding",
+      "metadata": {
+        "name": "iscsi-lab-claims",
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "-4"
+        }
+      },
+      "spec": {
+        "policyName": "iscsi-lab-claims",
+        "validationActions": ["Deny"]
+      }
+    },
+    {
+      "apiVersion": "admissionregistration.k8s.io/v1",
+      "kind": "ValidatingAdmissionPolicy",
+      "metadata": {
+        "name": "iscsi-lab-volumes",
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "-4"
+        }
+      },
+      "spec": {
+        "failurePolicy": "Fail",
+        "matchConstraints": {
+          "resourceRules": [
+            {
+              "apiGroups": [""],
+              "apiVersions": ["v1"],
+              "operations": ["CREATE", "UPDATE"],
+              "resources": ["persistentvolumes"]
+            }
+          ]
+        },
+        "matchConditions": [
+          {
+            "name": "retained-storage",
+            "expression": "(has(object.spec.csi) && object.spec.csi.driver == 'org.democratic-csi.static-lab') || object.metadata.name in [\"static-service-a\", \"static-service-b\"]"
+          }
+        ],
+        "validations": [
+          {
+            "expression": "(object.metadata.name == \"static-service-a\" && object.spec.csi.driver == \"org.democratic-csi.static-lab\" && object.spec.csi.volumeHandle == \"7108c096-03c4-4026-8fb9-ee51bffcf562\" && object.spec.csi.fsType == 'ext4' && object.spec.csi.volumeAttributes == {\"node_attach_driver\": \"iscsi\", \"provisioner_driver\": \"node-manual\", \"portal\": \"172.30.91.10:3260\", \"iqn\": \"iqn.2026-09.lab.static:service-a\", \"lun\": \"0\"} && object.spec.csi.nodeStageSecretRef.name == 'static-iscsi-chap' && object.spec.csi.nodeStageSecretRef.namespace == 'static-iscsi-system' && object.spec.persistentVolumeReclaimPolicy == 'Retain' && (!has(object.spec.storageClassName) || object.spec.storageClassName == '') && object.spec.accessModes == ['ReadWriteOncePod'] && object.spec.claimRef.name == \"service-a\" && object.spec.claimRef.namespace == 'iscsi-fixture') || (object.metadata.name == \"static-service-b\" && object.spec.csi.driver == \"org.democratic-csi.static-lab\" && object.spec.csi.volumeHandle == \"7975bf75-5486-439a-bd1e-3d6f099674d0\" && object.spec.csi.fsType == 'ext4' && object.spec.csi.volumeAttributes == {\"node_attach_driver\": \"iscsi\", \"provisioner_driver\": \"node-manual\", \"portal\": \"172.30.91.10:3260\", \"iqn\": \"iqn.2026-09.lab.static:service-b\", \"lun\": \"0\"} && object.spec.csi.nodeStageSecretRef.name == 'static-iscsi-chap' && object.spec.csi.nodeStageSecretRef.namespace == 'static-iscsi-system' && object.spec.persistentVolumeReclaimPolicy == 'Retain' && (!has(object.spec.storageClassName) || object.spec.storageClassName == '') && object.spec.accessModes == ['ReadWriteOncePod'] && object.spec.claimRef.name == \"service-b\" && object.spec.claimRef.namespace == 'iscsi-fixture')",
+            "message": "Retained storage must match the captured service binding; dynamic onboarding is closed."
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "admissionregistration.k8s.io/v1",
+      "kind": "ValidatingAdmissionPolicyBinding",
+      "metadata": {
+        "name": "iscsi-lab-volumes",
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "-4"
+        }
+      },
+      "spec": {
+        "policyName": "iscsi-lab-volumes",
+        "validationActions": ["Deny"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "lastProbeTime": null,
+  "lastTransitionTime": "2026-09-21T00:48:48Z",
+  "message": "0/3 nodes are available: 1 node(s) had untolerated taint(s), 2 node(s) unavailable due to PersistentVolumeClaim with ReadWriteOncePod access mode already in-use by another pod. preemption: 0/3 nodes are available: 1 Preemption is not helpful for scheduling, 2 No preemption victims found for incoming pod.",
+  "observedGeneration": 1,
+  "reason": "Unschedulable",
+  "status": "False",
+  "type": "PodScheduled"
+}

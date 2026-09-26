@@ -1,0 +1,28 @@
+{
+  "pull_request": "https://github.com/Starktastic-Homelab/terraform/pull/222",
+  "head_sha": "71cd3b8b60a8fab9c86af3a253f9a94df6dd5eb4",
+  "run_id": "35532466520",
+  "terraform_version": "1.16.3",
+  "resource_changes": [
+    {
+      "address": "module.worker_nodes[0].proxmox_vm_qemu.vm",
+      "vmid": 201,
+      "actions": ["update"],
+      "memory_before_mib": 28672,
+      "memory_after_mib": 20480,
+      "changed_paths": ["memory"]
+    },
+    {
+      "address": "module.worker_nodes[1].proxmox_vm_qemu.vm",
+      "vmid": 202,
+      "actions": ["update"],
+      "memory_before_mib": 28672,
+      "memory_after_mib": 20480,
+      "changed_paths": ["memory"]
+    }
+  ],
+  "resource_drift": [],
+  "outputs_changed": [],
+  "plan_upload_conclusion": "success",
+  "sensitive_artifact_handling": "Raw saved plan inspected in memory from a private temporary directory and deleted afterward."
+}

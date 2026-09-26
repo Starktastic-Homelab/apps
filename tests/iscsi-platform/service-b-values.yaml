@@ -1,0 +1,46 @@
+controllers:
+  main:
+    containers:
+      main:
+        command:
+          - python
+          - /fixture/fixture.py
+          - serve
+        env:
+          SERVICE_MARKER: acf2d3d9-d886-4e8e-8a29-c2e2d13ae61a
+        image:
+          pullPolicy: IfNotPresent
+          repository: docker.io/library/python
+          tag: 3.13-alpine@sha256:f3ebba2ace255c93267a0278da88c7f1044432991abc4e6ad20d22e34dd0f8ee
+        probes:
+          readiness:
+            custom: true
+            enabled: true
+            spec:
+              exec:
+                command:
+                  - python
+                  - /fixture/fixture.py
+                  - verify
+              periodSeconds: 10
+        resources:
+          limits:
+            memory: 96Mi
+          requests:
+            cpu: 10m
+            memory: 24Mi
+    pod:
+      automountServiceAccountToken: false
+    replicas: 1
+    type: statefulset
+persistence:
+  data:
+    existingClaim: service-b
+    globalMounts:
+      - path: /data
+  fixture:
+    globalMounts:
+      - path: /fixture
+        readOnly: true
+    name: sqlite-fixture
+    type: configMap

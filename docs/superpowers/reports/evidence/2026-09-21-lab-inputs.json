@@ -1,0 +1,26 @@
+[
+  {
+    "name": "TrueNAS-SCALE-25.10.6.iso",
+    "url": "https://download.sys.truenas.net/TrueNAS-SCALE-Goldeye/25.10.6/TrueNAS-SCALE-25.10.6.iso",
+    "sha256": "a204bc92f280cb20032125981cbbdd7f126aab533b2fae4b4e37bc177019cf3b",
+    "bytes": 2338797568
+  },
+  {
+    "name": "k3s",
+    "url": "https://github.com/k3s-io/k3s/releases/download/v1.37.0%2Bk3s1/k3s",
+    "sha256": "39eed8f53f277497dfc2542f66eab0ed68a94dfc598946dbebfb50366916c7a2",
+    "bytes": 81522850
+  },
+  {
+    "name": "k3s-airgap-images-amd64.tar.zst",
+    "url": "https://github.com/k3s-io/k3s/releases/download/v1.37.0%2Bk3s1/k3s-airgap-images-amd64.tar.zst",
+    "sha256": "0b4ff0d6e233de54be4e16cb5aa298fd53ad88f66ad8ae31093b5ef4dcefcdd0",
+    "bytes": 194444184
+  },
+  {
+    "name": "democratic-csi-0.15.1.tgz",
+    "url": "https://github.com/democratic-csi/charts/releases/download/democratic-csi-0.15.1/democratic-csi-0.15.1.tgz",
+    "sha256": "3d87e129cea46d49d810e9e5085b61d06c01a313bcf92160e3d106adc30426ed",
+    "bytes": 14204
+  }
+]

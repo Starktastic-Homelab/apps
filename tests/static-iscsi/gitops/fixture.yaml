@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sqlite-fixture
+  namespace: iscsi-fixture
+data:
+  fixture.py: "\"\"\"Synthetic SQLite fixture: normal startup cannot create a database.\"\
+    \"\"\nimport hashlib\nimport json\nimport os\nimport pathlib\nimport sqlite3\n\
+    import signal\nimport sys\nimport time\nfrom lifecycle import verify_database\n\
+    \npath = pathlib.Path('/data/catalog.sqlite')\nmarker = os.environ['SERVICE_MARKER']\n\
+    mode = sys.argv[1]\nif mode == 'initialize':\n    if path.exists() or any(p.name\
+    \ != 'lost+found' for p in path.parent.iterdir()):\n        raise SystemExit('Initialization\
+    \ requires verified empty storage')\n    connection = sqlite3.connect(path)\n\
+    \    connection.execute('pragma journal_mode=WAL')\n    connection.execute('pragma\
+    \ synchronous=FULL')\n    connection.execute('create table identity(marker text\
+    \ not null)')\n    connection.execute('insert into identity values(?)', (marker,))\n\
+    \    connection.execute('create table transactions(id text primary key, value\
+    \ text not null)')\n    connection.commit()\n    connection.close()\nelse:\n \
+    \   verify_database(path, marker)\n    connection = sqlite3.connect(path.resolve().as_uri()\
+    \ + '?mode=rw', uri=True, timeout=20)\n    connection.execute('pragma synchronous=FULL')\n\
+    \    if mode == 'write':\n        tx = sys.argv[2]\n        value = hashlib.sha256((marker\
+    \ + ':' + tx).encode()).hexdigest()\n        connection.execute('insert or ignore\
+    \ into transactions values(?,?)', (tx, value))\n        connection.commit()\n\
+    \        assert connection.execute('select value from transactions where id=?',\
+    \ (tx,)).fetchone() == (value,)\n        print(json.dumps({'marker': marker, 'id':\
+    \ tx, 'value': value}), flush=True)\n    elif mode == 'verify':\n        rows\
+    \ = connection.execute('select id,value from transactions order by id').fetchall()\n\
+    \        assert all(v == hashlib.sha256((marker+':'+k).encode()).hexdigest() for\
+    \ k,v in rows)\n        print(json.dumps({'marker': marker, 'integrity': 'ok',\
+    \ 'rows': rows}))\n    elif mode == 'backup':\n        with sqlite3.connect('/tmp/backup.sqlite')\
+    \ as backup:\n            connection.backup(backup)\n        print('Backup complete')\n\
+    \    elif mode == 'serve':\n        signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))\n\
+    \        print('Verified existing catalog', flush=True)\n        connection.close()\n\
+    \        while True:\n            time.sleep(30)\n    else:\n        raise SystemExit('Unknown\
+    \ operation')\n"
+  lifecycle.py: "\"\"\"Small fail-closed helpers for the isolated retained-volume\
+    \ rehearsal.\"\"\"\nimport copy\nimport pathlib\nimport sqlite3\n\nDRIVER = 'org.democratic-csi.iscsi-lab'\n\
+    ATTRIBUTES = {'iqn', 'lun', 'portal', 'portals', 'interface', 'node_attach_driver',\n\
+    \              'provisioner_driver', 'provisioner_driver_instance_id',
+    'storage.kubernetes.io/csiProvisionerIdentity'}\n\
+    CSI_FIELDS = {'driver', 'volumeHandle', 'fsType', 'volumeAttributes', 'nodeStageSecretRef',\n\
+    \              'nodePublishSecretRef', 'controllerExpandSecretRef', 'nodeExpandSecretRef',\n\
+    \              'controllerPublishSecretRef', 'readOnly'}\n\n\ndef export_pv(pv):\n\
+    \    spec = pv['spec']\n    csi = spec['csi']\n    if (csi['driver'] != DRIVER\
+    \ or spec['persistentVolumeReclaimPolicy'] != 'Retain'\n            or spec['accessModes']\
+    \ != ['ReadWriteOncePod'] or not csi['volumeHandle']):\n        raise ValueError('Unexpected\
+    \ retained volume identity or policy')\n    if set(csi) - CSI_FIELDS or set(csi.get('volumeAttributes',\
+    \ {})) - ATTRIBUTES:\n        raise ValueError('Unrecognized CSI fields; reconcile\
+    \ before exporting')\n    result = {'apiVersion': 'v1', 'kind': 'PersistentVolume',\
+    \ 'metadata': {\n        'name': pv['metadata']['name'], 'annotations': {\n  \
+    \          'argocd.argoproj.io/sync-options': 'Prune=false,Delete=false'}}, 'spec':\
+    \ {\n        key: copy.deepcopy(spec[key]) for key in ('capacity', 'accessModes',\
+    \ 'storageClassName',\n        'persistentVolumeReclaimPolicy', 'csi')}}\n   \
+    \ result['spec']['claimRef'] = {key: spec['claimRef'][key] for key in ('name',\
+    \ 'namespace')}\n    for key in ('mountOptions', 'volumeMode'):\n        if key\
+    \ in spec:\n            result['spec'][key] = copy.deepcopy(spec[key])\n    return\
+    \ result\n\n\ndef verify_database(path, marker):\n    path = pathlib.Path(path)\n\
+    \    if not path.is_file() or path.stat().st_size == 0:\n        raise ValueError('Missing\
+    \ database; startup cannot initialize')\n    connection = sqlite3.connect(path.resolve().as_uri()\
+    \ + '?mode=ro', uri=True)\n    try:\n        if connection.execute('select marker\
+    \ from identity').fetchall() != [(marker,)]:\n            raise ValueError('Wrong\
+    \ service identity')\n        if connection.execute('pragma integrity_check').fetchall()\
+    \ != [('ok',)]:\n            raise ValueError('Database integrity failure')\n\
+    \    finally:\n        connection.close()\n\n\ndef verify_backend(record, datasets,\
+    \ extents, targets, mappings, basename):\n    expected = record['backend']\n \
+    \   def one(items, predicate):\n        matches = [item for item in items if predicate(item)]\n\
+    \        if len(matches) != 1:\n            raise ValueError('Missing, ambiguous\
+    \ or redirected retained backend')\n        return matches[0]\n    dataset = one(datasets,\
+    \ lambda d: d['id'] == expected['dataset']\n                  and d['guid']['value']\
+    \ == expected['guid'])\n    one(extents, lambda e: e['id'] == expected['extent_id']\n\
+    \        and e['disk'] == 'zvol/' + expected['dataset']\n        and e['serial']\
+    \ == expected['serial'] and e['naa'] == expected['naa'])\n    target = one(targets,\
+    \ lambda t: t['id'] == expected['target_id'])\n    one(mappings, lambda m: m['extent']\
+    \ == expected['extent_id']\n        and m['target'] == expected['target_id'] and\
+    \ m['lunid'] == expected['lun'])\n    attributes = record['pv']['spec']['csi']['volumeAttributes']\n\
+    \    if (basename + ':' + target['name'] != attributes['iqn']\n            or\
+    \ str(expected['lun']) != attributes['lun']):\n        raise ValueError('CSI target\
+    \ identity mismatch')\n    return dataset['volsize']['parsed']\n"

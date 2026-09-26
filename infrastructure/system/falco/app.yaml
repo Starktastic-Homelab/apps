@@ -5,4 +5,4 @@ manifests: true
 chart:
   repo: https://falcosecurity.github.io/charts
   name: falco
-  version: 9.1.0
+  version: 9.2.0

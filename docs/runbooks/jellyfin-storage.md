@@ -239,3 +239,52 @@ preserves all raw ACL bytes in the archive manifest, and reports the count of
 verified projections. All other xattrs still must restore exactly. Named users,
 DENY/inheritance flags, extra rights, unknown modes or malformed ACLs fail closed.
 This is not a general NFSv4-to-POSIX ACL converter.
+
+## Local status and preflight
+
+These commands inspect existing runner state without maintenance credentials,
+network access, ownership acquisition, mounts or state changes:
+
+```bash
+python3 -B scripts/storage/maintenance_cli.py status \
+  --service jellyfin --state-root /var/lib/homelab-maintenance
+python3 -B scripts/storage/maintenance_cli.py preflight \
+  --service jellyfin --state-root /var/lib/homelab-maintenance --json
+```
+
+Use `/var/lib/homelab-maintenance` on the runner host, or `/maintenance` when
+that same directory is mounted in the existing maintenance container. Both
+`--service` and `--state-root` are required. Only Jellyfin is currently supported.
+These options do not change the paths used by legacy maintenance commands.
+
+`status` needs only Python's standard library. `preflight` also reports the
+presence of SSH, kubectl, tar and systemctl, the pinned transport package,
+discoverability of the Ansible maintenance helper, and available bytes on the
+state filesystem. Executable presence is not version/feature qualification;
+helper discovery does not import or qualify it. State free space does not prove
+backup destination or worker capacity. No secret files are opened.
+
+Both text and schema-1 JSON reports identify their scope as `local-only`, with
+`live_verified: false` and `release_authorized: false`. Exit 0 means the required
+local checks passed, 1 means failed or unknown checks, and 2 means invalid CLI
+usage. `not_checked` identifies checks deliberately outside this observation.
+No output from these commands is release evidence or a replacement for the
+existing maintenance workflow.
+
+Missing records, malformed/unsafe files and contradictory identities are
+reported separately. Inspect the protected original state when a check fails;
+do not clear ownership or reconstruct receipts to make a diagnostic pass.
+Symlinks, non-regular files and JSON larger than 1 MiB are refused. File metadata
+is rechecked after collection, but this is not a transactional snapshot across
+writers. Retry observation after a concurrent operation settles.
+
+An existing onboarding or snapshot journal reports `unknown`: this command does
+not determine whether the journal completed, and does not replay it. This may
+make an otherwise healthy legacy operation return exit 1. Use the established
+reviewed reconciliation procedure for that journal. An absent first-write
+receipt also means unknown, never permission to roll back to old NFS state.
+
+File ages are explicitly file ages; they are not proof of fresh live evidence.
+Naive/future evidence timestamps are unknown. Installed runtime revision,
+remote tools/capacity, NAS identity, live bindings and writer authorization remain
+unverified. Do not schedule a maintenance window based only on this preflight.

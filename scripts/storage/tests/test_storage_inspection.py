@@ -145,5 +145,52 @@ class InspectionTests(unittest.TestCase):
         self.assertEqual(checks(result)['service']['status'], 'fail')
 
 
+class PreflightTests(unittest.TestCase):
+    setUp = InspectionTests.setUp
+
+    def preflight(self):
+        with patch('subprocess.run', side_effect=AssertionError('No subprocess allowed')), patch('socket.socket', side_effect=AssertionError('No network allowed')):
+            result = inspection.preflight(self.root, 'jellyfin', now=NOW)
+        self.assertNotIn(SECRET, json.dumps(result))
+        self.assertEqual(result['command'], 'preflight')
+        return checks(result)
+
+    def test_missing_executables_are_reported_without_execution(self):
+        with patch('shutil.which', return_value=None):
+            result = self.preflight()
+        for tool in ('ssh', 'kubectl', 'tar', 'systemctl'):
+            self.assertEqual(result['tool_'+tool]['status'], 'fail')
+
+    def test_transport_version_missing_wrong_and_matching(self):
+        from importlib.metadata import PackageNotFoundError
+        for value, expected in [('1.9.2', 'pass'), ('0.0.1', 'fail'), (SECRET, 'fail')]:
+            with patch('importlib.metadata.version', return_value=value):
+                self.assertEqual(self.preflight()['transport']['status'], expected)
+        with patch('importlib.metadata.version', side_effect=PackageNotFoundError):
+            self.assertEqual(self.preflight()['transport']['status'], 'fail')
+
+    def test_helper_is_discovered_without_import(self):
+        with patch('importlib.machinery.PathFinder.find_spec', return_value=None):
+            self.assertEqual(self.preflight()['maintenance_helper']['status'], 'fail')
+
+    def test_capacity_failure_and_success(self):
+        result = self.preflight()
+        self.assertGreaterEqual(result['state_capacity']['details']['available_bytes'], 0)
+        with patch('os.fstatvfs', side_effect=OSError(SECRET)):
+            self.assertEqual(self.preflight()['state_capacity']['status'], 'unknown')
+
+    def test_private_files_never_read_and_state_unchanged(self):
+        private = self.root/'private'; private.mkdir(); (private/'nas.credentials').write_text(SECRET)
+        before = {p.relative_to(self.root): p.read_bytes() for p in self.root.rglob('*') if p.is_file()}
+        original = os.open
+        def checked_open(path, *args, **kwargs):
+            self.assertNotIn('private', str(path))
+            self.assertNotIn('credentials', str(path))
+            return original(path, *args, **kwargs)
+        with patch('os.open', side_effect=checked_open):
+            self.preflight()
+        self.assertEqual(before, {p.relative_to(self.root): p.read_bytes() for p in self.root.rglob('*') if p.is_file()})
+
+
 if __name__ == '__main__':
     unittest.main()

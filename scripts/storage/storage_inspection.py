@@ -208,3 +208,46 @@ def inspect_state(root: Path, service: str, *, now: datetime) -> dict:
     _check(report, 'runtime_evidence', 'not_checked', 'Legacy state does not establish installed runtime revisions.')
     _check(report, 'live', 'not_checked', 'Live identity, bindings and writer authorization were not checked.')
     return report
+
+
+def preflight(root: Path, service: str, *, now: datetime) -> dict:
+    """Inspect local prerequisites without running executables or loading helpers."""
+    import importlib.machinery
+    import importlib.metadata
+    import shutil
+    import sys
+
+    report = inspect_state(root, service, now=now)
+    report['command'] = 'preflight'
+    if service != 'jellyfin':
+        return report
+    _check(report, 'python', 'pass', 'Inspector Python version; not runtime qualification.',
+           version='.'.join(map(str, sys.version_info[:3])))
+    for tool in ('ssh', 'kubectl', 'tar', 'systemctl'):
+        present = shutil.which(tool) is not None
+        _check(report, 'tool_'+tool, 'pass' if present else 'fail',
+               'Executable present; version and capabilities unverified.' if present else 'Required executable is missing.')
+    try:
+        requirement = Path(__file__).with_name('requirements.txt').read_text().strip()
+        match = re.fullmatch(r'websocket-client==([0-9]+(?:\.[0-9]+){2})', requirement)
+        installed = importlib.metadata.version('websocket-client')
+        valid = match is not None and installed == match[1]
+        _check(report, 'transport', 'pass' if valid else 'fail',
+               'Installed transport matches pinned requirement.' if valid else 'Transport version does not match pinned requirement.')
+    except (OSError, ValueError, importlib.metadata.PackageNotFoundError):
+        _check(report, 'transport', 'fail', 'Transport package or pinned requirement unavailable.')
+    try:
+        helper = importlib.machinery.PathFinder.find_spec('maintenance_lock') is not None
+        _check(report, 'maintenance_helper', 'pass' if helper else 'fail',
+               'Helper discoverable; not imported or qualified.' if helper else 'Maintenance helper is not discoverable.')
+    except (OSError, ValueError, ImportError):
+        _check(report, 'maintenance_helper', 'unknown', 'Maintenance helper discovery failed.')
+    try:
+        with _open_path(root) as fd:
+            space = os.fstatvfs(fd)
+        _check(report, 'state_capacity', 'pass', 'State filesystem capacity only; no backup capacity assessment.',
+               available_bytes=space.f_bavail*space.f_frsize)
+    except (OSError, ValueError):
+        _check(report, 'state_capacity', 'unknown', 'State filesystem capacity unavailable.')
+    _check(report, 'remote_prerequisites', 'not_checked', 'Worker tools, remote capacity and NAS identity were not checked.')
+    return report

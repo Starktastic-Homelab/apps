@@ -9,7 +9,6 @@ import os
 from pathlib import Path
 import subprocess
 from maintenance import require_maintenance
-from nas_rpc import NAS
 from nfs_sync import inspect, apply_standard, reconcile
 from onboard import onboard, reconcile_onboarding, snapshot_policy, read_chap
 from verify import verify_existing
@@ -139,8 +138,31 @@ def observe_release(nas, record):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('operation', choices=['inspect', 'nfs-inspect', 'nfs-apply', 'nfs-reconcile', 'onboard',
-        'reconcile-onboarding', 'snapshot', 'snapshot-reconcile', 'hold', 'verify', 'release', 'render', 'prepare-reader', 'delete-reader'])
+        'reconcile-onboarding', 'snapshot', 'snapshot-reconcile', 'hold', 'verify', 'release', 'render', 'prepare-reader', 'delete-reader', 'status', 'preflight'])
+    parser.add_argument('--service', choices=['jellyfin'])
+    parser.add_argument('--state-root', type=Path)
+    parser.add_argument('--json', action='store_true')
     args = parser.parse_args()
+    if args.operation in ('status', 'preflight'):
+        if args.service is None or args.state_root is None:
+            parser.error('status and preflight require --service and --state-root')
+        from storage_inspection import inspect_state, preflight
+        inspector = inspect_state if args.operation == 'status' else preflight
+        report = inspector(args.state_root, args.service, now=datetime.now(timezone.utc))
+        if args.json:
+            print(json.dumps(report))
+        else:
+            print('scope: local-only')
+            print('live_verified: false')
+            print('release_authorized: false')
+            for check in report['checks']:
+                print(f"{check['id']}: {check['status']} - {check['message']}")
+                for key, value in check['details'].items():
+                    print(f'  {key}: {value}')
+        return int(any(c['status'] in ('fail', 'unknown') for c in report['checks']))
+    if args.service is not None or args.state_root is not None or args.json:
+        parser.error('inspection options are only valid for status and preflight')
+    from nas_rpc import NAS
     record_path = ROOT/'record.json'
     if args.operation not in ('inspect', 'nfs-inspect', 'reconcile-onboarding', 'render'):
         require_maintenance()
@@ -185,4 +207,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    raise SystemExit(main())

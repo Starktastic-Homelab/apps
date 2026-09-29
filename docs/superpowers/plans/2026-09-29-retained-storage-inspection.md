@@ -88,10 +88,12 @@ No raw input objects, credential paths/content, nonce, owner identity, arbitrary
 - [x] Update the runbook with both commands, root mapping (`/var/lib/homelab-maintenance` on the runner versus `/maintenance` in its container), exit codes, local-only limits and handling of unknown journals/state. State explicitly that output cannot be used as release evidence and does not replace the existing maintenance workflow.
 - [x] Run `python3 -m unittest discover -s scripts/storage/tests -v` with the pinned transport and PyYAML test dependencies installed. Require all existing 82 baseline tests plus new tests to pass. The SQLite-copy test needs a writable `/var/tmp`; treat environment denial separately from a product failure.
 - [x] Run `pre-commit run --files scripts/storage/storage_inspection.py scripts/storage/maintenance_cli.py scripts/storage/tests/test_storage_inspection.py scripts/storage/tests/test_inspection_cli.py docs/runbooks/jellyfin-storage.md` and `git diff --check`. If a tool is absent, report that check as unrun and run the applicable available checks; do not claim equivalent full hook validation.
-- [ ] Commit as `feat(storage): expose local status and preflight commands`. Review the entire diff against zero mutation, redaction, compatibility and scope requirements. Open a PR describing the affected tooling, tests and lack of live rollout. Attach the PR to this task. Do not merge or dispatch maintenance.
+- [x] Commit as `feat(storage): expose local status and preflight commands`. Review the entire diff against zero mutation, redaction, compatibility and scope requirements. Open a PR describing the affected tooling, tests and lack of live rollout. Attach the PR to this task. Do not merge or dispatch maintenance.
 
 ## Completion and next boundary
 
 This PR is complete when local inspection works on synthetic legacy-compatible state without secrets or transport dependencies, preflight reports gaps honestly, regressions pass and the reviewed PR is available. No production state is needed for unit tests or sample output.
 
 The next implementation plan covers qualified runtime and supervised execution, including its own Ansible changes and failure-injection environment. Do not begin that work, delete pilot tools, enroll another service or claim rebuild recovery as a consequence of completing this PR.
+
+Delivered as [Apps PR #1270](https://github.com/Starktastic-Homelab/apps/pull/1270). Local validation: 106 storage tests and configured pre-commit hooks passed; independent review found no actionable issues. No live changes.

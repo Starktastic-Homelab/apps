@@ -1,6 +1,6 @@
 # Retained storage hardening design
 
-Status: proposed for review. This document authorizes no live maintenance action.
+Status: approved by the user on 2026-09-29. This document authorizes no live maintenance action.
 
 ## Outcome and boundaries
 

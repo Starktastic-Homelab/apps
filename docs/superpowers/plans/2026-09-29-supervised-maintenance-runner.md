@@ -102,6 +102,23 @@ containers, systemd qualification or Ansible invocations run on this workstation
 Lightweight synthetic-state unit tests and static checks remain permitted.
 
 The qualification harness now requires an explicitly marked disposable VM and
-refuses containers, physical workstations and production VM300. Runtime
-qualification is pending, so both coordinated PRs remain draft. No production
-installation, workflow switch or mutation adoption is authorized by delivery.
+refuses containers, physical workstations and production VM300. Initial delivery
+used draft PRs with runtime qualification pending. No production installation,
+workflow switch or mutation adoption is authorized by delivery.
+
+
+## Qualification completed (2026-09-30)
+
+With explicit user approval, an isolated full clone of VM900 was created as
+VM990 (one vCPU, 1 GiB RAM, 4 GiB vm-pool disk, no network). The VM-only harness
+passed seven synthetic supervision checks, including forced service stop and
+supervisor SIGKILL, child cleanup, retained ownership, duplicate/concurrent
+refusal, explicit start of accepted intent, stale receipts and source drift.
+VM990 and its disks were deleted after evidence export. Production VMs remained
+running with continuing uptimes. No Ansible or systemd test ran on the workstation.
+
+Evidence and exact limitations are in the companion
+[Ansible qualification report](https://github.com/Starktastic-Homelab/ansible/blob/codex/supervised-maintenance-runner/docs/maintenance-executor-qualification-2026-09-30.md).
+The source PRs may now leave draft after CI/review. Actual Ansible installation,
+production runtime/dependencies, full runner reboot and mutation recovery remain
+unqualified and need separate reviewed adoption.

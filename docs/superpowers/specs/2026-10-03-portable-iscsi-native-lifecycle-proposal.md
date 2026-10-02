@@ -52,7 +52,12 @@ identity, without relying on prior Kubernetes object UIDs or a preserved datasto
 outside the cluster destroy scope. Standard `Retain` alone does not reconstruct the binding.
 [Kubernetes retention](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#retain).
 
-### TrueNAS API longevity remains unresolved
+### TrueNAS 25 is the current target
+
+The user confirmed TrueNAS 25 as the current platform and deferred TrueNAS 26 compatibility. Qualify against the actual
+25.x release used by the homelab; the handoff reports 25.10.7, which still needs verification before lab execution.
+The REST-to-WebSocket transition is a future upgrade consideration, not a blocker for selecting or qualifying a driver
+for the current platform. No TrueNAS upgrade is included in this plan.
 
 The latest democratic-csi tag remains v1.9.5 (`b5be00c0748cbae251e661392cc7ab9fea335ac9`). GitHub's latest-release endpoint
 returns 404 for this project; the version statement comes from tags. Its REST transition issue remains open. The
@@ -61,9 +66,9 @@ maintainer announced WebSocket work, including an intended TrueNAS 26 minimum. T
 [Issue 509](https://github.com/democratic-csi/democratic-csi/issues/509),
 [inspected development client](https://github.com/democratic-csi/democratic-csi/blob/a7e9101db04e924f5328573572f0294c89b4d37f/src/driver/freenas/http/index.js#L60).
 
-TrueNAS 25.10 retains REST; TrueNAS 26 removes it. A 25.10 lab can characterize legacy behavior, but is not a sustainable
-production API path. The SSH TrueNAS driver still uses the API for export management; generic Linux targetcli must not be
-used to bypass TrueNAS middleware.
+TrueNAS 25.10 retains REST; TrueNAS 26 removes it. Reassess driver compatibility as part of any future upgrade to 26.
+The SSH TrueNAS driver still uses the API for export management; generic Linux targetcli must not be used to bypass
+TrueNAS middleware.
 [Vendor API notice](https://www.truenas.com/docs/scale/26/api/).
 
 ### Secret references do not eliminate argument exposure
@@ -112,7 +117,7 @@ The following are candidates for assessment, not production selections:
 | --- | --- | --- |
 | tns-csi on TrueNAS, another controller on Debian | tns-csi v0.18.1 lacks CHAP but documents native adoption and uses WebSocket management; it becomes a relevant clean-rebuild candidate. | TrueNAS-only, early development, adoption safety and equivalent Debian recovery remain unqualified. |
 | Official TrueNAS CSI | CHAP-specific retry and secret-handling problems cease to block a deliberately unauthenticated profile. | TrueNAS-only; safe automatic recovery without the old Kubernetes metadata is not established. |
-| democratic-csi family | No CHAP password needs to enter the inspected iscsiadm/targetcli argument paths. | TrueNAS REST dependency and clean-cluster recovery remain unresolved; management credentials still need protection. |
+| democratic-csi family | No CHAP password needs to enter the inspected iscsiadm/targetcli argument paths. | Clean-cluster recovery remains unresolved; management credentials still need protection. Qualify on current TrueNAS 25; defer API migration until a future upgrade. |
 | Debian ZFS/LIO with democratic-csi | Avoids the TrueNAS API dependency and the CHAP-specific argument issue. | Changes the backend architecture; native rediscovery and recovery still need proof. This is not a portable TrueNAS implementation by itself. |
 
 The inspected driver releases are tns-csi v0.18.1, official TrueNAS CSI v1.3.0 and democratic-csi v1.9.5. Their source
@@ -253,8 +258,8 @@ not the proposed operator VM.
 
 Run access-policy and management-credential checks before provisioning. Authenticated profiles additionally require a
 fixed supported CHAP credential path; a no-CHAP profile requires its access policy to be selected and qualified.
-TrueNAS 25.10-only results do not clear the production API gate; repeat against the selected supported WebSocket
-release/version when available. Preserve all historical production data/evidence and lab evidence; any lab cleanup must
+Use the actual TrueNAS 25.x release for current qualification; TrueNAS 26/WebSocket support is not an execution gate.
+Preserve all historical production data/evidence and lab evidence; any lab cleanup must
 name only the disposable resources explicitly authorized for removal.
 
 ## Removal and delivery boundaries
@@ -283,6 +288,7 @@ workload downtime; its duration cannot be estimated from source evidence. Existi
 
 Velero is removed by user direction. Recovery must tolerate loss of all cluster VMs and Kubernetes datastore state,
 without a final backup, while retaining external application data and identity. CHAP removal is under consideration;
-existing authentication remains unchanged. The next selection assessment compares native adoption on TrueNAS and Debian,
-including the tns-csi lookup-error path above. Resolve these source-level gaps before proposing lab execution or a driver
+existing authentication remains unchanged. TrueNAS 25 is the current target; compatibility with 26 is deferred. Prioritize
+democratic-csi recovery on TrueNAS 25 and Debian, including uncertain lookups and durable volume identity. tns-csi remains
+a TrueNAS-specific alternative that would require changing driver projects for Debian. Resolve these source-level gaps before proposing lab execution or a driver
 selection. Do not expand the local maintenance framework to compensate for missing upstream guarantees by default.

@@ -4,8 +4,10 @@ Date: 2026-10-03. Status: proposed architecture, awaiting review. Source assessm
 
 Recommend qualifying native CSI provisioning plus Velero recovery of retained PV/PVC metadata, with a single application
 StorageClass contract across TrueNAS and Debian. democratic-csi remains the leading implementation family; its inspected
-release is **not ready for selection under all requirements**. The remaining blockers are its TrueNAS REST dependency
-and credentials entering process arguments. Do not solve either by expanding the homelab maintenance framework.
+release is **not ready for selection under all requirements**. Remaining blockers are its TrueNAS REST dependency,
+credentials entering process arguments, and guaranteed metadata recovery without Terraform backup hooks. Velero's
+asynchronous backup alone does not establish the last property. Do not solve these by expanding the homelab maintenance
+framework.
 
 Approval requested is for this architecture and inert source preparation. It does not approve lab allocation, deployment,
 production changes, upstream messages, or deletion. Current Jellyfin, CHAP, VM300, ownership records and safeguards remain
@@ -147,39 +149,42 @@ JSON belongs in the new normal path. Existing enrollment continues to protect th
 
 ## Recovery sequence and prevention of empty replacement volumes
 
-### Automatic checkpoint in the existing deployment pipeline
+### Cluster ownership of backup and bootstrap recovery
 
 Requirement clarified on October 3: the user keeps the existing Packer PR merge, generated Terraform PR review and
 Terraform PR merge procedure. No manual Velero command, pre-merge backup verification, new checkbox or separate recovery
-approval is required for an already-authorized routine rebuild after this integration is deployed and qualified.
+approval is required for an already-authorized routine rebuild after qualification.
 
-The checkpoint is triggered by the existing Terraform deployment workflow, after merge or manual dispatch. Conservatively
-run it for every apply with changes to an existing cluster, including normal, drain and destroy/recreate modes; skip only
-a verified no-change plan. Do not rely on a PR title, image filename or the destroy checkbox to detect replacement.
-Acquire the existing deployment exclusion first, then hold storage-definition changes and create a fresh metadata backup
-before any drain, destroy or VM-changing apply. Wait for successful completion and verify the expected bound PV/PVC
-inventory and external backup availability automatically. A missing, partial, stale or inaccessible backup stops the job
-before VM mutation. A schedule alone does not satisfy this checkpoint.
+Backup is a cluster-platform responsibility. Deploy shared Velero schedules and backup-health monitoring through Apps,
+write metadata to protected storage outside the replaceable k3s VMs, and alert on failed backups, missing coverage and
+excessive age. Terraform owns VM lifecycle and does not invoke Velero, wait for a backup, or carry a backup reference.
+This supersedes the proposed per-apply Terraform recovery checkpoint.
 
-The deployment run carries the exact successful Velero backup reference into downstream recovery using existing workflow
-artifacts/native backup metadata, without operator-authored receipts. If the cluster datastore is replaced, bootstrap
-automatically restores that backup and verifies bindings before enabling service ApplicationSets or new provisioning.
-If the datastore survives, verify existing bindings rather than restoring over them. Writer-exclusion checks and the
-deployment hold must span Terraform replacement through bootstrap recovery; the present helper's release before the
-Ansible dispatch is insufficient for that end-to-end gate. Prefer native workflow ordering and the existing exclusion
-mechanism, not a new maintenance service. First installation and disaster recovery with an unavailable old API require
-explicitly distinguished paths; an unreachable cluster must never be mistaken for an empty first installation.
+Fresh-cluster bootstrap installs the recovery components, discovers externally stored backups and restores the selected
+complete inventory before service ApplicationSets or new volume provisioning can run. Existing-cluster bootstrap must
+not restore over surviving bindings. Recovery checks remain automatic. Preserve writer exclusion through VM replacement
+and bootstrap; removing Velero from Terraform does not remove that independent safety responsibility. An unavailable
+old API or missing backup is not evidence of an empty first installation.
 
-The ordinary user experience is merge, then observe the deployment result as today. Success includes recovery checks.
-Failure is reported by the workflow, with workloads held where safety is uncertain. The user is not asked to certify that
-Velero ran. This automatic checkpoint and recovery integration are required implementation work, not current behavior.
+The requested property is durable recoverability of metadata for every active volume. A native Velero schedule is
+asynchronous and cluster-object backups are not atomic. A newly bound PVC may be absent from the latest successful
+backup; frequent schedules, alerts or event-triggered asynchronous backups do not eliminate that window. No acceptable
+metadata-loss window has been agreed. Do not claim that this design currently guarantees arbitrary-time full rebuilds.
+[Velero backup semantics](https://velero.io/docs/v1.18/how-velero-works/).
+
+Before selecting Velero as the sole recovery source, resolve this freshness gap with supported mechanisms: assess
+preserving authoritative metadata outside the replaceable VM lifecycle or supported native retained-volume discovery.
+Do not add a custom backup watcher, admission controller or provider adapter by default. A bounded backup-age policy is
+an alternative only if the user explicitly accepts its recovery limits. Velero remains a candidate for backup/restore;
+its necessity and sufficiency for binding recovery remain conditional on this requirement.
 
 ### Recovery operations
 
 1. Keep protected Velero metadata backups outside k3s, including every bound retained PV/PVC, namespaces and the secret
    recovery material. A metadata schedule may cover the whole cluster to avoid per-service enrollment; restore only the
-   platform resources needed for storage recovery. Keep data backups separate. Require a fresh complete metadata backup
-   before planned destruction. Scheduled backup lag remains an explicit disaster-recovery RPO, not zero-loss coverage.
+   platform resources needed for storage recovery. Keep data backups separate. These backups are maintained by the
+   cluster independently of Terraform. Their freshness limitation above must be resolved before claiming the required
+   rebuild guarantee.
 2. Exclude all old writers using verified Proxmox power state and VM generation. For an uncertain stop, remain closed.
    For full replacement, prove all old cluster VM generations are stopped; reused VMIDs alone are insufficient.
 3. Recreate three Debian/k3s VMs with distinct initiator identities. Bootstrap recovery infrastructure without service
@@ -194,9 +199,9 @@ Velero ran. This automatic checkpoint and recovery integration are required impl
    volume provisioning last. Test a deliberately missing PV backup and denied backend lookup: neither may allocate an
    empty replacement. If a backup predates a PVC, that service remains held until its mapping is recovered.
 
-These operations run inside the normal deployment pipeline for planned rebuilds. They add an external metadata-backup
-dependency and restore-before-GitOps ordering without adding a manual merge prerequisite. Independent k3s datastore
-snapshots remain useful but do not replace the test of a fresh cluster restoring storage metadata.
+Backup runs continuously on the cluster's configured schedule; recovery runs during bootstrap after replacement.
+The merge procedure remains unchanged. External metadata durability and restore-before-GitOps ordering remain necessary.
+Independent k3s datastore snapshots do not by themselves close the asynchronous-backup freshness gap.
 
 ## Writer exclusion and maintenance
 
@@ -244,7 +249,7 @@ not the proposed operator VM.
 | Identity and replacement | Distinct clone IQNs, stable reboot IQNs, node replacement without handcrafted enrollment, backend target configuration survives reboot. |
 | Competing writers | Same-cluster RWOP refusal; isolated old writer excluded before replacement writes; wrong-generation stop refused; ambiguous stop remains closed. |
 | Full cluster loss | Write unique sentinels, remove all three lab cluster VMs/OS disks, recreate, restore metadata, recover the original handles/filesystems/data without new backend volume allocation. |
-| Unchanged merge procedure | Exercise the Packer-to-Terraform-to-Ansible path without manual Velero commands or checks; normal, drain, destroy and dispatch routes enforce the checkpoint. Failed backup prevents VM mutation; successful rebuild restores bindings before services. |
+| Unchanged merge procedure | Exercise Packer-to-Terraform-to-Ansible without manual Velero commands/checks or Terraform backup hooks. Cluster-owned backups and automatic bootstrap recovery must cover a volume created immediately before cluster loss, including an interrupted/in-flight backup; no empty replacement is allowed. |
 | Recovery failures | Missing/stale metadata, duplicate backend identities, namespace collisions, HTTP 403/500/timeouts and missing storage leave affected writers held and allocate nothing. |
 | Backup and maintenance | Interrupted capture stays incomplete; restore checks use clones/new volumes; verify source remains unchanged; compare file and SQLite contents independently. |
 | Backend portability | Repeat the same declarations/recovery suite on TrueNAS and Debian; separately transfer verified data TrueNAS to Debian and reverse, with old-writer exclusion. |
@@ -266,9 +271,9 @@ name only the disposable resources explicitly authorized for removal.
 | Apps backup/identity/cutover/release modules and `jellyfin_backup.py` / `jellyfin_stages.py` | Preserve until each safety property and application acceptance path has replacement evidence. No blanket deletion. |
 
 After architecture approval, prepare source PRs in order: inert Apps lab fixtures and recovery configuration outside
-ApplicationSet discovery; Packer guest prerequisites/identity wiring; then required Terraform workflow and Ansible
-bootstrap integration for automatic checkpoint/recovery. No Terraform production resource changes are needed for the
-initial proposal. Build, allocation and activation have
+ApplicationSet discovery; Packer guest prerequisites/identity wiring; then Apps-owned backup scheduling/monitoring and
+Ansible bootstrap recovery after the metadata-durability decision. No Velero integration belongs in Terraform. Existing
+VM replacement safety remains in scope for qualification. Build, allocation and activation have
 separate reviewed plans. Review merge-triggered workflows before calling any PR inert: Packer can trigger downstream
 manifest updates, and Ansible main can deploy. Put active changes behind a later activation PR.
 
@@ -279,6 +284,6 @@ workload downtime; its duration cannot be estimated from source evidence. Existi
 ## Review decision
 
 Approve this native architecture for **inert source preparation**, including Velero metadata recovery as a shared
-platform dependency, while retaining CHAP and keeping both credential transport and sustainable TrueNAS API support as
-hard deployment gates. Approval does not waive either blocker or allocate the lab. If those gates cannot be met with
+platform candidate, while retaining CHAP and keeping credential transport, sustainable TrueNAS API support and complete
+metadata recoverability without Terraform backup hooks as deployment gates. Approval does not waive either blocker or allocate the lab. If those gates cannot be met with
 supported upstream mechanisms, return a concrete backend-architecture decision before building more local orchestration.

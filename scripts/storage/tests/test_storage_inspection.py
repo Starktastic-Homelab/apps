@@ -1,4 +1,5 @@
 import copy
+import hashlib
 from datetime import datetime, timedelta, timezone
 import json
 import os
@@ -47,6 +48,12 @@ class InspectionTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
         self.directory = fixture(self.root)
+        self.receipt_root = self.root/'receipt-control'; self.receipt_root.mkdir()
+        location = patch.object(inspection, 'RECONCILIATION_ROOT', self.receipt_root)
+        location.start(); self.addCleanup(location.stop)
+        # Synthetic receipt root: production protected-parent enforcement tested separately.
+        safe = patch.object(inspection, '_protected_directory', inspection._open_path)
+        safe.start(); self.addCleanup(safe.stop)
 
     def inspect(self):
         result = inspection.inspect_state(self.root, 'jellyfin', now=NOW)
@@ -123,6 +130,65 @@ class InspectionTests(unittest.TestCase):
         check = self.inspect()['onboarding_journal']
         self.assertEqual(check['status'], 'unknown')
         self.assertIn('file_age_seconds', check['details'])
+
+    def receipt(self):
+        for name in ('onboarding.jsonl', 'snapshot-intent.jsonl'):
+            (self.directory/name).write_text('{"state":"intent"}\n')
+        return dict(schema=1, service='jellyfin', runner_instance='runner-1',
+                    observed_at=NOW.isoformat(), scope='historical-native-reconciliation',
+                    inputs={n: hashlib.sha256((self.directory/n).read_bytes()).hexdigest()
+                            for n in ('record.json', 'onboarding.jsonl', 'snapshot-intent.jsonl')},
+                    results={'onboarding': 'verified', 'snapshot': 'verified'})
+
+    def inspect_receipt(self, value):
+        path = self.receipt_root/'jellyfin-reconciliation.json'; path.write_text(json.dumps(value)); path.chmod(0o640)
+        original = inspection._Snapshot.read
+        def read(snapshot, name, **kwargs):
+            raw, info = original(snapshot, name, **kwargs)
+            if name == 'jellyfin-reconciliation.json':
+                values = list(info); values[4] = 0; info = os.stat_result(values)
+            return raw, info
+        with patch.object(inspection._Snapshot, 'read', read): return self.inspect()
+
+    def test_root_receipt_resolves_only_matching_historical_journals(self):
+        value = self.receipt(); result = self.inspect_receipt(value)
+        for name in ('onboarding_journal', 'snapshot_journal'):
+            self.assertEqual(result[name]['status'], 'pass')
+            self.assertEqual(result[name]['details']['evidence_age_seconds'], 0)
+        (self.directory/'onboarding.jsonl').write_text('{"state":"changed"}\n')
+        result = self.inspect_receipt(value)
+        self.assertEqual(result['onboarding_journal']['status'], 'unknown')
+        self.assertEqual(result['snapshot_journal']['status'], 'unknown')
+
+    def test_receipt_with_removed_journals_is_inconclusive(self):
+        value = self.receipt(); self.inspect_receipt(value)
+        for name in ('onboarding.jsonl', 'snapshot-intent.jsonl'):
+            (self.directory/name).unlink()
+        result = self.inspect_receipt(value)
+        self.assertIn('unknown', [c['status'] for c in result.values()])
+        self.assertEqual(result['reconciliation']['status'], 'unknown')
+
+    def test_receipt_wrong_identity_record_timestamp_or_results_cannot_pass(self):
+        value = self.receipt()
+        cases = [('runner_instance', 'other'), ('service', 'other'), ('schema', True),
+                 ('observed_at', (NOW+timedelta(seconds=1)).isoformat()),
+                 ('observed_at', '2026-09-01T00:00:00'), ('results', {'onboarding':'verified'})]
+        for key, bad in cases:
+            with self.subTest(key=key):
+                modified = dict(value); modified[key] = bad
+                self.assertNotEqual(self.inspect_receipt(modified)['onboarding_journal']['status'], 'pass')
+        (self.directory/'record.json').write_text('{}')
+        self.assertNotEqual(self.inspect_receipt(value)['onboarding_journal']['status'], 'pass')
+
+    def test_unprivileged_or_writable_receipt_is_not_trusted(self):
+        value = self.receipt(); path = self.receipt_root/'jellyfin-reconciliation.json'
+        path.write_text(json.dumps(value)); path.chmod(0o640)
+        if os.getuid() != 0:
+            self.assertEqual(self.inspect()['onboarding_journal']['status'], 'fail')
+        path.chmod(0o666)
+        self.assertEqual(self.inspect()['onboarding_journal']['status'], 'fail')
+        path.unlink(); path.symlink_to(self.directory/'record.json')
+        self.assertEqual(self.inspect()['onboarding_journal']['status'], 'fail')
 
     def test_future_or_naive_timestamps_are_not_fresh(self):
         p = self.directory/'target-may-have-written.json'; data = json.loads(p.read_text())

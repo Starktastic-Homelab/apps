@@ -7,11 +7,13 @@ from pathlib import Path
 from storage_inspection import inspect_state, preflight
 
 
-def observe(operation, root, service):
+def observe(operation, root, service, *, helper_directory=None, dependency_directory=None):
     if operation not in ('status', 'preflight') or service != 'jellyfin':
         raise ValueError('Unsupported read-only request')
-    inspector = inspect_state if operation == 'status' else preflight
-    return inspector(root, service, now=datetime.now(timezone.utc))
+    if operation == 'status':
+        return inspect_state(root, service, now=datetime.now(timezone.utc))
+    return preflight(root, service, now=datetime.now(timezone.utc),
+                     helper_directory=helper_directory, dependency_directory=dependency_directory)
 
 
 def main():
@@ -19,8 +21,11 @@ def main():
     parser.add_argument('operation', choices=['status', 'preflight'])
     parser.add_argument('--state-root', type=Path, required=True)
     parser.add_argument('--service', choices=['jellyfin'], required=True)
+    parser.add_argument('--helper-directory', type=Path, help='Executor-selected verified helper directory')
+    parser.add_argument('--dependency-directory', type=Path, help='Executor-selected verified dependency directory')
     args = parser.parse_args()
-    report = observe(args.operation, args.state_root, args.service)
+    report = observe(args.operation, args.state_root, args.service,
+                     helper_directory=args.helper_directory, dependency_directory=args.dependency_directory)
     print(json.dumps(report))
     return int(any(check['status'] in ('fail', 'unknown') for check in report['checks']))
 

@@ -210,7 +210,8 @@ def inspect_state(root: Path, service: str, *, now: datetime) -> dict:
     return report
 
 
-def preflight(root: Path, service: str, *, now: datetime) -> dict:
+def preflight(root: Path, service: str, *, now: datetime,
+              helper_directory: Path | None = None, dependency_directory: Path | None = None) -> dict:
     """Inspect local prerequisites without running executables or loading helpers."""
     import importlib.machinery
     import importlib.metadata
@@ -224,20 +225,28 @@ def preflight(root: Path, service: str, *, now: datetime) -> dict:
     _check(report, 'python', 'pass', 'Inspector Python version; not runtime qualification.',
            version='.'.join(map(str, sys.version_info[:3])))
     for tool in ('ssh', 'kubectl', 'tar', 'systemctl'):
-        present = shutil.which(tool) is not None
+        search = str(dependency_directory/'bin') if tool == 'kubectl' and dependency_directory is not None else None
+        present = shutil.which(tool, path=search) is not None
         _check(report, 'tool_'+tool, 'pass' if present else 'fail',
                'Executable present; version and capabilities unverified.' if present else 'Required executable is missing.')
     try:
         requirement = Path(__file__).with_name('requirements.txt').read_text().strip()
         match = re.fullmatch(r'websocket-client==([0-9]+(?:\.[0-9]+){2})', requirement)
-        installed = importlib.metadata.version('websocket-client')
+        if dependency_directory is None:
+            installed = importlib.metadata.version('websocket-client')
+        else:
+            wheels = sorted((dependency_directory/'python').glob('*.whl'))
+            versions = [d.version for d in importlib.metadata.distributions(path=[str(p) for p in wheels])
+                        if re.sub(r'[-_.]+', '-', d.metadata.get('Name', '')).lower() == 'websocket-client']
+            installed = versions[0] if len(versions) == 1 else None
         valid = match is not None and installed == match[1]
         _check(report, 'transport', 'pass' if valid else 'fail',
                'Installed transport matches pinned requirement.' if valid else 'Transport version does not match pinned requirement.')
     except (OSError, ValueError, importlib.metadata.PackageNotFoundError):
         _check(report, 'transport', 'fail', 'Transport package or pinned requirement unavailable.')
     try:
-        helper = importlib.machinery.PathFinder.find_spec('maintenance_lock') is not None
+        helper = importlib.machinery.PathFinder.find_spec(
+            'maintenance_lock', None if helper_directory is None else [str(helper_directory)]) is not None
         _check(report, 'maintenance_helper', 'pass' if helper else 'fail',
                'Helper discoverable; not imported or qualified.' if helper else 'Maintenance helper is not discoverable.')
     except (OSError, ValueError, ImportError):

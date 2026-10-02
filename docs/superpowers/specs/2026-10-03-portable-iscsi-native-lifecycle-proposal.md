@@ -2,23 +2,23 @@
 
 Date: 2026-10-03. Status: proposed architecture, awaiting review. Source assessment and synthetic probes only.
 
-Recommend qualifying native CSI provisioning plus Velero recovery of retained PV/PVC metadata, with a single application
-StorageClass contract across TrueNAS and Debian. democratic-csi remains the leading implementation family; its inspected
-release is **not ready for selection under all requirements**. Remaining blockers are its TrueNAS REST dependency,
-credentials entering process arguments, and guaranteed metadata recovery without Terraform backup hooks. Velero's
-asynchronous backup alone does not establish the last property. Do not solve these by expanding the homelab maintenance
-framework.
+Current direction: disposable k3s VMs **and datastore**, with application data and sufficient durable volume identity
+outside the cluster. Rebuild from Git and bootstrap secrets without a final backup or restoring the old Kubernetes
+database. **Velero is removed from this plan.** External etcd or a retained control-plane disk is not the selected
+replacement. Native volume rediscovery/adoption remains an unqualified requirement, not an implemented capability.
 
-Approval requested is for this architecture and inert source preparation. It does not approve lab allocation, deployment,
-production changes, upstream messages, or deletion. Current Jellyfin, CHAP, VM300, ownership records and safeguards remain
-in place. No PostgreSQL or other application migration is included.
+Keep one application StorageClass contract across TrueNAS and Debian. No inspected driver currently satisfies every
+requirement. The user is considering dropping CHAP; the comparison below assesses that option, but does not authorize
+changing existing authentication. Current Jellyfin, VM300, ownership records and safeguards remain in place.
+This document does not approve lab allocation, deployment, production changes, upstream messages or deletion.
 
 ## Requirements and evidence boundary
 
 After shared setup, adding storage means normal service values/PVC configuration. No service-specific Python, shell,
 Ansible, manual login/mount commands, or identity/receipt construction. All three k3s VMs must be replaceable while
-external application data survives. Replacing the storage provider must preserve application declarations, with a
-separately qualified data transfer. Keep CHAP. Unreachable writers must be excluded before takeover; unattended failover
+external application data survives; all Kubernetes datastore state may also be discarded. Replacing the storage provider
+must preserve application declarations, with a separately qualified data transfer. CHAP remains the baseline while a
+no-CHAP alternative is assessed. Unreachable writers must be excluded before takeover; unattended failover
 is not a requirement.
 
 The four handoff documents were read from `/home/benf/Projects/homelab/apps/docs/superpowers/`, including the untracked
@@ -39,22 +39,18 @@ handoff evidence, not freshly verified runtime facts.
 
 ## New findings that affect selection
 
-### Retained recovery has an existing implementation
+### Recovery decision: no backup dependency
 
-Velero's maintainers describe restoring retained PV objects against their original storage when both snapshot backup and
-filesystem backup are disabled for that backup. The same branch exists in v1.18.4: `handleSkippedPVHasRetainPolicy`
-restores the PV, clears stale claim binding metadata, and the PVC path retains `volumeName` unless the PV was designated
-for reprovisioning. This supplies a concrete supported candidate for rebinding without handwritten per-volume records.
-[Maintainer explanation](https://github.com/velero-io/velero/discussions/8704),
-[v1.18.4 restore implementation](https://github.com/velero-io/velero/blob/v1.18.4/pkg/restore/restore.go#L3035-L3050).
+The user rejected any interval in which a new volume binding could be missing from a completed metadata backup.
+Velero schedules and event-triggered backups are asynchronous, so Velero is removed from the current plan, including
+installation, scheduling, monitoring and bootstrap restore work. Earlier retained-PV restore findings remain historical
+evidence in Git, not part of the selected architecture. Separate application-data backup remains necessary for data loss.
+[Velero backup semantics](https://velero.io/docs/v1.18/how-velero-works/).
 
-This is source evidence, not a completed restore. It needs an external metadata backup and preserved secrets/keys. It is
-not automatic rediscovery from namespace/name alone, nor recovery after losing both Kubernetes metadata and its backup.
-Metadata-only recovery preserves current backend data; separate data backups cover backend loss or corruption.
-
-Do not substitute ordinary CSI snapshot restore: that creates a volume from a snapshot and does not prove rebinding the
-original retained volume. Filesystem restore also has a separate provisioning path.
-[Velero restore semantics](https://velero.io/docs/v1.18/restore-reference/).
+A clean rebuild must reconnect to existing data using Git, externally recoverable bootstrap secrets and durable storage
+identity, without relying on prior Kubernetes object UIDs or a preserved datastore. Storage data and its identity remain
+outside the cluster destroy scope. Standard `Retain` alone does not reconstruct the binding.
+[Kubernetes retention](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#retain).
 
 ### TrueNAS API longevity remains unresolved
 
@@ -106,18 +102,46 @@ Local validation also passed Node syntax checking and proposal link/whitespace c
 it is not installed. No YAML/Helm resources changed, so cluster-schema/render checks were not applicable. No runtime
 storage, image build, Ansible deployment or infrastructure test was performed.
 
-## Architecture choices
+## Architecture choices if CHAP is removed
 
-| Choice | Benefits | Costs and decision |
+Removing CHAP eliminates its credential distribution and the CHAP settings in node login and target configuration. It does
+not remove NAS API credentials, SSH credentials, storage identity, filesystem safeguards or old-writer exclusion.
+The following are candidates for assessment, not production selections:
+
+| Choice | What dropping CHAP unblocks | Remaining gaps |
 | --- | --- | --- |
-| democratic-csi family plus Velero retained metadata restore | Existing CSI family; TrueNAS and Debian implementations; standard PVC onboarding; native backup/rebinding candidate | Recommended qualification target, conditional on resolving credential transport and a released sustainable TrueNAS API path. No production driver selection yet. |
-| Different controllers behind the same application StorageClass contract | Could use a WebSocket TrueNAS controller and democratic-csi on Debian without changing applications | More implementations to qualify. Official TrueNAS v1.3.0 still has unresolved CHAP recovery/secret handling; tns-csi v0.18.1 lacks CHAP. Not currently a complete authenticated alternative. |
-| Standardize block storage on a separate Debian ZFS/LIO server | Removes TrueNAS management API dependency from future application storage | Changes the backend architecture and requires storage allocation/data migration; does not fix democratic-csi argument handling. It no longer demonstrates native TrueNAS provisioning. Requires a separate decision, not a silent fallback. |
+| tns-csi on TrueNAS, another controller on Debian | tns-csi v0.18.1 lacks CHAP but documents native adoption and uses WebSocket management; it becomes a relevant clean-rebuild candidate. | TrueNAS-only, early development, adoption safety and equivalent Debian recovery remain unqualified. |
+| Official TrueNAS CSI | CHAP-specific retry and secret-handling problems cease to block a deliberately unauthenticated profile. | TrueNAS-only; safe automatic recovery without the old Kubernetes metadata is not established. |
+| democratic-csi family | No CHAP password needs to enter the inspected iscsiadm/targetcli argument paths. | TrueNAS REST dependency and clean-cluster recovery remain unresolved; management credentials still need protection. |
+| Debian ZFS/LIO with democratic-csi | Avoids the TrueNAS API dependency and the CHAP-specific argument issue. | Changes the backend architecture; native rediscovery and recovery still need proof. This is not a portable TrueNAS implementation by itself. |
 
-The official TrueNAS release is still v1.3.0; [issue 66](https://github.com/truenas/truenas-csi/issues/66) and
-[PR 48](https://github.com/truenas/truenas-csi/pull/48) remain open/unmerged. tns-csi remains v0.18.1. No candidate was
-selected by dropping CHAP. If the first two choices cannot meet the gates without a driver fork or substantial local
-orchestration, return to the third architecture decision rather than expanding VM300.
+The inspected driver releases are tns-csi v0.18.1, official TrueNAS CSI v1.3.0 and democratic-csi v1.9.5. Their source
+findings do not imply runtime qualification. Different controllers may preserve ordinary application PVC declarations,
+but that is a design objective until both providers pass the same recovery tests.
+
+### tns-csi adoption: promising, with a concrete unresolved failure path
+
+The pinned tns-csi documentation describes `markAdoptable` and `adoptExisting`, storage-side ZFS properties and recreation
+of missing exports. Its README explicitly labels the project early development and not production-ready.
+[Adoption](https://github.com/fenio/tns-csi/blob/v0.18.1/docs/ADOPTION.md#automatic-adoption-gitops),
+[CHAP comparison](https://github.com/fenio/tns-csi/blob/v0.18.1/docs/COMPARISON-TRUENAS-CSI.md),
+[README](https://github.com/fenio/tns-csi/blob/v0.18.1/README.md).
+
+Source inspection adds an important limit: `checkAndAdoptVolume` searches by the requested CSI name; on a search error it
+returns `(nil, false, nil)` and permits normal creation to continue. This does **not** prove an empty volume will be
+created: later checks may stop creation. It does mean the adoption helper itself does not enforce the required policy
+of stopping on an uncertain lookup. Stable identity across fresh PVC UIDs, namespace collisions, missing metadata and
+full creation-path behavior need investigation before selection. A naming template alone is not evidence of safe adoption.
+[Adoption implementation](https://github.com/fenio/tns-csi/blob/v0.18.1/pkg/driver/controller.go#L1605-L1638).
+
+### Access policy for a possible no-CHAP profile
+
+The tradeoff is loss of iSCSI initiator authentication. A dedicated storage network, enforced source restrictions and
+appropriate target ACLs would become the access boundary. An IQN is an identifier and can be spoofed; an allowlist is
+not cryptographic authentication. A permitted compromised node could access whatever the target exposes to it. CHAP
+itself does not encrypt storage traffic. Evaluate actual network reachability and cross-volume access before selecting
+this profile. Do not treat a VLAN label alone as isolation, and do not replace CHAP with custom credential machinery.
+Existing authenticated storage is unchanged while this option is considered.
 
 ## Proposed application and platform contract
 
@@ -131,10 +155,11 @@ Shared infrastructure owns a separate CSI release/driver identity, the non-defau
 Jellyfin's format suppression remains unchanged. Recovery of an existing volume must reject missing/wrong filesystem
 identity before opening a writer.
 
-Use generated unique CSI handles. Backend annotations may aid inspection but are not an adoption mechanism. The Debian
-profile uses ZFS/LIO with target configuration persisted across reboot. Its example enables generated initiator ACLs;
-CHAP plus a storage-network allowlist is the proposed lab policy, not an asserted equivalent of per-IQN authorization.
-Wrong or absent CHAP must fail; assess cross-volume access before accepting the platform threat model. Kubernetes app
+Use driver-supported handles and a durable identity scheme that survives new PVC UIDs. Storage-side metadata is an
+adoption mechanism only when the selected driver implements and qualifies that contract. The Debian
+profile uses ZFS/LIO with target configuration persisted across reboot. Its example enables generated initiator ACLs.
+The baseline CHAP profile includes a storage-network allowlist; this is not an asserted equivalent of per-IQN authorization.
+Wrong or absent CHAP must fail in that profile. A possible no-CHAP profile uses the access policy above. Kubernetes app
 accounts cannot create PVs, driver Secrets, privileged pods or host-network storage clients.
 
 Packer installs `open-iscsi`, `e2fsprogs` and persistent `iscsi_tcp` loading in the guest. Prefer the distro's standard
@@ -149,59 +174,31 @@ JSON belongs in the new normal path. Existing enrollment continues to protect th
 
 ## Recovery sequence and prevention of empty replacement volumes
 
-### Cluster ownership of backup and bootstrap recovery
+### Clean-cluster recovery contract
 
-Requirement clarified on October 3: the user keeps the existing Packer PR merge, generated Terraform PR review and
-Terraform PR merge procedure. No manual Velero command, pre-merge backup verification, new checkbox or separate recovery
-approval is required for an already-authorized routine rebuild after qualification.
+Keep the existing Packer PR merge, generated Terraform PR review and Terraform PR merge procedure. No backup command,
+pre-merge backup verification, new checkbox or separate recovery approval is required for a qualified routine rebuild.
+Terraform owns VM lifecycle. Apps and Ansible install the platform and bootstrap a fresh cluster from declared inputs.
+Neither Terraform nor bootstrap depends on Velero, an etcd snapshot or the old cluster API.
 
-Backup is a cluster-platform responsibility. Deploy shared Velero schedules and backup-health monitoring through Apps,
-write metadata to protected storage outside the replaceable k3s VMs, and alert on failed backups, missing coverage and
-excessive age. Terraform owns VM lifecycle and does not invoke Velero, wait for a backup, or carry a backup reference.
-This supersedes the proposed per-apply Terraform recovery checkpoint.
+The required recovery sequence is a qualification contract; no selected driver has demonstrated it yet:
 
-Fresh-cluster bootstrap installs the recovery components, discovers externally stored backups and restores the selected
-complete inventory before service ApplicationSets or new volume provisioning can run. Existing-cluster bootstrap must
-not restore over surviving bindings. Recovery checks remain automatic. Preserve writer exclusion through VM replacement
-and bootstrap; removing Velero from Terraform does not remove that independent safety responsibility. An unavailable
-old API or missing backup is not evidence of an empty first installation.
+1. Exclude old writers using verified Proxmox power state and VM generation. An uncertain stop keeps writers blocked.
+2. Recreate the three Debian/k3s VMs with an empty datastore and distinct initiator identities. Recover bootstrap secrets
+   independently, including sealing keys and backend management credentials. Keep application writers held.
+3. Install the qualified CSI controller and recover bindings through its native storage identity/adoption mechanism.
+   Controllers may need to run to perform adoption; an entirely disabled provisioner is not a universal recovery design.
+   Require the original backend data and correct application mapping; old Kubernetes UIDs need not survive.
+4. The driver must distinguish an intentional first allocation from recovery of an existing volume using durable inputs.
+   Missing expected storage, uncertain lookups or ambiguous identity must stop recovery without creating an empty
+   replacement. This distinction must survive loss of Kubernetes state; do not infer first installation from its absence.
+5. Verify existing filesystem/data identity before opening writers, using the supported recovery path. Release a service
+   only after its binding is proven. An unsupported helper controller or per-service receipt is not the default solution.
 
-The requested property is durable recoverability of metadata for every active volume. A native Velero schedule is
-asynchronous and cluster-object backups are not atomic. A newly bound PVC may be absent from the latest successful
-backup; frequent schedules, alerts or event-triggered asynchronous backups do not eliminate that window. No acceptable
-metadata-loss window has been agreed. Do not claim that this design currently guarantees arbitrary-time full rebuilds.
-[Velero backup semantics](https://velero.io/docs/v1.18/how-velero-works/).
-
-Before selecting Velero as the sole recovery source, resolve this freshness gap with supported mechanisms: assess
-preserving authoritative metadata outside the replaceable VM lifecycle or supported native retained-volume discovery.
-Do not add a custom backup watcher, admission controller or provider adapter by default. A bounded backup-age policy is
-an alternative only if the user explicitly accepts its recovery limits. Velero remains a candidate for backup/restore;
-its necessity and sufficiency for binding recovery remain conditional on this requirement.
-
-### Recovery operations
-
-1. Keep protected Velero metadata backups outside k3s, including every bound retained PV/PVC, namespaces and the secret
-   recovery material. A metadata schedule may cover the whole cluster to avoid per-service enrollment; restore only the
-   platform resources needed for storage recovery. Keep data backups separate. These backups are maintained by the
-   cluster independently of Terraform. Their freshness limitation above must be resolved before claiming the required
-   rebuild guarantee.
-2. Exclude all old writers using verified Proxmox power state and VM generation. For an uncertain stop, remain closed.
-   For full replacement, prove all old cluster VM generations are stopped; reused VMIDs alone are insufficient.
-3. Recreate three Debian/k3s VMs with distinct initiator identities. Bootstrap recovery infrastructure without service
-   ApplicationSets and with the iSCSI provisioner disabled. No ordinary fresh-cluster auto-bootstrap may open writers.
-4. Restore retained PV/PVC metadata from a completed backup using Velero's metadata-only path. Restore credential access
-   and driver identity. Require exact `volumeHandle`, attributes, claim mapping and existing backend objects. Bound status
-   alone is insufficient. Missing backup/PV, duplicate mappings, permission errors and timeouts stop recovery.
-5. While provisioning and workloads remain held, verify backend existence and filesystem/data identity using the
-   qualified recovery procedure. A missing device must never trigger a create or format fallback. If standard tools
-   cannot enforce this before staging, the candidate fails qualification; do not add an adopter controller.
-6. Only after the complete expected inventory agrees, enable CSI operations and release restored services. Enable new
-   volume provisioning last. Test a deliberately missing PV backup and denied backend lookup: neither may allocate an
-   empty replacement. If a backup predates a PVC, that service remains held until its mapping is recovered.
-
-Backup runs continuously on the cluster's configured schedule; recovery runs during bootstrap after replacement.
-The merge procedure remains unchanged. External metadata durability and restore-before-GitOps ordering remain necessary.
-Independent k3s datastore snapshots do not by themselves close the asynchronous-backup freshness gap.
+Acceptance: create and write a volume immediately before destroying all three cluster VMs, OS disks and datastore,
+without a final backup. Rebuild from Git, bootstrap secrets and surviving NAS state. Recover the original data with no
+new backend volume allocation. Repeat with interruptions during provisioning, failed lookups and deliberate missing
+metadata. Separate data backups cover loss or corruption of NAS data; they do not replace this acceptance test.
 
 ## Writer exclusion and maintenance
 
@@ -244,18 +241,19 @@ not the proposed operator VM.
 | Qualification | Required evidence |
 | --- | --- |
 | Shared setup and onboarding | Two services and a third added by values only; same PVC name in different namespaces; no lifecycle code edits; compare actual steps with NFS. |
-| Authentication and access | CHAP/mutual CHAP as configured; wrong/missing secret refused; no secrets in arguments/logs/Helm state/PVs; unauthorized initiator/network refused. |
-| Creation interruption | Interrupt after ZVOL, target, extent and mapping operations; inspect before retry; one correct volume, no unauthenticated partial export or empty replacement. |
+| Authentication and access | Baseline CHAP: wrong/missing secret refused and no credential exposure. If no-CHAP is selected: enforced network/target restrictions and cross-volume access tested. Management credentials remain protected in either profile. |
+| Creation interruption | Interrupt after ZVOL, target, extent and mapping operations; inspect before retry; one correct volume, no export outside the selected access policy or empty replacement. |
 | Identity and replacement | Distinct clone IQNs, stable reboot IQNs, node replacement without handcrafted enrollment, backend target configuration survives reboot. |
 | Competing writers | Same-cluster RWOP refusal; isolated old writer excluded before replacement writes; wrong-generation stop refused; ambiguous stop remains closed. |
-| Full cluster loss | Write unique sentinels, remove all three lab cluster VMs/OS disks, recreate, restore metadata, recover the original handles/filesystems/data without new backend volume allocation. |
-| Unchanged merge procedure | Exercise Packer-to-Terraform-to-Ansible without manual Velero commands/checks or Terraform backup hooks. Cluster-owned backups and automatic bootstrap recovery must cover a volume created immediately before cluster loss, including an interrupted/in-flight backup; no empty replacement is allowed. |
+| Full cluster loss | Write unique sentinels, remove all three lab cluster VMs/OS disks, discard the datastore, recreate from Git/secrets and recover the original backend filesystems/data without new volume allocation or metadata backup. |
+| Unchanged merge procedure | Exercise Packer-to-Terraform-to-Ansible without backup hooks or checks. Native recovery must cover a volume created immediately before cluster loss and interrupted provisioning; no empty replacement is allowed. |
 | Recovery failures | Missing/stale metadata, duplicate backend identities, namespace collisions, HTTP 403/500/timeouts and missing storage leave affected writers held and allocate nothing. |
 | Backup and maintenance | Interrupted capture stays incomplete; restore checks use clones/new volumes; verify source remains unchanged; compare file and SQLite contents independently. |
 | Backend portability | Repeat the same declarations/recovery suite on TrueNAS and Debian; separately transfer verified data TrueNAS to Debian and reverse, with old-writer exclusion. |
 
-Run authentication/argument checks before authenticated provisioning. A fixed supported credential path is an execution
-gate. TrueNAS 25.10-only results do not clear the production API gate; repeat against the selected supported WebSocket
+Run access-policy and management-credential checks before provisioning. Authenticated profiles additionally require a
+fixed supported CHAP credential path; a no-CHAP profile requires its access policy to be selected and qualified.
+TrueNAS 25.10-only results do not clear the production API gate; repeat against the selected supported WebSocket
 release/version when available. Preserve all historical production data/evidence and lab evidence; any lab cleanup must
 name only the disposable resources explicitly authorized for removal.
 
@@ -263,7 +261,7 @@ name only the disposable resources explicitly authorized for removal.
 
 | Current responsibility and actual paths | Candidate replacement and removal gate |
 | --- | --- |
-| Apps `scripts/storage/onboard.py`, `node_credentials.py`, `render_storage.py`; `storage/services/jellyfin.json` | CSI allocation and restored PV metadata for new services, after onboarding/interruption/rebuild tests. Existing Jellyfin identity and admission stay. |
+| Apps `scripts/storage/onboard.py`, `node_credentials.py`, `render_storage.py`; `storage/services/jellyfin.json` | CSI allocation and native recovery of bindings for new services, after onboarding/interruption/rebuild tests. Existing Jellyfin identity and admission stay. |
 | Apps `scripts/storage/initiator_probe.py`, `maintenance_cli.py:observe_release` | CSI staging/cleanup and verified stop procedure; exceptional original-device forensic semantics must pass separately. |
 | Ansible `roles/iscsi_initiator`, `scripts/iscsi_generation.py`, `group_vars/workers/iscsi.yml` | Image prerequisites and standard unique identity, after clone/replacement and old-writer tests. |
 | Ansible `scripts/proxmox_fence.py`, `roles/storage_fencing`, `storage-fencing.yml` | Native Proxmox stop-and-confirm, after wrong-generation/timeout/competing-writer tests. |
@@ -271,8 +269,8 @@ name only the disposable resources explicitly authorized for removal.
 | Apps backup/identity/cutover/release modules and `jellyfin_backup.py` / `jellyfin_stages.py` | Preserve until each safety property and application acceptance path has replacement evidence. No blanket deletion. |
 
 After architecture approval, prepare source PRs in order: inert Apps lab fixtures and recovery configuration outside
-ApplicationSet discovery; Packer guest prerequisites/identity wiring; then Apps-owned backup scheduling/monitoring and
-Ansible bootstrap recovery after the metadata-durability decision. No Velero integration belongs in Terraform. Existing
+ApplicationSet discovery; Packer guest prerequisites/identity wiring; then Apps platform configuration and
+Ansible bootstrap recovery after selecting a supported identity/adoption mechanism. No Velero work is included. Existing
 VM replacement safety remains in scope for qualification. Build, allocation and activation have
 separate reviewed plans. Review merge-triggered workflows before calling any PR inert: Packer can trigger downstream
 manifest updates, and Ansible main can deploy. Put active changes behind a later activation PR.
@@ -281,9 +279,10 @@ The current proposal/evidence files live only under `docs/` and do not change di
 Merging documentation has no intended workload change. A future storage activation or provider migration requires
 workload downtime; its duration cannot be estimated from source evidence. Existing Jellyfin migration is not restarted.
 
-## Review decision
+## Current decision and next assessment
 
-Approve this native architecture for **inert source preparation**, including Velero metadata recovery as a shared
-platform candidate, while retaining CHAP and keeping credential transport, sustainable TrueNAS API support and complete
-metadata recoverability without Terraform backup hooks as deployment gates. Approval does not waive either blocker or allocate the lab. If those gates cannot be met with
-supported upstream mechanisms, return a concrete backend-architecture decision before building more local orchestration.
+Velero is removed by user direction. Recovery must tolerate loss of all cluster VMs and Kubernetes datastore state,
+without a final backup, while retaining external application data and identity. CHAP removal is under consideration;
+existing authentication remains unchanged. The next selection assessment compares native adoption on TrueNAS and Debian,
+including the tns-csi lookup-error path above. Resolve these source-level gaps before proposing lab execution or a driver
+selection. Do not expand the local maintenance framework to compensate for missing upstream guarantees by default.

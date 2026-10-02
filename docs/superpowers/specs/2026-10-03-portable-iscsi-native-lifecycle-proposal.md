@@ -1,6 +1,13 @@
 # Portable iSCSI architecture and qualification proposal
 
-Date: 2026-10-03. Status: proposed architecture, awaiting review. Source assessment and synthetic probes only.
+Date: 2026-10-03. Status: recovery/onboarding decision required. Source assessment and synthetic probes only.
+
+The [focused recovery assessment](../reports/2026-10-03-democratic-csi-clean-cluster-recovery.md) now demonstrates that
+stock dynamic provisioning targets a new dataset for a recreated PVC UID, and that a missing dataset permits creation
+even with the original request ID. The private stable-ID setting is explicitly unsupported upstream. Choose between
+explicit Git-managed static bindings with separate volume allocation, or retaining PVC-only allocation and pursuing a
+supported recovery feature/component. The first is the simpler fallback, but changes the onboarding requirement below;
+neither alternative has been approved. No driver activation or lab allocation follows from these source findings.
 
 Current direction: disposable k3s VMs **and datastore**, with application data and sufficient durable volume identity
 outside the cluster. Rebuild from Git and bootstrap secrets without a final backup or restoring the old Kubernetes
@@ -92,6 +99,9 @@ In the inspected TrueNAS API `ListVolumes`, HTTP 403 falls through to an empty r
 This establishes an enumeration failure, not that `CreateVolume` automatically destroys or replaces retained data. Do not
 build recovery around an empty list, name-template guesses, or `_private.csi.volume.idTemplate`.
 [Enumeration source](https://github.com/democratic-csi/democratic-csi/blob/b5be00c0748cbae251e661392cc7ab9fea335ac9/src/driver/freenas/api.js#L3827-L3975).
+
+The focused recovery probes confirm that normal creation uses a direct dataset lookup and stops before mutation on the
+representative permission/server/timeout failures tested. Keep the enumeration issue distinct from that creation path.
 
 The [source probes](../reports/evidence/2026-10-03-democratic-csi-source-probes.cjs) verify file hashes, replace execution
 and HTTP calls with mocks, and reproduce all three findings without network or subprocess execution:
@@ -288,7 +298,8 @@ workload downtime; its duration cannot be estimated from source evidence. Existi
 
 Velero is removed by user direction. Recovery must tolerate loss of all cluster VMs and Kubernetes datastore state,
 without a final backup, while retaining external application data and identity. CHAP removal is under consideration;
-existing authentication remains unchanged. TrueNAS 25 is the current target; compatibility with 26 is deferred. Prioritize
-democratic-csi recovery on TrueNAS 25 and Debian, including uncertain lookups and durable volume identity. tns-csi remains
-a TrueNAS-specific alternative that would require changing driver projects for Debian. Resolve these source-level gaps before proposing lab execution or a driver
-selection. Do not expand the local maintenance framework to compensate for missing upstream guarantees by default.
+existing authentication remains unchanged. TrueNAS 25 is the current target; compatibility with 26 is deferred. The
+focused democratic-csi investigation has reached the onboarding/recovery choice recorded at the top of this proposal.
+tns-csi remains a TrueNAS-specific alternative that would require changing driver projects for Debian. Resolve the
+decision before proposing lab execution or driver selection. Do not expand the local maintenance framework to compensate
+for missing upstream guarantees by default.

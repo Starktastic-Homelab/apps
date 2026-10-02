@@ -119,7 +119,7 @@ jobs:
         id: alerts
         env:
           # renovate: datasource=docker depName=prom/prometheus
-          PROMETHEUS_VERSION: 'v3.14.0'
+          PROMETHEUS_VERSION: 'v3.15.0'
         run: |
           set +e
           python3 scripts/check-alert-policy.py \

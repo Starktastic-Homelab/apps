@@ -2,6 +2,7 @@
 from contextlib import contextmanager
 from datetime import datetime
 import json
+import hashlib
 import os
 from pathlib import Path
 import re
@@ -11,6 +12,7 @@ from render_storage import record_hash, render
 
 LIMIT = 1024**2
 DIRECTORY = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+RECONCILIATION_ROOT = Path('/etc/homelab-maintenance')
 
 
 @contextmanager
@@ -27,6 +29,24 @@ def _open_path(root, relative=''):
             next_fd = os.open(part, flags, dir_fd=fd)
             os.close(fd)
             fd = next_fd
+        yield fd
+    finally:
+        os.close(fd)
+
+
+@contextmanager
+def _protected_directory(path):
+    """Reject writable ancestors that could let another user replace receipts."""
+    path = Path(path)
+    if not path.is_absolute() or '..' in path.parts: raise ValueError('Invalid receipt directory')
+    fd = os.open('/', DIRECTORY)
+    try:
+        for part in ('', *path.parts[1:]):
+            if part:
+                next_fd = os.open(part, DIRECTORY, dir_fd=fd); os.close(fd); fd = next_fd
+            info = os.fstat(fd)
+            if info.st_uid != 0 or info.st_mode & 0o022:
+                raise ValueError('Receipt directory chain is not protected')
         yield fd
     finally:
         os.close(fd)
@@ -124,6 +144,7 @@ def inspect_state(root: Path, service: str, *, now: datetime) -> dict:
         return report
     _check(report, 'state_root', 'pass', 'State root opened without symlinks.')
     data = {}
+    raw_state = {}
     prefix = 'operations/jellyfin/'
     files = dict(runner='runner-instance', ownership='operation.json', record=prefix+'record.json',
                  stages=prefix+'stages.json', placement=prefix+'placement.json',
@@ -132,6 +153,7 @@ def inspect_state(root: Path, service: str, *, now: datetime) -> dict:
     for name, path in files.items():
         try:
             raw, info = snapshot.read(path)
+            raw_state[name] = raw
             data[name] = raw.decode().strip() if name == 'runner' else _object(raw)
             ages[name] = max(0, int(now.timestamp()-info.st_mtime)) if info.st_mtime <= now.timestamp() else None
         except FileNotFoundError:
@@ -187,17 +209,50 @@ def inspect_state(root: Path, service: str, *, now: datetime) -> dict:
         except (ValueError, TypeError, KeyError, AttributeError, RecursionError):
             _check(report, name, 'fail', 'State is malformed or contradictory.')
 
+    journals = {}
     for name, filename in [('onboarding_journal', 'onboarding.jsonl'), ('snapshot_journal', 'snapshot-intent.jsonl')]:
         try:
-            _, info = snapshot.read(prefix+filename, content=False)
+            raw, info = snapshot.read(prefix+filename)
             age = int(now.timestamp()-info.st_mtime)
-            _check(report, name, 'unknown', 'Journal exists; completion requires separate reconciliation.',
-                   file_age_seconds=age if age >= 0 else None)
+            journals[name] = (raw, age if age >= 0 else None)
         except FileNotFoundError:
             _check(report, name, 'not_checked', 'No journal present.')
         except (OSError, ValueError):
             _check(report, name, 'fail', 'Journal is unsafe or inaccessible.')
-    stable = snapshot.stable()
+    receipt_snapshot = _Snapshot(RECONCILIATION_ROOT)
+    receipt_present = False
+    status, message, details = 'unknown', 'Journal exists; completion requires separate reconciliation.', {}
+    try:
+        with _protected_directory(RECONCILIATION_ROOT):
+            raw, info = receipt_snapshot.read('jellyfin-reconciliation.json')
+        receipt_present = True
+        if info.st_uid != 0 or stat.S_IMODE(info.st_mode) != 0o640 or info.st_nlink != 1:
+            raise ValueError('Untrusted receipt')
+        receipt = _object(raw)
+        fields = {'schema', 'service', 'runner_instance', 'scope', 'observed_at', 'inputs', 'results'}
+        if (set(receipt) != fields or type(receipt['schema']) is not int or receipt['schema'] != 1 or
+                receipt['service'] != 'jellyfin' or receipt['scope'] != 'historical-native-reconciliation' or
+                receipt['results'] != {'onboarding': 'verified', 'snapshot': 'verified'}):
+            raise ValueError('Invalid receipt')
+        age = _age(receipt['observed_at'], now)
+        expected = {'record.json': hashlib.sha256(raw_state.get('record', b'')).hexdigest()}
+        for name, filename in [('onboarding_journal', 'onboarding.jsonl'), ('snapshot_journal', 'snapshot-intent.jsonl')]:
+            if name in journals: expected[filename] = hashlib.sha256(journals[name][0]).hexdigest()
+        if (len(expected) == 3 and 'record' in raw_state and
+                receipt['runner_instance'] == data.get('runner') and receipt['inputs'] == expected):
+            status, message = 'pass', 'Historical native reconciliation matches local evidence; live state is unverified.'
+            details = {'evidence_age_seconds': age}
+        else:
+            message = 'Reconciliation receipt does not match current local evidence or runner.'
+    except FileNotFoundError:
+        pass
+    except (OSError, ValueError, TypeError, KeyError, UnicodeError, RecursionError, OverflowError):
+        status, message = 'fail', 'Reconciliation receipt is invalid, unsafe or inaccessible.'
+    for name, (_, age) in journals.items():
+        _check(report, name, status, message, file_age_seconds=age, **details)
+    if not journals and (receipt_present or status == 'fail'):
+        _check(report, 'reconciliation', status, message, **details)
+    stable = snapshot.stable() and receipt_snapshot.stable()
     try:
         with _open_path(root) as fd:
             stable = stable and _signature(os.fstat(fd))[:2] == root_identity

@@ -147,6 +147,35 @@ JSON belongs in the new normal path. Existing enrollment continues to protect th
 
 ## Recovery sequence and prevention of empty replacement volumes
 
+### Automatic checkpoint in the existing deployment pipeline
+
+Requirement clarified on October 3: the user keeps the existing Packer PR merge, generated Terraform PR review and
+Terraform PR merge procedure. No manual Velero command, pre-merge backup verification, new checkbox or separate recovery
+approval is required for an already-authorized routine rebuild after this integration is deployed and qualified.
+
+The checkpoint is triggered by the existing Terraform deployment workflow, after merge or manual dispatch. Conservatively
+run it for every apply with changes to an existing cluster, including normal, drain and destroy/recreate modes; skip only
+a verified no-change plan. Do not rely on a PR title, image filename or the destroy checkbox to detect replacement.
+Acquire the existing deployment exclusion first, then hold storage-definition changes and create a fresh metadata backup
+before any drain, destroy or VM-changing apply. Wait for successful completion and verify the expected bound PV/PVC
+inventory and external backup availability automatically. A missing, partial, stale or inaccessible backup stops the job
+before VM mutation. A schedule alone does not satisfy this checkpoint.
+
+The deployment run carries the exact successful Velero backup reference into downstream recovery using existing workflow
+artifacts/native backup metadata, without operator-authored receipts. If the cluster datastore is replaced, bootstrap
+automatically restores that backup and verifies bindings before enabling service ApplicationSets or new provisioning.
+If the datastore survives, verify existing bindings rather than restoring over them. Writer-exclusion checks and the
+deployment hold must span Terraform replacement through bootstrap recovery; the present helper's release before the
+Ansible dispatch is insufficient for that end-to-end gate. Prefer native workflow ordering and the existing exclusion
+mechanism, not a new maintenance service. First installation and disaster recovery with an unavailable old API require
+explicitly distinguished paths; an unreachable cluster must never be mistaken for an empty first installation.
+
+The ordinary user experience is merge, then observe the deployment result as today. Success includes recovery checks.
+Failure is reported by the workflow, with workloads held where safety is uncertain. The user is not asked to certify that
+Velero ran. This automatic checkpoint and recovery integration are required implementation work, not current behavior.
+
+### Recovery operations
+
 1. Keep protected Velero metadata backups outside k3s, including every bound retained PV/PVC, namespaces and the secret
    recovery material. A metadata schedule may cover the whole cluster to avoid per-service enrollment; restore only the
    platform resources needed for storage recovery. Keep data backups separate. Require a fresh complete metadata backup
@@ -165,9 +194,9 @@ JSON belongs in the new normal path. Existing enrollment continues to protect th
    volume provisioning last. Test a deliberately missing PV backup and denied backend lookup: neither may allocate an
    empty replacement. If a backup predates a PVC, that service remains held until its mapping is recovered.
 
-This is a shared recovery ceremony, not NFS-style path rediscovery. It adds an external metadata-backup dependency and
-restore-before-GitOps ordering. These operational differences are part of the architecture being reviewed. Independent
-k3s datastore snapshots remain useful but do not replace the test of a fresh cluster restoring storage metadata.
+These operations run inside the normal deployment pipeline for planned rebuilds. They add an external metadata-backup
+dependency and restore-before-GitOps ordering without adding a manual merge prerequisite. Independent k3s datastore
+snapshots remain useful but do not replace the test of a fresh cluster restoring storage metadata.
 
 ## Writer exclusion and maintenance
 
@@ -176,6 +205,10 @@ SMBIOS/generation and stopped status against the expected old VM; an API timeout
 Kubernetes attachment or apply an out-of-service taint until shutdown is confirmed. No unattended failover or new custom
 fencing daemon is proposed. Wrong-generation and interrupted-stop tests are mandatory.
 [Kubernetes shutdown guidance](https://kubernetes.io/docs/concepts/cluster-administration/node-shutdown/).
+
+For a planned pipeline rebuild, perform the stop-state/generation checks automatically as part of the authorized VM
+replacement and recovery sequence. The documented operator procedure is for exceptional failure recovery, not an extra
+step before every Terraform merge. An ambiguous outcome still stops the pipeline rather than releasing a writer.
 
 Use CSI snapshot clones mounted by Jobs for routine restore inspection. A readOnly pod mount is not evidence that the
 original avoided journal replay, repair or formatting. For a non-mutating original-volume investigation, retain the
@@ -211,6 +244,7 @@ not the proposed operator VM.
 | Identity and replacement | Distinct clone IQNs, stable reboot IQNs, node replacement without handcrafted enrollment, backend target configuration survives reboot. |
 | Competing writers | Same-cluster RWOP refusal; isolated old writer excluded before replacement writes; wrong-generation stop refused; ambiguous stop remains closed. |
 | Full cluster loss | Write unique sentinels, remove all three lab cluster VMs/OS disks, recreate, restore metadata, recover the original handles/filesystems/data without new backend volume allocation. |
+| Unchanged merge procedure | Exercise the Packer-to-Terraform-to-Ansible path without manual Velero commands or checks; normal, drain, destroy and dispatch routes enforce the checkpoint. Failed backup prevents VM mutation; successful rebuild restores bindings before services. |
 | Recovery failures | Missing/stale metadata, duplicate backend identities, namespace collisions, HTTP 403/500/timeouts and missing storage leave affected writers held and allocate nothing. |
 | Backup and maintenance | Interrupted capture stays incomplete; restore checks use clones/new volumes; verify source remains unchanged; compare file and SQLite contents independently. |
 | Backend portability | Repeat the same declarations/recovery suite on TrueNAS and Debian; separately transfer verified data TrueNAS to Debian and reverse, with old-writer exclusion. |
@@ -232,8 +266,9 @@ name only the disposable resources explicitly authorized for removal.
 | Apps backup/identity/cutover/release modules and `jellyfin_backup.py` / `jellyfin_stages.py` | Preserve until each safety property and application acceptance path has replacement evidence. No blanket deletion. |
 
 After architecture approval, prepare source PRs in order: inert Apps lab fixtures and recovery configuration outside
-ApplicationSet discovery; Packer guest prerequisites/identity wiring; then scoped bootstrap recovery changes if needed.
-No Terraform production resource changes are needed for the initial proposal. Build, allocation and activation have
+ApplicationSet discovery; Packer guest prerequisites/identity wiring; then required Terraform workflow and Ansible
+bootstrap integration for automatic checkpoint/recovery. No Terraform production resource changes are needed for the
+initial proposal. Build, allocation and activation have
 separate reviewed plans. Review merge-triggered workflows before calling any PR inert: Packer can trigger downstream
 manifest updates, and Ansible main can deploy. Put active changes behind a later activation PR.
 

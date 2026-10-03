@@ -9,6 +9,11 @@ is needed for this path. The [recovery assessment](../reports/2026-10-03-democra
 why stock dynamic provisioning was not selected. The [Jellyfin audit](../reports/2026-10-03-jellyfin-static-storage-design.md)
 traces the current implementation and proposed simplification.
 
+The user confirmed keeping this design on October 3. Apps owns the per-volume declarations; Ansible prepares shared
+infrastructure and consumes those declarations if needed for verification. There must be no second service inventory
+or service-specific lifecycle code in Ansible. The alternatives recap below preserves this selection while recording
+where the assessment is incomplete.
+
 Current direction: disposable k3s VMs **and datastore**, with application data, Git-managed volume bindings and bootstrap
 secrets outside the cluster. Rebuild without a final metadata backup or restoring the old Kubernetes database.
 **Velero is removed from this plan.** External etcd or a retained control-plane disk is not the selected replacement.
@@ -116,6 +121,68 @@ qualification. Command logs were redacted in the synthetic cases; full error/out
 Local validation also passed Node syntax checking and proposal link/whitespace checks. `pre-commit` could not run because
 it is not installed. No YAML/Helm resources changed, so cluster-schema/render checks were not applicable. No runtime
 storage, image build, Ansible deployment or infrastructure test was performed.
+
+## Alternatives against the original SQLite and NFS goal
+
+The original requirement is reliable SQLite storage with an operating model close to NFS, not iSCSI itself. SQLite
+documents network-filesystem locking/sync risks and says WAL does not work over network filesystems. This does not mean
+every SQLite database on NFS immediately fails; rollback-journal configurations can mitigate some problems, but are not
+a generic guarantee for unmodified applications. Jellyfin currently recommends a local database and still documents
+SQLite as its implemented database backend. NFS remains appropriate for its media files.
+[SQLite network guidance](https://www.sqlite.org/useovernet.html),
+[WAL limitations](https://www.sqlite.org/wal.html),
+[Jellyfin storage guidance](https://jellyfin.org/docs/general/administration/storage/).
+
+With ext4 on a single-writer remote block device, SQLite file locking and WAL coordination occur within the guest's
+filesystem. The storage path must still honor flushes and exclude competing filesystem writers. Changing the transport
+does not eliminate those requirements, and storage changes do not prove that application-level SQLite contention is fixed.
+
+The following is an architectural comparison, not runtime qualification of every candidate. Prior detailed source
+inspection concentrated on iSCSI drivers; it would overstate the evidence to claim that all alternatives were exhausted.
+
+| Alternative | Assessment against this homelab's requirements |
+| --- | --- |
+| Direct NFS/SMB for SQLite, or mount/journal tuning | Does not establish a generic supported filesystem contract for these applications. Switching file-sharing protocols alone is not a demonstrated fix. Keep NFS for media and other suitable files. |
+| Application-supported PostgreSQL or another database server | Good per-application option where officially supported, already a separate workstream. It does not cover Jellyfin today and the database server still needs durable storage. |
+| Node-local SQLite plus backups or Litestream | Simple runtime storage, but asynchronous copies introduce a latest-write loss window when the source disks disappear. Litestream explicitly documents this limitation. It does not meet recovery from surviving original storage without backup freshness checks. |
+| Retained virtual disks, including Proxmox CSI over NFS | Credible alternative that has not been ruled out. Gives the guest a block device and can keep the NAS protocol as NFS. Requires proof of disk survival during VM deletion, reconstruction of bindings and safe attachment to replacement VMs. Details below. |
+| Longhorn or another replicated storage system inside the disposable cluster | Replication among disks that are all destroyed does not preserve data. Retaining those disks requires a qualified recovery path; Longhorn's documented backup-based DR is asynchronous. An external storage deployment changes this tradeoff but adds infrastructure. |
+| External Ceph RBD | A viable architectural family providing block storage to Kubernetes, not rejected as SQLite-incompatible. Operating a separate Ceph storage system and preserving its bindings is a larger platform change than consuming the existing NAS. It has not been lab-compared here. |
+| NVMe/TCP instead of iSCSI | TrueNAS 25.10 supports it. It changes block transport, while retaining allocation, stable bindings, growth and exclusive-writer requirements. No evidence yet that it reduces the total lifecycle work. |
+| A loop-mounted filesystem image on NFS inside a worker | Changes the filesystem seen by SQLite, but requires qualified image locking, exclusive ownership, mount cleanup, flush behavior and growth. No supported drop-in lifecycle was established here; custom loop-device orchestration is not the selected simplification. |
+| Run the application beside its data on a persistent NAS/VM | Can simplify storage attachment, but changes the workload-placement model and does not provide the requested movement among disposable Kubernetes workers. |
+| Static iSCSI bindings | Accepted baseline: existing driver, external data, explicit Git identity and provider portability. Initial allocation and growth remain separate operations; complete unattended rebuild and simplified movement still require qualification. |
+
+Sources for the additional candidates:
+[Litestream data-loss window](https://litestream.io/tips/#data-loss-window),
+[Longhorn backup-based DR](https://longhorn.io/docs/1.13.0/snapshots-and-backups/setup-disaster-recovery-volumes/),
+[Ceph block devices with Kubernetes](https://docs.ceph.com/en/latest/rbd/rbd-kubernetes/),
+[TrueNAS 25.10 NVMe-oF](https://www.truenas.com/docs/scale/25.10/scaletutorials/shares/nvme-of/).
+
+### Proxmox CSI over NFS remains an open comparison
+
+Proxmox supports VM disk images on NFS. The Proxmox CSI project's documentation describes attaching persistent volumes
+as VM block devices, movement across Proxmox nodes for shared storage including NFS, and PVC expansion. Its documented
+PV lifecycle keep annotation addresses driver deletion of a volume; this is not evidence that an attached disk survives
+the Terraform provider's VM-destruction path. These are current documentation observations, not a pinned source audit.
+[Proxmox NFS backend](https://github.com/proxmox/pve-docs/blob/master/pve-storage-nfs.adoc),
+[Proxmox CSI overview](https://github.com/sergelogvinov/proxmox-csi-plugin),
+[expansion and retention options](https://github.com/sergelogvinov/proxmox-csi-plugin/blob/main/docs/options.md).
+
+The candidate data path is SQLite -> guest ext4 -> virtual disk -> Proxmox -> NFS -> NAS. SQLite would not directly open
+its database over NFS; QEMU and the backend would still need correct cache/flush behavior. Inference: this could retain
+NAS-provider portability through NFS while replacing guest iSCSI setup with Proxmox integration. It introduces dependency
+on Proxmox APIs/topology/permissions, which must be assessed separately from TrueNAS dependency.
+
+Before selecting it, inspect the actual Terraform provider and CSI versions for attached-disk retention on complete VM
+deletion, interference between Terraform disk reconciliation and CSI hotplug, recovery from fresh PVC UIDs using durable
+bindings, missing-volume behavior, stale attachments, and supported growth of recovered static volumes. The same full
+destroy/recreate and competing-writer tests apply. No claim that it meets the unchanged rebuild procedure is made yet.
+
+The recommendation remains to preserve the iSCSI proposal, but compare this concrete candidate before treating iSCSI as
+the simplest possible answer. Evaluate total routine operations and custom code, not just the protocol or CSI feature
+list. The present Jellyfin migration/release machinery is not an inherent requirement of iSCSI; keep only the shared
+checks needed for agreed failure cases. Apply the same recovery standard to the NFS baseline when comparing simplicity.
 
 ## Dynamic-controller alternatives assessed before selecting static bindings
 

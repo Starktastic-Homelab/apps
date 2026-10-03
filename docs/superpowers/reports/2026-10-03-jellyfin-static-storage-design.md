@@ -85,6 +85,39 @@ Portability comes from the static iSCSI contract: a Debian ZFS/LIO export can be
 NAS creation commands and storage identities change during a verified backend migration; application claim names can
 remain the same. Replacing all NAS/provider tools is not a prerequisite for the first static-binding simplification.
 
+## Routine movement and capacity growth
+
+Static bindings do not pin a volume to a worker. With both workers prepared and authorized by the target, standard
+Kubernetes scheduling and CSI unstage/stage can move a pod after a clean shutdown/unmount. The current Jellyfin node UID,
+VM-generation affinity and writer authorization prevent that free movement today. Their replacement must permit healthy
+node-to-node moves without per-move Git edits or hand-authored receipts. Jellyfin still needs an eligible GPU worker.
+An unresponsive old worker must be confirmed stopped before starting another writer; deleting a Pod object alone does
+not establish that condition. Test ordinary drain/reschedule and unreachable-node recovery separately.
+
+64 GiB is the pilot allocation, not an architectural size limit. The existing ZVOL and ext4 filesystem can be grown
+without assigning a new volume identity. The current static node-manual configuration has no expandable StorageClass or
+resizer controller, and its ControllerExpandVolume returns UNIMPLEMENTED. Its node expansion capability is disabled by
+default. Consequently a PVC size edit is not an end-to-end expansion operation in this setup.
+
+The inherited NodeStageVolume code does attempt ext4 growth after mounting a block device. This is useful source
+evidence for a supported-filesystem growth path, but not proof that an existing iSCSI session will discover a larger
+device or that Kubernetes claim metadata will reconcile automatically. A controlled growth procedure must cover NAS
+ZVOL expansion, node capacity discovery, filesystem growth, verified capacity and Git/PV/PVC metadata reconciliation.
+The empty StorageClass means the usual expandable-PVC workflow cannot simply be assumed. Prefer a planned stop/restart
+for the first qualification; do not promise online growth. The existing native identity verifier also requires exact
+capacity equality with the recorded allocation, so deliberate growth must update that record and its dependent checks.
+Ordinary recovery must never resize the volume merely because observed and declared capacities differ.
+
+This design needs a small amount of shared orchestration for the requested automatic verification and rebuild behavior.
+It does not require custom attach/detach code or a new storage controller. NAS administration and filesystem tools can
+perform occasional allocation/growth via a documented procedure; automation should wrap those operations only where it
+removes repeated work. Add capacity monitoring before volumes fill. No service-specific lifecycle program is proposed.
+
+Sources: [node-manual capabilities and expansion](https://github.com/democratic-csi/democratic-csi/blob/v1.9.5/src/driver/node-manual/index.js),
+[filesystem growth during staging](https://github.com/democratic-csi/democratic-csi/blob/v1.9.5/src/driver/index.js#L1683-L1717),
+[Kubernetes expansion requirements](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#expanding-persistent-volumes-claims),
+[TrueNAS 25.10 ZVOL management](https://www.truenas.com/docs/scale/25.10/scaletutorials/datasets/addmanagezvols/).
+
 ## Open access-policy choice
 
 CHAP removal has not been approved. It removes CHAP credential plumbing and the inspected CSI password-in-arguments

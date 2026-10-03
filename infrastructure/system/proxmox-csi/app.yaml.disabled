@@ -1,0 +1,8 @@
+# Deliberately outside ApplicationSet discovery until integrated qualification.
+name: proxmox-csi
+namespace: csi-proxmox
+deployPhase: foundation
+chart:
+  repo: ghcr.io/sergelogvinov/charts
+  name: proxmox-csi-plugin
+  version: 0.5.10

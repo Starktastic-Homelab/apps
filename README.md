@@ -49,6 +49,9 @@ The repo manages infrastructure controllers (Traefik, Authentik, cert-manager, d
 
 ## GitOps Architecture
 
+Stock [Proxmox CSI preparation](infrastructure/system/proxmox-csi/README.md) is staged
+outside ApplicationSet discovery pending integrated qualification and activation.
+
 ### ApplicationSet Discovery
 
 Two ApplicationSets at the bootstrap level drive all deployments:

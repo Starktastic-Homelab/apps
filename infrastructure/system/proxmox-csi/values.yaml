@@ -1,0 +1,37 @@
+# Staged only: app.yaml.disabled is not discovered by ArgoCD.
+createNamespace: true
+existingConfigSecret: proxmox-csi-config
+existingConfigSecretKey: config.yaml
+logVerbosityLevel: 2
+options:
+  enableCapacity: false
+
+# Keep the API controller off the workers it attaches disks to.
+nodeSelector:
+  kubernetes.io/os: linux
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: node-role.kubernetes.io/control-plane
+              operator: Exists
+tolerations:
+  - key: node-role.kubernetes.io/control-plane
+    operator: Exists
+    effect: NoSchedule
+
+node:
+  nodeSelector:
+    kubernetes.io/os: linux
+    node-role.kubernetes.io/worker: "true"
+
+# Explicitly prebound claims only for the retained design. This stock class
+# still supports dynamic provisioning; Retain does not enforce prebinding.
+storageClass:
+  - name: proxmox-retained
+    storage: k3s-block
+    reclaimPolicy: Retain
+    volumeBindingMode: WaitForFirstConsumer
+    fstype: ext4
+    cache: none

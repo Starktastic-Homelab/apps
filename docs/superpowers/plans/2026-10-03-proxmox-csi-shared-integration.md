@@ -77,3 +77,18 @@ reproduced for this one-field prerequisite. Later bootstrap, fencing, resize and
 
 No additional runtime test or string-matching HCL test was introduced: the exact ownership behavior already has real
 provider/lab evidence, and this PR's provider plan verifies its current production impact without applying it.
+
+Shared prerequisites merged: Ansible276/277/278 and Terraform227/228/229 add
+opt-in node preparation, durable whole-cohort replacement policy, post-bootstrap
+drain recovery, manual shared storage/API setup and native pool membership.
+The post-merge Ansible278 deployment and Terraform229 apply both passed. Storage
+setup remains manual and unexecuted; the replacement policy and pool defaults
+remain inactive.
+
+Task 3 source preparation stages the stock chart outside discovery at
+`infrastructure/system/proxmox-csi/app.yaml.disabled`, with an external Secret
+reference and a nondefault Retain class. CI renders the real chart with globals
+and local values. No service binding or credential is published. This is partial
+integration: external secret recovery, ArgoCD ordering, interrupted replacement,
+and PVC-first growth followed by fresh-cluster reconstruction still require an
+approved disposable integrated qualification before activation.

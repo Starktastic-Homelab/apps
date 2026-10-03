@@ -1,0 +1,772 @@
+{
+  "observations": {
+    "after-full-destroy.json": {
+      "cluster_vms_absent": true,
+      "retained_image_size": 2147483648,
+      "filesystem_uuid": "3dca49c8-66c3-44b0-8e3b-7eacb379fd59"
+    },
+    "cluster-cleanup.json": {
+      "vmids_deleted": [
+        981,
+        982,
+        983
+      ],
+      "apply_exitcode": 0,
+      "no_old_cluster_vms": true
+    },
+    "failed-writer-held.json": {
+      "node_ready": {
+        "lastHeartbeatTime": "2026-10-03T15:09:16Z",
+        "lastTransitionTime": "2026-10-03T15:13:42Z",
+        "message": "Kubelet stopped posting node status.",
+        "reason": "NodeStatusUnknown",
+        "status": "Unknown",
+        "type": "Ready"
+      },
+      "old_vm_running": true,
+      "same_pod_held": true,
+      "writer_before": {
+        "rows": 4218,
+        "prefix_rows": 2000,
+        "prefix_sha256": "bab0dacd28dd20baae0f0c0d50a9fd9230e704e6f8d0a268d9d4ac50092017c6",
+        "integrity": "ok",
+        "filesystem_capacity_bytes": 4152066048
+      },
+      "writer_while_notready": {
+        "rows": 4458,
+        "max_seq": 102457
+      },
+      "replacement_started": false
+    },
+    "failed-writer-recovered.json": {
+      "old_vm_confirmed_off_before_release": true,
+      "after": {
+        "rows": 4458,
+        "prefix_rows": 2000,
+        "prefix_sha256": "bab0dacd28dd20baae0f0c0d50a9fd9230e704e6f8d0a268d9d4ac50092017c6",
+        "integrity": "ok",
+        "filesystem_capacity_bytes": 4152066048
+      },
+      "old_vm_disk_detached_before_restart": true
+    },
+    "final-image-pins.json": [
+      {
+        "namespace": "csi-lab",
+        "pod": "sqlite-757d687457-rsw45",
+        "containers": [
+          {
+            "name": "sqlite",
+            "imageID": "docker.io/library/python@sha256:bb2988715db2cf7ace7b53f38f3cffbef7c7046a656bee66245eb0ed386e2e81"
+          }
+        ]
+      },
+      {
+        "namespace": "csi-proxmox",
+        "pod": "csi-proxmox-proxmox-csi-plugin-controller-6f66585764-gv2nn",
+        "containers": [
+          {
+            "name": "csi-attacher",
+            "imageID": "registry.k8s.io/sig-storage/csi-attacher@sha256:be59d0556508d3dd419cc34c53062f170a28902ef36e832b947c7796458a083d"
+          },
+          {
+            "name": "csi-provisioner",
+            "imageID": "registry.k8s.io/sig-storage/csi-provisioner@sha256:bb057f866177d5f4139a1527e594499cbe0feeb67b63aaca8679dfdf0a6016f9"
+          },
+          {
+            "name": "csi-proxmox-proxmox-csi-plugin-controller",
+            "imageID": "ghcr.io/sergelogvinov/proxmox-csi-controller@sha256:95ef74cce03e89a1706d9b32888a84bf44e0db439c4fe2a4334ce123728d4c3b"
+          },
+          {
+            "name": "csi-resizer",
+            "imageID": "registry.k8s.io/sig-storage/csi-resizer@sha256:5e7cbb63fd497fa913caa21fee1a69f727c220c6fa83c5f8bb0995e2ad73a474"
+          },
+          {
+            "name": "liveness-probe",
+            "imageID": "registry.k8s.io/sig-storage/livenessprobe@sha256:88092d100909918ae0a768956cf78c88bc59cd7232720f7cdbdfb5d2e235001e"
+          }
+        ]
+      },
+      {
+        "namespace": "csi-proxmox",
+        "pod": "csi-proxmox-proxmox-csi-plugin-node-8z4b5",
+        "containers": [
+          {
+            "name": "csi-node-driver-registrar",
+            "imageID": "registry.k8s.io/sig-storage/csi-node-driver-registrar@sha256:11f199f6bec47403b03cb49c79a41f445884b213b382582a60710b8c6fdc316a"
+          },
+          {
+            "name": "csi-proxmox-proxmox-csi-plugin-node",
+            "imageID": "ghcr.io/sergelogvinov/proxmox-csi-node@sha256:e0151137a1c5fa4faea9b4622436b203f1dc246ea37a3a77d09d3855c70aabd1"
+          },
+          {
+            "name": "liveness-probe",
+            "imageID": "registry.k8s.io/sig-storage/livenessprobe@sha256:88092d100909918ae0a768956cf78c88bc59cd7232720f7cdbdfb5d2e235001e"
+          }
+        ]
+      },
+      {
+        "namespace": "csi-proxmox",
+        "pod": "csi-proxmox-proxmox-csi-plugin-node-b25bf",
+        "containers": [
+          {
+            "name": "csi-node-driver-registrar",
+            "imageID": "registry.k8s.io/sig-storage/csi-node-driver-registrar@sha256:11f199f6bec47403b03cb49c79a41f445884b213b382582a60710b8c6fdc316a"
+          },
+          {
+            "name": "csi-proxmox-proxmox-csi-plugin-node",
+            "imageID": "ghcr.io/sergelogvinov/proxmox-csi-node@sha256:e0151137a1c5fa4faea9b4622436b203f1dc246ea37a3a77d09d3855c70aabd1"
+          },
+          {
+            "name": "liveness-probe",
+            "imageID": "registry.k8s.io/sig-storage/livenessprobe@sha256:88092d100909918ae0a768956cf78c88bc59cd7232720f7cdbdfb5d2e235001e"
+          }
+        ]
+      },
+      {
+        "namespace": "csi-proxmox",
+        "pod": "csi-proxmox-proxmox-csi-plugin-node-hktlx",
+        "containers": [
+          {
+            "name": "csi-node-driver-registrar",
+            "imageID": "registry.k8s.io/sig-storage/csi-node-driver-registrar@sha256:11f199f6bec47403b03cb49c79a41f445884b213b382582a60710b8c6fdc316a"
+          },
+          {
+            "name": "csi-proxmox-proxmox-csi-plugin-node",
+            "imageID": "ghcr.io/sergelogvinov/proxmox-csi-node@sha256:e0151137a1c5fa4faea9b4622436b203f1dc246ea37a3a77d09d3855c70aabd1"
+          },
+          {
+            "name": "liveness-probe",
+            "imageID": "registry.k8s.io/sig-storage/livenessprobe@sha256:88092d100909918ae0a768956cf78c88bc59cd7232720f7cdbdfb5d2e235001e"
+          }
+        ]
+      },
+      {
+        "namespace": "kube-system",
+        "pod": "coredns-577d995dff-7zfxt",
+        "containers": [
+          {
+            "name": "coredns",
+            "imageID": "docker.io/rancher/mirrored-coredns-coredns@sha256:7efd3c635b03efd68c4e8398fc45f0d993d0e9ab016f72c1cefb0fd6d01aa286"
+          }
+        ]
+      },
+      {
+        "namespace": "kube-system",
+        "pod": "helm-install-gateway-api-crd-czwfr",
+        "containers": [
+          {
+            "name": "helm",
+            "imageID": "docker.io/rancher/klipper-helm@sha256:5425a2b4613d2458dbdff99218e8d487ebb59c20e7a941f061c0777070f0aac1"
+          }
+        ]
+      }
+    ],
+    "first-after-full-destroy.json": {
+      "cluster_vms_absent": true,
+      "retained_image_size": 2147483648,
+      "filesystem_uuid": "3dca49c8-66c3-44b0-8e3b-7eacb379fd59"
+    },
+    "first-fresh-cluster-identities.json": {
+      "previous_cluster_uid": "120569db-6cd7-4d22-beb1-3d34be3caee4",
+      "new_cluster_uid": "915205e9-4d86-4e2d-a146-88616f69d439",
+      "previous_claim_uid": "9c223e7b-08dd-4575-bf5c-a12f149083b3",
+      "new_claim_uid": "24786616-164e-4d11-ae11-e4a586e70c04"
+    },
+    "first-sqlite-after-rebuild.json": {
+      "rows": 1000,
+      "prefix_rows": 1000,
+      "prefix_sha256": "93aaa7459e4a1fb4c53bfb6c901b2c3b3d81ea1a0f2b9c1e32ca44ac9691ccc4",
+      "integrity": "ok",
+      "filesystem_capacity_bytes": 2040373248
+    },
+    "fresh-cluster-identities.json": {
+      "previous_cluster_uid": "120569db-6cd7-4d22-beb1-3d34be3caee4",
+      "new_cluster_uid": "915205e9-4d86-4e2d-a146-88616f69d439",
+      "previous_claim_uid": "9c223e7b-08dd-4575-bf5c-a12f149083b3",
+      "new_claim_uid": "24786616-164e-4d11-ae11-e4a586e70c04"
+    },
+    "image-pins.json": [
+      {
+        "namespace": "csi-lab",
+        "pod": "sqlite-66bdf54969-h5gxt",
+        "containers": [
+          {
+            "name": "sqlite",
+            "imageID": "docker.io/library/python@sha256:bb2988715db2cf7ace7b53f38f3cffbef7c7046a656bee66245eb0ed386e2e81"
+          }
+        ]
+      },
+      {
+        "namespace": "csi-proxmox",
+        "pod": "csi-proxmox-proxmox-csi-plugin-controller-6f66585764-mktbz",
+        "containers": [
+          {
+            "name": "csi-attacher",
+            "imageID": "registry.k8s.io/sig-storage/csi-attacher@sha256:be59d0556508d3dd419cc34c53062f170a28902ef36e832b947c7796458a083d"
+          },
+          {
+            "name": "csi-provisioner",
+            "imageID": "registry.k8s.io/sig-storage/csi-provisioner@sha256:bb057f866177d5f4139a1527e594499cbe0feeb67b63aaca8679dfdf0a6016f9"
+          },
+          {
+            "name": "csi-proxmox-proxmox-csi-plugin-controller",
+            "imageID": "ghcr.io/sergelogvinov/proxmox-csi-controller@sha256:95ef74cce03e89a1706d9b32888a84bf44e0db439c4fe2a4334ce123728d4c3b"
+          },
+          {
+            "name": "csi-resizer",
+            "imageID": "registry.k8s.io/sig-storage/csi-resizer@sha256:5e7cbb63fd497fa913caa21fee1a69f727c220c6fa83c5f8bb0995e2ad73a474"
+          },
+          {
+            "name": "liveness-probe",
+            "imageID": "registry.k8s.io/sig-storage/livenessprobe@sha256:88092d100909918ae0a768956cf78c88bc59cd7232720f7cdbdfb5d2e235001e"
+          }
+        ]
+      },
+      {
+        "namespace": "csi-proxmox",
+        "pod": "csi-proxmox-proxmox-csi-plugin-node-8fjbr",
+        "containers": [
+          {
+            "name": "csi-node-driver-registrar",
+            "imageID": "registry.k8s.io/sig-storage/csi-node-driver-registrar@sha256:11f199f6bec47403b03cb49c79a41f445884b213b382582a60710b8c6fdc316a"
+          },
+          {
+            "name": "csi-proxmox-proxmox-csi-plugin-node",
+            "imageID": "ghcr.io/sergelogvinov/proxmox-csi-node@sha256:e0151137a1c5fa4faea9b4622436b203f1dc246ea37a3a77d09d3855c70aabd1"
+          },
+          {
+            "name": "liveness-probe",
+            "imageID": "registry.k8s.io/sig-storage/livenessprobe@sha256:88092d100909918ae0a768956cf78c88bc59cd7232720f7cdbdfb5d2e235001e"
+          }
+        ]
+      },
+      {
+        "namespace": "csi-proxmox",
+        "pod": "csi-proxmox-proxmox-csi-plugin-node-b2nzf",
+        "containers": [
+          {
+            "name": "csi-node-driver-registrar",
+            "imageID": "registry.k8s.io/sig-storage/csi-node-driver-registrar@sha256:11f199f6bec47403b03cb49c79a41f445884b213b382582a60710b8c6fdc316a"
+          },
+          {
+            "name": "csi-proxmox-proxmox-csi-plugin-node",
+            "imageID": "ghcr.io/sergelogvinov/proxmox-csi-node@sha256:e0151137a1c5fa4faea9b4622436b203f1dc246ea37a3a77d09d3855c70aabd1"
+          },
+          {
+            "name": "liveness-probe",
+            "imageID": "registry.k8s.io/sig-storage/livenessprobe@sha256:88092d100909918ae0a768956cf78c88bc59cd7232720f7cdbdfb5d2e235001e"
+          }
+        ]
+      },
+      {
+        "namespace": "csi-proxmox",
+        "pod": "csi-proxmox-proxmox-csi-plugin-node-qlsjc",
+        "containers": [
+          {
+            "name": "csi-node-driver-registrar",
+            "imageID": "registry.k8s.io/sig-storage/csi-node-driver-registrar@sha256:11f199f6bec47403b03cb49c79a41f445884b213b382582a60710b8c6fdc316a"
+          },
+          {
+            "name": "csi-proxmox-proxmox-csi-plugin-node",
+            "imageID": "ghcr.io/sergelogvinov/proxmox-csi-node@sha256:e0151137a1c5fa4faea9b4622436b203f1dc246ea37a3a77d09d3855c70aabd1"
+          },
+          {
+            "name": "liveness-probe",
+            "imageID": "registry.k8s.io/sig-storage/livenessprobe@sha256:88092d100909918ae0a768956cf78c88bc59cd7232720f7cdbdfb5d2e235001e"
+          }
+        ]
+      },
+      {
+        "namespace": "kube-system",
+        "pod": "coredns-577d995dff-6vhfl",
+        "containers": [
+          {
+            "name": "coredns",
+            "imageID": "docker.io/rancher/mirrored-coredns-coredns@sha256:7efd3c635b03efd68c4e8398fc45f0d993d0e9ab016f72c1cefb0fd6d01aa286"
+          }
+        ]
+      },
+      {
+        "namespace": "kube-system",
+        "pod": "helm-install-gateway-api-crd-p8fvx",
+        "containers": [
+          {
+            "name": "helm",
+            "imageID": "docker.io/rancher/klipper-helm@sha256:5425a2b4613d2458dbdff99218e8d487ebb59c20e7a941f061c0777070f0aac1"
+          }
+        ]
+      }
+    ],
+    "interrupted-expansion.json": {
+      "image_size": 4294967296,
+      "filesystem_observation": {
+        "rows": 1000,
+        "prefix_rows": 1000,
+        "prefix_sha256": "93aaa7459e4a1fb4c53bfb6c901b2c3b3d81ea1a0f2b9c1e32ca44ac9691ccc4",
+        "integrity": "ok",
+        "filesystem_capacity_bytes": 2040373248
+      },
+      "pvc": {
+        "apiVersion": "v1",
+        "kind": "PersistentVolumeClaim",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"PersistentVolumeClaim\",\"metadata\":{\"annotations\":{},\"name\":\"sqlite\",\"namespace\":\"csi-lab\"},\"spec\":{\"accessModes\":[\"ReadWriteOncePod\"],\"resources\":{\"requests\":{\"storage\":\"2Gi\"}},\"storageClassName\":\"lab-nfs-expand\",\"volumeName\":\"csi-lab-sqlite\"}}\n",
+            "pv.kubernetes.io/bind-completed": "yes"
+          },
+          "creationTimestamp": "2026-10-03T14:54:07Z",
+          "finalizers": [
+            "kubernetes.io/pvc-protection"
+          ],
+          "name": "sqlite",
+          "namespace": "csi-lab",
+          "resourceVersion": "902",
+          "uid": "24786616-164e-4d11-ae11-e4a586e70c04"
+        },
+        "spec": {
+          "accessModes": [
+            "ReadWriteOncePod"
+          ],
+          "resources": {
+            "requests": {
+              "storage": "4Gi"
+            }
+          },
+          "storageClassName": "lab-nfs-expand",
+          "volumeMode": "Filesystem",
+          "volumeName": "csi-lab-sqlite"
+        },
+        "status": {
+          "accessModes": [
+            "ReadWriteOncePod"
+          ],
+          "allocatedResourceStatuses": {
+            "storage": "NodeResizePending"
+          },
+          "allocatedResources": {
+            "storage": "4Gi"
+          },
+          "capacity": {
+            "storage": "2Gi"
+          },
+          "conditions": [
+            {
+              "lastProbeTime": null,
+              "lastTransitionTime": "2026-10-03T14:54:07Z",
+              "message": "A pod is currently referencing this PVC",
+              "reason": "PodUsingPVC",
+              "status": "False",
+              "type": "Unused"
+            },
+            {
+              "lastProbeTime": null,
+              "lastTransitionTime": "2026-10-03T14:55:06Z",
+              "status": "True",
+              "type": "Resizing"
+            },
+            {
+              "lastProbeTime": null,
+              "lastTransitionTime": "2026-10-03T14:55:07Z",
+              "message": "Waiting for user to (re-)start a pod to finish file system resize of volume on node.",
+              "status": "True",
+              "type": "FileSystemResizePending"
+            }
+          ],
+          "phase": "Bound"
+        }
+      }
+    },
+    "k3s-pins.json": {
+      "version": "v1.37.0+k3s1",
+      "binary_sha256": "39eed8f53f277497dfc2542f66eab0ed68a94dfc598946dbebfb50366916c7a2",
+      "installer_sha256": "ed01f89fd977bf20ac1516bbebf8370bf3ddbaa55dac8aba610956a4c78cc00b"
+    },
+    "negative-cases.json": {
+      "blank_image_formatted_ext4_and_ready": true,
+      "blank_identity": {
+        "DEVNAME": "/srv/csi-lab/nfs/images/9980/vm-9980-blank.raw",
+        "UUID": "6a3b1695-583c-4b37-9608-2818aa58b504",
+        "VERSION": "1.0",
+        "FSBLOCKSIZE": "1024",
+        "BLOCK_SIZE": "1024",
+        "FSLASTBLOCK": "262144",
+        "FSSIZE": "268435456",
+        "TYPE": "ext4",
+        "USAGE": "filesystem"
+      },
+      "wrong_type_failed_mount": true,
+      "wrong_type_still_ext4": {
+        "DEVNAME": "/srv/csi-lab/nfs/images/9980/vm-9980-wrongtype.raw",
+        "UUID": "c8d1d63c-4678-4dde-b987-faea695a40a3",
+        "VERSION": "1.0",
+        "FSBLOCKSIZE": "1024",
+        "BLOCK_SIZE": "1024",
+        "FSLASTBLOCK": "262144",
+        "FSSIZE": "268435456",
+        "TYPE": "ext4",
+        "USAGE": "filesystem"
+      },
+      "wrong_type_events": [
+        "MountVolume.MountDevice failed for volume \"negative-wrongtype\" : rpc error: code = Internal desc = mount failed: exit status 32\nMounting command: mount\nMounting arguments: -t xfs -o nouuid,defaults /dev/sdb /var/lib/kubelet/plugins/kubernetes.io/csi/csi.proxmox.sinextra.dev/42ee7d52dc14fa8069f0c82d20134a92ef4f974c9430917d43c848f7e43c0ca4/globalmount\nOutput: mount: /var/lib/kubelet/plugins/kubernetes.io/csi/csi.proxmox.sinextra.dev/42ee7d52dc14fa8069f0c82d20134a92ef4f974c9430917d43c848f7e43c0ca4/globalmount: wrong fs type, bad option, bad superblock on /dev/sdb, missing codepage or helper program, or other error.\n       dmesg(1) may have more information after failed mount system call.\n"
+      ],
+      "missing_events": [
+        "AttachVolume.Attach failed for volume \"negative-missing\" : rpc error: code = NotFound desc = volume lab//csi-assessment-nfs/9980/vm-9980-missing.raw not found in any node for storage csi-assessment-nfs"
+      ],
+      "missing_image_still_absent": true,
+      "assertion_adjustment": "Mount error reports requested xfs and wrong fs type, not detected ext4; verified ext4 signature independently instead."
+    },
+    "nfs-outage-before.json": {
+      "probe": {
+        "rows": 4481,
+        "prefix_rows": 2000,
+        "prefix_sha256": "bab0dacd28dd20baae0f0c0d50a9fd9230e704e6f8d0a268d9d4ac50092017c6",
+        "integrity": "ok",
+        "filesystem_capacity_bytes": 4152066048
+      },
+      "acknowledged_seq": 102481
+    },
+    "nfs-outage-recovered.json": {
+      "probe": {
+        "rows": 4491,
+        "prefix_rows": 2000,
+        "prefix_sha256": "bab0dacd28dd20baae0f0c0d50a9fd9230e704e6f8d0a268d9d4ac50092017c6",
+        "integrity": "ok",
+        "filesystem_capacity_bytes": 4152066048
+      },
+      "committed_seq": 102490,
+      "before_ack": 102481
+    },
+    "nfs-outage-stalled.json": {
+      "last_committed_5s": 102481,
+      "last_committed_20s": 102481,
+      "service_active": false
+    },
+    "nfs-reboot-before.json": {
+      "integrity": "ok",
+      "rows": 4678,
+      "last_committed_seq": 102677,
+      "all_payloads_valid": true,
+      "writer_sequence_contiguous": true,
+      "sha256": "cf924867ba5111846f04d3df8ea01d59a322732c1414ec15a0fb934cc7771b9b"
+    },
+    "nfs-reboot-recovered.json": {
+      "before": {
+        "integrity": "ok",
+        "rows": 4678,
+        "last_committed_seq": 102677,
+        "all_payloads_valid": true,
+        "writer_sequence_contiguous": true,
+        "sha256": "cf924867ba5111846f04d3df8ea01d59a322732c1414ec15a0fb934cc7771b9b"
+      },
+      "after": {
+        "integrity": "ok",
+        "rows": 5131,
+        "last_committed_seq": 103130,
+        "all_payloads_valid": true,
+        "writer_sequence_contiguous": true,
+        "sha256": "10cf769e9376bc4490b2e2ad2aae18f51f5955c6a49594fec7c6138a528a736a"
+      },
+      "old_boot_id": "bcf7d76d-08eb-40cc-9e66-0958d5be1bac",
+      "new_boot_id": "f0f070b6-e8ce-4fd2-a4a7-8b50de8e42fe",
+      "writer_resumed": true
+    },
+    "partial-destroy-live-writer.json": {
+      "control_plane_deleted": true,
+      "old_writer_running": true,
+      "before": {
+        "rows": 5270,
+        "last_committed_seq": 103269
+      },
+      "after": {
+        "rows": 5284,
+        "last_committed_seq": 103283
+      },
+      "replacement_bootstrap_held": true
+    },
+    "partial-destroy-review.json": {
+      "delete_vmids": [
+        981
+      ],
+      "actions": [
+        [
+          "delete"
+        ]
+      ]
+    },
+    "second-destroy-review.json": {
+      "delete_vmids": [
+        982,
+        983
+      ],
+      "actions": [
+        [
+          "delete"
+        ],
+        [
+          "delete"
+        ]
+      ]
+    },
+    "second-full-destroy.json": {
+      "all_cluster_vms_absent": true,
+      "retained_image_bytes": 4294967296,
+      "filesystem_uuid": "3dca49c8-66c3-44b0-8e3b-7eacb379fd59",
+      "followup_probe_attempts": [
+        {
+          "exit_code": 0,
+          "stderr": ""
+        }
+      ],
+      "immediate_probe": "Resource temporarily unavailable; no replacement created until followup succeeded"
+    },
+    "second-rebuild-before.json": {
+      "integrity": "ok",
+      "rows": 5244,
+      "last_committed_seq": 103243,
+      "all_payloads_valid": true,
+      "writer_sequence_contiguous": true,
+      "sha256": "5b36e9afad2c9ca1f87340cf41fae0ab05f9ccc9f81653be08594ab63016cbf6"
+    },
+    "second-rebuild-recovered.json": {
+      "before_crash": {
+        "rows": 5284,
+        "last_committed_seq": 103283
+      },
+      "after_recovery": {
+        "integrity": "ok",
+        "rows": 5284,
+        "last_committed_seq": 103283,
+        "all_payloads_valid": true,
+        "writer_sequence_contiguous": true,
+        "sha256": "d64cbdf1e341ce91c7fb956c562fcf1a4cd42af148983aa02f10fc9178a1acbf"
+      },
+      "filesystem_probe": {
+        "rows": 5284,
+        "prefix_rows": 2000,
+        "prefix_sha256": "bab0dacd28dd20baae0f0c0d50a9fd9230e704e6f8d0a268d9d4ac50092017c6",
+        "integrity": "ok",
+        "filesystem_capacity_bytes": 4152066048
+      },
+      "fresh_namespace_uid": "dda203e9-5c31-40d3-b27b-f8014ab58c69",
+      "fresh_claim_uid": "bf362f74-6bba-467a-9821-c02646f268a6",
+      "new_cluster_and_claim_uids": true,
+      "image_digests_unchanged": true,
+      "static_handle": "lab//csi-assessment-nfs/9980/vm-9980-lab.raw"
+    },
+    "second-writer-fenced.json": {
+      "confirmed_stopped": true,
+      "last_observed_committed": {
+        "rows": 5284,
+        "last_committed_seq": 103283
+      }
+    },
+    "sqlite-after-move.json": {
+      "rows": 1000,
+      "prefix_rows": 1000,
+      "prefix_sha256": "93aaa7459e4a1fb4c53bfb6c901b2c3b3d81ea1a0f2b9c1e32ca44ac9691ccc4",
+      "integrity": "ok",
+      "filesystem_capacity_bytes": 2040373248
+    },
+    "sqlite-after-rebuild.json": {
+      "rows": 1000,
+      "prefix_rows": 1000,
+      "prefix_sha256": "93aaa7459e4a1fb4c53bfb6c901b2c3b3d81ea1a0f2b9c1e32ca44ac9691ccc4",
+      "integrity": "ok",
+      "filesystem_capacity_bytes": 2040373248
+    },
+    "sqlite-after-resize.json": {
+      "rows": 1000,
+      "prefix_rows": 1000,
+      "prefix_sha256": "93aaa7459e4a1fb4c53bfb6c901b2c3b3d81ea1a0f2b9c1e32ca44ac9691ccc4",
+      "integrity": "ok",
+      "filesystem_capacity_bytes": 4152066048
+    },
+    "sqlite-after-tf-update.json": {
+      "rows": 1000,
+      "prefix_rows": 1000,
+      "prefix_sha256": "93aaa7459e4a1fb4c53bfb6c901b2c3b3d81ea1a0f2b9c1e32ca44ac9691ccc4",
+      "integrity": "ok",
+      "filesystem_capacity_bytes": 2040373248
+    },
+    "sqlite-expanded-baseline.json": {
+      "rows": 2000,
+      "prefix_rows": 2000,
+      "prefix_sha256": "bab0dacd28dd20baae0f0c0d50a9fd9230e704e6f8d0a268d9d4ac50092017c6",
+      "integrity": "ok",
+      "filesystem_capacity_bytes": 4152066048
+    },
+    "sqlite-initial.json": {
+      "rows": 1000,
+      "prefix_rows": 1000,
+      "prefix_sha256": "93aaa7459e4a1fb4c53bfb6c901b2c3b3d81ea1a0f2b9c1e32ca44ac9691ccc4",
+      "integrity": "ok",
+      "filesystem_capacity_bytes": 2040373248
+    },
+    "storage-boot-before.json": {
+      "boot_id": "bcf7d76d-08eb-40cc-9e66-0958d5be1bac"
+    },
+    "terraform-final-check.json": {
+      "plan_detailed_exitcode": 0,
+      "no_changes": true
+    },
+    "tool-pins.json": {
+      "terraform": {
+        "version": "1.16.5",
+        "archive_sha256": "2bc2fcfff033265c9e02ca0351f01794eb122f62a9b2a49a3294b9e49eaab5e4"
+      },
+      "helm": {
+        "version": "v4.3.0",
+        "archive_sha256": "86584a54def73570558f66f5111cc53dfed56689637ae32c1201205d494f54fb"
+      }
+    },
+    "vm981-identity.json": {
+      "name": "csi-lab-server",
+      "vmgenid": "fc4bf98f-6758-477e-8a7d-af14b9f8a7cb",
+      "smbios1": "uuid=c658c545-dcda-4bd4-929a-1264892328a5",
+      "net0": "virtio=BC:24:11:3E:4E:CE,bridge=vmbr0",
+      "virtio0": "vm-pool:vm-981-disk-0,discard=on,iothread=1,replicate=0,size=8G",
+      "ide2": "vm-pool:vm-981-cloudinit,media=cdrom",
+      "memory": "2048",
+      "cores": 2
+    },
+    "vm982-identity.json": {
+      "name": "csi-lab-worker-1",
+      "vmgenid": "5528c35f-e50d-437e-a552-ed9f9452caf1",
+      "smbios1": "uuid=b43481e8-724a-4b5e-b468-5fe25d40632d",
+      "net0": "virtio=BC:24:11:50:38:4D,bridge=vmbr0",
+      "virtio0": "vm-pool:vm-982-disk-0,discard=on,iothread=1,replicate=0,size=8G",
+      "ide2": "vm-pool:vm-982-cloudinit,media=cdrom",
+      "memory": "2048",
+      "cores": 2
+    },
+    "vm983-identity.json": {
+      "name": "csi-lab-worker-2",
+      "vmgenid": "0852eeae-101b-46b9-9b5a-55688686e32d",
+      "smbios1": "uuid=d95b7e29-26a5-412b-aef1-92f2f894c420",
+      "net0": "virtio=BC:24:11:1B:65:0C,bridge=vmbr0",
+      "virtio0": "vm-pool:vm-983-disk-0,discard=on,iothread=1,replicate=0,size=8G",
+      "ide2": "vm-pool:vm-983-cloudinit,media=cdrom",
+      "memory": "2048",
+      "cores": 2
+    },
+    "writer-before-failure.json": {
+      "rows": 2011,
+      "prefix_rows": 2000,
+      "prefix_sha256": "bab0dacd28dd20baae0f0c0d50a9fd9230e704e6f8d0a268d9d4ac50092017c6",
+      "integrity": "ok",
+      "filesystem_capacity_bytes": 4152066048
+    },
+    "final-volume.json": {
+      "volume": "csi-assessment-nfs:9980/vm-9980-lab.raw",
+      "attachment": {
+        "vmid": 982,
+        "slot": "scsi1",
+        "config": "csi-assessment-nfs:9980/vm-9980-lab.raw,backup=0,cache=none,iothread=1,replicate=0,size=4G,wwn=0x5056432d49443031"
+      },
+      "filesystem": {
+        "name": "sda",
+        "type": "disk",
+        "size": "4G",
+        "fstype": "ext4",
+        "uuid": "3dca49c8-66c3-44b0-8e3b-7eacb379fd59",
+        "serial": "5056432d49443031",
+        "wwn": "0x5056432d49443031",
+        "mountpoints": [
+          "/var/lib/kubelet/pods/fed70742-249a-4884-90da-d7a0a679de40/volumes/kubernetes.io~csi/csi-lab-sqlite/mount",
+          "/var/lib/kubelet/plugins/kubernetes.io/csi/csi.proxmox.sinextra.dev/e23f5293954a502a34a87b93b0f9d08d9c3aafbeb13cb07c55751b06a669ac7b/globalmount"
+        ]
+      },
+      "image_locks": []
+    },
+    "host-cleanup.json": {
+      "run": "csi-lab-20261003",
+      "cleanup_complete": true,
+      "removed": [
+        {
+          "type": "image-deleted",
+          "name": "csi-assessment-nfs:9980/vm-9980-blank.raw"
+        },
+        {
+          "type": "image-deleted",
+          "name": "csi-assessment-nfs:9980/vm-9980-lab.raw"
+        },
+        {
+          "type": "image-deleted",
+          "name": "csi-assessment-nfs:9980/vm-9980-wrongtype.raw"
+        },
+        {
+          "type": "storage-removed",
+          "name": "csi-assessment-nfs"
+        },
+        {
+          "type": "user-and-token-revoked",
+          "name": "csi-lab-20261003@pve"
+        },
+        {
+          "type": "user-and-token-revoked",
+          "name": "tf-lab-20261003@pve"
+        },
+        {
+          "type": "role-removed",
+          "name": "CSILabAudit20261003"
+        },
+        {
+          "type": "role-removed",
+          "name": "CSILabClone20261003"
+        },
+        {
+          "type": "role-removed",
+          "name": "CSILabNet20261003"
+        },
+        {
+          "type": "role-removed",
+          "name": "CSILabRuntime20261003"
+        },
+        {
+          "type": "role-removed",
+          "name": "CSILabStore20261003"
+        },
+        {
+          "type": "role-removed",
+          "name": "CSILabTF20261003"
+        },
+        {
+          "type": "pool-removed",
+          "name": "csi-lab-20261003"
+        },
+        {
+          "type": "vm-and-own-disks-deleted",
+          "name": "980"
+        }
+      ],
+      "cluster_vmids_absent": [
+        980,
+        981,
+        982,
+        983
+      ],
+      "reserved_owner_has_no_vm": true,
+      "no_lab_disks_on_vm_pool_or_local_zfs": true,
+      "nfs_mount_absent": true,
+      "lab_api_users_tokens_roles_acls_removed": true
+    },
+    "temporary-files-cleanup.json": {
+      "host_lab_temp_directory_removed": true,
+      "local_lab_temp_directory_removed": true,
+      "user_supplied_proxmox_credential_file_preserved": true
+    }
+  },
+  "artifacts": {
+    "declarations/csi-values.yaml": "existingConfigSecret: csi-lab-config\nlogVerbosityLevel: 2\noptions:\n  enableCapacity: false\nstorageClass:\n- name: lab-nfs-expand\n  storage: csi-assessment-nfs\n  fstype: ext4\n  cache: none\n  reclaimPolicy: Retain\n  volumeBindingMode: WaitForFirstConsumer\nnodeSelector:\n  kubernetes.io/hostname: csi-lab-server\n",
+    "declarations/storage.yaml": "apiVersion: v1\nkind: Namespace\nmetadata:\n  name: csi-lab\n---\napiVersion: v1\nkind: PersistentVolume\nmetadata:\n  name: csi-lab-sqlite\nspec:\n  capacity:\n    storage: 4Gi\n  accessModes:\n  - ReadWriteOncePod\n  persistentVolumeReclaimPolicy: Retain\n  storageClassName: lab-nfs-expand\n  claimRef:\n    namespace: csi-lab\n    name: sqlite\n  csi:\n    driver: csi.proxmox.sinextra.dev\n    fsType: ext4\n    volumeHandle: lab//csi-assessment-nfs/9980/vm-9980-lab.raw\n    volumeAttributes:\n      storage: csi-assessment-nfs\n      cache: none\n---\napiVersion: v1\nkind: PersistentVolumeClaim\nmetadata:\n  namespace: csi-lab\n  name: sqlite\nspec:\n  accessModes:\n  - ReadWriteOncePod\n  storageClassName: lab-nfs-expand\n  volumeName: csi-lab-sqlite\n  resources:\n    requests:\n      storage: 4Gi\n---\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: sqlite\n  namespace: csi-lab\nspec:\n  replicas: 1\n  strategy:\n    type: Recreate\n  selector:\n    matchLabels:\n      app: sqlite\n  template:\n    metadata:\n      labels:\n        app: sqlite\n    spec:\n      nodeSelector:\n        kubernetes.io/hostname: csi-lab-worker-1\n      containers:\n      - name: sqlite\n        image: docker.io/library/python@sha256:bb2988715db2cf7ace7b53f38f3cffbef7c7046a656bee66245eb0ed386e2e81\n        command:\n        - sleep\n        - infinity\n        resources:\n          requests:\n            cpu: 50m\n            memory: 64Mi\n          limits:\n            memory: 256Mi\n        volumeMounts:\n        - name: data\n          mountPath: /data\n      volumes:\n      - name: data\n        persistentVolumeClaim:\n          claimName: sqlite\n      tolerations:\n      - key: node.kubernetes.io/not-ready\n        operator: Exists\n        effect: NoExecute\n      - key: node.kubernetes.io/unreachable\n        operator: Exists\n        effect: NoExecute\n",
+    "terraform/main.tf": "terraform {\n  required_version = \"= 1.16.5\"\n  required_providers {\n    proxmox = {\n      source  = \"telmate/proxmox\"\n      version = \"3.0.2-rc10\"\n    }\n  }\n}\nprovider \"proxmox\" {\n  pm_api_url                  = \"https://10.9.9.20:8006/api2/json\"\n  pm_tls_insecure             = true\n  pm_minimum_permission_check = false\n  pm_parallel                 = 1\n}\nresource \"proxmox_vm_qemu\" \"lab\" {\n  for_each = {\n    \"981\" = \"csi-lab-server\"\n    \"982\" = \"csi-lab-worker-1\"\n    \"983\" = \"csi-lab-worker-2\"\n  }\n  vmid               = tonumber(each.key)\n  name               = each.value\n  pool               = \"csi-lab-20261003\"\n  target_node        = \"pve\"\n  clone              = \"packer-debian-13.7.0-20260919201032\"\n  full_clone         = true\n  description        = \"Disposable CSI lab 20261003; synthetic data only; update test\"\n  tags               = \"csi-lab-20261003\"\n  scsihw             = \"virtio-scsi-pci\"\n  boot               = \"order=virtio0\"\n  start_at_node_boot = false\n  agent              = 1\n  skip_ipv6          = true\n  memory             = 2048\n  cpu {\n    sockets = 1\n    cores   = 2\n    type    = \"host\"\n  }\n  power_state = \"running\"\n  hotplug     = \"network,disk,usb\"\n  os_type     = \"cloud-init\"\n  ciuser      = \"csi-lab\"\n  ciupgrade   = false\n  sshkeys     = file(\"/root/csi-lab/id_ed25519.pub\")\n  ipconfig0   = \"ip=dhcp\"\n  network {\n    id     = 0\n    model  = \"virtio\"\n    bridge = \"vmbr0\"\n  }\n  disks {\n    ide {\n      ide2 {\n        cloudinit {\n          storage = \"vm-pool\"\n        }\n      }\n    }\n    virtio {\n      virtio0 {\n        disk {\n          size     = \"8G\"\n          storage  = \"vm-pool\"\n          iothread = true\n          discard  = true\n        }\n      }\n    }\n  }\n  lifecycle {\n    ignore_changes = [startup_shutdown, disks[0].scsi]\n  }\n}\noutput \"lab_ips\" {\n  value = { for k, v in proxmox_vm_qemu.lab : k => v.default_ipv4_address }\n}\n",
+    "terraform/.terraform.lock.hcl": "# This file is maintained automatically by \"terraform init\".\n# Manual edits may be lost in future updates.\n\nprovider \"registry.terraform.io/telmate/proxmox\" {\n  version     = \"3.0.2-rc10\"\n  constraints = \"3.0.2-rc10\"\n  hashes = [\n    \"h1:XMRlFfI01PogE3ubwZjruEduhWfAIVHt+ylYrcc6ulM=\",\n    \"zh:07bac36b8bc00df21791a2b5391568b235b2d117ff1bec51b3af19b03fed766e\",\n    \"zh:0970846520becaa95743e07671dafb261a49658fef4c0518a63d5279e0b0777c\",\n    \"zh:0be324f583d1106589b727b0afcfba6c30d8695ebd497bfe1cb4d5f10109b3e4\",\n    \"zh:0ccd7961916492ce6b849e51d650e10727bc322c3146a3b450688d880e33c34f\",\n    \"zh:23fb8a36e4b60eefcaff3b57dac0e679dfb5fae0d2367bab5b88b4f841a9cf6d\",\n    \"zh:541bd35b627af48d1cd8abaaa61a9b2dd61dbbf3b9cf69ad32df834f6ede5328\",\n    \"zh:7dca184f8ec812ad76d8ee7e5197c112e0ddaf0b7a719325e4dc7818d145a0de\",\n    \"zh:7df1db02cdfd9092681a09c417eb0febc9a12e82c89306e1791d00d7be7f3dec\",\n    \"zh:7f46b4f805b73ed2e66c3478b81d1e91bc65e8b16a93bd61e0237a4cd54248d3\",\n    \"zh:c989f88ecc7900e740d9fa1f22c1617c4d582a7776a8f16f97f6f3ae371d6020\",\n    \"zh:d35a60c4e449188b8d4f78a061e9b2901cd4fcbc9799f789ff12f73a7dc08b8d\",\n    \"zh:e77f0155ddd05dc901e27813f40cc444a97f7e0d2c69588e306b02ee4bbdee0b\",\n    \"zh:f39c81e5f2839a0925ae16e476df1c175891b201b2dc3453ba7b9e44c4e5cb43\",\n  ]\n}\n",
+    "sqlite-probe.py": "import sys,sqlite3,hashlib,json,os\nfrom pathlib import Path\nmode=sys.argv[1];p=Path('/data/qualification.db')\nif mode=='init':assert not p.exists(),'Refuse to overwrite an existing database'\nelse:assert p.is_file(),'Original database is missing'\ndb=sqlite3.connect(str(p));db.execute('PRAGMA journal_mode=WAL');db.execute('PRAGMA synchronous=FULL')\nif mode=='init':\n db.execute('CREATE TABLE records (seq INTEGER PRIMARY KEY, payload TEXT NOT NULL)')\n db.executemany('INSERT INTO records VALUES (?,?)',[(i,hashlib.sha256(('csi-lab-'+str(i)).encode()).hexdigest()) for i in range(1000)])\n db.commit();db.execute('PRAGMA wal_checkpoint(FULL)')\nelif mode=='append':\n assert db.execute('SELECT COUNT(*) FROM records').fetchone()[0]==1000\n db.executemany('INSERT INTO records VALUES (?,?)',[(i,hashlib.sha256(('csi-lab-'+str(i)).encode()).hexdigest()) for i in range(1000,2000)])\n db.commit()\nrows=db.execute('SELECT seq,payload FROM records ORDER BY seq').fetchall();prefix=[v for v in rows if v[0]<2000]\nfor seq,payload in prefix:assert payload==hashlib.sha256(('csi-lab-'+str(seq)).encode()).hexdigest()\nintegrity=db.execute('PRAGMA integrity_check').fetchall();assert integrity==[('ok',)]\nhashvalue=hashlib.sha256(json.dumps(prefix,separators=(',',':')).encode()).hexdigest()\nst=os.statvfs('/data');print(json.dumps({'rows':len(rows),'prefix_rows':len(prefix),'prefix_sha256':hashvalue,'integrity':'ok','filesystem_capacity_bytes':st.f_blocks*st.f_frsize}))\n",
+    "verify-all.py": "import sqlite3,json,hashlib\nfrom pathlib import Path\np=Path('/data/qualification.db');assert p.is_file()\nc=sqlite3.connect('file:'+str(p)+'?mode=ro',uri=True,timeout=60)\nc.execute('BEGIN');assert c.execute('PRAGMA integrity_check').fetchone()[0]=='ok'\nrows=c.execute('SELECT seq,payload FROM records ORDER BY seq').fetchall()\nassert [r[0] for r in rows[:2000]]==list(range(2000))\ntail=rows[2000:]\nassert not tail or [r[0] for r in tail]==list(range(100000,tail[-1][0]+1))\nfor i,payload in rows:assert payload==hashlib.sha256(('csi-lab-'+str(i)).encode()).hexdigest()\nprint(json.dumps({'integrity':'ok','rows':len(rows),'last_committed_seq':rows[-1][0],'all_payloads_valid':True,'writer_sequence_contiguous':True,'sha256':hashlib.sha256(json.dumps(rows,separators=(',',':')).encode()).hexdigest()}))\n",
+    "lab-writer.py": "import sqlite3,hashlib,time,json\nfrom pathlib import Path\np=Path('/data/qualification.db');assert p.is_file()\ndb=sqlite3.connect(str(p),timeout=60);db.execute('PRAGMA journal_mode=WAL');db.execute('PRAGMA synchronous=FULL')\ni=max(100000,db.execute('SELECT MAX(seq) FROM records').fetchone()[0]+1)\nwhile True:\n payload=hashlib.sha256(('csi-lab-'+str(i)).encode()).hexdigest()\n db.execute('INSERT INTO records VALUES (?,?)',(i,payload));db.commit()\n print(json.dumps({'committed_seq':i}),flush=True);i+=1;time.sleep(.2)\n",
+    "resize-test.py": "from pathlib import Path\nimport os,subprocess,json,time,yaml\nr=Path('/root/csi-lab');os.environ['KUBECONFIG']=str(r/'kubeconfig')\ndef k(*args):return subprocess.check_output(['kubectl',*args],text=True)\ndef j(*args):return json.loads(k(*args,'-o','json'))\nds=next(d for d in j('-n','csi-proxmox','get','ds')['items'] if d['metadata']['name'].endswith('-node'));name=ds['metadata']['name'];old=ds['spec']['template']['spec'].get('nodeSelector',{})\npod=next(p for p in j('-n','csi-lab','get','pods')['items'] if p['status']['phase']=='Running');assert pod['spec']['nodeName']=='csi-lab-worker-1'\nk('label','node','csi-lab-server','csi-lab-worker-2','csi-lab-node=enabled','--overwrite')\nk('-n','csi-proxmox','patch','ds',name,'--type=merge','-p',json.dumps({'spec':{'template':{'spec':{'nodeSelector':dict(old,**{'csi-lab-node':'enabled'})}}}}))\ntry:\n for i in range(60):\n  pods=j('-n','csi-proxmox','get','pods')['items']\n  if not any(p['spec'].get('nodeName')=='csi-lab-worker-1' for p in pods):break\n  time.sleep(2)\n else:raise RuntimeError('Node plugin did not stop')\n print('Node expansion service deliberately unavailable on worker1.',flush=True)\n k('-n','csi-lab','patch','pvc','sqlite','--type=merge','-p',json.dumps({'spec':{'resources':{'requests':{'storage':'4Gi'}}}}))\n image=Path('/srv/csi-lab/nfs/images/9980/vm-9980-lab.raw')\n for i in range(90):\n  if image.stat().st_size==4*2**30:break\n  time.sleep(2)\n else:raise RuntimeError('Controller did not expand attached image')\n observed=json.loads(subprocess.check_output(['kubectl','-n','csi-lab','exec','-i','deploy/sqlite','--','python','-','verify'],input=(r/'sqlite-probe.py').read_text(),text=True))\n initial=json.loads((r/'evidence/sqlite-initial.json').read_text());assert observed==initial\n (r/'evidence/interrupted-expansion.json').write_text(json.dumps({'image_size':image.stat().st_size,'filesystem_observation':observed,'pvc':j('-n','csi-lab','get','pvc','sqlite')},indent=2)+'\\n')\n print('PASS: image grew to 4GiB while filesystem remained 2GiB and records stayed intact; node expansion genuinely pending.',flush=True)\nfinally:\n k('-n','csi-proxmox','patch','ds',name,'--type=json','-p',json.dumps([{'op':'replace','path':'/spec/template/spec/nodeSelector','value':old}]))\n subprocess.run(['kubectl','-n','csi-proxmox','rollout','status','ds/'+name,'--timeout=180s'],check=True)\nfor i in range(120):\n observed=json.loads(subprocess.check_output(['kubectl','-n','csi-lab','exec','-i','deploy/sqlite','--','python','-','verify'],input=(r/'sqlite-probe.py').read_text(),text=True))\n if observed['filesystem_capacity_bytes']>3.5*2**30:break\n time.sleep(3)\nelse:raise RuntimeError('Filesystem did not expand after restoring node plugin')\nassert observed['prefix_sha256']==initial['prefix_sha256']\n(r/'evidence/sqlite-after-resize.json').write_text(json.dumps(observed)+'\\n')\nprint('PASS: native retry expanded filesystem to 4GiB without changing SQLite records.',flush=True)\np=r/'declarations/storage.yaml';docs=list(yaml.safe_load_all(p.read_text()))\nfor d in docs:\n if d['kind']=='PersistentVolume':d['spec']['capacity']['storage']='4Gi'\n if d['kind']=='PersistentVolumeClaim':d['spec']['resources']['requests']['storage']='4Gi'\np.write_text(yaml.safe_dump_all(docs,sort_keys=False))\nsubprocess.run(['git','add','storage.yaml'],cwd=r/'declarations',check=True);subprocess.run(['git','-c','user.name=Codex','-c','user.email=codex@openai.com','commit','-qm','Record verified 4GiB retained volume capacity'],cwd=r/'declarations',check=True)\nobs=subprocess.check_output(['kubectl','-n','csi-lab','exec','-i','deploy/sqlite','--','python','-','append'],input=(r/'sqlite-probe.py').read_text(),text=True)\n(r/'evidence/sqlite-expanded-baseline.json').write_text(obs);print(obs,flush=True)\n",
+    "fence-test.py": "from labutil import *\nimport time,subprocess,ipaddress\nf=facts();vmid=982;v=f[str(vmid)];master=str(ipaddress.ip_address(f['981']['ip']))\nassert api('GET',f'/nodes/pve/qemu/{vmid}/config')['vmgenid']==v['vmgenid']\noldpod=next(p for p in j('-n','csi-lab','get','pods')['items'] if p['status']['phase']=='Running');assert oldpod['spec']['nodeName']==v['name']\nbefore=probe();assert before['rows']>2000\nrules=\"table inet csi_lab_partition {\\n chain output {\\n  type filter hook output priority -100; policy accept;\\n  ip daddr \"+master+\" tcp dport 6443 drop;\\n }\\n}\\n\"\nnode(vmid,\"if nft list table inet csi_lab_partition >/dev/null 2>&1; then echo 'Unexpected existing fault table'; exit 1; fi\\nnft -c -f - <<'NFT'\\n\"+rules+\"NFT\\nnft -f - <<'NFT'\\n\"+rules+\"NFT\\n\")\nfenced=False\ntry:\n for _ in range(75):\n  n=j('get','node',v['name']);ready=next(c for c in n['status']['conditions'] if c['type']=='Ready')\n  if ready['status']!='True':break\n  time.sleep(2)\n else:raise RuntimeError('Worker did not become NotReady')\n assert api('GET',f'/nodes/pve/qemu/{vmid}/status/current')['status']=='running'\n pods=j('-n','csi-lab','get','pods')['items'];assert len(pods)==1 and pods[0]['metadata']['uid']==oldpod['metadata']['uid'] and not pods[0]['metadata'].get('deletionTimestamp')\n code=\"python3 - <<'PY'\\nimport subprocess,sqlite3,json\\ntargets=subprocess.check_output(['findmnt','-rn','-S','UUID=3dca49c8-66c3-44b0-8e3b-7eacb379fd59','-o','TARGET'],text=True).splitlines()\\np=next(t for t in targets if t.endswith('/globalmount'))\\ndb=sqlite3.connect('file:'+p+'/qualification.db?mode=ro',uri=True)\\nprint(json.dumps({'rows':db.execute('SELECT COUNT(*) FROM records').fetchone()[0],'max_seq':db.execute('SELECT MAX(seq) FROM records').fetchone()[0]}))\\nPY\\n\"\n still=json.loads(node(vmid,code));assert still['rows']>before['rows']\n save('failed-writer-held.json',{'node_ready':ready,'old_vm_running':True,'same_pod_held':True,'writer_before':before,'writer_while_notready':still,'replacement_started':False})\n print('PASS: NotReady worker still commits writes; native tolerations hold original pod and no replacement starts.',flush=True)\n api('POST',f'/nodes/pve/qemu/{vmid}/status/stop',{})\n for _ in range(45):\n  if api('GET',f'/nodes/pve/qemu/{vmid}/status/current')['status']=='stopped':break\n  time.sleep(2)\n else:raise RuntimeError('Cannot independently confirm old VM stopped')\n fenced=True;print('Old VM power-off confirmed through Proxmox before release.',flush=True)\n k('taint','node',v['name'],'node.kubernetes.io/out-of-service=nodeshutdown:NoExecute','--overwrite')\n k('-n','csi-lab','patch','deploy','sqlite','--type=merge','-p',json.dumps({'spec':{'template':{'spec':{'nodeSelector':{'kubernetes.io/hostname':'csi-lab-worker-2'}}}}}))\n time.sleep(8)\n pods=j('-n','csi-lab','get','pods')['items']\n if any(p['metadata']['uid']==oldpod['metadata']['uid'] for p in pods):k('-n','csi-lab','delete','pod',oldpod['metadata']['name'],'--force','--grace-period=0')\n subprocess.run(['kubectl','-n','csi-lab','rollout','status','deploy/sqlite','--timeout=300s'],check=True)\n after=probe();assert after['rows']>=still['rows'] and after['prefix_sha256']==before['prefix_sha256']\n oldconfig=api('GET',f'/nodes/pve/qemu/{vmid}/config');assert not any(k.startswith('scsi') and isinstance(val,str) and val.startswith('csi-assessment-nfs:9980/vm-9980-lab.raw,') for k,val in oldconfig.items())\n save('failed-writer-recovered.json',{'old_vm_confirmed_off_before_release':True,'after':after,'old_vm_disk_detached_before_restart':True})\n api('POST',f'/nodes/pve/qemu/{vmid}/status/start',{})\n subprocess.run(['kubectl','wait','--for=condition=Ready','node/'+v['name'],'--timeout=180s'],check=True)\n k('taint','node',v['name'],'node.kubernetes.io/out-of-service-')\n print('PASS: confirmed-off takeover preserved committed records; old VM restarted only after image was detached.',flush=True)\nfinally:\n if not fenced:\n  try:node(vmid,'nft delete table inet csi_lab_partition\\n')\n  except Exception as e:print('Partition cleanup needs inspection:',type(e).__name__,flush=True)\n",
+    "outage-test.py": "from labutil import *\nimport base64,time,hashlib\nstart=\"from pathlib import Path\\nimport subprocess,base64\\np=Path('/tmp/lab-writer.py');p.write_bytes(base64.b64decode(\"+repr(base64.b64encode((R/'lab-writer.py').read_bytes()).decode())+\"))\\nlog=open('/tmp/lab-writer.log','a');print(subprocess.Popen(['python',str(p)],stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,start_new_session=True).pid)\\n\"\nk('-n','csi-lab','exec','-i','deploy/sqlite','--','python','-',input=start)\ndef last():return json.loads(k('-n','csi-lab','exec','deploy/sqlite','--','tail','-n','1','/tmp/lab-writer.log'))['committed_seq']\ntime.sleep(2);a=last();time.sleep(2);assert last()>a\nbefore=probe();ack=last();save('nfs-outage-before.json',{'probe':before,'acknowledged_seq':ack})\nsubprocess.run(['systemctl','is-active','--quiet','nfs-server'],check=True)\nsubprocess.run(['systemd-run','--unit=csi-lab-nfs-restore','--on-active=35s','/usr/bin/systemctl','start','nfs-server'],check=True)\ntry:\n subprocess.run(['systemctl','stop','nfs-server'],check=True,timeout=20)\n time.sleep(5);stalled1=last();time.sleep(15);stalled2=last()\n assert stalled1==stalled2,'Writes unexpectedly kept committing during service outage'\n save('nfs-outage-stalled.json',{'last_committed_5s':stalled1,'last_committed_20s':stalled2,'service_active':subprocess.run(['systemctl','is-active','--quiet','nfs-server']).returncode==0})\n print('PASS: committed writes stalled during NFS service outage.',flush=True)\nfinally:subprocess.run(['systemctl','start','nfs-server'],check=True,timeout=30)\nfor _ in range(60):\n if last()>stalled2:break\n time.sleep(2)\nelse:raise RuntimeError('Writer did not resume after service restoration')\nafter=probe();assert after['rows']>=before['rows'] and after['prefix_sha256']==before['prefix_sha256']\nsave('nfs-outage-recovered.json',{'probe':after,'committed_seq':last(),'before_ack':ack})\nprint('PASS: writer resumed automatically, integrity and original records retained.',flush=True)\n",
+    "partial-destroy.py": "from labutil import *\nimport time\nE=R/'evidence'\nfor name in ['cluster-before-rebuild.uid','claim-before-rebuild.uid','tf-destroy-plan.log','tf-destroy-plan.json','tf-destroy-apply.log','after-full-destroy.json','sqlite-after-rebuild.json','fresh-cluster-identities.json','helm-install.log']:\n p=E/name\n if p.exists():\n  dest=E/('first-'+name);assert not dest.exists();dest.write_bytes(p.read_bytes())\nsave('second-rebuild-before.json',json.loads(k('-n','csi-lab','exec','-i','deploy/sqlite','--','python','-',input=(R/'verify-all.py').read_text())))\n(E/'second-cluster-before.uid').write_text(j('get','ns','kube-system')['metadata']['uid']);(E/'second-claim-before.uid').write_text(j('-n','csi-lab','get','pvc','sqlite')['metadata']['uid'])\npods=j('-n','csi-lab','get','pods')['items'];assert len(pods)==1 and pods[0]['spec']['nodeName']=='csi-lab-worker-2'\ndef tf_plan(name,target=None):\n args=['python3',str(R/'tf.py'),'plan','-destroy','-input=false','-no-color','-out='+name+'.tfplan']\n if target:args+=['-target='+target]\n with (E/(name+'-plan.log')).open('w') as out:subprocess.run(args,cwd=R/'terraform',stdout=out,stderr=subprocess.STDOUT,check=True)\n d=json.loads(subprocess.check_output(['terraform','show','-json',name+'.tfplan'],cwd=R/'terraform',text=True));changes=[x for x in d['resource_changes'] if x['change']['actions']!=['no-op']]\n ids=[x['change']['before']['vmid'] for x in changes];assert set(ids)==({981} if target else {982,983})\n assert all(x['type']=='proxmox_vm_qemu' and x['change']['actions']==['delete'] for x in changes)\n save(name+'-review.json',{'delete_vmids':ids,'actions':[x['change']['actions'] for x in changes]})\n with (E/(name+'-apply.log')).open('w') as out:subprocess.run(['python3',str(R/'tf.py'),'apply','-parallelism=1','-input=false','-no-color',name+'.tfplan'],cwd=R/'terraform',stdout=out,stderr=subprocess.STDOUT,check=True)\ntf_plan('partial-destroy','proxmox_vm_qemu.lab[\"981\"]')\nresources=api('GET','/cluster/resources?type=vm');assert not any(x.get('vmid')==981 for x in resources)\nassert api('GET','/nodes/pve/qemu/983/status/current')['status']=='running'\ncode=\"python3 - <<'PY'\\nimport subprocess,sqlite3,json\\np=next(t for t in subprocess.check_output(['findmnt','-rn','-S','UUID=3dca49c8-66c3-44b0-8e3b-7eacb379fd59','-o','TARGET'],text=True).splitlines() if t.endswith('/globalmount'))\\nc=sqlite3.connect('file:'+p+'/qualification.db?mode=ro',uri=True);c.execute('BEGIN')\\nprint(json.dumps({'rows':c.execute('SELECT COUNT(*) FROM records').fetchone()[0],'last_committed_seq':c.execute('SELECT MAX(seq) FROM records').fetchone()[0]}))\\nPY\\n\"\na=json.loads(node(983,code));time.sleep(3);b=json.loads(node(983,code));assert b['rows']>a['rows']\nsave('partial-destroy-live-writer.json',{'control_plane_deleted':True,'old_writer_running':True,'before':a,'after':b,'replacement_bootstrap_held':True})\nprint('PASS: partial destruction leaves old writer alive; replacement creation held.',flush=True)\nassert api('GET','/nodes/pve/qemu/983/config')['vmgenid']==facts()['983']['vmgenid']\napi('POST','/nodes/pve/qemu/983/status/stop',{})\nfor _ in range(45):\n if api('GET','/nodes/pve/qemu/983/status/current')['status']=='stopped':break\n time.sleep(2)\nelse:raise RuntimeError('Cannot confirm writer VM stopped')\nsave('second-writer-fenced.json',{'confirmed_stopped':True,'last_observed_committed':b})\nprint('Active writer abruptly powered off and independently confirmed stopped.',flush=True)\ntf_plan('second-destroy')\nassert not any(x.get('vmid') in [981,982,983] for x in api('GET','/cluster/resources?type=vm'))\np=Path('/srv/csi-lab/nfs/images/9980/vm-9980-lab.raw');assert p.stat().st_size==4*2**30\nuuid=subprocess.check_output(['blkid','-p','-s','UUID','-o','value',str(p)],text=True).strip();assert uuid=='3dca49c8-66c3-44b0-8e3b-7eacb379fd59'\nsave('second-full-destroy.json',{'all_cluster_vms_absent':True,'retained_image_bytes':p.stat().st_size,'filesystem_uuid':uuid})\nprint('PASS: all cluster VMs destroyed after writer fencing; 4GiB original image survives.',flush=True)\n"
+  }
+}

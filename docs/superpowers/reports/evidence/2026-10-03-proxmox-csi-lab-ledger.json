@@ -12,137 +12,440 @@
         "virtio0": "vm-pool:vm-980-disk-0,cache=none,discard=on,replicate=0,size=8G",
         "virtio1": "vm-pool:vm-980-disk-1,serial=CSILABDATA20261003,size=24G",
         "ide0": "vm-pool:vm-980-cloudinit,media=cdrom,size=4M"
-      }
+      },
+      "cleanup_status": "removed or expired with VM deletion"
     },
     {
       "type": "storage-registration",
       "storage": "csi-assessment-nfs",
       "server": "10.9.9.186",
-      "export": "/srv/csi-lab/nfs"
+      "export": "/srv/csi-lab/nfs",
+      "cleanup_status": "removed or expired with VM deletion"
     },
     {
       "type": "role",
-      "name": "CSILabRuntime20261003"
+      "name": "CSILabRuntime20261003",
+      "cleanup_status": "removed or expired with VM deletion"
     },
     {
       "type": "role",
-      "name": "CSILabTF20261003"
+      "name": "CSILabTF20261003",
+      "cleanup_status": "removed or expired with VM deletion"
     },
     {
       "type": "role",
-      "name": "CSILabClone20261003"
+      "name": "CSILabClone20261003",
+      "cleanup_status": "removed or expired with VM deletion"
     },
     {
       "type": "role",
-      "name": "CSILabStore20261003"
+      "name": "CSILabStore20261003",
+      "cleanup_status": "removed or expired with VM deletion"
     },
     {
       "type": "role",
-      "name": "CSILabNet20261003"
+      "name": "CSILabNet20261003",
+      "cleanup_status": "removed or expired with VM deletion"
     },
     {
       "type": "user",
-      "userid": "csi-lab-20261003@pve"
+      "userid": "csi-lab-20261003@pve",
+      "cleanup_status": "removed or expired with VM deletion"
     },
     {
       "type": "acl",
       "path": "/vms/981",
       "userid": "csi-lab-20261003@pve",
-      "role": "CSILabRuntime20261003"
+      "role": "CSILabRuntime20261003",
+      "cleanup_status": "removed or expired with VM deletion"
     },
     {
       "type": "acl",
       "path": "/vms/982",
       "userid": "csi-lab-20261003@pve",
-      "role": "CSILabRuntime20261003"
+      "role": "CSILabRuntime20261003",
+      "cleanup_status": "removed or expired with VM deletion"
     },
     {
       "type": "acl",
       "path": "/vms/983",
       "userid": "csi-lab-20261003@pve",
-      "role": "CSILabRuntime20261003"
+      "role": "CSILabRuntime20261003",
+      "cleanup_status": "removed or expired with VM deletion"
     },
     {
       "type": "acl",
       "path": "/vms/9980",
       "userid": "csi-lab-20261003@pve",
-      "role": "CSILabRuntime20261003"
+      "role": "CSILabRuntime20261003",
+      "cleanup_status": "removed or expired with VM deletion"
     },
     {
       "type": "acl",
       "path": "/storage/csi-assessment-nfs",
       "userid": "csi-lab-20261003@pve",
-      "role": "CSILabRuntime20261003"
+      "role": "CSILabRuntime20261003",
+      "cleanup_status": "removed or expired with VM deletion"
     },
     {
       "type": "token",
       "userid": "csi-lab-20261003@pve",
-      "name": "lab"
+      "name": "lab",
+      "cleanup_status": "removed or expired with VM deletion"
     },
     {
       "type": "user",
-      "userid": "tf-lab-20261003@pve"
+      "userid": "tf-lab-20261003@pve",
+      "cleanup_status": "removed or expired with VM deletion"
     },
     {
       "type": "acl",
       "path": "/vms/981",
       "userid": "tf-lab-20261003@pve",
-      "role": "CSILabTF20261003"
+      "role": "CSILabTF20261003",
+      "cleanup_status": "removed or expired with VM deletion"
     },
     {
       "type": "acl",
       "path": "/vms/982",
       "userid": "tf-lab-20261003@pve",
-      "role": "CSILabTF20261003"
+      "role": "CSILabTF20261003",
+      "cleanup_status": "removed or expired with VM deletion"
     },
     {
       "type": "acl",
       "path": "/vms/983",
       "userid": "tf-lab-20261003@pve",
-      "role": "CSILabTF20261003"
+      "role": "CSILabTF20261003",
+      "cleanup_status": "removed or expired with VM deletion"
     },
     {
       "type": "acl",
       "path": "/vms/900",
       "userid": "tf-lab-20261003@pve",
-      "role": "CSILabClone20261003"
+      "role": "CSILabClone20261003",
+      "cleanup_status": "removed or expired with VM deletion"
     },
     {
       "type": "acl",
       "path": "/storage/vm-pool",
       "userid": "tf-lab-20261003@pve",
-      "role": "CSILabStore20261003"
+      "role": "CSILabStore20261003",
+      "cleanup_status": "removed or expired with VM deletion"
     },
     {
       "type": "acl",
       "path": "/storage/local-zfs",
       "userid": "tf-lab-20261003@pve",
-      "role": "PVEAuditor"
+      "role": "PVEAuditor",
+      "cleanup_status": "removed or expired with VM deletion"
     },
     {
       "type": "acl",
       "path": "/nodes/pve",
       "userid": "tf-lab-20261003@pve",
-      "role": "PVEAuditor"
+      "role": "PVEAuditor",
+      "cleanup_status": "removed or expired with VM deletion"
     },
     {
       "type": "acl",
       "path": "/sdn/zones/localnetwork/vmbr0",
       "userid": "tf-lab-20261003@pve",
-      "role": "CSILabNet20261003"
+      "role": "CSILabNet20261003",
+      "cleanup_status": "removed or expired with VM deletion"
     },
     {
       "type": "token",
       "userid": "tf-lab-20261003@pve",
-      "name": "lab"
+      "name": "lab",
+      "cleanup_status": "removed or expired with VM deletion"
     },
     {
       "type": "image",
       "volid": "csi-assessment-nfs:9980/vm-9980-lab.raw",
-      "size": 2147483648
+      "size": 2147483648,
+      "cleanup_status": "removed or expired with VM deletion",
+      "final_tested_size": 4294967296
+    },
+    {
+      "type": "acl",
+      "path": "/storage/local-zfs",
+      "userid": "tf-lab-20261003@pve",
+      "role": "CSILabStore20261003",
+      "authorization": "User approved one transient 4GiB clone plus cloud-init at a time",
+      "cleanup_status": "removed or expired with VM deletion"
+    },
+    {
+      "type": "vm",
+      "vmid": 981,
+      "name": "csi-lab-server",
+      "identity": {
+        "name": "csi-lab-server",
+        "ip": "10.9.9.149",
+        "uuid": "c658c545-dcda-4bd4-929a-1264892328a5",
+        "vmgenid": "fc4bf98f-6758-477e-8a7d-af14b9f8a7cb",
+        "hostkey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPvGMTXdfmp43MQ9Uanobig0fuahmu8Y3bfFK5M00kMq",
+        "mac": "bc:24:11:3e:4e:ce"
+      },
+      "stage": "running",
+      "cleanup_status": "removed or expired with VM deletion"
+    },
+    {
+      "type": "role",
+      "name": "CSILabAudit20261003",
+      "cleanup_status": "removed or expired with VM deletion"
+    },
+    {
+      "type": "acl",
+      "path": "/",
+      "userid": "tf-lab-20261003@pve",
+      "role": "CSILabAudit20261003",
+      "purpose": "read-only host/cluster inspection for scoped Terraform operations",
+      "cleanup_status": "removed or expired with VM deletion"
+    },
+    {
+      "type": "pool",
+      "poolid": "csi-lab-20261003",
+      "cleanup_status": "removed or expired with VM deletion"
+    },
+    {
+      "type": "acl",
+      "path": "/pool/csi-lab-20261003",
+      "userid": "tf-lab-20261003@pve",
+      "role": "CSILabTF20261003",
+      "cleanup_status": "removed or expired with VM deletion"
+    },
+    {
+      "type": "acl",
+      "path": "/pool/csi-lab-20261003",
+      "userid": "csi-lab-20261003@pve",
+      "role": "CSILabRuntime20261003",
+      "cleanup_status": "removed or expired with VM deletion"
+    },
+    {
+      "type": "vm",
+      "vmid": 982,
+      "name": "csi-lab-worker-1",
+      "identity": {
+        "name": "csi-lab-worker-1",
+        "ip": "10.9.9.137",
+        "uuid": "b43481e8-724a-4b5e-b468-5fe25d40632d",
+        "vmgenid": "5528c35f-e50d-437e-a552-ed9f9452caf1",
+        "hostkey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGXGzVFjPJ0eXBk9ZTXIPVd3ljgubIEZPsZIfP2Lyqqo",
+        "mac": "bc:24:11:50:38:4d"
+      },
+      "stage": "running",
+      "cleanup_status": "removed or expired with VM deletion"
+    },
+    {
+      "type": "vm",
+      "vmid": 983,
+      "name": "csi-lab-worker-2",
+      "identity": {
+        "name": "csi-lab-worker-2",
+        "ip": "10.9.9.163",
+        "uuid": "d95b7e29-26a5-412b-aef1-92f2f894c420",
+        "vmgenid": "0852eeae-101b-46b9-9b5a-55688686e32d",
+        "hostkey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJU07iHKdhZlYC/EoVAe5jUWuHcdxeSAik9J6tydMWUv",
+        "mac": "bc:24:11:1b:65:0c"
+      },
+      "stage": "running",
+      "cleanup_status": "removed or expired with VM deletion"
+    },
+    {
+      "type": "acl",
+      "path": "/storage/csi-assessment-nfs",
+      "userid": "tf-lab-20261003@pve",
+      "role": "PVEAuditor",
+      "purpose": "read-only audit of existing CSI attachment during VM update",
+      "cleanup_status": "removed or expired with VM deletion"
+    },
+    {
+      "type": "acl",
+      "path": "/vms/9980",
+      "userid": "tf-lab-20261003@pve",
+      "role": "CSILabRuntime20261003",
+      "purpose": "Proxmox requires foreign disk-owner configuration permission when VM update echoes existing CSI disk",
+      "cleanup_status": "removed or expired with VM deletion"
+    },
+    {
+      "type": "image",
+      "volid": "csi-assessment-nfs:9980/vm-9980-blank.raw",
+      "size": 268435456,
+      "cleanup_status": "removed or expired with VM deletion"
+    },
+    {
+      "type": "image",
+      "volid": "csi-assessment-nfs:9980/vm-9980-wrongtype.raw",
+      "size": 268435456,
+      "cleanup_status": "removed or expired with VM deletion"
     }
   ],
   "intent": "allocate only csi-assessment-nfs:9980/vm-9980-lab.raw 2GiB",
+  "events": [
+    {
+      "vmid": 981,
+      "event": "first partial generation destroyed by Terraform; VM-specific ACL removed by Proxmox; replaced by persistent lab pool ACL"
+    },
+    {
+      "vmid": 981,
+      "previous_identity": {
+        "name": "csi-lab-server",
+        "vmgenid": "2ef19581-8491-4d45-864f-cad6864a02bf",
+        "smbios1": "uuid=9a468fd6-37c1-496c-9cfb-de98e82f8570",
+        "net0": "virtio=BC:24:11:8E:0D:C8,bridge=vmbr0",
+        "virtio0": "local-zfs:vm-981-disk-0,cache=none,discard=on,replicate=0,size=4G",
+        "ide0": "local-zfs:vm-981-cloudinit,media=cdrom,size=4M",
+        "ide2": null,
+        "memory": "1024"
+      },
+      "event": "Replaced during scoped clone qualification"
+    },
+    {
+      "vmid": 981,
+      "previous_identity": {
+        "name": "csi-lab-server",
+        "ip": "10.9.9.185",
+        "uuid": "9db307c2-14a9-449c-bf9c-426733f1033b",
+        "vmgenid": "da37b5e4-5248-490b-a092-e8d2b7d32cc4",
+        "hostkey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIInq4XxbX/ZaCD0PCu0Y5xh87OaC/jIbmmaHltn2kloz",
+        "mac": "bc:24:11:b9:62:bb"
+      },
+      "event": "Replaced during scoped clone qualification"
+    },
+    {
+      "vmid": 982,
+      "previous_identity": {
+        "name": "csi-lab-worker-1",
+        "ip": "10.9.9.213",
+        "uuid": "85b210fc-787b-4873-bbb5-189d5d909b1b",
+        "vmgenid": "a71e69c3-375c-42b9-938b-f860daa494d0",
+        "hostkey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIInK2n8Y2gjji56FISG8PmbWY0+cthLZ2Tro0xHSP5Cd",
+        "mac": "bc:24:11:f6:bd:47"
+      },
+      "event": "Replaced during scoped clone qualification"
+    },
+    {
+      "vmid": 983,
+      "previous_identity": {
+        "name": "csi-lab-worker-2",
+        "ip": "10.9.9.143",
+        "uuid": "0f29ea8e-2604-4c94-ba3d-a3a6d9b30a85",
+        "vmgenid": "a2c245c3-9969-429c-9c64-2c565f4a63f9",
+        "hostkey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMrePQ+/aCSIErN+rH9kjDWCi3HlajdzG0Q9+665qio9",
+        "mac": "bc:24:11:ca:28:ac"
+      },
+      "event": "Replaced during scoped clone qualification"
+    },
+    {
+      "vmid": 981,
+      "previous_identity": {
+        "name": "csi-lab-server",
+        "ip": "10.9.9.107",
+        "uuid": "8c801768-ec95-45a7-a0c1-ca395e11fb8c",
+        "vmgenid": "ef2035d1-a9b0-40eb-8c3c-0411fcb306c5",
+        "hostkey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBSFfkpeXgf2hDwdsRTDd0zmxAntGrprWh0x6N6SNGAu",
+        "mac": "bc:24:11:c0:bd:eb"
+      },
+      "event": "Replaced during scoped clone qualification"
+    },
+    {
+      "vmid": 982,
+      "previous_identity": {
+        "name": "csi-lab-worker-1",
+        "ip": "10.9.9.218",
+        "uuid": "1af53e28-07ab-47a2-a138-0122b47a7ff5",
+        "vmgenid": "910a5518-d097-4cd4-8f42-1170da9f628a",
+        "hostkey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHeRp6tsuFDciBw8RPrmyLUDXCptOKwKeh+Pz9hjpoUU",
+        "mac": "bc:24:11:c9:d9:7c"
+      },
+      "event": "Replaced during scoped clone qualification"
+    },
+    {
+      "vmid": 983,
+      "previous_identity": {
+        "name": "csi-lab-worker-2",
+        "ip": "10.9.9.239",
+        "uuid": "9967785d-685f-445e-9e40-8f57795b8120",
+        "vmgenid": "290704c4-55ac-40fa-879b-25107281b7f9",
+        "hostkey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK+qsbUldguFB3GzXqnYBp1/GIpHBS2jwDTA05GG9haK",
+        "mac": "bc:24:11:c2:7d:35"
+      },
+      "event": "Replaced during scoped clone qualification"
+    }
+  ],
+  "cleanup": {
+    "run": "csi-lab-20261003",
+    "cleanup_complete": true,
+    "removed": [
+      {
+        "type": "image-deleted",
+        "name": "csi-assessment-nfs:9980/vm-9980-blank.raw"
+      },
+      {
+        "type": "image-deleted",
+        "name": "csi-assessment-nfs:9980/vm-9980-lab.raw"
+      },
+      {
+        "type": "image-deleted",
+        "name": "csi-assessment-nfs:9980/vm-9980-wrongtype.raw"
+      },
+      {
+        "type": "storage-removed",
+        "name": "csi-assessment-nfs"
+      },
+      {
+        "type": "user-and-token-revoked",
+        "name": "csi-lab-20261003@pve"
+      },
+      {
+        "type": "user-and-token-revoked",
+        "name": "tf-lab-20261003@pve"
+      },
+      {
+        "type": "role-removed",
+        "name": "CSILabAudit20261003"
+      },
+      {
+        "type": "role-removed",
+        "name": "CSILabClone20261003"
+      },
+      {
+        "type": "role-removed",
+        "name": "CSILabNet20261003"
+      },
+      {
+        "type": "role-removed",
+        "name": "CSILabRuntime20261003"
+      },
+      {
+        "type": "role-removed",
+        "name": "CSILabStore20261003"
+      },
+      {
+        "type": "role-removed",
+        "name": "CSILabTF20261003"
+      },
+      {
+        "type": "pool-removed",
+        "name": "csi-lab-20261003"
+      },
+      {
+        "type": "vm-and-own-disks-deleted",
+        "name": "980"
+      }
+    ],
+    "cluster_vmids_absent": [
+      980,
+      981,
+      982,
+      983
+    ],
+    "reserved_owner_has_no_vm": true,
+    "no_lab_disks_on_vm_pool_or_local_zfs": true,
+    "nfs_mount_absent": true,
+    "lab_api_users_tokens_roles_acls_removed": true
+  },
   "observed_date": "2026-10-03",
   "host": "10.9.9.20"
 }

@@ -1,11 +1,11 @@
 # Portable iSCSI architecture and qualification proposal
 
-Date: 2026-10-03. Status: static Git-managed bindings accepted; stock Proxmox CSI selected for disposable qualification, iSCSI retained as fallback.
-Source assessment and synthetic probes only.
+Date: 2026-10-03. Status: static Git-managed bindings accepted; stock Proxmox CSI recommended after Debian NFS qualification, iSCSI retained as fallback.
+Includes source assessment and an executed disposable Proxmox CSI lab; production activation is not authorized.
 
 The user selected explicit Git-managed bindings with separate one-time volume allocation. The preserved iSCSI fallback
 uses the existing `org.democratic-csi.retained` node-manual attachment model; no dynamic CSI provisioning controller or
-private ID template is needed for that path. Proxmox CSI qualification is the current next step. The [recovery assessment](../reports/2026-10-03-democratic-csi-clean-cluster-recovery.md) records
+private ID template is needed for that path. TrueNAS 25 export qualification is the next live gate. The [recovery assessment](../reports/2026-10-03-democratic-csi-clean-cluster-recovery.md) records
 why stock dynamic provisioning was not selected. The [Jellyfin audit](../reports/2026-10-03-jellyfin-static-storage-design.md)
 traces the current implementation and proposed simplification.
 
@@ -172,7 +172,8 @@ The [completed source comparison](../reports/2026-10-03-proxmox-csi-nfs-assessme
 path that can preserve CSI images during worker deletion. The installed ownership/deletion functions match the pinned
 source, and the isolated deletion-function probe passes. Upstream supports static disk bindings, normal attachment
 movement and filesystem expansion. The Terraform VM module needs a qualified rule excluding CSI SCSI attachments from
-its disk reconciliation. Real full-destroy/recreate behavior, failure recovery and expansion are not yet tested.
+its disk reconciliation. The [approved Debian NFS lab](../reports/2026-10-03-proxmox-csi-lab-results.md) passed two full rebuilds, failure recovery and interrupted expansion.
+Actual TrueNAS 25 behavior and production pipeline integration remain separate gates.
 
 The user chose: "Accept stock filesystem handling; qualify Proxmox CSI in a disposable lab." This explicitly permits
 the assessed upstream behavior for that candidate: reuse recognized filesystems, potential mkfs when a referenced image
@@ -180,15 +181,15 @@ has no recognizable filesystem, and automatic filesystem checking/repair. Missin
 This is a prospective candidate-policy change, not permission to remove current Jellyfin safeguards or repair live data.
 No custom driver, mkfs wrapper or service-specific mount program will be introduced.
 
-Proxmox CSI is now the preferred candidate for qualification; static iSCSI remains the fallback. The data path is
+Proxmox CSI is now the recommended architecture after disposable Debian NFS qualification; static iSCSI remains the fallback. The data path is
 SQLite -> guest ext4 -> virtual disk -> Proxmox -> NFS -> NAS. It preserves NAS-provider portability through NFS, adds a
 Proxmox API dependency, and supplies native PVC expansion missing from the current node-manual profile. Both candidates
 still use durable bindings in Apps, separate allocation, recoverable secrets and old-writer exclusion. Neither requires
 Velero or changes to the user's routine Packer PR -> Terraform PR merge procedure after shared integration is qualified.
 
 The [bounded lab proposal](../reports/2026-10-03-proxmox-csi-disposable-lab.md) fixes the proposed resources and test scope.
-It is assessment preparation, not an executed lab. TrueNAS 25 qualification and activation remain separate from the
-synthetic Debian NFS lab. No new upstream contribution or monitoring task is authorized.
+The approved synthetic Debian NFS lab has been executed; its [results](../reports/2026-10-03-proxmox-csi-lab-results.md)
+record both successful recovery and required old-writer exclusion. TrueNAS 25 qualification and activation remain separate. No new upstream contribution or monitoring task is authorized.
 
 ## Dynamic-controller alternatives assessed before selecting static bindings
 
@@ -279,7 +280,8 @@ pre-merge backup verification, new checkbox or separate recovery approval is req
 Terraform owns VM lifecycle. Apps and Ansible install the platform and bootstrap a fresh cluster from declared inputs.
 Neither Terraform nor bootstrap depends on Velero, an etcd snapshot or the old cluster API.
 
-The required recovery sequence is a qualification contract; the complete sequence has not yet passed a lab rebuild:
+The sequence below remains the static-iSCSI qualification contract. The alternative Proxmox CSI storage path has passed
+two lab rebuilds; neither result is a claim that the production pipeline has already been integrated:
 
 1. Exclude old writers using verified Proxmox power state and VM generation. An uncertain stop keeps writers blocked.
 2. Recreate the three Debian/k3s VMs with an empty datastore. Prepare initiators and apply the selected target access
@@ -386,7 +388,8 @@ Static Git-managed bindings with one-time volume allocation are accepted. Velero
 remain outside the plan. TrueNAS 25 is the target; compatibility with 26 is deferred. CHAP removal is still unresolved
 for the iSCSI fallback. Use unmodified upstream drivers only.
 
-The user accepted stock filesystem handling and chose disposable qualification of Proxmox CSI. Prepare and approve the
-bounded resource/test scope, then test native attachment, Terraform ownership, growth and complete cluster recovery.
+The user accepted stock filesystem handling and approved disposable qualification of Proxmox CSI. The executed lab
+passed native attachment, Terraform coexistence, growth and complete cluster recovery. Qualify the actual TrueNAS 25
+export next, then implement shared integration without adding a pre-merge backup checkpoint.
 Keep this iSCSI proposal and its evidence as fallback. No current Jellyfin placement, authentication or writer-admission
 change is authorized by the candidate selection.

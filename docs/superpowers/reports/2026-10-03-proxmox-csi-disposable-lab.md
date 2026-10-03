@@ -1,6 +1,6 @@
 # Proxmox CSI disposable qualification proposal
 
-Date: 2026-10-03. Status: stock-filesystem policy, bounded allocation, tests and cleanup approved by the user on 2026-10-03. Execution in progress.
+Date: 2026-10-03. Status: stock-filesystem policy, bounded allocation, tests and cleanup approved by the user on 2026-10-03. Execution and cleanup complete; see the [results](2026-10-03-proxmox-csi-lab-results.md).
 Companion: [source assessment](2026-10-03-proxmox-csi-nfs-assessment.md).
 
 ## Question and success condition
@@ -22,8 +22,9 @@ storage paths immediately before creation. A collision aborts; never adopt or de
 | 982 | csi-lab-worker-1 | Disposable k3s worker | 2GiB | 2 | 8GiB root |
 | 983 | csi-lab-worker-2 | Disposable k3s worker | 2GiB | 2 | 8GiB root |
 
-Use full clones of existing template 900, with distinct fresh identities and cloud-init. Total ceiling: 8GiB RAM,
-8 vCPUs and 56GiB guest-disk capacity, plus small cloud-init disks. No GPU/PCI passthrough, production disks, production
+Use full clones of existing template 900, with distinct fresh identities and cloud-init. Permanent ceiling: 8GiB RAM,
+8 vCPUs and 56GiB guest-disk capacity, plus small cloud-init disks. The user subsequently approved one transient 4GiB
+clone on local-zfs at a time before migration to vm-pool, raising peak capacity to approximately 60GiB. No GPU/PCI passthrough, production disks, production
 Kubernetes credentials, production ArgoCD discovery, or modifications to template 900. Disallow host-start auto-boot.
 
 All four VMs use DHCP on existing `vmbr0` (10.9.9.0/24). Discover addresses through their Proxmox guest agents and record

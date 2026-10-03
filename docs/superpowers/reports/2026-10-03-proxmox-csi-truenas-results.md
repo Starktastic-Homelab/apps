@@ -37,7 +37,8 @@ No production application was migrated or reconfigured. Shared production integr
 The final filesystem UUID was `8a43dddb-dbad-491c-8020-d1f3e9467cc1`. The retained raw image was 4,294,967,296 bytes;
 usable filesystem capacity was 4,152,066,048 bytes. Final data SHA-256:
 `0f957956912847b5132f071abc419bec198aaee5d955246ef3bfe1c64b66cf4c`.
-The initial 2,000-record prefix remained unchanged throughout expansion and both rebuilds.
+The original 1,000 records survived expansion. Another 1,000 records were added after growth; that resulting
+2,000-record prefix remained unchanged through both rebuilds.
 
 ## Exact environment and evidence
 
@@ -103,3 +104,20 @@ historical maintenance receipts were retained. Proxmox private staging was remov
 Generated local private staging was removed after checking the deliverables against actual secret values and their encodings. Both temporary API identities are revoked, and every VM accepting the temporary SSH key is deleted. The original user-provided Proxmox credential file was preserved.
 
 Validation passed: JSON/evidence invariants, cleanup receipts, embedded Python parsing and Bash syntax, local documentation links/fences, README image references and `git diff --check`. Local PyYAML and pre-commit are unavailable; local YAML re-parsing/hooks were not run. The embedded manifests were successfully applied in each actual disposable cluster. No production rollout is claimed.
+
+
+## Final review
+
+A fresh read-only reviewer found no Critical or Important architectural issues. Two reported minor factual issues were
+corrected before delivery: the obsolete next-step instruction could cause unnecessary repeat live qualification, and the
+record-count sentence overstated which batch existed during expansion. The saved post-resize observation has 1,000
+records; the later expanded baseline has 2,000. The final recovery hashes were independently recomputed and matched.
+These are delivery-blocking factual corrections in this assessment, not new runtime changes. Source/evidence checks
+were rerun after the corrections; no additional destructive tests were performed.
+
+Review boundaries retained deliberately: current live state is supported by this run's cleanup receipts, not an independent
+second live inspection; actual-secret exclusion was performed by the executor, while the reviewer inspected sanitized
+artifacts only. Production integration/automatic fencing/GitOps resize sequencing, arbitrary NAS failures or power loss,
+large-volume performance and Jellyfin workload qualification remain unproven. Historical test scripts are evidence,
+not supported deployment tools. Treating any of those exclusions as a production guarantee would risk unsafe activation
+or data loss; the next integration stage must preserve these limits. No review findings remain deferred.

@@ -1,7 +1,8 @@
 # Proxmox CSI disposable lab execution
 
 Plan: [approved scope](2026-10-03-proxmox-csi-disposable-lab.md).
-Date: 2026-10-03. Status: Debian NFS qualification passed; cleanup complete. TrueNAS 25 export qualification remains open.
+Date: 2026-10-03. Status: Debian NFS qualification passed; cleanup complete.
+The later [TrueNAS 25 qualification](2026-10-03-proxmox-csi-truenas-results.md) is also complete within its documented limits.
 
 ## Authorization and ledger
 

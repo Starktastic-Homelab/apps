@@ -389,7 +389,8 @@ remain outside the plan. TrueNAS 25 is the target; compatibility with 26 is defe
 for the iSCSI fallback. Use unmodified upstream drivers only.
 
 The user accepted stock filesystem handling and approved disposable qualification of Proxmox CSI. The executed lab
-passed native attachment, Terraform coexistence, growth and complete cluster recovery. Qualify the actual TrueNAS 25
-export next, then implement shared integration without adding a pre-merge backup checkpoint.
+passed native attachment, Terraform coexistence, growth and complete cluster recovery on both Debian NFS and TrueNAS 25.
+Next, prepare shared production integration without adding a pre-merge backup checkpoint. Include the documented
+manual recovery procedure for export withdrawal, old-writer exclusion and GitOps expansion sequencing.
 Keep this iSCSI proposal and its evidence as fallback. No current Jellyfin placement, authentication or writer-admission
 change is authorized by the candidate selection.

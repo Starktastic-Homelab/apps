@@ -435,12 +435,7 @@
         "name": "980"
       }
     ],
-    "cluster_vmids_absent": [
-      980,
-      981,
-      982,
-      983
-    ],
+    "cluster_vmids_absent": [980, 981, 982, 983],
     "reserved_owner_has_no_vm": true,
     "no_lab_disks_on_vm_pool_or_local_zfs": true,
     "nfs_mount_absent": true,

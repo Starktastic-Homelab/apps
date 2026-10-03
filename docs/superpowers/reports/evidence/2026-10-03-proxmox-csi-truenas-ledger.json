@@ -640,15 +640,10 @@
         "id": 1,
         "servers": 4,
         "allow_nonroot": false,
-        "protocols": [
-          "NFSV4"
-        ],
+        "protocols": ["NFSV4"],
         "v4_krb": false,
         "v4_domain": "",
-        "bindip": [
-          "10.9.8.30",
-          "10.9.9.30"
-        ],
+        "bindip": ["10.9.8.30", "10.9.9.30"],
         "mountd_port": null,
         "rpcstatd_port": null,
         "rpclockd_port": null,
@@ -666,9 +661,7 @@
           "path": "/mnt/main/media",
           "aliases": [],
           "comment": "Media Library",
-          "networks": [
-            "10.9.8.0/24"
-          ],
+          "networks": ["10.9.8.0/24"],
           "hosts": [],
           "ro": false,
           "maproot_user": "",
@@ -685,10 +678,7 @@
           "path": "/mnt/apps/pv",
           "aliases": [],
           "comment": "K3s Persistent Volumes",
-          "networks": [
-            "10.9.8.0/24",
-            "10.9.9.10/32"
-          ],
+          "networks": ["10.9.8.0/24", "10.9.9.10/32"],
           "hosts": [],
           "ro": false,
           "maproot_user": "root",
@@ -705,9 +695,7 @@
           "path": "/mnt/nvme-cache/incomplete",
           "aliases": [],
           "comment": "qBittorrent incomplete download cache",
-          "networks": [
-            "10.9.8.0/24"
-          ],
+          "networks": ["10.9.8.0/24"],
           "hosts": [],
           "ro": false,
           "maproot_user": "",
@@ -761,18 +749,14 @@
       "path": "/mnt/apps/csi-qualification-20261003",
       "aliases": [],
       "comment": "Disposable CSI qualification csi-tn-20261003",
-      "networks": [
-        "10.9.9.20/32"
-      ],
+      "networks": ["10.9.9.20/32"],
       "hosts": [],
       "ro": false,
       "maproot_user": "root",
       "maproot_group": "root",
       "mapall_user": null,
       "mapall_group": null,
-      "security": [
-        "SYS"
-      ],
+      "security": ["SYS"],
       "enabled": true,
       "locked": false,
       "expose_snapshots": false
@@ -783,9 +767,7 @@
       "quota_bytes": 8589934592,
       "share_id": 6,
       "share_path": "/mnt/apps/csi-qualification-20261003",
-      "networks": [
-        "10.9.9.20/32"
-      ],
+      "networks": ["10.9.9.20/32"],
       "existing_shares_unchanged": true,
       "global_nfs_config_unchanged": true,
       "maintenance_owner_held": true

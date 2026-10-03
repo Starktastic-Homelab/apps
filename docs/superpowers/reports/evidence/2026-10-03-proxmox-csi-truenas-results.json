@@ -5,11 +5,7 @@
     "run": "csi-tn-20261003",
     "evidence": {
       "evidence/cluster-cleanup.json": {
-        "vmids_deleted": [
-          981,
-          982,
-          983
-        ],
+        "vmids_deleted": [981, 982, 983],
         "no_old_cluster_vms": true,
         "apply_exitcode": 0
       },
@@ -53,10 +49,7 @@
               "spec": {
                 "containers": [
                   {
-                    "command": [
-                      "sleep",
-                      "infinity"
-                    ],
+                    "command": ["sleep", "infinity"],
                     "image": "docker.io/library/python@sha256:bb2988715db2cf7ace7b53f38f3cffbef7c7046a656bee66245eb0ed386e2e81",
                     "imagePullPolicy": "IfNotPresent",
                     "name": "sqlite",
@@ -230,9 +223,7 @@
                     "user": {
                       "linux": {
                         "gid": 0,
-                        "supplementalGroups": [
-                          0
-                        ],
+                        "supplementalGroups": [0],
                         "uid": 0
                       }
                     },
@@ -415,11 +406,7 @@
         "sha256": "52ef7eb9ec9e43a2f41ecb29122ce6ace88c9643322f657dc4656da14666b80b"
       },
       "evidence/first-destroy-review.json": {
-        "vmids": [
-          981,
-          982,
-          983
-        ],
+        "vmids": [981, 982, 983],
         "actions": "delete"
       },
       "evidence/first-identities-before.json": {
@@ -631,18 +618,14 @@
               "pv.kubernetes.io/bind-completed": "yes"
             },
             "creationTimestamp": "2026-10-03T18:39:21Z",
-            "finalizers": [
-              "kubernetes.io/pvc-protection"
-            ],
+            "finalizers": ["kubernetes.io/pvc-protection"],
             "name": "sqlite",
             "namespace": "csi-lab",
             "resourceVersion": "1083",
             "uid": "ea6c7ef7-a1bd-437e-9db1-705314adc93c"
           },
           "spec": {
-            "accessModes": [
-              "ReadWriteOncePod"
-            ],
+            "accessModes": ["ReadWriteOncePod"],
             "resources": {
               "requests": {
                 "storage": "4Gi"
@@ -653,9 +636,7 @@
             "volumeName": "csi-lab-sqlite"
           },
           "status": {
-            "accessModes": [
-              "ReadWriteOncePod"
-            ],
+            "accessModes": ["ReadWriteOncePod"],
             "allocatedResourceStatuses": {
               "storage": "NodeResizePending"
             },
@@ -746,9 +727,7 @@
         "writer_vmid": 982
       },
       "evidence/partial-destroy-review.json": {
-        "vmids": [
-          981
-        ],
+        "vmids": [981],
         "actions": "delete"
       },
       "evidence/second-all-destroyed.json": {
@@ -765,10 +744,7 @@
         "sha256": "e65463c354c077d05a100d2b9890dc25eec7790188d800e8b08440970d678482"
       },
       "evidence/second-destroy-review.json": {
-        "vmids": [
-          982,
-          983
-        ],
+        "vmids": [982, 983],
         "actions": "delete"
       },
       "evidence/second-identities-before.json": {

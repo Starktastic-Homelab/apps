@@ -6,11 +6,7 @@
       "filesystem_uuid": "3dca49c8-66c3-44b0-8e3b-7eacb379fd59"
     },
     "cluster-cleanup.json": {
-      "vmids_deleted": [
-        981,
-        982,
-        983
-      ],
+      "vmids_deleted": [981, 982, 983],
       "apply_exitcode": 0,
       "no_old_cluster_vms": true
     },
@@ -315,18 +311,14 @@
             "pv.kubernetes.io/bind-completed": "yes"
           },
           "creationTimestamp": "2026-10-03T14:54:07Z",
-          "finalizers": [
-            "kubernetes.io/pvc-protection"
-          ],
+          "finalizers": ["kubernetes.io/pvc-protection"],
           "name": "sqlite",
           "namespace": "csi-lab",
           "resourceVersion": "902",
           "uid": "24786616-164e-4d11-ae11-e4a586e70c04"
         },
         "spec": {
-          "accessModes": [
-            "ReadWriteOncePod"
-          ],
+          "accessModes": ["ReadWriteOncePod"],
           "resources": {
             "requests": {
               "storage": "4Gi"
@@ -337,9 +329,7 @@
           "volumeName": "csi-lab-sqlite"
         },
         "status": {
-          "accessModes": [
-            "ReadWriteOncePod"
-          ],
+          "accessModes": ["ReadWriteOncePod"],
           "allocatedResourceStatuses": {
             "storage": "NodeResizePending"
           },
@@ -484,28 +474,12 @@
       "replacement_bootstrap_held": true
     },
     "partial-destroy-review.json": {
-      "delete_vmids": [
-        981
-      ],
-      "actions": [
-        [
-          "delete"
-        ]
-      ]
+      "delete_vmids": [981],
+      "actions": [["delete"]]
     },
     "second-destroy-review.json": {
-      "delete_vmids": [
-        982,
-        983
-      ],
-      "actions": [
-        [
-          "delete"
-        ],
-        [
-          "delete"
-        ]
-      ]
+      "delete_vmids": [982, 983],
+      "actions": [["delete"], ["delete"]]
     },
     "second-full-destroy.json": {
       "all_cluster_vms_absent": true,
@@ -739,12 +713,7 @@
           "name": "980"
         }
       ],
-      "cluster_vmids_absent": [
-        980,
-        981,
-        982,
-        983
-      ],
+      "cluster_vmids_absent": [980, 981, 982, 983],
       "reserved_owner_has_no_vm": true,
       "no_lab_disks_on_vm_pool_or_local_zfs": true,
       "nfs_mount_absent": true,

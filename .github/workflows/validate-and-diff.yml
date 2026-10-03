@@ -115,6 +115,13 @@ jobs:
             -f infrastructure/system/retained-iscsi/values.yaml > /tmp/retained-csi.yaml
           python3 scripts/storage/tests/check_csi_render.py /tmp/retained-csi.yaml
 
+      - name: Check staged Proxmox CSI chart render
+        run: |
+          helm template proxmox-csi oci://ghcr.io/sergelogvinov/charts/proxmox-csi-plugin \
+            --version 0.5.10 --namespace csi-proxmox -f templates/globals.yaml \
+            -f infrastructure/system/proxmox-csi/values.yaml > /tmp/proxmox-csi.yaml
+          python3 scripts/storage/tests/check_proxmox_csi_render.py /tmp/proxmox-csi.yaml
+
       - name: Check alert policy
         id: alerts
         env:

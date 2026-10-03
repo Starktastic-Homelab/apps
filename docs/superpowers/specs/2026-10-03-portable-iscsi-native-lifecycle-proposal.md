@@ -1,11 +1,11 @@
 # Portable iSCSI architecture and qualification proposal
 
-Date: 2026-10-03. Status: static Git-managed bindings accepted; stock Proxmox CSI recommended after Debian NFS qualification, iSCSI retained as fallback.
+Date: 2026-10-03. Status: static Git-managed bindings accepted; stock Proxmox CSI recommended after Debian and TrueNAS NFS qualification, iSCSI retained as fallback.
 Includes source assessment and an executed disposable Proxmox CSI lab; production activation is not authorized.
 
 The user selected explicit Git-managed bindings with separate one-time volume allocation. The preserved iSCSI fallback
 uses the existing `org.democratic-csi.retained` node-manual attachment model; no dynamic CSI provisioning controller or
-private ID template is needed for that path. TrueNAS 25 export qualification is the next live gate. The [recovery assessment](../reports/2026-10-03-democratic-csi-clean-cluster-recovery.md) records
+private ID template is needed for that path. The [TrueNAS 25 lab](../reports/2026-10-03-proxmox-csi-truenas-results.md) completed its bounded tests; production integration is the next gate. The [recovery assessment](../reports/2026-10-03-democratic-csi-clean-cluster-recovery.md) records
 why stock dynamic provisioning was not selected. The [Jellyfin audit](../reports/2026-10-03-jellyfin-static-storage-design.md)
 traces the current implementation and proposed simplification.
 
@@ -173,7 +173,7 @@ path that can preserve CSI images during worker deletion. The installed ownershi
 source, and the isolated deletion-function probe passes. Upstream supports static disk bindings, normal attachment
 movement and filesystem expansion. The Terraform VM module needs a qualified rule excluding CSI SCSI attachments from
 its disk reconciliation. The [approved Debian NFS lab](../reports/2026-10-03-proxmox-csi-lab-results.md) passed two full rebuilds, failure recovery and interrupted expansion.
-Actual TrueNAS 25 behavior and production pipeline integration remain separate gates.
+The [TrueNAS 25 follow-up](../reports/2026-10-03-proxmox-csi-truenas-results.md) also passed two rebuilds and interrupted expansion. Its export-withdrawal test required manual workload restaging after guest I/O errors; all observed commits survived. Production pipeline integration remains a separate gate.
 
 The user chose: "Accept stock filesystem handling; qualify Proxmox CSI in a disposable lab." This explicitly permits
 the assessed upstream behavior for that candidate: reuse recognized filesystems, potential mkfs when a referenced image
@@ -181,7 +181,7 @@ has no recognizable filesystem, and automatic filesystem checking/repair. Missin
 This is a prospective candidate-policy change, not permission to remove current Jellyfin safeguards or repair live data.
 No custom driver, mkfs wrapper or service-specific mount program will be introduced.
 
-Proxmox CSI is now the recommended architecture after disposable Debian NFS qualification; static iSCSI remains the fallback. The data path is
+Proxmox CSI is now the recommended architecture after disposable Debian and TrueNAS NFS qualification; static iSCSI remains the fallback. The data path is
 SQLite -> guest ext4 -> virtual disk -> Proxmox -> NFS -> NAS. It preserves NAS-provider portability through NFS, adds a
 Proxmox API dependency, and supplies native PVC expansion missing from the current node-manual profile. Both candidates
 still use durable bindings in Apps, separate allocation, recoverable secrets and old-writer exclusion. Neither requires
@@ -189,7 +189,7 @@ Velero or changes to the user's routine Packer PR -> Terraform PR merge procedur
 
 The [bounded lab proposal](../reports/2026-10-03-proxmox-csi-disposable-lab.md) fixes the proposed resources and test scope.
 The approved synthetic Debian NFS lab has been executed; its [results](../reports/2026-10-03-proxmox-csi-lab-results.md)
-record both successful recovery and required old-writer exclusion. TrueNAS 25 qualification and activation remain separate. No new upstream contribution or monitoring task is authorized.
+record both successful recovery and required old-writer exclusion. Actual TrueNAS 25 qualification is complete within the documented limits; production activation remains separate. No new upstream contribution or monitoring task is authorized.
 
 ## Dynamic-controller alternatives assessed before selecting static bindings
 

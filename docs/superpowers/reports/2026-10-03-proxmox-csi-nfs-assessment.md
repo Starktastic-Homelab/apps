@@ -1,15 +1,16 @@
 # Proxmox CSI over NFS assessment
 
-Date: 2026-10-03. Status: source assessment and disposable Debian NFS qualification complete; recommend stock Proxmox CSI.
+Date: 2026-10-03. Status: source assessment and disposable Debian/TrueNAS NFS qualification complete; recommend stock Proxmox CSI.
 The initial source investigation used authorized read-only Proxmox access. The subsequently approved synthetic lab
 created and tested disposable resources; see the [runtime results and limits](2026-10-03-proxmox-csi-lab-results.md).
-The actual TrueNAS 25 export and production integration remain unqualified. No production application was changed.
+The [TrueNAS 25 lab](2026-10-03-proxmox-csi-truenas-results.md) also completed both rebuilds, movement and expansion. Production integration remains unqualified. No production application configuration was changed.
 
 ## Finding
 
 The [disposable lab](2026-10-03-proxmox-csi-lab-results.md) passed two full cluster rebuilds, including an abrupt writer shutdown,
 with unchanged filesystem identity and all 5,284 observed committed records. Stock driver/container digests were unchanged.
 Explicit old-writer power-off remains essential; no automatic QEMU/NFS locking guarantee was established.
+The separate [TrueNAS run](2026-10-03-proxmox-csi-truenas-results.md) recovered 2,412 observed commits through two rebuilds. Its per-export withdrawal caused guest I/O errors and required manual workload restaging after restoration; all observed commits remained intact.
 
 Stock Proxmox CSI is the recommended architecture for the user's primary goal: disposable k3s VMs and datastore, surviving
 NAS data, stable bindings from Git, and no Velero freshness dependency. The installed Proxmox deletion code supports
@@ -23,7 +24,7 @@ can be formatted, and a recognized writable filesystem can undergo automatic rep
 both behaviors was found in v0.20.0. Neither candidate's stock driver checks the expected filesystem UUID.
 
 The user accepted ordinary upstream CSI filesystem handling and chose disposable qualification. Proxmox CSI is therefore
-the preferred candidate because it keeps NAS-side NFS and supplies native attachment and PVC expansion. The Debian NFS lab now supplies runtime evidence for recovery, movement and expansion. This recommendation is not production activation.
+the preferred candidate because it keeps NAS-side NFS and supplies native attachment and PVC expansion. The Debian and TrueNAS NFS labs now supply runtime evidence for recovery, movement and expansion. This recommendation is not production activation.
 Static iSCSI still has its own unresolved CHAP credential-handling and shared-bootstrap qualification gaps.
 
 The user explicitly reopened the comparison after declining a patched driver. The earlier blanket exclusion of
@@ -129,7 +130,7 @@ is not an end-to-end result for this homelab.
    integration. It keeps NAS-provider portability but depends on Proxmox; neither setup is service-specific Ansible code.
 4. **Runtime evidence:** the Debian NFS lab passed bounded NFS loss/restart, healthy movement, confirmed-off failed-writer
    recovery, Terraform coexistence, two full rebuilds, negative-image cases and interrupted expansion. Its report preserves
-   the TrueNAS 25, power-loss, scale and production-integration limits. Preserve the existing user-facing merge procedure.
+   power-loss, scale and production-integration limits. The TrueNAS lab repeated rebuilds and expansion, but withdrawing its export propagated I/O errors and required manual workload restaging; all observed commits survived. Preserve the existing user-facing merge procedure.
 
 ## Comparison against static iSCSI
 
@@ -229,7 +230,7 @@ do not qualify the actual TrueNAS 25 export. Required acceptance observations ar
 These acceptance tests are expanded into a
 [bounded lab proposal](2026-10-03-proxmox-csi-disposable-lab.md) with resource identity, networking, disk paths, allocation
 limits and deletion scope, followed by the [executed results](2026-10-03-proxmox-csi-lab-results.md).
-The runtime report distinguishes passed tests from the remaining TrueNAS and production-integration gates.
+The [TrueNAS follow-up](2026-10-03-proxmox-csi-truenas-results.md) now records actual TrueNAS 25.10.7 results. Production integration, NAS reboot/power-loss and scale remain outside qualification.
 
 ## Synthetic verification
 
@@ -251,11 +252,9 @@ pre-commit is unavailable.
 
 ## Decision
 
-Recommend **stock Proxmox CSI over NFS** after the completed Debian lab. The user accepted its filesystem handling;
+Recommend **stock Proxmox CSI over NFS** after the completed Debian and TrueNAS labs. The user accepted its filesystem handling;
 the lab established Terraform SCSI ownership, two fresh-cluster recoveries and native expansion/retry without a driver
 fork. Preserve static iSCSI as fallback and retain live safeguards until separate activation.
 
 The [runtime results](2026-10-03-proxmox-csi-lab-results.md) record the exact tests, evidence and completed cleanup.
-The actual TrueNAS 25 export and production Packer/Terraform/ArgoCD integration remain the next gates; the Debian lab
-must not be called production qualification. Keep explicit retained bindings, missing-image failure behavior and
-confirmed old-writer shutdown. No upstream issue, PR or message has been sent, and no production workload changed.
+The [TrueNAS results](2026-10-03-proxmox-csi-truenas-results.md) establish two fresh-cluster recoveries, all 2,412 observed committed records, native movement and interrupted expansion. Export withdrawal required manual detach/restage after storage returned; it did not recover automatically. This is a bounded qualification, not a guarantee of arbitrary NAS failure recovery. Production Packer/Terraform/ArgoCD integration is the next gate, including old-writer exclusion and GitOps expansion sequencing. Keep explicit retained bindings and missing-image failure behavior. No upstream issue, PR or message has been sent, and no production workload changed.

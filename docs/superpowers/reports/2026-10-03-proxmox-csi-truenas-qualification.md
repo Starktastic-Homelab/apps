@@ -1,6 +1,6 @@
 # Proxmox CSI on TrueNAS 25: bounded qualification scope
 
-Date: 2026-10-03. Status: read-only preflight complete; new allocation/mutation scope awaiting approval.
+Date: 2026-10-03. Status: approved scope executed; bounded tests and live-resource cleanup complete.
 Companion: [completed Debian NFS lab](2026-10-03-proxmox-csi-lab-results.md).
 
 ## Fresh preflight
@@ -81,5 +81,5 @@ their native IDs/GUIDs and absence of unexpected children/snapshots. Preserve al
 maintenance history and production workloads. Remove generated lab credential material after evidence is saved.
 
 The previous approval covered a synthetic Debian NFS server and its cleanup. This proposal adds allocation and export
-changes on the production TrueNAS appliance and a new disposable VM run, so it needs approval of this concrete scope.
-The existing credential reference removes the need to provide another password. No TrueNAS mutation has been performed.
+changes on the production TrueNAS appliance and a new disposable VM run, and the user approved this concrete scope by instructing continuation after the approval request.
+The existing credential reference removes the need to provide another password. Execution and the manual recovery required after export withdrawal are recorded in the [results report](2026-10-03-proxmox-csi-truenas-results.md).

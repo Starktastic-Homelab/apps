@@ -1,11 +1,11 @@
 # Portable iSCSI architecture and qualification proposal
 
-Date: 2026-10-03. Status: static Git-managed binding direction accepted; simplification design under review.
+Date: 2026-10-03. Status: static Git-managed bindings accepted; stock Proxmox CSI selected for disposable qualification, iSCSI retained as fallback.
 Source assessment and synthetic probes only.
 
-The user selected explicit Git-managed bindings with separate one-time volume allocation. Keep the existing
-`org.democratic-csi.retained` node-manual attachment model; no dynamic CSI provisioning controller or private ID template
-is needed for this path. The [recovery assessment](../reports/2026-10-03-democratic-csi-clean-cluster-recovery.md) records
+The user selected explicit Git-managed bindings with separate one-time volume allocation. The preserved iSCSI fallback
+uses the existing `org.democratic-csi.retained` node-manual attachment model; no dynamic CSI provisioning controller or
+private ID template is needed for that path. Proxmox CSI qualification is the current next step. The [recovery assessment](../reports/2026-10-03-democratic-csi-clean-cluster-recovery.md) records
 why stock dynamic provisioning was not selected. The [Jellyfin audit](../reports/2026-10-03-jellyfin-static-storage-design.md)
 traces the current implementation and proposed simplification.
 
@@ -15,9 +15,10 @@ or service-specific lifecycle code in Ansible. The alternatives recap below pres
 where the assessment is incomplete.
 
 The user requires an unmodified upstream CSI driver. Supported configuration is allowed; driver forks, patched images
-and locally maintained driver enhancements are outside the selected design. The Proxmox CSI comparison is retained as
-evidence, but its proposed retained-filesystem enhancement is declined. Static iSCSI remains the selected baseline;
-its outstanding qualification requirements are unchanged.
+and locally maintained driver enhancements are outside the selected design. After completing the source comparison,
+the user accepted stock filesystem handling and chose to qualify Proxmox CSI in a disposable lab. This supersedes the
+previous exclusion based on format/repair behavior. The iSCSI design remains preserved as fallback; current deployment
+and safeguards are unchanged until qualification and separate activation approval.
 
 Current direction: disposable k3s VMs **and datastore**, with application data, Git-managed volume bindings and bootstrap
 secrets outside the cluster. Rebuild without a final metadata backup or restoring the old Kubernetes database.
@@ -51,8 +52,9 @@ Remote main refs were queried directly on October 3:
 | Packer | `840b56545fd99ec1ac36dc35feec18c3ffd7a2d7` | Image script explicitly installs NFS tooling but not the proposed iSCSI prerequisites. This does not assert packages are absent from every live guest. |
 | Terraform | `50582000a7f6b873d2bb436f4850a3e62f56e2ce` | Primary checkout is older. Main has infrastructure/maintenance serialization added since the handoff anchor. Preserve it until replacement qualification. |
 
-No production host, storage server, or credential was accessed. Historical VM300 health and TrueNAS 25.10.7 remain
-handoff evidence, not freshly verified runtime facts.
+The subsequent Proxmox comparison used explicitly authorized read-only access to 10.9.9.20, including installed
+source, filtered VM configuration and resource capacity. No host was modified. NAS and Kubernetes APIs were not
+accessed. Historical VM300 health and TrueNAS 25.10.7 remain handoff evidence, not fresh runtime verification.
 
 ## New findings that affect selection
 
@@ -166,39 +168,27 @@ Sources for the additional candidates:
 
 ### Proxmox CSI over NFS assessment and disposition
 
-The user approved evaluating this challenger while retaining the iSCSI baseline. The
-[pinned source assessment](../reports/2026-10-03-proxmox-csi-nfs-assessment.md) now finds a native disk-ownership path
-that can preserve CSI images during worker deletion, with a passing isolated probe of the upstream deletion function.
-User-authorized read-only host inspection confirms the installed deletion and ownership-parser functions match the
-inspected source. Terraform attachment reconciliation, expected-filesystem admission and runtime recovery remain
-qualification gaps. The observations below describe the initial comparison.
+The [completed source comparison](../reports/2026-10-03-proxmox-csi-nfs-assessment.md) establishes a native disk-ownership
+path that can preserve CSI images during worker deletion. The installed ownership/deletion functions match the pinned
+source, and the isolated deletion-function probe passes. Upstream supports static disk bindings, normal attachment
+movement and filesystem expansion. The Terraform VM module needs a qualified rule excluding CSI SCSI attachments from
+its disk reconciliation. Real full-destroy/recreate behavior, failure recovery and expansion are not yet tested.
 
-Decision: use an unmodified upstream driver. Do not pursue the proposed custom Proxmox CSI build or activate this
-candidate under the current recovery contract. Reconsider only if an upstream release provides the required behavior
-or the user explicitly revises that contract. No new upstream contribution or monitoring task is authorized.
+The user chose: "Accept stock filesystem handling; qualify Proxmox CSI in a disposable lab." This explicitly permits
+the assessed upstream behavior for that candidate: reuse recognized filesystems, potential mkfs when a referenced image
+has no recognizable filesystem, and automatic filesystem checking/repair. Missing disk images still fail attachment.
+This is a prospective candidate-policy change, not permission to remove current Jellyfin safeguards or repair live data.
+No custom driver, mkfs wrapper or service-specific mount program will be introduced.
 
-Proxmox supports VM disk images on NFS. The Proxmox CSI project's documentation describes attaching persistent volumes
-as VM block devices, movement across Proxmox nodes for shared storage including NFS, and PVC expansion. Its documented
-PV lifecycle keep annotation addresses driver deletion of a volume; this is not evidence that an attached disk survives
-the Terraform provider's VM-destruction path. These are current documentation observations, not a pinned source audit.
-[Proxmox NFS backend](https://github.com/proxmox/pve-docs/blob/master/pve-storage-nfs.adoc),
-[Proxmox CSI overview](https://github.com/sergelogvinov/proxmox-csi-plugin),
-[expansion and retention options](https://github.com/sergelogvinov/proxmox-csi-plugin/blob/main/docs/options.md).
+Proxmox CSI is now the preferred candidate for qualification; static iSCSI remains the fallback. The data path is
+SQLite -> guest ext4 -> virtual disk -> Proxmox -> NFS -> NAS. It preserves NAS-provider portability through NFS, adds a
+Proxmox API dependency, and supplies native PVC expansion missing from the current node-manual profile. Both candidates
+still use durable bindings in Apps, separate allocation, recoverable secrets and old-writer exclusion. Neither requires
+Velero or changes to the user's routine Packer PR -> Terraform PR merge procedure after shared integration is qualified.
 
-The candidate data path is SQLite -> guest ext4 -> virtual disk -> Proxmox -> NFS -> NAS. SQLite would not directly open
-its database over NFS; QEMU and the backend would still need correct cache/flush behavior. Inference: this could retain
-NAS-provider portability through NFS while replacing guest iSCSI setup with Proxmox integration. It introduces dependency
-on Proxmox APIs/topology/permissions, which must be assessed separately from TrueNAS dependency.
-
-Before selecting it, inspect the actual Terraform provider and CSI versions for attached-disk retention on complete VM
-deletion, interference between Terraform disk reconciliation and CSI hotplug, recovery from fresh PVC UIDs using durable
-bindings, missing-volume behavior, stale attachments, and supported growth of recovered static volumes. The same full
-destroy/recreate and competing-writer tests apply. No claim that it meets the unchanged rebuild procedure is made yet.
-
-The comparison supports retaining the iSCSI proposal under the unmodified-driver requirement. It does not prove iSCSI
-is universally the simplest answer. Evaluate total routine operations and custom code, not just the protocol or CSI
-feature list. The present Jellyfin migration/release machinery is not an inherent requirement of iSCSI; keep only the
-shared checks needed for agreed failure cases. Apply the same recovery standard to the NFS baseline when comparing simplicity.
+The [bounded lab proposal](../reports/2026-10-03-proxmox-csi-disposable-lab.md) fixes the proposed resources and test scope.
+It is assessment preparation, not an executed lab. TrueNAS 25 qualification and activation remain separate from the
+synthetic Debian NFS lab. No new upstream contribution or monitoring task is authorized.
 
 ## Dynamic-controller alternatives assessed before selecting static bindings
 
@@ -255,8 +245,8 @@ without a Kubernetes UID, and explicit PVC `volumeName`. Keep ArgoCD prune/delet
 consume `existingClaim`. Existing NFS defaults stay intact. No dynamic allocation is enabled for these retained claims.
 
 Keep the node-only democratic-csi deployment. Its routine attachment path needs no NAS provisioning credentials.
-One-time allocation and exceptional NAS recovery remain separate from cluster bootstrap; the rebuild path never creates,
-formats, repairs or redirects a volume. Existing format suppression remains until an equivalent supported protection is
+One-time allocation and exceptional NAS recovery remain separate from cluster bootstrap; this iSCSI fallback rebuild path never creates,
+formats, repairs or redirects a volume. The accepted Proxmox candidate uses the stock filesystem policy described above. Existing format suppression remains until an equivalent supported protection is
 qualified. PV volumeHandle and IQN are identifiers, not proof of filesystem/device identity.
 
 Remove worker UID, namespace UID and SMBIOS generation from long-lived app values after shared bootstrap checks can
@@ -393,8 +383,10 @@ workload downtime; its duration cannot be estimated from source evidence. Existi
 ## Current decision and next assessment
 
 Static Git-managed bindings with one-time volume allocation are accepted. Velero and dynamic original-volume adoption
-are outside the current plan. TrueNAS 25 is the target; compatibility with 26 is deferred. CHAP removal remains pending.
-Use unmodified upstream drivers only; the Proxmox CSI enhancement option is declined and its assessment is preserved.
-The next design work simplifies Jellyfin's existing static attachment model, separates permanent volume identity from
-per-boot cluster identity, and qualifies automatic bootstrap checks before retiring its pilot-specific release workflow.
-The current evidence does not authorize changes to live Jellyfin placement, authentication or writer admission.
+remain outside the plan. TrueNAS 25 is the target; compatibility with 26 is deferred. CHAP removal is still unresolved
+for the iSCSI fallback. Use unmodified upstream drivers only.
+
+The user accepted stock filesystem handling and chose disposable qualification of Proxmox CSI. Prepare and approve the
+bounded resource/test scope, then test native attachment, Terraform ownership, growth and complete cluster recovery.
+Keep this iSCSI proposal and its evidence as fallback. No current Jellyfin placement, authentication or writer-admission
+change is authorized by the candidate selection.

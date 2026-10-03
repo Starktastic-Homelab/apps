@@ -1,21 +1,30 @@
 # Proxmox CSI over NFS assessment
 
-Date: 2026-10-03. Status: assessed; not selected under the user's unmodified-upstream-driver requirement.
+Date: 2026-10-03. Status: source assessment complete; stock Proxmox CSI selected for disposable qualification. Stock filesystem handling accepted; runtime qualification not performed.
 The user approved this comparison and explicitly authorized read-only access to Proxmox at 10.9.9.20.
 Package versions, installed source, storage configuration and filtered worker metadata were read. No host was modified;
 no NAS or Kubernetes API was accessed.
 
 ## Finding
 
-Proxmox CSI over NAS-hosted NFS has a plausible native path for retained disks to survive worker VM destruction.
-It supports static bindings and implements controller/node expansion. This makes it worth qualifying against the iSCSI
-baseline technically. The user declined maintaining a patched driver; static iSCSI remains the selected path.
-Proxmox CSI is not ready to activate: Terraform disk reconciliation conflicts with CSI attachment, and automatic
-formatting/writer exclusion need explicit qualification. The installed Proxmox ownership/deletion functions match the
-inspected upstream functions; actual VM-destruction behavior has not been tested.
+Stock Proxmox CSI is a credible challenger for the user's primary goal: disposable k3s VMs and datastore, surviving
+NAS data, stable bindings from Git, and no Velero freshness dependency. The installed Proxmox deletion code supports
+keeping images owned by a separate reserved ID when deleting workers. Static recovery, attachment and expansion are
+implemented upstream. A driver fork is not required for that normal recovery design.
 
-The existing iSCSI proposal remains intact. No service migration, deployment or lab allocation is authorized by this
-assessment. Apps remains the sole source of per-volume declarations; Ansible does not gain a second service inventory.
+It does not meet the additional existing prohibition on formatting or automatic filesystem repair. The distinction
+matters: an intact existing filesystem is reused after cluster loss; losing Kubernetes metadata does not itself cause
+formatting. A missing image is rejected before attach. An image at the expected path with no recognizable filesystem
+can be formatted, and a recognized writable filesystem can undergo automatic repair. No supported switch disabling
+both behaviors was found in v0.20.0. Neither candidate's stock driver checks the expected filesystem UUID.
+
+The user accepted ordinary upstream CSI filesystem handling and chose disposable qualification. Proxmox CSI is therefore
+the preferred candidate because it keeps NAS-side NFS and supplies native attachment and PVC expansion. This selection
+is for qualification, not activation or a claim of completed runtime proof.
+Static iSCSI still has its own unresolved CHAP credential-handling and shared-bootstrap qualification gaps.
+
+The user explicitly reopened the comparison after declining a patched driver. The earlier blanket exclusion of
+Proxmox CSI is superseded by this conditional comparison. No service migration or production deployment is authorized; the lab direction is approved, with its concrete allocation scope to be reviewed. Apps remains the only per-volume inventory; Ansible prepares shared infrastructure.
 
 ## Source anchors
 
@@ -77,12 +86,12 @@ call in that path. Shared volumes can be located via an eligible Proxmox node. N
 the worker, and publish attaches it to the next worker. This is source evidence for native movement, not proof of
 safe takeover from an unreachable worker. Its attach helper checks the destination VM; do not infer a global writer
 fence from this or from Kubernetes access modes. QEMU image locking and failure behavior must be tested on the actual
-NFS configuration. The pinned attach helper searches SCSI slots 1 through 29, another capacity constraint to consider.
+NFS configuration. The driver advertises 24 volumes per node by default; the attach helper searches SCSI slots 1 through 29. A node-label override cannot create more hardware slots, and other SCSI devices consume slots too.
 [Publish and unpublish](https://github.com/sergelogvinov/proxmox-csi-plugin/blob/a7aacee7a2144a43be08503068fe0b9caf3d0b4e/pkg/csi/controller.go#L512-L680),
 [attachment helper](https://github.com/sergelogvinov/proxmox-csi-plugin/blob/a7aacee7a2144a43be08503068fe0b9caf3d0b4e/pkg/csi/utils.go#L382-L479).
 
 ControllerExpandVolume resizes an attached VM disk and requests node filesystem expansion; node expansion is advertised
-and implemented. An unattached volume currently returns an error from controller expansion. Unlike the selected
+and implemented. An unattached volume currently returns an error from controller expansion. Unlike the baseline
 democratic-csi node-manual profile, this provides a normal expansion path to qualify with an expandable StorageClass.
 Verify it for recovered static claims, including Git capacity reconciliation and interrupted growth; advertised support
 is not an end-to-end result for this homelab.
@@ -96,10 +105,16 @@ is not an end-to-end result for this homelab.
    Separate ownership of CSI attachments from Terraform-managed boot/cloud-init disks; qualify a narrowly scoped
    SCSI ignore rule with this provider instead of copying the upstream example for bpg/proxmox. The source establishes
    an attachment-removal conflict, not that every ordinary apply deletes the foreign-owned image itself.
+   The pinned schema represents `disks` as a single-item list containing the `scsi` subtree. The candidate Terraform
+   lifecycle entry is `disks[0].scsi`, alongside the existing `startup_shutdown` ignore. This is source-derived syntax,
+   not a validated plan. Qualify no-op apply, an unrelated VM update and boot-disk changes; each must leave CSI SCSI
+   attachments intact while retaining Terraform ownership of VirtIO boot and IDE cloud-init disks. Do not ignore every
+   disk as a shortcut. Terraform is unavailable in this assessment environment; no provider plan was run.
+   [Telmate schema](https://github.com/Telmate/terraform-provider-proxmox/blob/c0d11566fd9027267862add89af0e6948ff0dfb0/proxmox/Internal/resource/guest/qemu/disk/schema.go#L154-L240),
    [Telmate SCSI mapper](https://github.com/Telmate/terraform-provider-proxmox/blob/c0d11566fd9027267862add89af0e6948ff0dfb0/proxmox/Internal/resource/guest/qemu/disk/sdk_disks.go#L225-L303).
 2. **Filesystem admission:** the CSI node code calls FormatAndMountSensitiveWithFormatOptions. Static provisioning
-   alone does not make it mount-only or verify the expected filesystem UUID. Preserve the original identity/no-format
-   requirement, and establish an enforceable supported guard before activation. No claim that stock defaults meet it.
+   alone does not make it mount-only or verify the expected filesystem UUID. The user has explicitly
+   accepted stock handling for this candidate; it does not enforce the former format/repair prohibition.
    [Node staging](https://github.com/sergelogvinov/proxmox-csi-plugin/blob/a7aacee7a2144a43be08503068fe0b9caf3d0b4e/pkg/csi/node.go#L133-L206).
    The pinned mount-utils v0.36.3 dependency reuses a recognized filesystem but runs mkfs when no filesystem signature
    is found, and invokes fsck -a for an existing writable filesystem. Format-probe errors return without formatting.
@@ -114,6 +129,106 @@ is not an end-to-end result for this homelab.
    NFS loss, healthy rescheduling, failed-writer exclusion, Terraform apply and
    full destroy/recreate, missing/wrong images, and expansion. Preserve the existing user-facing merge procedure.
 
+## Comparison against static iSCSI
+
+Both alternatives use one-time allocation and explicit retained PV/PVC bindings. Neither restores the correct data
+merely by recreating a dynamically provisioned PVC. Both still need recoverable secrets, stable storage identity and
+old-writer exclusion. NAS replacement entails a deliberate data transfer and infrastructure changes for either option.
+
+| Requirement or routine operation | Stock Proxmox CSI over NFS | Stock democratic-csi node-manual iSCSI |
+| --- | --- | --- |
+| SQLite storage semantics | Guest ext4 on virtual SCSI; NAS serves image files to Proxmox | Guest ext4 on an iSCSI LUN |
+| Empty Kubernetes datastore | Reapply exact retained disk handles from Git | Reapply portal/IQN/LUN and retained bindings from Git |
+| Destroy all k3s VMs | Foreign-owned images survive according to installed source; reserve owner ID outside destroy scope | NAS LUN is outside Proxmox worker disk inventory |
+| Healthy pod move | CSI detach/attach and node mount | Node logout/login and mount; no controller attachment |
+| Unreachable old writer | Explicit old-VM stop-and-confirm still required | Same requirement; RWOP alone does not fence another cluster |
+| Grow beyond 64GiB | Native controller and filesystem expansion, while attached; expandable StorageClass required | Separate NAS growth/rescan/filesystem growth procedure; ordinary PVC edits are insufficient |
+| Retained filesystem policy | Can mkfs an unrecognized filesystem; automatic fsck; no UUID guard | Existing supported configuration suppresses ext4 formatting and checking; no driver UUID guard |
+| NAS portability | Standard NFS; no TrueNAS management API in CSI | Standard iSCSI; backend-specific one-time allocation |
+| Other infrastructure dependency | Proxmox API, hotplug, finite SCSI slots, Terraform attachment ownership | Guest initiator packages/services, target access configuration |
+| Authentication | Recoverable Proxmox API token; restricted NFS export; no guest CHAP | Current CHAP credential argument exposure remains unresolved; no-CHAP policy not approved |
+| Custom work remaining | Shared bootstrap/bindings and failure recovery; potential UUID check remains external | Same plus native NAS allocation/growth procedures and initiator preparation |
+
+The existing iSCSI configuration is visible in
+[retained-iscsi values](../../../infrastructure/system/retained-iscsi/values.yaml). Its ext4 `-n` format option is a dry run,
+and filesystem checking is disabled. The inherited staging path nevertheless mounts writable storage and can grow the
+filesystem. It is not a forensic, non-mutating mount. Expected UUID checks and writer exclusion currently come from
+external safeguards, not the driver. Do not present iSCSI as fully turnkey or fully qualified while holding Proxmox CSI
+to a stricter standard. Its remaining CHAP issue is documented in the
+[proposal](../specs/2026-10-03-portable-iscsi-native-lifecycle-proposal.md).
+
+For Proxmox, the existing-disk PV and PVC must name the same expandable StorageClass, with PVC `volumeName` and PV
+claimRef fixed explicitly. The upstream chart includes the resizer and sets `allowVolumeExpansion: true` on its classes.
+Increase the PVC request first and let CSI expand the image/filesystem; do not pre-increase PV capacity in a way that
+makes Kubernetes believe expansion already happened. Reconcile the durable Git capacity after successful growth so a
+fresh cluster declares the actual disk size. Interrupted expansion and retry still need testing. This sequence is part
+of volume administration, not an extra pre-merge step for routine VM rebuilds.
+[Chart StorageClass](https://github.com/sergelogvinov/proxmox-csi-plugin/blob/a7aacee7a2144a43be08503068fe0b9caf3d0b4e/charts/proxmox-csi-plugin/templates/storageclass.yaml),
+[Kubernetes expansion](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#expanding-persistent-volumes-claims).
+
+## What clean-cluster recovery would actually do
+
+1. Terraform stops and destroys the old k3s VMs, including their root disks and old Kubernetes datastore. NAS storage,
+   the Proxmox NFS registration and separately owned CSI images remain outside that destroy scope.
+2. Terraform creates replacement VMs with hotplug enabled and appropriate SCSI controllers. Shared bootstrap restores
+   k3s, node identity/topology, externally recoverable API credentials and the stock CSI deployment.
+3. ArgoCD reapplies static PV/PVC bindings naming the original image paths and the existing application claim names.
+   No old PVC UID, backup checkpoint or Velero restore is needed.
+4. CSI verifies the image exists, attaches it to the selected worker, and stages its filesystem. The filesystem-policy
+   difference occurs here. Applications start after storage is mounted.
+
+No service list is added to Terraform or Ansible. Terraform does need a shared rule leaving CSI SCSI attachments under
+CSI ownership; that is VM configuration ownership, not backup orchestration. Ordinary image PR merges retain their
+existing user-facing procedure once this setup and its tests pass. Old-writer stop verification must fail closed if a
+partial destroy leaves a VM running. This is a proposed supported flow, not an assertion that today's pipeline already
+implements or has tested it.
+
+## Durability, permissions and qualification boundary
+
+Use supported cache settings that preserve flushes, initially `cache: none`, and an NFS export whose server honors
+synchronous writes. Do not use unsafe caching or disable NAS synchronous-write guarantees. The inspected Proxmox
+block-device builder enables `no-flush` for the unsafe cache mode. QEMU documents exclusive image locking, with OFD
+locks preferred and caveats for POSIX fallback. Actual NFS locking, server reboot and partition behavior must be observed;
+these documented locks do not replace confirmed old-writer shutdown. No performance or durability benchmark was run.
+[Proxmox cache mapping](https://github.com/proxmox/qemu-server/blob/a7b4240bba1dd493d6c76daad1e70af62b2ebcc8/src/PVE/QemuServer/Blockdev.pm#L260-L267),
+[QEMU image locking](https://www.qemu.org/docs/master/system/images.html#image-locking).
+
+The upstream non-replication role includes VM audit/disk configuration and datastore audit/allocation permissions.
+Scope the token to required resources and qualify that scope; do not enable the broader replication role. Unlike
+node-only static iSCSI, the CSI controller receives a management credential capable of changing VM disks. Keep that
+credential outside Git plaintext and recoverable independently of the old cluster. Restrict the NAS NFS export to the
+Proxmox client addresses. No new credential was created in this assessment.
+[Upstream permissions](https://github.com/sergelogvinov/proxmox-csi-plugin/blob/a7aacee7a2144a43be08503068fe0b9caf3d0b4e/docs/install.md).
+
+Read-only resource preflight found approximately 6.1GiB available RAM, no swap and 136GiB available on `vm-pool`.
+A follow-up memory inspection showed about 12.3GiB in ZFS ARC, with a configured minimum near 3.9GiB. ARC can reclaim
+memory, so the initial available-RAM number alone does not prove an 8GiB lab is impossible. Reclaim is not a guaranteed
+reservation: the lab proposal requires staged startup and a host headroom stop condition. No production VM was stopped
+or resized. No spare static IP addresses were established; the proposed lab uses DHCP on the existing management bridge.
+The [filtered preflight evidence](evidence/2026-10-03-proxmox-qualification-preflight.json) records only relevant inventory,
+capacity and bridge addresses; it does not authorize allocation or network changes.
+
+With the filesystem policy accepted, the proposed bounded remote lab consists of one disposable storage VM
+serving synthetic NFS images, one k3s server and two workers. Keep the storage VM outside the
+three-VM destroy scope. Run stock Proxmox CSI against disposable SQLite data. Debian NFS results alone
+would not qualify the actual TrueNAS 25 export. Required acceptance observations are:
+
+| Case | Required observation |
+| --- | --- |
+| Normal Terraform apply and unrelated VM update | CSI disk remains attached; boot/cloud-init configuration remains managed |
+| Destroy/recreate all three k3s VMs and datastore | Same image/LUN and filesystem identity, same SQLite content, restored entirely from Git and external secrets |
+| Healthy worker movement | One writer at a time, original data mounts on replacement worker |
+| Unreachable writer / interrupted destroy | No new writer until old VM power-off is independently confirmed |
+| Missing image/LUN | Failed mount; no empty replacement provisioned |
+| Blank or wrong filesystem at expected identity | Behavior recorded against the explicitly chosen policy; destructive tests use only disposable data |
+| PVC expansion and interruption | Larger usable filesystem, preserved data, repeatable retry and correct subsequent fresh-cluster binding |
+| NFS or iSCSI outage and storage-server restart | Defined I/O failure/recovery, no concurrent writers, SQLite integrity and committed test records checked |
+
+These acceptance tests are expanded into a
+[bounded lab proposal](2026-10-03-proxmox-csi-disposable-lab.md) with resource identity, networking, disk paths, allocation
+limits and deletion scope for approval. No runtime proof is manufactured from a
+passing source probe.
+
 ## Synthetic verification
 
 The [source probe](evidence/2026-10-03-proxmox-destroy-probe.pl) checks the upstream file's SHA-256, extracts its actual
@@ -127,22 +242,18 @@ matched exactly to the probed function. This does not verify a real Terraform de
 perl docs/superpowers/reports/evidence/2026-10-03-proxmox-destroy-probe.pl /path/to/qemu-server/src/PVE/QemuServer.pm
 ```
 
-Whitespace, local Markdown links, fences and Perl syntax checks pass. pre-commit is unavailable. No deployment manifests
-changed and no runtime storage test or Go integration test ran. No production switch should be inferred from the
-positive ownership result. Any future reconsideration would need to settle enforceable existing-filesystem admission
-and scoped Terraform disk ownership before preparing a bounded disposable qualification plan. Shared platform setup
-would include a Proxmox NFS storage entry; applications would continue using Git-declared claims.
+Validation is limited to documentation, sanitized evidence and the isolated Perl source probe. No deployment manifests
+changed, and no runtime storage test, Terraform plan or Go integration suite ran. pre-commit is unavailable.
 
 ## Decision
 
-Preserving the strict recovery contract with this driver would require supported filesystem admission or a driver
-enhancement. The narrow candidate enhancement is an opt-in retained-volume mode that requires the declared filesystem
-type/UUID, returns an error on missing/mismatched/uncertain identity, and mounts without mkfs or automatic fsck. New-volume
-initialization stays a separate explicit operation. Existing expansion behavior would need regression qualification.
-This was a design option, not implemented code or a claim of upstream acceptance.
+The user selected "Accept stock filesystem handling; qualify Proxmox CSI in a disposable lab." Proceed with the stock
+driver as the preferred candidate for qualification. The no-format/no-automatic-repair prohibition is explicitly relaxed
+for this candidate. Preserve static iSCSI as fallback and retain existing live safeguards until an activation decision.
 
-The user chose an unmodified upstream driver. The proposed patched build is declined; retain static iSCSI as the
-implementation baseline. Do not silently relax the no-format/no-repair requirement, wrap mkfs binaries, or add custom
-per-service mount scripts. Reconsider Proxmox CSI only if upstream supplies the required behavior or the user explicitly
-changes the recovery contract. This decision does not authorize upstream messaging or recurring monitoring.
-No upstream issue, PR or message has been sent. All source findings and read-only evidence remain preserved.
+The lab must establish the Terraform SCSI ownership rule and full cluster-destruction/recovery behavior before any
+production selection is called qualified. Stock handling does not mean silently switching to a newly allocated volume
+when a declared image is missing. Keep explicit bindings and missing-image failure behavior.
+
+The [lab proposal](2026-10-03-proxmox-csi-disposable-lab.md) is ready for review of its bounded host changes. No upstream
+issue, PR or message has been sent. No VM was allocated, disk mounted or production resource changed.

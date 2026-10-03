@@ -1,6 +1,6 @@
 # Proxmox CSI integrated qualification scope
 
-Date: 2026-10-04 (Asia/Jerusalem). Status: proposed; no allocation or runtime changes authorized by this document.
+Date: 2026-10-04 (Asia/Jerusalem). Status: user approved this bounded allocation, qualification and cleanup scope on 2026-10-04. Preflight found a source prerequisite mismatch before allocation; no lock or lab resource has been created. The approval remains valid for resumption after that fix is merged.
 
 **Goal:** Qualify the merged shared setup, replacement ordering, recoverable CSI configuration and ArgoCD retained bindings on synthetic data before production activation.
 
@@ -79,3 +79,22 @@ No production CSI activation, production image allocation, application migration
 - Fresh control-plane metadata must not authorize a second writer while old workers survive.
 - Git PV capacity must not mask missing backend expansion; interrupted-growth reconstruction needs direct evidence.
 - Global maintenance coordination and the lab lock are different scopes; report the GitHub dispatch/production-bootstrap limitation honestly.
+
+## First approved preflight result
+
+The fresh NAS check confirmed TrueNAS25.10.7, the expected healthy apps pool,
+absent proposed dataset/share, active NFS and no recursive ancestor snapshot or
+replication tasks. Proxmox IDs and fixed CSI names remain free; host MemAvailable
+was about5.6GiB before allocation (reclamation still needs observation on start).
+
+The VM300 identity check passed, but the local pre-acquisition guard refused its
+private-directory mode `2700`. Inspection confirmed root ownership, no symlink,
+and no group/world permissions: the directory inherits setgid from the `2770`
+maintenance root. The merged Ansible setup has the same exact-`0700` check.
+Its native-Ansible regression now reproduces that refusal. The prerequisite fix
+accepts only `0700` or `2700`, without changing live permissions or broadening
+read access; unsafe modes, symlinks and non-directories remain rejected.
+
+Resume with the merged correction and recheck identity, available resources and
+ownership. Do not reacquire approval for this unchanged lab scope. No lock was
+acquired and no allocation/cleanup is pending from this attempt.

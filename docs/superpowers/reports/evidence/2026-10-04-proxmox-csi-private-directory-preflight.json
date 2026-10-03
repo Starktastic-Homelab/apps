@@ -1,0 +1,29 @@
+{
+  "paths": [
+    {
+      "path": "/var/lib/homelab-maintenance",
+      "resolved": "/var/lib/homelab-maintenance",
+      "mode": "0o2770",
+      "uid": 0,
+      "gid": 1001,
+      "is_symlink": false
+    },
+    {
+      "path": "/var/lib/homelab-maintenance/private",
+      "resolved": "/var/lib/homelab-maintenance/private",
+      "mode": "0o2700",
+      "uid": 0,
+      "gid": 1001,
+      "is_symlink": false
+    },
+    {
+      "path": "/var/lib/homelab-maintenance/operations",
+      "resolved": "/var/lib/homelab-maintenance/operations",
+      "mode": "0o2770",
+      "uid": 0,
+      "gid": 1001,
+      "is_symlink": false
+    }
+  ],
+  "operation_exists": false
+}

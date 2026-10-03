@@ -1,0 +1,148 @@
+{
+  "run": "csi-lab-20261003",
+  "created": [
+    {
+      "type": "vm",
+      "vmid": 980,
+      "name": "csi-lab-storage",
+      "identity": {
+        "vmgenid": "89e4186e-c941-43c8-8aec-75feda4dd4c1",
+        "smbios1": "uuid=38632e2d-3769-4b11-9713-97fe139b7766",
+        "net0": "virtio=BC:24:11:CA:CC:DB,bridge=vmbr0",
+        "virtio0": "vm-pool:vm-980-disk-0,cache=none,discard=on,replicate=0,size=8G",
+        "virtio1": "vm-pool:vm-980-disk-1,serial=CSILABDATA20261003,size=24G",
+        "ide0": "vm-pool:vm-980-cloudinit,media=cdrom,size=4M"
+      }
+    },
+    {
+      "type": "storage-registration",
+      "storage": "csi-assessment-nfs",
+      "server": "10.9.9.186",
+      "export": "/srv/csi-lab/nfs"
+    },
+    {
+      "type": "role",
+      "name": "CSILabRuntime20261003"
+    },
+    {
+      "type": "role",
+      "name": "CSILabTF20261003"
+    },
+    {
+      "type": "role",
+      "name": "CSILabClone20261003"
+    },
+    {
+      "type": "role",
+      "name": "CSILabStore20261003"
+    },
+    {
+      "type": "role",
+      "name": "CSILabNet20261003"
+    },
+    {
+      "type": "user",
+      "userid": "csi-lab-20261003@pve"
+    },
+    {
+      "type": "acl",
+      "path": "/vms/981",
+      "userid": "csi-lab-20261003@pve",
+      "role": "CSILabRuntime20261003"
+    },
+    {
+      "type": "acl",
+      "path": "/vms/982",
+      "userid": "csi-lab-20261003@pve",
+      "role": "CSILabRuntime20261003"
+    },
+    {
+      "type": "acl",
+      "path": "/vms/983",
+      "userid": "csi-lab-20261003@pve",
+      "role": "CSILabRuntime20261003"
+    },
+    {
+      "type": "acl",
+      "path": "/vms/9980",
+      "userid": "csi-lab-20261003@pve",
+      "role": "CSILabRuntime20261003"
+    },
+    {
+      "type": "acl",
+      "path": "/storage/csi-assessment-nfs",
+      "userid": "csi-lab-20261003@pve",
+      "role": "CSILabRuntime20261003"
+    },
+    {
+      "type": "token",
+      "userid": "csi-lab-20261003@pve",
+      "name": "lab"
+    },
+    {
+      "type": "user",
+      "userid": "tf-lab-20261003@pve"
+    },
+    {
+      "type": "acl",
+      "path": "/vms/981",
+      "userid": "tf-lab-20261003@pve",
+      "role": "CSILabTF20261003"
+    },
+    {
+      "type": "acl",
+      "path": "/vms/982",
+      "userid": "tf-lab-20261003@pve",
+      "role": "CSILabTF20261003"
+    },
+    {
+      "type": "acl",
+      "path": "/vms/983",
+      "userid": "tf-lab-20261003@pve",
+      "role": "CSILabTF20261003"
+    },
+    {
+      "type": "acl",
+      "path": "/vms/900",
+      "userid": "tf-lab-20261003@pve",
+      "role": "CSILabClone20261003"
+    },
+    {
+      "type": "acl",
+      "path": "/storage/vm-pool",
+      "userid": "tf-lab-20261003@pve",
+      "role": "CSILabStore20261003"
+    },
+    {
+      "type": "acl",
+      "path": "/storage/local-zfs",
+      "userid": "tf-lab-20261003@pve",
+      "role": "PVEAuditor"
+    },
+    {
+      "type": "acl",
+      "path": "/nodes/pve",
+      "userid": "tf-lab-20261003@pve",
+      "role": "PVEAuditor"
+    },
+    {
+      "type": "acl",
+      "path": "/sdn/zones/localnetwork/vmbr0",
+      "userid": "tf-lab-20261003@pve",
+      "role": "CSILabNet20261003"
+    },
+    {
+      "type": "token",
+      "userid": "tf-lab-20261003@pve",
+      "name": "lab"
+    },
+    {
+      "type": "image",
+      "volid": "csi-assessment-nfs:9980/vm-9980-lab.raw",
+      "size": 2147483648
+    }
+  ],
+  "intent": "allocate only csi-assessment-nfs:9980/vm-9980-lab.raw 2GiB",
+  "observed_date": "2026-10-03",
+  "host": "10.9.9.20"
+}

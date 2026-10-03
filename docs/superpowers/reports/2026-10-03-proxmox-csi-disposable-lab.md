@@ -1,6 +1,6 @@
 # Proxmox CSI disposable qualification proposal
 
-Date: 2026-10-03. Status: stock-filesystem policy and qualification direction approved; bounded host changes below await approval.
+Date: 2026-10-03. Status: stock-filesystem policy, bounded allocation, tests and cleanup approved by the user on 2026-10-03. Execution in progress.
 Companion: [source assessment](2026-10-03-proxmox-csi-nfs-assessment.md).
 
 ## Question and success condition

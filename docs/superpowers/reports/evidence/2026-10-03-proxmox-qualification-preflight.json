@@ -1,0 +1,159 @@
+{
+  "observed_date": "2026-10-03",
+  "host": "10.9.9.20",
+  "read_only": true,
+  "memory_bytes": {
+    "available": 6527676416,
+    "free": 6969188352,
+    "total": 134812356608,
+    "used": 128284680192
+  },
+  "swap_bytes": {
+    "free": 0,
+    "total": 0,
+    "used": 0
+  },
+  "storage": [
+    {
+      "storage": "local-zfs",
+      "type": "zfspool",
+      "content": "rootdir,images",
+      "active": 1,
+      "total": 52414160896,
+      "avail": 24490299392,
+      "used": 27923861504,
+      "shared": 0
+    },
+    {
+      "storage": "local",
+      "type": "dir",
+      "content": "backup,vztmpl,iso",
+      "active": 1,
+      "total": 203408408576,
+      "avail": 24490278912,
+      "used": 178918129664,
+      "shared": 0
+    },
+    {
+      "storage": "vm-pool",
+      "type": "zfspool",
+      "content": "images,rootdir",
+      "active": 1,
+      "total": 495263416320,
+      "avail": 146162827264,
+      "used": 349100589056,
+      "shared": 0
+    }
+  ],
+  "guests": [
+    {
+      "vmid": 100,
+      "name": "truenas",
+      "type": "qemu",
+      "status": "running",
+      "template": 0,
+      "maxmem": 34359738368,
+      "maxcpu": 4
+    },
+    {
+      "vmid": 101,
+      "name": "speedtest-tracker",
+      "type": "lxc",
+      "status": "stopped",
+      "template": 0,
+      "maxmem": 2147483648,
+      "maxcpu": 2
+    },
+    {
+      "vmid": 200,
+      "name": "kube-master-01",
+      "type": "qemu",
+      "status": "running",
+      "template": 0,
+      "maxmem": 17179869184,
+      "maxcpu": 4
+    },
+    {
+      "vmid": 201,
+      "name": "kube-worker-01",
+      "type": "qemu",
+      "status": "running",
+      "template": 0,
+      "maxmem": 30064771072,
+      "maxcpu": 6
+    },
+    {
+      "vmid": 202,
+      "name": "kube-worker-02",
+      "type": "qemu",
+      "status": "running",
+      "template": 0,
+      "maxmem": 30064771072,
+      "maxcpu": 6
+    },
+    {
+      "vmid": 300,
+      "name": "runner",
+      "type": "qemu",
+      "status": "running",
+      "template": 0,
+      "maxmem": 4294967296,
+      "maxcpu": 4
+    },
+    {
+      "vmid": 900,
+      "name": "packer-debian-13.7.0-20260919201032",
+      "type": "qemu",
+      "status": "stopped",
+      "template": 1,
+      "maxmem": 1073741824,
+      "maxcpu": 1
+    }
+  ],
+  "bridges": [
+    {
+      "iface": "vmbr1",
+      "type": "bridge",
+      "active": 1,
+      "address": "10.9.8.20",
+      "netmask": "24",
+      "bridge_ports": "enp4s0",
+      "bridge_vlan_aware": null
+    },
+    {
+      "iface": "vmbr0",
+      "type": "bridge",
+      "active": 1,
+      "address": "10.9.9.20",
+      "netmask": "24",
+      "bridge_ports": "enp0s31f6",
+      "bridge_vlan_aware": null
+    }
+  ],
+  "follow_up_memory": {
+    "MemTotal": "131652692 kB",
+    "MemFree": "7353656 kB",
+    "MemAvailable": "6922432 kB",
+    "Cached": "261076 kB",
+    "SwapTotal": "0 kB",
+    "SReclaimable": "638672 kB"
+  },
+  "zfs_arc_bytes": {
+    "c": 13481541632,
+    "c_min": 4212886144,
+    "c_max": 13481541632,
+    "size": 13155308816,
+    "memory_available_bytes": 2975954304
+  },
+  "template_900": {
+    "agent": "1",
+    "boot": "order=virtio0;net0",
+    "cores": 1,
+    "memory": "1024",
+    "name": "packer-debian-13.7.0-20260919201032",
+    "ostype": "l26",
+    "scsihw": "virtio-scsi-pci",
+    "template": 1,
+    "virtio0": "local-zfs:base-900-disk-0,cache=none,discard=on,replicate=0,size=4G"
+  }
+}

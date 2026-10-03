@@ -1,0 +1,17 @@
+{
+  "evidence": "synthetic source behavior only; no Kubernetes, NAS or node-stage execution",
+  "findings": {
+    "truenas_api": {
+      "same_request_name": "Original synthetic data retained; export behavior mocked",
+      "same_pvc_name_new_uid": "New dataset requested; original retained dataset untouched",
+      "lookup_errors": "403, 500, timeout rejected before mutations",
+      "missing_original_same_request_name": "New dataset requested; no recovery-only guard"
+    },
+    "zfs_cli": {
+      "same_request_name": "Original synthetic data retained; export behavior mocked",
+      "same_pvc_name_new_uid": "New dataset requested; original retained dataset untouched",
+      "lookup_errors": "permission denied, connection timeout rejected before mutations",
+      "missing_original_same_request_name": "New dataset requested; no recovery-only guard"
+    }
+  }
+}

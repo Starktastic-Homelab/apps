@@ -1,0 +1,849 @@
+{
+  "run": "csi-tn-20261003",
+  "proxmox": {
+    "ledger": {
+      "run": "csi-tn-20261003",
+      "created": [
+        {
+          "type": "storage",
+          "name": "csi-truenas-assessment",
+          "server": "10.9.9.30",
+          "export": "/mnt/apps/csi-qualification-20261003"
+        },
+        {
+          "type": "pool",
+          "name": "csi-tn-20261003"
+        },
+        {
+          "type": "role",
+          "name": "CSITNRuntime20261003"
+        },
+        {
+          "type": "role",
+          "name": "CSITNTF20261003"
+        },
+        {
+          "type": "role",
+          "name": "CSITNClone20261003"
+        },
+        {
+          "type": "role",
+          "name": "CSITNStore20261003"
+        },
+        {
+          "type": "role",
+          "name": "CSITNNet20261003"
+        },
+        {
+          "type": "role",
+          "name": "CSITNAudit20261003"
+        },
+        {
+          "type": "user",
+          "name": "csi-tn-20261003@pve"
+        },
+        {
+          "type": "token",
+          "userid": "csi-tn-20261003@pve",
+          "name": "lab"
+        },
+        {
+          "type": "user",
+          "name": "tf-tn-20261003@pve"
+        },
+        {
+          "type": "token",
+          "userid": "tf-tn-20261003@pve",
+          "name": "lab"
+        },
+        {
+          "type": "acl",
+          "userid": "csi-tn-20261003@pve",
+          "path": "/pool/csi-tn-20261003",
+          "role": "CSITNRuntime20261003"
+        },
+        {
+          "type": "acl",
+          "userid": "csi-tn-20261003@pve",
+          "path": "/vms/9980",
+          "role": "CSITNRuntime20261003"
+        },
+        {
+          "type": "acl",
+          "userid": "csi-tn-20261003@pve",
+          "path": "/storage/csi-truenas-assessment",
+          "role": "CSITNRuntime20261003"
+        },
+        {
+          "type": "acl",
+          "userid": "tf-tn-20261003@pve",
+          "path": "/pool/csi-tn-20261003",
+          "role": "CSITNTF20261003"
+        },
+        {
+          "type": "acl",
+          "userid": "tf-tn-20261003@pve",
+          "path": "/vms/900",
+          "role": "CSITNClone20261003"
+        },
+        {
+          "type": "acl",
+          "userid": "tf-tn-20261003@pve",
+          "path": "/storage/vm-pool",
+          "role": "CSITNStore20261003"
+        },
+        {
+          "type": "acl",
+          "userid": "tf-tn-20261003@pve",
+          "path": "/storage/local-zfs",
+          "role": "CSITNStore20261003"
+        },
+        {
+          "type": "acl",
+          "userid": "tf-tn-20261003@pve",
+          "path": "/nodes/pve",
+          "role": "PVEAuditor"
+        },
+        {
+          "type": "acl",
+          "userid": "tf-tn-20261003@pve",
+          "path": "/",
+          "role": "CSITNAudit20261003"
+        },
+        {
+          "type": "acl",
+          "userid": "tf-tn-20261003@pve",
+          "path": "/sdn/zones/localnetwork/vmbr0",
+          "role": "CSITNNet20261003"
+        },
+        {
+          "type": "acl",
+          "userid": "tf-tn-20261003@pve",
+          "path": "/storage/csi-truenas-assessment",
+          "role": "PVEAuditor"
+        },
+        {
+          "type": "acl",
+          "userid": "tf-tn-20261003@pve",
+          "path": "/vms/9980",
+          "role": "CSITNRuntime20261003"
+        },
+        {
+          "type": "image",
+          "volid": "csi-truenas-assessment:9980/vm-9980-lab.raw",
+          "bytes": 2147483648
+        },
+        {
+          "type": "vm",
+          "vmid": 980,
+          "name": "csi-lab-runner",
+          "identity": {
+            "vmgenid": "ff6e0847-bd5f-4e7e-9b57-d38fe9b3a15c",
+            "smbios1": "uuid=94f6cdd8-954e-45bd-ba8b-c8d871907331",
+            "net0": "virtio=BC:24:11:0D:F3:44,bridge=vmbr0",
+            "virtio0": "vm-pool:vm-980-disk-0,cache=none,discard=on,replicate=0,size=4G",
+            "ide0": "vm-pool:vm-980-cloudinit,media=cdrom,size=4M"
+          }
+        },
+        {
+          "type": "vm",
+          "vmid": 981,
+          "name": "csi-lab-server",
+          "identity": {
+            "name": "csi-lab-server",
+            "ip": "10.9.9.112",
+            "uuid": "b68f782c-36f3-46a8-839f-29766ad81381",
+            "vmgenid": "2803de79-a99b-4359-8097-364c94f07195",
+            "hostkey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICggacVo1ud1izZR0ysSxDH+gPIVxhcdf1hFyM9Jf7Zi",
+            "mac": "bc:24:11:d7:3a:54"
+          }
+        },
+        {
+          "type": "vm",
+          "vmid": 982,
+          "name": "csi-lab-worker-1",
+          "identity": {
+            "name": "csi-lab-worker-1",
+            "ip": "10.9.9.160",
+            "uuid": "5f82a5cb-37ad-401e-b7ef-789d4dc8fadc",
+            "vmgenid": "ef021040-010d-483a-b70a-fa26c1d1659f",
+            "hostkey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINBtPuXJUW86vp4mn17C40H8bFhJCaraLJOQL8Py6WvV",
+            "mac": "bc:24:11:71:bc:fc"
+          }
+        },
+        {
+          "type": "vm",
+          "vmid": 983,
+          "name": "csi-lab-worker-2",
+          "identity": {
+            "name": "csi-lab-worker-2",
+            "ip": "10.9.9.164",
+            "uuid": "48420872-7451-49ae-9597-3187590910e3",
+            "vmgenid": "a7c41f40-9286-49a9-9b7d-156181d0f499",
+            "hostkey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ0ko/DETZ7h44LRtSmB/zyUAE0Y3vWRbMESkdmTzW/A",
+            "mac": "bc:24:11:eb:80:87"
+          }
+        },
+        {
+          "type": "image",
+          "volid": "csi-truenas-assessment:9980/vm-9980-blank.raw",
+          "bytes": 268435456
+        },
+        {
+          "type": "image",
+          "volid": "csi-truenas-assessment:9980/vm-9980-wrongtype.raw",
+          "bytes": 268435456
+        }
+      ],
+      "intent": [
+        {
+          "type": "storage",
+          "identity": {
+            "name": "csi-truenas-assessment",
+            "server": "10.9.9.30",
+            "export": "/mnt/apps/csi-qualification-20261003"
+          }
+        },
+        {
+          "type": "pool",
+          "identity": {
+            "name": "csi-tn-20261003"
+          }
+        },
+        {
+          "type": "role",
+          "identity": {
+            "name": "CSITNRuntime20261003"
+          }
+        },
+        {
+          "type": "role",
+          "identity": {
+            "name": "CSITNTF20261003"
+          }
+        },
+        {
+          "type": "role",
+          "identity": {
+            "name": "CSITNClone20261003"
+          }
+        },
+        {
+          "type": "role",
+          "identity": {
+            "name": "CSITNStore20261003"
+          }
+        },
+        {
+          "type": "role",
+          "identity": {
+            "name": "CSITNNet20261003"
+          }
+        },
+        {
+          "type": "role",
+          "identity": {
+            "name": "CSITNAudit20261003"
+          }
+        },
+        {
+          "type": "user",
+          "identity": {
+            "name": "csi-tn-20261003@pve"
+          }
+        },
+        {
+          "type": "token",
+          "identity": {
+            "userid": "csi-tn-20261003@pve",
+            "name": "lab"
+          }
+        },
+        {
+          "type": "user",
+          "identity": {
+            "name": "tf-tn-20261003@pve"
+          }
+        },
+        {
+          "type": "token",
+          "identity": {
+            "userid": "tf-tn-20261003@pve",
+            "name": "lab"
+          }
+        },
+        {
+          "type": "acl",
+          "identity": {
+            "userid": "csi-tn-20261003@pve",
+            "path": "/pool/csi-tn-20261003",
+            "role": "CSITNRuntime20261003"
+          }
+        },
+        {
+          "type": "acl",
+          "identity": {
+            "userid": "csi-tn-20261003@pve",
+            "path": "/vms/9980",
+            "role": "CSITNRuntime20261003"
+          }
+        },
+        {
+          "type": "acl",
+          "identity": {
+            "userid": "csi-tn-20261003@pve",
+            "path": "/storage/csi-truenas-assessment",
+            "role": "CSITNRuntime20261003"
+          }
+        },
+        {
+          "type": "acl",
+          "identity": {
+            "userid": "tf-tn-20261003@pve",
+            "path": "/pool/csi-tn-20261003",
+            "role": "CSITNTF20261003"
+          }
+        },
+        {
+          "type": "acl",
+          "identity": {
+            "userid": "tf-tn-20261003@pve",
+            "path": "/vms/900",
+            "role": "CSITNClone20261003"
+          }
+        },
+        {
+          "type": "acl",
+          "identity": {
+            "userid": "tf-tn-20261003@pve",
+            "path": "/storage/vm-pool",
+            "role": "CSITNStore20261003"
+          }
+        },
+        {
+          "type": "acl",
+          "identity": {
+            "userid": "tf-tn-20261003@pve",
+            "path": "/storage/local-zfs",
+            "role": "CSITNStore20261003"
+          }
+        },
+        {
+          "type": "acl",
+          "identity": {
+            "userid": "tf-tn-20261003@pve",
+            "path": "/nodes/pve",
+            "role": "PVEAuditor"
+          }
+        },
+        {
+          "type": "acl",
+          "identity": {
+            "userid": "tf-tn-20261003@pve",
+            "path": "/",
+            "role": "CSITNAudit20261003"
+          }
+        },
+        {
+          "type": "acl",
+          "identity": {
+            "userid": "tf-tn-20261003@pve",
+            "path": "/sdn/zones/localnetwork/vmbr0",
+            "role": "CSITNNet20261003"
+          }
+        },
+        {
+          "type": "acl",
+          "identity": {
+            "userid": "tf-tn-20261003@pve",
+            "path": "/storage/csi-truenas-assessment",
+            "role": "PVEAuditor"
+          }
+        },
+        {
+          "type": "acl",
+          "identity": {
+            "userid": "tf-tn-20261003@pve",
+            "path": "/vms/9980",
+            "role": "CSITNRuntime20261003"
+          }
+        },
+        {
+          "type": "image",
+          "identity": {
+            "volid": "csi-truenas-assessment:9980/vm-9980-lab.raw",
+            "bytes": 2147483648
+          }
+        },
+        {
+          "type": "vm",
+          "identity": {
+            "vmid": 980,
+            "name": "csi-lab-runner"
+          }
+        },
+        {
+          "type": "image",
+          "identity": {
+            "volid": "csi-truenas-assessment:9980/vm-9980-blank.raw",
+            "bytes": 268435456
+          }
+        },
+        {
+          "type": "image",
+          "identity": {
+            "volid": "csi-truenas-assessment:9980/vm-9980-wrongtype.raw",
+            "bytes": 268435456
+          }
+        }
+      ],
+      "production_config_hashes": {
+        "100": "96bb497cc49d7c429d09797c4c27dfca22ec50f6f3c5990e5cb9784fba438015",
+        "200": "50aaeb72e6f4cc05e39bb09ae939880f5e2d9a1bc4b1fd094ab1d662713965c2",
+        "201": "20af0da4136c3c9015ee24c2f9ff540bbd2a1d97e73fa954306e9f7831ed610e",
+        "202": "a090a48f12d637e362d0dd719e18d9e621f2a441e664588f6084a0b50b338e53",
+        "300": "fb215a1720a5f68115c2191ed0af8415838caec37418f9418bfd6991f5edeaa3",
+        "900": "6e929dce5c1e4147d42a63e56337bc9bf9b12b02347295d3bb7e63dc58f071ea"
+      },
+      "runner_access": {
+        "ip": "10.9.9.172",
+        "name": "csi-lab-runner",
+        "vmgenid": "ff6e0847-bd5f-4e7e-9b57-d38fe9b3a15c",
+        "uuid": "94f6cdd8-954e-45bd-ba8b-c8d871907331",
+        "hostkey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAVzQJHBu3albIfwYok8T50JdLxOl9O4B2bFSL/MNs+6",
+        "mac": "bc:24:11:0d:f3:44"
+      },
+      "events": [
+        {
+          "vmid": 981,
+          "previous_identity": {
+            "name": "csi-lab-server",
+            "ip": "10.9.9.105",
+            "uuid": "b4e092a1-a2d4-4f7d-ac6b-2e1ded59bc92",
+            "vmgenid": "8e912028-0ed3-42f5-b28c-e7ace20d27b4",
+            "hostkey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF4GCmGFZcVG3IhII92P92CBzEV0dkMxnSHjHCn2JCBv",
+            "mac": "bc:24:11:bd:1b:15"
+          },
+          "event": "cluster rebuilt"
+        },
+        {
+          "vmid": 982,
+          "previous_identity": {
+            "name": "csi-lab-worker-1",
+            "ip": "10.9.9.250",
+            "uuid": "2b49ee1e-1d4c-44a2-b21f-a69ea277c319",
+            "vmgenid": "b8a1a45f-4590-4058-af76-ca4cd0197973",
+            "hostkey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOeZ7/+VFS2gPzResTGqr7qLdvgrr4lv9Si3LCTJRmr4",
+            "mac": "bc:24:11:06:56:5e"
+          },
+          "event": "cluster rebuilt"
+        },
+        {
+          "vmid": 983,
+          "previous_identity": {
+            "name": "csi-lab-worker-2",
+            "ip": "10.9.9.181",
+            "uuid": "bbd2bc0c-9a64-4d57-8895-b69ab68acad4",
+            "vmgenid": "40e74d31-ef5e-4390-9c73-f70e7323cb35",
+            "hostkey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMjbG60spCZWuPdsjP7U8JG3fU0RZPLjmsXGECgscm9o",
+            "mac": "bc:24:11:28:b3:a9"
+          },
+          "event": "cluster rebuilt"
+        },
+        {
+          "vmid": 981,
+          "previous_identity": {
+            "name": "csi-lab-server",
+            "ip": "10.9.9.217",
+            "uuid": "13d0857a-2a86-4585-8737-5ba86b1c718b",
+            "vmgenid": "af2da0b5-e88b-4096-ab25-9f8f64469c5e",
+            "hostkey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICNNESWXpRysTqjZD5np7fk13mduigZF9TmzpNWJ0hJi",
+            "mac": "bc:24:11:db:48:9e"
+          },
+          "event": "cluster rebuilt"
+        },
+        {
+          "vmid": 982,
+          "previous_identity": {
+            "name": "csi-lab-worker-1",
+            "ip": "10.9.9.153",
+            "uuid": "8950c8f8-ed00-40b3-a297-6b1501a8a07e",
+            "vmgenid": "02f47449-9457-40ac-8f46-2b1ba877ad34",
+            "hostkey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINZJlax+Nd9DgZYtiwAnsgfM0cjqtMyRkoekHjKrG6Lq",
+            "mac": "bc:24:11:90:0c:b8"
+          },
+          "event": "cluster rebuilt"
+        },
+        {
+          "vmid": 983,
+          "previous_identity": {
+            "name": "csi-lab-worker-2",
+            "ip": "10.9.9.214",
+            "uuid": "6d846046-8392-41ce-9e0d-38beff71458a",
+            "vmgenid": "1305ba72-acc5-4e15-b556-d4899a7f1b70",
+            "hostkey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKBWayDdDt/HSpoAlC/kl6jtOBhg1cv8aeEearTS+DT8",
+            "mac": "bc:24:11:28:fd:a5"
+          },
+          "event": "cluster rebuilt"
+        }
+      ],
+      "cleanup": {
+        "proxmox_cleanup_complete": true,
+        "removed": [
+          {
+            "type": "image-deleted",
+            "name": "csi-truenas-assessment:9980/vm-9980-blank.raw"
+          },
+          {
+            "type": "image-deleted",
+            "name": "csi-truenas-assessment:9980/vm-9980-lab.raw"
+          },
+          {
+            "type": "image-deleted",
+            "name": "csi-truenas-assessment:9980/vm-9980-wrongtype.raw"
+          },
+          {
+            "type": "storage-removed",
+            "name": "csi-truenas-assessment"
+          },
+          {
+            "type": "user-token-revoked",
+            "name": "csi-tn-20261003@pve"
+          },
+          {
+            "type": "user-token-revoked",
+            "name": "tf-tn-20261003@pve"
+          },
+          {
+            "type": "role-removed",
+            "name": "CSITNAudit20261003"
+          },
+          {
+            "type": "role-removed",
+            "name": "CSITNClone20261003"
+          },
+          {
+            "type": "role-removed",
+            "name": "CSITNNet20261003"
+          },
+          {
+            "type": "role-removed",
+            "name": "CSITNRuntime20261003"
+          },
+          {
+            "type": "role-removed",
+            "name": "CSITNStore20261003"
+          },
+          {
+            "type": "role-removed",
+            "name": "CSITNTF20261003"
+          },
+          {
+            "type": "pool-removed",
+            "name": "csi-tn-20261003"
+          },
+          {
+            "type": "runner-and-disks-deleted",
+            "name": "980"
+          }
+        ],
+        "all_lab_vms_disks_users_roles_acls_absent": true,
+        "nfs_mount_absent": true,
+        "production_vm_configs_unchanged": {
+          "100": true,
+          "200": true,
+          "201": true,
+          "202": true,
+          "300": true,
+          "900": true
+        }
+      }
+    },
+    "cleanup": {
+      "proxmox_cleanup_complete": true,
+      "removed": [
+        {
+          "type": "image-deleted",
+          "name": "csi-truenas-assessment:9980/vm-9980-blank.raw"
+        },
+        {
+          "type": "image-deleted",
+          "name": "csi-truenas-assessment:9980/vm-9980-lab.raw"
+        },
+        {
+          "type": "image-deleted",
+          "name": "csi-truenas-assessment:9980/vm-9980-wrongtype.raw"
+        },
+        {
+          "type": "storage-removed",
+          "name": "csi-truenas-assessment"
+        },
+        {
+          "type": "user-token-revoked",
+          "name": "csi-tn-20261003@pve"
+        },
+        {
+          "type": "user-token-revoked",
+          "name": "tf-tn-20261003@pve"
+        },
+        {
+          "type": "role-removed",
+          "name": "CSITNAudit20261003"
+        },
+        {
+          "type": "role-removed",
+          "name": "CSITNClone20261003"
+        },
+        {
+          "type": "role-removed",
+          "name": "CSITNNet20261003"
+        },
+        {
+          "type": "role-removed",
+          "name": "CSITNRuntime20261003"
+        },
+        {
+          "type": "role-removed",
+          "name": "CSITNStore20261003"
+        },
+        {
+          "type": "role-removed",
+          "name": "CSITNTF20261003"
+        },
+        {
+          "type": "pool-removed",
+          "name": "csi-tn-20261003"
+        },
+        {
+          "type": "runner-and-disks-deleted",
+          "name": "980"
+        }
+      ],
+      "all_lab_vms_disks_users_roles_acls_absent": true,
+      "nfs_mount_absent": true,
+      "production_vm_configs_unchanged": {
+        "100": true,
+        "200": true,
+        "201": true,
+        "202": true,
+        "300": true,
+        "900": true
+      }
+    }
+  },
+  "nas": {
+    "baseline.json": {
+      "at": "2026-10-03T18:20:08.044123+00:00",
+      "version": "TrueNAS-25.10.7",
+      "pool_guid": "9917900421692286909",
+      "nfs": {
+        "id": 1,
+        "servers": 4,
+        "allow_nonroot": false,
+        "protocols": ["NFSV4"],
+        "v4_krb": false,
+        "v4_domain": "",
+        "bindip": ["10.9.8.30", "10.9.9.30"],
+        "mountd_port": null,
+        "rpcstatd_port": null,
+        "rpclockd_port": null,
+        "mountd_log": false,
+        "statd_lockd_log": false,
+        "v4_krb_enabled": false,
+        "userd_manage_gids": false,
+        "keytab_has_nfs_spn": false,
+        "managed_nfsd": true,
+        "rdma": false
+      },
+      "shares": [
+        {
+          "id": 1,
+          "path": "/mnt/main/media",
+          "aliases": [],
+          "comment": "Media Library",
+          "networks": ["10.9.8.0/24"],
+          "hosts": [],
+          "ro": false,
+          "maproot_user": "",
+          "maproot_group": "",
+          "mapall_user": "media",
+          "mapall_group": "media",
+          "security": [],
+          "enabled": true,
+          "locked": false,
+          "expose_snapshots": false
+        },
+        {
+          "id": 2,
+          "path": "/mnt/apps/pv",
+          "aliases": [],
+          "comment": "K3s Persistent Volumes",
+          "networks": ["10.9.8.0/24", "10.9.9.10/32"],
+          "hosts": [],
+          "ro": false,
+          "maproot_user": "root",
+          "maproot_group": "root",
+          "mapall_user": "",
+          "mapall_group": "",
+          "security": [],
+          "enabled": true,
+          "locked": false,
+          "expose_snapshots": false
+        },
+        {
+          "id": 5,
+          "path": "/mnt/nvme-cache/incomplete",
+          "aliases": [],
+          "comment": "qBittorrent incomplete download cache",
+          "networks": ["10.9.8.0/24"],
+          "hosts": [],
+          "ro": false,
+          "maproot_user": "",
+          "maproot_group": "",
+          "mapall_user": "media",
+          "mapall_group": "media",
+          "security": [],
+          "enabled": true,
+          "locked": false,
+          "expose_snapshots": false
+        }
+      ]
+    },
+    "dataset-created.json": {
+      "id": "apps/csi-qualification-20261003",
+      "guid": "11239987941870433523",
+      "quota": {
+        "parsed": 8589934592,
+        "rawvalue": "8589934592",
+        "value": "8 GiB",
+        "source": "LOCAL",
+        "source_info": null
+      },
+      "sync": {
+        "parsed": "standard",
+        "rawvalue": "standard",
+        "value": "STANDARD",
+        "source": "LOCAL",
+        "source_info": null
+      },
+      "encrypted": true,
+      "encryption_root": "apps",
+      "reservation": {
+        "parsed": null,
+        "rawvalue": "0",
+        "value": null,
+        "source": "DEFAULT",
+        "source_info": null
+      },
+      "refreservation": {
+        "parsed": null,
+        "rawvalue": "0",
+        "value": null,
+        "source": "DEFAULT",
+        "source_info": null
+      },
+      "reconciled_existing_create": true
+    },
+    "share-created.json": {
+      "id": 6,
+      "path": "/mnt/apps/csi-qualification-20261003",
+      "aliases": [],
+      "comment": "Disposable CSI qualification csi-tn-20261003",
+      "networks": ["10.9.9.20/32"],
+      "hosts": [],
+      "ro": false,
+      "maproot_user": "root",
+      "maproot_group": "root",
+      "mapall_user": null,
+      "mapall_group": null,
+      "security": ["SYS"],
+      "enabled": true,
+      "locked": false,
+      "expose_snapshots": false
+    },
+    "setup-verified.json": {
+      "dataset": "apps/csi-qualification-20261003",
+      "guid": "11239987941870433523",
+      "quota_bytes": 8589934592,
+      "share_id": 6,
+      "share_path": "/mnt/apps/csi-qualification-20261003",
+      "networks": ["10.9.9.20/32"],
+      "existing_shares_unchanged": true,
+      "global_nfs_config_unchanged": true,
+      "maintenance_owner_held": true
+    },
+    "export-disable-intent.json": {
+      "at": "2026-10-03T18:53:48.283208+00:00",
+      "share_id": 6,
+      "restore_timer": "csi-tn-export-restore-20261003"
+    },
+    "export-restored.json": {
+      "restored_at": "2026-10-03T18:54:32.279904+00:00",
+      "share_id": 6,
+      "enabled": true,
+      "independent_timer": true
+    },
+    "cleanup-intent.json": {
+      "dataset": "apps/csi-qualification-20261003",
+      "guid": "11239987941870433523",
+      "share_id": 6,
+      "at": "2026-10-03T19:14:14.125885+00:00"
+    },
+    "share-deleted.json": {
+      "share_id": 6,
+      "absent": true
+    },
+    "nas-cleanup.json": {
+      "pool": {
+        "name": "apps",
+        "guid": "9917900421692286909",
+        "status": "ONLINE",
+        "healthy": true
+      },
+      "dataset_absent": true,
+      "share_absent": true,
+      "existing_exports_unchanged": true,
+      "global_nfs_config_unchanged": true,
+      "service_running": true,
+      "completed_at": "2026-10-03T19:14:16.847830+00:00"
+    },
+    "ownership-released.json": {
+      "owner": "codex/proxmox-csi-truenas-20261003",
+      "released": true,
+      "original_ownership_only": true
+    }
+  },
+  "nas_cleanup": {
+    "pool": {
+      "name": "apps",
+      "guid": "9917900421692286909",
+      "status": "ONLINE",
+      "healthy": true
+    },
+    "dataset_absent": true,
+    "share_absent": true,
+    "existing_exports_unchanged": true,
+    "global_nfs_config_unchanged": true,
+    "service_running": true,
+    "completed_at": "2026-10-03T19:14:16.847830+00:00",
+    "maintenance_owner_released": true
+  },
+  "nas_final": {
+    "maintenance_ownership_absent": true,
+    "temporary_restore_helper_and_nonce_removed": true,
+    "restoration_units": {
+      "csi-tn-export-restore-20261003.timer": "inactive",
+      "csi-tn-export-restore-20261003.service": "inactive"
+    },
+    "original_nas_credential_references_preserved": true
+  },
+  "host_private_cleanup": {
+    "host_temporary_directory_removed": true,
+    "lab_tokens_revoked": true
+  },
+  "local_cleanup": {
+    "generated_private_staging_removed": true,
+    "original_proxmox_credential_file_preserved": true,
+    "actual_secret_values_and_encodings_excluded_from_deliverables": true
+  }
+}

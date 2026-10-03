@@ -1,0 +1,982 @@
+{
+  "run": "csi-tn-20261003",
+  "scope": "Approved disposable TrueNAS 25 qualification; synthetic workload only",
+  "runner": {
+    "run": "csi-tn-20261003",
+    "evidence": {
+      "evidence/cluster-cleanup.json": {
+        "vmids_deleted": [981, 982, 983],
+        "no_old_cluster_vms": true,
+        "apply_exitcode": 0
+      },
+      "evidence/export-outage-after.json": {
+        "vm_status": {
+          "981": "running",
+          "982": "running",
+          "983": "running"
+        },
+        "pods": {
+          "apiVersion": "v1",
+          "items": [
+            {
+              "apiVersion": "v1",
+              "kind": "Pod",
+              "metadata": {
+                "creationTimestamp": "2026-10-03T18:45:55Z",
+                "generateName": "sqlite-5f4c55b6d4-",
+                "generation": 1,
+                "labels": {
+                  "app": "sqlite",
+                  "pod-template-hash": "5f4c55b6d4",
+                  "topology.kubernetes.io/region": "lab",
+                  "topology.kubernetes.io/zone": "pve"
+                },
+                "name": "sqlite-5f4c55b6d4-8g4gx",
+                "namespace": "csi-lab",
+                "ownerReferences": [
+                  {
+                    "apiVersion": "apps/v1",
+                    "blockOwnerDeletion": true,
+                    "controller": true,
+                    "kind": "ReplicaSet",
+                    "name": "sqlite-5f4c55b6d4",
+                    "uid": "11f7a7fb-74ea-4c83-9e44-50a2c02985a3"
+                  }
+                ],
+                "resourceVersion": "1891",
+                "uid": "1e34ec72-ca71-4aec-8377-26a3e3100d90"
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "command": ["sleep", "infinity"],
+                    "image": "docker.io/library/python@sha256:bb2988715db2cf7ace7b53f38f3cffbef7c7046a656bee66245eb0ed386e2e81",
+                    "imagePullPolicy": "IfNotPresent",
+                    "name": "sqlite",
+                    "resources": {
+                      "limits": {
+                        "memory": "256Mi"
+                      },
+                      "requests": {
+                        "cpu": "50m",
+                        "memory": "64Mi"
+                      }
+                    },
+                    "terminationMessagePath": "/dev/termination-log",
+                    "terminationMessagePolicy": "File",
+                    "volumeMounts": [
+                      {
+                        "mountPath": "/data",
+                        "name": "data"
+                      },
+                      {
+                        "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                        "name": "kube-api-access-ghc82",
+                        "readOnly": true
+                      }
+                    ]
+                  }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "csi-lab-worker-2",
+                "nodeSelector": {
+                  "kubernetes.io/hostname": "csi-lab-worker-2"
+                },
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                  {
+                    "effect": "NoExecute",
+                    "key": "node.kubernetes.io/not-ready",
+                    "operator": "Exists"
+                  },
+                  {
+                    "effect": "NoExecute",
+                    "key": "node.kubernetes.io/unreachable",
+                    "operator": "Exists"
+                  }
+                ],
+                "volumes": [
+                  {
+                    "name": "data",
+                    "persistentVolumeClaim": {
+                      "claimName": "sqlite"
+                    }
+                  },
+                  {
+                    "name": "kube-api-access-ghc82",
+                    "projected": {
+                      "defaultMode": 420,
+                      "sources": [
+                        {
+                          "serviceAccountToken": {
+                            "expirationSeconds": 3607,
+                            "path": "token"
+                          }
+                        },
+                        {
+                          "configMap": {
+                            "items": [
+                              {
+                                "key": "ca.crt",
+                                "path": "ca.crt"
+                              }
+                            ],
+                            "name": "kube-root-ca.crt"
+                          }
+                        },
+                        {
+                          "downwardAPI": {
+                            "items": [
+                              {
+                                "fieldRef": {
+                                  "apiVersion": "v1",
+                                  "fieldPath": "metadata.namespace"
+                                },
+                                "path": "namespace"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              "status": {
+                "allocatedResources": {
+                  "cpu": "50m",
+                  "memory": "64Mi"
+                },
+                "conditions": [
+                  {
+                    "lastProbeTime": null,
+                    "lastTransitionTime": "2026-10-03T18:46:00Z",
+                    "observedGeneration": 1,
+                    "status": "True",
+                    "type": "PodReadyToStartContainers"
+                  },
+                  {
+                    "lastProbeTime": null,
+                    "lastTransitionTime": "2026-10-03T18:45:55Z",
+                    "observedGeneration": 1,
+                    "status": "True",
+                    "type": "Initialized"
+                  },
+                  {
+                    "lastProbeTime": null,
+                    "lastTransitionTime": "2026-10-03T18:46:00Z",
+                    "observedGeneration": 1,
+                    "status": "True",
+                    "type": "Ready"
+                  },
+                  {
+                    "lastProbeTime": null,
+                    "lastTransitionTime": "2026-10-03T18:46:00Z",
+                    "observedGeneration": 1,
+                    "status": "True",
+                    "type": "ContainersReady"
+                  },
+                  {
+                    "lastProbeTime": null,
+                    "lastTransitionTime": "2026-10-03T18:45:55Z",
+                    "observedGeneration": 1,
+                    "status": "True",
+                    "type": "PodScheduled"
+                  }
+                ],
+                "containerStatuses": [
+                  {
+                    "allocatedResources": {
+                      "cpu": "50m",
+                      "memory": "64Mi"
+                    },
+                    "containerID": "containerd://013e97128f6abc5ea1a36783963d4060adb5e6b07650f0638bdbbc16a5462d45",
+                    "image": "sha256:5bf8cf1bb031eb18d0ad53aa07efe45199a2c5818f152883ad80e1c45c64362d",
+                    "imageID": "docker.io/library/python@sha256:bb2988715db2cf7ace7b53f38f3cffbef7c7046a656bee66245eb0ed386e2e81",
+                    "lastState": {},
+                    "name": "sqlite",
+                    "ready": true,
+                    "resources": {
+                      "limits": {
+                        "memory": "256Mi"
+                      },
+                      "requests": {
+                        "cpu": "50m",
+                        "memory": "64Mi"
+                      }
+                    },
+                    "restartCount": 0,
+                    "started": true,
+                    "state": {
+                      "running": {
+                        "startedAt": "2026-10-03T18:46:00Z"
+                      }
+                    },
+                    "user": {
+                      "linux": {
+                        "gid": 0,
+                        "supplementalGroups": [0],
+                        "uid": 0
+                      }
+                    },
+                    "volumeMounts": [
+                      {
+                        "mountPath": "/data",
+                        "name": "data"
+                      },
+                      {
+                        "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                        "name": "kube-api-access-ghc82",
+                        "readOnly": true,
+                        "recursiveReadOnly": "Disabled"
+                      }
+                    ]
+                  }
+                ],
+                "hostIP": "10.9.9.181",
+                "hostIPs": [
+                  {
+                    "ip": "10.9.9.181"
+                  }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.242.2.8",
+                "podIPs": [
+                  {
+                    "ip": "10.242.2.8"
+                  }
+                ],
+                "qosClass": "Burstable",
+                "resources": {
+                  "limits": {
+                    "memory": "256Mi"
+                  },
+                  "requests": {
+                    "cpu": "28m",
+                    "memory": "64Mi"
+                  }
+                },
+                "startTime": "2026-10-03T18:45:55Z"
+              }
+            }
+          ],
+          "kind": "List",
+          "metadata": {
+            "resourceVersion": ""
+          }
+        },
+        "writer_log": "{\"committed_seq\": 100352}\n{\"committed_seq\": 100353}\n{\"committed_seq\": 100354}\n{\"committed_seq\": 100355}\n{\"committed_seq\": 100356}\n{\"committed_seq\": 100357}\n{\"committed_seq\": 100358}\nTraceback (most recent call last):\n  File \"/tmp/lab-writer.py\", line 8, in <module>\n    db.execute('INSERT INTO records VALUES (?,?)',(i,payload));db.commit()\n                                                               ~~~~~~~~~^^\nsqlite3.OperationalError: disk I/O error\n",
+        "kernel": "[Sat Oct  3 21:43:37 2026] sd 6:0:0:2: [sdb] Sense Key : Illegal Request [current] \n[Sat Oct  3 21:43:37 2026] sd 6:0:0:2: [sdb] Add. Sense: Logical unit not supported\n[Sat Oct  3 21:43:38 2026] scsi 6:0:0:2: Direct-Access     QEMU     QEMU HARDDISK    2.5+ PQ: 0 ANSI: 5\n[Sat Oct  3 21:43:38 2026] sd 6:0:0:2: Attached scsi generic sg2 type 0\n[Sat Oct  3 21:43:38 2026] sd 6:0:0:2: Power-on or device reset occurred\n[Sat Oct  3 21:43:38 2026] sd 6:0:0:2: LUN assignments on this target have changed. The Linux SCSI layer does not automatically remap LUN assignments.\n[Sat Oct  3 21:43:38 2026] sd 6:0:0:2: [sdb] 524288 512-byte logical blocks: (268 MB/256 MiB)\n[Sat Oct  3 21:43:38 2026] sd 6:0:0:2: [sdb] Write Protect is off\n[Sat Oct  3 21:43:38 2026] sd 6:0:0:2: [sdb] Mode Sense: 63 00 10 08\n[Sat Oct  3 21:43:38 2026] sd 6:0:0:2: [sdb] Write cache: enabled, read cache: enabled, supports DPO and FUA\n[Sat Oct  3 21:43:38 2026] sd 6:0:0:2: [sdb] Attached SCSI disk\n[Sat Oct  3 21:43:47 2026] SGI XFS with ACLs, security attributes, realtime, quota, no debug enabled\n[Sat Oct  3 21:43:47 2026] XFS (sdb): Invalid superblock magic number\n[Sat Oct  3 21:43:48 2026] XFS (sdb): Invalid superblock magic number\n[Sat Oct  3 21:43:49 2026] XFS (sdb): Invalid superblock magic number\n[Sat Oct  3 21:43:51 2026] XFS (sdb): Invalid superblock magic number\n[Sat Oct  3 21:43:55 2026] XFS (sdb): Invalid superblock magic number\n[Sat Oct  3 21:44:07 2026] sd 6:0:0:2: [sdb] Synchronizing SCSI cache\n[Sat Oct  3 21:44:07 2026] sd 6:0:0:2: LUN assignments on this target have changed. The Linux SCSI layer does not automatically remap LUN assignments.\n[Sat Oct  3 21:44:07 2026] sd 6:0:0:2: [sdb] Synchronize Cache(10) failed: Result: hostbyte=DID_OK driverbyte=DRIVER_OK\n[Sat Oct  3 21:44:07 2026] sd 6:0:0:2: [sdb] Sense Key : Illegal Request [current] \n[Sat Oct  3 21:44:07 2026] sd 6:0:0:2: [sdb] Add. Sense: Logical unit not supported\n[Sat Oct  3 21:44:37 2026] cni0: port 2(veth90de01c5) entered disabled state\n[Sat Oct  3 21:44:37 2026] veth90de01c5 (unregistering): left allmulticast mode\n[Sat Oct  3 21:44:37 2026] veth90de01c5 (unregistering): left promiscuous mode\n[Sat Oct  3 21:44:37 2026] cni0: port 2(veth90de01c5) entered disabled state\n[Sat Oct  3 21:44:38 2026] EXT4-fs (sda): unmounting filesystem 3b3414eb-c459-4db0-af43-7912d2c2bdc3.\n[Sat Oct  3 21:44:49 2026] sd 6:0:0:1: [sda] Synchronizing SCSI cache\n[Sat Oct  3 21:44:49 2026] sd 6:0:0:1: [sda] Synchronize Cache(10) failed: Result: hostbyte=DID_BAD_TARGET driverbyte=DRIVER_OK\n[Sat Oct  3 21:45:56 2026] pci 0000:06:05.0: [1af4:1004] type 00 class 0x010000 conventional PCI endpoint\n[Sat Oct  3 21:45:56 2026] pci 0000:06:05.0: BAR 0 [io  0x0000-0x003f]\n[Sat Oct  3 21:45:56 2026] pci 0000:06:05.0: BAR 1 [mem 0x00000000-0x00000fff]\n[Sat Oct  3 21:45:56 2026] pci 0000:06:05.0: BAR 4 [mem 0x00000000-0x00003fff 64bit pref]\n[Sat Oct  3 21:45:56 2026] pci 0000:06:05.0: BAR 4 [mem 0xfc60c000-0xfc60ffff 64bit pref]: assigned\n[Sat Oct  3 21:45:56 2026] pci 0000:06:05.0: BAR 1 [mem 0xfde43000-0xfde43fff]: assigned\n[Sat Oct  3 21:45:56 2026] pci 0000:06:05.0: BAR 0 [io  0x4400-0x443f]: assigned\n[Sat Oct  3 21:45:56 2026] virtio-pci 0000:06:05.0: enabling device (0000 -> 0003)\n[Sat Oct  3 21:45:56 2026] virtio_scsi virtio3: 2/0/0 default/read/poll queues\n[Sat Oct  3 21:45:56 2026] scsi host6: Virtio SCSI HBA\n[Sat Oct  3 21:45:56 2026] scsi 6:0:0:1: Direct-Access     QEMU     QEMU HARDDISK    2.5+ PQ: 0 ANSI: 5\n[Sat Oct  3 21:45:56 2026] sd 6:0:0:1: Power-on or device reset occurred\n[Sat Oct  3 21:45:56 2026] sd 6:0:0:1: LUN assignments on this target have changed. The Linux SCSI layer does not automatically remap LUN assignments.\n[Sat Oct  3 21:45:56 2026] sd 6:0:0:1: Attached scsi generic sg1 type 0\n[Sat Oct  3 21:45:56 2026] sd 6:0:0:1: [sda] 8388608 512-byte logical blocks: (4.29 GB/4.00 GiB)\n[Sat Oct  3 21:45:56 2026] sd 6:0:0:1: [sda] Write Protect is off\n[Sat Oct  3 21:45:56 2026] sd 6:0:0:1: [sda] Mode Sense: 63 00 10 08\n[Sat Oct  3 21:45:56 2026] sd 6:0:0:1: [sda] Write cache: enabled, read cache: enabled, supports DPO and FUA\n[Sat Oct  3 21:45:56 2026] sd 6:0:0:1: [sda] Attached SCSI disk\n[Sat Oct  3 21:45:59 2026] EXT4-fs (sda): mounted filesystem 8a43dddb-dbad-491c-8020-d1f3e9467cc1 r/w with ordered data mode. Quota mode: none.\n[Sat Oct  3 21:46:00 2026] cni0: port 2(veth1245939c) entered blocking state\n[Sat Oct  3 21:46:00 2026] cni0: port 2(veth1245939c) entered disabled state\n[Sat Oct  3 21:46:00 2026] veth1245939c: entered allmulticast mode\n[Sat Oct  3 21:46:00 2026] veth1245939c: entered promiscuous mode\n[Sat Oct  3 21:46:00 2026] cni0: port 2(veth1245939c) entered blocking state\n[Sat Oct  3 21:46:00 2026] cni0: port 2(veth1245939c) entered forwarding state\n[Sat Oct  3 21:53:48 2026] sd 6:0:0:1: [sda] tag#205 FAILED Result: hostbyte=DID_OK driverbyte=DRIVER_OK cmd_age=0s\n[Sat Oct  3 21:53:48 2026] sd 6:0:0:1: [sda] tag#205 Sense Key : Aborted Command [current] \n[Sat Oct  3 21:53:48 2026] sd 6:0:0:1: [sda] tag#205 Add. Sense: I/O process terminated\n[Sat Oct  3 21:53:48 2026] sd 6:0:0:1: [sda] tag#205 CDB: Write(10) 2a 00 00 04 0b 68 00 00 10 00\n[Sat Oct  3 21:53:48 2026] I/O error, dev sda, sector 265064 op 0x1:(WRITE) flags 0x800 phys_seg 2 prio class 2\n[Sat Oct  3 21:53:48 2026] EXT4-fs warning (device sda): ext4_end_bio:353: I/O error 10 writing to inode 14 starting block 33133)\n[Sat Oct  3 21:53:48 2026] Buffer I/O error on device sda, logical block 33133\n[Sat Oct  3 21:53:48 2026] EXT4-fs warning (device sda): ext4_end_bio:353: I/O error 10 writing to inode 14 starting block 33134)\n[Sat Oct  3 21:53:48 2026] EXT4-fs (sda): failed to convert unwritten extents to written extents -- potential data loss!  (inode 14, error -5)\n[Sat Oct  3 21:53:48 2026] Buffer I/O error on device sda, logical block 33134\n[Sat Oct  3 21:53:48 2026] sd 6:0:0:1: [sda] tag#206 FAILED Result: hostbyte=DID_OK driverbyte=DRIVER_OK cmd_age=0s\n[Sat Oct  3 21:53:48 2026] sd 6:0:0:1: [sda] tag#206 Sense Key : Aborted Command [current] \n[Sat Oct  3 21:53:48 2026] sd 6:0:0:1: [sda] tag#206 Add. Sense: I/O process terminated\n[Sat Oct  3 21:53:48 2026] sd 6:0:0:1: [sda] tag#206 CDB: Write(10) 2a 00 00 20 21 08 00 00 28 00\n[Sat Oct  3 21:53:48 2026] I/O error, dev sda, sector 2105608 op 0x1:(WRITE) flags 0x9800 phys_seg 5 prio class 2\n[Sat Oct  3 21:53:48 2026] Aborting journal on device sda-8.\n[Sat Oct  3 21:53:49 2026] sd 6:0:0:1: [sda] tag#186 FAILED Result: hostbyte=DID_OK driverbyte=DRIVER_OK cmd_age=0s\n[Sat Oct  3 21:53:49 2026] sd 6:0:0:1: [sda] tag#186 Sense Key : Aborted Command [current] \n[Sat Oct  3 21:53:49 2026] sd 6:0:0:1: [sda] tag#186 Add. Sense: I/O process terminated\n[Sat Oct  3 21:53:49 2026] sd 6:0:0:1: [sda] tag#186 CDB: Write(10) 2a 08 00 20 00 00 00 00 08 00\n[Sat Oct  3 21:53:49 2026] I/O error, dev sda, sector 2097152 op 0x1:(WRITE) flags 0x29800 phys_seg 1 prio class 2\n[Sat Oct  3 21:53:49 2026] Buffer I/O error on dev sda, logical block 262144, lost sync page write\n[Sat Oct  3 21:53:49 2026] JBD2: I/O error when updating journal superblock for sda-8.\n[Sat Oct  3 21:53:56 2026] EXT4-fs error (device sda): ext4_journal_check_start:84: comm kworker/u8:8: Detected aborted journal\n[Sat Oct  3 21:53:56 2026] sd 6:0:0:1: [sda] tag#187 FAILED Result: hostbyte=DID_OK driverbyte=DRIVER_OK cmd_age=0s\n[Sat Oct  3 21:53:56 2026] sd 6:0:0:1: [sda] tag#187 Sense Key : Aborted Command [current] \n[Sat Oct  3 21:53:56 2026] sd 6:0:0:1: [sda] tag#187 Add. Sense: I/O process terminated\n[Sat Oct  3 21:53:56 2026] sd 6:0:0:1: [sda] tag#187 CDB: Write(10) 2a 08 00 00 00 00 00 00 08 00\n[Sat Oct  3 21:53:56 2026] I/O error, dev sda, sector 0 op 0x1:(WRITE) flags 0x23800 phys_seg 1 prio class 2\n[Sat Oct  3 21:53:56 2026] Buffer I/O error on dev sda, logical block 0, lost sync page write\n[Sat Oct  3 21:53:56 2026] EXT4-fs (sda): I/O error while writing superblock\n[Sat Oct  3 21:53:56 2026] EXT4-fs (sda): Remounting filesystem read-only\n[Sat Oct  3 21:53:56 2026] EXT4-fs (sda): ext4_do_writepages: jbd2_start: 1024 pages, ino 15; err -30\n[Sat Oct  3 21:53:56 2026] sd 6:0:0:1: [sda] tag#208 FAILED Result: hostbyte=DID_OK driverbyte=DRIVER_OK cmd_age=0s\n[Sat Oct  3 21:53:56 2026] sd 6:0:0:1: [sda] tag#208 Sense Key : Aborted Command [current] \n[Sat Oct  3 21:53:56 2026] sd 6:0:0:1: [sda] tag#208 Add. Sense: I/O process terminated\n[Sat Oct  3 21:53:56 2026] sd 6:0:0:1: [sda] tag#208 CDB: Write(10) 2a 00 00 01 09 08 00 00 08 00\n[Sat Oct  3 21:53:56 2026] I/O error, dev sda, sector 67848 op 0x1:(WRITE) flags 0x103000 phys_seg 1 prio class 2\n[Sat Oct  3 21:53:56 2026] Buffer I/O error on dev sda, logical block 8481, lost async page write\n[Sat Oct  3 21:53:56 2026] sd 6:0:0:1: [sda] tag#207 FAILED Result: hostbyte=DID_OK driverbyte=DRIVER_OK cmd_age=0s\n[Sat Oct  3 21:53:56 2026] sd 6:0:0:1: [sda] tag#207 Sense Key : Aborted Command [current] \n[Sat Oct  3 21:53:56 2026] sd 6:0:0:1: [sda] tag#207 Add. Sense: I/O process terminated\n[Sat Oct  3 21:53:56 2026] sd 6:0:0:1: [sda] tag#207 CDB: Write(10) 2a 00 00 00 08 88 00 00 08 00\n[Sat Oct  3 21:53:56 2026] I/O error, dev sda, sector 2184 op 0x1:(WRITE) flags 0x103000 phys_seg 1 prio class 2\n[Sat Oct  3 21:53:56 2026] Buffer I/O error on dev sda, logical block 273, lost async page write\nTARGET                                                                                                                                             SOURCE    OPTIONS\n/                                                                                                                                                  /dev/vda1 rw,relatime,errors=remount-ro\n\u251c\u2500/var/lib/kubelet/plugins/kubernetes.io/csi/csi.proxmox.sinextra.dev/7a0f4b3c9dd3cb48a8762ebdf53d53e46e221f362a3c7791416ae5fda8fe1d2a/globalmount /dev/sda  rw,relatime\n\u2514\u2500/var/lib/kubelet/pods/1e34ec72-ca71-4aec-8377-26a3e3100d90/volumes/kubernetes.io~csi/csi-lab-sqlite/mount                                        /dev/sda  rw,relatime\n",
+        "verify_error": {
+          "returncode": 1,
+          "stderr": null
+        }
+      },
+      "evidence/export-outage-before.json": {
+        "integrity": "ok",
+        "rows": 2267,
+        "last_committed_seq": 100266,
+        "all_payloads_valid": true,
+        "writer_sequence_contiguous": true,
+        "sha256": "af9d796e310aa51cd83e373dca4e8bc23dc28d6e3fd86956d8cb4938e55a3148"
+      },
+      "evidence/export-outage-detached.json": {
+        "no_remaining_attachment": true,
+        "manual_action": "scale synthetic workload to zero, wait for native CSI detach"
+      },
+      "evidence/export-outage-observations.json": [
+        {
+          "at": 1791053643.073993,
+          "exitcode": 0,
+          "writer_log": "sqlite3.OperationalError: disk I/O error\n",
+          "error": ""
+        },
+        {
+          "at": 1791053648.0710993,
+          "exitcode": 0,
+          "writer_log": "sqlite3.OperationalError: disk I/O error\n",
+          "error": ""
+        },
+        {
+          "at": 1791053652.1892872,
+          "exitcode": 0,
+          "writer_log": "sqlite3.OperationalError: disk I/O error\n",
+          "error": ""
+        },
+        {
+          "at": 1791053656.3151765,
+          "exitcode": 0,
+          "writer_log": "sqlite3.OperationalError: disk I/O error\n",
+          "error": ""
+        }
+      ],
+      "evidence/export-outage-recovered.json": {
+        "data": {
+          "integrity": "ok",
+          "rows": 2359,
+          "last_committed_seq": 100358,
+          "all_payloads_valid": true,
+          "writer_sequence_contiguous": true,
+          "sha256": "52ef7eb9ec9e43a2f41ecb29122ce6ace88c9643322f657dc4656da14666b80b"
+        },
+        "before": {
+          "integrity": "ok",
+          "rows": 2267,
+          "last_committed_seq": 100266,
+          "all_payloads_valid": true,
+          "writer_sequence_contiguous": true,
+          "sha256": "af9d796e310aa51cd83e373dca4e8bc23dc28d6e3fd86956d8cb4938e55a3148"
+        },
+        "last_writer_acknowledged": 100358,
+        "volume": {
+          "attachment": {
+            "vmid": 983,
+            "slot": "scsi1",
+            "config": "csi-truenas-assessment:9980/vm-9980-lab.raw,backup=0,cache=none,iothread=1,replicate=0,size=4G,wwn=0x5056432d49443031"
+          },
+          "filesystem": {
+            "name": "sda",
+            "uuid": "8a43dddb-dbad-491c-8020-d1f3e9467cc1",
+            "fstype": "ext4",
+            "mountpoints": [
+              "/var/lib/kubelet/pods/eed18d0a-3e6a-481d-b4e7-f23714e5eade/volumes/kubernetes.io~csi/csi-lab-sqlite/mount",
+              "/var/lib/kubelet/plugins/kubernetes.io/csi/csi.proxmox.sinextra.dev/7a0f4b3c9dd3cb48a8762ebdf53d53e46e221f362a3c7791416ae5fda8fe1d2a/globalmount"
+            ]
+          }
+        },
+        "automatic_recovery": false,
+        "manual_action": "scale workload to zero, wait native detach, scale to one; stock CSI filesystem handling",
+        "kernel_after": "[Sat Oct  3 21:53:56 2026] sd 6:0:0:1: [sda] tag#208 FAILED Result: hostbyte=DID_OK driverbyte=DRIVER_OK cmd_age=0s\n[Sat Oct  3 21:53:56 2026] sd 6:0:0:1: [sda] tag#208 Sense Key : Aborted Command [current] \n[Sat Oct  3 21:53:56 2026] sd 6:0:0:1: [sda] tag#208 Add. Sense: I/O process terminated\n[Sat Oct  3 21:53:56 2026] sd 6:0:0:1: [sda] tag#208 CDB: Write(10) 2a 00 00 01 09 08 00 00 08 00\n[Sat Oct  3 21:53:56 2026] I/O error, dev sda, sector 67848 op 0x1:(WRITE) flags 0x103000 phys_seg 1 prio class 2\n[Sat Oct  3 21:53:56 2026] Buffer I/O error on dev sda, logical block 8481, lost async page write\n[Sat Oct  3 21:53:56 2026] sd 6:0:0:1: [sda] tag#207 FAILED Result: hostbyte=DID_OK driverbyte=DRIVER_OK cmd_age=0s\n[Sat Oct  3 21:53:56 2026] sd 6:0:0:1: [sda] tag#207 Sense Key : Aborted Command [current] \n[Sat Oct  3 21:53:56 2026] sd 6:0:0:1: [sda] tag#207 Add. Sense: I/O process terminated\n[Sat Oct  3 21:53:56 2026] sd 6:0:0:1: [sda] tag#207 CDB: Write(10) 2a 00 00 00 08 88 00 00 08 00\n[Sat Oct  3 21:53:56 2026] I/O error, dev sda, sector 2184 op 0x1:(WRITE) flags 0x103000 phys_seg 1 prio class 2\n[Sat Oct  3 21:53:56 2026] Buffer I/O error on dev sda, logical block 273, lost async page write\n[Sat Oct  3 21:56:20 2026] cni0: port 2(veth1245939c) entered disabled state\n[Sat Oct  3 21:56:20 2026] veth1245939c (unregistering): left allmulticast mode\n[Sat Oct  3 21:56:20 2026] veth1245939c (unregistering): left promiscuous mode\n[Sat Oct  3 21:56:20 2026] cni0: port 2(veth1245939c) entered disabled state\n[Sat Oct  3 21:56:20 2026] EXT4-fs (sda): unmounting filesystem 8a43dddb-dbad-491c-8020-d1f3e9467cc1.\n[Sat Oct  3 21:56:32 2026] sd 6:0:0:1: [sda] Synchronizing SCSI cache\n[Sat Oct  3 21:56:32 2026] sd 6:0:0:1: [sda] Synchronize Cache(10) failed: Result: hostbyte=DID_BAD_TARGET driverbyte=DRIVER_OK\n[Sat Oct  3 21:56:34 2026] pci 0000:06:05.0: [1af4:1004] type 00 class 0x010000 conventional PCI endpoint\n[Sat Oct  3 21:56:34 2026] pci 0000:06:05.0: BAR 0 [io  0x0000-0x003f]\n[Sat Oct  3 21:56:34 2026] pci 0000:06:05.0: BAR 1 [mem 0x00000000-0x00000fff]\n[Sat Oct  3 21:56:34 2026] pci 0000:06:05.0: BAR 4 [mem 0x00000000-0x00003fff 64bit pref]\n[Sat Oct  3 21:56:34 2026] pci 0000:06:05.0: BAR 4 [mem 0xfc60c000-0xfc60ffff 64bit pref]: assigned\n[Sat Oct  3 21:56:34 2026] pci 0000:06:05.0: BAR 1 [mem 0xfde43000-0xfde43fff]: assigned\n[Sat Oct  3 21:56:34 2026] pci 0000:06:05.0: BAR 0 [io  0x4400-0x443f]: assigned\n[Sat Oct  3 21:56:34 2026] virtio-pci 0000:06:05.0: enabling device (0000 -> 0003)\n[Sat Oct  3 21:56:34 2026] virtio_scsi virtio3: 2/0/0 default/read/poll queues\n[Sat Oct  3 21:56:34 2026] scsi host6: Virtio SCSI HBA\n[Sat Oct  3 21:56:34 2026] scsi 6:0:0:1: Direct-Access     QEMU     QEMU HARDDISK    2.5+ PQ: 0 ANSI: 5\n[Sat Oct  3 21:56:34 2026] sd 6:0:0:1: Power-on or device reset occurred\n[Sat Oct  3 21:56:34 2026] sd 6:0:0:1: LUN assignments on this target have changed. The Linux SCSI layer does not automatically remap LUN assignments.\n[Sat Oct  3 21:56:34 2026] sd 6:0:0:1: [sda] 8388608 512-byte logical blocks: (4.29 GB/4.00 GiB)\n[Sat Oct  3 21:56:34 2026] sd 6:0:0:1: [sda] Write Protect is off\n[Sat Oct  3 21:56:34 2026] sd 6:0:0:1: [sda] Mode Sense: 63 00 10 08\n[Sat Oct  3 21:56:34 2026] sd 6:0:0:1: [sda] Write cache: enabled, read cache: enabled, supports DPO and FUA\n[Sat Oct  3 21:56:34 2026] sd 6:0:0:1: Attached scsi generic sg1 type 0\n[Sat Oct  3 21:56:34 2026] sd 6:0:0:1: [sda] Attached SCSI disk\n[Sat Oct  3 21:56:42 2026] EXT4-fs (sda): mounted filesystem 8a43dddb-dbad-491c-8020-d1f3e9467cc1 r/w with ordered data mode. Quota mode: none.\n[Sat Oct  3 21:56:42 2026] cni0: port 2(veth5ac454f9) entered blocking state\n[Sat Oct  3 21:56:42 2026] cni0: port 2(veth5ac454f9) entered disabled state\n[Sat Oct  3 21:56:42 2026] veth5ac454f9: entered allmulticast mode\n[Sat Oct  3 21:56:42 2026] veth5ac454f9: entered promiscuous mode\n[Sat Oct  3 21:56:42 2026] cni0: port 2(veth5ac454f9) entered blocking state\n[Sat Oct  3 21:56:42 2026] cni0: port 2(veth5ac454f9) entered forwarding state\n"
+      },
+      "evidence/failed-writer-held.json": {
+        "node_ready": {
+          "lastHeartbeatTime": "2026-10-03T18:41:11Z",
+          "lastTransitionTime": "2026-10-03T18:45:45Z",
+          "message": "Kubelet stopped posting node status.",
+          "reason": "NodeStatusUnknown",
+          "status": "Unknown",
+          "type": "Ready"
+        },
+        "old_vm_running": true,
+        "same_pod_held": true,
+        "writer_before": {
+          "rows": 2012,
+          "prefix_rows": 2000,
+          "prefix_sha256": "bab0dacd28dd20baae0f0c0d50a9fd9230e704e6f8d0a268d9d4ac50092017c6",
+          "integrity": "ok",
+          "filesystem_capacity_bytes": 4152066048
+        },
+        "writer_while_notready": {
+          "rows": 2254,
+          "max_seq": 100253
+        },
+        "replacement_started": false
+      },
+      "evidence/failed-writer-recovered.json": {
+        "old_vm_confirmed_off_before_release": true,
+        "after": {
+          "rows": 2254,
+          "prefix_rows": 2000,
+          "prefix_sha256": "bab0dacd28dd20baae0f0c0d50a9fd9230e704e6f8d0a268d9d4ac50092017c6",
+          "integrity": "ok",
+          "filesystem_capacity_bytes": 4152066048
+        },
+        "old_vm_disk_detached_before_restart": true
+      },
+      "evidence/first-all-destroyed.json": {
+        "all_cluster_vms_absent": true,
+        "image_retained": true,
+        "image_bytes": 4294967296
+      },
+      "evidence/first-data-before.json": {
+        "integrity": "ok",
+        "rows": 2359,
+        "last_committed_seq": 100358,
+        "all_payloads_valid": true,
+        "writer_sequence_contiguous": true,
+        "sha256": "52ef7eb9ec9e43a2f41ecb29122ce6ace88c9643322f657dc4656da14666b80b"
+      },
+      "evidence/first-destroy-review.json": {
+        "vmids": [981, 982, 983],
+        "actions": "delete"
+      },
+      "evidence/first-identities-before.json": {
+        "cluster": "8bdb8814-5093-46de-9fec-201396bdcdaf",
+        "pvc": "ea6c7ef7-a1bd-437e-9db1-705314adc93c"
+      },
+      "evidence/first-recovered.json": {
+        "before": {
+          "integrity": "ok",
+          "rows": 2359,
+          "last_committed_seq": 100358,
+          "all_payloads_valid": true,
+          "writer_sequence_contiguous": true,
+          "sha256": "52ef7eb9ec9e43a2f41ecb29122ce6ace88c9643322f657dc4656da14666b80b"
+        },
+        "after": {
+          "integrity": "ok",
+          "rows": 2359,
+          "last_committed_seq": 100358,
+          "all_payloads_valid": true,
+          "writer_sequence_contiguous": true,
+          "sha256": "52ef7eb9ec9e43a2f41ecb29122ce6ace88c9643322f657dc4656da14666b80b"
+        },
+        "old_uids": {
+          "cluster": "8bdb8814-5093-46de-9fec-201396bdcdaf",
+          "pvc": "ea6c7ef7-a1bd-437e-9db1-705314adc93c"
+        },
+        "new_uids": {
+          "cluster": "354d3943-f0f3-468a-bc19-063188c92d8e",
+          "pvc": "7f7a6d2f-975a-4b68-a63d-68bd689b4785"
+        },
+        "volume": {
+          "attachment": {
+            "vmid": 982,
+            "slot": "scsi1",
+            "config": "csi-truenas-assessment:9980/vm-9980-lab.raw,backup=0,cache=none,iothread=1,replicate=0,size=4G,wwn=0x5056432d49443031"
+          },
+          "filesystem": {
+            "name": "sda",
+            "uuid": "8a43dddb-dbad-491c-8020-d1f3e9467cc1",
+            "fstype": "ext4",
+            "mountpoints": [
+              "/var/lib/kubelet/pods/5d6f3e7e-59c1-4fff-b76f-673dbc762484/volumes/kubernetes.io~csi/csi-lab-sqlite/mount",
+              "/var/lib/kubelet/plugins/kubernetes.io/csi/csi.proxmox.sinextra.dev/7a0f4b3c9dd3cb48a8762ebdf53d53e46e221f362a3c7791416ae5fda8fe1d2a/globalmount"
+            ]
+          }
+        },
+        "filesystem": {
+          "rows": 2359,
+          "prefix_rows": 2000,
+          "prefix_sha256": "bab0dacd28dd20baae0f0c0d50a9fd9230e704e6f8d0a268d9d4ac50092017c6",
+          "integrity": "ok",
+          "filesystem_capacity_bytes": 4152066048
+        },
+        "image_digests_unchanged": true
+      },
+      "evidence/healthy-move-982.json": {
+        "attachment": {
+          "vmid": 982,
+          "slot": "scsi1",
+          "config": "csi-truenas-assessment:9980/vm-9980-lab.raw,backup=0,cache=none,iothread=1,replicate=0,size=2G,wwn=0x5056432d49443031"
+        },
+        "filesystem": {
+          "name": "sda",
+          "uuid": "8a43dddb-dbad-491c-8020-d1f3e9467cc1",
+          "fstype": "ext4",
+          "mountpoints": [
+            "/var/lib/kubelet/pods/26f1af9f-ae57-430e-bd25-ebf228739e67/volumes/kubernetes.io~csi/csi-lab-sqlite/mount",
+            "/var/lib/kubelet/plugins/kubernetes.io/csi/csi.proxmox.sinextra.dev/7a0f4b3c9dd3cb48a8762ebdf53d53e46e221f362a3c7791416ae5fda8fe1d2a/globalmount"
+          ]
+        }
+      },
+      "evidence/healthy-move-983.json": {
+        "attachment": {
+          "vmid": 983,
+          "slot": "scsi1",
+          "config": "csi-truenas-assessment:9980/vm-9980-lab.raw,backup=0,cache=none,iothread=1,replicate=0,size=2G,wwn=0x5056432d49443031"
+        },
+        "filesystem": {
+          "name": "sda",
+          "uuid": "8a43dddb-dbad-491c-8020-d1f3e9467cc1",
+          "fstype": "ext4",
+          "mountpoints": [
+            "/var/lib/kubelet/pods/2e2c2006-5c42-41a7-9c71-a4d4bc56fe25/volumes/kubernetes.io~csi/csi-lab-sqlite/mount",
+            "/var/lib/kubelet/plugins/kubernetes.io/csi/csi.proxmox.sinextra.dev/7a0f4b3c9dd3cb48a8762ebdf53d53e46e221f362a3c7791416ae5fda8fe1d2a/globalmount"
+          ]
+        }
+      },
+      "evidence/image-pins.json": [
+        {
+          "namespace": "csi-lab",
+          "containers": [
+            {
+              "name": "sqlite",
+              "imageID": "docker.io/library/python@sha256:bb2988715db2cf7ace7b53f38f3cffbef7c7046a656bee66245eb0ed386e2e81"
+            }
+          ]
+        },
+        {
+          "namespace": "csi-proxmox",
+          "containers": [
+            {
+              "name": "csi-attacher",
+              "imageID": "registry.k8s.io/sig-storage/csi-attacher@sha256:be59d0556508d3dd419cc34c53062f170a28902ef36e832b947c7796458a083d"
+            },
+            {
+              "name": "csi-provisioner",
+              "imageID": "registry.k8s.io/sig-storage/csi-provisioner@sha256:bb057f866177d5f4139a1527e594499cbe0feeb67b63aaca8679dfdf0a6016f9"
+            },
+            {
+              "name": "csi-proxmox-proxmox-csi-plugin-controller",
+              "imageID": "ghcr.io/sergelogvinov/proxmox-csi-controller@sha256:95ef74cce03e89a1706d9b32888a84bf44e0db439c4fe2a4334ce123728d4c3b"
+            },
+            {
+              "name": "csi-resizer",
+              "imageID": "registry.k8s.io/sig-storage/csi-resizer@sha256:5e7cbb63fd497fa913caa21fee1a69f727c220c6fa83c5f8bb0995e2ad73a474"
+            },
+            {
+              "name": "liveness-probe",
+              "imageID": "registry.k8s.io/sig-storage/livenessprobe@sha256:88092d100909918ae0a768956cf78c88bc59cd7232720f7cdbdfb5d2e235001e"
+            }
+          ]
+        },
+        {
+          "namespace": "csi-proxmox",
+          "containers": [
+            {
+              "name": "csi-node-driver-registrar",
+              "imageID": "registry.k8s.io/sig-storage/csi-node-driver-registrar@sha256:11f199f6bec47403b03cb49c79a41f445884b213b382582a60710b8c6fdc316a"
+            },
+            {
+              "name": "csi-proxmox-proxmox-csi-plugin-node",
+              "imageID": "ghcr.io/sergelogvinov/proxmox-csi-node@sha256:e0151137a1c5fa4faea9b4622436b203f1dc246ea37a3a77d09d3855c70aabd1"
+            },
+            {
+              "name": "liveness-probe",
+              "imageID": "registry.k8s.io/sig-storage/livenessprobe@sha256:88092d100909918ae0a768956cf78c88bc59cd7232720f7cdbdfb5d2e235001e"
+            }
+          ]
+        },
+        {
+          "namespace": "csi-proxmox",
+          "containers": [
+            {
+              "name": "csi-node-driver-registrar",
+              "imageID": "registry.k8s.io/sig-storage/csi-node-driver-registrar@sha256:11f199f6bec47403b03cb49c79a41f445884b213b382582a60710b8c6fdc316a"
+            },
+            {
+              "name": "csi-proxmox-proxmox-csi-plugin-node",
+              "imageID": "ghcr.io/sergelogvinov/proxmox-csi-node@sha256:e0151137a1c5fa4faea9b4622436b203f1dc246ea37a3a77d09d3855c70aabd1"
+            },
+            {
+              "name": "liveness-probe",
+              "imageID": "registry.k8s.io/sig-storage/livenessprobe@sha256:88092d100909918ae0a768956cf78c88bc59cd7232720f7cdbdfb5d2e235001e"
+            }
+          ]
+        },
+        {
+          "namespace": "csi-proxmox",
+          "containers": [
+            {
+              "name": "csi-node-driver-registrar",
+              "imageID": "registry.k8s.io/sig-storage/csi-node-driver-registrar@sha256:11f199f6bec47403b03cb49c79a41f445884b213b382582a60710b8c6fdc316a"
+            },
+            {
+              "name": "csi-proxmox-proxmox-csi-plugin-node",
+              "imageID": "ghcr.io/sergelogvinov/proxmox-csi-node@sha256:e0151137a1c5fa4faea9b4622436b203f1dc246ea37a3a77d09d3855c70aabd1"
+            },
+            {
+              "name": "liveness-probe",
+              "imageID": "registry.k8s.io/sig-storage/livenessprobe@sha256:88092d100909918ae0a768956cf78c88bc59cd7232720f7cdbdfb5d2e235001e"
+            }
+          ]
+        },
+        {
+          "namespace": "kube-system",
+          "containers": [
+            {
+              "name": "coredns",
+              "imageID": "docker.io/rancher/mirrored-coredns-coredns@sha256:7efd3c635b03efd68c4e8398fc45f0d993d0e9ab016f72c1cefb0fd6d01aa286"
+            }
+          ]
+        },
+        {
+          "namespace": "kube-system",
+          "containers": [
+            {
+              "name": "helm",
+              "imageID": "docker.io/rancher/klipper-helm@sha256:5425a2b4613d2458dbdff99218e8d487ebb59c20e7a941f061c0777070f0aac1"
+            }
+          ]
+        }
+      ],
+      "evidence/interrupted-expansion.json": {
+        "image_size": 4294967296,
+        "filesystem_observation": {
+          "rows": 1000,
+          "prefix_rows": 1000,
+          "prefix_sha256": "93aaa7459e4a1fb4c53bfb6c901b2c3b3d81ea1a0f2b9c1e32ca44ac9691ccc4",
+          "integrity": "ok",
+          "filesystem_capacity_bytes": 2040373248
+        },
+        "pvc": {
+          "apiVersion": "v1",
+          "kind": "PersistentVolumeClaim",
+          "metadata": {
+            "annotations": {
+              "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"PersistentVolumeClaim\",\"metadata\":{\"annotations\":{},\"name\":\"sqlite\",\"namespace\":\"csi-lab\"},\"spec\":{\"accessModes\":[\"ReadWriteOncePod\"],\"resources\":{\"requests\":{\"storage\":\"2Gi\"}},\"storageClassName\":\"lab-nfs-expand\",\"volumeName\":\"csi-lab-sqlite\"}}\n",
+              "pv.kubernetes.io/bind-completed": "yes"
+            },
+            "creationTimestamp": "2026-10-03T18:39:21Z",
+            "finalizers": ["kubernetes.io/pvc-protection"],
+            "name": "sqlite",
+            "namespace": "csi-lab",
+            "resourceVersion": "1083",
+            "uid": "ea6c7ef7-a1bd-437e-9db1-705314adc93c"
+          },
+          "spec": {
+            "accessModes": ["ReadWriteOncePod"],
+            "resources": {
+              "requests": {
+                "storage": "4Gi"
+              }
+            },
+            "storageClassName": "lab-nfs-expand",
+            "volumeMode": "Filesystem",
+            "volumeName": "csi-lab-sqlite"
+          },
+          "status": {
+            "accessModes": ["ReadWriteOncePod"],
+            "allocatedResourceStatuses": {
+              "storage": "NodeResizePending"
+            },
+            "allocatedResources": {
+              "storage": "4Gi"
+            },
+            "capacity": {
+              "storage": "2Gi"
+            },
+            "conditions": [
+              {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-03T18:41:03Z",
+                "message": "A pod is currently referencing this PVC",
+                "reason": "PodUsingPVC",
+                "status": "False",
+                "type": "Unused"
+              },
+              {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-03T18:41:23Z",
+                "status": "True",
+                "type": "Resizing"
+              },
+              {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-03T18:41:24Z",
+                "message": "Waiting for user to (re-)start a pod to finish file system resize of volume on node.",
+                "status": "True",
+                "type": "FileSystemResizePending"
+              }
+            ],
+            "phase": "Bound"
+          }
+        }
+      },
+      "evidence/negative-cases.json": {
+        "blank_formatted_ext4": true,
+        "blank_disk": {
+          "name": "sda",
+          "wwn": "0x5056432d49443031",
+          "fstype": "ext4",
+          "uuid": "3b3414eb-c459-4db0-af43-7912d2c2bdc3",
+          "size": 268435456,
+          "mountpoints": [
+            "/var/lib/kubelet/pods/34d2f73b-ff7e-4155-9a59-2eb5ca9788f9/volumes/kubernetes.io~csi/negative-blank/mount",
+            "/var/lib/kubelet/plugins/kubernetes.io/csi/csi.proxmox.sinextra.dev/1356560978b03e01861c25c8e65e94d31bf731a69c95f5f528a34d19597ffef1/globalmount"
+          ]
+        },
+        "wrong_type_before": {
+          "name": "sdb",
+          "wwn": "0x5056432d49443032",
+          "fstype": "ext4",
+          "uuid": "89b13331-13be-4287-9f2e-daf736e0cc0b",
+          "size": 268435456,
+          "mountpoints": [
+            "/var/lib/kubelet/pods/792b90ef-411a-4790-9509-771b5c18501c/volumes/kubernetes.io~csi/negative-wrongtype/mount",
+            "/var/lib/kubelet/plugins/kubernetes.io/csi/csi.proxmox.sinextra.dev/77db946f8c0158139b802f4430d1088dc30d030ef8cf8220095e115859a8fd4e/globalmount"
+          ]
+        },
+        "wrong_type_after": {
+          "name": "sdb",
+          "wwn": "0x5056432d49443032",
+          "fstype": "ext4",
+          "uuid": "89b13331-13be-4287-9f2e-daf736e0cc0b",
+          "size": 268435456,
+          "mountpoints": []
+        },
+        "wrong_type_errors": [
+          "MountVolume.MountDevice failed for volume \"negative-wrongtype\" : rpc error: code = Internal desc = mount failed: exit status 32\nMounting command: mount\nMounting arguments: -t xfs -o nouuid,defaults /dev/sdb /var/lib/kubelet/plugins/kubernetes.io/csi/csi.proxmox.sinextra.dev/77db946f8c0158139b802f4430d1088dc30d030ef8cf8220095e115859a8fd4e/globalmount\nOutput: mount: /var/lib/kubelet/plugins/kubernetes.io/csi/csi.proxmox.sinextra.dev/77db946f8c0158139b802f4430d1088dc30d030ef8cf8220095e115859a8fd4e/globalmount: wrong fs type, bad option, bad superblock on /dev/sdb, missing codepage or helper program, or other error.\n       dmesg(1) may have more information after failed mount system call.\n"
+        ],
+        "missing_errors": [
+          "AttachVolume.Attach failed for volume \"negative-missing\" : rpc error: code = NotFound desc = volume lab//csi-truenas-assessment/9980/vm-9980-missing.raw not found in any node for storage csi-truenas-assessment"
+        ],
+        "missing_image_not_allocated": true
+      },
+      "evidence/partial-destroy-live-writer.json": {
+        "control_plane_absent": true,
+        "replacement_held": true,
+        "before": {
+          "rows": 2396,
+          "last_committed_seq": 100395
+        },
+        "after": {
+          "rows": 2412,
+          "last_committed_seq": 100411
+        },
+        "writer_vmid": 982
+      },
+      "evidence/partial-destroy-review.json": {
+        "vmids": [981],
+        "actions": "delete"
+      },
+      "evidence/second-all-destroyed.json": {
+        "all_cluster_vms_absent": true,
+        "image_retained": true,
+        "image_bytes": 4294967296
+      },
+      "evidence/second-data-before.json": {
+        "integrity": "ok",
+        "rows": 2372,
+        "last_committed_seq": 100371,
+        "all_payloads_valid": true,
+        "writer_sequence_contiguous": true,
+        "sha256": "e65463c354c077d05a100d2b9890dc25eec7790188d800e8b08440970d678482"
+      },
+      "evidence/second-destroy-review.json": {
+        "vmids": [982, 983],
+        "actions": "delete"
+      },
+      "evidence/second-identities-before.json": {
+        "cluster": "354d3943-f0f3-468a-bc19-063188c92d8e",
+        "pvc": "7f7a6d2f-975a-4b68-a63d-68bd689b4785"
+      },
+      "evidence/second-recovered.json": {
+        "before": {
+          "integrity": "ok",
+          "rows": 2372,
+          "last_committed_seq": 100371,
+          "all_payloads_valid": true,
+          "writer_sequence_contiguous": true,
+          "sha256": "e65463c354c077d05a100d2b9890dc25eec7790188d800e8b08440970d678482"
+        },
+        "after": {
+          "integrity": "ok",
+          "rows": 2412,
+          "last_committed_seq": 100411,
+          "all_payloads_valid": true,
+          "writer_sequence_contiguous": true,
+          "sha256": "0f957956912847b5132f071abc419bec198aaee5d955246ef3bfe1c64b66cf4c"
+        },
+        "old_uids": {
+          "cluster": "354d3943-f0f3-468a-bc19-063188c92d8e",
+          "pvc": "7f7a6d2f-975a-4b68-a63d-68bd689b4785"
+        },
+        "new_uids": {
+          "cluster": "d93294f7-ff0e-4d50-a1db-0e0e2d4094ca",
+          "pvc": "284e11f9-e4da-4f1e-b8f7-8a8a9b04f5aa"
+        },
+        "volume": {
+          "attachment": {
+            "vmid": 982,
+            "slot": "scsi1",
+            "config": "csi-truenas-assessment:9980/vm-9980-lab.raw,backup=0,cache=none,iothread=1,replicate=0,size=4G,wwn=0x5056432d49443031"
+          },
+          "filesystem": {
+            "name": "sda",
+            "uuid": "8a43dddb-dbad-491c-8020-d1f3e9467cc1",
+            "fstype": "ext4",
+            "mountpoints": [
+              "/var/lib/kubelet/pods/7f2b5348-d23d-4ad5-bf69-442e69f0c4ca/volumes/kubernetes.io~csi/csi-lab-sqlite/mount",
+              "/var/lib/kubelet/plugins/kubernetes.io/csi/csi.proxmox.sinextra.dev/7a0f4b3c9dd3cb48a8762ebdf53d53e46e221f362a3c7791416ae5fda8fe1d2a/globalmount"
+            ]
+          }
+        },
+        "filesystem": {
+          "rows": 2412,
+          "prefix_rows": 2000,
+          "prefix_sha256": "bab0dacd28dd20baae0f0c0d50a9fd9230e704e6f8d0a268d9d4ac50092017c6",
+          "integrity": "ok",
+          "filesystem_capacity_bytes": 4152066048
+        },
+        "image_digests_unchanged": true
+      },
+      "evidence/second-writer-fenced.json": {
+        "confirmed_stopped": true,
+        "observed_committed": {
+          "rows": 2412,
+          "last_committed_seq": 100411
+        },
+        "writer_vmid": 982
+      },
+      "evidence/sqlite-after-resize.json": {
+        "rows": 1000,
+        "prefix_rows": 1000,
+        "prefix_sha256": "93aaa7459e4a1fb4c53bfb6c901b2c3b3d81ea1a0f2b9c1e32ca44ac9691ccc4",
+        "integrity": "ok",
+        "filesystem_capacity_bytes": 4152066048
+      },
+      "evidence/sqlite-expanded-baseline.json": {
+        "rows": 2000,
+        "prefix_rows": 2000,
+        "prefix_sha256": "bab0dacd28dd20baae0f0c0d50a9fd9230e704e6f8d0a268d9d4ac50092017c6",
+        "integrity": "ok",
+        "filesystem_capacity_bytes": 4152066048
+      },
+      "evidence/sqlite-initial.json": {
+        "rows": 1000,
+        "prefix_rows": 1000,
+        "prefix_sha256": "93aaa7459e4a1fb4c53bfb6c901b2c3b3d81ea1a0f2b9c1e32ca44ac9691ccc4",
+        "integrity": "ok",
+        "filesystem_capacity_bytes": 2040373248
+      },
+      "evidence/terraform-coexistence.json": {
+        "no_op_exit": 0,
+        "description_update_only": true,
+        "data_preserved": true,
+        "attachment_preserved": true
+      },
+      "evidence/vm981-identity.json": {
+        "name": "csi-lab-server",
+        "vmgenid": "2803de79-a99b-4359-8097-364c94f07195",
+        "smbios1": "uuid=b68f782c-36f3-46a8-839f-29766ad81381",
+        "net0": "virtio=BC:24:11:D7:3A:54,bridge=vmbr0",
+        "virtio0": "vm-pool:vm-981-disk-0,discard=on,iothread=1,replicate=0,size=8G",
+        "ide2": "vm-pool:vm-981-cloudinit,media=cdrom"
+      },
+      "evidence/vm982-identity.json": {
+        "name": "csi-lab-worker-1",
+        "vmgenid": "ef021040-010d-483a-b70a-fa26c1d1659f",
+        "smbios1": "uuid=5f82a5cb-37ad-401e-b7ef-789d4dc8fadc",
+        "net0": "virtio=BC:24:11:71:BC:FC,bridge=vmbr0",
+        "virtio0": "vm-pool:vm-982-disk-0,discard=on,iothread=1,replicate=0,size=8G",
+        "ide2": "vm-pool:vm-982-cloudinit,media=cdrom"
+      },
+      "evidence/vm983-identity.json": {
+        "name": "csi-lab-worker-2",
+        "vmgenid": "a7c41f40-9286-49a9-9b7d-156181d0f499",
+        "smbios1": "uuid=48420872-7451-49ae-9597-3187590910e3",
+        "net0": "virtio=BC:24:11:EB:80:87,bridge=vmbr0",
+        "virtio0": "vm-pool:vm-983-disk-0,discard=on,iothread=1,replicate=0,size=8G",
+        "ide2": "vm-pool:vm-983-cloudinit,media=cdrom"
+      },
+      "evidence/volume-initial.json": {
+        "attachment": {
+          "vmid": 982,
+          "slot": "scsi1",
+          "config": "csi-truenas-assessment:9980/vm-9980-lab.raw,backup=0,cache=none,iothread=1,replicate=0,size=2G,wwn=0x5056432d49443031"
+        },
+        "filesystem": {
+          "name": "sda",
+          "uuid": "8a43dddb-dbad-491c-8020-d1f3e9467cc1",
+          "fstype": "ext4",
+          "mountpoints": [
+            "/var/lib/kubelet/pods/0ac51011-49f2-4c8a-bcc9-ca807f86d0c8/volumes/kubernetes.io~csi/csi-lab-sqlite/mount",
+            "/var/lib/kubelet/plugins/kubernetes.io/csi/csi.proxmox.sinextra.dev/7a0f4b3c9dd3cb48a8762ebdf53d53e46e221f362a3c7791416ae5fda8fe1d2a/globalmount"
+          ]
+        }
+      }
+    },
+    "test_sources": {
+      "labutil.py": "from pathlib import Path\nimport os,subprocess,json,urllib.request,urllib.parse,ssl\nR=Path('/root/csi-lab');os.environ['KUBECONFIG']=str(R/'kubeconfig')\ndef facts():return json.loads((R/'cluster-access.json').read_text())\ndef node(vmid,code):\n v=facts()[str(vmid)];guard='set -euo pipefail\\ntest \"$(cat /sys/class/dmi/id/product_uuid)\" = \"'+v['uuid']+'\"\\ntest \"$(hostname -s)\" = \"'+v['name']+'\"\\n'\n p=subprocess.run(['ssh','-i',str(R/'id_ed25519'),'-o','IdentitiesOnly=yes','-o','BatchMode=yes','-o','StrictHostKeyChecking=yes','-o','UserKnownHostsFile='+str(R/'cluster-known-hosts'),'csi-lab@'+v['ip'],'sudo','-n','bash','-s'],input=guard+code,text=True,capture_output=True,timeout=240)\n if p.returncode:raise RuntimeError(v['name']+': '+p.stderr[-2000:])\n return p.stdout\ndef api(method,path,params=None):\n a=json.loads((R/'tokens.json').read_text())['terraform'];data=None if params is None else urllib.parse.urlencode(params).encode()\n req=urllib.request.Request('https://10.9.9.20:8006/api2/json'+path,data=data,method=method,headers={'Authorization':'PVEAPIToken='+a['token_id']+'='+a['token_secret']})\n with urllib.request.urlopen(req,context=ssl._create_unverified_context(),timeout=45) as f:return json.load(f)['data']\ndef k(*args,input=None):return subprocess.check_output(['kubectl',*args],input=input,text=True,timeout=240)\ndef j(*args):return json.loads(k(*args,'-o','json'))\ndef probe():return json.loads(k('-n','csi-lab','exec','-i','deploy/sqlite','--','python','-','verify',input=(R/'sqlite-probe.py').read_text()))\ndef save(name,data):(R/'evidence'/name).write_text(json.dumps(data,indent=2)+'\\n')\n\ndef volume():\n attachments=[]\n for vmid in [981,982,983]:\n  c=api('GET',f'/nodes/pve/qemu/{vmid}/config')\n  for key,val in c.items():\n   if key.startswith('scsi') and isinstance(val,str) and val.startswith('csi-truenas-assessment:9980/vm-9980-lab.raw,'):attachments.append({'vmid':vmid,'slot':key,'config':val})\n assert len(attachments)==1,attachments\n a=attachments[0];d=json.loads(node(a['vmid'],'lsblk -J -o NAME,UUID,FSTYPE,MOUNTPOINTS\\n'))\n disks=[x for x in d['blockdevices'] if x.get('fstype')=='ext4' and any(m and m.endswith('/globalmount') for m in x.get('mountpoints',[]))]\n assert len(disks)==1,disks\n return {'attachment':a,'filesystem':disks[0]}\n",
+      "apply-staged.py": "from labutil import *\nimport time\nw=R/'terraform'\ndef tf(args,name):\n with (R/'evidence'/name).open('w') as out:p=subprocess.run(['python3',str(R/'tf.py'),*args],stdout=out,stderr=subprocess.STDOUT)\n if p.returncode:print((R/'evidence'/name).read_text()[-4000:],flush=True);raise SystemExit(p.returncode)\nsubprocess.run(['terraform','fmt'],cwd=w,check=True)\nfor vmid in [981,982,983]:\n assert not any(v.get('vmid') in [981,982,983] for v in api('GET','/nodes/pve/storage/local-zfs/content'))\n assert api('GET','/nodes/pve/status')['memory']['available']>=2*2**30\n name=f'stage{vmid}.tfplan';tf(['plan','-input=false',f'-target=proxmox_vm_qemu.lab[\"{vmid}\"]','-out='+name,'-no-color'],f'tf-plan{vmid}.log')\n d=json.loads(subprocess.check_output(['terraform','show','-json',name],cwd=w,text=True))\n for x in d.get('resource_changes',[]):assert x['type']=='proxmox_vm_qemu' and x['change']['after']['vmid']==vmid and x['change']['actions']==['create']\n print(f'VM{vmid}: isolated create plan reviewed.',flush=True);tf(['apply','-input=false','-no-color',name],f'tf-apply{vmid}.log')\n m=api('GET','/nodes/pve/status')['memory']['available'];assert m>=2*2**30\n c=api('GET',f'/nodes/pve/qemu/{vmid}/config');assert c['virtio0'].startswith(f'vm-pool:vm-{vmid}-') and c['ide2'].startswith(f'vm-pool:vm-{vmid}-')\n save(f'vm{vmid}-identity.json',{k:c.get(k) for k in ['name','vmgenid','smbios1','net0','virtio0','ide2']})\n assert not any(v.get('vmid') in [981,982,983] for v in api('GET','/nodes/pve/storage/local-zfs/content'))\n print(f'VM{vmid} ready, all disks on vm-pool, available memory {m/2**30:.2f}GiB.',flush=True)\ntf(['plan','-input=false','-detailed-exitcode','-no-color'],'tf-after-create.log')\nprint('Full Terraform plan: no changes.',flush=True)\n",
+      "bootstrap-k3s.py": "from labutil import *\nimport secrets,hashlib,base64\nf=facts();kh=R/'cluster-known-hosts';kh.write_text(''.join(v['ip']+' '+v['hostkey']+'\\n' for v in f.values()));kh.chmod(0o600)\nopts=['-i',str(R/'id_ed25519'),'-o','IdentitiesOnly=yes','-o','BatchMode=yes','-o','StrictHostKeyChecking=yes','-o','UserKnownHostsFile='+str(kh)]\nif not (R/'k3s-token').exists():(R/'k3s-token').write_text(secrets.token_hex(32));(R/'k3s-token').chmod(0o600)\ntoken=(R/'k3s-token').read_text().strip();digest=hashlib.sha256((R/'artifacts/k3s').read_bytes()).hexdigest();assert digest=='39eed8f53f277497dfc2542f66eab0ed68a94dfc598946dbebfb50366916c7a2'\nfor vmid in [981,982,983]:\n v=f[str(vmid)];status=json.loads(node(vmid,'cloud-init status --format=json || true\\n'));assert status['status']=='done' and not status.get('errors')\n node(vmid,'install -d -m 700 -o csi-lab -g csi-lab /home/csi-lab/lab-stage\\n')\n subprocess.run(['scp',*opts,str(R/'artifacts/k3s'),str(R/'artifacts/install-k3s.sh'),'csi-lab@'+v['ip']+':/home/csi-lab/lab-stage/'],check=True,stdout=subprocess.DEVNULL)\n cfg={'node-name':v['name'],'token':token,'node-label':['topology.kubernetes.io/region=lab','topology.kubernetes.io/zone=pve']}\n if vmid==981:cfg.update({'tls-san':[v['ip']],'write-kubeconfig-mode':'0600','cluster-cidr':'10.242.0.0/16','service-cidr':'10.243.0.0/16','disable':['traefik','servicelb','local-storage','metrics-server']})\n else:cfg['server']='https://'+f['981']['ip']+':6443'\n data=base64.b64encode(json.dumps(cfg).encode()).decode()\n script=\"printf '%s  %s\\\\n' \"+repr(digest)+\" /home/csi-lab/lab-stage/k3s | sha256sum -c -\\ninstall -m 755 /home/csi-lab/lab-stage/k3s /usr/local/bin/k3s\\ninstall -d -m 700 /etc/rancher/k3s\\numask 077\\nprintf %s \"+repr(data)+\" | base64 -d > /etc/rancher/k3s/config.yaml\\nINSTALL_K3S_SKIP_DOWNLOAD=true INSTALL_K3S_EXEC=\"+('server' if vmid==981 else 'agent')+\" sh /home/csi-lab/lab-stage/install-k3s.sh\\n\"\n node(vmid,script);print(v['name']+': pinned k3s installed.',flush=True)\n if vmid==981:\n  kube=node(vmid,'cat /etc/rancher/k3s/k3s.yaml\\n').replace('127.0.0.1',v['ip']);(R/'kubeconfig').write_text(kube);(R/'kubeconfig').chmod(0o600)\nsubprocess.run(['kubectl','wait','--for=condition=Ready','node','--all','--timeout=180s'],check=True)\n",
+      "tf.py": "from pathlib import Path\nimport os,json,subprocess,sys\nR=Path('/root/csi-lab');a=json.loads((R/'tokens.json').read_text())['terraform'];env=dict(os.environ,PM_API_TOKEN_ID=a['token_id'],PM_API_TOKEN_SECRET=a['token_secret'])\nsys.exit(subprocess.run(['terraform',*sys.argv[1:]],cwd=R/'terraform',env=env).returncode)\n",
+      "sqlite-probe.py": "import sys,sqlite3,hashlib,json,os\nfrom pathlib import Path\nmode=sys.argv[1];p=Path('/data/qualification.db')\nif mode=='init':assert not p.exists(),'Refuse to overwrite an existing database'\nelse:assert p.is_file(),'Original database is missing'\ndb=sqlite3.connect(str(p));db.execute('PRAGMA journal_mode=WAL');db.execute('PRAGMA synchronous=FULL')\nif mode=='init':\n db.execute('CREATE TABLE records (seq INTEGER PRIMARY KEY, payload TEXT NOT NULL)')\n db.executemany('INSERT INTO records VALUES (?,?)',[(i,hashlib.sha256(('csi-lab-'+str(i)).encode()).hexdigest()) for i in range(1000)])\n db.commit();db.execute('PRAGMA wal_checkpoint(FULL)')\nelif mode=='append':\n assert db.execute('SELECT COUNT(*) FROM records').fetchone()[0]==1000\n db.executemany('INSERT INTO records VALUES (?,?)',[(i,hashlib.sha256(('csi-lab-'+str(i)).encode()).hexdigest()) for i in range(1000,2000)])\n db.commit()\nrows=db.execute('SELECT seq,payload FROM records ORDER BY seq').fetchall();prefix=[v for v in rows if v[0]<2000]\nfor seq,payload in prefix:assert payload==hashlib.sha256(('csi-lab-'+str(seq)).encode()).hexdigest()\nintegrity=db.execute('PRAGMA integrity_check').fetchall();assert integrity==[('ok',)]\nhashvalue=hashlib.sha256(json.dumps(prefix,separators=(',',':')).encode()).hexdigest()\nst=os.statvfs('/data');print(json.dumps({'rows':len(rows),'prefix_rows':len(prefix),'prefix_sha256':hashvalue,'integrity':'ok','filesystem_capacity_bytes':st.f_blocks*st.f_frsize}))\n",
+      "verify-all.py": "import sqlite3,json,hashlib\nfrom pathlib import Path\np=Path('/data/qualification.db');assert p.is_file()\nc=sqlite3.connect('file:'+str(p)+'?mode=ro',uri=True,timeout=60)\nc.execute('BEGIN');assert c.execute('PRAGMA integrity_check').fetchone()[0]=='ok'\nrows=c.execute('SELECT seq,payload FROM records ORDER BY seq').fetchall()\nassert [r[0] for r in rows[:2000]]==list(range(2000))\ntail=rows[2000:]\nassert not tail or [r[0] for r in tail]==list(range(100000,tail[-1][0]+1))\nfor i,payload in rows:assert payload==hashlib.sha256(('csi-lab-'+str(i)).encode()).hexdigest()\nprint(json.dumps({'integrity':'ok','rows':len(rows),'last_committed_seq':rows[-1][0],'all_payloads_valid':True,'writer_sequence_contiguous':True,'sha256':hashlib.sha256(json.dumps(rows,separators=(',',':')).encode()).hexdigest()}))\n",
+      "lab-writer.py": "import sqlite3,hashlib,time,json\nfrom pathlib import Path\np=Path('/data/qualification.db');assert p.is_file()\ndb=sqlite3.connect(str(p),timeout=60);db.execute('PRAGMA journal_mode=WAL');db.execute('PRAGMA synchronous=FULL')\ni=max(100000,db.execute('SELECT MAX(seq) FROM records').fetchone()[0]+1)\nwhile True:\n payload=hashlib.sha256(('csi-lab-'+str(i)).encode()).hexdigest()\n db.execute('INSERT INTO records VALUES (?,?)',(i,payload));db.commit()\n print(json.dumps({'committed_seq':i}),flush=True);i+=1;time.sleep(.2)\n",
+      "start-writer.py": "from labutil import *\nimport base64,time\nscript=\"from pathlib import Path\\nimport subprocess,base64\\np=Path('/tmp/lab-writer.py');p.write_bytes(base64.b64decode(\"+repr(base64.b64encode((R/'lab-writer.py').read_bytes()).decode())+\"))\\nlog=open('/tmp/lab-writer.log','a');print(subprocess.Popen(['python',str(p)],stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,start_new_session=True).pid)\\n\"\nk('-n','csi-lab','exec','-i','deploy/sqlite','--','python','-',input=script);a=probe();time.sleep(2);b=probe();assert b['rows']>a['rows'];print('SQLite background writer committing.',flush=True)\n",
+      "initial-tests.py": "from labutil import *\nimport time\ninitial=json.loads(k('-n','csi-lab','exec','-i','deploy/sqlite','--','python','-','init',input=(R/'sqlite-probe.py').read_text()));save('sqlite-initial.json',initial)\nv=volume();assert v['attachment']['vmid']==982;save('volume-initial.json',v)\npins=[{'namespace':p['metadata']['namespace'],'containers':[{'name':c['name'],'imageID':c['imageID']} for c in p['status'].get('containerStatuses',[])]} for p in j('get','pods','-A')['items']];save('image-pins.json',pins)\nold=json.loads((R/'baseline-image-pins.json').read_text());normalize=lambda data:{(p['namespace'],c['name'],c['imageID']) for p in data if p['namespace'] in ['csi-proxmox','csi-lab'] for c in p['containers']};assert normalize(old)==normalize(pins),'Pinned images differ from successful Debian qualification'\nprint('PASS: initial 1,000 SQLite records, integrity check, static binding and filesystem identity recorded.',flush=True)\ndef tf(args,log):\n with (R/'evidence'/log).open('w') as out:p=subprocess.run(['python3',str(R/'tf.py'),*args],stdout=out,stderr=subprocess.STDOUT)\n if p.returncode:print((R/'evidence'/log).read_text()[-2500:],flush=True);raise SystemExit(p.returncode)\ntf(['plan','-input=false','-detailed-exitcode','-no-color'],'tf-with-csi-noop.log')\np=R/'terraform/main.tf';s=p.read_text();assert 'qualification; initial' in s;p.write_text(s.replace('qualification; initial','qualification; description updated'))\ntf(['plan','-input=false','-out=update.tfplan','-no-color'],'tf-update-plan.log')\nd=json.loads(subprocess.check_output(['terraform','show','-json','update.tfplan'],cwd=R/'terraform',text=True));changes=[x for x in d['resource_changes'] if x['change']['actions']!=['no-op']];assert len(changes)==3\nfor x in changes:\n assert x['type']=='proxmox_vm_qemu' and x['change']['actions']==['update']\n before=x['change']['before'];after=x['change']['after'];assert before['disks']==after['disks']\n keys=[key for key in before if before[key]!=after.get(key)];assert keys==['description'],keys\ntf(['apply','-input=false','-no-color','update.tfplan'],'tf-update-apply.log');assert probe()==initial;assert volume()['filesystem']['uuid']==v['filesystem']['uuid'];save('terraform-coexistence.json',{'no_op_exit':0,'description_update_only':True,'data_preserved':True,'attachment_preserved':True})\nprint('PASS: no-op and description-only Terraform apply preserved CSI storage.',flush=True)\nfor vmid in [983,982]:\n k('-n','csi-lab','patch','deploy','sqlite','--type=merge','-p',json.dumps({'spec':{'template':{'spec':{'nodeSelector':{'kubernetes.io/hostname':facts()[str(vmid)]['name']}}}}}))\n subprocess.run(['kubectl','-n','csi-lab','rollout','status','deploy/sqlite','--timeout=300s'],check=True)\n assert probe()==initial;after=volume();assert after['attachment']['vmid']==vmid and after['filesystem']['uuid']==v['filesystem']['uuid'];save(f'healthy-move-{vmid}.json',after)\nprint('PASS: healthy movement to worker2 and back, one configured attachment and unchanged data/UUID.',flush=True)\n",
+      "resize-test.py": "from pathlib import Path\nimport os,subprocess,json,time,yaml\nfrom labutil import api\nr=Path('/root/csi-lab');os.environ['KUBECONFIG']=str(r/'kubeconfig')\ndef k(*args):return subprocess.check_output(['kubectl',*args],text=True)\ndef j(*args):return json.loads(k(*args,'-o','json'))\nds=next(d for d in j('-n','csi-proxmox','get','ds')['items'] if d['metadata']['name'].endswith('-node'));name=ds['metadata']['name'];old=ds['spec']['template']['spec'].get('nodeSelector',{})\npod=next(p for p in j('-n','csi-lab','get','pods')['items'] if p['status']['phase']=='Running');assert pod['spec']['nodeName']=='csi-lab-worker-1'\nk('label','node','csi-lab-server','csi-lab-worker-2','csi-lab-node=enabled','--overwrite')\nk('-n','csi-proxmox','patch','ds',name,'--type=merge','-p',json.dumps({'spec':{'template':{'spec':{'nodeSelector':dict(old,**{'csi-lab-node':'enabled'})}}}}))\ntry:\n for i in range(60):\n  pods=j('-n','csi-proxmox','get','pods')['items']\n  if not any(p['spec'].get('nodeName')=='csi-lab-worker-1' for p in pods):break\n  time.sleep(2)\n else:raise RuntimeError('Node plugin did not stop')\n print('Node expansion service deliberately unavailable on worker1.',flush=True)\n k('-n','csi-lab','patch','pvc','sqlite','--type=merge','-p',json.dumps({'spec':{'resources':{'requests':{'storage':'4Gi'}}}}))\n def image_size():return next(x['size'] for x in api('GET','/nodes/pve/storage/csi-truenas-assessment/content') if x['volid']=='csi-truenas-assessment:9980/vm-9980-lab.raw')\n for i in range(90):\n  if image_size()==4*2**30:break\n  time.sleep(2)\n else:raise RuntimeError('Controller did not expand attached image')\n observed=json.loads(subprocess.check_output(['kubectl','-n','csi-lab','exec','-i','deploy/sqlite','--','python','-','verify'],input=(r/'sqlite-probe.py').read_text(),text=True))\n initial=json.loads((r/'evidence/sqlite-initial.json').read_text());assert observed==initial\n (r/'evidence/interrupted-expansion.json').write_text(json.dumps({'image_size':image_size(),'filesystem_observation':observed,'pvc':j('-n','csi-lab','get','pvc','sqlite')},indent=2)+'\\n')\n print('PASS: image grew to 4GiB while filesystem remained 2GiB and records stayed intact; node expansion genuinely pending.',flush=True)\nfinally:\n k('-n','csi-proxmox','patch','ds',name,'--type=json','-p',json.dumps([{'op':'replace','path':'/spec/template/spec/nodeSelector','value':old}]))\n subprocess.run(['kubectl','-n','csi-proxmox','rollout','status','ds/'+name,'--timeout=180s'],check=True)\nfor i in range(120):\n observed=json.loads(subprocess.check_output(['kubectl','-n','csi-lab','exec','-i','deploy/sqlite','--','python','-','verify'],input=(r/'sqlite-probe.py').read_text(),text=True))\n if observed['filesystem_capacity_bytes']>3.5*2**30:break\n time.sleep(3)\nelse:raise RuntimeError('Filesystem did not expand after restoring node plugin')\nassert observed['prefix_sha256']==initial['prefix_sha256']\n(r/'evidence/sqlite-after-resize.json').write_text(json.dumps(observed)+'\\n')\nprint('PASS: native retry expanded filesystem to 4GiB without changing SQLite records.',flush=True)\np=r/'declarations/storage.yaml';docs=list(yaml.safe_load_all(p.read_text()))\nfor d in docs:\n if d['kind']=='PersistentVolume':d['spec']['capacity']['storage']='4Gi'\n if d['kind']=='PersistentVolumeClaim':d['spec']['resources']['requests']['storage']='4Gi'\np.write_text(yaml.safe_dump_all(docs,sort_keys=False))\nsubprocess.run(['git','add','storage.yaml'],cwd=r/'declarations',check=True);subprocess.run(['git','-c','user.name=Codex','-c','user.email=codex@openai.com','commit','-qm','Record verified 4GiB retained volume capacity'],cwd=r/'declarations',check=True)\nobs=subprocess.check_output(['kubectl','-n','csi-lab','exec','-i','deploy/sqlite','--','python','-','append'],input=(r/'sqlite-probe.py').read_text(),text=True)\n(r/'evidence/sqlite-expanded-baseline.json').write_text(obs);print(obs,flush=True)\n",
+      "negative-tests.py": "from labutil import *\nimport time,re,yaml\nimage=next(d for d in yaml.safe_load_all((R/'declarations/storage.yaml').read_text()) if d['kind']=='Deployment')['spec']['template']['spec']['containers'][0]['image']\ndef docs(name,fs='ext4'):\n n='negative-'+name\n return [{'apiVersion':'v1','kind':'PersistentVolume','metadata':{'name':n},'spec':{'capacity':{'storage':'256Mi'},'accessModes':['ReadWriteOncePod'],'persistentVolumeReclaimPolicy':'Retain','storageClassName':'lab-nfs-expand','claimRef':{'namespace':'csi-lab','name':n},'csi':{'driver':'csi.proxmox.sinextra.dev','volumeHandle':f'lab//csi-truenas-assessment/9980/vm-9980-{name}.raw','fsType':fs,'volumeAttributes':{'cache':'none'}}}},\n {'apiVersion':'v1','kind':'PersistentVolumeClaim','metadata':{'name':n,'namespace':'csi-lab'},'spec':{'accessModes':['ReadWriteOncePod'],'storageClassName':'lab-nfs-expand','volumeName':n,'resources':{'requests':{'storage':'256Mi'}}}},\n {'apiVersion':'v1','kind':'Pod','metadata':{'name':n,'namespace':'csi-lab'},'spec':{'nodeSelector':{'kubernetes.io/hostname':'csi-lab-worker-2'},'containers':[{'name':'test','image':image,'command':['sleep','infinity'],'volumeMounts':[{'name':'data','mountPath':'/data'}]}],'volumes':[{'name':'data','persistentVolumeClaim':{'claimName':n}}]}}]\ndef apply(name,fs='ext4'):k('apply','-f','-',input=yaml.safe_dump_all(docs(name,fs)))\ndef remove(name):\n n='negative-'+name;k('-n','csi-lab','delete','pod',n,'--wait=true','--timeout=120s');k('-n','csi-lab','delete','pvc',n,'--wait=true');k('delete','pv',n,'--wait=true')\n for _ in range(40):\n  c=api('GET','/nodes/pve/qemu/983/config')\n  if not any(key.startswith('scsi') and str(v).startswith(f'csi-truenas-assessment:9980/vm-9980-{name}.raw,') for key,v in c.items()):break\n  time.sleep(2)\n else:raise RuntimeError('Negative image still attached')\ndef disk(name):\n c=api('GET','/nodes/pve/qemu/983/config');entry=next(v for key,v in c.items() if key.startswith('scsi') and str(v).startswith(f'csi-truenas-assessment:9980/vm-9980-{name}.raw,'));wwn=re.search(r'wwn=([^,]+)',entry).group(1)\n d=json.loads(node(983,'lsblk -J -b -o NAME,WWN,FSTYPE,UUID,SIZE,MOUNTPOINTS\\n'));return next(x for x in d['blockdevices'] if x.get('wwn')==wwn)\nfor name in ['blank','wrongtype']:\n apply(name);subprocess.run(['kubectl','-n','csi-lab','wait','--for=condition=Ready','pod/negative-'+name,'--timeout=180s'],check=True)\nblank=disk('blank');wrong=disk('wrongtype');assert blank['fstype']=='ext4' and wrong['fstype']=='ext4'\nremove('wrongtype');apply('wrongtype','xfs');apply('missing')\nfor _ in range(75):\n events=j('-n','csi-lab','get','events')['items'];messages=[e['message'] for e in events]\n wrong_errors=[m for m in messages if 'wrong fs type' in m and 'xfs' in m]\n missing_errors=[m for m in messages if 'vm-9980-missing.raw' in m and 'NotFound' in m]\n if wrong_errors and missing_errors:break\n time.sleep(2)\nelse:raise RuntimeError('Expected negative errors not observed')\nafter=disk('wrongtype');assert after['fstype']=='ext4' and after['uuid']==wrong['uuid']\nassert not any(x['volid'].endswith('vm-9980-missing.raw') for x in api('GET','/nodes/pve/storage/csi-truenas-assessment/content'))\nsave('negative-cases.json',{'blank_formatted_ext4':True,'blank_disk':blank,'wrong_type_before':wrong,'wrong_type_after':after,'wrong_type_errors':wrong_errors,'missing_errors':missing_errors,'missing_image_not_allocated':True})\nfor name in ['missing','wrongtype','blank']:remove(name)\nprint('PASS: blank image formatted by stock CSI, wrong filesystem refused without reformatting, missing image refused without allocation; negative Kubernetes resources removed.',flush=True)\n",
+      "fence-test.py": "from labutil import *\nimport time,subprocess,ipaddress\nf=facts();vmid=982;v=f[str(vmid)];master=str(ipaddress.ip_address(f['981']['ip']))\nassert api('GET',f'/nodes/pve/qemu/{vmid}/config')['vmgenid']==v['vmgenid']\noldpod=next(p for p in j('-n','csi-lab','get','pods')['items'] if p['status']['phase']=='Running');assert oldpod['spec']['nodeName']==v['name']\nbefore=probe();assert before['rows']>2000\nrules=\"table inet csi_lab_partition {\\n chain output {\\n  type filter hook output priority -100; policy accept;\\n  ip daddr \"+master+\" tcp dport 6443 drop;\\n }\\n}\\n\"\nnode(vmid,\"if nft list table inet csi_lab_partition >/dev/null 2>&1; then echo 'Unexpected existing fault table'; exit 1; fi\\nnft -c -f - <<'NFT'\\n\"+rules+\"NFT\\nnft -f - <<'NFT'\\n\"+rules+\"NFT\\n\")\nfenced=False\ntry:\n for _ in range(75):\n  n=j('get','node',v['name']);ready=next(c for c in n['status']['conditions'] if c['type']=='Ready')\n  if ready['status']!='True':break\n  time.sleep(2)\n else:raise RuntimeError('Worker did not become NotReady')\n assert api('GET',f'/nodes/pve/qemu/{vmid}/status/current')['status']=='running'\n pods=j('-n','csi-lab','get','pods')['items'];assert len(pods)==1 and pods[0]['metadata']['uid']==oldpod['metadata']['uid'] and not pods[0]['metadata'].get('deletionTimestamp')\n code=\"python3 - <<'PY'\\nimport subprocess,sqlite3,json\\ntargets=subprocess.check_output(['findmnt','-rn','-S','UUID=8a43dddb-dbad-491c-8020-d1f3e9467cc1','-o','TARGET'],text=True).splitlines()\\np=next(t for t in targets if t.endswith('/globalmount'))\\ndb=sqlite3.connect('file:'+p+'/qualification.db?mode=ro',uri=True)\\nprint(json.dumps({'rows':db.execute('SELECT COUNT(*) FROM records').fetchone()[0],'max_seq':db.execute('SELECT MAX(seq) FROM records').fetchone()[0]}))\\nPY\\n\"\n still=json.loads(node(vmid,code));assert still['rows']>before['rows']\n save('failed-writer-held.json',{'node_ready':ready,'old_vm_running':True,'same_pod_held':True,'writer_before':before,'writer_while_notready':still,'replacement_started':False})\n print('PASS: NotReady worker still commits writes; native tolerations hold original pod and no replacement starts.',flush=True)\n api('POST',f'/nodes/pve/qemu/{vmid}/status/stop',{})\n for _ in range(45):\n  if api('GET',f'/nodes/pve/qemu/{vmid}/status/current')['status']=='stopped':break\n  time.sleep(2)\n else:raise RuntimeError('Cannot independently confirm old VM stopped')\n fenced=True;print('Old VM power-off confirmed through Proxmox before release.',flush=True)\n k('taint','node',v['name'],'node.kubernetes.io/out-of-service=nodeshutdown:NoExecute','--overwrite')\n k('-n','csi-lab','patch','deploy','sqlite','--type=merge','-p',json.dumps({'spec':{'template':{'spec':{'nodeSelector':{'kubernetes.io/hostname':'csi-lab-worker-2'}}}}}))\n time.sleep(8)\n pods=j('-n','csi-lab','get','pods')['items']\n if any(p['metadata']['uid']==oldpod['metadata']['uid'] for p in pods):k('-n','csi-lab','delete','pod',oldpod['metadata']['name'],'--force','--grace-period=0')\n subprocess.run(['kubectl','-n','csi-lab','rollout','status','deploy/sqlite','--timeout=300s'],check=True)\n after=probe();assert after['rows']>=still['rows'] and after['prefix_sha256']==before['prefix_sha256']\n oldconfig=api('GET',f'/nodes/pve/qemu/{vmid}/config');assert not any(k.startswith('scsi') and isinstance(val,str) and val.startswith('csi-truenas-assessment:9980/vm-9980-lab.raw,') for k,val in oldconfig.items())\n save('failed-writer-recovered.json',{'old_vm_confirmed_off_before_release':True,'after':after,'old_vm_disk_detached_before_restart':True})\n api('POST',f'/nodes/pve/qemu/{vmid}/status/start',{})\n subprocess.run(['kubectl','wait','--for=condition=Ready','node/'+v['name'],'--timeout=180s'],check=True)\n k('taint','node',v['name'],'node.kubernetes.io/out-of-service-')\n print('PASS: confirmed-off takeover preserved committed records; old VM restarted only after image was detached.',flush=True)\nfinally:\n if not fenced:\n  try:node(vmid,'nft delete table inet csi_lab_partition\\n')\n  except Exception as e:print('Partition cleanup needs inspection:',type(e).__name__,flush=True)\n",
+      "rebuild.py": "from labutil import *\nimport time,sys\nmode=sys.argv[1];assert mode in ['first','second'];E=R/'evidence'\ndef verify_all():return json.loads(k('-n','csi-lab','exec','-i','deploy/sqlite','--','python','-',input=(R/'verify-all.py').read_text()))\nsave(mode+'-identities-before.json',{'cluster':j('get','ns','kube-system')['metadata']['uid'],'pvc':j('-n','csi-lab','get','pvc','sqlite')['metadata']['uid']})\nif mode=='first':\n kill=\"import os,signal\\nfrom pathlib import Path\\nme=os.getpid()\\nfor p in Path('/proc').iterdir():\\n if not p.name.isdigit() or int(p.name)==me:continue\\n try:cmd=(p/'cmdline').read_bytes().split(b'\\\\x00')\\n except (FileNotFoundError,PermissionError):continue\\n if len(cmd)>1 and cmd[1]==b'/tmp/lab-writer.py':os.kill(int(p.name),signal.SIGTERM)\\n\"\n k('-n','csi-lab','exec','-i','deploy/sqlite','--','python','-',input=kill);time.sleep(1)\nsave(mode+'-data-before.json',verify_all())\ndef destroy(label,ids,target=None):\n args=['python3',str(R/'tf.py'),'plan','-destroy','-input=false','-no-color','-out='+label+'.tfplan']\n if target:args+=['-target='+target]\n with (E/(label+'-plan.log')).open('w') as out:subprocess.run(args,stdout=out,stderr=subprocess.STDOUT,check=True)\n plan=json.loads(subprocess.check_output(['terraform','show','-json',label+'.tfplan'],cwd=R/'terraform',text=True));changes=[x for x in plan['resource_changes'] if x['change']['actions']!=['no-op']]\n assert {x['change']['before']['vmid'] for x in changes}==set(ids)\n assert all(x['type']=='proxmox_vm_qemu' and x['change']['actions']==['delete'] for x in changes)\n save(label+'-review.json',{'vmids':ids,'actions':'delete'})\n with (E/(label+'-apply.log')).open('w') as out:subprocess.run(['python3',str(R/'tf.py'),'apply','-parallelism=1','-input=false','-no-color',label+'.tfplan'],stdout=out,stderr=subprocess.STDOUT,check=True)\nif mode=='second':\n pod=j('-n','csi-lab','get','pods')['items'];assert len(pod)==1;writer=next(int(i) for i,v in facts().items() if v['name']==pod[0]['spec']['nodeName']);assert writer in [982,983]\n destroy('partial-destroy',[981],'proxmox_vm_qemu.lab[\"981\"]')\n uuid=json.loads((E/'volume-initial.json').read_text())['filesystem']['uuid']\n code=\"python3 - <<'PY'\\nimport subprocess,sqlite3,json\\np=next(x for x in subprocess.check_output(['findmnt','-rn','-S','UUID=\"+uuid+\"','-o','TARGET'],text=True).splitlines() if x.endswith('/globalmount'))\\nc=sqlite3.connect('file:'+p+'/qualification.db?mode=ro',uri=True);c.execute('BEGIN');print(json.dumps({'rows':c.execute('SELECT COUNT(*) FROM records').fetchone()[0],'last_committed_seq':c.execute('SELECT MAX(seq) FROM records').fetchone()[0]}))\\nPY\\n\"\n a=json.loads(node(writer,code));time.sleep(3);b=json.loads(node(writer,code));assert b['rows']>a['rows']\n assert api('GET',f'/nodes/pve/qemu/{writer}/config')['vmgenid']==facts()[str(writer)]['vmgenid']\n assert api('GET',f'/nodes/pve/qemu/{writer}/status/current')['status']=='running'\n save('partial-destroy-live-writer.json',{'control_plane_absent':True,'replacement_held':True,'before':a,'after':b,'writer_vmid':writer})\n api('POST',f'/nodes/pve/qemu/{writer}/status/stop',{})\n for _ in range(45):\n  if api('GET',f'/nodes/pve/qemu/{writer}/status/current')['status']=='stopped':break\n  time.sleep(2)\n else:raise RuntimeError('Cannot confirm old writer stopped')\n save('second-writer-fenced.json',{'confirmed_stopped':True,'observed_committed':b,'writer_vmid':writer})\n print('PASS: partial destroy held replacements while writer remained alive; abrupt writer power-off independently confirmed.',flush=True)\n destroy(mode+'-destroy',[982,983])\nelse:destroy(mode+'-destroy',[981,982,983])\nassert not any(v.get('vmid') in [981,982,983] for v in api('GET','/cluster/resources?type=vm'))\nimage=next(v for v in api('GET','/nodes/pve/storage/csi-truenas-assessment/content') if v['volid']=='csi-truenas-assessment:9980/vm-9980-lab.raw');assert image['size']==4*2**30\nsave(mode+'-all-destroyed.json',{'all_cluster_vms_absent':True,'image_retained':True,'image_bytes':image['size']})\nprint('PASS: all disposable cluster VMs absent; original 4GiB NAS image retained.',flush=True)\n",
+      "verify-rebuild.py": "from labutil import *\nimport sys\nmode=sys.argv[1];assert mode in ['first','second'];E=R/'evidence'\na=json.loads(k('-n','csi-lab','exec','-i','deploy/sqlite','--','python','-',input=(R/'verify-all.py').read_text()));before=json.loads((E/(mode+'-data-before.json')).read_text());assert a['rows']>=before['rows']\nif mode=='first':assert a==before\nelse:\n b=json.loads((E/'second-writer-fenced.json').read_text())['observed_committed'];assert a['rows']>=b['rows'] and a['last_committed_seq']>=b['last_committed_seq']\nold=json.loads((E/(mode+'-identities-before.json')).read_text());ids={'cluster':j('get','ns','kube-system')['metadata']['uid'],'pvc':j('-n','csi-lab','get','pvc','sqlite')['metadata']['uid']};assert ids['cluster']!=old['cluster'] and ids['pvc']!=old['pvc']\nv=volume();initial=json.loads((E/'volume-initial.json').read_text());assert v['filesystem']['uuid']==initial['filesystem']['uuid']\np=probe();assert p['prefix_rows']==2000 and p['filesystem_capacity_bytes']>4_000_000_000\noldpins=json.loads((E/'image-pins.json').read_text());old_images={(p['namespace'],c['name'],c['imageID']) for p in oldpins if p['namespace'] in ['csi-proxmox','csi-lab'] for c in p['containers']}\nnew_images={(p['metadata']['namespace'],c['name'],c['imageID']) for p in j('get','pods','-A')['items'] if p['metadata']['namespace'] in ['csi-proxmox','csi-lab'] for c in p['status'].get('containerStatuses',[])};assert new_images==old_images\nsave(mode+'-recovered.json',{'before':before,'after':a,'old_uids':old,'new_uids':ids,'volume':v,'filesystem':p,'image_digests_unchanged':True})\nwith (E/(mode+'-tf-final-noop.log')).open('w') as out:subprocess.run(['python3',str(R/'tf.py'),'plan','-input=false','-detailed-exitcode','-no-color'],stdout=out,stderr=subprocess.STDOUT,check=True)\nprint('PASS:',mode,'fresh cluster restored same image, UUID, 4GiB filesystem and committed data; Terraform no-op.',flush=True)\n",
+      "declarations/storage.yaml": "apiVersion: v1\nkind: Namespace\nmetadata:\n  name: csi-lab\n---\napiVersion: v1\nkind: PersistentVolume\nmetadata:\n  name: csi-lab-sqlite\nspec:\n  capacity:\n    storage: 4Gi\n  accessModes:\n  - ReadWriteOncePod\n  persistentVolumeReclaimPolicy: Retain\n  storageClassName: lab-nfs-expand\n  claimRef:\n    namespace: csi-lab\n    name: sqlite\n  csi:\n    driver: csi.proxmox.sinextra.dev\n    fsType: ext4\n    volumeHandle: lab//csi-truenas-assessment/9980/vm-9980-lab.raw\n    volumeAttributes:\n      storage: csi-truenas-assessment\n      cache: none\n---\napiVersion: v1\nkind: PersistentVolumeClaim\nmetadata:\n  namespace: csi-lab\n  name: sqlite\nspec:\n  accessModes:\n  - ReadWriteOncePod\n  storageClassName: lab-nfs-expand\n  volumeName: csi-lab-sqlite\n  resources:\n    requests:\n      storage: 4Gi\n---\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: sqlite\n  namespace: csi-lab\nspec:\n  replicas: 1\n  strategy:\n    type: Recreate\n  selector:\n    matchLabels:\n      app: sqlite\n  template:\n    metadata:\n      labels:\n        app: sqlite\n    spec:\n      nodeSelector:\n        kubernetes.io/hostname: csi-lab-worker-1\n      containers:\n      - name: sqlite\n        image: docker.io/library/python@sha256:bb2988715db2cf7ace7b53f38f3cffbef7c7046a656bee66245eb0ed386e2e81\n        command:\n        - sleep\n        - infinity\n        resources:\n          requests:\n            cpu: 50m\n            memory: 64Mi\n          limits:\n            memory: 256Mi\n        volumeMounts:\n        - name: data\n          mountPath: /data\n      volumes:\n      - name: data\n        persistentVolumeClaim:\n          claimName: sqlite\n      tolerations:\n      - key: node.kubernetes.io/not-ready\n        operator: Exists\n        effect: NoExecute\n      - key: node.kubernetes.io/unreachable\n        operator: Exists\n        effect: NoExecute\n",
+      "declarations/csi-values.yaml": "existingConfigSecret: csi-lab-config\nlogVerbosityLevel: 2\noptions:\n  enableCapacity: false\nstorageClass:\n- name: lab-nfs-expand\n  storage: csi-truenas-assessment\n  fstype: ext4\n  cache: none\n  reclaimPolicy: Retain\n  volumeBindingMode: WaitForFirstConsumer\nnodeSelector:\n  kubernetes.io/hostname: csi-lab-server\n",
+      "terraform/main.tf": "terraform {\n  required_version = \"= 1.16.5\"\n  required_providers {\n    proxmox = {\n      source  = \"telmate/proxmox\"\n      version = \"3.0.2-rc10\"\n    }\n  }\n}\nprovider \"proxmox\" {\n  pm_api_url                  = \"https://10.9.9.20:8006/api2/json\"\n  pm_tls_insecure             = true\n  pm_minimum_permission_check = false\n  pm_parallel                 = 1\n}\nresource \"proxmox_vm_qemu\" \"lab\" {\n  for_each = {\n    \"981\" = \"csi-lab-server\"\n    \"982\" = \"csi-lab-worker-1\"\n    \"983\" = \"csi-lab-worker-2\"\n  }\n  vmid               = tonumber(each.key)\n  name               = each.value\n  pool               = \"csi-tn-20261003\"\n  target_node        = \"pve\"\n  clone              = \"packer-debian-13.7.0-20260919201032\"\n  full_clone         = true\n  description        = \"Disposable TrueNAS CSI qualification; description updated\"\n  tags               = \"csi-tn-20261003\"\n  scsihw             = \"virtio-scsi-pci\"\n  boot               = \"order=virtio0\"\n  start_at_node_boot = false\n  agent              = 1\n  skip_ipv6          = true\n  memory             = 2048\n  cpu {\n    sockets = 1\n    cores   = 2\n    type    = \"host\"\n  }\n  power_state = \"running\"\n  hotplug     = \"network,disk,usb\"\n  os_type     = \"cloud-init\"\n  ciuser      = \"csi-lab\"\n  ciupgrade   = false\n  sshkeys     = file(\"/root/csi-lab/id_ed25519.pub\")\n  ipconfig0   = \"ip=dhcp\"\n  network {\n    id     = 0\n    model  = \"virtio\"\n    bridge = \"vmbr0\"\n  }\n  disks {\n    ide {\n      ide2 {\n        cloudinit {\n          storage = \"vm-pool\"\n        }\n      }\n    }\n    virtio {\n      virtio0 {\n        disk {\n          size     = \"8G\"\n          storage  = \"vm-pool\"\n          iothread = true\n          discard  = true\n        }\n      }\n    }\n  }\n  lifecycle {\n    ignore_changes = [startup_shutdown, disks[0].scsi]\n  }\n}\noutput \"lab_ips\" {\n  value = { for k, v in proxmox_vm_qemu.lab : k => v.default_ipv4_address }\n}\n",
+      "terraform/.terraform.lock.hcl": "# This file is maintained automatically by \"terraform init\".\n# Manual edits may be lost in future updates.\n\nprovider \"registry.terraform.io/telmate/proxmox\" {\n  version     = \"3.0.2-rc10\"\n  constraints = \"3.0.2-rc10\"\n  hashes = [\n    \"h1:XMRlFfI01PogE3ubwZjruEduhWfAIVHt+ylYrcc6ulM=\",\n    \"zh:07bac36b8bc00df21791a2b5391568b235b2d117ff1bec51b3af19b03fed766e\",\n    \"zh:0970846520becaa95743e07671dafb261a49658fef4c0518a63d5279e0b0777c\",\n    \"zh:0be324f583d1106589b727b0afcfba6c30d8695ebd497bfe1cb4d5f10109b3e4\",\n    \"zh:0ccd7961916492ce6b849e51d650e10727bc322c3146a3b450688d880e33c34f\",\n    \"zh:23fb8a36e4b60eefcaff3b57dac0e679dfb5fae0d2367bab5b88b4f841a9cf6d\",\n    \"zh:541bd35b627af48d1cd8abaaa61a9b2dd61dbbf3b9cf69ad32df834f6ede5328\",\n    \"zh:7dca184f8ec812ad76d8ee7e5197c112e0ddaf0b7a719325e4dc7818d145a0de\",\n    \"zh:7df1db02cdfd9092681a09c417eb0febc9a12e82c89306e1791d00d7be7f3dec\",\n    \"zh:7f46b4f805b73ed2e66c3478b81d1e91bc65e8b16a93bd61e0237a4cd54248d3\",\n    \"zh:c989f88ecc7900e740d9fa1f22c1617c4d582a7776a8f16f97f6f3ae371d6020\",\n    \"zh:d35a60c4e449188b8d4f78a061e9b2901cd4fcbc9799f789ff12f73a7dc08b8d\",\n    \"zh:e77f0155ddd05dc901e27813f40cc444a97f7e0d2c69588e306b02ee4bbdee0b\",\n    \"zh:f39c81e5f2839a0925ae16e476df1c175891b201b2dc3453ba7b9e44c4e5cb43\",\n  ]\n}\n"
+    },
+    "git": {
+      "commit": "c5ba00aae3f0d7ab8ce9d1879b069359e67408c7",
+      "status": ""
+    }
+  },
+  "host_volume_observation": {
+    "mount": {
+      "filesystems": [
+        {
+          "target": "/mnt/pve/csi-truenas-assessment",
+          "source": "10.9.9.30:/mnt/apps/csi-qualification-20261003",
+          "fstype": "nfs4",
+          "options": "rw,relatime,vers=4.2,rsize=1048576,wsize=1048576,namlen=255,hard,fatal_neterrors=none,proto=tcp,timeo=600,retrans=2,sec=sys,clientaddr=10.9.9.20,local_lock=none,addr=10.9.9.30"
+        }
+      ]
+    },
+    "attachment": {
+      "vmid": 982,
+      "slot": "scsi1",
+      "config": "csi-truenas-assessment:9980/vm-9980-lab.raw,backup=0,cache=none,iothread=1,replicate=0,size=4G,wwn=0x5056432d49443031"
+    },
+    "image_bytes": 4294967296,
+    "qemu_open_fds": [
+      {
+        "fd": "122",
+        "info": "pos:\t4294967296\nflags:\t02140002\nmnt_id:\t115\nino:\t3\n"
+      }
+    ],
+    "inode_lock_matches": []
+  },
+  "nfs_lifecycle": {
+    "before": {
+      "boot_id": "c06094b8-8436-41fd-a5fd-c8e94c81e143",
+      "threads": "4",
+      "service": "ExecReload={ path=/usr/sbin/exportfs ; argv[]=/usr/sbin/exportfs -r ; ignore_errors=yes ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }\nActiveState=active\nActiveEnterTimestampMonotonic=50003408\n"
+    },
+    "after-create": {
+      "boot_id": "c06094b8-8436-41fd-a5fd-c8e94c81e143",
+      "threads": "4",
+      "service": "ExecReload={ path=/usr/sbin/exportfs ; argv[]=/usr/sbin/exportfs -r ; ignore_errors=yes ; start_time=[Sat 2026-10-03 21:22:08 IDT] ; stop_time=[Sat 2026-10-03 21:22:08 IDT] ; pid=1115995 ; code=exited ; status=0 }\nActiveState=active\nActiveEnterTimestampMonotonic=50003408\n"
+    },
+    "after-outage": {
+      "boot_id": "c06094b8-8436-41fd-a5fd-c8e94c81e143",
+      "threads": "4",
+      "service": "ExecReload={ path=/usr/sbin/exportfs ; argv[]=/usr/sbin/exportfs -r ; ignore_errors=yes ; start_time=[Sat 2026-10-03 21:54:32 IDT] ; stop_time=[Sat 2026-10-03 21:54:32 IDT] ; pid=1117684 ; code=exited ; status=0 }\nActiveState=active\nActiveEnterTimestampMonotonic=50003408\n"
+    },
+    "after-cleanup": {
+      "boot_id": "c06094b8-8436-41fd-a5fd-c8e94c81e143",
+      "threads": "4",
+      "service": "ExecReload={ path=/usr/sbin/exportfs ; argv[]=/usr/sbin/exportfs -r ; ignore_errors=yes ; start_time=[Sat 2026-10-03 22:14:14 IDT] ; stop_time=[Sat 2026-10-03 22:14:14 IDT] ; pid=1118715 ; code=exited ; status=0 }\nActiveState=active\nActiveEnterTimestampMonotonic=50003408\n"
+    }
+  },
+  "export_restoration": {
+    "restore": {
+      "restored_at": "2026-10-03T18:54:32.279904+00:00",
+      "share_id": 6,
+      "enabled": true,
+      "independent_timer": true
+    },
+    "share_enabled": true,
+    "services": [
+      {
+        "id": 9,
+        "service": "nfs",
+        "enable": true,
+        "state": "RUNNING",
+        "pids": []
+      }
+    ]
+  },
+  "historical_acceptance_scripts": {
+    "outage-before.sh": "cd /root/csi-lab\npython3 /root/csi-lab/start-writer.py\npython3 - <<'PY'\nfrom labutil import *\na=json.loads(k('-n','csi-lab','exec','-i','deploy/sqlite','--','python','-',input=(R/'verify-all.py').read_text()));save('export-outage-before.json',a);print(a,flush=True)\nPY\n",
+    "outage-nas.py": "import os,json,types,subprocess,hashlib\nfrom pathlib import Path\nfrom datetime import datetime,timezone\nimport maintenance_lock as lock\nroot=Path('/var/lib/homelab-maintenance');op=root/'operations/proxmox-csi-truenas-20261003';os.environ['HOMELAB_RUNNER_INSTANCE']='cc1aeeb7-4827-466c-9d4b-5dc6c881f193'\na=json.loads((op/'ownership.json').read_text());setup=json.loads((op/'setup-verified.json').read_text());private=root/'operations/jellyfin-migration-20260922T055644Z/private'\ninstalled=json.loads(Path('/etc/homelab-maintenance/installation.json').read_text());mp=Path(installed['manifest']);m=json.loads(mp.read_text());wheel=mp.parent/'dependencies/python/websocket_client-1.9.2-py3-none-any.whl'\nassert not (op/'export-disable-intent.json').exists()\nmod=types.ModuleType('nasclient');exec(compile(NAS_SOURCE,'nas_rpc.py','exec'),mod.__dict__)\nrestore=\"\"\"import os,json,sys,types,hashlib\nfrom pathlib import Path\nfrom datetime import datetime,timezone\nassert Path('/sys/class/dmi/id/product_uuid').read_text().strip().lower()=='cc1aeeb7-4827-466c-9d4b-5dc6c881f193'\nmp=Path(MANIFEST);m=json.loads(mp.read_text());assert hashlib.sha256(Path(m['python']).read_bytes()).hexdigest()==m['python_sha256']\nfor key in ['dependencies/python/websocket_client-1.9.2-py3-none-any.whl','ansible/scripts/maintenance_lock.py']:\n v=m['files'][key];expected=v['sha256'] if isinstance(v,dict) else v;assert hashlib.sha256((mp.parent/key).read_bytes()).hexdigest()==expected\nsys.path.insert(0,str(mp.parent/'dependencies/python/websocket_client-1.9.2-py3-none-any.whl'));sys.path.insert(0,str(mp.parent/'ansible/scripts'))\nimport maintenance_lock as lock\nos.environ['HOMELAB_RUNNER_INSTANCE']='cc1aeeb7-4827-466c-9d4b-5dc6c881f193'\nroot=Path('/var/lib/homelab-maintenance');op=root/'operations/proxmox-csi-truenas-20261003';a=json.loads((op/'ownership.json').read_text());s=json.loads((op/'setup-verified.json').read_text());p=root/'operations/jellyfin-migration-20260922T055644Z/private'\nmod=types.ModuleType('nasclient');exec(compile(SOURCE,'nas_rpc.py','exec'),mod.__dict__)\nwith lock.execution(root,a['owner'],a['nonce'],'acquired'),mod.NAS(p/'nas.credentials',p/'nas-ca.pem',p/'nas-leaf.sha256') as nas:\n share=nas.call('sharing.nfs.query',[['id','=',s['share_id']]])[0];assert share['path']==s['share_path'] and share['networks']==['10.9.9.20/32']\n d=nas.call('pool.dataset.query',[['id','=',s['dataset']]],{'extra':{'properties':['guid']}})[0];assert str(d['guid']['value'])==s['guid']\n if not share['enabled']:nas.call('sharing.nfs.update',s['share_id'],{'enabled':True})\n after=nas.call('sharing.nfs.query',[['id','=',s['share_id']]])[0];assert after['enabled']\n result={'restored_at':datetime.now(timezone.utc).isoformat(),'share_id':s['share_id'],'enabled':True,'independent_timer':True}\n with (op/'export-restored.json').open('x') as f:json.dump(result,f,indent=2);f.flush();os.fsync(f.fileno())\nprint('Disposable NFS export restored.')\n\"\"\".replace('MANIFEST',repr(str(mp))).replace('SOURCE',repr(NAS_SOURCE))\np=op/'restore-export.py';p.write_text(restore);p.chmod(0o600)\nunit='csi-tn-export-restore-20261003'\nassert subprocess.check_output(['systemctl','show',unit+'.timer','-p','LoadState','--value'],text=True).strip()=='not-found'\nwith lock.execution(root,a['owner'],a['nonce'],'acquired'),mod.NAS(private/'nas.credentials',private/'nas-ca.pem',private/'nas-leaf.sha256') as nas:\n share=nas.call('sharing.nfs.query',[['id','=',setup['share_id']]])[0];assert share['enabled'] and share['path']==setup['share_path']\n subprocess.run(['systemd-run','--unit='+unit,'--on-active=30s',m['python'],'-B',str(p)],check=True)\n with (op/'export-disable-intent.json').open('x') as f:json.dump({'at':datetime.now(timezone.utc).isoformat(),'share_id':setup['share_id'],'restore_timer':unit},f);f.flush();os.fsync(f.fileno())\n updated=nas.call('sharing.nfs.update',setup['share_id'],{'enabled':False});assert not updated['enabled']\n print(json.dumps({'disabled_share':setup['share_id'],'independent_restore_after_seconds':30}),flush=True)\n",
+    "outage-observe.sh": "cd /root/csi-lab\npython3 - <<'PY'\nfrom labutil import *\nimport time\nobservations=[]\nfor _ in range(4):\n try:\n  p=subprocess.run(['kubectl','-n','csi-lab','exec','deploy/sqlite','--','tail','-n','1','/tmp/lab-writer.log'],capture_output=True,text=True,timeout=8)\n  observations.append({'at':time.time(),'exitcode':p.returncode,'writer_log':p.stdout[-400:],'error':p.stderr[-250:]})\n except subprocess.TimeoutExpired:observations.append({'at':time.time(),'timeout':True})\n time.sleep(4)\nsave('export-outage-observations.json',observations);print(json.dumps(observations,indent=2),flush=True)\nPY\n",
+    "outage-after.sh": "cd /root/csi-lab\npython3 - <<'PY'\nfrom labutil import *\nresult={'vm_status':{str(i):api('GET',f'/nodes/pve/qemu/{i}/status/current')['status'] for i in [981,982,983]},'pods':j('-n','csi-lab','get','pods')}\nresult['writer_log']=k('-n','csi-lab','exec','deploy/sqlite','--','tail','-n','12','/tmp/lab-writer.log')\nresult['kernel']=node(983,\"dmesg --ctime | tail -n 100; findmnt -t ext4 -o TARGET,SOURCE,OPTIONS\\n\")\ntry:result['data']=json.loads(k('-n','csi-lab','exec','-i','deploy/sqlite','--','python','-',input=(R/'verify-all.py').read_text()))\nexcept subprocess.CalledProcessError as e:result['verify_error']={'returncode':e.returncode,'stderr':e.stderr}\nsave('export-outage-after.json',result)\nprint(json.dumps(result,indent=2))\nPY\n",
+    "outage-recover.sh": "cd /root/csi-lab\nexport KUBECONFIG=/root/csi-lab/kubeconfig\nkubectl -n csi-lab scale deploy/sqlite --replicas=0\nkubectl -n csi-lab wait --for=delete pod -l app=sqlite --timeout=120s\npython3 - <<'PY'\nfrom labutil import *\nimport time\nfor _ in range(60):\n attached=[(i,key) for i in [981,982,983] for key,v in api('GET',f'/nodes/pve/qemu/{i}/config').items() if key.startswith('scsi') and isinstance(v,str) and 'vm-9980-lab.raw' in v]\n if not attached:break\n time.sleep(2)\nelse:raise RuntimeError('Lab disk still attached; do not restart yet')\nsave('export-outage-detached.json',{'no_remaining_attachment':True,'manual_action':'scale synthetic workload to zero, wait for native CSI detach'})\nPY\nkubectl -n csi-lab scale deploy/sqlite --replicas=1\nkubectl -n csi-lab rollout status deploy/sqlite --timeout=5m\npython3 - <<'PY'\nfrom labutil import *\na=json.loads(k('-n','csi-lab','exec','-i','deploy/sqlite','--','python','-',input=(R/'verify-all.py').read_text()));before=json.loads((R/'evidence/export-outage-before.json').read_text());assert a['rows']>=before['rows'] and a['last_committed_seq']>=100358\nv=volume();assert v['filesystem']['uuid']==json.loads((R/'evidence/volume-initial.json').read_text())['filesystem']['uuid']\nsave('export-outage-recovered.json',{'data':a,'before':before,'last_writer_acknowledged':100358,'volume':v,'automatic_recovery':False,'manual_action':'scale workload to zero, wait native detach, scale to one; stock CSI filesystem handling','kernel_after':node(983,'dmesg --ctime | tail -n 45\\n')})\nprint(json.dumps(a));print('PASS: manual workload restaging recovered all observed committed records, unchanged filesystem UUID.')\nPY\n",
+    "cleanup-cluster.sh": "cd /root/csi-lab\npython3 - <<'PY'\nfrom labutil import *\nassert json.loads((R/'evidence/second-recovered.json').read_text())['image_digests_unchanged']\nfor vmid,v in facts().items():\n c=api('GET','/nodes/pve/qemu/'+vmid+'/config');assert c['name']==v['name'] and c['vmgenid']==v['vmgenid']\nk('-n','csi-lab','scale','deployment/sqlite','--replicas=0')\nsubprocess.run(['kubectl','-n','csi-lab','wait','--for=delete','pod','-l','app=sqlite','--timeout=180s'],check=True)\nPY\ncd /root/csi-lab/terraform\npython3 ../tf.py plan -destroy -input=false -out=cleanup.tfplan -no-color > ../evidence/cleanup-plan.log 2>&1\nterraform show -json cleanup.tfplan > ../cleanup-private.json\npython3 - <<'PY'\nimport json\nfrom pathlib import Path\np=Path('../cleanup-private.json');d=json.loads(p.read_text());c=d['resource_changes'];assert len(c)==3\nfor x in c:assert x['type']=='proxmox_vm_qemu' and x['change']['actions']==['delete'] and x['change']['before']['vmid'] in [981,982,983]\np.unlink()\nPY\npython3 ../tf.py apply -parallelism=1 -input=false -no-color cleanup.tfplan > ../evidence/cleanup-apply.log 2>&1\ncd /root/csi-lab\npython3 - <<'PY'\nfrom labutil import *\nassert not any(x.get('vmid') in [981,982,983] for x in api('GET','/cluster/resources?type=vm'))\nsave('cluster-cleanup.json',{'vmids_deleted':[981,982,983],'no_old_cluster_vms':True,'apply_exitcode':0});print('Disposable cluster cleanup verified.',flush=True)\nPY\n",
+    "cleanup-host.py": "import json,subprocess,re,hashlib\nfrom pathlib import Path\nR=Path('/var/tmp/csi-tn-20261003');L=json.loads((R/'ledger.json').read_text());done=[]\ndef run(*a):return subprocess.check_output(list(a),text=True,stderr=subprocess.PIPE,timeout=180)\ndef get(p):return json.loads(run('pvesh','get',p,'--output-format','json'))\ndef record(kind,name):done.append({'type':kind,'name':name});(R/'cleanup-progress.json').write_text(json.dumps(done,indent=2)+'\\n')\nassert L['run']=='csi-tn-20261003';assert not any(v.get('vmid') in [981,982,983] for v in get('/cluster/resources'))\nc=get('/nodes/pve/qemu/980/config');e=next(x for x in L['created'] if x.get('vmid')==980)['identity'];assert c['name']=='csi-lab-runner' and c['vmgenid']==e['vmgenid'] and c['smbios1']==e['smbios1']\nfor key in ['virtio0','ide0']:assert c[key].split(',')[0]==e[key].split(',')[0]\nassert not any(re.match(r'^(scsi|sata|unused)\\d+$',k) for k in c)\ns=get('/storage/csi-truenas-assessment');assert s['server']=='10.9.9.30' and s['export']=='/mnt/apps/csi-qualification-20261003' and s['path']=='/mnt/pve/csi-truenas-assessment'\nimages={x['volid'] for x in L['created'] if x['type']=='image'};assert images=={'csi-truenas-assessment:9980/vm-9980-'+n+'.raw' for n in ['lab','blank','wrongtype']}\nassert {x['volid'] for x in get('/nodes/pve/storage/csi-truenas-assessment/content')}==images\nfor vm in get('/cluster/resources'):\n if vm.get('type') in ['qemu','lxc']:\n  conf=get('/nodes/'+vm['node']+'/'+vm['type']+'/'+str(vm['vmid'])+'/config');assert not any('csi-truenas-assessment:' in str(v) for v in conf.values())\nusers={x['name'] for x in L['created'] if x['type']=='user'};assert users=={'csi-tn-20261003@pve','tf-tn-20261003@pve'}\nroles={x['name'] for x in L['created'] if x['type']=='role'};assert len(roles)==6 and all(x.startswith('CSITN') and x.endswith('20261003') for x in roles)\nassert not any(x['roleid'] in roles and x['ugid'] not in users for x in get('/access/acl'));assert not get('/pools/csi-tn-20261003')['members']\nfor vol in sorted(images):run('pvesm','free',vol);record('image-deleted',vol)\nassert not get('/nodes/pve/storage/csi-truenas-assessment/content')\nrun('pvesm','set','csi-truenas-assessment','--disable','1');run('umount','/mnt/pve/csi-truenas-assessment');run('pvesm','remove','csi-truenas-assessment');record('storage-removed','csi-truenas-assessment')\nfor user in sorted(users):run('pveum','user','delete',user);record('user-token-revoked',user)\nassert not any(x['ugid'] in users for x in get('/access/acl'))\nfor role in sorted(roles):run('pveum','role','delete',role);record('role-removed',role)\nrun('pvesh','delete','/pools/csi-tn-20261003');record('pool-removed','csi-tn-20261003')\nrun('qm','stop','980');assert get('/nodes/pve/qemu/980/status/current')['status']=='stopped';run('qm','destroy','980','--purge','1');record('runner-and-disks-deleted','980')\nassert not any(x.get('vmid') in [980,981,982,983,9980] for x in get('/cluster/resources'))\nfor store in ['vm-pool','local-zfs']:assert not any(x.get('vmid') in [980,981,982,983] for x in get('/nodes/pve/storage/'+store+'/content'))\nassert not any(x.get('userid') in users for x in get('/access/users'));assert not any(x.get('roleid') in roles for x in get('/access/roles'))\nassert not any(x.get('storage')=='csi-truenas-assessment' for x in get('/storage'))\nassert subprocess.run(['mountpoint','-q','/mnt/pve/csi-truenas-assessment']).returncode!=0\np=Path('/mnt/pve/csi-truenas-assessment')\nif p.is_dir():p.rmdir()\nunchanged={}\nfor vmid,expected in L['production_config_hashes'].items():\n c=get('/nodes/pve/qemu/'+vmid+'/config');c.pop('digest',None);unchanged[vmid]=hashlib.sha256(json.dumps(c,sort_keys=True).encode()).hexdigest()==expected\nassert all(unchanged.values()),unchanged\nresult={'proxmox_cleanup_complete':True,'removed':done,'all_lab_vms_disks_users_roles_acls_absent':True,'nfs_mount_absent':True,'production_vm_configs_unchanged':unchanged};L['cleanup']=result;(R/'ledger.json').write_text(json.dumps(L,indent=2)+'\\n');(R/'cleanup.json').write_text(json.dumps(result,indent=2)+'\\n');print(json.dumps(result,indent=2))\n",
+    "cleanup-nas.py": "import os,json,types,subprocess,hashlib\nfrom pathlib import Path\nfrom datetime import datetime,timezone\nimport maintenance_lock as lock\nroot=Path('/var/lib/homelab-maintenance');op=root/'operations/proxmox-csi-truenas-20261003';os.environ['HOMELAB_RUNNER_INSTANCE']='cc1aeeb7-4827-466c-9d4b-5dc6c881f193'\na=json.loads((op/'ownership.json').read_text());s=json.loads((op/'setup-verified.json').read_text());b=json.loads((op/'baseline.json').read_text());private=root/'operations/jellyfin-migration-20260922T055644Z/private'\nassert s['dataset']=='apps/csi-qualification-20261003' and s['guid']=='11239987941870433523' and s['share_id']==6\nmod=types.ModuleType('nasclient');exec(compile(NAS_SOURCE,'nas_rpc.py','exec'),mod.__dict__)\ndef save(n,d):\n with (op/n).open('x') as f:json.dump(d,f,indent=2);f.flush();os.fsync(f.fileno())\nwith lock.execution(root,a['owner'],a['nonce'],'acquired'),mod.NAS(private/'nas.credentials',private/'nas-ca.pem',private/'nas-leaf.sha256') as nas:\n share=nas.call('sharing.nfs.query',[['id','=',6]])[0];assert share['path']==s['share_path'] and share['networks']==['10.9.9.20/32']\n d=nas.call('pool.dataset.query',[['id','=',s['dataset']]])[0];guid=nas.call('pool.dataset.query',[['id','=',s['dataset']]],{'extra':{'properties':['guid']}})[0]['guid']['value'];assert str(guid)==s['guid'] and d['user_properties']['org.homelab:qualification']['value']=='csi-tn-20261003'\n assert not d['children'];assert not nas.call('zfs.snapshot.query',[['dataset','=',s['dataset']]])\n assert sorted([x for x in nas.call('sharing.nfs.query') if x['id']!=6],key=lambda x:x['id'])==sorted(b['shares'],key=lambda x:x['id'])\n assert nas.call('nfs.config')==b['nfs']\n save('cleanup-intent.json',{'dataset':s['dataset'],'guid':s['guid'],'share_id':6,'at':datetime.now(timezone.utc).isoformat()})\n nas.call('sharing.nfs.delete',6);assert not nas.call('sharing.nfs.query',[['id','=',6]])\n save('share-deleted.json',{'share_id':6,'absent':True})\n nas.call('pool.dataset.delete',s['dataset'],{'recursive':False,'force':False});assert not nas.call('pool.dataset.query',[['id','=',s['dataset']]])\n after=nas.call('sharing.nfs.query');assert sorted(after,key=lambda x:x['id'])==sorted(b['shares'],key=lambda x:x['id']);assert nas.call('nfs.config')==b['nfs'];service=nas.call('service.query',[['service','=','nfs']]);assert service[0]['state']=='RUNNING'\n pool=nas.call('pool.query',[['name','=','apps']])[0];assert str(pool['guid'])=='9917900421692286909'\n result={'pool':{k:pool[k] for k in ['name','guid','status','healthy']},'dataset_absent':True,'share_absent':True,'existing_exports_unchanged':True,'global_nfs_config_unchanged':True,'service_running':True,'completed_at':datetime.now(timezone.utc).isoformat()};save('nas-cleanup.json',result)\nfor unit in ['csi-tn-export-restore-20261003.timer','csi-tn-export-restore-20261003.service']:\n if subprocess.check_output(['systemctl','show',unit,'-p','LoadState','--value'],text=True).strip()!='not-found':subprocess.run(['systemctl','stop',unit],check=True)\n(op/'restore-export.py').unlink(missing_ok=True)\nlock.release(root,a['owner'],a['nonce']);assert not (root/'operation.json').exists()\nsave('ownership-released.json',{'owner':a['owner'],'released':True,'original_ownership_only':True});(op/'ownership.json').unlink()\nresult['maintenance_owner_released']=True;print(json.dumps(result,indent=2))\n",
+    "verify-nas-final.py": "import json,subprocess\nfrom pathlib import Path\nr=Path('/var/lib/homelab-maintenance');op=r/'operations/proxmox-csi-truenas-20261003';old=r/'operations/jellyfin-migration-20260922T055644Z/private';assert not (r/'operation.json').exists();assert not (op/'ownership.json').exists() and not (op/'restore-export.py').exists();assert json.loads((op/'ownership-released.json').read_text())['released'];assert all((old/n).is_file() for n in ['nas.credentials','nas-ca.pem','nas-leaf.sha256']);states={u:subprocess.run(['systemctl','is-active',u],capture_output=True,text=True).stdout.strip() for u in ['csi-tn-export-restore-20261003.timer','csi-tn-export-restore-20261003.service']};assert all(v not in ['active','activating'] for v in states.values());print(json.dumps({'maintenance_ownership_absent':True,'temporary_restore_helper_and_nonce_removed':True,'restoration_units':states,'original_nas_credential_references_preserved':True}))\n",
+    "cleanup-host-private.py": "import json,shutil\nfrom pathlib import Path\nr=Path('/var/tmp/csi-tn-20261003');assert r.is_dir() and not r.is_symlink();c=json.loads((r/'cleanup.json').read_text());assert c['proxmox_cleanup_complete'] and c['all_lab_vms_disks_users_roles_acls_absent'];assert all(c['production_vm_configs_unchanged'].values());shutil.rmtree(r);assert not r.exists();print(json.dumps({'host_temporary_directory_removed':True,'lab_tokens_revoked':True}))\n"
+  }
+}

@@ -145,3 +145,10 @@ unavailable. No additional runtime test is inferred from these documentation che
 The reviewer did not independently access live infrastructure; the executor's recorded cleanup commands supply that
 verification. Production integration remains unqualified, and embedded scripts remain historical evidence rather than
 standalone supported tools. These limits are retained, not silently treated as passes.
+
+## TrueNAS follow-up
+
+Read-only NAS preflight now confirms the existing access route and healthy `apps` pool. The
+[concrete TrueNAS test scope](2026-10-03-proxmox-csi-truenas-qualification.md) proposes an 8GiB disposable sibling dataset
+and a separate export, with exact resource limits and cleanup. Its new NAS mutations await approval; the Debian lab
+results above remain unchanged.

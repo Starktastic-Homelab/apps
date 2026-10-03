@@ -1,6 +1,6 @@
 # Proxmox CSI over NFS assessment
 
-Date: 2026-10-03. Status: credible challenger to the accepted static iSCSI proposal; not selected for deployment.
+Date: 2026-10-03. Status: assessed; not selected under the user's unmodified-upstream-driver requirement.
 The user approved this comparison and explicitly authorized read-only access to Proxmox at 10.9.9.20.
 Package versions, installed source, storage configuration and filtered worker metadata were read. No host was modified;
 no NAS or Kubernetes API was accessed.
@@ -9,7 +9,8 @@ no NAS or Kubernetes API was accessed.
 
 Proxmox CSI over NAS-hosted NFS has a plausible native path for retained disks to survive worker VM destruction.
 It supports static bindings and implements controller/node expansion. This makes it worth qualifying against the iSCSI
-baseline. It is not ready to activate: Terraform disk reconciliation conflicts with CSI attachment, and automatic
+baseline technically. The user declined maintaining a patched driver; static iSCSI remains the selected path.
+Proxmox CSI is not ready to activate: Terraform disk reconciliation conflicts with CSI attachment, and automatic
 formatting/writer exclusion need explicit qualification. The installed Proxmox ownership/deletion functions match the
 inspected upstream functions; actual VM-destruction behavior has not been tested.
 
@@ -128,19 +129,20 @@ perl docs/superpowers/reports/evidence/2026-10-03-proxmox-destroy-probe.pl /path
 
 Whitespace, local Markdown links, fences and Perl syntax checks pass. pre-commit is unavailable. No deployment manifests
 changed and no runtime storage test or Go integration test ran. No production switch should be inferred from the
-positive ownership result. The next design work should settle enforceable existing-filesystem admission and scoped
-Terraform disk ownership before preparing a bounded disposable qualification plan. Shared platform setup must include
-a Proxmox NFS storage entry; applications continue using Git-declared claims.
+positive ownership result. Any future reconsideration would need to settle enforceable existing-filesystem admission
+and scoped Terraform disk ownership before preparing a bounded disposable qualification plan. Shared platform setup
+would include a Proxmox NFS storage entry; applications would continue using Git-declared claims.
 
-## Decision before implementation
+## Decision
 
 Preserving the strict recovery contract with this driver would require supported filesystem admission or a driver
 enhancement. The narrow candidate enhancement is an opt-in retained-volume mode that requires the declared filesystem
 type/UUID, returns an error on missing/mismatched/uncertain identity, and mounts without mkfs or automatic fsck. New-volume
 initialization stays a separate explicit operation. Existing expansion behavior would need regression qualification.
-This is a design option, not implemented code or a claim of upstream acceptance.
+This was a design option, not implemented code or a claim of upstream acceptance.
 
-Decide whether maintaining a pinned driver build while seeking upstream support is acceptable. If only unmodified
-upstream drivers are acceptable, retain iSCSI as the implementation baseline while this feature remains unavailable.
-Do not silently relax the no-format/no-repair requirement, wrap mkfs binaries, or add custom per-service mount scripts.
-No upstream issue, PR or message has been sent.
+The user chose an unmodified upstream driver. The proposed patched build is declined; retain static iSCSI as the
+implementation baseline. Do not silently relax the no-format/no-repair requirement, wrap mkfs binaries, or add custom
+per-service mount scripts. Reconsider Proxmox CSI only if upstream supplies the required behavior or the user explicitly
+changes the recovery contract. This decision does not authorize upstream messaging or recurring monitoring.
+No upstream issue, PR or message has been sent. All source findings and read-only evidence remain preserved.

@@ -14,6 +14,11 @@ infrastructure and consumes those declarations if needed for verification. There
 or service-specific lifecycle code in Ansible. The alternatives recap below preserves this selection while recording
 where the assessment is incomplete.
 
+The user requires an unmodified upstream CSI driver. Supported configuration is allowed; driver forks, patched images
+and locally maintained driver enhancements are outside the selected design. The Proxmox CSI comparison is retained as
+evidence, but its proposed retained-filesystem enhancement is declined. Static iSCSI remains the selected baseline;
+its outstanding qualification requirements are unchanged.
+
 Current direction: disposable k3s VMs **and datastore**, with application data, Git-managed volume bindings and bootstrap
 secrets outside the cluster. Rebuild without a final metadata backup or restoring the old Kubernetes database.
 **Velero is removed from this plan.** External etcd or a retained control-plane disk is not the selected replacement.
@@ -159,7 +164,7 @@ Sources for the additional candidates:
 [Ceph block devices with Kubernetes](https://docs.ceph.com/en/latest/rbd/rbd-kubernetes/),
 [TrueNAS 25.10 NVMe-oF](https://www.truenas.com/docs/scale/25.10/scaletutorials/shares/nvme-of/).
 
-### Proxmox CSI over NFS remains an open comparison
+### Proxmox CSI over NFS assessment and disposition
 
 The user approved evaluating this challenger while retaining the iSCSI baseline. The
 [pinned source assessment](../reports/2026-10-03-proxmox-csi-nfs-assessment.md) now finds a native disk-ownership path
@@ -167,6 +172,10 @@ that can preserve CSI images during worker deletion, with a passing isolated pro
 User-authorized read-only host inspection confirms the installed deletion and ownership-parser functions match the
 inspected source. Terraform attachment reconciliation, expected-filesystem admission and runtime recovery remain
 qualification gaps. The observations below describe the initial comparison.
+
+Decision: use an unmodified upstream driver. Do not pursue the proposed custom Proxmox CSI build or activate this
+candidate under the current recovery contract. Reconsider only if an upstream release provides the required behavior
+or the user explicitly revises that contract. No new upstream contribution or monitoring task is authorized.
 
 Proxmox supports VM disk images on NFS. The Proxmox CSI project's documentation describes attaching persistent volumes
 as VM block devices, movement across Proxmox nodes for shared storage including NFS, and PVC expansion. Its documented
@@ -186,10 +195,10 @@ deletion, interference between Terraform disk reconciliation and CSI hotplug, re
 bindings, missing-volume behavior, stale attachments, and supported growth of recovered static volumes. The same full
 destroy/recreate and competing-writer tests apply. No claim that it meets the unchanged rebuild procedure is made yet.
 
-The recommendation remains to preserve the iSCSI proposal, but compare this concrete candidate before treating iSCSI as
-the simplest possible answer. Evaluate total routine operations and custom code, not just the protocol or CSI feature
-list. The present Jellyfin migration/release machinery is not an inherent requirement of iSCSI; keep only the shared
-checks needed for agreed failure cases. Apply the same recovery standard to the NFS baseline when comparing simplicity.
+The comparison supports retaining the iSCSI proposal under the unmodified-driver requirement. It does not prove iSCSI
+is universally the simplest answer. Evaluate total routine operations and custom code, not just the protocol or CSI
+feature list. The present Jellyfin migration/release machinery is not an inherent requirement of iSCSI; keep only the
+shared checks needed for agreed failure cases. Apply the same recovery standard to the NFS baseline when comparing simplicity.
 
 ## Dynamic-controller alternatives assessed before selecting static bindings
 
@@ -385,6 +394,7 @@ workload downtime; its duration cannot be estimated from source evidence. Existi
 
 Static Git-managed bindings with one-time volume allocation are accepted. Velero and dynamic original-volume adoption
 are outside the current plan. TrueNAS 25 is the target; compatibility with 26 is deferred. CHAP removal remains pending.
+Use unmodified upstream drivers only; the Proxmox CSI enhancement option is declined and its assessment is preserved.
 The next design work simplifies Jellyfin's existing static attachment model, separates permanent volume identity from
 per-boot cluster identity, and qualifies automatic bootstrap checks before retiring its pilot-specific release workflow.
 The current evidence does not authorize changes to live Jellyfin placement, authentication or writer admission.

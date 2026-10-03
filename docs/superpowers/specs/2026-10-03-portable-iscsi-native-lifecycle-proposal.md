@@ -1,28 +1,28 @@
 # Portable iSCSI architecture and qualification proposal
 
-Date: 2026-10-03. Status: recovery/onboarding decision required. Source assessment and synthetic probes only.
+Date: 2026-10-03. Status: static Git-managed binding direction accepted; simplification design under review.
+Source assessment and synthetic probes only.
 
-The [focused recovery assessment](../reports/2026-10-03-democratic-csi-clean-cluster-recovery.md) now demonstrates that
-stock dynamic provisioning targets a new dataset for a recreated PVC UID, and that a missing dataset permits creation
-even with the original request ID. The private stable-ID setting is explicitly unsupported upstream. Choose between
-explicit Git-managed static bindings with separate volume allocation, or retaining PVC-only allocation and pursuing a
-supported recovery feature/component. The first is the simpler fallback, but changes the onboarding requirement below;
-neither alternative has been approved. No driver activation or lab allocation follows from these source findings.
+The user selected explicit Git-managed bindings with separate one-time volume allocation. Keep the existing
+`org.democratic-csi.retained` node-manual attachment model; no dynamic CSI provisioning controller or private ID template
+is needed for this path. The [recovery assessment](../reports/2026-10-03-democratic-csi-clean-cluster-recovery.md) records
+why stock dynamic provisioning was not selected. The [Jellyfin audit](../reports/2026-10-03-jellyfin-static-storage-design.md)
+traces the current implementation and proposed simplification.
 
-Current direction: disposable k3s VMs **and datastore**, with application data and sufficient durable volume identity
-outside the cluster. Rebuild from Git and bootstrap secrets without a final backup or restoring the old Kubernetes
-database. **Velero is removed from this plan.** External etcd or a retained control-plane disk is not the selected
-replacement. Native volume rediscovery/adoption remains an unqualified requirement, not an implemented capability.
+Current direction: disposable k3s VMs **and datastore**, with application data, Git-managed volume bindings and bootstrap
+secrets outside the cluster. Rebuild without a final metadata backup or restoring the old Kubernetes database.
+**Velero is removed from this plan.** External etcd or a retained control-plane disk is not the selected replacement.
 
-Keep one application StorageClass contract across TrueNAS and Debian. No inspected driver currently satisfies every
-requirement. The user is considering dropping CHAP; the comparison below assesses that option, but does not authorize
-changing existing authentication. Current Jellyfin, VM300, ownership records and safeguards remain in place.
+Preserve application claim names when changing TrueNAS to Debian; backend allocation, endpoint changes and data transfer
+are separate operations. CHAP removal remains a pending design choice and existing authentication is unchanged.
+Current Jellyfin, VM300, ownership records and safeguards remain in place until equivalent behavior is qualified.
 This document does not approve lab allocation, deployment, production changes, upstream messages or deletion.
 
 ## Requirements and evidence boundary
 
-After shared setup, adding storage means normal service values/PVC configuration. No service-specific Python, shell,
-Ansible, manual login/mount commands, or identity/receipt construction. All three k3s VMs must be replaceable while
+Adding a durable volume now permits one-time NAS allocation and an explicit Git binding record. Applications consume
+ordinary existing claims. Reuse shared declaration/verification code; do not add service-specific Python, shell or
+Ansible lifecycle programs. Routine cluster rebuilds require no hand-constructed identity or release receipts. All three k3s VMs must be replaceable while
 external application data survives; all Kubernetes datastore state may also be discarded. Replacing the storage provider
 must preserve application declarations, with a separately qualified data transfer. CHAP remains the baseline while a
 no-CHAP alternative is assessed. Unreachable writers must be excluded before takeover; unattended failover
@@ -117,11 +117,12 @@ Local validation also passed Node syntax checking and proposal link/whitespace c
 it is not installed. No YAML/Helm resources changed, so cluster-schema/render checks were not applicable. No runtime
 storage, image build, Ansible deployment or infrastructure test was performed.
 
-## Architecture choices if CHAP is removed
+## Dynamic-controller alternatives assessed before selecting static bindings
 
 Removing CHAP eliminates its credential distribution and the CHAP settings in node login and target configuration. It does
 not remove NAS API credentials, SSH credentials, storage identity, filesystem safeguards or old-writer exclusion.
-The following are candidates for assessment, not production selections:
+The following explains earlier options; the selected static node-manual path does not require any of these provisioning
+controllers. They are not current production selections:
 
 | Choice | What dropping CHAP unblocks | Remaining gaps |
 | --- | --- | --- |
@@ -160,22 +161,31 @@ Existing authenticated storage is unchanged while this option is considered.
 
 ## Proposed application and platform contract
 
-An application author selects `iscsi-state`, size and `ReadWriteOncePod` in ordinary persistence values. Existing NFS
-defaults stay intact. A second service and then a third use the identical schema. There are no target names, NAS paths,
-CHAP fields or recovery receipts in application values. Same-named PVCs in different namespaces must remain distinct.
+The platform owns one stable binding declaration for each pre-provisioned volume. It records namespace, PV/PVC names,
+size, access mode, filesystem type, stable CSI handle and iSCSI portal/IQN/LUN, with an optional Secret reference. Store
+non-secret verified filesystem/device identity durably alongside it; private credentials remain externally recoverable.
+The current allocation-intent JSON is not sufficient: actual returned identities must be verified before enrollment.
 
-Shared infrastructure owns a separate CSI release/driver identity, the non-default `iscsi-state` StorageClass with
-`Retain`, ext4 and validated RWOP-capable sidecars, and backend configuration Secrets. It must not reuse or edit
-`org.democratic-csi.retained`. Snapshot support is configured once. Fresh empty volumes may be formatted; existing
-Jellyfin's format suppression remains unchanged. Recovery of an existing volume must reject missing/wrong filesystem
-identity before opening a writer.
+Reuse the existing renderer where practical, removing hardcoded Jellyfin policy/Secret names rather than copying it for
+each application. Generate static PV/PVC manifests with `Retain`, explicit empty `storageClassName`, a named claimRef
+without a Kubernetes UID, and explicit PVC `volumeName`. Keep ArgoCD prune/delete protection for the bindings. App values
+consume `existingClaim`. Existing NFS defaults stay intact. No dynamic allocation is enabled for these retained claims.
 
-Use driver-supported handles and a durable identity scheme that survives new PVC UIDs. Storage-side metadata is an
-adoption mechanism only when the selected driver implements and qualifies that contract. The Debian
-profile uses ZFS/LIO with target configuration persisted across reboot. Its example enables generated initiator ACLs.
-The baseline CHAP profile includes a storage-network allowlist; this is not an asserted equivalent of per-IQN authorization.
-Wrong or absent CHAP must fail in that profile. A possible no-CHAP profile uses the access policy above. Kubernetes app
-accounts cannot create PVs, driver Secrets, privileged pods or host-network storage clients.
+Keep the node-only democratic-csi deployment. Its routine attachment path needs no NAS provisioning credentials.
+One-time allocation and exceptional NAS recovery remain separate from cluster bootstrap; the rebuild path never creates,
+formats, repairs or redirects a volume. Existing format suppression remains until an equivalent supported protection is
+qualified. PV volumeHandle and IQN are identifiers, not proof of filesystem/device identity.
+
+Remove worker UID, namespace UID and SMBIOS generation from long-lived app values after shared bootstrap checks can
+safely authorize the new generation. Use stable capability labels for placement, retaining the GPU requirement for
+Jellyfin. Keep RWOP and Recreate for same-cluster scheduling; neither excludes an old cluster's writer. Shared rebuild
+checks must still prove old-writer shutdown, correct target/filesystem and successful node preparation before services
+start. Reuse narrowly scoped existing checks initially; do not build a permanent recovery controller or delete safeguards
+before their replacement passes qualification. Exact bootstrap wiring is an implementation-plan item.
+
+A backend migration changes the volume inventory and NAS allocation; the application claim contract remains the same.
+Native TrueNAS object IDs remain in backend evidence, not in application values. Debian uses persisted ZFS/LIO exports.
+Authentication and target ACL management are shared platform choices; no service-specific credential program is needed.
 
 Packer installs `open-iscsi`, `e2fsprogs` and persistent `iscsi_tcp` loading in the guest. Prefer the distro's standard
 `iscsi-init.service` / `iscsi-gen-initiatorname` chain, which creates an initiator name only when absent and precedes
@@ -196,22 +206,22 @@ pre-merge backup verification, new checkbox or separate recovery approval is req
 Terraform owns VM lifecycle. Apps and Ansible install the platform and bootstrap a fresh cluster from declared inputs.
 Neither Terraform nor bootstrap depends on Velero, an etcd snapshot or the old cluster API.
 
-The required recovery sequence is a qualification contract; no selected driver has demonstrated it yet:
+The required recovery sequence is a qualification contract; the complete sequence has not yet passed a lab rebuild:
 
 1. Exclude old writers using verified Proxmox power state and VM generation. An uncertain stop keeps writers blocked.
-2. Recreate the three Debian/k3s VMs with an empty datastore and distinct initiator identities. Recover bootstrap secrets
-   independently, including sealing keys and backend management credentials. Keep application writers held.
-3. Install the qualified CSI controller and recover bindings through its native storage identity/adoption mechanism.
-   Controllers may need to run to perform adoption; an entirely disabled provisioner is not a universal recovery design.
-   Require the original backend data and correct application mapping; old Kubernetes UIDs need not survive.
-4. The driver must distinguish an intentional first allocation from recovery of an existing volume using durable inputs.
-   Missing expected storage, uncertain lookups or ambiguous identity must stop recovery without creating an empty
-   replacement. This distinction must survive loss of Kubernetes state; do not infer first installation from its absence.
-5. Verify existing filesystem/data identity before opening writers, using the supported recovery path. Release a service
-   only after its binding is proven. An unsupported helper controller or per-service receipt is not the default solution.
+2. Recreate the three Debian/k3s VMs with an empty datastore. Prepare initiators and apply the selected target access
+   policy without reusing a live node identity. Recover bootstrap secrets independently and keep application writers held.
+3. Install the existing node-only CSI driver. Reapply static PV/PVC declarations from Git. The namespace and claim names
+   remain stable but their Kubernetes UIDs may change; those old UIDs are not restored.
+4. Automatically verify the expected device/filesystem and binding before releasing services. Missing targets, missing
+   records, conflicting identity and failed lookups stop recovery. No provisioning controller is available to create a
+   replacement, and bootstrap has no allocation/formatting fallback.
+5. Run applications with ordinary claim references and stable placement requirements. Full-rebuild authorization is a
+   shared platform step, not a per-application manual release. Exceptional partial replacement and failed-node recovery
+   remain held until the same old-writer exclusion can be established.
 
 Acceptance: create and write a volume immediately before destroying all three cluster VMs, OS disks and datastore,
-without a final backup. Rebuild from Git, bootstrap secrets and surviving NAS state. Recover the original data with no
+without a final backup. Reapply the declared static bindings from Git, bootstrap secrets and surviving NAS state. Recover the original data with no
 new backend volume allocation. Repeat with interruptions during provisioning, failed lookups and deliberate missing
 metadata. Separate data backups cover loss or corruption of NAS data; they do not replace this acceptance test.
 
@@ -227,10 +237,11 @@ For a planned pipeline rebuild, perform the stop-state/generation checks automat
 replacement and recovery sequence. The documented operator procedure is for exceptional failure recovery, not an extra
 step before every Terraform merge. An ambiguous outcome still stops the pipeline rather than releasing a writer.
 
-Use CSI snapshot clones mounted by Jobs for routine restore inspection. A readOnly pod mount is not evidence that the
+Use separately prepared NAS snapshot clones mounted by Jobs for routine restore inspection; the node-only CSI path does
+not provide a snapshot controller. A readOnly pod mount is not evidence that the
 original avoided journal replay, repair or formatting. For a non-mutating original-volume investigation, retain the
 existing exceptional path until equivalent semantics are demonstrated. Quiesced backups and application/database restore
-checks remain separate from CSI snapshot creation. Start with stopped synthetic writers and a small SQLite fixture;
+checks remain separate from NAS snapshot creation. Start with stopped synthetic writers and a small SQLite fixture;
 do not claim generic live database consistency.
 
 Cross-provider transfer restores a verified data backup into a newly provisioned destination volume with the source
@@ -255,13 +266,13 @@ not the proposed operator VM.
 
 | Qualification | Required evidence |
 | --- | --- |
-| Shared setup and onboarding | Two services and a third added by values only; same PVC name in different namespaces; no lifecycle code edits; compare actual steps with NFS. |
+| Shared setup and onboarding | Two services and a third use one-time allocation plus the same binding schema; same PVC name in different namespaces; no service-specific lifecycle code; compare actual steps with NFS. |
 | Authentication and access | Baseline CHAP: wrong/missing secret refused and no credential exposure. If no-CHAP is selected: enforced network/target restrictions and cross-volume access tested. Management credentials remain protected in either profile. |
 | Creation interruption | Interrupt after ZVOL, target, extent and mapping operations; inspect before retry; one correct volume, no export outside the selected access policy or empty replacement. |
 | Identity and replacement | Distinct clone IQNs, stable reboot IQNs, node replacement without handcrafted enrollment, backend target configuration survives reboot. |
 | Competing writers | Same-cluster RWOP refusal; isolated old writer excluded before replacement writes; wrong-generation stop refused; ambiguous stop remains closed. |
 | Full cluster loss | Write unique sentinels, remove all three lab cluster VMs/OS disks, discard the datastore, recreate from Git/secrets and recover the original backend filesystems/data without new volume allocation or metadata backup. |
-| Unchanged merge procedure | Exercise Packer-to-Terraform-to-Ansible without backup hooks or checks. Native recovery must cover a volume created immediately before cluster loss and interrupted provisioning; no empty replacement is allowed. |
+| Unchanged merge procedure | Exercise Packer-to-Terraform-to-Ansible without backup hooks or checks. Static binding recovery must cover a volume enrolled immediately before cluster loss and interrupted one-time allocation; no empty replacement is allowed. |
 | Recovery failures | Missing/stale metadata, duplicate backend identities, namespace collisions, HTTP 403/500/timeouts and missing storage leave affected writers held and allocate nothing. |
 | Backup and maintenance | Interrupted capture stays incomplete; restore checks use clones/new volumes; verify source remains unchanged; compare file and SQLite contents independently. |
 | Backend portability | Repeat the same declarations/recovery suite on TrueNAS and Debian; separately transfer verified data TrueNAS to Debian and reverse, with old-writer exclusion. |
@@ -276,7 +287,7 @@ name only the disposable resources explicitly authorized for removal.
 
 | Current responsibility and actual paths | Candidate replacement and removal gate |
 | --- | --- |
-| Apps `scripts/storage/onboard.py`, `node_credentials.py`, `render_storage.py`; `storage/services/jellyfin.json` | CSI allocation and native recovery of bindings for new services, after onboarding/interruption/rebuild tests. Existing Jellyfin identity and admission stay. |
+| Apps `scripts/storage/onboard.py`, `node_credentials.py`, `render_storage.py`; `storage/services/jellyfin.json` | One-time allocation and reusable static-binding declarations, after onboarding/interruption/rebuild tests. Preserve existing Jellyfin identity and admission until replaced. |
 | Apps `scripts/storage/initiator_probe.py`, `maintenance_cli.py:observe_release` | CSI staging/cleanup and verified stop procedure; exceptional original-device forensic semantics must pass separately. |
 | Ansible `roles/iscsi_initiator`, `scripts/iscsi_generation.py`, `group_vars/workers/iscsi.yml` | Image prerequisites and standard unique identity, after clone/replacement and old-writer tests. |
 | Ansible `scripts/proxmox_fence.py`, `roles/storage_fencing`, `storage-fencing.yml` | Native Proxmox stop-and-confirm, after wrong-generation/timeout/competing-writer tests. |
@@ -285,7 +296,7 @@ name only the disposable resources explicitly authorized for removal.
 
 After architecture approval, prepare source PRs in order: inert Apps lab fixtures and recovery configuration outside
 ApplicationSet discovery; Packer guest prerequisites/identity wiring; then Apps platform configuration and
-Ansible bootstrap recovery after selecting a supported identity/adoption mechanism. No Velero work is included. Existing
+Ansible bootstrap verification and static-binding recovery after the shared verification design is reviewed. No Velero work is included. Existing
 VM replacement safety remains in scope for qualification. Build, allocation and activation have
 separate reviewed plans. Review merge-triggered workflows before calling any PR inert: Packer can trigger downstream
 manifest updates, and Ansible main can deploy. Put active changes behind a later activation PR.
@@ -296,10 +307,8 @@ workload downtime; its duration cannot be estimated from source evidence. Existi
 
 ## Current decision and next assessment
 
-Velero is removed by user direction. Recovery must tolerate loss of all cluster VMs and Kubernetes datastore state,
-without a final backup, while retaining external application data and identity. CHAP removal is under consideration;
-existing authentication remains unchanged. TrueNAS 25 is the current target; compatibility with 26 is deferred. The
-focused democratic-csi investigation has reached the onboarding/recovery choice recorded at the top of this proposal.
-tns-csi remains a TrueNAS-specific alternative that would require changing driver projects for Debian. Resolve the
-decision before proposing lab execution or driver selection. Do not expand the local maintenance framework to compensate
-for missing upstream guarantees by default.
+Static Git-managed bindings with one-time volume allocation are accepted. Velero and dynamic original-volume adoption
+are outside the current plan. TrueNAS 25 is the target; compatibility with 26 is deferred. CHAP removal remains pending.
+The next design work simplifies Jellyfin's existing static attachment model, separates permanent volume identity from
+per-boot cluster identity, and qualifies automatic bootstrap checks before retiring its pilot-specific release workflow.
+The current evidence does not authorize changes to live Jellyfin placement, authentication or writer admission.

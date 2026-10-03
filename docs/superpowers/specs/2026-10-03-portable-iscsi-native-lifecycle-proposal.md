@@ -161,6 +161,13 @@ Sources for the additional candidates:
 
 ### Proxmox CSI over NFS remains an open comparison
 
+The user approved evaluating this challenger while retaining the iSCSI baseline. The
+[pinned source assessment](../reports/2026-10-03-proxmox-csi-nfs-assessment.md) now finds a native disk-ownership path
+that can preserve CSI images during worker deletion, with a passing isolated probe of the upstream deletion function.
+User-authorized read-only host inspection confirms the installed deletion and ownership-parser functions match the
+inspected source. Terraform attachment reconciliation, expected-filesystem admission and runtime recovery remain
+qualification gaps. The observations below describe the initial comparison.
+
 Proxmox supports VM disk images on NFS. The Proxmox CSI project's documentation describes attaching persistent volumes
 as VM block devices, movement across Proxmox nodes for shared storage including NFS, and PVC expansion. Its documented
 PV lifecycle keep annotation addresses driver deletion of a volume; this is not evidence that an attached disk survives

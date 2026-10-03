@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-03",
+  "host": "10.9.9.20",
+  "access": "User-authorized SSH; read-only package, storage configuration, source and worker metadata inspection; no credentials included.",
+  "packages": {
+    "pve-manager": "9.2.20",
+    "qemu-server": "9.2.8",
+    "libpve-storage-perl": "9.1.10",
+    "pve-qemu-kvm": "11.0.3-3"
+  },
+  "installed_qemu_source_sha256": "3cd036382bf796f996e74bf8206d57a0388056c63e7eab148fbd64a2b26e5912",
+  "installed_storage_source_sha256": "8940649ee2717db63673e746d8ec10643e13b52681d290a98a5eced5882595d1",
+  "destroy_function_sha256": "6adf204922d75c870c01bb3c7e3bf48a115773d38c049da1b0be20135b3a1f6c",
+  "destroy_function_matches_inspected_upstream": true,
+  "parse_volname_matches_inspected_upstream": true,
+  "nfs_inherits_plugin": true,
+  "registered_nfs_storages": [],
+  "owner_9999_has_vm_or_container": false,
+  "worker_disks": [
+    {
+      "vmid": 200,
+      "config": {
+        "hotplug": "network,disk,usb",
+        "ide2": "local-zfs:vm-200-cloudinit,media=cdrom",
+        "name": "kube-master-01",
+        "scsihw": "virtio-scsi-pci",
+        "virtio0": "vm-pool:vm-200-disk-0,discard=on,iothread=1,replicate=0,size=96G"
+      }
+    },
+    {
+      "vmid": 201,
+      "config": {
+        "hotplug": "network,disk,usb",
+        "ide2": "local-zfs:vm-201-cloudinit,media=cdrom",
+        "name": "kube-worker-01",
+        "scsihw": "virtio-scsi-pci",
+        "virtio0": "vm-pool:vm-201-disk-0,discard=on,iothread=1,replicate=0,size=96G"
+      }
+    },
+    {
+      "vmid": 202,
+      "config": {
+        "hotplug": "network,disk,usb",
+        "ide2": "local-zfs:vm-202-cloudinit,media=cdrom",
+        "name": "kube-worker-02",
+        "scsihw": "virtio-scsi-pci",
+        "virtio0": "vm-pool:vm-202-disk-0,discard=on,iothread=1,replicate=0,size=96G"
+      }
+    }
+  ],
+  "qualification": "Source probe only; no VM deletion, disk creation, mount, detach or resize performed."
+}

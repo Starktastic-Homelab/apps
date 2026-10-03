@@ -1,6 +1,6 @@
 # Proxmox CSI over NFS assessment
 
-Date: 2026-10-03. Status: source assessment and disposable Debian/TrueNAS NFS qualification complete; recommend stock Proxmox CSI.
+Date: 2026-10-03. Status: source assessment and disposable Debian/TrueNAS NFS qualification complete; user selected stock Proxmox CSI.
 The initial source investigation used authorized read-only Proxmox access. The subsequently approved synthetic lab
 created and tested disposable resources; see the [runtime results and limits](2026-10-03-proxmox-csi-lab-results.md).
 The [TrueNAS 25 lab](2026-10-03-proxmox-csi-truenas-results.md) also completed both rebuilds, movement and expansion. Production integration remains unqualified. No production application configuration was changed.

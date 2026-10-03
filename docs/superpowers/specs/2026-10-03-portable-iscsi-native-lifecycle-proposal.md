@@ -1,7 +1,8 @@
 # Portable iSCSI architecture and qualification proposal
 
-Date: 2026-10-03. Status: static Git-managed bindings accepted; stock Proxmox CSI recommended after Debian and TrueNAS NFS qualification, iSCSI retained as fallback.
-Includes source assessment and an executed disposable Proxmox CSI lab; production activation is not authorized.
+Date: 2026-10-03. Status: static Git-managed bindings accepted; stock Proxmox CSI selected after Debian and TrueNAS NFS qualification, iSCSI retained as fallback.
+Includes source assessment and executed disposable Proxmox CSI labs. The user accepted the storage-fault recovery trade-off and authorized shared integration; production activation and application migration remain separate.
+Implementation proceeds through the [shared integration plan](../plans/2026-10-03-proxmox-csi-shared-integration.md).
 
 The user selected explicit Git-managed bindings with separate one-time volume allocation. The preserved iSCSI fallback
 uses the existing `org.democratic-csi.retained` node-manual attachment model; no dynamic CSI provisioning controller or

@@ -1,6 +1,6 @@
 # Proxmox CSI integrated qualification scope
 
-Date: 2026-10-04 (Asia/Jerusalem). Status: user approved this bounded allocation, qualification and cleanup scope on 2026-10-04. Preflight found a source prerequisite mismatch before allocation; no lock or lab resource has been created. The approval remains valid for resumption after that fix is merged.
+Date: 2026-10-04 (Asia/Jerusalem). Status: user approved this bounded allocation, qualification and cleanup scope on 2026-10-04. Directory-mode prerequisite merged as Ansible279; qualification reached a worker-node identity retirement gate. See [partial runtime results](../reports/2026-10-04-proxmox-csi-integrated-results.md). Remaining cases are pending.
 
 **Goal:** Qualify the merged shared setup, replacement ordering, recoverable CSI configuration and ArgoCD retained bindings on synthetic data before production activation.
 
@@ -14,7 +14,7 @@ Date: 2026-10-04 (Asia/Jerusalem). Status: user approved this bounded allocation
 ## Verified source and preflight
 
 - Apps1288 merged as `180fea486127c0a1c9460fa0ddf9db25261fd867`; its post-merge Refresh ArgoCD workflow succeeded. The staged descriptor remains outside discovery.
-- Use merged Ansible `11f8c651ecdbe83c5a3fecc935e58ac5f4b667a9` and Terraform `3b8806422f2cf11a3992f05198619493fa8874e9`. Both post-merge workflows succeeded in the preceding integration step.
+- Use merged Ansible `772b5ce3672d8c40ae9de9675786a08695d16216` and Terraform `3b8806422f2cf11a3992f05198619493fa8874e9`. Both post-merge workflows succeeded in the preceding integration step.
 - [Fresh read-only Proxmox inventory](../reports/evidence/2026-10-04-proxmox-csi-integrated-preflight.json) confirms PVE9.2.20, no VMs/containers980–983 or9980, no pools, no dedicated NFS registration, and about136GiB free on vm-pool. Template900 remains the inspected Debian13.7 template with a4GiB boot disk on local-zfs.
 - The merged setup requires fixed names `kubernetes-csi@pve!retained` and `HomelabCSI`; the user, role and ACL references are currently absent. This run may temporarily create those exact names with lab-only grants, then remove them. It must not adopt an existing identity.
 - NAS availability, the proposed new path and host MemAvailable have **not** been refreshed this turn. Prior NAS evidence identifies TrueNAS25.10.7 and apps pool GUID9917900421692286909; repeat all identity/capacity/collision checks immediately before any allocation.

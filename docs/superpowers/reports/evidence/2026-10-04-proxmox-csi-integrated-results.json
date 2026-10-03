@@ -1,0 +1,1061 @@
+{
+  "date": "2026-10-04",
+  "status": "blocked-worker-node-retirement",
+  "runner": {
+    "source_pins": {
+      "terraform": "3b8806422f2cf11a3992f05198619493fa8874e9",
+      "ansible": "772b5ce3672d8c40ae9de9675786a08695d16216",
+      "maintenance_helper": "887269798650e88fed791bb4f22a47bf50ad17be",
+      "apps": "180fea486127c0a1c9460fa0ddf9db25261fd867"
+    },
+    "evidence": {
+      "vm983-first-generation.json": {
+        "name": "csi-int-worker-2",
+        "smbios1": "uuid=dd9e02d6-d88c-4b6e-ab83-c77660cb7632",
+        "net0": "virtio=BC:24:11:76:47:DE,bridge=vmbr0",
+        "virtio0": "vm-pool:vm-983-disk-0,discard=on,iothread=1,replicate=0,size=8G",
+        "ide0": null,
+        "ide2": "local-zfs:vm-983-cloudinit,media=cdrom",
+        "onboot": 0,
+        "memory": "2048"
+      },
+      "vm982-first-generation.json": {
+        "name": "csi-int-worker-1",
+        "smbios1": "uuid=d4171e20-a396-4d00-95ff-9f181132f166",
+        "net0": "virtio=BC:24:11:81:32:68,bridge=vmbr0",
+        "virtio0": "vm-pool:vm-982-disk-0,discard=on,iothread=1,replicate=0,size=8G",
+        "ide0": null,
+        "ide2": "local-zfs:vm-982-cloudinit,media=cdrom",
+        "onboot": 0,
+        "memory": "2048"
+      },
+      "sqlite-initial.json": {
+        "rows": 1000,
+        "prefix_rows": 1000,
+        "prefix_sha256": "93aaa7459e4a1fb4c53bfb6c901b2c3b3d81ea1a0f2b9c1e32ca44ac9691ccc4",
+        "integrity": "ok",
+        "filesystem_capacity_bytes": 2040373248
+      },
+      "volume-initial.json": {
+        "attachment": {
+          "vmid": 982,
+          "slot": "scsi1",
+          "config": "csi-integration-20261004:9980/vm-9980-integration.raw,backup=0,cache=none,iothread=1,replicate=0,size=2G,wwn=0x5056432d49443031"
+        },
+        "filesystem": {
+          "name": "sda",
+          "uuid": "0463dbf9-1a97-4bb4-bce7-8d510be7175c",
+          "fstype": "ext4",
+          "mountpoints": [
+            "/var/lib/kubelet/pods/879789b5-8506-40af-9b28-55f5b06966e7/volumes/kubernetes.io~csi/csi-lab-sqlite/mount",
+            "/var/lib/kubelet/plugins/kubernetes.io/csi/csi.proxmox.sinextra.dev/e1a86810810027fe8c00fd282120e05cd2fa4054b93a85df2fa904ccc2392f10/globalmount"
+          ]
+        },
+        "pv": {
+          "apiVersion": "v1",
+          "kind": "PersistentVolume",
+          "metadata": {
+            "annotations": {
+              "argocd.argoproj.io/tracking-id": "sqlite:/PersistentVolume:csi-lab/csi-lab-sqlite"
+            },
+            "creationTimestamp": "2026-10-03T23:31:01Z",
+            "finalizers": [
+              "kubernetes.io/pv-protection",
+              "external-attacher/csi-proxmox-sinextra-dev"
+            ],
+            "name": "csi-lab-sqlite",
+            "resourceVersion": "1788",
+            "uid": "0fd81d9e-c235-4a95-8dc4-399b8b409375"
+          },
+          "spec": {
+            "accessModes": [
+              "ReadWriteOncePod"
+            ],
+            "capacity": {
+              "storage": "2Gi"
+            },
+            "claimRef": {
+              "apiVersion": "v1",
+              "kind": "PersistentVolumeClaim",
+              "name": "sqlite",
+              "namespace": "csi-lab",
+              "resourceVersion": "1757",
+              "uid": "8b789a0f-6834-4008-9e3b-a22fcd06e79a"
+            },
+            "csi": {
+              "driver": "csi.proxmox.sinextra.dev",
+              "fsType": "ext4",
+              "volumeAttributes": {
+                "cache": "none",
+                "storage": "csi-integration-20261004"
+              },
+              "volumeHandle": "lab//csi-integration-20261004/9980/vm-9980-integration.raw"
+            },
+            "persistentVolumeReclaimPolicy": "Retain",
+            "storageClassName": "proxmox-retained",
+            "volumeMode": "Filesystem"
+          },
+          "status": {
+            "lastPhaseTransitionTime": "2026-10-03T23:31:01Z",
+            "phase": "Bound"
+          }
+        },
+        "pvc": {
+          "apiVersion": "v1",
+          "kind": "PersistentVolumeClaim",
+          "metadata": {
+            "annotations": {
+              "argocd.argoproj.io/tracking-id": "sqlite:/PersistentVolumeClaim:csi-lab/sqlite",
+              "pv.kubernetes.io/bind-completed": "yes"
+            },
+            "creationTimestamp": "2026-10-03T23:31:01Z",
+            "finalizers": [
+              "kubernetes.io/pvc-protection"
+            ],
+            "name": "sqlite",
+            "namespace": "csi-lab",
+            "resourceVersion": "1777",
+            "uid": "8b789a0f-6834-4008-9e3b-a22fcd06e79a"
+          },
+          "spec": {
+            "accessModes": [
+              "ReadWriteOncePod"
+            ],
+            "resources": {
+              "requests": {
+                "storage": "2Gi"
+              }
+            },
+            "storageClassName": "proxmox-retained",
+            "volumeMode": "Filesystem",
+            "volumeName": "csi-lab-sqlite"
+          },
+          "status": {
+            "accessModes": [
+              "ReadWriteOncePod"
+            ],
+            "capacity": {
+              "storage": "2Gi"
+            },
+            "conditions": [
+              {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-03T23:31:01Z",
+                "message": "A pod is currently referencing this PVC",
+                "reason": "PodUsingPVC",
+                "status": "False",
+                "type": "Unused"
+              }
+            ],
+            "phase": "Bound"
+          }
+        }
+      },
+      "worker-replacement-plan.json": {
+        "changes": [
+          {
+            "address": "module.worker_1.proxmox_vm_qemu.vm",
+            "actions": [
+              "delete",
+              "create"
+            ]
+          }
+        ],
+        "old_uuid": "d4171e20-a396-4d00-95ff-9f181132f166"
+      },
+      "worker-recovery-failure.json": {
+        "result": "blocked at fresh agent authentication",
+        "intervention": "terminated lab Ansible after reproduced node password rejection",
+        "original_handoff": "has_changes=true\ndrained_nodes=[\"csi-int-server\",\"csi-int-worker-1\"]\n",
+        "old_uuid": "d4171e20-a396-4d00-95ff-9f181132f166",
+        "new_uuid": "eb2ebfa3-4b51-4c33-b93a-f6be1dddc1fe",
+        "old_node_uid": "c2b0e3f4-859f-4632-91f1-d09b94142e5f",
+        "automatic_recovery_pass": false
+      },
+      "applications-initial.json": {
+        "proxmox-csi": {
+          "sync": "Synced",
+          "health": "Healthy",
+          "conditions": []
+        },
+        "sealed-secrets": {
+          "sync": "Synced",
+          "health": "Healthy",
+          "conditions": []
+        },
+        "sqlite": {
+          "sync": "Synced",
+          "health": "Healthy",
+          "conditions": []
+        }
+      },
+      "worker-rejoin-observation.json": {
+        "worker_uuid": "uuid=eb2ebfa3-4b51-4c33-b93a-f6be1dddc1fe",
+        "kubernetes_uuid": "d4171e20-a396-4d00-95ff-9f181132f166",
+        "node_uid": "c2b0e3f4-859f-4632-91f1-d09b94142e5f",
+        "cordoned": true,
+        "matching_auth_errors": [
+          "time=\"2026-10-04T02:41:14+03:00\" level=info msg=\"Waiting to retrieve agent configuration; server is not ready: /var/lib/rancher/k3s/agent/serving-kubelet.crt: Node password rejected, duplicate hostname or contents of '/etc/rancher/node/password' may not match server node-passwd entry, try enabling a unique node name with the --with-node-id flag\"",
+          "time=\"2026-10-04T02:41:23+03:00\" level=info msg=\"Waiting to retrieve agent configuration; server is not ready: /var/lib/rancher/k3s/agent/serving-kubelet.crt: Node password rejected, duplicate hostname or contents of '/etc/rancher/node/password' may not match server node-passwd entry, try enabling a unique node name with the --with-node-id flag\""
+        ]
+      },
+      "image-pins.json": [
+        {
+          "namespace": "argocd",
+          "pod": "argocd-application-controller-0",
+          "containers": [
+            {
+              "name": "application-controller",
+              "imageID": "quay.io/argoproj/argocd@sha256:dd3f47d5a5e4da563a7a398506e892481b358a7cec50abdf320c71aa55904bfa"
+            }
+          ]
+        },
+        {
+          "namespace": "argocd",
+          "pod": "argocd-applicationset-controller-6f6c568fb6-7rc97",
+          "containers": [
+            {
+              "name": "applicationset-controller",
+              "imageID": "quay.io/argoproj/argocd@sha256:dd3f47d5a5e4da563a7a398506e892481b358a7cec50abdf320c71aa55904bfa"
+            }
+          ]
+        },
+        {
+          "namespace": "argocd",
+          "pod": "argocd-redis-68b9b6b665-pp2cg",
+          "containers": [
+            {
+              "name": "redis",
+              "imageID": "ecr-public.aws.com/docker/library/redis@sha256:2cc044fc5a07c9b701f8f1255a309ae9ad7856e694ac03513bf3648c01e40763"
+            }
+          ]
+        },
+        {
+          "namespace": "argocd",
+          "pod": "argocd-repo-server-859bbfd76d-q8g77",
+          "containers": [
+            {
+              "name": "repo-server",
+              "imageID": "quay.io/argoproj/argocd@sha256:dd3f47d5a5e4da563a7a398506e892481b358a7cec50abdf320c71aa55904bfa"
+            }
+          ]
+        },
+        {
+          "namespace": "argocd",
+          "pod": "argocd-server-b84c65d95-rz5fk",
+          "containers": [
+            {
+              "name": "server",
+              "imageID": "quay.io/argoproj/argocd@sha256:dd3f47d5a5e4da563a7a398506e892481b358a7cec50abdf320c71aa55904bfa"
+            }
+          ]
+        },
+        {
+          "namespace": "csi-lab",
+          "pod": "sqlite-66575d7c9b-p4dz2",
+          "containers": [
+            {
+              "name": "main",
+              "imageID": "docker.io/library/python@sha256:bb2988715db2cf7ace7b53f38f3cffbef7c7046a656bee66245eb0ed386e2e81"
+            }
+          ]
+        },
+        {
+          "namespace": "csi-proxmox",
+          "pod": "proxmox-csi-proxmox-csi-plugin-controller-7dc74ffcf8-f8f6s",
+          "containers": [
+            {
+              "name": "csi-attacher",
+              "imageID": "registry.k8s.io/sig-storage/csi-attacher@sha256:be59d0556508d3dd419cc34c53062f170a28902ef36e832b947c7796458a083d"
+            },
+            {
+              "name": "csi-provisioner",
+              "imageID": "registry.k8s.io/sig-storage/csi-provisioner@sha256:bb057f866177d5f4139a1527e594499cbe0feeb67b63aaca8679dfdf0a6016f9"
+            },
+            {
+              "name": "csi-resizer",
+              "imageID": "registry.k8s.io/sig-storage/csi-resizer@sha256:5e7cbb63fd497fa913caa21fee1a69f727c220c6fa83c5f8bb0995e2ad73a474"
+            },
+            {
+              "name": "liveness-probe",
+              "imageID": "registry.k8s.io/sig-storage/livenessprobe@sha256:88092d100909918ae0a768956cf78c88bc59cd7232720f7cdbdfb5d2e235001e"
+            },
+            {
+              "name": "proxmox-csi-proxmox-csi-plugin-controller",
+              "imageID": "ghcr.io/sergelogvinov/proxmox-csi-controller@sha256:95ef74cce03e89a1706d9b32888a84bf44e0db439c4fe2a4334ce123728d4c3b"
+            }
+          ]
+        },
+        {
+          "namespace": "csi-proxmox",
+          "pod": "proxmox-csi-proxmox-csi-plugin-node-kdnzk",
+          "containers": [
+            {
+              "name": "csi-node-driver-registrar",
+              "imageID": "registry.k8s.io/sig-storage/csi-node-driver-registrar@sha256:11f199f6bec47403b03cb49c79a41f445884b213b382582a60710b8c6fdc316a"
+            },
+            {
+              "name": "liveness-probe",
+              "imageID": "registry.k8s.io/sig-storage/livenessprobe@sha256:88092d100909918ae0a768956cf78c88bc59cd7232720f7cdbdfb5d2e235001e"
+            },
+            {
+              "name": "proxmox-csi-proxmox-csi-plugin-node",
+              "imageID": "ghcr.io/sergelogvinov/proxmox-csi-node@sha256:e0151137a1c5fa4faea9b4622436b203f1dc246ea37a3a77d09d3855c70aabd1"
+            }
+          ]
+        },
+        {
+          "namespace": "csi-proxmox",
+          "pod": "proxmox-csi-proxmox-csi-plugin-node-rsfzv",
+          "containers": [
+            {
+              "name": "csi-node-driver-registrar",
+              "imageID": "registry.k8s.io/sig-storage/csi-node-driver-registrar@sha256:11f199f6bec47403b03cb49c79a41f445884b213b382582a60710b8c6fdc316a"
+            },
+            {
+              "name": "liveness-probe",
+              "imageID": "registry.k8s.io/sig-storage/livenessprobe@sha256:88092d100909918ae0a768956cf78c88bc59cd7232720f7cdbdfb5d2e235001e"
+            },
+            {
+              "name": "proxmox-csi-proxmox-csi-plugin-node",
+              "imageID": "ghcr.io/sergelogvinov/proxmox-csi-node@sha256:e0151137a1c5fa4faea9b4622436b203f1dc246ea37a3a77d09d3855c70aabd1"
+            }
+          ]
+        },
+        {
+          "namespace": "kube-system",
+          "pod": "coredns-577d995dff-7xdnn",
+          "containers": [
+            {
+              "name": "coredns",
+              "imageID": "docker.io/rancher/mirrored-coredns-coredns@sha256:7efd3c635b03efd68c4e8398fc45f0d993d0e9ab016f72c1cefb0fd6d01aa286"
+            }
+          ]
+        },
+        {
+          "namespace": "kube-system",
+          "pod": "helm-install-gateway-api-crd-5q2p2",
+          "containers": [
+            {
+              "name": "helm",
+              "imageID": "docker.io/rancher/klipper-helm@sha256:5425a2b4613d2458dbdff99218e8d487ebb59c20e7a941f061c0777070f0aac1"
+            }
+          ]
+        },
+        {
+          "namespace": "kube-system",
+          "pod": "local-path-provisioner-6858d854cf-4hfsd",
+          "containers": [
+            {
+              "name": "local-path-provisioner",
+              "imageID": "docker.io/rancher/local-path-provisioner@sha256:e757967a5ec338f6a9b371c5a9688bedaa8c3578ea3dd4db329ea0084be0a86f"
+            }
+          ]
+        },
+        {
+          "namespace": "kube-system",
+          "pod": "metrics-server-778c4649b4-k9gff",
+          "containers": [
+            {
+              "name": "metrics-server",
+              "imageID": "docker.io/rancher/mirrored-metrics-server@sha256:d9862115e7c7881280d3d75ca26bda8ffc0fc213315979575bf23ce9826205c0"
+            }
+          ]
+        },
+        {
+          "namespace": "kube-system",
+          "pod": "sealed-secrets-controller-67bc74c985-k5kh8",
+          "containers": [
+            {
+              "name": "controller",
+              "imageID": "docker.io/bitnami/sealed-secrets-controller@sha256:b1ff382e9300dc9e74991f3177b18cafc06ce43b5c21349c86adbdd1d1c177d3"
+            }
+          ]
+        }
+      ],
+      "bootstrap-source.json": {
+        "git_commit": "ed0d1baa1645ca645a74a03db8b8db8b1fb3c8ac",
+        "kubeseal_version": "0.40.0",
+        "kubeseal_sha256": "9314c35916646e9d59c8f06b1314574b4e79c4d76f079433607ed7b697bb5eb7",
+        "sealing_cert_sha256": "0a38c3ae7627efc62f465d7939c9bf9a8ea93dd338ecc51a9ab419f5598231ec",
+        "csi_config_key": "config.yaml",
+        "image_owner": 9980
+      },
+      "worker-diagnostic-recovery.json": {
+        "diagnostic_node_retirement_recovery": "passed",
+        "automatic_original_flow": "failed",
+        "sqlite": {
+          "rows": 1000,
+          "prefix_rows": 1000,
+          "prefix_sha256": "93aaa7459e4a1fb4c53bfb6c901b2c3b3d81ea1a0f2b9c1e32ca44ac9691ccc4",
+          "integrity": "ok",
+          "filesystem_capacity_bytes": 2040373248
+        },
+        "filesystem_uuid": "0463dbf9-1a97-4bb4-bce7-8d510be7175c",
+        "preexisting_survivor_cordon_preserved": true,
+        "node_uid": "84c70031-da3a-40a3-8776-be574ae43aef",
+        "new_system_uuid": "eb2ebfa3-4b51-4c33-b93a-f6be1dddc1fe"
+      }
+    },
+    "logs": {
+      "baseline.log": "{\"applications\": \"Synced Healthy\", \"rows\": 1000, \"integrity\": \"ok\", \"filesystem_uuid\": \"0463dbf9-1a97-4bb4-bce7-8d510be7175c\", \"single_attachment_vmid\": 982, \"terraform_plan\": \"no changes\"}\n",
+      "worker-replace.log": "node/csi-int-worker-1 cordoned\nnode/csi-int-worker-2 already cordoned\nnode/csi-int-server cordoned\nnode/csi-int-worker-1 already cordoned\nWarning: ignoring DaemonSet-managed Pods: csi-proxmox/proxmox-csi-proxmox-csi-plugin-node-rsfzv\npod/argocd-applicationset-controller-6f6c568fb6-7rc97 deleted\npod/argocd-server-b84c65d95-rz5fk deleted\npod/sqlite-66575d7c9b-p4dz2 deleted\nnode/csi-int-worker-1 drained\nnode/csi-int-worker-2 already cordoned\nWarning: ignoring DaemonSet-managed Pods: csi-proxmox/proxmox-csi-proxmox-csi-plugin-node-kdnzk\npod/argocd-redis-68b9b6b665-pp2cg deleted\npod/argocd-repo-server-859bbfd76d-q8g77 deleted\npod/sealed-secrets-controller-67bc74c985-k5kh8 deleted\nnode/csi-int-worker-2 drained\nnode/csi-int-server already cordoned\npod/helm-install-gateway-api-crd-5q2p2 deleted\npod/argocd-application-controller-0 deleted\npod/proxmox-csi-proxmox-csi-plugin-controller-7dc74ffcf8-f8f6s deleted\npod/coredns-577d995dff-7xdnn deleted\npod/local-path-provisioner-6858d854cf-4hfsd deleted\npod/metrics-server-778c4649b4-k9gff deleted\nnode/csi-int-server drained\n\u001b[0m\u001b[1mInitializing the backend...\u001b[0m\n\n\u001b[0m\u001b[1mInitializing modules...\u001b[0m\n\n\u001b[0m\u001b[1mInitializing provider plugins...\u001b[0m\n- Reusing previous version of telmate/proxmox from the dependency lock file\n- Using previously-installed telmate/proxmox v3.0.2-rc10\n\n\u001b[0m\u001b[1m\u001b[32mTerraform has been successfully initialized!\u001b[0m\u001b[32m\u001b[0m\n\u001b[0m\u001b[32m\nYou may now begin working with Terraform. Try running \"terraform plan\" to see\nany changes that are required for your infrastructure. All Terraform commands\nshould now work.\n\nIf you ever set or change modules or backend configuration for Terraform,\nrerun this command to reinitialize your working directory. If you forget, other\ncommands will detect it and remind you to do so if necessary.\u001b[0m\n\u001b[0m\u001b[1mmodule.worker_1.proxmox_vm_qemu.vm: Destroying... [id=pve/qemu/982]\u001b[0m\u001b[0m\n\u001b[0m\u001b[1mmodule.worker_1.proxmox_vm_qemu.vm: Destruction complete after 4s\u001b[0m\n\u001b[0m\u001b[1mmodule.worker_1.proxmox_vm_qemu.vm: Creating...\u001b[0m\u001b[0m\n\u001b[0m\u001b[1mmodule.worker_1.proxmox_vm_qemu.vm: Still creating... [00m10s elapsed]\u001b[0m\u001b[0m\n\u001b[0m\u001b[1mmodule.worker_1.proxmox_vm_qemu.vm: Still creating... [00m20s elapsed]\u001b[0m\u001b[0m\n\u001b[0m\u001b[1mmodule.worker_1.proxmox_vm_qemu.vm: Still creating... [00m30s elapsed]\u001b[0m\u001b[0m\n\u001b[0m\u001b[1mmodule.worker_1.proxmox_vm_qemu.vm: Still creating... [00m40s elapsed]\u001b[0m\u001b[0m\n\u001b[0m\u001b[1mmodule.worker_1.proxmox_vm_qemu.vm: Creation complete after 48s [id=pve/qemu/982]\u001b[0m\n\u001b[0m\u001b[1m\u001b[32m\nApply complete! Resources: 1 added, 0 changed, 1 destroyed.\u001b[0m\n\u001b[0m\u001b[1m\u001b[32m\nOutputs:\n\n\u001b[0mgenerations = {\n  \"server\" = \"b154933e-4f04-45ff-aa18-6f62266f1934\"\n  \"worker_1\" = \"eb2ebfa3-4b51-4c33-b93a-f6be1dddc1fe\"\n  \"worker_2\" = \"dd9e02d6-d88c-4b6e-ab83-c77660cb7632\"\n}\nNative drain/apply completed; successful handoff saved; available GiB 6.35\n",
+      "server-recovery-apply.log": "\u001b[0m\u001b[1mmodule.server.proxmox_vm_qemu.vm: Destroying... [id=pve/qemu/981]\u001b[0m\u001b[0m\n\u001b[0m\u001b[1mmodule.server.proxmox_vm_qemu.vm: Destruction complete after 2s\u001b[0m\n\u001b[0m\u001b[1mmodule.server.proxmox_vm_qemu.vm: Creating...\u001b[0m\u001b[0m\n\u001b[0m\u001b[1mmodule.server.proxmox_vm_qemu.vm: Still creating... [00m10s elapsed]\u001b[0m\u001b[0m\n\u001b[0m\u001b[1mmodule.server.proxmox_vm_qemu.vm: Still creating... [00m20s elapsed]\u001b[0m\u001b[0m\n\u001b[0m\u001b[1mmodule.server.proxmox_vm_qemu.vm: Still creating... [00m30s elapsed]\u001b[0m\u001b[0m\n\u001b[0m\u001b[1mmodule.server.proxmox_vm_qemu.vm: Still creating... [00m40s elapsed]\u001b[0m\u001b[0m\n\u001b[0m\u001b[1mmodule.server.proxmox_vm_qemu.vm: Creation complete after 46s [id=pve/qemu/981]\u001b[0m\n\u001b[33m\u2577\u001b[0m\u001b[0m\n\u001b[33m\u2502\u001b[0m \u001b[0m\u001b[1m\u001b[33mWarning: \u001b[0m\u001b[0m\u001b[1mApplied changes may be incomplete\u001b[0m\n\u001b[33m\u2502\u001b[0m \u001b[0m\n\u001b[33m\u2502\u001b[0m \u001b[0m\u001b[0mThe plan was created with the -target option in effect, so some changes\n\u001b[33m\u2502\u001b[0m \u001b[0mrequested in the configuration may have been ignored and the output values\n\u001b[33m\u2502\u001b[0m \u001b[0mmay not be fully updated. Run the following command to verify that no other\n\u001b[33m\u2502\u001b[0m \u001b[0mchanges are pending:\n\u001b[33m\u2502\u001b[0m \u001b[0m    terraform plan\n\u001b[33m\u2502\u001b[0m \u001b[0m\n\u001b[33m\u2502\u001b[0m \u001b[0mNote that the -target option is not suitable for routine use, and is\n\u001b[33m\u2502\u001b[0m \u001b[0mprovided only for exceptional situations such as recovering from errors or\n\u001b[33m\u2502\u001b[0m \u001b[0mmistakes, or when Terraform specifically suggests to use it as part of an\n\u001b[33m\u2502\u001b[0m \u001b[0merror message.\n\u001b[33m\u2575\u001b[0m\u001b[0m\n\u001b[0m\u001b[1m\u001b[32m\nApply complete! Resources: 1 added, 0 changed, 1 destroyed.\u001b[0m\n",
+      "final-create-plan.log": "\u001b[0m\u001b[1mmodule.server.proxmox_vm_qemu.vm: Refreshing state... [id=pve/qemu/981]\u001b[0m\n\u001b[0m\u001b[1mmodule.worker_1.proxmox_vm_qemu.vm: Refreshing state... [id=pve/qemu/982]\u001b[0m\n\u001b[0m\u001b[1mmodule.worker_2.proxmox_vm_qemu.vm: Refreshing state... [id=pve/qemu/983]\u001b[0m\n\n\u001b[0m\u001b[1m\u001b[32mNo changes.\u001b[0m\u001b[1m Your infrastructure matches the configuration.\u001b[0m\n\n\u001b[0mTerraform has compared your real infrastructure against your configuration\nand found no differences, so no changes are needed.\n",
+      "terraform-with-csi.log": "\u001b[0m\u001b[1mmodule.server.proxmox_vm_qemu.vm: Refreshing state... [id=pve/qemu/981]\u001b[0m\n\u001b[0m\u001b[1mmodule.worker_2.proxmox_vm_qemu.vm: Refreshing state... [id=pve/qemu/983]\u001b[0m\n\u001b[0m\u001b[1mmodule.worker_1.proxmox_vm_qemu.vm: Refreshing state... [id=pve/qemu/982]\u001b[0m\n\n\u001b[0m\u001b[1m\u001b[32mNo changes.\u001b[0m\u001b[1m Your infrastructure matches the configuration.\u001b[0m\n\n\u001b[0mTerraform has compared your real infrastructure against your configuration\nand found no differences, so no changes are needed.\n",
+      "ansible/k3s-retry.log": "\nPLAY [Wait for SSH availability on all nodes] **********************************\n\nTASK [Wait for SSH to become available] ****************************************\nok: [csi-int-server -> localhost]\nok: [csi-int-worker-1 -> localhost]\nok: [csi-int-worker-2 -> localhost]\n\nPLAY [Initialize k3s cluster] **************************************************\n\nTASK [Gathering Facts] *********************************************************\nok: [csi-int-server]\n\nTASK [k3s_common : Validate enabled Proxmox CSI topology before configuring the node] ***\nok: [csi-int-server] => {\n    \"changed\": false,\n    \"msg\": \"All assertions passed\"\n}\n\nTASK [k3s_common : Set sysctl parameters for Kubernetes] ***********************\nok: [csi-int-server] => (item={'key': 'fs.inotify.max_user_instances', 'value': '512'})\nok: [csi-int-server] => (item={'key': 'fs.inotify.max_user_watches', 'value': '524288'})\n\nTASK [k3s_common : Ensure K3s config directory exists] *************************\nok: [csi-int-server]\n\nTASK [k3s_common : Configure Docker Hub registry auth] *************************\nok: [csi-int-server]\n\nTASK [k3s_common : Read the resolver cloud-init configured on this node] *******\nok: [csi-int-server]\n\nTASK [k3s_common : Extract its nameservers] ************************************\nok: [csi-int-server]\n\nTASK [k3s_common : Refuse to write an empty resolver] **************************\nok: [csi-int-server] => {\n    \"changed\": false,\n    \"msg\": \"All assertions passed\"\n}\n\nTASK [k3s_common : Provide kubelet a pod-safe resolver] ************************\nok: [csi-int-server]\n\nTASK [k3s_common : Write the K3s node config] **********************************\nok: [csi-int-server]\n\nTASK [k3s_common : Configure K3s internal leader election] *********************\nok: [csi-int-server]\n\nTASK [k3s_common : Check if K3s is already installed] **************************\nok: [csi-int-server]\n\nTASK [k3s_common : Download K3s install script] ********************************\nskipping: [csi-int-server]\n\nTASK [k3s_init : Install K3s (Init)] *******************************************\nskipping: [csi-int-server]\n\nTASK [k3s_init : Wait for K3s to be ready] *************************************\nok: [csi-int-server]\n\nTASK [k3s_init : Setup local kubeconfig] ***************************************\nincluded: /root/csi-integration/ansible/roles/k3s_init/tasks/kubeconfig.yml for csi-int-server\n\nTASK [k3s_init : Fetch k3s kubeconfig] *****************************************\nok: [csi-int-server]\n\nTASK [k3s_init : Create .kube directory on runner] *****************************\nok: [csi-int-server -> localhost]\n\nTASK [k3s_init : Write sanitized kubeconfig to runner] *************************\nok: [csi-int-server -> localhost]\n\nPLAY [Harvest cluster token & VIP check] ***************************************\n\nTASK [Fetch node token] ********************************************************\nok: [csi-int-server]\n\nTASK [Set token fact globally] *************************************************\nok: [csi-int-server] => (item=csi-int-server)\nok: [csi-int-server -> csi-int-worker-1] => (item=csi-int-worker-1)\nok: [csi-int-server -> csi-int-worker-2] => (item=csi-int-worker-2)\n\nTASK [Wait for API Server on VIP] **********************************************\nok: [csi-int-server -> localhost]\n\nPLAY [Join additional masters] *************************************************\nskipping: no hosts matched\n\nPLAY [Prepare reviewed worker storage identities] ******************************\n\nTASK [Gathering Facts] *********************************************************\nok: [csi-int-worker-2]\nok: [csi-int-worker-1]\n\nTASK [iscsi_initiator : Verify shared external maintenance ownership before enrollment] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Inspect existing initiator identity and active sessions without changing them] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Read explicit enrollment review from durable external storage] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Validate enrollment and previous generation retirement before installing or changing identity] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Refuse a live initiator identity change] ***************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Install initiator tools without automatically starting services] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Load iSCSI TCP transport] ******************************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Persist iSCSI TCP transport module] ********************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Write reviewed initiator identity] *********************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Apply identity before starting initiator] **************\nskipping: [csi-int-worker-1]\n\nTASK [iscsi_initiator : Apply identity before starting initiator] **************\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Enable initiator service] ******************************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Verify storage-network route selects reviewed source address] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Validate initiator route and publish prerequisite fact] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Mark this verified generation ready for node labeling] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nPLAY [Join workers] ************************************************************\n\nTASK [Gathering Facts] *********************************************************\nok: [csi-int-worker-2]\nok: [csi-int-worker-1]\n\nTASK [k3s_common : Validate enabled Proxmox CSI topology before configuring the node] ***\nok: [csi-int-worker-1] => {\n    \"changed\": false,\n    \"msg\": \"All assertions passed\"\n}\nok: [csi-int-worker-2] => {\n    \"changed\": false,\n    \"msg\": \"All assertions passed\"\n}\n\nTASK [k3s_common : Set sysctl parameters for Kubernetes] ***********************\nok: [csi-int-worker-1] => (item={'key': 'fs.inotify.max_user_instances', 'value': '512'})\nok: [csi-int-worker-2] => (item={'key': 'fs.inotify.max_user_instances', 'value': '512'})\nok: [csi-int-worker-1] => (item={'key': 'fs.inotify.max_user_watches', 'value': '524288'})\nok: [csi-int-worker-2] => (item={'key': 'fs.inotify.max_user_watches', 'value': '524288'})\n\nTASK [k3s_common : Ensure K3s config directory exists] *************************\nok: [csi-int-worker-1]\nok: [csi-int-worker-2]\n\nTASK [k3s_common : Configure Docker Hub registry auth] *************************\nok: [csi-int-worker-1]\nok: [csi-int-worker-2]\n\nTASK [k3s_common : Read the resolver cloud-init configured on this node] *******\nok: [csi-int-worker-1]\nok: [csi-int-worker-2]\n\nTASK [k3s_common : Extract its nameservers] ************************************\nok: [csi-int-worker-1]\nok: [csi-int-worker-2]\n\nTASK [k3s_common : Refuse to write an empty resolver] **************************\nok: [csi-int-worker-1] => {\n    \"changed\": false,\n    \"msg\": \"All assertions passed\"\n}\nok: [csi-int-worker-2] => {\n    \"changed\": false,\n    \"msg\": \"All assertions passed\"\n}\n\nTASK [k3s_common : Provide kubelet a pod-safe resolver] ************************\nok: [csi-int-worker-2]\nok: [csi-int-worker-1]\n\nTASK [k3s_common : Write the K3s node config] **********************************\nok: [csi-int-worker-1]\nok: [csi-int-worker-2]\n\nTASK [k3s_common : Configure K3s internal leader election] *********************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [k3s_common : Check if K3s is already installed] **************************\nok: [csi-int-worker-2]\nok: [csi-int-worker-1]\n\nTASK [k3s_common : Download K3s install script] ********************************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [k3s_workers : Join worker to cluster] ************************************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [k3s_workers : Wait for K3s agent to be ready] ****************************\nok: [csi-int-worker-1]\nok: [csi-int-worker-2]\n\nTASK [k3s_workers : Label worker node] *****************************************\nchanged: [csi-int-worker-1 -> localhost]\nchanged: [csi-int-worker-2 -> localhost]\n\nTASK [k3s_workers : Read current Kubernetes worker UID] ************************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [k3s_workers : Require one exact current worker] **************************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [k3s_workers : Write generation observation without authorizing a workload] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [k3s_workers : Label only verified storage-ready worker generation] *******\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nPLAY [Recover nodes drained by Terraform] **************************************\n\nTASK [Validate drain handoff] **************************************************\nok: [localhost] => {\n    \"changed\": false,\n    \"msg\": \"All assertions passed\"\n}\n\nTASK [Wait for current inventory nodes to register and become Ready] ***********\nskipping: [localhost] => (item=csi-int-server) \nskipping: [localhost] => (item=csi-int-worker-1) \nskipping: [localhost] => (item=csi-int-worker-2) \nskipping: [localhost]\n\nTASK [Uncordon surviving nodes that Terraform made unschedulable] **************\nskipping: [localhost]\n\nPLAY [Bootstrap cluster] *******************************************************\n\nPLAY RECAP *********************************************************************\ncsi-int-server             : ok=21   changed=0    unreachable=0    failed=0    skipped=2    rescued=0    ignored=0   \ncsi-int-worker-1           : ok=15   changed=1    unreachable=0    failed=0    skipped=20   rescued=0    ignored=0   \ncsi-int-worker-2           : ok=15   changed=1    unreachable=0    failed=0    skipped=20   rescued=0    ignored=0   \nlocalhost                  : ok=1    changed=0    unreachable=0    failed=0    skipped=2    rescued=0    ignored=0   \n\n",
+      "ansible/topology.log": "\nPLAY [localhost] ***************************************************************\n\nTASK [Wait for every inventory node to register] *******************************\nok: [localhost] => (item=csi-int-server)\nok: [localhost] => (item=csi-int-worker-1)\nok: [localhost] => (item=csi-int-worker-2)\n\nTASK [Reconcile native Proxmox topology labels on existing nodes] **************\nok: [localhost] => (item=csi-int-server)\nok: [localhost] => (item=csi-int-worker-1)\nok: [localhost] => (item=csi-int-worker-2)\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   \n\n",
+      "ansible/worker-recovery.log": "\nPLAY [Wait for SSH availability on all nodes] **********************************\n\nTASK [Wait for SSH to become available] ****************************************\nok: [csi-int-worker-1 -> localhost]\nok: [csi-int-server -> localhost]\nok: [csi-int-worker-2 -> localhost]\n\nPLAY [Initialize k3s cluster] **************************************************\n\nTASK [Gathering Facts] *********************************************************\nok: [csi-int-server]\n\nTASK [k3s_common : Validate enabled Proxmox CSI topology before configuring the node] ***\nok: [csi-int-server] => {\n    \"changed\": false,\n    \"msg\": \"All assertions passed\"\n}\n\nTASK [k3s_common : Set sysctl parameters for Kubernetes] ***********************\nok: [csi-int-server] => (item={'key': 'fs.inotify.max_user_instances', 'value': '512'})\nok: [csi-int-server] => (item={'key': 'fs.inotify.max_user_watches', 'value': '524288'})\n\nTASK [k3s_common : Ensure K3s config directory exists] *************************\nok: [csi-int-server]\n\nTASK [k3s_common : Configure Docker Hub registry auth] *************************\nok: [csi-int-server]\n\nTASK [k3s_common : Read the resolver cloud-init configured on this node] *******\nok: [csi-int-server]\n\nTASK [k3s_common : Extract its nameservers] ************************************\nok: [csi-int-server]\n\nTASK [k3s_common : Refuse to write an empty resolver] **************************\nok: [csi-int-server] => {\n    \"changed\": false,\n    \"msg\": \"All assertions passed\"\n}\n\nTASK [k3s_common : Provide kubelet a pod-safe resolver] ************************\nok: [csi-int-server]\n\nTASK [k3s_common : Write the K3s node config] **********************************\nok: [csi-int-server]\n\nTASK [k3s_common : Configure K3s internal leader election] *********************\nok: [csi-int-server]\n\nTASK [k3s_common : Check if K3s is already installed] **************************\nok: [csi-int-server]\n\nTASK [k3s_common : Download K3s install script] ********************************\nskipping: [csi-int-server]\n\nTASK [k3s_init : Install K3s (Init)] *******************************************\nskipping: [csi-int-server]\n\nTASK [k3s_init : Wait for K3s to be ready] *************************************\nok: [csi-int-server]\n\nTASK [k3s_init : Setup local kubeconfig] ***************************************\nincluded: /root/csi-integration/ansible/roles/k3s_init/tasks/kubeconfig.yml for csi-int-server\n\nTASK [k3s_init : Fetch k3s kubeconfig] *****************************************\nok: [csi-int-server]\n\nTASK [k3s_init : Create .kube directory on runner] *****************************\nok: [csi-int-server -> localhost]\n\nTASK [k3s_init : Write sanitized kubeconfig to runner] *************************\nok: [csi-int-server -> localhost]\n\nPLAY [Harvest cluster token & VIP check] ***************************************\n\nTASK [Fetch node token] ********************************************************\nok: [csi-int-server]\n\nTASK [Set token fact globally] *************************************************\nok: [csi-int-server] => (item=csi-int-server)\nok: [csi-int-server -> csi-int-worker-1] => (item=csi-int-worker-1)\nok: [csi-int-server -> csi-int-worker-2] => (item=csi-int-worker-2)\n\nTASK [Wait for API Server on VIP] **********************************************\nok: [csi-int-server -> localhost]\n\nPLAY [Join additional masters] *************************************************\nskipping: no hosts matched\n\nPLAY [Prepare reviewed worker storage identities] ******************************\n\nTASK [Gathering Facts] *********************************************************\nok: [csi-int-worker-1]\nok: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Verify shared external maintenance ownership before enrollment] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Inspect existing initiator identity and active sessions without changing them] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Read explicit enrollment review from durable external storage] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Validate enrollment and previous generation retirement before installing or changing identity] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Refuse a live initiator identity change] ***************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Install initiator tools without automatically starting services] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Load iSCSI TCP transport] ******************************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Persist iSCSI TCP transport module] ********************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Write reviewed initiator identity] *********************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Apply identity before starting initiator] **************\nskipping: [csi-int-worker-1]\n\nTASK [iscsi_initiator : Apply identity before starting initiator] **************\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Enable initiator service] ******************************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Verify storage-network route selects reviewed source address] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Validate initiator route and publish prerequisite fact] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Mark this verified generation ready for node labeling] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nPLAY [Join workers] ************************************************************\n\nTASK [Gathering Facts] *********************************************************\nok: [csi-int-worker-1]\nok: [csi-int-worker-2]\n\nTASK [k3s_common : Validate enabled Proxmox CSI topology before configuring the node] ***\nok: [csi-int-worker-1] => {\n    \"changed\": false,\n    \"msg\": \"All assertions passed\"\n}\nok: [csi-int-worker-2] => {\n    \"changed\": false,\n    \"msg\": \"All assertions passed\"\n}\n\nTASK [k3s_common : Set sysctl parameters for Kubernetes] ***********************\nok: [csi-int-worker-2] => (item={'key': 'fs.inotify.max_user_instances', 'value': '512'})\nchanged: [csi-int-worker-1] => (item={'key': 'fs.inotify.max_user_instances', 'value': '512'})\nchanged: [csi-int-worker-1] => (item={'key': 'fs.inotify.max_user_watches', 'value': '524288'})\nok: [csi-int-worker-2] => (item={'key': 'fs.inotify.max_user_watches', 'value': '524288'})\n\nTASK [k3s_common : Ensure K3s config directory exists] *************************\nchanged: [csi-int-worker-1]\nok: [csi-int-worker-2]\n\nTASK [k3s_common : Configure Docker Hub registry auth] *************************\nok: [csi-int-worker-2]\nchanged: [csi-int-worker-1]\n\nTASK [k3s_common : Read the resolver cloud-init configured on this node] *******\nok: [csi-int-worker-2]\nok: [csi-int-worker-1]\n\nTASK [k3s_common : Extract its nameservers] ************************************\nok: [csi-int-worker-1]\nok: [csi-int-worker-2]\n\nTASK [k3s_common : Refuse to write an empty resolver] **************************\nok: [csi-int-worker-1] => {\n    \"changed\": false,\n    \"msg\": \"All assertions passed\"\n}\nok: [csi-int-worker-2] => {\n    \"changed\": false,\n    \"msg\": \"All assertions passed\"\n}\n\nTASK [k3s_common : Provide kubelet a pod-safe resolver] ************************\nchanged: [csi-int-worker-1]\nok: [csi-int-worker-2]\n\nTASK [k3s_common : Write the K3s node config] **********************************\nchanged: [csi-int-worker-1]\nok: [csi-int-worker-2]\n\nTASK [k3s_common : Configure K3s internal leader election] *********************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [k3s_common : Check if K3s is already installed] **************************\nok: [csi-int-worker-1]\nok: [csi-int-worker-2]\n\nTASK [k3s_common : Download K3s install script] ********************************\nskipping: [csi-int-worker-2]\nchanged: [csi-int-worker-1]\n\nTASK [k3s_workers : Join worker to cluster] ************************************\n",
+      "ansible/worker-diagnostic-recovery.log": "\nPLAY [Wait for SSH availability on all nodes] **********************************\n\nTASK [Wait for SSH to become available] ****************************************\nok: [csi-int-worker-2 -> localhost]\nok: [csi-int-server -> localhost]\nok: [csi-int-worker-1 -> localhost]\n\nPLAY [Initialize k3s cluster] **************************************************\n\nTASK [Gathering Facts] *********************************************************\nok: [csi-int-server]\n\nTASK [k3s_common : Validate enabled Proxmox CSI topology before configuring the node] ***\nok: [csi-int-server] => {\n    \"changed\": false,\n    \"msg\": \"All assertions passed\"\n}\n\nTASK [k3s_common : Set sysctl parameters for Kubernetes] ***********************\nok: [csi-int-server] => (item={'key': 'fs.inotify.max_user_instances', 'value': '512'})\nok: [csi-int-server] => (item={'key': 'fs.inotify.max_user_watches', 'value': '524288'})\n\nTASK [k3s_common : Ensure K3s config directory exists] *************************\nok: [csi-int-server]\n\nTASK [k3s_common : Configure Docker Hub registry auth] *************************\nok: [csi-int-server]\n\nTASK [k3s_common : Read the resolver cloud-init configured on this node] *******\nok: [csi-int-server]\n\nTASK [k3s_common : Extract its nameservers] ************************************\nok: [csi-int-server]\n\nTASK [k3s_common : Refuse to write an empty resolver] **************************\nok: [csi-int-server] => {\n    \"changed\": false,\n    \"msg\": \"All assertions passed\"\n}\n\nTASK [k3s_common : Provide kubelet a pod-safe resolver] ************************\nok: [csi-int-server]\n\nTASK [k3s_common : Write the K3s node config] **********************************\nok: [csi-int-server]\n\nTASK [k3s_common : Configure K3s internal leader election] *********************\nok: [csi-int-server]\n\nTASK [k3s_common : Check if K3s is already installed] **************************\nok: [csi-int-server]\n\nTASK [k3s_common : Download K3s install script] ********************************\nskipping: [csi-int-server]\n\nTASK [k3s_init : Install K3s (Init)] *******************************************\nskipping: [csi-int-server]\n\nTASK [k3s_init : Wait for K3s to be ready] *************************************\nok: [csi-int-server]\n\nTASK [k3s_init : Setup local kubeconfig] ***************************************\nincluded: /root/csi-integration/ansible/roles/k3s_init/tasks/kubeconfig.yml for csi-int-server\n\nTASK [k3s_init : Fetch k3s kubeconfig] *****************************************\nok: [csi-int-server]\n\nTASK [k3s_init : Create .kube directory on runner] *****************************\nok: [csi-int-server -> localhost]\n\nTASK [k3s_init : Write sanitized kubeconfig to runner] *************************\nok: [csi-int-server -> localhost]\n\nPLAY [Harvest cluster token & VIP check] ***************************************\n\nTASK [Fetch node token] ********************************************************\nok: [csi-int-server]\n\nTASK [Set token fact globally] *************************************************\nok: [csi-int-server] => (item=csi-int-server)\nok: [csi-int-server -> csi-int-worker-1] => (item=csi-int-worker-1)\nok: [csi-int-server -> csi-int-worker-2] => (item=csi-int-worker-2)\n\nTASK [Wait for API Server on VIP] **********************************************\nok: [csi-int-server -> localhost]\n\nPLAY [Join additional masters] *************************************************\nskipping: no hosts matched\n\nPLAY [Prepare reviewed worker storage identities] ******************************\n\nTASK [Gathering Facts] *********************************************************\nok: [csi-int-worker-2]\nok: [csi-int-worker-1]\n\nTASK [iscsi_initiator : Verify shared external maintenance ownership before enrollment] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Inspect existing initiator identity and active sessions without changing them] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Read explicit enrollment review from durable external storage] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Validate enrollment and previous generation retirement before installing or changing identity] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Refuse a live initiator identity change] ***************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Install initiator tools without automatically starting services] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Load iSCSI TCP transport] ******************************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Persist iSCSI TCP transport module] ********************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Write reviewed initiator identity] *********************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Apply identity before starting initiator] **************\nskipping: [csi-int-worker-1]\n\nTASK [iscsi_initiator : Apply identity before starting initiator] **************\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Enable initiator service] ******************************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Verify storage-network route selects reviewed source address] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Validate initiator route and publish prerequisite fact] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [iscsi_initiator : Mark this verified generation ready for node labeling] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nPLAY [Join workers] ************************************************************\n\nTASK [Gathering Facts] *********************************************************\nok: [csi-int-worker-2]\nok: [csi-int-worker-1]\n\nTASK [k3s_common : Validate enabled Proxmox CSI topology before configuring the node] ***\nok: [csi-int-worker-1] => {\n    \"changed\": false,\n    \"msg\": \"All assertions passed\"\n}\nok: [csi-int-worker-2] => {\n    \"changed\": false,\n    \"msg\": \"All assertions passed\"\n}\n\nTASK [k3s_common : Set sysctl parameters for Kubernetes] ***********************\nok: [csi-int-worker-2] => (item={'key': 'fs.inotify.max_user_instances', 'value': '512'})\nok: [csi-int-worker-1] => (item={'key': 'fs.inotify.max_user_instances', 'value': '512'})\nok: [csi-int-worker-2] => (item={'key': 'fs.inotify.max_user_watches', 'value': '524288'})\nok: [csi-int-worker-1] => (item={'key': 'fs.inotify.max_user_watches', 'value': '524288'})\n\nTASK [k3s_common : Ensure K3s config directory exists] *************************\nok: [csi-int-worker-2]\nok: [csi-int-worker-1]\n\nTASK [k3s_common : Configure Docker Hub registry auth] *************************\nok: [csi-int-worker-2]\nok: [csi-int-worker-1]\n\nTASK [k3s_common : Read the resolver cloud-init configured on this node] *******\nok: [csi-int-worker-2]\nok: [csi-int-worker-1]\n\nTASK [k3s_common : Extract its nameservers] ************************************\nok: [csi-int-worker-1]\nok: [csi-int-worker-2]\n\nTASK [k3s_common : Refuse to write an empty resolver] **************************\nok: [csi-int-worker-1] => {\n    \"changed\": false,\n    \"msg\": \"All assertions passed\"\n}\nok: [csi-int-worker-2] => {\n    \"changed\": false,\n    \"msg\": \"All assertions passed\"\n}\n\nTASK [k3s_common : Provide kubelet a pod-safe resolver] ************************\nok: [csi-int-worker-2]\nok: [csi-int-worker-1]\n\nTASK [k3s_common : Write the K3s node config] **********************************\nok: [csi-int-worker-2]\nok: [csi-int-worker-1]\n\nTASK [k3s_common : Configure K3s internal leader election] *********************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [k3s_common : Check if K3s is already installed] **************************\nok: [csi-int-worker-2]\nok: [csi-int-worker-1]\n\nTASK [k3s_common : Download K3s install script] ********************************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [k3s_workers : Join worker to cluster] ************************************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [k3s_workers : Wait for K3s agent to be ready] ****************************\nok: [csi-int-worker-2]\nok: [csi-int-worker-1]\n\nTASK [k3s_workers : Label worker node] *****************************************\nchanged: [csi-int-worker-1 -> localhost]\nok: [csi-int-worker-2 -> localhost]\n\nTASK [k3s_workers : Read current Kubernetes worker UID] ************************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [k3s_workers : Require one exact current worker] **************************\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [k3s_workers : Write generation observation without authorizing a workload] ***\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nTASK [k3s_workers : Label only verified storage-ready worker generation] *******\nskipping: [csi-int-worker-1]\nskipping: [csi-int-worker-2]\n\nPLAY [Recover nodes drained by Terraform] **************************************\n\nTASK [Validate drain handoff] **************************************************\nok: [localhost] => {\n    \"changed\": false,\n    \"msg\": \"All assertions passed\"\n}\n\nTASK [Wait for current inventory nodes to register and become Ready] ***********\nok: [localhost] => (item=csi-int-server)\nok: [localhost] => (item=csi-int-worker-1)\nok: [localhost] => (item=csi-int-worker-2)\n\nTASK [Uncordon surviving nodes that Terraform made unschedulable] **************\nchanged: [localhost] => (item=csi-int-server)\nok: [localhost] => (item=csi-int-worker-1)\n\nPLAY [Bootstrap cluster] *******************************************************\n\nPLAY RECAP *********************************************************************\ncsi-int-server             : ok=21   changed=0    unreachable=0    failed=0    skipped=2    rescued=0    ignored=0   \ncsi-int-worker-1           : ok=15   changed=1    unreachable=0    failed=0    skipped=20   rescued=0    ignored=0   \ncsi-int-worker-2           : ok=15   changed=0    unreachable=0    failed=0    skipped=20   rescued=0    ignored=0   \nlocalhost                  : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   \n\n"
+    },
+    "sources": {
+      "tf.py": "import json,os,subprocess,sys\nfrom pathlib import Path\np=Path('/root/csi-integration');c=json.loads((p/'private/terraform-token.json').read_text())\nenv=dict(os.environ,PM_API_TOKEN_ID=c['token_id'],PM_API_TOKEN_SECRET=c['token_secret'],TF_IN_AUTOMATION='1')\nsys.exit(subprocess.call(['terraform',*sys.argv[1:]],cwd=p/'tf-work',env=env))\n",
+      "labutil.py": "from pathlib import Path\nimport os,subprocess,json,urllib.request,urllib.parse,ssl\nR=Path('/root/csi-integration');os.environ['KUBECONFIG']='/root/.kube/config'\ndef facts():return {str(x['vmid']):x for x in json.loads((R/'nodes-access.json').read_text())['nodes']}\ndef node(vmid,code):\n v=facts()[str(vmid)];guard='set -euo pipefail\\ntest \"$(cat /sys/class/dmi/id/product_uuid)\" = \"'+v['uuid']+'\"\\ntest \"$(hostname -s)\" = \"'+v['name']+'\"\\n'\n p=subprocess.run(['ssh','-i',str(R/'id_ed25519'),'-o','IdentitiesOnly=yes','-o','BatchMode=yes','-o','StrictHostKeyChecking=yes','-o','UserKnownHostsFile='+str(R/'nodes-known_hosts'),'csi-lab@'+v['ip'],'sudo','-n','bash','-s'],input=guard+code,text=True,capture_output=True,timeout=240)\n if p.returncode:raise RuntimeError(v['name']+': '+p.stderr[-1500:])\n return p.stdout\ndef api(method,path,params=None,identity='terraform'):\n a=json.loads((R/'private'/f'{identity}-token.json').read_text());data=None if params is None else urllib.parse.urlencode(params).encode()\n req=urllib.request.Request('https://10.9.9.20:8006/api2/json'+path,data=data,method=method,headers={'Authorization':'PVEAPIToken='+a['token_id']+'='+a['token_secret']})\n with urllib.request.urlopen(req,context=ssl._create_unverified_context(),timeout=45) as f:return json.load(f)['data']\ndef k(*args,input=None):return subprocess.check_output(['kubectl',*args],input=input,text=True,timeout=240)\ndef j(*args):return json.loads(k(*args,'-o','json'))\ndef save(name,data):\n (R/'evidence').mkdir(exist_ok=True);(R/'evidence'/name).write_text(json.dumps(data,indent=2)+'\\n')\ndef tf(args,log):\n with (R/log).open('w') as out:p=subprocess.run(['python3',str(R/'tf.py'),*args],stdout=out,stderr=subprocess.STDOUT)\n if p.returncode:print((R/log).read_text()[-2500:],flush=True);raise RuntimeError('Terraform failed: '+log)\ndef memory_guard():\n m=api('GET','/nodes/pve/status')['memory']['available']\n if m<2*2**30:\n  for vm in api('GET','/cluster/resources?type=vm'):\n   if vm.get('vmid') in [981,982,983] and vm.get('pool')=='csi-integration-20261004' and vm.get('status')=='running':api('POST',f\"/nodes/pve/qemu/{vm['vmid']}/status/stop\",{})\n  raise RuntimeError('Host memory floor violated, stopped lab cluster VMs')\n return m\n",
+      "baseline.py": "from labutil import *\nimport time\nfor attempt in range(120):\n apps=j('-n','argocd','get','applications')['items'];status={a['metadata']['name']:{'sync':a.get('status',{}).get('sync',{}).get('status'),'health':a.get('status',{}).get('health',{}).get('status'),'conditions':a.get('status',{}).get('conditions',[])} for a in apps}\n if set(status)=={'sealed-secrets','proxmox-csi','sqlite'} and all(x['sync']=='Synced' and x['health']=='Healthy' for x in status.values()):break\n if attempt%6==0:print(json.dumps(status),flush=True)\n time.sleep(5)\nelse:save('application-failure.json',status);raise RuntimeError('Lab applications failed to become Synced Healthy')\nsave('applications-initial.json',status)\npv=j('get','pv','csi-lab-sqlite');pvc=j('-n','csi-lab','get','pvc','sqlite');assert pvc['status']['phase']=='Bound' and pv['spec']['persistentVolumeReclaimPolicy']=='Retain'\nassert pv['spec']['csi']['volumeHandle']=='lab//csi-integration-20261004/9980/vm-9980-integration.raw'\ninitial=json.loads(k('-n','csi-lab','exec','-i','deploy/sqlite','--','python','-','init',input=(R/'sqlite-probe.py').read_text()));assert initial['rows']==1000\nsave('sqlite-initial.json',initial)\nattachments=[]\nfor vmid in [981,982,983]:\n c=api('GET',f'/nodes/pve/qemu/{vmid}/config')\n for slot,value in c.items():\n  if slot.startswith('scsi') and isinstance(value,str) and value.startswith('csi-integration-20261004:9980/vm-9980-integration.raw,'):attachments.append({'vmid':vmid,'slot':slot,'config':value})\nassert len(attachments)==1 and attachments[0]['vmid']==982,attachments\ndisks=json.loads(node(982,'lsblk -J -o NAME,UUID,FSTYPE,MOUNTPOINTS\\n'))['blockdevices'];mounted=[d for d in disks if d.get('fstype')=='ext4' and any(m and m.endswith('/globalmount') for m in d.get('mountpoints',[]))];assert len(mounted)==1\nsave('volume-initial.json',{'attachment':attachments[0],'filesystem':mounted[0],'pv':pv,'pvc':pvc})\nsave('image-pins.json',[{'namespace':p['metadata']['namespace'],'pod':p['metadata']['name'],'containers':[{'name':c['name'],'imageID':c['imageID']} for c in p['status'].get('containerStatuses',[])]} for p in j('get','pods','-A')['items']])\ntf(['plan','-input=false','-detailed-exitcode'],'terraform-with-csi.log')\nprint(json.dumps({'applications':'Synced Healthy','rows':initial['rows'],'integrity':initial['integrity'],'filesystem_uuid':mounted[0]['uuid'],'single_attachment_vmid':982,'terraform_plan':'no changes'}),flush=True)\n",
+      "worker-replace.py": "from labutil import *\nimport importlib.util\nassert (R/'baseline.rc').read_text().strip()=='0'\nassert api('GET','/nodes/pve/qemu/982/config')['smbios1']=='uuid=d4171e20-a396-4d00-95ff-9f181132f166'\ntf(['plan','-input=false','-replace=module.worker_1.proxmox_vm_qemu.vm','-out=plan.tfplan'],'worker-replace-plan.log')\np=json.loads(subprocess.check_output(['terraform','show','-json','plan.tfplan'],cwd=R/'tf-work'))\nchanges=[x for x in p.get('resource_changes',[]) if x['change']['actions']!=['no-op']]\nassert len(changes)==1 and changes[0]['address']=='module.worker_1.proxmox_vm_qemu.vm' and changes[0]['change']['actions']==['delete','create']\nsave('worker-replacement-plan.json',{'changes':[{'address':x['address'],'actions':x['change']['actions']} for x in changes],'old_uuid':'d4171e20-a396-4d00-95ff-9f181132f166'})\n# Preserve one pre-existing cordon through the exact native drain handoff.\nk('cordon','csi-int-worker-2');assert j('get','node','csi-int-worker-2')['spec']['unschedulable']\nroot=R/'maintenance';root.mkdir(mode=0o770,exist_ok=True);(root/'runner-instance').write_text('cfe2408d-247b-4727-8c09-106c8859b842\\n')\nassert not (root/'operation.json').exists()\nos.environ['HOMELAB_RUNNER_INSTANCE']='cfe2408d-247b-4727-8c09-106c8859b842';os.environ['MAINTENANCE_OWNER']='lab/worker-one';os.environ['GITHUB_OUTPUT']=str(R/'worker-handoff.txt')\na=json.loads((R/'private/terraform-token.json').read_text());os.environ['PM_API_TOKEN_ID']=a['token_id'];os.environ['PM_API_TOKEN_SECRET']=a['token_secret']\nos.environ['TF_CLI_ARGS_apply']='-parallelism=1'\nimport sys\nsys.path.insert(0,str(R/'terraform-source/scripts'));import maintenance_apply\nos.chdir(R/'tf-work');Path('plan.exitcode').write_text('2\\n')\nmaintenance_apply.execute('drain',True,root)\nassert not (root/'operation.json').exists();m=memory_guard()\nprint('Native drain/apply completed; successful handoff saved; available GiB '+str(round(m/2**30,2)),flush=True)\n",
+      "terraform-source/scripts/maintenance_apply.py": "#!/usr/bin/env python3\n\"\"\"Run one Terraform operation under the external runner's persistent lock.\"\"\"\nimport argparse\nimport json\nimport os\nfrom pathlib import Path\nimport subprocess\nfrom maintenance_lock import acquire, verify, release, advance\n\n\ndef execute(mode, saved_plan, root=Path('/maintenance')):\n    if mode not in ('normal', 'drain', 'destroy'):\n        raise ValueError('Unknown apply mode')\n    changed = True\n    if saved_plan and mode != 'destroy':\n        try:\n            code = Path('plan.exitcode').read_text().strip()\n            if code not in ('0', '2') or not Path('plan.tfplan').is_file():\n                raise ValueError()\n        except (OSError, ValueError):\n            raise ValueError('PR plan or its successful exit status is missing') from None\n        changed = code == '2'\n    owner = os.environ['MAINTENANCE_OWNER']\n    nonce = acquire(root, 'terraform-' + mode, owner)\n    if os.environ.get('GITHUB_ACTIONS') == 'true':\n        print('::add-mask::' + nonce, flush=True)\n\n    def run(*args):\n        verify(root, owner, nonce)\n        return subprocess.run(list(args), check=True, text=True, capture_output=args[:3] == ('kubectl', 'get', 'nodes'))\n\n    drained_nodes = []\n    if changed:\n        if mode == 'drain':\n            nodes = json.loads(run('kubectl', 'get', 'nodes', '-o', 'json').stdout)['items']\n            workers = []; masters = []\n            for node in nodes:\n                labels = node['metadata'].get('labels', {})\n                group = masters if any(k in labels for k in ('node-role.kubernetes.io/master', 'node-role.kubernetes.io/control-plane')) else workers\n                group.append(node['metadata']['name'])\n                if not node.get('spec', {}).get('unschedulable', False):\n                    drained_nodes.append(node['metadata']['name'])\n            for name in workers + masters:\n                run('kubectl', 'cordon', name)\n            for name in workers + masters:\n                run('kubectl', 'drain', name, '--ignore-daemonsets', '--delete-emptydir-data', '--disable-eviction', '--timeout=120s')\n        advance(root, owner, nonce, 'acquired', 'applying')\n        run('terraform', 'init')\n        if mode == 'destroy':\n            run('terraform', 'destroy', '-auto-approve')\n        run('terraform', 'apply', 'plan.tfplan' if saved_plan and mode != 'destroy' else '-auto-approve')\n        advance(root, owner, nonce, 'applying', 'recovering')\n    release(root, owner, nonce)\n    # Fresh guests do not run k3s yet. Ansible recovers scheduling after install.\n    # Failed mutations retain ownership and never publish a success handoff.\n    if os.environ.get('GITHUB_OUTPUT'):\n        with open(os.environ['GITHUB_OUTPUT'], 'a') as stream:\n            stream.write('has_changes=' + str(changed).lower() + '\\n')\n            stream.write('drained_nodes=' + json.dumps(drained_nodes, separators=(',', ':')) + '\\n')\n    return changed\n\n\nif __name__ == '__main__':\n    parser = argparse.ArgumentParser(description=__doc__)\n    parser.add_argument('--mode', required=True, choices=['normal', 'drain', 'destroy'])\n    parser.add_argument('--saved-plan', action='store_true')\n    args = parser.parse_args()\n    execute(args.mode, args.saved_plan)\n",
+      "tf-work/main.tf": "terraform {\n  required_providers { proxmox = { source = \"Telmate/proxmox\", version = \"3.0.2-rc10\" } }\n}\nprovider \"proxmox\" {\n  pm_api_url = \"https://10.9.9.20:8006/api2/json\"\n  pm_tls_insecure = true\n  pm_minimum_permission_check = false\n  pm_parallel = 1\n}\nmodule \"server\" {\n  source = \"./modules/vm\"\n  vm_id = 981\n  name = \"csi-int-server\"\n  target_node = \"pve\"\n  clone = \"packer-debian-13.7.0-20260919201032\"\n  pool = \"csi-integration-20261004\"\n  ciuser = \"csi-lab\"\n  sshkeys = file(\"../id_ed25519.pub\")\n  cloudinit_storage = \"local-zfs\"\n  os_disk_size = \"8G\"\n  os_storage = \"vm-pool\"\n  tags = \"k3s;csi-integration-20261004\"\n  cores = 2\n  memory = 2048\n  nameserver = \"10.9.9.1\"\n  ipconfigs = [\"ip=dhcp\"]\n}\nmodule \"worker_1\" {\n  source = \"./modules/vm\"\n  vm_id = 982\n  name = \"csi-int-worker-1\"\n  target_node = \"pve\"\n  clone = \"packer-debian-13.7.0-20260919201032\"\n  pool = \"csi-integration-20261004\"\n  ciuser = \"csi-lab\"\n  sshkeys = file(\"../id_ed25519.pub\")\n  cloudinit_storage = \"local-zfs\"\n  os_disk_size = \"8G\"\n  os_storage = \"vm-pool\"\n  tags = \"k3s;csi-integration-20261004\"\n  cores = 2\n  memory = 2048\n  nameserver = \"10.9.9.1\"\n  ipconfigs = [\"ip=dhcp\"]\n  control_plane_uuids = [module.server.smbios_uuid]\n}\nmodule \"worker_2\" {\n  source = \"./modules/vm\"\n  vm_id = 983\n  name = \"csi-int-worker-2\"\n  target_node = \"pve\"\n  clone = \"packer-debian-13.7.0-20260919201032\"\n  pool = \"csi-integration-20261004\"\n  ciuser = \"csi-lab\"\n  sshkeys = file(\"../id_ed25519.pub\")\n  cloudinit_storage = \"local-zfs\"\n  os_disk_size = \"8G\"\n  os_storage = \"vm-pool\"\n  tags = \"k3s;csi-integration-20261004\"\n  cores = 2\n  memory = 2048\n  nameserver = \"10.9.9.1\"\n  ipconfigs = [\"ip=dhcp\"]\n  control_plane_uuids = [module.server.smbios_uuid]\n}\noutput \"generations\" { value = { server = module.server.smbios_uuid, worker_1 = module.worker_1.smbios_uuid, worker_2 = module.worker_2.smbios_uuid } }\n",
+      "tf-work/modules/vm/qualification_override.tf": "resource \"proxmox_vm_qemu\" \"vm\" {\n  start_at_node_boot = false\n}\n"
+    },
+    "nodes": {
+      "nodes": [
+        {
+          "vmid": 981,
+          "name": "csi-int-server",
+          "uuid": "b154933e-4f04-45ff-aa18-6f62266f1934",
+          "smbios1": "uuid=b154933e-4f04-45ff-aa18-6f62266f1934",
+          "mac": "BC:24:11:E5:84:7D",
+          "root_disk": "vm-pool:vm-981-disk-0,discard=on,iothread=1,replicate=0,size=8G",
+          "cloudinit": {
+            "ide2": "local-zfs:vm-981-cloudinit,media=cdrom"
+          },
+          "status": "running",
+          "ip": "10.9.9.104",
+          "hostkey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMz7BfeTZfbxdIPBZNXzAXrUiaBx/pbAFCKLNBRSS1vj root@csi-int-server"
+        },
+        {
+          "vmid": 982,
+          "name": "csi-int-worker-1",
+          "uuid": "eb2ebfa3-4b51-4c33-b93a-f6be1dddc1fe",
+          "smbios1": "uuid=eb2ebfa3-4b51-4c33-b93a-f6be1dddc1fe",
+          "mac": "BC:24:11:58:5E:07",
+          "root_disk": "vm-pool:vm-982-disk-0,discard=on,iothread=1,replicate=0,size=8G",
+          "cloudinit": {
+            "ide2": "local-zfs:vm-982-cloudinit,media=cdrom"
+          },
+          "status": "running",
+          "ip": "10.9.9.159",
+          "hostkey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHVTrRVsfoxQaR8WTfPdyTcFvzV22RpSgmd4MFqPlDhz root@csi-int-worker-1"
+        },
+        {
+          "vmid": 983,
+          "name": "csi-int-worker-2",
+          "uuid": "dd9e02d6-d88c-4b6e-ab83-c77660cb7632",
+          "smbios1": "uuid=dd9e02d6-d88c-4b6e-ab83-c77660cb7632",
+          "mac": "BC:24:11:76:47:DE",
+          "root_disk": "vm-pool:vm-983-disk-0,discard=on,iothread=1,replicate=0,size=8G",
+          "cloudinit": {
+            "ide2": "local-zfs:vm-983-cloudinit,media=cdrom"
+          },
+          "status": "running",
+          "ip": "10.9.9.207",
+          "hostkey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJjlYvUty19NwFBID03MTgDJkUa9g4/3zTMppux3dkCn root@csi-int-worker-2"
+        }
+      ],
+      "host_memory_available_kib": 6473808
+    },
+    "handoff": "has_changes=true\ndrained_nodes=[\"csi-int-server\",\"csi-int-worker-1\"]\n"
+  },
+  "proxmox": {
+    "ledger.json": {
+      "run": "csi-integration-20261004",
+      "vms": [
+        {
+          "vmid": 980,
+          "name": "csi-int-runner",
+          "smbios1": "uuid=cfe2408d-247b-4727-8c09-106c8859b842"
+        },
+        {
+          "vmid": 981,
+          "name": "csi-int-server",
+          "uuid": "b154933e-4f04-45ff-aa18-6f62266f1934",
+          "smbios1": "uuid=b154933e-4f04-45ff-aa18-6f62266f1934",
+          "mac": "BC:24:11:E5:84:7D",
+          "root_disk": "vm-pool:vm-981-disk-0,discard=on,iothread=1,replicate=0,size=8G",
+          "cloudinit": {
+            "ide2": "local-zfs:vm-981-cloudinit,media=cdrom"
+          }
+        },
+        {
+          "vmid": 983,
+          "name": "csi-int-worker-2",
+          "uuid": "dd9e02d6-d88c-4b6e-ab83-c77660cb7632",
+          "smbios1": "uuid=dd9e02d6-d88c-4b6e-ab83-c77660cb7632",
+          "mac": "BC:24:11:76:47:DE",
+          "root_disk": "vm-pool:vm-983-disk-0,discard=on,iothread=1,replicate=0,size=8G",
+          "cloudinit": {
+            "ide2": "local-zfs:vm-983-cloudinit,media=cdrom"
+          }
+        },
+        {
+          "vmid": 982,
+          "name": "csi-int-worker-1",
+          "uuid": "eb2ebfa3-4b51-4c33-b93a-f6be1dddc1fe",
+          "smbios1": "uuid=eb2ebfa3-4b51-4c33-b93a-f6be1dddc1fe",
+          "mac": "BC:24:11:58:5E:07",
+          "root_disk": "vm-pool:vm-982-disk-0,discard=on,iothread=1,replicate=0,size=8G",
+          "cloudinit": {
+            "ide2": "local-zfs:vm-982-cloudinit,media=cdrom"
+          }
+        }
+      ],
+      "created": [
+        {
+          "type": "role",
+          "name": "CSIIntegrationTF"
+        },
+        {
+          "type": "user",
+          "name": "csi-integration-tf@pve"
+        },
+        {
+          "type": "token",
+          "user": "csi-integration-tf@pve",
+          "name": "lab"
+        },
+        {
+          "type": "acl",
+          "path": "/pool/csi-integration-20261004",
+          "role": "CSIIntegrationTF",
+          "principal": "csi-integration-tf@pve",
+          "propagate": 1
+        },
+        {
+          "type": "acl",
+          "path": "/pool/csi-integration-20261004",
+          "role": "CSIIntegrationTF",
+          "principal": "csi-integration-tf@pve!lab",
+          "propagate": 1
+        },
+        {
+          "type": "acl",
+          "path": "/vms/981",
+          "role": "CSIIntegrationTF",
+          "principal": "csi-integration-tf@pve",
+          "propagate": 0
+        },
+        {
+          "type": "acl",
+          "path": "/vms/981",
+          "role": "CSIIntegrationTF",
+          "principal": "csi-integration-tf@pve!lab",
+          "propagate": 0
+        },
+        {
+          "type": "acl",
+          "path": "/vms/982",
+          "role": "CSIIntegrationTF",
+          "principal": "csi-integration-tf@pve",
+          "propagate": 0
+        },
+        {
+          "type": "acl",
+          "path": "/vms/982",
+          "role": "CSIIntegrationTF",
+          "principal": "csi-integration-tf@pve!lab",
+          "propagate": 0
+        },
+        {
+          "type": "acl",
+          "path": "/vms/983",
+          "role": "CSIIntegrationTF",
+          "principal": "csi-integration-tf@pve",
+          "propagate": 0
+        },
+        {
+          "type": "acl",
+          "path": "/vms/983",
+          "role": "CSIIntegrationTF",
+          "principal": "csi-integration-tf@pve!lab",
+          "propagate": 0
+        },
+        {
+          "type": "acl",
+          "path": "/vms/900",
+          "role": "PVETemplateUser",
+          "principal": "csi-integration-tf@pve",
+          "propagate": 0
+        },
+        {
+          "type": "acl",
+          "path": "/vms/900",
+          "role": "PVETemplateUser",
+          "principal": "csi-integration-tf@pve!lab",
+          "propagate": 0
+        },
+        {
+          "type": "acl",
+          "path": "/storage/local-zfs",
+          "role": "PVEDatastoreUser",
+          "principal": "csi-integration-tf@pve",
+          "propagate": 0
+        },
+        {
+          "type": "acl",
+          "path": "/storage/local-zfs",
+          "role": "PVEDatastoreUser",
+          "principal": "csi-integration-tf@pve!lab",
+          "propagate": 0
+        },
+        {
+          "type": "acl",
+          "path": "/storage/vm-pool",
+          "role": "PVEDatastoreUser",
+          "principal": "csi-integration-tf@pve",
+          "propagate": 0
+        },
+        {
+          "type": "acl",
+          "path": "/storage/vm-pool",
+          "role": "PVEDatastoreUser",
+          "principal": "csi-integration-tf@pve!lab",
+          "propagate": 0
+        },
+        {
+          "type": "acl",
+          "path": "/sdn/zones/localnetwork/vmbr0",
+          "role": "PVESDNUser",
+          "principal": "csi-integration-tf@pve",
+          "propagate": 0
+        },
+        {
+          "type": "acl",
+          "path": "/sdn/zones/localnetwork/vmbr0",
+          "role": "PVESDNUser",
+          "principal": "csi-integration-tf@pve!lab",
+          "propagate": 0
+        },
+        {
+          "type": "acl",
+          "path": "/nodes/pve",
+          "role": "PVEAuditor",
+          "principal": "csi-integration-tf@pve",
+          "propagate": 0
+        },
+        {
+          "type": "acl",
+          "path": "/nodes/pve",
+          "role": "PVEAuditor",
+          "principal": "csi-integration-tf@pve!lab",
+          "propagate": 0
+        },
+        {
+          "type": "acl",
+          "path": "/storage/csi-integration-20261004",
+          "role": "PVEAuditor",
+          "principal": "csi-integration-tf@pve",
+          "propagate": 0
+        },
+        {
+          "type": "acl",
+          "path": "/storage/csi-integration-20261004",
+          "role": "PVEAuditor",
+          "principal": "csi-integration-tf@pve!lab",
+          "propagate": 0
+        },
+        {
+          "type": "acl",
+          "path": "/vms/9980",
+          "role": "PVEAuditor",
+          "principal": "csi-integration-tf@pve",
+          "propagate": 0
+        },
+        {
+          "type": "acl",
+          "path": "/vms/9980",
+          "role": "PVEAuditor",
+          "principal": "csi-integration-tf@pve!lab",
+          "propagate": 0
+        },
+        {
+          "type": "role",
+          "name": "CSIIntegrationAudit"
+        },
+        {
+          "type": "acl",
+          "path": "/",
+          "role": "CSIIntegrationAudit",
+          "principal": "csi-integration-tf@pve",
+          "propagate": 0
+        },
+        {
+          "type": "acl",
+          "path": "/",
+          "role": "CSIIntegrationAudit",
+          "principal": "csi-integration-tf@pve!lab",
+          "propagate": 0
+        },
+        {
+          "type": "image-intent",
+          "storage": "csi-integration-20261004",
+          "owner": 9980,
+          "name": "vm-9980-integration.raw",
+          "bytes": 2147483648
+        },
+        {
+          "type": "image",
+          "storage": "csi-integration-20261004",
+          "volid": "csi-integration-20261004:9980/vm-9980-integration.raw",
+          "path": "/mnt/pve/csi-integration-20261004/images/9980/vm-9980-integration.raw",
+          "bytes": 2147483648,
+          "inode": 129,
+          "owner_vmid": 9980
+        }
+      ],
+      "runner_intent": {
+        "id": 980,
+        "name": "csi-int-runner",
+        "template": 900
+      },
+      "retired_generations": [
+        {
+          "vmid": 981,
+          "name": "csi-int-server",
+          "smbios1": "uuid=0bff61b4-3141-4c60-a814-3c256285a000",
+          "uuid": "0bff61b4-3141-4c60-a814-3c256285a000",
+          "root_disk": "local-zfs:vm-981-disk-0,cache=none,discard=on,replicate=0,size=4G",
+          "cloudinit": {
+            "ide0": "local-zfs:vm-981-cloudinit,media=cdrom,size=4M"
+          },
+          "status": "stopped",
+          "stage": "clone-complete-before-provider-ha-discovery"
+        },
+        {
+          "vmid": 982,
+          "name": "csi-int-worker-1",
+          "uuid": "d4171e20-a396-4d00-95ff-9f181132f166",
+          "smbios1": "uuid=d4171e20-a396-4d00-95ff-9f181132f166",
+          "mac": "BC:24:11:81:32:68",
+          "root_disk": "vm-pool:vm-982-disk-0,discard=on,iothread=1,replicate=0,size=8G",
+          "cloudinit": {
+            "ide2": "local-zfs:vm-982-cloudinit,media=cdrom"
+          },
+          "status": "running",
+          "ip": "10.9.9.205",
+          "hostkey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAID7TxKQOe4Pfma548JIAHjaDJxCFt1fg1n/HJi1xHYQG root@csi-int-worker-1"
+        }
+      ],
+      "cleanup": [
+        {
+          "vmid": 982,
+          "destroyed": true
+        },
+        {
+          "vmid": 983,
+          "destroyed": true
+        },
+        {
+          "vmid": 981,
+          "destroyed": true
+        },
+        {
+          "vmid": 980,
+          "destroyed": true
+        }
+      ]
+    },
+    "terraform-effective-permissions.json": {
+      "/": {
+        "/": {
+          "Sys.Audit": 0
+        }
+      },
+      "/vms/981": {
+        "/vms/981": {
+          "VM.Config.Cloudinit": 0,
+          "VM.Config.Disk": 0,
+          "VM.Config.CDROM": 0,
+          "VM.Config.Memory": 0,
+          "VM.Config.HWType": 0,
+          "VM.Config.Options": 0,
+          "VM.PowerMgmt": 0,
+          "Pool.Allocate": 0,
+          "VM.GuestAgent.Audit": 0,
+          "VM.Allocate": 0,
+          "VM.Config.Network": 0,
+          "Pool.Audit": 0,
+          "VM.Config.CPU": 0,
+          "VM.Audit": 0
+        }
+      },
+      "/vms/982": {
+        "/vms/982": {
+          "VM.Config.Cloudinit": 0,
+          "VM.Config.Disk": 0,
+          "VM.Config.CDROM": 0,
+          "VM.Config.Options": 0,
+          "VM.Config.HWType": 0,
+          "VM.Config.Memory": 0,
+          "VM.Allocate": 0,
+          "VM.Config.Network": 0,
+          "Pool.Audit": 0,
+          "VM.Config.CPU": 0,
+          "VM.Audit": 0,
+          "VM.PowerMgmt": 0,
+          "Pool.Allocate": 0,
+          "VM.GuestAgent.Audit": 0
+        }
+      },
+      "/vms/983": {
+        "/vms/983": {
+          "VM.Config.Cloudinit": 0,
+          "VM.Config.Disk": 0,
+          "VM.Config.CDROM": 0,
+          "VM.Config.Options": 0,
+          "VM.Config.Memory": 0,
+          "VM.Config.HWType": 0,
+          "VM.Allocate": 0,
+          "VM.Config.Network": 0,
+          "Pool.Audit": 0,
+          "VM.Config.CPU": 0,
+          "VM.Audit": 0,
+          "Pool.Allocate": 0,
+          "VM.PowerMgmt": 0,
+          "VM.GuestAgent.Audit": 0
+        }
+      },
+      "/vms/900": {
+        "/vms/900": {
+          "VM.Audit": 0,
+          "VM.Clone": 0
+        }
+      },
+      "/vms/100": {
+        "/vms/100": {}
+      },
+      "/vms/200": {
+        "/vms/200": {}
+      },
+      "/vms/201": {
+        "/vms/201": {}
+      },
+      "/vms/202": {
+        "/vms/202": {}
+      },
+      "/vms/300": {
+        "/vms/300": {}
+      },
+      "/pool/csi-integration-20261004": {
+        "/pool/csi-integration-20261004": {
+          "VM.GuestAgent.Audit": 1,
+          "Pool.Allocate": 1,
+          "VM.PowerMgmt": 1,
+          "Pool.Audit": 1,
+          "VM.Config.Network": 1,
+          "VM.Allocate": 1,
+          "VM.Audit": 1,
+          "VM.Config.CPU": 1,
+          "VM.Config.HWType": 1,
+          "VM.Config.Memory": 1,
+          "VM.Config.Options": 1,
+          "VM.Config.Cloudinit": 1,
+          "VM.Config.CDROM": 1,
+          "VM.Config.Disk": 1
+        }
+      },
+      "/storage/vm-pool": {
+        "/storage/vm-pool": {
+          "Datastore.Audit": 0,
+          "Datastore.AllocateSpace": 0
+        }
+      },
+      "/nodes/pve": {
+        "/nodes/pve": {
+          "Datastore.Audit": 0,
+          "Pool.Audit": 0,
+          "Sys.Audit": 0,
+          "VM.Audit": 0,
+          "SDN.Audit": 0,
+          "VM.GuestAgent.Audit": 0,
+          "Mapping.Audit": 0
+        }
+      }
+    },
+    "worker-fencing-observation.json": {
+      "old_generation_absent_from_all_proxmox_vms": "d4171e20-a396-4d00-95ff-9f181132f166",
+      "new_generation": "eb2ebfa3-4b51-4c33-b93a-f6be1dddc1fe",
+      "new_vm_has_no_retained_attachment": true,
+      "retained_image_bytes": 2147483648
+    },
+    "image-created.json": {
+      "type": "image",
+      "storage": "csi-integration-20261004",
+      "volid": "csi-integration-20261004:9980/vm-9980-integration.raw",
+      "path": "/mnt/pve/csi-integration-20261004/images/9980/vm-9980-integration.raw",
+      "bytes": 2147483648,
+      "inode": 129,
+      "owner_vmid": 9980
+    },
+    "cleanup-intent.json": {
+      "vms": [
+        {
+          "vmid": 980,
+          "uuid": "uuid=cfe2408d-247b-4727-8c09-106c8859b842",
+          "disks": {
+            "ide0": "local-zfs:vm-980-cloudinit,media=cdrom,size=4M",
+            "virtio0": "vm-pool:vm-980-disk-0,cache=none,discard=on,replicate=0,size=8G"
+          }
+        },
+        {
+          "vmid": 981,
+          "uuid": "uuid=b154933e-4f04-45ff-aa18-6f62266f1934",
+          "disks": {
+            "ide2": "local-zfs:vm-981-cloudinit,media=cdrom",
+            "virtio0": "vm-pool:vm-981-disk-0,discard=on,iothread=1,replicate=0,size=8G"
+          }
+        },
+        {
+          "vmid": 983,
+          "uuid": "uuid=dd9e02d6-d88c-4b6e-ab83-c77660cb7632",
+          "disks": {
+            "ide2": "local-zfs:vm-983-cloudinit,media=cdrom",
+            "virtio0": "vm-pool:vm-983-disk-0,discard=on,iothread=1,replicate=0,size=8G"
+          }
+        },
+        {
+          "vmid": 982,
+          "uuid": "uuid=eb2ebfa3-4b51-4c33-b93a-f6be1dddc1fe",
+          "disks": {
+            "ide2": "local-zfs:vm-982-cloudinit,media=cdrom",
+            "virtio0": "vm-pool:vm-982-disk-0,discard=on,iothread=1,replicate=0,size=8G"
+          }
+        }
+      ],
+      "synthetic_image": "csi-integration-20261004:9980/vm-9980-integration.raw"
+    },
+    "cleanup-result.json": {
+      "lab_vms_deleted": [
+        980,
+        981,
+        982,
+        983
+      ],
+      "synthetic_image_deleted": true,
+      "storage_and_pool_removed": true,
+      "temporary_users_roles_tokens_acls_removed": true,
+      "production_vm_configs_unchanged": [
+        "100",
+        "200",
+        "201",
+        "202",
+        "300",
+        "900"
+      ],
+      "nas_cleanup_pending": true
+    },
+    "baseline_config_sha256": {
+      "100": "7055df11a0b9566d16916de454c99255f4e494c828e2a3987a34a3804a3f439d",
+      "200": "d98ee58d82d25142ac43b22fecc06c16f9f402861e6911a829a29ccb1ef68d01",
+      "201": "aa013719dfbcea8bb0822573bd95733b9bccb2b1f5768c8763826f91dd7078a1",
+      "202": "114efa537fb3ce99aa241bb7d815be0b7f563a2697e8b059792fd19edd20db77",
+      "300": "71a0d143ed73886622e78250fe3973cf8d9ae324a4508eb52aa74abb67e7cf05",
+      "900": "b2637eb1dd4d2ae2456b5abff969ba714eab6e440253a21828db223dca3c41f2"
+    }
+  },
+  "vm300": {
+    "shared-setup-first-result.json": {
+      "rc": 0,
+      "log": "/var/lib/homelab-maintenance/operations/csi-integration-20261004/shared-setup-first.log"
+    },
+    "shared-setup-second-result.json": {
+      "credential_unchanged": true,
+      "rc": 0,
+      "log": "/var/lib/homelab-maintenance/operations/csi-integration-20261004/shared-setup-second.log"
+    },
+    "runtime-effective-permissions.json": {
+      "/vms/9980": {
+        "/vms/9980": {
+          "Datastore.AllocateSpace": 0,
+          "Datastore.Audit": 0,
+          "VM.Config.Disk": 0,
+          "Datastore.Allocate": 0,
+          "VM.Audit": 0
+        }
+      },
+      "/storage/csi-integration-20261004": {
+        "/storage/csi-integration-20261004": {
+          "Datastore.Audit": 0,
+          "Datastore.AllocateSpace": 0,
+          "Datastore.Allocate": 0,
+          "VM.Audit": 0,
+          "VM.Config.Disk": 0
+        }
+      },
+      "/pool/csi-integration-20261004": {
+        "/pool/csi-integration-20261004": {
+          "VM.Config.Disk": 1,
+          "VM.Audit": 1,
+          "Datastore.Allocate": 1,
+          "Datastore.Audit": 1,
+          "Datastore.AllocateSpace": 1
+        }
+      },
+      "/vms/100": {
+        "/vms/100": {}
+      },
+      "/vms/200": {
+        "/vms/200": {}
+      },
+      "/vms/201": {
+        "/vms/201": {}
+      },
+      "/vms/202": {
+        "/vms/202": {}
+      },
+      "/vms/300": {
+        "/vms/300": {}
+      },
+      "/vms/900": {
+        "/vms/900": {}
+      }
+    },
+    "administrator-access-removed.json": {
+      "container_removed": true,
+      "inventory_removed": true
+    },
+    "dataset-created.json": {
+      "dataset": "apps/csi-integration-20261004",
+      "guid": "7010704397472109517",
+      "mountpoint": "/mnt/apps/csi-integration-20261004"
+    },
+    "share-created.json": {
+      "id": 7,
+      "path": "/mnt/apps/csi-integration-20261004",
+      "networks": [
+        "10.9.9.20/32"
+      ]
+    },
+    "nas-cleanup-result.json": {
+      "dataset_deleted": "apps/csi-integration-20261004",
+      "verified_deleted_guid": "7010704397472109517",
+      "share_deleted": 7,
+      "other_exports_unchanged": true,
+      "nfs_config_unchanged": true,
+      "nfs_running": true
+    }
+  },
+  "proxmox_final_cleanup": {
+    "private_pve_staging_removed": true,
+    "lab_resources_absent": true,
+    "temporary_identities_absent": true,
+    "production_configs_unchanged": true
+  },
+  "cleanup_complete": {
+    "operation": "codex/csi-integration-20261004",
+    "all_lab_vms_storage_access_and_nas_removed": true,
+    "temporary_admin_inventory_container_and_token_copies_removed": true,
+    "production_vm_configs_and_nas_exports_unchanged": true,
+    "qualification": "blocked by same-name worker node identity retirement; diagnostic recovery preserved data",
+    "maintenance_lock_released": true
+  }
+}

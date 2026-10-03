@@ -1,0 +1,30 @@
+{
+  "driver": "democratic-csi1.9.5 stock node-manual",
+  "image_digest": "sha256:746bf6b373ae75f5da8b1e412d13c3e8d0e2e1494654268b9dd6fe1f1e55aade",
+  "truenas": "25.10.7",
+  "stage_command": "mkfs.ext4 -m 0 -n /dev/sda",
+  "result": "NodeStage failed with blkid exit2; no filesystem signature or mounted writer",
+  "before": {
+    "service": "blank-probe",
+    "device": "/dev/sda",
+    "serial": "a6bbb245657f44e6",
+    "naa": "0x6589cfc00000017f27d769c37555f690",
+    "bytes": 134217728,
+    "sha256": "254bcc3fc4f27172636df4bf32de9f107f620d559b20d760197e452b97453917",
+    "filesystem": {}
+  },
+  "after": {
+    "service": "blank-probe",
+    "device": "/dev/sda",
+    "serial": "a6bbb245657f44e6",
+    "naa": "0x6589cfc00000017f27d769c37555f690",
+    "bytes": 134217728,
+    "sha256": "254bcc3fc4f27172636df4bf32de9f107f620d559b20d760197e452b97453917",
+    "filesystem": {}
+  },
+  "limitations": [
+    "This proves this blank unpartitioned ext4-requested LUN case only.",
+    "Wrong valid filesystems still require external native and filesystem identity gates.",
+    "Corrupt, partitioned and alternate-format cases remain unaccepted."
+  ]
+}

@@ -1,0 +1,62 @@
+[
+  {
+    "node_port": 19111,
+    "probes": [
+      {
+        "destination": "10.9.9.20",
+        "port": 8006,
+        "blocked": true
+      },
+      {
+        "destination": "10.9.8.30",
+        "port": 443,
+        "blocked": true
+      },
+      {
+        "destination": "10.9.8.30",
+        "port": 2049,
+        "blocked": true
+      }
+    ]
+  },
+  {
+    "node_port": 19112,
+    "probes": [
+      {
+        "destination": "10.9.9.20",
+        "port": 8006,
+        "blocked": true
+      },
+      {
+        "destination": "10.9.8.30",
+        "port": 443,
+        "blocked": true
+      },
+      {
+        "destination": "10.9.8.30",
+        "port": 2049,
+        "blocked": true
+      }
+    ]
+  },
+  {
+    "node_port": 19113,
+    "probes": [
+      {
+        "destination": "10.9.9.20",
+        "port": 8006,
+        "blocked": true
+      },
+      {
+        "destination": "10.9.8.30",
+        "port": 443,
+        "blocked": true
+      },
+      {
+        "destination": "10.9.8.30",
+        "port": 2049,
+        "blocked": true
+      }
+    ]
+  }
+]

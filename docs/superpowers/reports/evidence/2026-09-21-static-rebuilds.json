@@ -1,0 +1,26 @@
+[
+  {
+    "rebuild": 1,
+    "before_ca_sha256": "051376f0842564efaae6dda07b9eb89cd98c3689e23ccebb23144b2db12f9cb4",
+    "after_ca_sha256": "9c5957cb8f1a54fc5fea817c63434ad73d77831cab910ae62d86c37e52bd3920",
+    "fresh_node_pv_pvc_uids": true,
+    "unchanged_native_zvols": {
+      "iscsi_lab/volumes/blank-probe": "7626720058537866970",
+      "iscsi_lab/volumes/service-a": "6253329045690822869",
+      "iscsi_lab/volumes/service-b": "16588590146616901328"
+    },
+    "acknowledgements_per_service": 16
+  },
+  {
+    "rebuild": 2,
+    "before_ca_sha256": "9c5957cb8f1a54fc5fea817c63434ad73d77831cab910ae62d86c37e52bd3920",
+    "after_ca_sha256": "e460a6e41b92cdbf6d3b2639a0c690f5904879c9c1d9b9c08304a482f724165e",
+    "fresh_node_pv_pvc_uids": true,
+    "unchanged_native_zvols": {
+      "iscsi_lab/volumes/blank-probe": "7626720058537866970",
+      "iscsi_lab/volumes/service-a": "6253329045690822869",
+      "iscsi_lab/volumes/service-b": "16588590146616901328"
+    },
+    "acknowledgements_per_service": 21
+  }
+]

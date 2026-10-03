@@ -1,0 +1,92 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "admissionregistration.k8s.io/v1",
+      "kind": "ValidatingAdmissionPolicy",
+      "metadata": {
+        "name": "iscsi-lab-claims"
+      },
+      "spec": {
+        "failurePolicy": "Fail",
+        "matchConstraints": {
+          "resourceRules": [
+            {
+              "apiGroups": [""],
+              "apiVersions": ["v1"],
+              "operations": ["CREATE", "UPDATE"],
+              "resources": ["persistentvolumeclaims"]
+            }
+          ]
+        },
+        "matchConditions": [
+          {
+            "name": "retained-storage",
+            "expression": "(has(object.spec.storageClassName) && object.spec.storageClassName == 'iscsi-lab-retain') || (object.metadata.namespace == 'iscsi-fixture' && object.metadata.name in ['service-a','service-b'])"
+          }
+        ],
+        "validations": [
+          {
+            "expression": "(object.metadata.namespace == 'iscsi-fixture' && object.metadata.name == \"service-a\" && object.spec.storageClassName == 'iscsi-lab-retain' && object.spec.volumeName == \"pvc-af488e5a-9df0-462f-9653-6b769391f06a\" && object.spec.accessModes == ['ReadWriteOncePod']) || (object.metadata.namespace == 'iscsi-fixture' && object.metadata.name == \"service-b\" && object.spec.storageClassName == 'iscsi-lab-retain' && object.spec.volumeName == \"pvc-ce4af33b-0b9a-462e-8980-f57aa3876603\" && object.spec.accessModes == ['ReadWriteOncePod'])",
+            "message": "Retained storage must match the captured service binding; dynamic onboarding is closed."
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "admissionregistration.k8s.io/v1",
+      "kind": "ValidatingAdmissionPolicyBinding",
+      "metadata": {
+        "name": "iscsi-lab-claims"
+      },
+      "spec": {
+        "policyName": "iscsi-lab-claims",
+        "validationActions": ["Deny"]
+      }
+    },
+    {
+      "apiVersion": "admissionregistration.k8s.io/v1",
+      "kind": "ValidatingAdmissionPolicy",
+      "metadata": {
+        "name": "iscsi-lab-volumes"
+      },
+      "spec": {
+        "failurePolicy": "Fail",
+        "matchConstraints": {
+          "resourceRules": [
+            {
+              "apiGroups": [""],
+              "apiVersions": ["v1"],
+              "operations": ["CREATE", "UPDATE"],
+              "resources": ["persistentvolumes"]
+            }
+          ]
+        },
+        "matchConditions": [
+          {
+            "name": "retained-storage",
+            "expression": "(has(object.spec.csi) && object.spec.csi.driver == 'org.democratic-csi.iscsi-lab') || object.metadata.name in [\"pvc-af488e5a-9df0-462f-9653-6b769391f06a\", \"pvc-ce4af33b-0b9a-462e-8980-f57aa3876603\"]"
+          }
+        ],
+        "validations": [
+          {
+            "expression": "(object.metadata.name == \"pvc-af488e5a-9df0-462f-9653-6b769391f06a\" && object.spec.csi.driver == \"org.democratic-csi.iscsi-lab\" && object.spec.csi.volumeHandle == \"pvc-af488e5a-9df0-462f-9653-6b769391f06a\" && object.spec.csi.fsType == 'ext4' && object.spec.csi.volumeAttributes == {\"interface\": \"\", \"iqn\": \"iqn.2026-09.lab.iscsi:lab-pvc-af488e5a-9df0-462f-9653-6b769391f06a\", \"lun\": \"0\", \"node_attach_driver\": \"iscsi\", \"portal\": \"172.30.91.10:3260\", \"portals\": \"\", \"provisioner_driver\": \"freenas-api-iscsi\", \"provisioner_driver_instance_id\": \"iscsi-lab-1d3e8de3\", \"storage.kubernetes.io/csiProvisionerIdentity\": \"1789938676381-206-org.democratic-csi.iscsi-lab\"} && object.spec.csi.nodeStageSecretRef.name == 'iscsi-lab-chap' && object.spec.csi.nodeStageSecretRef.namespace == 'iscsi-lab-system' && object.spec.persistentVolumeReclaimPolicy == 'Retain' && object.spec.storageClassName == 'iscsi-lab-retain' && object.spec.accessModes == ['ReadWriteOncePod'] && object.spec.claimRef.name == \"service-a\" && object.spec.claimRef.namespace == 'iscsi-fixture') || (object.metadata.name == \"pvc-ce4af33b-0b9a-462e-8980-f57aa3876603\" && object.spec.csi.driver == \"org.democratic-csi.iscsi-lab\" && object.spec.csi.volumeHandle == \"pvc-ce4af33b-0b9a-462e-8980-f57aa3876603\" && object.spec.csi.fsType == 'ext4' && object.spec.csi.volumeAttributes == {\"interface\": \"\", \"iqn\": \"iqn.2026-09.lab.iscsi:lab-pvc-ce4af33b-0b9a-462e-8980-f57aa3876603\", \"lun\": \"0\", \"node_attach_driver\": \"iscsi\", \"portal\": \"172.30.91.10:3260\", \"portals\": \"\", \"provisioner_driver\": \"freenas-api-iscsi\", \"provisioner_driver_instance_id\": \"iscsi-lab-1d3e8de3\", \"storage.kubernetes.io/csiProvisionerIdentity\": \"1789938676381-206-org.democratic-csi.iscsi-lab\"} && object.spec.csi.nodeStageSecretRef.name == 'iscsi-lab-chap' && object.spec.csi.nodeStageSecretRef.namespace == 'iscsi-lab-system' && object.spec.persistentVolumeReclaimPolicy == 'Retain' && object.spec.storageClassName == 'iscsi-lab-retain' && object.spec.accessModes == ['ReadWriteOncePod'] && object.spec.claimRef.name == \"service-b\" && object.spec.claimRef.namespace == 'iscsi-fixture')",
+            "message": "Retained storage must match the captured service binding; dynamic onboarding is closed."
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "admissionregistration.k8s.io/v1",
+      "kind": "ValidatingAdmissionPolicyBinding",
+      "metadata": {
+        "name": "iscsi-lab-volumes"
+      },
+      "spec": {
+        "policyName": "iscsi-lab-volumes",
+        "validationActions": ["Deny"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "owned_vms_removed": true,
+  "owned_disks_removed": true,
+  "bridges_removed": true,
+  "nft_table_removed": true,
+  "host_available_bytes": 34198716416,
+  "vm_pool_available_bytes": 146164572160,
+  "runner_status": "status: running",
+  "private_host_staging_removed": true,
+  "owned_isos_removed": true,
+  "temporary_services_inactive": true,
+  "runner": {
+    "worker_active": false,
+    "listener_active": true,
+    "service_status": "active"
+  },
+  "production": {
+    "nodes": [
+      {
+        "name": "kube-master-01",
+        "uid": "afb5a195-8503-4e05-9e39-d16774ae6c7d",
+        "createdAt": "2026-09-20T19:39:53Z",
+        "bootID": "f6ed1216-b9a0-4bb2-8274-ba52a085d559",
+        "memory": "16383232Ki",
+        "conditions": {
+          "EtcdIsVoter": "True",
+          "MemoryPressure": "False",
+          "DiskPressure": "False",
+          "PIDPressure": "False",
+          "Ready": "True"
+        },
+        "unschedulable": false
+      },
+      {
+        "name": "kube-worker-01",
+        "uid": "ed4cb64c-0c87-414e-9538-110650ba2f34",
+        "createdAt": "2026-09-20T19:40:18Z",
+        "bootID": "58a3c2cf-e59a-4efc-b19b-538d51cba419",
+        "memory": "20486876Ki",
+        "conditions": {
+          "MemoryPressure": "False",
+          "DiskPressure": "False",
+          "PIDPressure": "False",
+          "Ready": "True"
+        },
+        "unschedulable": false
+      },
+      {
+        "name": "kube-worker-02",
+        "uid": "63d963c8-0c04-4be8-81a3-07e8aa1cc240",
+        "createdAt": "2026-09-20T19:40:18Z",
+        "bootID": "bf4e958e-1d90-4b61-a094-708f3b8e3d63",
+        "memory": "20486872Ki",
+        "conditions": {
+          "MemoryPressure": "False",
+          "DiskPressure": "False",
+          "PIDPressure": "False",
+          "Ready": "True"
+        },
+        "unschedulable": false
+      }
+    ],
+    "storageComparison": {
+      "baselineCount": 68,
+      "currentCount": 68,
+      "boundCount": 68,
+      "mismatches": [],
+      "mismatchesCount": 0
+    },
+    "ready_pods": 125,
+    "active_pods": 125,
+    "applications": {
+      "total": 77,
+      "syncedHealthy": 77,
+      "notSyncedHealthy": [],
+      "notSyncedHealthyCount": 0
+    },
+    "sealedSecrets": {
+      "total": 38,
+      "synced": 38,
+      "notCurrentSynced": []
+    },
+    "certificates": {
+      "total": 7,
+      "ready": 7,
+      "notReady": []
+    }
+  },
+  "private_local_runtime_removed": true,
+  "owned_local_temporary_artifacts_removed": 111,
+  "user_credentials_preserved": true
+}

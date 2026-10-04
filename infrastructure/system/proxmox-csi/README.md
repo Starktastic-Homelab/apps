@@ -46,6 +46,11 @@ bindings are activated by this preparation.
 
 ## Qualification before activation
 
+The [disposable integration results](../../../docs/superpowers/reports/2026-10-04-proxmox-csi-rebuild-results.md)
+cover cold rebuilds, interrupted growth, worker movement and failure boundaries.
+They preserve explicit harness/dispatch limits; production activation is still
+separate. The descriptor remains disabled.
+
 In an approved disposable integrated lab, exercise the shared setup's effective
 API permissions and repeatability, external credential recovery, ArgoCD chart
 resolution/secret ordering, native pool membership, worker-only replacement and
@@ -54,9 +59,11 @@ to verify old-writer exclusion. Offline rendering does not qualify these paths.
 
 Growth also needs integrated GitOps qualification: request PVC growth first,
 verify backend and filesystem expansion, then reconcile the Git PV capacity.
-Never raise PV capacity ahead of the real image. Test interruption between these
-steps followed by reconstruction with fresh Kubernetes metadata; until then,
-neither a one-edit resize nor rebuild during unfinished growth is qualified.
+Never raise PV capacity ahead of the real image. The disposable lab recovered
+from fresh metadata at both tested interruption checkpoints using bidirectional
+prebinding. After actual growth, updating Git PV capacity cleared Argo drift.
+This qualifies the tested request/verify/reconcile sequence, not a one-edit
+resize with permanently stale Git PV capacity.
 
 Only a separately reviewed activation change may rename the descriptor to
 `app.yaml` and update the staged-only CI assertion after these gates pass. Shared

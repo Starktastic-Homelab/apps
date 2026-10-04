@@ -59,18 +59,13 @@
               "argocd.argoproj.io/tracking-id": "sqlite:/PersistentVolume:csi-lab/csi-lab-sqlite"
             },
             "creationTimestamp": "2026-10-03T23:31:01Z",
-            "finalizers": [
-              "kubernetes.io/pv-protection",
-              "external-attacher/csi-proxmox-sinextra-dev"
-            ],
+            "finalizers": ["kubernetes.io/pv-protection", "external-attacher/csi-proxmox-sinextra-dev"],
             "name": "csi-lab-sqlite",
             "resourceVersion": "1788",
             "uid": "0fd81d9e-c235-4a95-8dc4-399b8b409375"
           },
           "spec": {
-            "accessModes": [
-              "ReadWriteOncePod"
-            ],
+            "accessModes": ["ReadWriteOncePod"],
             "capacity": {
               "storage": "2Gi"
             },
@@ -109,18 +104,14 @@
               "pv.kubernetes.io/bind-completed": "yes"
             },
             "creationTimestamp": "2026-10-03T23:31:01Z",
-            "finalizers": [
-              "kubernetes.io/pvc-protection"
-            ],
+            "finalizers": ["kubernetes.io/pvc-protection"],
             "name": "sqlite",
             "namespace": "csi-lab",
             "resourceVersion": "1777",
             "uid": "8b789a0f-6834-4008-9e3b-a22fcd06e79a"
           },
           "spec": {
-            "accessModes": [
-              "ReadWriteOncePod"
-            ],
+            "accessModes": ["ReadWriteOncePod"],
             "resources": {
               "requests": {
                 "storage": "2Gi"
@@ -131,9 +122,7 @@
             "volumeName": "csi-lab-sqlite"
           },
           "status": {
-            "accessModes": [
-              "ReadWriteOncePod"
-            ],
+            "accessModes": ["ReadWriteOncePod"],
             "capacity": {
               "storage": "2Gi"
             },
@@ -155,10 +144,7 @@
         "changes": [
           {
             "address": "module.worker_1.proxmox_vm_qemu.vm",
-            "actions": [
-              "delete",
-              "create"
-            ]
+            "actions": ["delete", "create"]
           }
         ],
         "old_uuid": "d4171e20-a396-4d00-95ff-9f181132f166"
@@ -934,23 +920,11 @@
       "synthetic_image": "csi-integration-20261004:9980/vm-9980-integration.raw"
     },
     "cleanup-result.json": {
-      "lab_vms_deleted": [
-        980,
-        981,
-        982,
-        983
-      ],
+      "lab_vms_deleted": [980, 981, 982, 983],
       "synthetic_image_deleted": true,
       "storage_and_pool_removed": true,
       "temporary_users_roles_tokens_acls_removed": true,
-      "production_vm_configs_unchanged": [
-        "100",
-        "200",
-        "201",
-        "202",
-        "300",
-        "900"
-      ],
+      "production_vm_configs_unchanged": ["100", "200", "201", "202", "300", "900"],
       "nas_cleanup_pending": true
     },
     "baseline_config_sha256": {
@@ -1031,9 +1005,7 @@
     "share-created.json": {
       "id": 7,
       "path": "/mnt/apps/csi-integration-20261004",
-      "networks": [
-        "10.9.9.20/32"
-      ]
+      "networks": ["10.9.9.20/32"]
     },
     "nas-cleanup-result.json": {
       "dataset_deleted": "apps/csi-integration-20261004",

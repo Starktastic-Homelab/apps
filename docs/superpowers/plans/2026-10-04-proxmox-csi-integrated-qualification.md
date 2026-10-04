@@ -1,6 +1,6 @@
 # Proxmox CSI integrated qualification scope
 
-Date: 2026-10-04 (Asia/Jerusalem). Status: user approved this bounded allocation, qualification and cleanup scope on 2026-10-04. Directory-mode prerequisite merged as Ansible279; qualification reached a worker-node identity retirement gate. See [partial runtime results](../reports/2026-10-04-proxmox-csi-integrated-results.md). Remaining cases are pending.
+Date: 2026-10-04 (Asia/Jerusalem). Status: user approved this bounded allocation, qualification and cleanup scope on 2026-10-04. Directory-mode prerequisite merged as Ansible279; qualification reached a worker-node identity retirement gate. See [partial runtime results](../reports/2026-10-04-proxmox-csi-integrated-results.md). The remaining disposable cases are now covered by the [rebuild and lifecycle results](../reports/2026-10-04-proxmox-csi-rebuild-results.md), with explicit harness and dispatch limits. Production activation remains separate.
 
 **Goal:** Qualify the merged shared setup, replacement ordering, recoverable CSI configuration and ArgoCD retained bindings on synthetic data before production activation.
 

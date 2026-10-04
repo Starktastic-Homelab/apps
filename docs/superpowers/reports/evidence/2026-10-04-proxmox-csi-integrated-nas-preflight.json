@@ -164,9 +164,7 @@
       "path": "/mnt/main/media",
       "paths": null,
       "enabled": true,
-      "networks": [
-        "10.9.8.0/24"
-      ],
+      "networks": ["10.9.8.0/24"],
       "hosts": [],
       "ro": false,
       "maproot_user": "",
@@ -178,10 +176,7 @@
       "path": "/mnt/apps/pv",
       "paths": null,
       "enabled": true,
-      "networks": [
-        "10.9.8.0/24",
-        "10.9.9.10/32"
-      ],
+      "networks": ["10.9.8.0/24", "10.9.9.10/32"],
       "hosts": [],
       "ro": false,
       "maproot_user": "root",
@@ -193,9 +188,7 @@
       "path": "/mnt/nvme-cache/incomplete",
       "paths": null,
       "enabled": true,
-      "networks": [
-        "10.9.8.0/24"
-      ],
+      "networks": ["10.9.8.0/24"],
       "hosts": [],
       "ro": false,
       "maproot_user": "",
@@ -213,13 +206,8 @@
   "ancestor_snapshot_tasks": [],
   "ancestor_replication_tasks": [],
   "nfs_configuration": {
-    "protocols": [
-      "NFSV4"
-    ],
-    "bindip": [
-      "10.9.8.30",
-      "10.9.9.30"
-    ],
+    "protocols": ["NFSV4"],
+    "bindip": ["10.9.8.30", "10.9.9.30"],
     "v4_krb": false,
     "v4_domain": ""
   }

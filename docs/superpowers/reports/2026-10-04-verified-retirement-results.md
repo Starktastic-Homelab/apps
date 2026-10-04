@@ -10,6 +10,11 @@ records this fresh lab run. It follows the
 [original integrated qualification](2026-10-04-proxmox-csi-integrated-results.md)
 and [CCM decision](2026-10-04-proxmox-ccm-assessment.md).
 
+Follow-up: PR281 merged with the same candidate tree. The
+[rebuild and lifecycle qualification](2026-10-04-proxmox-csi-rebuild-results.md)
+records subsequent merged-source testing and cleanup. The results below retain
+their original candidate-stage context.
+
 ## Scope and baseline
 
 The user approved a separate temporary read-only audit identity with inherited

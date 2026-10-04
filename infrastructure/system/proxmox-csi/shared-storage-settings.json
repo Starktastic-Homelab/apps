@@ -1,0 +1,10 @@
+{
+  "proxmox_csi_storage_id": "k3s-block",
+  "proxmox_csi_storage_nfs_server": "10.9.9.30",
+  "proxmox_csi_storage_nfs_export": "/mnt/apps/k3s-block",
+  "proxmox_csi_storage_nodes": ["pve"],
+  "proxmox_csi_storage_pool": "k3s-csi",
+  "proxmox_csi_storage_owner_id": 9999,
+  "proxmox_csi_storage_secret_destination": "/maintenance/private/proxmox-csi.json",
+  "proxmox_csi_storage_api_url": "https://10.9.9.20:8006/api2/json"
+}

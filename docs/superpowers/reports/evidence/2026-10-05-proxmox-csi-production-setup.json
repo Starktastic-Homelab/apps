@@ -1,0 +1,286 @@
+{
+  "scope": "Persistent production shared setup only; no CSI activation, VM replacement, service image or application migration",
+  "execution_date_local": "2026-10-05",
+  "timezone": "Asia/Jerusalem",
+  "ansible_commit": "913941f2610681d048587f30b0984453c7b768af",
+  "apps_base": "cdcc3469e6e735d793dc8e1851f3a45cd1b46fb9",
+  "nas": {
+    "dataset": "apps/k3s-block",
+    "guid": "13918781591004512447",
+    "quota_bytes": 137438953472,
+    "reservation_bytes": 0,
+    "encrypted": true,
+    "locked": false,
+    "sync": "STANDARD",
+    "compression": "LZ4",
+    "acltype": "POSIX",
+    "filesystem_owner": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 16877
+    },
+    "share_id": 10,
+    "networks": ["10.9.9.20/32"],
+    "existing_exports_unchanged": true,
+    "global_nfs_config_unchanged": true,
+    "nfs_running": true
+  },
+  "setup": {
+    "first": {
+      "rc": 0,
+      "log": "/var/lib/homelab-maintenance/operations/csi-production-setup-20261004/shared-setup-first.log"
+    },
+    "second": {
+      "credential_unchanged": true,
+      "rc": 0,
+      "log": "/var/lib/homelab-maintenance/operations/csi-production-setup-20261004/shared-setup-second.log"
+    },
+    "first_recap": "pve                        : ok=22   changed=7    unreachable=0    failed=0    skipped=11   rescued=0    ignored=0   ",
+    "second_recap": "pve                        : ok=25   changed=0    unreachable=0    failed=0    skipped=8    rescued=0    ignored=0   ",
+    "container": {
+      "image": "python@sha256:cd8244b7983b30cac72c85fa63c43672f1ce193c784c217fb5611f5753b60ce8",
+      "id": "sha256:cd8244b7983b30cac72c85fa63c43672f1ce193c784c217fb5611f5753b60ce8"
+    }
+  },
+  "proxmox": {
+    "storage": {
+      "content": "images",
+      "digest": "763916d7a59a6b734bd0d54d2e6a0c373a8bde5f",
+      "export": "/mnt/apps/k3s-block",
+      "nodes": "pve",
+      "options": "vers=4.2",
+      "path": "/mnt/pve/k3s-block",
+      "server": "10.9.9.30",
+      "shared": 1,
+      "storage": "k3s-block",
+      "type": "nfs"
+    },
+    "storage_status": {
+      "active": 1,
+      "avail": 137438953472,
+      "content": "images",
+      "enabled": 1,
+      "shared": 1,
+      "total": 137438953472,
+      "type": "nfs",
+      "used": 0
+    },
+    "pool": {
+      "comment": "Retained CSI infrastructure; image owner 9999 is reserved and must never be a VM",
+      "members": [],
+      "poolid": "k3s-csi"
+    },
+    "owner_unused": true,
+    "tokens": [
+      {
+        "expire": 0,
+        "privsep": 1,
+        "tokenid": "retained"
+      }
+    ],
+    "role": {
+      "privs": "Datastore.Allocate,Datastore.AllocateSpace,Datastore.Audit,VM.Audit,VM.Config.Disk",
+      "roleid": "HomelabCSI",
+      "special": 0
+    },
+    "acl": [
+      {
+        "path": "/pool/k3s-csi",
+        "propagate": 1,
+        "roleid": "HomelabCSI",
+        "type": "user",
+        "ugid": "kubernetes-csi@pve"
+      },
+      {
+        "path": "/pool/k3s-csi",
+        "propagate": 1,
+        "roleid": "HomelabCSI",
+        "type": "token",
+        "ugid": "kubernetes-csi@pve!retained"
+      },
+      {
+        "path": "/storage/k3s-block",
+        "propagate": 0,
+        "roleid": "HomelabCSI",
+        "type": "user",
+        "ugid": "kubernetes-csi@pve"
+      },
+      {
+        "path": "/storage/k3s-block",
+        "propagate": 0,
+        "roleid": "HomelabCSI",
+        "type": "token",
+        "ugid": "kubernetes-csi@pve!retained"
+      },
+      {
+        "path": "/vms/9999",
+        "propagate": 0,
+        "roleid": "HomelabCSI",
+        "type": "user",
+        "ugid": "kubernetes-csi@pve"
+      },
+      {
+        "path": "/vms/9999",
+        "propagate": 0,
+        "roleid": "HomelabCSI",
+        "type": "token",
+        "ugid": "kubernetes-csi@pve!retained"
+      }
+    ],
+    "user_permissions": {
+      "/pool/k3s-csi": {
+        "Datastore.Allocate": 1,
+        "Datastore.AllocateSpace": 1,
+        "Datastore.Audit": 1,
+        "VM.Audit": 1,
+        "VM.Config.Disk": 1
+      },
+      "/storage/k3s-block": {
+        "Datastore.Allocate": 0,
+        "Datastore.AllocateSpace": 0,
+        "Datastore.Audit": 0,
+        "VM.Audit": 0,
+        "VM.Config.Disk": 0
+      },
+      "/vms/9999": {
+        "Datastore.Allocate": 0,
+        "Datastore.AllocateSpace": 0,
+        "Datastore.Audit": 0,
+        "VM.Audit": 0,
+        "VM.Config.Disk": 0
+      }
+    },
+    "token_permissions": {
+      "/pool/k3s-csi": {
+        "Datastore.Allocate": 1,
+        "Datastore.AllocateSpace": 1,
+        "Datastore.Audit": 1,
+        "VM.Audit": 1,
+        "VM.Config.Disk": 1
+      },
+      "/storage/k3s-block": {
+        "Datastore.Allocate": 0,
+        "Datastore.AllocateSpace": 0,
+        "Datastore.Audit": 0,
+        "VM.Audit": 0,
+        "VM.Config.Disk": 0
+      },
+      "/vms/9999": {
+        "Datastore.Allocate": 0,
+        "Datastore.AllocateSpace": 0,
+        "Datastore.Audit": 0,
+        "VM.Audit": 0,
+        "VM.Config.Disk": 0
+      }
+    },
+    "permission_value_semantics": "0 means a privilege is granted without propagation; 1 means inherited propagation. An empty privilege map means no grants.",
+    "production_config_hashes_before": {
+      "100": "7055df11a0b9566d16916de454c99255f4e494c828e2a3987a34a3804a3f439d",
+      "200": "d98ee58d82d25142ac43b22fecc06c16f9f402861e6911a829a29ccb1ef68d01",
+      "201": "aa013719dfbcea8bb0822573bd95733b9bccb2b1f5768c8763826f91dd7078a1",
+      "202": "114efa537fb3ce99aa241bb7d815be0b7f563a2697e8b059792fd19edd20db77",
+      "300": "71a0d143ed73886622e78250fe3973cf8d9ae324a4508eb52aa74abb67e7cf05",
+      "900": "b2637eb1dd4d2ae2456b5abff969ba714eab6e440253a21828db223dca3c41f2"
+    },
+    "production_config_hashes_after": {
+      "100": "7055df11a0b9566d16916de454c99255f4e494c828e2a3987a34a3804a3f439d",
+      "200": "d98ee58d82d25142ac43b22fecc06c16f9f402861e6911a829a29ccb1ef68d01",
+      "201": "aa013719dfbcea8bb0822573bd95733b9bccb2b1f5768c8763826f91dd7078a1",
+      "202": "114efa537fb3ce99aa241bb7d815be0b7f563a2697e8b059792fd19edd20db77",
+      "300": "71a0d143ed73886622e78250fe3973cf8d9ae324a4508eb52aa74abb67e7cf05",
+      "900": "b2637eb1dd4d2ae2456b5abff969ba714eab6e440253a21828db223dca3c41f2"
+    }
+  },
+  "runtime": {
+    "tls_verified": true,
+    "legacy_ca_strict_extension_check_disabled": true,
+    "hostname_verified": true,
+    "independent_leaf_pin_matched": true,
+    "served_leaf_sha256": "991939462464635f91d2a089924eab1055637e8bd48d7771a26cb2b378b41a1c",
+    "credential_mode": "0600",
+    "permissions": {
+      "/vms/9999": {
+        "Datastore.AllocateSpace": 0,
+        "VM.Config.Disk": 0,
+        "VM.Audit": 0,
+        "Datastore.Audit": 0,
+        "Datastore.Allocate": 0
+      },
+      "/storage/k3s-block": {
+        "Datastore.Allocate": 0,
+        "Datastore.AllocateSpace": 0,
+        "VM.Config.Disk": 0,
+        "Datastore.Audit": 0,
+        "VM.Audit": 0
+      },
+      "/pool/k3s-csi": {
+        "Datastore.AllocateSpace": 1,
+        "Datastore.Audit": 1,
+        "VM.Config.Disk": 1,
+        "VM.Audit": 1,
+        "Datastore.Allocate": 1
+      },
+      "/vms/100": {
+        "/vms/100": {}
+      },
+      "/vms/200": {
+        "/vms/200": {}
+      },
+      "/vms/201": {
+        "/vms/201": {}
+      },
+      "/vms/202": {
+        "/vms/202": {}
+      },
+      "/vms/300": {
+        "/vms/300": {}
+      },
+      "/vms/900": {
+        "/vms/900": {}
+      }
+    },
+    "vm_config_denials": {
+      "100": 403,
+      "200": 403,
+      "201": 403,
+      "202": 403,
+      "300": 403,
+      "900": 403
+    },
+    "visible_vm_resources": [],
+    "storage_content": []
+  },
+  "completion": {
+    "completed_at": "2026-10-04T21:47:48.491007+00:00",
+    "production_vm_configs_unchanged": true,
+    "pool_empty": true,
+    "owner9999_unused": true,
+    "storage_active_and_empty": true,
+    "token_separated": true,
+    "temporary_admin_inventory_removed": true,
+    "temporary_container_removed": true,
+    "temporary_source_removed": true,
+    "persistent_credential_mode": "0o600",
+    "evidence_path": "/var/lib/homelab-maintenance/operations/csi-production-setup-20261004/setup-evidence.json",
+    "evidence_sha256": "c6744c52f6d4761ed033517a13c0e22d896e244d3ab78eab2623826ebaf41b37",
+    "maintenance_released": true
+  },
+  "public_script_sha256": {
+    "acquire.py": "2bd553297f66a9f612d81a94b73aeb33d19923646035302a30bc71b096d2b03a",
+    "create-nas.py": "cb6585855c21033b4101947578317066dee9a5c7e4f8cda287afc64d312a7c48",
+    "diagnose-nas.py": "61e49df24b4363a063fec489cf93f5a654544a1b71e2ff351c29dbe0d0caf7c2",
+    "finish.py": "8626ce7c68fbcfaac45a1ca76fb02b7c5d8eed3fca563046b02960baf40fc3c0",
+    "lock-common.py": "e2a371ec216d9eafb32ba1d3fd3692e8b4f9704c01bd43d96861244ed31758c6",
+    "prepare-shared.py": "434d23b738975517e8c988c403d1d0d171ca8a9793a95dcd3c07d8022b92c87e",
+    "pve-after.py": "a24417b708732c3c90c024b24d3133aa5e558ccf6b252646152f54b63413f152",
+    "remove-admin-access.py": "fe552d407d07d1b006d66e93a9e1f6c04be50d6048916ba1ad884b7c345b303e",
+    "rerun-shared-setup.py": "fb3c324555bdaca2214e650c43a382e8abe5f1e79f34d4e843a80a8eb8dec740",
+    "run-shared-setup.py": "3919b7cd9a3c259b526a460ea1c422a151898822b1ab7631a2c5b85a172b1420",
+    "setup-status.py": "9442d4f181a62b60c4adaad07240bb50377efcf4505a9b621f12b7adbc31f600",
+    "stage-shared.py": "0ab4bf35cf16bd6acf30cc46e74ceda001ae7004866fd04c34d1ffca19351098",
+    "start-setup-container.py": "52085180dcb777c4f73ebbcfe7de649766f2052f9931eab5c7cb696ab1d9f7a1",
+    "verify-lock.py": "7d25f95c0040698c6447333fb8910a4f4fd4cbc22aac064333d509a75d6b0162",
+    "verify-nas.py": "baffcb38ed9e2a024296afb05e018f08e35f7f9c660f4af434b66fec8c7b3bb6",
+    "verify-runtime.py": "0efebee0f90840852e53afd90951e72190efab38179837a75c82cda0ca7378be"
+  }
+}

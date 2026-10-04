@@ -1,7 +1,8 @@
 # Proxmox CSI production shared setup
 
-Status: proposed for approval; read-only preflight completed on 2026-10-04 at
-20:59 UTC. No production allocation or activation has run.
+Status: approved and executed on 2026-10-05 (Asia/Jerusalem). See the
+[setup results](../reports/2026-10-05-proxmox-csi-production-setup.md).
+Shared allocation is complete; production controller activation remains pending.
 
 **Goal:** Prepare persistent NAS storage and scoped CSI API access before the
 coordinated worker-replacement and Jellyfin migration window.
@@ -81,36 +82,36 @@ space, collision and maintenance checks immediately before execution.
 
 ## Execution and credential scope
 
-- [ ] Revalidate source pins and preflight, then acquire the existing VM300
+- [x] Revalidate source pins and preflight, then acquire the existing VM300
   maintenance operation. Hold ownership through setup, verification and removal
   of temporary credentials. Never take over an unrelated operation.
-- [ ] Record current production VM configurations, exports and NFS state. Create
+- [x] Record current production VM configurations, exports and NFS state. Create
   only the dataset and export above through the existing authenticated NAS route
   on VM300. Preserve dataset GUID/share ID receipts. Use a supported export reload;
   stop if a disruptive global NFS restart is required.
-- [ ] Use a temporary nonprivileged setup container on VM300, pinned to the
+- [x] Use a temporary nonprivileged setup container on VM300, pinned to the
   qualified image `python@sha256:cd8244b7983b30cac72c85fa63c43672f1ce193c784c217fb5611f5753b60ce8`.
   Install dependencies inside that container only. Run the exact merged manual
   `proxmox-csi-storage.yml` with an explicit single-host inventory and the values
   above; no cluster playbook or workflow dispatch.
-- [ ] The proposed authorization includes temporary transfer of the existing
+- [x] The proposed authorization includes temporary transfer of the existing
   login in `/tmp/proxmox_pass.txt` over verified SSH to a root-only inventory under
   the operation's `shared-setup/` directory on VM300. Only the setup container may
   consume it. That temporary container has administrator access to Proxmox during
   setup. Remove this copy and the container immediately after setup; preserve the
   original user file. No administrator credential goes to a k3s guest or Git.
-- [ ] Retain only the generated scoped CSI token in the protected external
+- [x] Retain only the generated scoped CSI token in the protected external
   record. Read the public PVE CA over the authenticated management connection and
   verify the live API's certificate. Authenticate the generated token with TLS
   verification; inspect effective user/token privileges and read-only denial for
   unrelated VMs. Do not perform negative-test writes or change existing API users.
-- [ ] Run setup again: require zero resource changes and the same token. Confirm
+- [x] Run setup again: require zero resource changes and the same token. Confirm
   storage/export identity and availability, the empty pool and unused owner9999.
   Verify production VM configurations and existing exports remain unchanged.
-- [ ] Remove temporary source/admin files and tooling; retain protected receipts
+- [x] Remove temporary source/admin files and tooling; retain protected receipts
   and the scoped credential. Release ownership after successful reconciliation.
-  Deliver sanitized results and persistent setup settings through a documentation
-  PR; never publish secret values.
+  Sanitized results and persistent setup settings are prepared for a documentation
+  PR; no secret values are published.
 
 An unexpected existing object, uncertain ownership, failed credential persistence
 or validation failure retains the maintenance operation for reconciliation.

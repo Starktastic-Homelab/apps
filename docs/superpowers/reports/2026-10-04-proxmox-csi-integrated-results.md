@@ -74,6 +74,11 @@ in this lab. It does not yet provide an automatic, qualified retirement policy.
 
 ## Architecture decision before continuation
 
+**Follow-up decision:** the user approved CCM assessment, then chose verified
+retirement in Ansible after reviewing the released controller's inventory
+visibility limitation. See the [pinned CCM assessment](2026-10-04-proxmox-ccm-assessment.md).
+The following records the candidate considered at the end of the original run.
+
 Prefer assessing the **unmodified Proxmox cloud controller manager (CCM)** before
 adding custom node-retirement logic to the deployment handoff. This adds a cluster
 controller and changes k3s cloud-provider bootstrap, so it needs an explicit design

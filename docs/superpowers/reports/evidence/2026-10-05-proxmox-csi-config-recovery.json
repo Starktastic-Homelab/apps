@@ -1,0 +1,14 @@
+{
+  "workflow": "https://github.com/Starktastic-Homelab/ansible/actions/runs/37243642764",
+  "ansible_commit": "69380d3a810229993cd8b0ced61bece358ba30af",
+  "result": "success",
+  "external_vault_key_recovered_actual_configuration": true,
+  "config_sha256": "7e14774a0f08de34dd5fefbe7ff36532dfe5bd17d1242c361f2df38ed896136f",
+  "sealed_manifest_sha256": "b7404f6440f192b401e393bf1ed2cc212203a0e58e430cbb6e2991655dc62240",
+  "plaintext_exported": false,
+  "temporary_vault_file_removed": true,
+  "credential_identity": "kubernetes-csi@pve!retained",
+  "namespace": "csi-proxmox",
+  "secret_name": "proxmox-csi-config",
+  "key": "config.yaml"
+}

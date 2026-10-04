@@ -1,0 +1,10 @@
+{
+  "inspected_at": "2026-10-04T23:01:17.026147+00:00",
+  "stock_driver": "ghcr.io/sergelogvinov/proxmox-csi-controller@sha256:95ef74cce03e89a1706d9b32888a84bf44e0db439c4fe2a4334ce123728d4c3b",
+  "insecure": false,
+  "rpc": "GetCapacity",
+  "kubernetes_credentials_supplied": false,
+  "temporary_containers_and_files_removed": true,
+  "without_trust_tls_refused": true,
+  "trusted_get_capacity_bytes": 137438953472
+}

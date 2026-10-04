@@ -3,6 +3,16 @@ createNamespace: true
 existingConfigSecret: proxmox-csi-config
 existingConfigSecretKey: config.yaml
 logVerbosityLevel: 2
+# Public API trust anchor qualified with the unmodified controller's Go TLS client.
+extraVolumes:
+  - name: proxmox-api-trust
+    configMap:
+      name: proxmox-api-trust
+extraVolumeMounts:
+  - name: proxmox-api-trust
+    mountPath: /etc/ssl/certs/proxmox.pem
+    subPath: proxmox.pem
+    readOnly: true
 options:
   enableCapacity: false
 

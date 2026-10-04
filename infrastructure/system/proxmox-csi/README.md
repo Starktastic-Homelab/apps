@@ -28,7 +28,7 @@ The descriptor remains disabled until those gates pass.
   external JSON credential record; that record is **not** directly the chart's
   YAML configuration. Publication and recovery must compose the stock
   [configuration](https://github.com/sergelogvinov/proxmox-csi-plugin/blob/v0.20.0/docs/config.md):
-  `features.provider: default`, integer `features.controllerVMID` set to the
+  `features.provider: default`, integer `features.controllerVmID` set to the
   reserved external image owner, and `clusters[]` containing the API URL, TLS
   verification choice, token ID/secret and region matching the node labels.
 - The owner must remain outside disposable Terraform state and must never be
@@ -36,8 +36,9 @@ The descriptor remains disabled until those gates pass.
   operator convention, not a Proxmox allocation lock.
 - Use `scripts/seal.sh` for eventual SealedSecret publication. Prove recovery of
   the sealing key and CSI configuration from outside Kubernetes before
-  controller readiness and service writer release on a fresh cluster. No
-  credential, placeholder SealedSecret or recoverability claim is included here.
+  controller readiness and service writer release on a fresh cluster. The actual
+  encrypted configuration is staged in `bootstrap-staged/`; plaintext credentials
+  and the private sealing key remain outside Git.
 - The stock namespace requires privileged Pod Security for the node plugin.
   Native attachment, resizer and accepted upstream format/repair behavior remain
   intact. Snapshotting and capacity publishing remain disabled in these values.
@@ -75,9 +76,8 @@ resize with permanently stale Git PV capacity.
 
 Only a separately reviewed activation change may rename the descriptor to
 `app.yaml` and update the staged-only CI assertion after these gates pass. Shared
-NAS allocation is complete. Credential publication and activation still need
-their concrete scope; Jellyfin migration and retirement of the old writer guards
-remain later.
+NAS allocation is complete. Encrypted configuration publication is approved and externally recoverable;
+activation, Jellyfin migration and retirement of the old writer guards remain later.
 The accepted export-withdrawal recovery trade-off is unchanged: some storage I/O
 faults require manual scale-down, verified detach and restaging. Ordinary rebuilds
 must not require a Velero checkpoint or a manual backup verification step.
@@ -97,3 +97,25 @@ CI renders these actual value layers and checks the inactive descriptor, externa
 Secret reference, worker placement, native attachment/resize components and class
 retention policy. Runtime binding and rebuild validation is still required by the
 [integration plan](../../../docs/superpowers/plans/2026-10-03-proxmox-csi-shared-integration.md).
+
+## Production preflight evidence
+
+The [read-only deployment preflight](https://github.com/Starktastic-Homelab/ansible/actions/runs/37241575852)
+passed with the real deployment identity: strict API TLS, complete VM visibility,
+stable inventory and native recovery of a synthetic SealedSecret using the
+external Vault bootstrap key. The subsequent [actual-configuration recovery](https://github.com/Starktastic-Homelab/ansible/actions/runs/37243642764)
+also passed: the recovered `config.yaml` matched its exact original hash. The
+[sanitized receipt](../../../docs/superpowers/reports/evidence/2026-10-05-proxmox-csi-config-recovery.json)
+identifies both the encrypted manifest and plaintext hash without exposing the token.
+
+The [native TLS receipt](../../../docs/superpowers/reports/evidence/2026-10-05-proxmox-csi-native-tls.json)
+records the unmodified v0.20.0 controller's read-only `GetCapacity` test on VM300.
+Without the public certificate it refused the connection; with the certificate
+mounted at `/etc/ssl/certs/proxmox.pem` it read the expected 128GiB capacity with
+`insecure: false`. Both temporary containers and their private files were removed.
+
+`bootstrap-staged/` is outside active manifest sources. Its public ConfigMap and
+the values' native controller mount prepare the same qualified trust path without
+activating CSI. The API leaf expires on 2027-06-14; replace the anchor when the
+server certificate rotates and restart the controller to refresh its subPath
+mount. The cold-copy, independent restore and activation gates remain pending.

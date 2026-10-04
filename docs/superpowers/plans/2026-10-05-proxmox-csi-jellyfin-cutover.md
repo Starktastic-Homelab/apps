@@ -107,7 +107,7 @@ Files: Ansible `group_vars/all/proxmox_csi.yml`, existing retirement role/filter
 and bootstrap role; Apps `scripts/seal.sh`, `scripts/sealed-secrets-cert.pem`,
 `infrastructure/system/proxmox-csi/values.yaml` and staged descriptor.
 
-- [ ] Add a manually invoked read-only preflight through the existing Ansible
+- [x] Add a manually invoked read-only preflight through the existing Ansible
   self-hosted Actions runner, using its normal `PROXMOX_*` and Vault secrets.
   Use native `ansible.builtin.uri` with the merged trust file and the existing
   complete-visibility filter. Read permissions, ACLs, all VM resources and QEMU
@@ -115,16 +115,16 @@ and bootstrap role; Apps `scripts/seal.sh`, `scripts/sealed-secrets-cert.pem`,
   retirement role's deletion path or infer the identity from another API token.
   Keep credentials in the job, suppress secret-bearing output and clean temporary
   files. A failure blocks activation without changing grants automatically.
-- [ ] In that trusted runner context, verify that the Vault bootstrap private key
+- [x] In that trusted runner context, verify that the Vault bootstrap private key
   matches both its certificate and Apps' public sealing certificate. Recover a
   sealed probe with the external key and compare its contents. Do not export the
   bootstrap private key to the workstation or validator or rely solely on the
   key currently present in Kubernetes.
-- [ ] Stage the actual CSI configuration using `scripts/seal.sh` on VM300,
-  compact JSON under key`config.yaml`, region`homelab`, controllerVMID9999 and
+- [x] Stage the actual CSI configuration using `scripts/seal.sh` on VM300,
+  compact JSON under key`config.yaml`, region`homelab`, controllerVmID9999 and
   the existing scoped token. Only encrypted output leaves the protected runner.
   Verify recovery with the external bootstrap key before publication.
-- [ ] Supply the independently verified public PVE trust material through the
+- [x] Supply the independently verified public PVE trust material through the
   chart's native controller `extraVolumes`/`extraVolumeMounts`, keeping
   `insecure: false`. Render the exact chart; qualify its native API TLS connection
   before enabling production attachment. Do not reuse the lab's insecure flag.

@@ -1,5 +1,9 @@
 # Proxmox CSI integrated qualification: worker retirement gate
 
+Follow-up: [verified retirement runtime results](2026-10-04-verified-retirement-results.md)
+record the subsequent candidate worker-replacement pass and PR281 merge gate.
+The findings below describe the original run.
+
 Date: 2026-10-04. Status: **incomplete; automatic worker replacement failed**.
 The storage baseline and a diagnostic recovery passed. No production CSI
 activation or application migration occurred.

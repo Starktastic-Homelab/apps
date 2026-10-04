@@ -69,3 +69,11 @@ tests with one existing live-GPU skip, pre-commit and offline Ansible lint. A fr
 independent review found no blocking issues for disabled staging. Runtime ACL
 filtering, UID races, no-op paths, K3s rejoin and retained data remain lab gates.
 Merge the source prerequisite before resuming qualification of the merged code.
+
+## Runtime follow-up
+
+PR280 was merged. The subsequent [disposable retirement qualification](2026-10-04-verified-retirement-results.md)
+passed incomplete-inventory refusal, exposed an Ansible tagged-integer mismatch,
+and passed automatic worker recovery with the PR281 candidate fix. All temporary
+lab resources and access were removed. PR281 merge is the next gate; wider
+rebuild/growth qualification remains pending.

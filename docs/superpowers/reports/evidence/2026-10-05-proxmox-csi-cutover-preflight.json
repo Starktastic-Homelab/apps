@@ -1,0 +1,134 @@
+{
+  "status": "planning-only; no cutover or validator allocation executed",
+  "pve_readonly": {
+    "inspected_at": "2026-10-04T22:24:10.983428+00:00",
+    "vms": [
+      {
+        "vmid": 100,
+        "name": "truenas",
+        "status": "running"
+      },
+      {
+        "vmid": 101,
+        "name": "speedtest-tracker",
+        "status": "stopped"
+      },
+      {
+        "vmid": 200,
+        "name": "kube-master-01",
+        "status": "running"
+      },
+      {
+        "vmid": 201,
+        "name": "kube-worker-01",
+        "status": "running"
+      },
+      {
+        "vmid": 202,
+        "name": "kube-worker-02",
+        "status": "running"
+      },
+      {
+        "vmid": 300,
+        "name": "runner",
+        "status": "running"
+      },
+      {
+        "vmid": 900,
+        "name": "packer-debian-13.7.0-20260919201032",
+        "status": "stopped"
+      }
+    ],
+    "node": {
+      "cpu": 0,
+      "memory": {
+        "available": 12025376768,
+        "free": 12545617920,
+        "total": 134812356608,
+        "used": 122786979840
+      },
+      "swap": {
+        "free": 0,
+        "total": 0,
+        "used": 0
+      }
+    },
+    "storage": [
+      {
+        "storage": "vm-pool",
+        "active": 1,
+        "avail": 146203414528,
+        "used": 349060001792,
+        "total": 495263416320
+      },
+      {
+        "storage": "local-zfs",
+        "active": 1,
+        "avail": 23921160192,
+        "used": 28016832512,
+        "total": 51937992704
+      },
+      {
+        "storage": "k3s-block",
+        "active": 1,
+        "avail": 137438953472,
+        "used": 0,
+        "total": 137438953472
+      }
+    ]
+  },
+  "nas_inspected_at": "2026-10-04T22:24:11.701861+00:00",
+  "existing_snapshot_tasks": [
+    {
+      "id": 2,
+      "dataset": "apps/iscsi",
+      "recursive": true,
+      "enabled": true,
+      "lifetime_value": 1,
+      "lifetime_unit": "WEEK",
+      "schedule": {
+        "minute": "0",
+        "hour": "*/6",
+        "dom": "*",
+        "month": "*",
+        "dow": "*",
+        "begin": "00:00",
+        "end": "23:59"
+      },
+      "naming_schema": "auto-%Y-%m-%d_%H-%M",
+      "allow_empty": true
+    }
+  ],
+  "nas_copy_capabilities_readonly": {
+    "guest_identity_verified": true,
+    "source_is_block": true,
+    "source_capacity_bytes": 68719476736,
+    "source_signatures": "DEVNAME=/dev/zvol/apps/iscsi/jellyfin-config\nLABEL=jellyfin-config\nUUID=d3cc0be9-ad2f-4c67-a6fc-abc6104b7712\nVERSION=1.0\nBLOCK_SIZE=4096\nTYPE=ext4\nUSAGE=filesystem\n",
+    "available_tools": {
+      "dd": "/usr/bin/dd",
+      "sha256sum": "/usr/bin/sha256sum",
+      "blkid": "/usr/sbin/blkid",
+      "blockdev": "/usr/sbin/blockdev",
+      "e2fsck": "/usr/sbin/e2fsck",
+      "dumpe2fs": "/usr/sbin/dumpe2fs",
+      "qemu-img": "/usr/bin/qemu-img",
+      "rsync": "/usr/bin/rsync"
+    },
+    "target_owner_directory_exists": false,
+    "target_image_exists": false
+  },
+  "ansible_merge": {
+    "pr": 282,
+    "sha": "64ead68bd9ff98546ee895c358605f7068e38f69",
+    "deployment_url": "https://github.com/Starktastic-Homelab/ansible/actions/runs/37239616610",
+    "conclusion": "success"
+  },
+  "unverified_activation_gates": [
+    "actual Ansible deployment token complete visibility",
+    "external Vault sealing key recovery",
+    "native stock CSI production TLS",
+    "exact Terraform activation plan",
+    "cold image backup and isolated restore",
+    "production migration and writer release"
+  ]
+}

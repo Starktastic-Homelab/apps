@@ -1,10 +1,13 @@
 # Proxmox CSI and Jellyfin cutover implementation plan
 
-> **For agentic workers:** Use `superpowers:executing-plans` inline after the
-> operational scope below is approved. Keep PR merges with the user. Check off
+> **For agentic workers:** Use `superpowers:executing-plans` inline. The user has
+> approved autopilot and agent PR merges until Jellyfin downtime ends. Check off
 > execution steps only against observed results.
 
-Status: proposed; no outage, VM allocation, image copy or writer release executed.
+Status: scope approved for autopilot; no outage, VM allocation, image copy or
+writer release executed. Temporary merge authority ends when Jellyfin health and
+playback are restored. Unexpected privilege expansion or broader scope still
+requires a decision.
 
 **Goal:** Migrate Jellyfin's existing ext4 configuration volume to the retained
 Proxmox CSI platform while establishing the worker-rebuild safeguards once.
@@ -57,9 +60,10 @@ and [shared setup receipt](../reports/2026-10-05-proxmox-csi-production-setup.md
 
 The previous approval covered shared allocation only and explicitly excluded
 worker replacement and application migration. Approval of this plan supplies that
-operational scope; it does not waive the preconditions or authorize merging PRs
-on the user's behalf. Unexpected privilege changes or a different replacement
-plan require another decision.
+operational scope; it does not waive the preconditions. The user's subsequent
+autopilot instruction temporarily authorizes migration PR merges until Jellyfin
+downtime ends. Unexpected privilege changes or a different replacement plan
+require another decision.
 
 ## Constraints and evidence
 
@@ -117,7 +121,7 @@ and bootstrap role; Apps `scripts/seal.sh`, `scripts/sealed-secrets-cert.pem`,
   bootstrap private key to the workstation or validator or rely solely on the
   key currently present in Kubernetes.
 - [ ] Stage the actual CSI configuration using `scripts/seal.sh` on VM300,
-  compact JSON under key`config.yaml`, region`homelab`, controllerVmID9999 and
+  compact JSON under key`config.yaml`, region`homelab`, controllerVMID9999 and
   the existing scoped token. Only encrypted output leaves the protected runner.
   Verify recovery with the external bootstrap key before publication.
 - [ ] Supply the independently verified public PVE trust material through the

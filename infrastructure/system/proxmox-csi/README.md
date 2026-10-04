@@ -13,6 +13,11 @@ Ansible setup; Apps does not execute it. Controller activation, VM enrollment an
 application migration remain pending. Existing NFS defaults, retained iSCSI and
 Jellyfin declarations are unchanged.
 
+The approved [coordinated cutover plan](../../../docs/superpowers/plans/2026-10-05-proxmox-csi-jellyfin-cutover.md)
+stages deployment-access and secret-recovery checks before downtime, then a cold
+copy and isolated restore before worker replacement and controller activation.
+The descriptor remains disabled until those gates pass.
+
 ## Configuration and recovery contract
 
 - The API controller runs on the control plane; the node DaemonSet runs on Linux

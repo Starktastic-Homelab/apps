@@ -1,0 +1,214 @@
+{
+  "inspected_at": "2026-10-03T22:41:40.495049+00:00",
+  "operations": "read-only NAS metadata queries",
+  "runner_identity_verified": true,
+  "version": "TrueNAS-25.10.7",
+  "pools": [
+    {
+      "id": 1,
+      "name": "apps",
+      "guid": "9917900421692286909",
+      "status": "ONLINE",
+      "healthy": true,
+      "size": 506806140928,
+      "allocated": 143255031808,
+      "free": 363551109120
+    }
+  ],
+  "datasets": [
+    {
+      "id": "apps",
+      "type": "FILESYSTEM",
+      "mountpoint": "/mnt/apps",
+      "locked": false,
+      "encrypted": true,
+      "sync": {
+        "parsed": "standard",
+        "rawvalue": "standard",
+        "value": "STANDARD",
+        "source": "DEFAULT",
+        "source_info": null
+      },
+      "available": {
+        "parsed": 278074535936,
+        "rawvalue": "278074535936",
+        "value": "258.98 GiB",
+        "source": "NONE",
+        "source_info": null
+      },
+      "used": {
+        "parsed": 236329414656,
+        "rawvalue": "236329414656",
+        "value": "220.1 GiB",
+        "source": "NONE",
+        "source_info": null
+      },
+      "quota": {
+        "parsed": null,
+        "rawvalue": "0",
+        "value": null,
+        "source": "DEFAULT",
+        "source_info": null
+      },
+      "refquota": {
+        "parsed": null,
+        "rawvalue": "0",
+        "value": null,
+        "source": "DEFAULT",
+        "source_info": null
+      },
+      "recordsize": {
+        "parsed": 131072,
+        "rawvalue": "131072",
+        "value": "128K",
+        "source": "DEFAULT",
+        "source_info": null
+      },
+      "compression": {
+        "parsed": "lz4",
+        "rawvalue": "lz4",
+        "value": "LZ4",
+        "source": "LOCAL",
+        "source_info": null
+      },
+      "readonly": {
+        "parsed": false,
+        "rawvalue": "off",
+        "value": "OFF",
+        "source": "DEFAULT",
+        "source_info": null
+      },
+      "acltype": {
+        "parsed": "posix",
+        "rawvalue": "posix",
+        "value": "POSIX",
+        "source": "LOCAL",
+        "source_info": null
+      }
+    },
+    {
+      "id": "apps/pv",
+      "type": "FILESYSTEM",
+      "mountpoint": "/mnt/apps/pv",
+      "locked": false,
+      "encrypted": true,
+      "sync": {
+        "parsed": "standard",
+        "rawvalue": "standard",
+        "value": "STANDARD",
+        "source": "LOCAL",
+        "source_info": null
+      },
+      "available": {
+        "parsed": 278074535936,
+        "rawvalue": "278074535936",
+        "value": "258.98 GiB",
+        "source": "NONE",
+        "source_info": null
+      },
+      "used": {
+        "parsed": 127423283200,
+        "rawvalue": "127423283200",
+        "value": "118.67 GiB",
+        "source": "NONE",
+        "source_info": null
+      },
+      "quota": {
+        "parsed": null,
+        "rawvalue": "0",
+        "value": null,
+        "source": "DEFAULT",
+        "source_info": null
+      },
+      "refquota": {
+        "parsed": null,
+        "rawvalue": "0",
+        "value": null,
+        "source": "DEFAULT",
+        "source_info": null
+      },
+      "recordsize": {
+        "parsed": 131072,
+        "rawvalue": "131072",
+        "value": "128K",
+        "source": "DEFAULT",
+        "source_info": null
+      },
+      "compression": {
+        "parsed": "lz4",
+        "rawvalue": "lz4",
+        "value": "LZ4",
+        "source": "INHERITED",
+        "source_info": "apps"
+      },
+      "readonly": {
+        "parsed": false,
+        "rawvalue": "off",
+        "value": "OFF",
+        "source": "DEFAULT",
+        "source_info": null
+      },
+      "acltype": {
+        "parsed": "posix",
+        "rawvalue": "posix",
+        "value": "POSIX",
+        "source": "INHERITED",
+        "source_info": "apps"
+      }
+    }
+  ],
+  "proposed_dataset_absent": true,
+  "shares": [
+    {
+      "id": 1,
+      "path": "/mnt/main/media",
+      "paths": null,
+      "enabled": true,
+      "networks": ["10.9.8.0/24"],
+      "hosts": [],
+      "ro": false,
+      "maproot_user": "",
+      "maproot_group": "",
+      "security": []
+    },
+    {
+      "id": 2,
+      "path": "/mnt/apps/pv",
+      "paths": null,
+      "enabled": true,
+      "networks": ["10.9.8.0/24", "10.9.9.10/32"],
+      "hosts": [],
+      "ro": false,
+      "maproot_user": "root",
+      "maproot_group": "root",
+      "security": []
+    },
+    {
+      "id": 5,
+      "path": "/mnt/nvme-cache/incomplete",
+      "paths": null,
+      "enabled": true,
+      "networks": ["10.9.8.0/24"],
+      "hosts": [],
+      "ro": false,
+      "maproot_user": "",
+      "maproot_group": "",
+      "security": []
+    }
+  ],
+  "nfs_service": [
+    {
+      "service": "nfs",
+      "state": "RUNNING",
+      "enable": true
+    }
+  ],
+  "ancestor_snapshot_tasks": [],
+  "ancestor_replication_tasks": [],
+  "nfs_configuration": {
+    "protocols": ["NFSV4"],
+    "bindip": ["10.9.8.30", "10.9.9.30"],
+    "v4_krb": false,
+    "v4_domain": ""
+  }
+}

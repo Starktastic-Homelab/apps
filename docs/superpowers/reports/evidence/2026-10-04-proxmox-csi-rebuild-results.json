@@ -1,0 +1,763 @@
+{
+  "schema": 1,
+  "operation": "csi-rebuild-20261004",
+  "source_pins": {
+    "ansible": "913941f2610681d048587f30b0984453c7b768af",
+    "terraform": "3b8806422f2cf11a3992f05198619493fa8874e9",
+    "apps": "180fea486127c0a1c9460fa0ddf9db25261fd867",
+    "csi_driver": "v0.20.0",
+    "csi_chart": "0.5.10",
+    "k3s": "v1.37.0+k3s1",
+    "argo_chart": "10.9.2"
+  },
+  "baseline": {
+    "sqlite": {
+      "rows": 1000,
+      "prefix_rows": 1000,
+      "prefix_sha256": "93aaa7459e4a1fb4c53bfb6c901b2c3b3d81ea1a0f2b9c1e32ca44ac9691ccc4",
+      "integrity": "ok",
+      "filesystem_capacity_bytes": 2040373248
+    },
+    "filesystem_uuid": "45c5032b-80bc-4e87-a4b3-c6ccdf7cf092",
+    "attachment": {
+      "vmid": 982,
+      "slot": "scsi1",
+      "config": "csi-integration-20261004:9980/vm-9980-integration.raw,backup=0,cache=none,iothread=1,replicate=0,size=2G,wwn=0x5056432d49443031"
+    },
+    "bootstrap_source": {
+      "git_commit": "2c0af7cc16ee52c3f79ec6575a7858b2bd98fe17",
+      "kubeseal_version": "0.40.0",
+      "kubeseal_sha256": "9314c35916646e9d59c8f06b1314574b4e79c4d76f079433607ed7b697bb5eb7",
+      "sealing_cert_sha256": "44e71ee5060f2bf406ee8e5ddea7a01fdce588f28b99b5fa6274602300378a28",
+      "csi_config_key": "config.yaml",
+      "image_owner": 9980
+    },
+    "resolved_image_digests": [
+      {
+        "namespace": "argocd",
+        "pod": "argocd-application-controller-0",
+        "containers": [
+          {
+            "name": "application-controller",
+            "imageID": "quay.io/argoproj/argocd@sha256:dd3f47d5a5e4da563a7a398506e892481b358a7cec50abdf320c71aa55904bfa"
+          }
+        ]
+      },
+      {
+        "namespace": "argocd",
+        "pod": "argocd-applicationset-controller-6f6c568fb6-5nj2v",
+        "containers": [
+          {
+            "name": "applicationset-controller",
+            "imageID": "quay.io/argoproj/argocd@sha256:dd3f47d5a5e4da563a7a398506e892481b358a7cec50abdf320c71aa55904bfa"
+          }
+        ]
+      },
+      {
+        "namespace": "argocd",
+        "pod": "argocd-redis-68b9b6b665-tmzpq",
+        "containers": [
+          {
+            "name": "redis",
+            "imageID": "ecr-public.aws.com/docker/library/redis@sha256:2cc044fc5a07c9b701f8f1255a309ae9ad7856e694ac03513bf3648c01e40763"
+          }
+        ]
+      },
+      {
+        "namespace": "argocd",
+        "pod": "argocd-repo-server-859bbfd76d-pl5mv",
+        "containers": [
+          {
+            "name": "repo-server",
+            "imageID": "quay.io/argoproj/argocd@sha256:dd3f47d5a5e4da563a7a398506e892481b358a7cec50abdf320c71aa55904bfa"
+          }
+        ]
+      },
+      {
+        "namespace": "argocd",
+        "pod": "argocd-server-b84c65d95-tqb5s",
+        "containers": [
+          {
+            "name": "server",
+            "imageID": "quay.io/argoproj/argocd@sha256:dd3f47d5a5e4da563a7a398506e892481b358a7cec50abdf320c71aa55904bfa"
+          }
+        ]
+      },
+      {
+        "namespace": "csi-lab",
+        "pod": "sqlite-66575d7c9b-qhsbg",
+        "containers": [
+          {
+            "name": "main",
+            "imageID": "docker.io/library/python@sha256:bb2988715db2cf7ace7b53f38f3cffbef7c7046a656bee66245eb0ed386e2e81"
+          }
+        ]
+      },
+      {
+        "namespace": "csi-proxmox",
+        "pod": "proxmox-csi-proxmox-csi-plugin-controller-7dc74ffcf8-wnvs9",
+        "containers": [
+          {
+            "name": "csi-attacher",
+            "imageID": "registry.k8s.io/sig-storage/csi-attacher@sha256:be59d0556508d3dd419cc34c53062f170a28902ef36e832b947c7796458a083d"
+          },
+          {
+            "name": "csi-provisioner",
+            "imageID": "registry.k8s.io/sig-storage/csi-provisioner@sha256:bb057f866177d5f4139a1527e594499cbe0feeb67b63aaca8679dfdf0a6016f9"
+          },
+          {
+            "name": "csi-resizer",
+            "imageID": "registry.k8s.io/sig-storage/csi-resizer@sha256:5e7cbb63fd497fa913caa21fee1a69f727c220c6fa83c5f8bb0995e2ad73a474"
+          },
+          {
+            "name": "liveness-probe",
+            "imageID": "registry.k8s.io/sig-storage/livenessprobe@sha256:88092d100909918ae0a768956cf78c88bc59cd7232720f7cdbdfb5d2e235001e"
+          },
+          {
+            "name": "proxmox-csi-proxmox-csi-plugin-controller",
+            "imageID": "ghcr.io/sergelogvinov/proxmox-csi-controller@sha256:95ef74cce03e89a1706d9b32888a84bf44e0db439c4fe2a4334ce123728d4c3b"
+          }
+        ]
+      },
+      {
+        "namespace": "csi-proxmox",
+        "pod": "proxmox-csi-proxmox-csi-plugin-node-gdvw4",
+        "containers": [
+          {
+            "name": "csi-node-driver-registrar",
+            "imageID": "registry.k8s.io/sig-storage/csi-node-driver-registrar@sha256:11f199f6bec47403b03cb49c79a41f445884b213b382582a60710b8c6fdc316a"
+          },
+          {
+            "name": "liveness-probe",
+            "imageID": "registry.k8s.io/sig-storage/livenessprobe@sha256:88092d100909918ae0a768956cf78c88bc59cd7232720f7cdbdfb5d2e235001e"
+          },
+          {
+            "name": "proxmox-csi-proxmox-csi-plugin-node",
+            "imageID": "ghcr.io/sergelogvinov/proxmox-csi-node@sha256:e0151137a1c5fa4faea9b4622436b203f1dc246ea37a3a77d09d3855c70aabd1"
+          }
+        ]
+      },
+      {
+        "namespace": "csi-proxmox",
+        "pod": "proxmox-csi-proxmox-csi-plugin-node-lfws8",
+        "containers": [
+          {
+            "name": "csi-node-driver-registrar",
+            "imageID": "registry.k8s.io/sig-storage/csi-node-driver-registrar@sha256:11f199f6bec47403b03cb49c79a41f445884b213b382582a60710b8c6fdc316a"
+          },
+          {
+            "name": "liveness-probe",
+            "imageID": "registry.k8s.io/sig-storage/livenessprobe@sha256:88092d100909918ae0a768956cf78c88bc59cd7232720f7cdbdfb5d2e235001e"
+          },
+          {
+            "name": "proxmox-csi-proxmox-csi-plugin-node",
+            "imageID": "ghcr.io/sergelogvinov/proxmox-csi-node@sha256:e0151137a1c5fa4faea9b4622436b203f1dc246ea37a3a77d09d3855c70aabd1"
+          }
+        ]
+      },
+      {
+        "namespace": "kube-system",
+        "pod": "coredns-577d995dff-xs65n",
+        "containers": [
+          {
+            "name": "coredns",
+            "imageID": "docker.io/rancher/mirrored-coredns-coredns@sha256:7efd3c635b03efd68c4e8398fc45f0d993d0e9ab016f72c1cefb0fd6d01aa286"
+          }
+        ]
+      },
+      {
+        "namespace": "kube-system",
+        "pod": "helm-install-gateway-api-crd-9mnjn",
+        "containers": [
+          {
+            "name": "helm",
+            "imageID": "docker.io/rancher/klipper-helm@sha256:5425a2b4613d2458dbdff99218e8d487ebb59c20e7a941f061c0777070f0aac1"
+          }
+        ]
+      },
+      {
+        "namespace": "kube-system",
+        "pod": "local-path-provisioner-6858d854cf-czfxc",
+        "containers": [
+          {
+            "name": "local-path-provisioner",
+            "imageID": "docker.io/rancher/local-path-provisioner@sha256:e757967a5ec338f6a9b371c5a9688bedaa8c3578ea3dd4db329ea0084be0a86f"
+          }
+        ]
+      },
+      {
+        "namespace": "kube-system",
+        "pod": "metrics-server-778c4649b4-2tddt",
+        "containers": [
+          {
+            "name": "metrics-server",
+            "imageID": "docker.io/rancher/mirrored-metrics-server@sha256:d9862115e7c7881280d3d75ca26bda8ffc0fc213315979575bf23ce9826205c0"
+          }
+        ]
+      },
+      {
+        "namespace": "kube-system",
+        "pod": "sealed-secrets-controller-67bc74c985-flh8r",
+        "containers": [
+          {
+            "name": "controller",
+            "imageID": "docker.io/bitnami/sealed-secrets-controller@sha256:b1ff382e9300dc9e74991f3177b18cafc06ce43b5c21349c86adbdd1d1c177d3"
+          }
+        ]
+      }
+    ]
+  },
+  "shared_setup": {
+    "shared-setup-first-result.json": {
+      "rc": 0,
+      "log": "/var/lib/homelab-maintenance/operations/csi-rebuild-20261004/shared-setup-first.log"
+    },
+    "shared-setup-second-result.json": {
+      "credential_unchanged": true,
+      "rc": 0,
+      "log": "/var/lib/homelab-maintenance/operations/csi-rebuild-20261004/shared-setup-second.log"
+    },
+    "runtime-effective-permissions.json": {
+      "/vms/9980": {
+        "/vms/9980": {
+          "Datastore.Allocate": 0,
+          "VM.Audit": 0,
+          "VM.Config.Disk": 0,
+          "Datastore.AllocateSpace": 0,
+          "Datastore.Audit": 0
+        }
+      },
+      "/storage/csi-integration-20261004": {
+        "/storage/csi-integration-20261004": {
+          "Datastore.Audit": 0,
+          "Datastore.AllocateSpace": 0,
+          "Datastore.Allocate": 0,
+          "VM.Audit": 0,
+          "VM.Config.Disk": 0
+        }
+      },
+      "/pool/csi-integration-20261004": {
+        "/pool/csi-integration-20261004": {
+          "VM.Config.Disk": 1,
+          "VM.Audit": 1,
+          "Datastore.Allocate": 1,
+          "Datastore.AllocateSpace": 1,
+          "Datastore.Audit": 1
+        }
+      },
+      "/vms/100": {
+        "/vms/100": {}
+      },
+      "/vms/200": {
+        "/vms/200": {}
+      },
+      "/vms/201": {
+        "/vms/201": {}
+      },
+      "/vms/202": {
+        "/vms/202": {}
+      },
+      "/vms/300": {
+        "/vms/300": {}
+      },
+      "/vms/900": {
+        "/vms/900": {}
+      }
+    },
+    "administrator-access-removed.json": {
+      "container_removed": true,
+      "inventory_removed": true
+    },
+    "dataset-created.json": {
+      "dataset": "apps/csi-integration-20261004",
+      "guid": "6623045154214145463",
+      "mountpoint": "/mnt/apps/csi-integration-20261004"
+    },
+    "share-created.json": {
+      "id": 9,
+      "path": "/mnt/apps/csi-integration-20261004",
+      "networks": ["10.9.9.20/32"]
+    },
+    "nas-cleanup-result.json": {
+      "dataset_deleted": "apps/csi-integration-20261004",
+      "verified_deleted_guid": "6623045154214145463",
+      "share_deleted": 9,
+      "other_exports_unchanged": true,
+      "nfs_config_unchanged": true,
+      "nfs_running": true
+    }
+  },
+  "first_cold_rebuild": {
+    "checkpoint": "PVC request committed before backend expansion",
+    "git_pv": "2Gi",
+    "git_pvc": "4Gi",
+    "old_vm_generations": {
+      "981": "042e9677-5696-4d9d-92f3-5fc1f8f809b5",
+      "982": "685a26e4-c3eb-4296-84f8-d2a0edba2eff",
+      "983": "20ef93bf-a7a4-45f2-a078-bfd92ba3af1f"
+    },
+    "old_guests_absent": {
+      "absent_vmids": [981, 982, 983],
+      "retained_image": "csi-integration-20261004:9980/vm-9980-integration.raw",
+      "image_bytes": 2147483648,
+      "old_generations": {
+        "981": "042e9677-5696-4d9d-92f3-5fc1f8f809b5",
+        "982": "685a26e4-c3eb-4296-84f8-d2a0edba2eff",
+        "983": "20ef93bf-a7a4-45f2-a078-bfd92ba3af1f"
+      },
+      "before_any_new_guest_creation": true,
+      "harness_inventory_identity_corrected": "csi"
+    },
+    "terraform": {
+      "native_mode": "destroy",
+      "manual_resume_after_harness_visibility_failure": true,
+      "destroy_completed_before_apply": true,
+      "minimum_observed_available_bytes": 4133867520,
+      "terraform_handoff": "has_changes=true\ndrained_nodes=[]\n"
+    },
+    "bootstrap": {
+      "new_kube_system_uid": "c0b77e6a-7c9c-4499-b57f-a11e539e7932",
+      "old_kube_system_uid": "0f12492f-337c-4e6a-ba06-f54788070f5c",
+      "git_revision": "83526780e77d68cdf987464d6d1a3548a4a76205",
+      "same_external_sealing_certificate": true,
+      "kubernetes_backup_used": false,
+      "new_vm_generations": {
+        "981": "a9bd59ec-3052-49a8-8074-437ae819210b",
+        "982": "84a6ee53-f019-4ee1-a62e-b879c88c9ff4",
+        "983": "ad32548b-9845-43dd-b53e-741d8f2dd9d7"
+      }
+    },
+    "result": {
+      "recovered_without_kubernetes_backup": true,
+      "sqlite": {
+        "rows": 1000,
+        "prefix_rows": 1000,
+        "prefix_sha256": "93aaa7459e4a1fb4c53bfb6c901b2c3b3d81ea1a0f2b9c1e32ca44ac9691ccc4",
+        "integrity": "ok",
+        "filesystem_capacity_bytes": 4152066048
+      },
+      "filesystem": {
+        "name": "sda",
+        "size": 4294967296,
+        "uuid": "45c5032b-80bc-4e87-a4b3-c6ccdf7cf092",
+        "fstype": "ext4",
+        "mountpoints": [
+          "/var/lib/kubelet/pods/4f98c346-c7b2-418f-bf0c-ebaac6cdc94d/volumes/kubernetes.io~csi/csi-lab-sqlite/mount",
+          "/var/lib/kubelet/plugins/kubernetes.io/csi/csi.proxmox.sinextra.dev/e1a86810810027fe8c00fd282120e05cd2fa4054b93a85df2fa904ccc2392f10/globalmount"
+        ]
+      },
+      "image_bytes": 4294967296,
+      "attachments": [
+        {
+          "vmid": 982,
+          "slot": "scsi1",
+          "value": "csi-integration-20261004:9980/vm-9980-integration.raw,backup=0,cache=none,iothread=1,replicate=0,size=4G,wwn=0x5056432d49443031"
+        }
+      ],
+      "git_pv_capacity": "2Gi",
+      "git_pvc_request": "4Gi",
+      "live_pv_capacity": "4Gi",
+      "application": "OutOfSync"
+    }
+  },
+  "second_cold_rebuild": {
+    "checkpoint": "backend expanded before Git PV reconciliation",
+    "git_pv": "2Gi",
+    "git_pvc": "4Gi",
+    "old_vm_generations": {
+      "981": "a9bd59ec-3052-49a8-8074-437ae819210b",
+      "982": "84a6ee53-f019-4ee1-a62e-b879c88c9ff4",
+      "983": "ad32548b-9845-43dd-b53e-741d8f2dd9d7"
+    },
+    "old_guests_absent": {
+      "absent_vmids": [981, 982, 983],
+      "retained_image": "csi-integration-20261004:9980/vm-9980-integration.raw",
+      "image_bytes": 4294967296,
+      "old_generations": {
+        "981": "a9bd59ec-3052-49a8-8074-437ae819210b",
+        "982": "84a6ee53-f019-4ee1-a62e-b879c88c9ff4",
+        "983": "ad32548b-9845-43dd-b53e-741d8f2dd9d7"
+      },
+      "before_any_new_guest_creation": true
+    },
+    "terraform": {
+      "native_mode": "destroy",
+      "destroy_completed_before_apply": true,
+      "minimum_observed_available_bytes": 4096344064,
+      "terraform_handoff": "has_changes=true\ndrained_nodes=[]\n"
+    },
+    "bootstrap": {
+      "new_kube_system_uid": "cb436117-c21d-4c35-9cf1-83f7ff251b49",
+      "old_kube_system_uid": "c0b77e6a-7c9c-4499-b57f-a11e539e7932",
+      "git_revision": "83526780e77d68cdf987464d6d1a3548a4a76205",
+      "same_external_sealing_certificate": true,
+      "kubernetes_backup_used": false,
+      "new_vm_generations": {
+        "981": "5c5ff904-49ee-436b-a5c1-68073e486efb",
+        "982": "8ce64b27-08cb-45e7-a670-10217f05338f",
+        "983": "0082e959-6ec3-44cc-aad1-b59d7c258e2e"
+      }
+    },
+    "result": {
+      "sqlite": {
+        "rows": 1372,
+        "last_seq": 1371,
+        "all_rows_sha256": "23bddb3bc00713c5b800626af824e712ee88692e96463f6c4291f2c30486e8c7",
+        "integrity": "ok",
+        "filesystem_bytes": 4152066048
+      },
+      "acknowledged_writes": 372,
+      "first_ack": {
+        "seq": 1000,
+        "payload": "d51096c84ab9bcc36742e1f5bdb2750857628892ad6aac1dd2d3f708fdef3af1",
+        "received_at": 1791144699.368202
+      },
+      "last_ack": {
+        "seq": 1371,
+        "payload": "02f06a7e53a188faffcea2682dec2713ad10939a9e20f086ca930e4a0436525d",
+        "received_at": 1791144739.0455718
+      },
+      "all_ack_sequences_contiguous": true,
+      "matched_proxmox_stop_task": {
+        "starttime": 1791144739,
+        "endtime": 1791144739,
+        "type": "qmstop",
+        "id": "982",
+        "status": "OK"
+      },
+      "filesystem_uuid": "45c5032b-80bc-4e87-a4b3-c6ccdf7cf092",
+      "filesystem_device_bytes": 4294967296,
+      "attachments": [
+        {
+          "vmid": 982,
+          "slot": "scsi1",
+          "value": "csi-integration-20261004:9980/vm-9980-integration.raw,backup=0,cache=none,iothread=1,replicate=0,size=4G,wwn=0x5056432d49443031"
+        }
+      ],
+      "pv_capacity": "4Gi",
+      "pvc_capacity": "4Gi",
+      "kubernetes_backup_used": false
+    },
+    "writer_transport_reconciliation": {
+      "obsolete_ssh_closed_after_old_vm_generation_destroyed": true,
+      "finalization_at": 1791145240.7973742,
+      "reason": "TCP connection waited for timeout after VM power-off",
+      "old_writer_uuid": "84a6ee53-f019-4ee1-a62e-b879c88c9ff4"
+    }
+  },
+  "healthy_movement": {
+    "git_pv_capacity": "4Gi",
+    "application": "Synced Healthy",
+    "sqlite": {
+      "rows": 1372,
+      "last_seq": 1371,
+      "all_rows_sha256": "23bddb3bc00713c5b800626af824e712ee88692e96463f6c4291f2c30486e8c7",
+      "integrity": "ok",
+      "filesystem_bytes": 4152066048
+    },
+    "filesystem": {
+      "name": "sda",
+      "size": 4294967296,
+      "uuid": "45c5032b-80bc-4e87-a4b3-c6ccdf7cf092",
+      "fstype": "ext4",
+      "mountpoints": [
+        "/var/lib/kubelet/pods/a18f5781-1bbc-4f03-b20c-73e7508fbffc/volumes/kubernetes.io~csi/csi-lab-sqlite/mount",
+        "/var/lib/kubelet/plugins/kubernetes.io/csi/csi.proxmox.sinextra.dev/e1a86810810027fe8c00fd282120e05cd2fa4054b93a85df2fa904ccc2392f10/globalmount"
+      ]
+    },
+    "attachment_transitions": [
+      {
+        "at": 1791145297.5364141,
+        "attachments": [
+          {
+            "vmid": 982,
+            "slot": "scsi1"
+          }
+        ]
+      },
+      {
+        "at": 1791145337.0390234,
+        "attachments": [
+          {
+            "vmid": 983,
+            "slot": "scsi1"
+          }
+        ]
+      }
+    ],
+    "poll_seconds": 2,
+    "terraform_plan": "no changes"
+  },
+  "failed_node_hold": {
+    "worker_uuid": "0082e959-6ec3-44cc-aad1-b59d7c258e2e",
+    "old_pod_uid": "a18f5781-1bbc-4f03-b20c-73e7508fbffc",
+    "ready": "Unknown",
+    "hold_observed_seconds": 60.81321430206299,
+    "same_pod_preserved": true,
+    "verified_powered_off": true
+  },
+  "verified_off_takeover": {
+    "stock_out_of_service_taint_after_verified_off": true,
+    "observation_resumed_after_pending_pod_fixture_error": true,
+    "no_forced_finalizer_removal": true,
+    "sqlite": {
+      "rows": 1372,
+      "last_seq": 1371,
+      "all_rows_sha256": "23bddb3bc00713c5b800626af824e712ee88692e96463f6c4291f2c30486e8c7",
+      "integrity": "ok",
+      "filesystem_bytes": 4152066048
+    },
+    "attachment_transitions": [
+      {
+        "at": 1791145540.564629,
+        "attachments": [
+          {
+            "vmid": 982,
+            "slot": "scsi1"
+          }
+        ]
+      }
+    ],
+    "old_worker_recovered_and_taint_removed": true
+  },
+  "missing_image": {
+    "observed_seconds": 46.41489315032959,
+    "replacement_image_not_created": true,
+    "no_guest_attachment": true,
+    "no_ready_writer": true,
+    "not_found_events": [
+      {
+        "message": "AttachVolume.Attach failed for volume \"csi-lab-sqlite\" : rpc error: code = NotFound desc = volume lab//csi-integration-20261004/9980/vm-9980-integration.raw not found in any node for storage csi-integration-20261004",
+        "count": 7,
+        "first_timestamp": "2026-10-04T20:28:35Z",
+        "last_timestamp": "2026-10-04T20:29:10Z"
+      }
+    ]
+  },
+  "missing_image_restore": {
+    "sqlite": {
+      "rows": 1372,
+      "last_seq": 1371,
+      "all_rows_sha256": "23bddb3bc00713c5b800626af824e712ee88692e96463f6c4291f2c30486e8c7",
+      "integrity": "ok",
+      "filesystem_bytes": 4152066048
+    },
+    "native_retry_after_original_image_restored": true,
+    "no_volume_recreation_or_finalizer_changes": true
+  },
+  "cohort": {
+    "old_vm_generations": {
+      "981": "5c5ff904-49ee-436b-a5c1-68073e486efb",
+      "982": "8ce64b27-08cb-45e7-a670-10217f05338f",
+      "983": "0082e959-6ec3-44cc-aad1-b59d7c258e2e"
+    },
+    "replacement_plan": {
+      "requested_replacement": "module.server.proxmox_vm_qemu.vm",
+      "changes": [
+        {
+          "address": "module.server.proxmox_vm_qemu.vm",
+          "actions": ["delete", "create"]
+        },
+        {
+          "address": "module.worker_1.proxmox_vm_qemu.vm",
+          "actions": ["delete", "create"]
+        },
+        {
+          "address": "module.worker_2.proxmox_vm_qemu.vm",
+          "actions": ["delete", "create"]
+        }
+      ]
+    },
+    "injected_loss": {
+      "fault": "external control-plane loss at native apply boundary",
+      "control_plane_absent": true,
+      "absence_confirmed_at": 1791146020.5511098,
+      "last_sequence_at_absence": 2391,
+      "old_worker_generations_preserved": true,
+      "old_writer_still_acknowledging": {
+        "seq": 2396,
+        "payload": "f30db6afb5f91eb811e2e7443425b1673f4cd86ba404ba76ad68e99b424f90cf",
+        "received_at": 1791146021.006972
+      },
+      "observed_at": 1791146021.0565145,
+      "native_saved_plan_was_not_applied": true
+    },
+    "failure_ownership": {
+      "owner": "lab/cohort-fault",
+      "stage": "applying",
+      "success_handoff_absent": true,
+      "bootstrap_not_dispatched": true,
+      "old_writer_survives_external_cp_loss": true
+    },
+    "resume_plan": {
+      "module.server.proxmox_vm_qemu.vm": ["create"],
+      "module.worker_1.proxmox_vm_qemu.vm": ["delete", "create"],
+      "module.worker_2.proxmox_vm_qemu.vm": ["delete", "create"]
+    },
+    "handoff_boundary": {
+      "manual_adoption_of_original_held_operation": true,
+      "new_vm_generations": {
+        "981": "uuid=b32c324b-1e7c-44cd-84fa-08a463b0bb68",
+        "982": "uuid=c83e42d7-2b6b-4244-aa6a-132dcbf675b9",
+        "983": "uuid=123efc56-e813-4cce-bc64-eaa7113e0de1"
+      },
+      "all_old_writer_generations_gone_before_bootstrap": true,
+      "minimum_available_bytes": 4148244480,
+      "native_handoff": "has_changes=true\ndrained_nodes=[]\n",
+      "lab_lock_released_before_ansible": true,
+      "ansible_dispatch_deliberately_not_run_yet": true
+    },
+    "bootstrap": {
+      "new_kube_system_uid": "e92f01d8-5d6a-4c01-9627-e022bb6b65cd",
+      "old_kube_system_uid": "cb436117-c21d-4c35-9cf1-83f7ff251b49",
+      "git_revision": "f65d6b2385a54200d6b0bb10e1aa8d5987d9ee23",
+      "same_external_sealing_certificate": true,
+      "kubernetes_backup_used": false,
+      "new_vm_generations": {
+        "981": "b32c324b-1e7c-44cd-84fa-08a463b0bb68",
+        "982": "c83e42d7-2b6b-4244-aa6a-132dcbf675b9",
+        "983": "123efc56-e813-4cce-bc64-eaa7113e0de1"
+      }
+    },
+    "result": {
+      "sqlite": {
+        "rows": 2628,
+        "last_seq": 2627,
+        "all_rows_sha256": "eee579132084c69027540f4863da891363a705f6f5605c72e9fbbd4eaf8a8597",
+        "integrity": "ok",
+        "filesystem_bytes": 4152066048
+      },
+      "acknowledged_writes": 1256,
+      "first_ack": {
+        "seq": 1372,
+        "payload": "7a9fbe2831530b53490f713fc055b2affd3c988357cf99afdd006fe3fccc2b45",
+        "received_at": 1791145912.1786666
+      },
+      "last_ack": {
+        "seq": 2627,
+        "payload": "f59a93e5cd4b681f95d36864834c3e672acf0c723a46d6f810de501597494fb7",
+        "received_at": 1791146044.6747477
+      },
+      "all_ack_sequences_contiguous": true,
+      "matched_proxmox_stop_task": {
+        "starttime": 1791146044,
+        "endtime": 1791146044,
+        "type": "qmstop",
+        "id": "982",
+        "status": "OK"
+      },
+      "filesystem_uuid": "45c5032b-80bc-4e87-a4b3-c6ccdf7cf092",
+      "filesystem_device_bytes": 4294967296,
+      "attachments": [
+        {
+          "vmid": 982,
+          "slot": "scsi1",
+          "value": "csi-integration-20261004:9980/vm-9980-integration.raw,backup=0,cache=none,iothread=1,replicate=0,size=4G,wwn=0x5056432d49443031"
+        }
+      ],
+      "pv_capacity": "4Gi",
+      "pvc_capacity": "4Gi",
+      "kubernetes_backup_used": false
+    }
+  },
+  "final_validation": {
+    "applications": {
+      "proxmox-csi": {
+        "sync": "Synced",
+        "health": "Healthy"
+      },
+      "sealed-secrets": {
+        "sync": "Synced",
+        "health": "Healthy"
+      },
+      "sqlite": {
+        "sync": "Synced",
+        "health": "Healthy"
+      }
+    },
+    "terraform_plan": "no changes",
+    "lab_lock_released": true,
+    "nodes_ready": true,
+    "memory_available_bytes": 4432994304,
+    "native_handoff_unchanged": true
+  },
+  "cleanup": {
+    "final_detachment": {
+      "writer_pods": 0,
+      "volume_attachments": 0,
+      "active_proxmox_disk_attachments": 0
+    },
+    "proxmox": {
+      "lab_vms_deleted": [980, 981, 982, 983],
+      "synthetic_image_deleted": true,
+      "storage_and_pool_removed": true,
+      "temporary_users_roles_tokens_acls_removed": true,
+      "production_vm_configs_unchanged": ["100", "200", "201", "202", "300", "900"],
+      "nas_cleanup_pending_at_proxmox_phase": true
+    },
+    "nas": {
+      "dataset_deleted": "apps/csi-integration-20261004",
+      "verified_deleted_guid": "6623045154214145463",
+      "share_deleted": 9,
+      "other_exports_unchanged": true,
+      "nfs_config_unchanged": true,
+      "nfs_running": true
+    },
+    "proxmox_private_staging": {
+      "private_pve_staging_removed": true,
+      "lab_resources_absent": true,
+      "temporary_identities_absent": true,
+      "production_configs_unchanged": true
+    },
+    "complete": {
+      "operation": "codex/csi-rebuild-20261004",
+      "all_lab_vms_storage_access_and_nas_removed": true,
+      "temporary_admin_inventory_container_and_token_copies_removed": true,
+      "production_vm_configs_and_nas_exports_unchanged": true,
+      "qualification_evidence_sha256": "d3355fa6e22a858c4a09b808f5dcfd4ed29b262d6d36d161db157318ba617845",
+      "qualification": "cold rebuilds, interrupted growth, movement, verified-off recovery, missing-image refusal and cohort fault recovery passed within recorded scope",
+      "maintenance_lock_released": true
+    },
+    "generated_local_ssh_keys_removed": true
+  },
+  "preserved_evidence": {
+    "qualification_evidence_preserved": "/var/lib/homelab-maintenance/operations/csi-rebuild-20261004/qualification-evidence.json",
+    "sha256": "d3355fa6e22a858c4a09b808f5dcfd4ed29b262d6d36d161db157318ba617845",
+    "mode": "0600"
+  },
+  "evidence_limits": [
+    "First cold apply resumed after test-only inventory visibility failure",
+    "Writer stream finalized after obsolete SSH connection was closed",
+    "Healthy movement polling is not a continuous hypervisor trace",
+    "Failed-node polling resumed after pending-pod fixture error",
+    "Cohort loss was an injected external fault, not native Terraform destruction order",
+    "Recovery adopted the original lock through narrow test adapters",
+    "Handoff was tested between local processes, not a real GitHub Actions dispatch",
+    "Native helper releases lab ownership before Ansible dispatch",
+    "No production bootstrap, activation, application migration or host/NAS power-loss test"
+  ],
+  "public_test_source_sha256": {
+    "prepare-growth-rebuild.py": "f81c57bc0a86a9f86ff5f1592fb984fbd7d6c866a820e377aa8070a7113645d8",
+    "cold-rebuild.py": "0dcad7435c148fe12a8f6d62e82903a761b7a0cbaf326984d0da53f2cfcbb8f2",
+    "resume-cold-rebuild.py": "314cc46aa78a42c70f8dc9f3cd85c1d17b230f0ba244d1f91fbf333e71767da3",
+    "bootstrap-rebuild.py": "a1ff6a6a619ae9ec9af9f545c5dfc60b065733b0e1b1de27bd95c3fbfe272026",
+    "growth-rebuild-observation.py": "7dfef395d644e2ea624106cf19b3c88de8d6329eb9577bb56f24039c118cd243",
+    "active-writer.py": "15571f0522eb77fc4325bf2f098ca84fc3084d907c263f5265f3ad193d30280e",
+    "prepare-second-checkpoint.py": "b3c9d9f30bc03ff2de5ca14e96d053629e614991e19a22690984b4b6428fd56f",
+    "second-cold-rebuild.py": "bf18c98dab00324a1fa955de7051b4a1faa76d1466421834001d105a94ec48a8",
+    "second-bootstrap.py": "faee507c0966118aa042be379af21b0e98d49cddd9d9c5d3e1f46c1c289eb88e",
+    "second-rebuild-verify.py": "273c2b63e9ddb5b5d42382faf3187548898e54f8538450c8e302c9db6b0d85b5",
+    "reconcile-and-move.py": "e5c4649bfdd75975b5c5db7f218d4058981ffe3649e0fcb981051da4f6578b89",
+    "failed-node.py": "da4f31c48af23dd0a1d9ac6bbfe8df59885b705be9750ee5cc000189ea8df71f",
+    "failed-node-resume.py": "dd2d3a52e0e3db58aebae39bf9a8edc453af60b158752cfd00436eabc2f6db3a",
+    "missing-image-observe.py": "76c53de6b47d589ae46bd3464974872de5cdf72718a4f588715564b07d6c39eb",
+    "missing-image-recover.py": "0521e8d17c2690ae663a0b7888ecac4b87f4dd8cb4a130eead6b7c61330064f2",
+    "cohort-writer.py": "4d45ee5d05e8721a967bfff1dd73e8a6609b3eaba8268235aeab2c27c60c43f2",
+    "cohort-fault.py": "3ef6d04f77cbd8f58869251e7ef1531b30c085fb215d1e342e560b05f4fa0efe",
+    "cohort-fault-completed.py": "80462a8844242293a344a1cc3ad7b022fce57540cc34794f57ea8f5f52089e3a",
+    "cohort-resume.py": "a12ab10026a94f021d16fe555b6645b000a8d14ed86bdc801adf49d74561050f",
+    "cohort-bootstrap.py": "ed6ed01938692ffca37af1c2bfe8243372e4e8cb7285f0de82d92435dbda4ea1",
+    "cohort-verify.py": "eb851e94c861428044395a2a43c256dda8a0240e23ebffb8befb8d3f075b8f0f",
+    "final-validation.py": "688d7027af88fe0e257e4e2130cc1717f697337729a3e45728428b4e274e97c1"
+  }
+}

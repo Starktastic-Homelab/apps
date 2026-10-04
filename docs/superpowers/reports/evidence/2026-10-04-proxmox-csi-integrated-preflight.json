@@ -1,0 +1,124 @@
+{
+  "inspected_at": "2026-10-03T22:37:39.987424+00:00",
+  "operations": "read-only Proxmox API metadata; login session only",
+  "version": {
+    "version": "9.2.20",
+    "repoid": "49318c671b82f31e",
+    "release": "9.2"
+  },
+  "guests": [
+    {
+      "vmid": 100,
+      "name": "truenas",
+      "type": "qemu",
+      "status": "running",
+      "node": "pve",
+      "maxmem": 34359738368,
+      "maxdisk": 34359738368
+    },
+    {
+      "vmid": 101,
+      "name": "speedtest-tracker",
+      "type": "lxc",
+      "status": "stopped",
+      "node": "pve",
+      "maxmem": 2147483648,
+      "maxdisk": 4294967296
+    },
+    {
+      "vmid": 200,
+      "name": "kube-master-01",
+      "type": "qemu",
+      "status": "running",
+      "node": "pve",
+      "maxmem": 17179869184,
+      "maxdisk": 103079215104
+    },
+    {
+      "vmid": 201,
+      "name": "kube-worker-01",
+      "type": "qemu",
+      "status": "running",
+      "node": "pve",
+      "maxmem": 30064771072,
+      "maxdisk": 103079215104
+    },
+    {
+      "vmid": 202,
+      "name": "kube-worker-02",
+      "type": "qemu",
+      "status": "running",
+      "node": "pve",
+      "maxmem": 30064771072,
+      "maxdisk": 103079215104
+    },
+    {
+      "vmid": 300,
+      "name": "runner",
+      "type": "qemu",
+      "status": "running",
+      "node": "pve",
+      "maxmem": 4294967296,
+      "maxdisk": 34359738368
+    },
+    {
+      "vmid": 900,
+      "name": "packer-debian-13.7.0-20260919201032",
+      "type": "qemu",
+      "status": "stopped",
+      "node": "pve",
+      "maxmem": 1073741824,
+      "maxdisk": 4294967296
+    }
+  ],
+  "pools": [],
+  "storage": [
+    {
+      "storage": "vm-pool",
+      "type": "zfspool",
+      "active": 1,
+      "enabled": 1,
+      "avail": 146200625152,
+      "total": 495263416320,
+      "used": 349062791168,
+      "content": "images,rootdir"
+    },
+    {
+      "storage": "local-zfs",
+      "type": "zfspool",
+      "active": 1,
+      "enabled": 1,
+      "avail": 24235757568,
+      "total": 51944452096,
+      "used": 27708694528,
+      "content": "rootdir,images"
+    },
+    {
+      "storage": "local",
+      "type": "dir",
+      "active": 1,
+      "enabled": 1,
+      "avail": 24235737088,
+      "total": 203622055936,
+      "used": 179386318848,
+      "content": "vztmpl,backup,iso"
+    }
+  ],
+  "template900": {
+    "name": "packer-debian-13.7.0-20260919201032",
+    "template": 1,
+    "memory": "1024",
+    "cores": 1,
+    "net0": "virtio=9E:23:F5:7F:63:BC,bridge=vmbr0",
+    "agent": "1",
+    "virtio0": "local-zfs:base-900-disk-0,cache=none,discard=on,replicate=0,size=4G",
+    "scsi0": null,
+    "ide2": null
+  },
+  "lab_ids_absent": true,
+  "shared_setup_names_absent": {
+    "user": true,
+    "role": true,
+    "acl_references": true
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-04",
+  "status": "source-assessed-user-selected-verified-ansible-retirement",
+  "runtime_qualification": false,
+  "live_mutations": false,
+  "release": "v0.16.1",
+  "commit": "fd03c86eb3eb3e4090a26bdfca4a24493fa18701",
+  "installed_pve": {
+    "source": "/usr/share/perl5/PVE/API2/Cluster.pm",
+    "sha256": "1296999437390c82a89e56418c2e39fd3579ef5fd35bd6d7307e4a5d7033610a",
+    "version": "pve-manager/9.2.20/49318c671b82f31e (running kernel: 6.17.13-13-pve)",
+    "blocks": [
+      {
+        "line": 177,
+        "source": "169:             { name => 'log' },\n170:             { name => 'mapping' },\n171:             { name => 'metrics' },\n172:             { name => 'notifications' },\n173:             { name => 'nextid' },\n174:             { name => 'options' },\n175:             { name => 'qemu' },\n176:             { name => 'replication' },\n177:             { name => 'resources' },\n178:             { name => 'status' },\n179:             { name => 'tasks' },\n180:         ];\n181: \n182:         if ($have_sdn) {\n183:             push(@{$result}, { name => 'sdn' });\n184:         }\n185: \n186:         return $result;\n187:     },\n188: });"
+      },
+      {
+        "line": 263,
+        "source": "255: \n256:     # unknown type, so most likely introduced in a newer\n257:     # version - avoid leaking information by suppressing any\n258:     # unknown sdn types in the returned array.\n259:     return 0;\n260: }\n261: \n262: __PACKAGE__->register_method({\n263:     name => 'resources',\n264:     path => 'resources',\n265:     method => 'GET',\n266:     description => \"Resources index (cluster wide).\",\n267:     permissions => { user => 'all' },\n268:     parameters => {\n269:         additionalProperties => 0,\n270:         properties => {\n271:             type => {\n272:                 type => 'string',\n273:                 description => 'Resource type.',\n274:                 optional => 1,"
+      },
+      {
+        "line": 588,
+        "source": "580:                                 (($pe->{cpu} * $pe->{maxcpu}) + ($entry->{cpu} * $entry->{maxcpu}))\n581:                                 / ($pe->{maxcpu} + $entry->{maxcpu});\n582:                             $pe->{maxcpu} += $entry->{maxcpu};\n583:                         }\n584:                     }\n585:                 }\n586: \n587:                 # only skip now to next to ensure that the pool stats above are filled, if eligible\n588:                 next if !$rpcenv->check($authuser, \"/vms/$vmid\", ['VM.Audit'], 1);\n589: \n590:                 for my $prop (@$prop_list) {\n591:                     if (defined(my $value = $props->{$vmid}->{$prop})) {\n592:                         $entry->{$prop} = $value;\n593:                     }\n594:                 }\n595: \n596:                 if (\n597:                     defined($entry->{pool})\n598:                     && !$rpcenv->check($authuser, \"/pool/$entry->{pool}\", ['Pool.Audit'], 1)\n599:                 ) {"
+      }
+    ]
+  },
+  "source_sha256": {
+    "source/pkg/proxmox/instances.go": "80cad49f22bc41d8a33b5043f4c829414d006a461f379f5471e30c39c67f6a5e",
+    "source/go.mod": "d4f5da5235f78932ae284cb78a1fc58a9d6effd74774b6f5fb750714595d5855",
+    "pool/vms.go": "5fade309b45d32a2e59f28d3b0755e09d5a382b3ea57856f153839b6d9e1f54e",
+    "pool/cluster.go": "f2886b3d7f912aae9178f9c7754eaab773c0e7648918d53561172c252b467c57",
+    "pool/cache.go": "cdb932f33d21876170e6ebd51c8dfd376a153f1815fa2c434ad1aa3a24ffebcb",
+    "node_lifecycle_controller.go": "7be18c37301fbffb386b5b197ea491281a4c1c602bc07c6181e89620f47c85fd"
+  }
+}

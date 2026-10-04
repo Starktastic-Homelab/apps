@@ -1,0 +1,414 @@
+{
+  "date": "2026-10-04",
+  "status": "Candidate retirement fix passed; PR281 merge and remaining integrated qualification pending",
+  "ansible_merged": "782bb1b8e6b6f8e8d469190cfe90f1fd6f29543e",
+  "ansible_candidate": "f8cd5d7",
+  "terraform": "3b8806422f2cf11a3992f05198619493fa8874e9",
+  "csi": "v0.20.0",
+  "csi_chart": "0.5.10",
+  "candidate_filter_sha256": "62f8791df7b4d0b6ab402bf81f53c77696d680964b38afb2f5e44f394c029ad2",
+  "merged_filter_sha256": "6a4eef2a830a67fa4eb2c8c75378d07231ed44e94c874bacf3a6a141bb7f92f8",
+  "observations": {
+    "automatic-worker-recovery.json": {
+      "node_uid": "443ec6d3-904f-4444-b279-50e4a7b21ae2",
+      "old_node_uid": "dbf235f9-7566-492f-9306-bb5238a1ba49",
+      "old_vm_uuid": "df996396-854c-4a00-b052-56717f333ecf",
+      "new_vm_uuid": "378c239d-e2bc-411c-9490-476136499712",
+      "filesystem_uuid": "e296d970-f927-4fd9-bfa3-3e0c3743e2bf",
+      "sqlite": {
+        "rows": 1000,
+        "prefix_rows": 1000,
+        "prefix_sha256": "93aaa7459e4a1fb4c53bfb6c901b2c3b3d81ea1a0f2b9c1e32ca44ac9691ccc4",
+        "integrity": "ok",
+        "filesystem_capacity_bytes": 2040373248
+      },
+      "attachments": [
+        {
+          "vmid": 982,
+          "slot": "scsi1",
+          "config": "csi-integration-20261004:9980/vm-9980-integration.raw,backup=0,cache=none,iothread=1,replicate=0,size=2G,wwn=0x5056432d49443031"
+        }
+      ],
+      "existing_worker_cordon_preserved": true,
+      "maintenance_released_after_success": true,
+      "automatic_retirement": true
+    },
+    "hidden-vm-retirement-refusal.json": {
+      "rc": 2,
+      "hidden_existing_vmid": 980,
+      "node_uid_unchanged": "dbf235f9-7566-492f-9306-bb5238a1ba49",
+      "ownership_retained": true,
+      "node_retired": false
+    },
+    "worker-replacement-plan.json": {
+      "changes": [
+        {
+          "address": "module.worker_1.proxmox_vm_qemu.vm",
+          "actions": ["delete", "create"]
+        }
+      ],
+      "old_uuid": "df996396-854c-4a00-b052-56717f333ecf",
+      "old_node_uid": "dbf235f9-7566-492f-9306-bb5238a1ba49"
+    },
+    "sqlite-initial.json": {
+      "rows": 1000,
+      "prefix_rows": 1000,
+      "prefix_sha256": "93aaa7459e4a1fb4c53bfb6c901b2c3b3d81ea1a0f2b9c1e32ca44ac9691ccc4",
+      "integrity": "ok",
+      "filesystem_capacity_bytes": 2040373248
+    },
+    "retirement-audit-access.json": {
+      "global_visibility_verified": true,
+      "resource_ids": [100, 101, 200, 201, 202, 300, 900, 980, 981, 982, 983],
+      "effective_permissions": {
+        "/vms/9980": {
+          "VM.Audit": 1
+        },
+        "/vms/201": {
+          "VM.Audit": 1
+        },
+        "/vms/982": {
+          "Pool.Audit": 0,
+          "VM.Audit": 1
+        },
+        "/access": {
+          "Sys.Audit": 0
+        },
+        "/vms/900": {
+          "VM.Audit": 1
+        },
+        "/vms/983": {
+          "Pool.Audit": 0,
+          "VM.Audit": 1
+        },
+        "/vms/202": {
+          "VM.Audit": 1
+        },
+        "/vms/981": {
+          "VM.Audit": 1,
+          "Pool.Audit": 0
+        },
+        "/vms": {
+          "VM.Audit": 1
+        },
+        "/pool": {
+          "Pool.Audit": 1
+        },
+        "/pool/csi-integration-20261004": {
+          "Pool.Audit": 1
+        }
+      },
+      "write_privileges": false
+    },
+    "image-pins.json": [
+      {
+        "namespace": "argocd",
+        "pod": "argocd-application-controller-0",
+        "containers": [
+          {
+            "name": "application-controller",
+            "imageID": "quay.io/argoproj/argocd@sha256:dd3f47d5a5e4da563a7a398506e892481b358a7cec50abdf320c71aa55904bfa"
+          }
+        ]
+      },
+      {
+        "namespace": "argocd",
+        "pod": "argocd-applicationset-controller-6f6c568fb6-bdnrp",
+        "containers": [
+          {
+            "name": "applicationset-controller",
+            "imageID": "quay.io/argoproj/argocd@sha256:dd3f47d5a5e4da563a7a398506e892481b358a7cec50abdf320c71aa55904bfa"
+          }
+        ]
+      },
+      {
+        "namespace": "argocd",
+        "pod": "argocd-redis-68b9b6b665-j994q",
+        "containers": [
+          {
+            "name": "redis",
+            "imageID": "ecr-public.aws.com/docker/library/redis@sha256:2cc044fc5a07c9b701f8f1255a309ae9ad7856e694ac03513bf3648c01e40763"
+          }
+        ]
+      },
+      {
+        "namespace": "argocd",
+        "pod": "argocd-repo-server-859bbfd76d-5z7tz",
+        "containers": [
+          {
+            "name": "repo-server",
+            "imageID": "quay.io/argoproj/argocd@sha256:dd3f47d5a5e4da563a7a398506e892481b358a7cec50abdf320c71aa55904bfa"
+          }
+        ]
+      },
+      {
+        "namespace": "argocd",
+        "pod": "argocd-server-b84c65d95-w7bqn",
+        "containers": [
+          {
+            "name": "server",
+            "imageID": "quay.io/argoproj/argocd@sha256:dd3f47d5a5e4da563a7a398506e892481b358a7cec50abdf320c71aa55904bfa"
+          }
+        ]
+      },
+      {
+        "namespace": "csi-lab",
+        "pod": "sqlite-66575d7c9b-wjdhw",
+        "containers": [
+          {
+            "name": "main",
+            "imageID": "docker.io/library/python@sha256:bb2988715db2cf7ace7b53f38f3cffbef7c7046a656bee66245eb0ed386e2e81"
+          }
+        ]
+      },
+      {
+        "namespace": "csi-proxmox",
+        "pod": "proxmox-csi-proxmox-csi-plugin-controller-7dc74ffcf8-ntv2d",
+        "containers": [
+          {
+            "name": "csi-attacher",
+            "imageID": "registry.k8s.io/sig-storage/csi-attacher@sha256:be59d0556508d3dd419cc34c53062f170a28902ef36e832b947c7796458a083d"
+          },
+          {
+            "name": "csi-provisioner",
+            "imageID": "registry.k8s.io/sig-storage/csi-provisioner@sha256:bb057f866177d5f4139a1527e594499cbe0feeb67b63aaca8679dfdf0a6016f9"
+          },
+          {
+            "name": "csi-resizer",
+            "imageID": "registry.k8s.io/sig-storage/csi-resizer@sha256:5e7cbb63fd497fa913caa21fee1a69f727c220c6fa83c5f8bb0995e2ad73a474"
+          },
+          {
+            "name": "liveness-probe",
+            "imageID": "registry.k8s.io/sig-storage/livenessprobe@sha256:88092d100909918ae0a768956cf78c88bc59cd7232720f7cdbdfb5d2e235001e"
+          },
+          {
+            "name": "proxmox-csi-proxmox-csi-plugin-controller",
+            "imageID": "ghcr.io/sergelogvinov/proxmox-csi-controller@sha256:95ef74cce03e89a1706d9b32888a84bf44e0db439c4fe2a4334ce123728d4c3b"
+          }
+        ]
+      },
+      {
+        "namespace": "csi-proxmox",
+        "pod": "proxmox-csi-proxmox-csi-plugin-node-6ctpk",
+        "containers": [
+          {
+            "name": "csi-node-driver-registrar",
+            "imageID": "registry.k8s.io/sig-storage/csi-node-driver-registrar@sha256:11f199f6bec47403b03cb49c79a41f445884b213b382582a60710b8c6fdc316a"
+          },
+          {
+            "name": "liveness-probe",
+            "imageID": "registry.k8s.io/sig-storage/livenessprobe@sha256:88092d100909918ae0a768956cf78c88bc59cd7232720f7cdbdfb5d2e235001e"
+          },
+          {
+            "name": "proxmox-csi-proxmox-csi-plugin-node",
+            "imageID": "ghcr.io/sergelogvinov/proxmox-csi-node@sha256:e0151137a1c5fa4faea9b4622436b203f1dc246ea37a3a77d09d3855c70aabd1"
+          }
+        ]
+      },
+      {
+        "namespace": "csi-proxmox",
+        "pod": "proxmox-csi-proxmox-csi-plugin-node-kmn9f",
+        "containers": [
+          {
+            "name": "csi-node-driver-registrar",
+            "imageID": "registry.k8s.io/sig-storage/csi-node-driver-registrar@sha256:11f199f6bec47403b03cb49c79a41f445884b213b382582a60710b8c6fdc316a"
+          },
+          {
+            "name": "liveness-probe",
+            "imageID": "registry.k8s.io/sig-storage/livenessprobe@sha256:88092d100909918ae0a768956cf78c88bc59cd7232720f7cdbdfb5d2e235001e"
+          },
+          {
+            "name": "proxmox-csi-proxmox-csi-plugin-node",
+            "imageID": "ghcr.io/sergelogvinov/proxmox-csi-node@sha256:e0151137a1c5fa4faea9b4622436b203f1dc246ea37a3a77d09d3855c70aabd1"
+          }
+        ]
+      },
+      {
+        "namespace": "kube-system",
+        "pod": "coredns-577d995dff-8jbt5",
+        "containers": [
+          {
+            "name": "coredns",
+            "imageID": "docker.io/rancher/mirrored-coredns-coredns@sha256:7efd3c635b03efd68c4e8398fc45f0d993d0e9ab016f72c1cefb0fd6d01aa286"
+          }
+        ]
+      },
+      {
+        "namespace": "kube-system",
+        "pod": "helm-install-gateway-api-crd-87v2x",
+        "containers": [
+          {
+            "name": "helm",
+            "imageID": "docker.io/rancher/klipper-helm@sha256:5425a2b4613d2458dbdff99218e8d487ebb59c20e7a941f061c0777070f0aac1"
+          }
+        ]
+      },
+      {
+        "namespace": "kube-system",
+        "pod": "local-path-provisioner-6858d854cf-nw946",
+        "containers": [
+          {
+            "name": "local-path-provisioner",
+            "imageID": "docker.io/rancher/local-path-provisioner@sha256:e757967a5ec338f6a9b371c5a9688bedaa8c3578ea3dd4db329ea0084be0a86f"
+          }
+        ]
+      },
+      {
+        "namespace": "kube-system",
+        "pod": "metrics-server-778c4649b4-7czgp",
+        "containers": [
+          {
+            "name": "metrics-server",
+            "imageID": "docker.io/rancher/mirrored-metrics-server@sha256:d9862115e7c7881280d3d75ca26bda8ffc0fc213315979575bf23ce9826205c0"
+          }
+        ]
+      },
+      {
+        "namespace": "kube-system",
+        "pod": "sealed-secrets-controller-67bc74c985-t8mmc",
+        "containers": [
+          {
+            "name": "controller",
+            "imageID": "docker.io/bitnami/sealed-secrets-controller@sha256:b1ff382e9300dc9e74991f3177b18cafc06ce43b5c21349c86adbdd1d1c177d3"
+          }
+        ]
+      }
+    ],
+    "bootstrap-source.json": {
+      "git_commit": "b9d02767911cf70794dec9ac4683fd5ef6f6d30c",
+      "kubeseal_version": "0.40.0",
+      "kubeseal_sha256": "9314c35916646e9d59c8f06b1314574b4e79c4d76f079433607ed7b697bb5eb7",
+      "sealing_cert_sha256": "82558ba38756c7bfe48085c7b300830da4fb69e06f8d94416e21482c72e26fec",
+      "csi_config_key": "config.yaml",
+      "image_owner": 9980
+    }
+  },
+  "handoff": "has_changes=true\ndrained_nodes=[\"csi-int-server\",\"csi-int-worker-1\"]\n",
+  "lab_lock_released": true,
+  "uid_precondition_race": {
+    "native_module": "kubernetes.core.k8s",
+    "stale_delete": "HTTP409; newer Node preserved",
+    "recap": "ok=7 changed=4 failed=0 ignored=1 (expected stale delete refusal)",
+    "log_sha256": "d6006db3da16fe735f91ad6f363bc0d4d333bb4aa759a421f1e4ba0d5753abd1"
+  },
+  "runtime_failure": {
+    "reason": "Ansible expected.vmid is _AnsibleTaggedInt; exact type check rejected it",
+    "plain_python_same_evidence": "PASS",
+    "old_node_deleted_by_merged_role": false,
+    "maintenance_released_on_failure": false
+  },
+  "vm300": {
+    "shared-setup-first-result.json": {
+      "rc": 0,
+      "log": "/var/lib/homelab-maintenance/operations/csi-retirement-20261004/shared-setup-first.log"
+    },
+    "shared-setup-second-result.json": {
+      "credential_unchanged": true,
+      "rc": 0,
+      "log": "/var/lib/homelab-maintenance/operations/csi-retirement-20261004/shared-setup-second.log"
+    },
+    "runtime-effective-permissions.json": {
+      "/vms/9980": {
+        "/vms/9980": {
+          "Datastore.Audit": 0,
+          "Datastore.AllocateSpace": 0,
+          "VM.Config.Disk": 0,
+          "Datastore.Allocate": 0,
+          "VM.Audit": 0
+        }
+      },
+      "/storage/csi-integration-20261004": {
+        "/storage/csi-integration-20261004": {
+          "Datastore.AllocateSpace": 0,
+          "Datastore.Audit": 0,
+          "Datastore.Allocate": 0,
+          "VM.Audit": 0,
+          "VM.Config.Disk": 0
+        }
+      },
+      "/pool/csi-integration-20261004": {
+        "/pool/csi-integration-20261004": {
+          "Datastore.AllocateSpace": 1,
+          "Datastore.Audit": 1,
+          "Datastore.Allocate": 1,
+          "VM.Audit": 1,
+          "VM.Config.Disk": 1
+        }
+      },
+      "/vms/100": {
+        "/vms/100": {}
+      },
+      "/vms/200": {
+        "/vms/200": {}
+      },
+      "/vms/201": {
+        "/vms/201": {}
+      },
+      "/vms/202": {
+        "/vms/202": {}
+      },
+      "/vms/300": {
+        "/vms/300": {}
+      },
+      "/vms/900": {
+        "/vms/900": {}
+      }
+    },
+    "administrator-access-removed.json": {
+      "container_removed": true,
+      "inventory_removed": true
+    },
+    "dataset-created.json": {
+      "dataset": "apps/csi-integration-20261004",
+      "guid": "11452572065753770046",
+      "mountpoint": "/mnt/apps/csi-integration-20261004"
+    },
+    "share-created.json": {
+      "id": 8,
+      "path": "/mnt/apps/csi-integration-20261004",
+      "networks": ["10.9.9.20/32"]
+    },
+    "nas-cleanup-result.json": {
+      "dataset_deleted": "apps/csi-integration-20261004",
+      "verified_deleted_guid": "11452572065753770046",
+      "share_deleted": 8,
+      "other_exports_unchanged": true,
+      "nfs_config_unchanged": true,
+      "nfs_running": true
+    }
+  },
+  "pve_cleanup": {
+    "lab_vms_deleted": [980, 981, 982, 983],
+    "synthetic_image_deleted": true,
+    "storage_and_pool_removed": true,
+    "temporary_users_roles_tokens_acls_removed": true,
+    "production_vm_configs_unchanged": ["100", "200", "201", "202", "300", "900"],
+    "nas_cleanup_pending": true
+  },
+  "pve_final": {
+    "private_pve_staging_removed": true,
+    "lab_resources_absent": true,
+    "temporary_identities_absent": true,
+    "production_configs_unchanged": true
+  },
+  "cleanup_complete": {
+    "operation": "codex/csi-retirement-20261004",
+    "all_lab_vms_storage_access_and_nas_removed": true,
+    "temporary_admin_inventory_container_and_token_copies_removed": true,
+    "production_vm_configs_and_nas_exports_unchanged": true,
+    "qualification": "candidate automatic retirement passed; PR281 merge and remaining integration tests pending",
+    "maintenance_lock_released": true
+  },
+  "public_log_sha256": {
+    "baseline.log": "d14132e22242cf7ba65752b0ec0e45456457e700858f5182bdf94b08a40bd4a2",
+    "worker-replace.log": "a184ce2216754a098ec3f04cbcd2a9034891e2aec055770c381d75c1c4811777",
+    "initial-k3s.log": "b9107bc5d4952ae393c8ec17fceb1248500b5f5ec7f2c0ccf5b98df4fecb38fe",
+    "initial-k3s-retry.log": "554f2fd076fe6b7f41cc0ab3751c26b4f56f3fcd683ec6ab5601f57aa660be99",
+    "hidden-retirement.log": "a1495b4bfe119509dd8c0426adf2a623015e1a07e2b3df2ba8f332330d9f4007",
+    "worker-recovery.log": "ca7318da451cb5b9538c2582ba3261fac670b0ed872356e0aa423b3b53b5c0ec",
+    "worker-recovery-fixed.log": "e1a6bc0bec3acaf67a09dbf90c5f620fefbe25888a16916e25c56c50b26e1869",
+    "verify-worker.log": "3f826411ea87099c6151d7ba72def0ed2ad6dd7a778be40d99553fc4414706cf",
+    "uid-race.log": "d6006db3da16fe735f91ad6f363bc0d4d333bb4aa759a421f1e4ba0d5753abd1",
+    "terraform-after-worker-recovery.log": "5239596e37802d0c93a6bb22521376f840145df3582fb5e4e26e1224aa9cfe38"
+  }
+}

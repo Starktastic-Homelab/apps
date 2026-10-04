@@ -6,9 +6,12 @@ The stock upstream chart is pinned to **0.5.10 / driver v0.20.0**. The OCI repos
 uses [ArgoCD's Helm source format](https://argo-cd.readthedocs.io/en/stable/user-guide/helm/)
 (without `oci://` in `chart.repo`); Helm CLI rendering uses the prefix.
 
-The proposed `k3s-block` storage ID must match the reviewed shared setup before
-activation. Production allocation is still pending. Existing NFS defaults,
-retained iSCSI and Jellyfin declarations are unchanged.
+The persistent `k3s-block` storage and empty `k3s-csi` pool are provisioned;
+see the [production setup results](../../../docs/superpowers/reports/2026-10-05-proxmox-csi-production-setup.md).
+`shared-storage-settings.json` records the exact non-secret inputs to the manual
+Ansible setup; Apps does not execute it. Controller activation, VM enrollment and
+application migration remain pending. Existing NFS defaults, retained iSCSI and
+Jellyfin declarations are unchanged.
 
 ## Configuration and recovery contract
 
@@ -67,8 +70,9 @@ resize with permanently stale Git PV capacity.
 
 Only a separately reviewed activation change may rename the descriptor to
 `app.yaml` and update the staged-only CI assertion after these gates pass. Shared
-NAS allocation, credential publication and activation need their own concrete
-scope; Jellyfin migration and retirement of the old writer guards remain later.
+NAS allocation is complete. Credential publication and activation still need
+their concrete scope; Jellyfin migration and retirement of the old writer guards
+remain later.
 The accepted export-withdrawal recovery trade-off is unchanged: some storage I/O
 faults require manual scale-down, verified detach and restaging. Ordinary rebuilds
 must not require a Velero checkpoint or a manual backup verification step.

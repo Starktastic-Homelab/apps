@@ -4,10 +4,12 @@
 > approved autopilot and agent PR merges until Jellyfin downtime ends. Check off
 > execution steps only against observed results.
 
-Status: scope approved for autopilot; no outage, VM allocation, image copy or
-writer release executed. Temporary merge authority ends when Jellyfin health and
-playback are restored. Unexpected privilege expansion or broader scope still
-requires a decision.
+Status: first production attempt blocked during the independent backup by a
+Proxmox NFS client stall. The complete NAS copy passed, but no backup restore,
+worker replacement or CSI activation occurred. Jellyfin recovered on its original
+iSCSI source; see the [incident and recovery report](../reports/2026-10-05-proxmox-csi-cutover-blocked.md).
+The unpublished cold copy becomes stale after recovered source writes. Further
+host recovery requires a separate decision and a fresh cutover attempt.
 
 **Goal:** Migrate Jellyfin's existing ext4 configuration volume to the retained
 Proxmox CSI platform while establishing the worker-rebuild safeguards once.
@@ -128,13 +130,13 @@ and bootstrap role; Apps `scripts/seal.sh`, `scripts/sealed-secrets-cert.pem`,
   chart's native controller `extraVolumes`/`extraVolumeMounts`, keeping
   `insecure: false`. Render the exact chart; qualify its native API TLS connection
   before enabling production attachment. Do not reuse the lab's insecure flag.
-- [ ] Prepare the Git hold, binding and release diffs and render each with actual
+- [x] Prepare the Git hold, binding and release diffs and render each with actual
   value layers. Review a real Terraform plan for
   `rebuild_workers_with_control_plane=true`, `k3s_resource_pool="k3s-csi"`.
   Expect workers201/202 replaced and pool membership for200–202. Stop for any
   control-plane replacement, unrelated VM change or retained-image deletion.
   Do not merge this activation PR before Task3 is complete.
-- [ ] Prepare and qualify the disposable validator, including download of the
+- [x] Prepare and qualify the disposable validator, including download of the
   exact pinned Jellyfin image before disabling application egress. No production
   data is written or attached merely to prepare the guest.
 

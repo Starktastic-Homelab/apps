@@ -16,8 +16,7 @@ spec:
     - name: held-config-claim
       expression: >-
         object.metadata.namespace == 'media' && has(object.spec.volumes) && object.spec.volumes.exists(v,
-        has(v.persistentVolumeClaim) && v.persistentVolumeClaim.claimName in ['jellyfin-config-iscsi',
-        'jellyfin-config-block'])
+        has(v.persistentVolumeClaim) && v.persistentVolumeClaim.claimName in ['jellyfin-config-block'])
   validations:
     - expression: "false"
       message: Jellyfin configuration storage is held for the approved migration.

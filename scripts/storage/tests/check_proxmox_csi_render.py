@@ -1,4 +1,4 @@
-"""Check the staged stock chart using the real infrastructure value layers."""
+"""Check the active stock chart using the real infrastructure value layers."""
 
 from pathlib import Path
 import sys
@@ -8,9 +8,12 @@ import yaml
 
 root = Path(__file__).resolve().parents[3]
 staged = root / "infrastructure/system/proxmox-csi"
-assert not (staged / "app.yaml").exists(), "CSI activation requires separate qualification"
-app = yaml.safe_load((staged / "app.yaml.disabled").read_text())
-assert app["deployPhase"] == "foundation"
+assert not (staged / "app.yaml.disabled").exists()
+app = yaml.safe_load((staged / "app.yaml").read_text())
+assert app["deployPhase"] == "controllers"
+bootstrap = root / "infrastructure/system/sealed-secrets"
+prerequisite = yaml.safe_load((bootstrap / "app.yaml").read_text())
+assert prerequisite["deployPhase"] == "foundation" and prerequisite["manifests"] is True
 assert app["chart"] == {
     "repo": "ghcr.io/sergelogvinov/charts",
     "name": "proxmox-csi-plugin",
@@ -26,7 +29,8 @@ def one(kind):
 
 
 assert not any(obj["kind"] in ("Secret", "PersistentVolume", "PersistentVolumeClaim") for obj in objects)
-namespace = one("Namespace")
+assert not any(obj["kind"] == "Namespace" for obj in objects), "Namespace belongs to the foundation prerequisite"
+namespace = yaml.safe_load((bootstrap / "manifests/namespace.yaml").read_text())
 assert namespace["metadata"]["name"] == app["namespace"] == "csi-proxmox"
 assert namespace["metadata"]["labels"]["pod-security.kubernetes.io/enforce"] == "privileged"
 driver = one("CSIDriver")
@@ -44,6 +48,10 @@ for key in ("storageclass.kubernetes.io/is-default-class", "storageclass.beta.ku
 controller = one("Deployment")["spec"]["template"]["spec"]
 secret = next(volume["secret"] for volume in controller["volumes"] if volume["name"] == "cloud-config")
 assert secret == {"secretName": "proxmox-csi-config", "items": [{"key": "config.yaml", "path": "config.yaml"}]}
+trust = next(volume["configMap"] for volume in controller["volumes"] if volume["name"] == "proxmox-api-trust")
+assert trust == {"name": "proxmox-api-trust"}
+plugin = next(container for container in controller["containers"] if container["image"] == "ghcr.io/sergelogvinov/proxmox-csi-controller:v0.20.0")
+assert {"name": "proxmox-api-trust", "mountPath": "/etc/ssl/certs/proxmox.pem", "subPath": "proxmox.pem", "readOnly": True} in plugin["volumeMounts"]
 assert controller["affinity"]["nodeAffinity"]["requiredDuringSchedulingIgnoredDuringExecution"]["nodeSelectorTerms"] == [
     {"matchExpressions": [{"key": "node-role.kubernetes.io/control-plane", "operator": "Exists"}]}
 ]
@@ -56,4 +64,4 @@ assert node["nodeSelector"] == {"kubernetes.io/os": "linux", "node-role.kubernet
 assert any(container["image"] == "ghcr.io/sergelogvinov/proxmox-csi-node:v0.20.0" for container in node["containers"])
 assert any(volume.get("hostPath", {}).get("path") == "/var/lib/kubelet" for volume in node["volumes"])
 assert yaml.safe_load((root / "templates/globals.yaml").read_text())["global"]["storageClass"] == "nfs-pv"
-print("Staged Proxmox CSI render: activation boundary, secret reference, native attachment/resize and Retain checks passed")
+print("Proxmox CSI render: prerequisite ordering, secret reference, native attachment/resize and Retain checks passed")

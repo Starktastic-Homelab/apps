@@ -1,5 +1,5 @@
-# Staged only: app.yaml.disabled is not discovered by ArgoCD.
-createNamespace: true
+# The foundation sealed-secrets Application owns the namespace and API credentials.
+createNamespace: false
 existingConfigSecret: proxmox-csi-config
 existingConfigSecretKey: config.yaml
 logVerbosityLevel: 2

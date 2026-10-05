@@ -1,7 +1,6 @@
-# Staged Proxmox CSI
+# Proxmox CSI
 
-`app.yaml.disabled` does **not** match the foundation ApplicationSet's
-`infrastructure/**/app.yaml` discovery. The controller remains disabled.
+`app.yaml` is discovered in the controllers phase, after foundation.
 Its namespace, encrypted configuration and public trust anchor are published by
 the foundation `sealed-secrets` Application before controller activation.
 The stock upstream chart is pinned to **0.5.10 / driver v0.20.0**. The OCI repository
@@ -11,14 +10,13 @@ uses [ArgoCD's Helm source format](https://argo-cd.readthedocs.io/en/stable/user
 The persistent `k3s-block` storage and empty `k3s-csi` pool are provisioned;
 see the [production setup results](../../../docs/superpowers/reports/2026-10-05-proxmox-csi-production-setup.md).
 `shared-storage-settings.json` records the exact non-secret inputs to the manual
-Ansible setup; Apps does not execute it. Controller activation, VM enrollment and
-application migration remain pending. Existing NFS defaults, retained iSCSI and
+Ansible setup; Apps does not execute it. Jellyfin migration acceptance is recorded by the coordinated cutover plan. Existing NFS defaults, retained iSCSI and
 Jellyfin declarations are unchanged.
 
 The approved [coordinated cutover plan](../../../docs/superpowers/plans/2026-10-05-proxmox-csi-jellyfin-cutover.md)
 stages deployment-access and secret-recovery checks before downtime, then a cold
 copy and isolated restore before worker replacement and controller activation.
-The descriptor remains disabled until those gates pass.
+The controller activation follows those gates.
 
 ## Configuration and recovery contract
 
@@ -36,7 +34,7 @@ The descriptor remains disabled until those gates pass.
 - The owner must remain outside disposable Terraform state and must never be
   reused as a VM. Shared setup checks it is unused; its reservation is an
   operator convention, not a Proxmox allocation lock.
-- Use `scripts/seal.sh` for eventual SealedSecret publication. Prove recovery of
+- Use `scripts/seal.sh` for SealedSecret publication. Prove recovery of
   the sealing key and CSI configuration from outside Kubernetes before
   controller readiness and service writer release on a fresh cluster. The actual
   encrypted configuration is published from `../sealed-secrets/manifests/`; plaintext credentials
@@ -59,8 +57,7 @@ bindings are activated by this preparation.
 
 The [disposable integration results](../../../docs/superpowers/reports/2026-10-04-proxmox-csi-rebuild-results.md)
 cover cold rebuilds, interrupted growth, worker movement and failure boundaries.
-They preserve explicit harness/dispatch limits; production activation is still
-separate. The descriptor remains disabled.
+They preserve explicit harness/dispatch limits; production acceptance remains separate from those lab results.
 
 In an approved disposable integrated lab, exercise the shared setup's effective
 API permissions and repeatability, external credential recovery, ArgoCD chart
@@ -76,10 +73,9 @@ prebinding. After actual growth, updating Git PV capacity cleared Argo drift.
 This qualifies the tested request/verify/reconcile sequence, not a one-edit
 resize with permanently stale Git PV capacity.
 
-Only a separately reviewed activation change may rename the descriptor to
-`app.yaml` and update the staged-only CI assertion after these gates pass. Shared
-NAS allocation is complete. Encrypted configuration publication is approved and externally recoverable;
-activation, Jellyfin migration and retirement of the old writer guards remain later.
+The controller is enabled through a separately reviewed activation change after
+the cold-copy and restore gates. Shared NAS allocation and external configuration
+recovery are complete. The old source and its writer guards remain preserved.
 The accepted export-withdrawal recovery trade-off is unchanged: some storage I/O
 faults require manual scale-down, verified detach and restaging. Ordinary rebuilds
 must not require a Velero checkpoint or a manual backup verification step.
@@ -95,7 +91,7 @@ helm template proxmox-csi oci://ghcr.io/sergelogvinov/charts/proxmox-csi-plugin 
 python3 scripts/storage/tests/check_proxmox_csi_render.py /tmp/proxmox-csi.yaml
 ```
 
-CI renders these actual value layers and checks the inactive descriptor, external
+CI renders these actual value layers and checks prerequisite phase ordering, external
 Secret reference, worker placement, native attachment/resize components and class
 retention policy. Runtime binding and rebuild validation is still required by the
 [integration plan](../../../docs/superpowers/plans/2026-10-03-proxmox-csi-shared-integration.md).
@@ -118,7 +114,6 @@ mounted at `/etc/ssl/certs/proxmox.pem` it read the expected 128GiB capacity wit
 
 The foundation `sealed-secrets` Application owns the CSI namespace, SealedSecret
 and public trust ConfigMap in `../sealed-secrets/manifests/`. The values' native
-controller mount uses the qualified trust path. Controller discovery remains
-disabled until its separate activation change. The API leaf expires on 2027-06-14; replace the anchor when the
+controller mount uses the qualified trust path. Controller discovery occurs in the later controllers phase. The API leaf expires on 2027-06-14; replace the anchor when the
 server certificate rotates and restart the controller to refresh its subPath
-mount. The cold-copy, independent restore and activation gates remain pending.
+mount. Runtime acceptance is tracked in the cutover plan.

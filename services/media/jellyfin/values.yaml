@@ -42,27 +42,13 @@ controllers:
               periodSeconds: 10
     strategy: Recreate
     pod:
-      labels:
-        storage.starktastic.net/writer: jellyfin
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: kubernetes.io/hostname
-                    operator: In
-                    values:
-                      - kube-worker-01
-                  - key: storage.starktastic.net/generation
-                    operator: In
-                    values:
-                      - 8b2aa6c7-b54f-4323-9900-bdbb85098f62
-                  - key: storage.starktastic.net/node-uid
-                    operator: In
-                    values:
-                      - ed4cb64c-0c87-414e-9538-110650ba2f34
-      nodeSelector:
-        storage.starktastic.net/iscsi-ready: "true"
+      tolerations:
+        - key: node.kubernetes.io/not-ready
+          operator: Exists
+          effect: NoExecute
+        - key: node.kubernetes.io/unreachable
+          operator: Exists
+          effect: NoExecute
     initContainers:
       disposable-dirs:
         image:
@@ -91,7 +77,7 @@ persistence:
   config:
     enabled: false
   jellyfin-config:
-    existingClaim: jellyfin-config-iscsi
+    existingClaim: jellyfin-config-block
     globalMounts:
       - path: /config
   media:

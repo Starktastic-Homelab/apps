@@ -49,8 +49,10 @@ The repo manages infrastructure controllers (Traefik, Authentik, cert-manager, d
 
 ## GitOps Architecture
 
-Stock [Proxmox CSI preparation](infrastructure/system/proxmox-csi/README.md) is staged
-outside ApplicationSet discovery pending integrated qualification and activation.
+The shared [Proxmox CSI driver](infrastructure/system/proxmox-csi/README.md) manages
+retained NAS-backed block images. Jellyfin uses a static Git binding; normal cluster
+rebuilds do not require a Velero checkpoint. The retired iSCSI stack is removed
+through the [cleanup plan](docs/superpowers/plans/2026-10-06-retire-jellyfin-iscsi.md).
 
 ### ApplicationSet Discovery
 

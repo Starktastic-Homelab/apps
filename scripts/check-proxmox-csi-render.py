@@ -6,7 +6,7 @@ import sys
 import yaml
 
 
-root = Path(__file__).resolve().parents[3]
+root = Path(__file__).resolve().parents[1]
 staged = root / "infrastructure/system/proxmox-csi"
 assert not (staged / "app.yaml.disabled").exists()
 app = yaml.safe_load((staged / "app.yaml").read_text())

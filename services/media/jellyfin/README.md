@@ -1,5 +1,18 @@
 # Jellyfin 12 upgrade
 
+Jellyfin consumes the retained `jellyfin-config-block` claim. Its provider-specific
+PV and stable image identity live in
+[`infrastructure/base-configs/templates/jellyfin-block-storage/`](../../../infrastructure/base-configs/templates/jellyfin-block-storage/).
+The shared unmodified Proxmox CSI driver attaches that NAS-backed block image to
+one worker. Git restores the binding after a cluster rebuild; routine Terraform
+replacement does not require a Velero checkpoint or manual backup verification.
+
+The old `jellyfin-config-iscsi` claim remains denied by admission. Its ZVOL, cold
+snapshot and independent backup are preserved. Once this target accepts writes,
+the original source is stale; restarting it is not a safe rollback. Follow the
+[cutover plan's recovery boundaries](../../../docs/superpowers/plans/2026-10-05-proxmox-csi-jellyfin-cutover.md).
+LDAP scheduling remains suspended until production acceptance is complete.
+
 Production was upgraded from **10.11.11 to 12.1** on September 17, 2026.
 The canonical `Authorization: MediaBrowser Token="..."` headers, Homepage widget
 `version: 2`, and body-aware readiness probe remain in place and work with both

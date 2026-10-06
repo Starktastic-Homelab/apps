@@ -1,5 +1,10 @@
 # Historical native reconciliation receipts
 
+This document records the retired iSCSI adapter. Its producer and dispatcher are removed;
+the commands below describe historical behavior and must not be used for current storage.
+Use [the current Jellyfin runbook](runbooks/jellyfin-storage.md). Existing receipts and
+installed immutable runtime evidence remain archived.
+
 This increment adds source support for an operator-published reconciliation receipt. It has not been installed or
 published on VM300. Original journals are preserved.
 

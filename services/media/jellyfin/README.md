@@ -7,13 +7,13 @@ The shared unmodified Proxmox CSI driver attaches that NAS-backed block image to
 one worker. Git restores the binding after a cluster rebuild; routine Terraform
 replacement does not require a Velero checkpoint or manual backup verification.
 
-The old `jellyfin-config-iscsi` claim remains denied by admission. Its ZVOL, cold
-snapshot and independent backup are preserved. Once this target accepts writes,
-the original source is stale; restarting it is not a safe rollback. Follow the
-[cutover plan's recovery boundaries](../../../docs/superpowers/plans/2026-10-05-proxmox-csi-jellyfin-cutover.md).
-Production storage acceptance passed on October 6, 2026. LDAP scheduling resumes
-through the follow-up acceptance PR. See the
-[cutover results](../../../docs/superpowers/reports/2026-10-06-proxmox-csi-jellyfin-cutover.md).
+The unused iSCSI driver, bindings, credentials and generation guards are retired
+through the [cleanup plan](../../../docs/superpowers/plans/2026-10-06-retire-jellyfin-iscsi.md).
+The original ZVOL, snapshots and verified independent backup remain recovery
+archives. They became stale when this target accepted writes; restarting the old
+source is not a safe rollback. A cold reverse transfer of the newest data requires
+separate review. LDAP scheduling resumed and its first run completed successfully
+after [production acceptance](../../../docs/superpowers/reports/2026-10-06-proxmox-csi-jellyfin-cutover.md).
 
 Production was upgraded from **10.11.11 to 12.1** on September 17, 2026.
 The canonical `Authorization: MediaBrowser Token="..."` headers, Homepage widget

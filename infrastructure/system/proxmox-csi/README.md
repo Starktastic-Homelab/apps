@@ -88,7 +88,7 @@ Run from the repository root (Helm and PyYAML required):
 helm template proxmox-csi oci://ghcr.io/sergelogvinov/charts/proxmox-csi-plugin \
   --version 0.5.10 --namespace csi-proxmox -f templates/globals.yaml \
   -f infrastructure/system/proxmox-csi/values.yaml > /tmp/proxmox-csi.yaml
-python3 scripts/storage/tests/check_proxmox_csi_render.py /tmp/proxmox-csi.yaml
+python3 scripts/check-proxmox-csi-render.py /tmp/proxmox-csi.yaml
 ```
 
 CI renders these actual value layers and checks prerequisite phase ordering, external

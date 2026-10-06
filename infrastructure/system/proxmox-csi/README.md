@@ -1,7 +1,9 @@
 # Staged Proxmox CSI
 
 `app.yaml.disabled` does **not** match the foundation ApplicationSet's
-`infrastructure/**/app.yaml` discovery. Merging this directory installs nothing.
+`infrastructure/**/app.yaml` discovery. The controller remains disabled.
+Its namespace, encrypted configuration and public trust anchor are published by
+the foundation `sealed-secrets` Application before controller activation.
 The stock upstream chart is pinned to **0.5.10 / driver v0.20.0**. The OCI repository
 uses [ArgoCD's Helm source format](https://argo-cd.readthedocs.io/en/stable/user-guide/helm/)
 (without `oci://` in `chart.repo`); Helm CLI rendering uses the prefix.
@@ -37,7 +39,7 @@ The descriptor remains disabled until those gates pass.
 - Use `scripts/seal.sh` for eventual SealedSecret publication. Prove recovery of
   the sealing key and CSI configuration from outside Kubernetes before
   controller readiness and service writer release on a fresh cluster. The actual
-  encrypted configuration is staged in `bootstrap-staged/`; plaintext credentials
+  encrypted configuration is published from `../sealed-secrets/manifests/`; plaintext credentials
   and the private sealing key remain outside Git.
 - The stock namespace requires privileged Pod Security for the node plugin.
   Native attachment, resizer and accepted upstream format/repair behavior remain
@@ -114,8 +116,9 @@ Without the public certificate it refused the connection; with the certificate
 mounted at `/etc/ssl/certs/proxmox.pem` it read the expected 128GiB capacity with
 `insecure: false`. Both temporary containers and their private files were removed.
 
-`bootstrap-staged/` is outside active manifest sources. Its public ConfigMap and
-the values' native controller mount prepare the same qualified trust path without
-activating CSI. The API leaf expires on 2027-06-14; replace the anchor when the
+The foundation `sealed-secrets` Application owns the CSI namespace, SealedSecret
+and public trust ConfigMap in `../sealed-secrets/manifests/`. The values' native
+controller mount uses the qualified trust path. Controller discovery remains
+disabled until its separate activation change. The API leaf expires on 2027-06-14; replace the anchor when the
 server certificate rotates and restart the controller to refresh its subPath
 mount. The cold-copy, independent restore and activation gates remain pending.

@@ -1,4 +1,4 @@
-# Staged only: no active Application references this directory.
+# CSI prerequisite, owned by the foundation sealed-secrets Application.
 apiVersion: v1
 kind: ConfigMap
 metadata:

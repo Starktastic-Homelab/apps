@@ -4,13 +4,13 @@
 > approved autopilot and agent PR merges until Jellyfin downtime ends. Check off
 > execution steps only against observed results.
 
-Status: fresh retry approved on October6 after the host recovered through a
-normal reboot. The full64GiB NFS read/compression test passed with the original
-copy's expected checksum; this does not establish a permanent kernel fix. The
-original writer is healthy and that old copy is stale. Use fresh operation,
-snapshot, partial-image and backup identities for this attempt; preserve the old
-incident evidence. See the [first-attempt report](../reports/2026-10-05-proxmox-csi-cutover-blocked.md)
-and [host recovery](../reports/2026-10-06-proxmox-host-recovery.md).
+Status: production cutover accepted on October 6. The fresh cold copy, independent
+backup/restore, worker replacement, native retirement, stock CSI, static binding,
+production health/playback/hardware encoding and no-drift gates passed. Temporary
+validator cleanup passed. LDAP remains suspended live until the acceptance PR is
+merged; migration-only PR merge authority ended with restored availability. See
+the [results](../reports/2026-10-06-proxmox-csi-jellyfin-cutover.md). The earlier host
+recovery does not establish a permanent kernel fix; preserve incident evidence.
 
 **Goal:** Migrate Jellyfin's existing ext4 configuration volume to the retained
 Proxmox CSI platform while establishing the worker-rebuild safeguards once.
@@ -31,7 +31,7 @@ and [shared setup receipt](../reports/2026-10-05-proxmox-csi-production-setup.md
 
 - One coordinated Jellyfin outage for quiescing, backup, restore validation,
   copying and release. Replacing workers201/202 also interrupts other workloads;
-  the control-plane VM200 is intended to remain. Duration is not yet measured.
+  the control-plane VM200 is intended to remain. Measured Jellyfin unavailable interval: about86minutes on the fresh retry.
 - Temporary validator VM980, cloned from template900: 2vCPU, 2GiB RAM, a 32GiB
   boot disk plus a 64GiB restored-data disk on `vm-pool`. Use a verified unused
   management address before allocation. Isolate application traffic; no production
@@ -82,7 +82,7 @@ require another decision.
   `d3cc0be9-ad2f-4c67-a6fc-abc6104b7712`. Target dataset GUID
   `13918781591004512447`; owner9999 is reserved and is not a VM.
 - NAS-local block/image tools and the authenticated QEMU guest-agent route were
-  verified read-only. NAS SSH is disabled and remains disabled. No copy has run.
+  verified read-only. NAS SSH is disabled and remains disabled. This was the pre-outage observation; the fresh copy is now accepted.
 - Read-only inspection on October5 found VM980 absent, about136GiB free on
   `vm-pool`, about11GiB available host RAM and the target dataset empty. Repeat
   capacity, identity and ownership checks before allocation; these are snapshots
@@ -153,15 +153,15 @@ Files: Apps `services/media/jellyfin/values.yaml`,
 Use an explicit deny policy for the source and proposed target claims; leave
 the existing old-generation authorization intact behind that hold.
 
-- [ ] Acquire the existing VM300 maintenance operation with fresh identities.
+- [x] Acquire the existing VM300 maintenance operation with fresh identities.
   Merge the reviewed hold PR: Jellyfin replicas0, LDAP CronJob suspended and
   admission denies new pods using either source or target claim. Verify ArgoCD
   has reconciled that exact revision and negative server-side admission probes
   fail. A replica count alone is not the hold.
-- [ ] Wait for all Jellyfin/LDAP jobs and pods to terminate. Verify kubelet
+- [x] Wait for all Jellyfin/LDAP jobs and pods to terminate. Verify kubelet
   unmount, iSCSI session removal for this target and no other NAS-side initiator
   sessions or local mounts. Do not force detach a volume with an uncertain writer.
-- [ ] Snapshot the exact source ZVOL after clean unmount, record GUID/name and
+- [x] Snapshot the exact source ZVOL after clean unmount, record GUID/name and
   verify readonly ext4 health. A dirty or unhealthy source blocks copying; stock
   CSI's accepted repair policy is not permission to repair the only source here.
 
@@ -174,25 +174,25 @@ No service-specific allocation code enters Ansible. Use a reviewed, operation-lo
 copy procedure via authenticated Proxmox/NAS management; retain its sanitized
 commands and receipts with the operation.
 
-- [ ] Recheck target dataset GUID, available quota/pool space and absence of the
+- [x] Recheck target dataset GUID, available quota/pool space and absence of the
   final image. Create the owner directory only if needed and an exclusively
   created temporary image. Copy all68719476736 source bytes, flush, and compare
   complete source/target hashes with the source still quiescent. Check target
   image size, ext4 UUID and readonly filesystem health. Failures leave the partial
   file unpublished and the writer hold active; never overwrite an existing image.
-- [ ] Transfer the verified cold image to a new mode0600 off-NAS backup; verify
+- [x] Transfer the verified cold image to a new mode0600 off-NAS backup; verify
   its full hash. Restore that backup into VM980's separate64GiB disk, verify the
   restore hash and mount only that copy. No production source/target attachment
   is needed on the validator.
-- [ ] On the isolated restored copy, check every persistent SQLite database with
+- [x] On the isolated restored copy, check every persistent SQLite database with
   SQLite integrity checks including WAL recovery as appropriate. Run the exact
   Jellyfin image, verify startup and `Healthy`, compare application/server identity
   and library/user metadata with the cold baseline. Protect private content from
   public logs. No plugin upgrade, LDAP action or library scan against production.
-- [ ] Publish the completed raw image without clobbering an existing final name
+- [x] Publish the completed raw image without clobbering an existing final name
   only after copy and restore acceptance. Flush the parent directory. Record
   hashes/UUID/size and retain the original ZVOL, cold snapshot and off-NAS backup.
-- [ ] Add the new dataset snapshot schedule; read back the exact task and ensure
+- [x] Add the new dataset snapshot schedule; read back the exact task and ensure
   the original snapshot task and exports are unchanged.
 
 Deliverable: verified final image plus an independently restored off-NAS backup.
@@ -205,20 +205,20 @@ Files: Ansible `group_vars/all/proxmox_csi.yml`; Terraform's existing cohort/poo
 inputs; Apps `infrastructure/system/proxmox-csi/{app.yaml,values.yaml}` and its
 sealed configuration/trust manifests in the established prerequisite phase.
 
-- [ ] After Task3, release migration maintenance ownership only when the durable
+- [x] After Task3, release migration maintenance ownership only when the durable
   Git hold and absence of writers are verified. Native deployment workflows must
   acquire their own ownership. Do not hold an outer operation that deadlocks
   those jobs or bypass their existing lock checks. The normal Terraform helper
   releases before Ansible dispatch; there is no claim of one lock across jobs.
-- [ ] Merge Ansible enablement for retirement and region`homelab` topology; verify
+- [x] Merge Ansible enablement for retirement and region`homelab` topology; verify
   its deployment before worker replacement. Merge the exact reviewed Terraform
   activation plan, preserving native dependency order and dispatch.
-- [ ] Require old worker UUIDs gone in full Proxmox inventory, new guest/Node UUID
+- [x] Require old worker UUIDs gone in full Proxmox inventory, new guest/Node UUID
   matches, old Node UIDs retired, all nodes Ready, labels correct and native drain
   recovery complete. Confirm the master is unchanged and the pool contains only
   intended k3s VMs. Partial failure retains the native failed-operation state;
   do not clear ownership or release Jellyfin to work around it.
-- [ ] Publish/reconcile the recovered CSI Secret and public trust bundle before
+- [x] Publish/reconcile the recovered CSI Secret and public trust bundle before
   controller discovery. Activate stock CSI and verify authenticated TLS,
   controller/node readiness and expected API scope. The Jellyfin hold stays active.
 
@@ -232,12 +232,12 @@ Files: Apps shared storage manifests and
 Put provider-specific PV details in shared infrastructure; service values consume
 only the new claim. Do not edit or repurpose the old bound PV/PVC in place.
 
-- [ ] Declare PV/PVC`jellyfin-config-block`, namespace`media`,64GiB, ext4,
+- [x] Declare PV/PVC`jellyfin-config-block`, namespace`media`,64GiB, ext4,
   Retain, RWOP, mutual prebinding without an old claim UID and Argo prune/delete
   protection. Use handle
   `homelab//k3s-block/9999/vm-9999-jellyfin.raw`, the qualified chart's class and
   cache-none parameters. Reconstruct from these declarations, not old metadata.
-- [ ] Switch the held app to the new claim. Remove only its old iSCSI-specific
+- [x] Switch the held app to the new claim. Remove only its old iSCSI-specific
   writer label, generation affinity and iscsi-ready selector. Add the qualified
   infinite NoExecute tolerations for NotReady/Unreachable nodes, preserving GPU
   scheduling and all other app settings. Render both held and released stages;
@@ -246,8 +246,9 @@ only the new claim. Do not edit or repurpose the old bound PV/PVC in place.
   reviewed target-release PR. Permit only the intended target writer, start one
   replica, and observe one attachment, original filesystem/application identity,
   SQLite health and Jellyfin readiness. Verify actual playback/transcoding using
-  existing acceptance checks; restore LDAP scheduling after acceptance.
-- [ ] Confirm Terraform shows no CSI-attachment drift. Archive sanitized evidence,
+  existing acceptance checks; restore LDAP scheduling after acceptance. All gates
+  through production acceptance passed; only LDAP resume awaits the follow-up PR.
+- [x] Confirm Terraform shows no CSI-attachment drift. Archive sanitized evidence,
   remove validator VM980 and its recorded temporary disks/SSH material, remove
   temporary credential/tool copies and release maintenance ownership. Keep the
   original source, snapshots and backup; source retirement is a later decision.

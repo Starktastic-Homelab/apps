@@ -11,7 +11,9 @@ The old `jellyfin-config-iscsi` claim remains denied by admission. Its ZVOL, col
 snapshot and independent backup are preserved. Once this target accepts writes,
 the original source is stale; restarting it is not a safe rollback. Follow the
 [cutover plan's recovery boundaries](../../../docs/superpowers/plans/2026-10-05-proxmox-csi-jellyfin-cutover.md).
-LDAP scheduling remains suspended until production acceptance is complete.
+Production storage acceptance passed on October 6, 2026. LDAP scheduling resumes
+through the follow-up acceptance PR. See the
+[cutover results](../../../docs/superpowers/reports/2026-10-06-proxmox-csi-jellyfin-cutover.md).
 
 Production was upgraded from **10.11.11 to 12.1** on September 17, 2026.
 The canonical `Authorization: MediaBrowser Token="..."` headers, Homepage widget
@@ -46,7 +48,8 @@ These do not prove this installation will fail; they do make a rehearsal importa
 4. Confirm the actual backup and restore destination. This repository's PostgreSQL
    and certificate backup jobs **do not back up Jellyfin**.
 
-`jellyfin-config` mounts at `/config` on NFS. Its expected provisioner path is
+At the September image-upgrade preflight, `jellyfin-config` mounted at `/config`
+on NFS. Its historical provisioner path was
 `/mnt/apps/pv/media/jellyfin-config`; confirm the bound PV before filesystem work.
 The separate node-local `/config/cache` volume does **not** move the database off
 NFS. Jellyfin recommends local database storage; treat the existing NFS placement
@@ -194,8 +197,8 @@ snapshot and old plugin archive.
 
 During the first production full scan, a SQLite `database is locked` timeout
 interrupted a playback-progress write. Library requests returned to normal after the scan.
-The database remains on NFS; concurrent scans and playback remain a contention
-risk, and moving database storage should be handled separately from this upgrade.
+The database was on NFS during that upgrade. The separate October storage cutover
+now mounts the preserved ext4 filesystem through Proxmox CSI.
 
 ## Rollback
 

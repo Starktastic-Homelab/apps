@@ -8,6 +8,7 @@ resources:
   - pip-cache-pvc.yaml
   - pvc.yaml
   - retained-storage.yaml
+  - storage-hold.yaml
 
 configMapGenerator:
   - name: jellyfin-ldap-sync

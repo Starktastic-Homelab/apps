@@ -4,10 +4,13 @@
 > approved autopilot and agent PR merges until Jellyfin downtime ends. Check off
 > execution steps only against observed results.
 
-Status: scope approved for autopilot; no outage, VM allocation, image copy or
-writer release executed. Temporary merge authority ends when Jellyfin health and
-playback are restored. Unexpected privilege expansion or broader scope still
-requires a decision.
+Status: fresh retry approved on October6 after the host recovered through a
+normal reboot. The full64GiB NFS read/compression test passed with the original
+copy's expected checksum; this does not establish a permanent kernel fix. The
+original writer is healthy and that old copy is stale. Use fresh operation,
+snapshot, partial-image and backup identities for this attempt; preserve the old
+incident evidence. See the [first-attempt report](../reports/2026-10-05-proxmox-csi-cutover-blocked.md)
+and [host recovery](../reports/2026-10-06-proxmox-host-recovery.md).
 
 **Goal:** Migrate Jellyfin's existing ext4 configuration volume to the retained
 Proxmox CSI platform while establishing the worker-rebuild safeguards once.
@@ -29,11 +32,13 @@ and [shared setup receipt](../reports/2026-10-05-proxmox-csi-production-setup.md
 - One coordinated Jellyfin outage for quiescing, backup, restore validation,
   copying and release. Replacing workers201/202 also interrupts other workloads;
   the control-plane VM200 is intended to remain. Duration is not yet measured.
-- Temporary validator VM980, cloned from template900: 2vCPU, 4GiB RAM, a 32GiB
+- Temporary validator VM980, cloned from template900: 2vCPU, 2GiB RAM, a 32GiB
   boot disk plus a 64GiB restored-data disk on `vm-pool`. Use a verified unused
   management address before allocation. Isolate application traffic; no production
   media mounts, LDAP connections, discovery broadcasts or application egress.
-  Only management and required image/dependency downloads are permitted before
+  The isolated application container is capped at1.5GiB; require the complete guest
+  allocation, QEMU overhead and a2GiB host reserve before boot. Only management
+  and required image/dependency downloads are permitted before
   running the restored application. No administrator or production CSI token
   enters this guest. Record its new UUID, disks and temporary SSH identity for
   cleanup; an occupied ID980 is a stop, not permission to delete it.
@@ -128,13 +133,13 @@ and bootstrap role; Apps `scripts/seal.sh`, `scripts/sealed-secrets-cert.pem`,
   chart's native controller `extraVolumes`/`extraVolumeMounts`, keeping
   `insecure: false`. Render the exact chart; qualify its native API TLS connection
   before enabling production attachment. Do not reuse the lab's insecure flag.
-- [ ] Prepare the Git hold, binding and release diffs and render each with actual
+- [x] Prepare the Git hold, binding and release diffs and render each with actual
   value layers. Review a real Terraform plan for
   `rebuild_workers_with_control_plane=true`, `k3s_resource_pool="k3s-csi"`.
   Expect workers201/202 replaced and pool membership for200–202. Stop for any
   control-plane replacement, unrelated VM change or retained-image deletion.
   Do not merge this activation PR before Task3 is complete.
-- [ ] Prepare and qualify the disposable validator, including download of the
+- [x] Prepare and qualify the disposable validator, including download of the
   exact pinned Jellyfin image before disabling application egress. No production
   data is written or attached merely to prepare the guest.
 

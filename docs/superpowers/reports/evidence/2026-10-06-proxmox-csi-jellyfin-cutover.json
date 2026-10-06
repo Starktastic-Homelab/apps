@@ -1,0 +1,154 @@
+{
+  "production": {
+    "filesystem": {
+      "one_pve_attachment": [
+        {
+          "vmid": 202,
+          "device": "scsi1",
+          "config": "k3s-block:9999/vm-9999-jellyfin.raw,backup=0,cache=none,iothread=1,replicate=0,size=64G,wwn=0x5056432d49443031"
+        }
+      ],
+      "guest": {
+        "filesystem_uuid": "d3cc0be9-ad2f-4c67-a6fc-abc6104b7712",
+        "ext4_readwrite": true,
+        "sqlite_databases": [
+          {
+            "path": "data/data/introskipper/introskipper-cache.db",
+            "quick_check": "ok"
+          },
+          {
+            "path": "data/data/introskipper/introskipper-v2.db",
+            "quick_check": "ok"
+          },
+          {
+            "path": "data/data/introskipper/introskipper.db",
+            "quick_check": "ok"
+          },
+          {
+            "path": "data/data/jellyfin.db",
+            "quick_check": "ok"
+          },
+          {
+            "path": "data/data/playback_reporting.db",
+            "quick_check": "ok"
+          }
+        ],
+        "non_sqlite_db_files": [
+          {
+            "path": "data/data/kodisyncqueue.db",
+            "bytes": 3047424,
+            "sqlite_header": false
+          }
+        ],
+        "source_iscsi_session_absent": true
+      }
+    },
+    "playback": {
+      "server_health": "Healthy",
+      "http_status": 206,
+      "sample_bytes": 8388608,
+      "video_frames_decoded": 5,
+      "source": "retained_proxmox_csi",
+      "production_sample_read_and_decode": true,
+      "hardware_encoder": "h264_vaapi",
+      "hardware_frames_encoded": 5,
+      "hardware_encoder_qualified": true,
+      "pod_uid": "3ac8c8b4-c751-4f83-b5fc-568df7426ade"
+    },
+    "drift": {
+      "no_changes": true,
+      "run": 37402653368
+    },
+    "application": {
+      "healthy": true,
+      "original_server_identity": true,
+      "user_count": 14,
+      "item_counts": {
+        "MovieCount": 292,
+        "SeriesCount": 148,
+        "EpisodeCount": 5059,
+        "ArtistCount": 0,
+        "ProgramCount": 0,
+        "TrailerCount": 0,
+        "SongCount": 0,
+        "AlbumCount": 0,
+        "MusicVideoCount": 0,
+        "BoxSetCount": 53,
+        "BookCount": 0,
+        "ItemCount": 28794
+      },
+      "pod_uid": "3ac8c8b4-c751-4f83-b5fc-568df7426ade",
+      "node": "kube-worker-02",
+      "one_target_attachment": true,
+      "ldap_suspended": true
+    },
+    "source_claim_denied": true,
+    "release_revision": "6af0bb098597f42f25ab20c25937593ebf38b365",
+    "accepted_at": "2026-10-06T02:11:30.994379+00:00",
+    "merge_authority_ended": true,
+    "ldap_resume_pending_pr": true
+  },
+  "last_live_check": {
+    "healthy": true,
+    "original_server_identity": true,
+    "user_count": 14,
+    "item_counts": {
+      "MovieCount": 292,
+      "SeriesCount": 148,
+      "EpisodeCount": 5059,
+      "ArtistCount": 0,
+      "ProgramCount": 0,
+      "TrailerCount": 0,
+      "SongCount": 0,
+      "AlbumCount": 0,
+      "MusicVideoCount": 0,
+      "BoxSetCount": 53,
+      "BookCount": 0,
+      "ItemCount": 28794
+    },
+    "pod_uid": "3ac8c8b4-c751-4f83-b5fc-568df7426ade",
+    "node": "kube-worker-02",
+    "one_target_attachment": true,
+    "ldap_suspended": true,
+    "checked_at": "2026-10-06T02:13:07.580214+00:00",
+    "ready_since": "2026-10-06T02:06:35Z"
+  },
+  "validator_cleanup": {
+    "vm980_removed": true,
+    "three_owned_disks_removed": true,
+    "temporary_ssh_key_removed": true,
+    "qualified_restored_copy_removed": true,
+    "production_target_untouched": true
+  },
+  "backup": {
+    "raw_sha256": "7d2e104599f1f0573c55b8039b1dba7baef584511a9755476e1b6329749aa9bc",
+    "compressed_sha256": "7ebf77b9adfe35857ea975595e28d5bca9a874e8502b6c9104019dff715f0100",
+    "raw_bytes": 68719476736,
+    "compressed_bytes": 27963782685,
+    "mode": "0o600"
+  },
+  "restore": {
+    "health": "Healthy",
+    "server_identity_matches": true,
+    "version": "12.1.0",
+    "sqlite_integrity_before_and_after": true,
+    "critical_metadata_counts_unchanged": true,
+    "no_production_media_or_network": true
+  },
+  "worker_replacement": {
+    "terraform_apply_run": 37399797942,
+    "ansible_run": 37400092382,
+    "master_preserved": true,
+    "workers_replaced": [201, 202],
+    "old_node_uids_retired": true
+  },
+  "maintenance_cleanup": {
+    "public_commands_archived": 12,
+    "validator_removed": true,
+    "temporary_preflight_files_and_containers_absent": true,
+    "original_runtime_credentials_preserved": true,
+    "ldap_resume_pending_user_pr": true,
+    "maintenance_released": true
+  },
+  "source_sessions_absent_after_acceptance": true
+}

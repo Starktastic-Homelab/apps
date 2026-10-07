@@ -61,14 +61,16 @@ protection PR with source-claim annotations and no change to current writers.
 **Interfaces:** Consumes protected source and approved destination identities;
 produces the held application and declared destination, without releasing a writer.
 
-- [ ] Add static 4Gi ext4/cache-none PV and RWOP PVC mirroring Jellyfin's explicit
+- [x] Add static 4Gi ext4/cache-none PV and RWOP PVC mirroring Jellyfin's explicit
   retention, topology, prebinding and Argo protections.
-- [ ] Add one native policy/binding denying Pod use of `filebrowser-data-pvc` in
+- [x] Add one native policy/binding denying Pod use of `filebrowser-data-pvc` in
   namespace `operations`; no exemptions and no effect on unrelated namespaces.
-- [ ] Set `controllers.main.replicas: 0`; retain the old data claim during hold.
-- [ ] Render and verify zero replicas, exact binding/attributes, source protection
+  Protect both policy and binding with Prune=false,Delete=false so stale Git reverts
+  cannot remove the guard.
+- [x] Set `controllers.main.replicas: 0`; retain the old data claim during hold.
+- [x] Render and verify zero replicas, exact binding/attributes, source protection
   and guard scope; validate the policy schema and preserved auth/NFS mounts.
-- [ ] Commit/open as draft. Merge only for a separately approved maintenance window
+- [x] Commit/open as draft. Merge only for a separately approved maintenance window
   after source preflight and with a verified independent-backup/restore capability.
 
 ## Task 3: Draft writer-release PR stacked on maintenance

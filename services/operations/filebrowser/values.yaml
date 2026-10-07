@@ -1,6 +1,17 @@
 controllers:
   main:
-    replicas: 0
+    replicas: 1
+    strategy: Recreate
+    pod:
+      nodeSelector:
+        node-role.kubernetes.io/worker: "true"
+      tolerations:
+        - key: node.kubernetes.io/not-ready
+          operator: Exists
+          effect: NoExecute
+        - key: node.kubernetes.io/unreachable
+          operator: Exists
+          effect: NoExecute
     containers:
       main:
         image:
@@ -57,7 +68,7 @@ persistence:
       - path: /config
         readOnly: true
   data:
-    existingClaim: filebrowser-data-pvc
+    existingClaim: filebrowser-data-block
     globalMounts:
       - path: /home/filebrowser/data
   apps:

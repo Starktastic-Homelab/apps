@@ -80,9 +80,9 @@ produces the held application and declared destination, without releasing a writ
 **Interfaces:** Consumes accepted cold-copy/restore/target receipt; produces one
 writer on a CSI worker while maintaining old-source exclusion.
 
-- [ ] Set replicas1, data existingClaim `filebrowser-data-block`, worker nodeSelector,
+- [x] Set replicas1, data existingClaim `filebrowser-data-block`, worker nodeSelector,
   and indefinite not-ready/unreachable NoExecute tolerations. Keep Recreate.
-- [ ] Render all three stages and compare; assert only expected volume/placement/
+- [x] Render all three stages and compare; assert only expected volume/placement/
   replica changes, unchanged image/env references/NFS claims, and retained source guard.
 - [ ] Test the guard's positive/negative Pod cases through a disposable native API
   during the approved rehearsal. Local schema/render verification is preparation

@@ -1,8 +1,11 @@
 # Filebrowser private-state migration
 
-Status: reviewed design, preparation only. Filebrowser currently uses the local
+Status: protection PR #1313 merged; migration remains unperformed. Filebrowser's declared source is the local
 claim `operations/filebrowser-data-pvc`. The desired destination is the 4Gi
 retained ext4 image `homelab//k3s-block/9999/vm-9999-filebrowser.raw`.
+
+The current main image pin is Filebrowser 1.5.8 from PR #1316. Preserve it in both
+migration stages; the October7 preflight used 1.5.6 and must be refreshed.
 
 Read the [design](../superpowers/specs/2026-10-07-filebrowser-retained-csi-design.md)
 and [implementation plan](../superpowers/plans/2026-10-07-filebrowser-retained-csi.md)

@@ -17,7 +17,8 @@ stock Proxmox CSI v0.20.0/chart 0.5.10, ext4, existing maintenance runner.
 ## Global Constraints
 
 - Target capacity 4Gi; handle `homelab//k3s-block/9999/vm-9999-filebrowser.raw`.
-- Main image remains `gtstef/filebrowser:1.5.6-stable@sha256:7c5d7ac8ffda31294d278063cf9d2e04303b39e6dce1f4c691342240ca7703b8`.
+- Preserve current main's image: `gtstef/filebrowser:1.5.8-stable@sha256:68455d4953bad8e984e1bc5d112ed1e9c918a0a04f104c13c9ece50790308894`
+  (updated independently in PR #1316 before protection merged).
 - Keep the existing ConfigMap, Secret reference, OIDC, ingress and NAS mounts.
 - One replica/Recreate in final state, worker placement, indefinite NoExecute holds.
 - Retain/RWOP with bidirectional prebinding; both new objects prune/delete protected.

@@ -1,6 +1,14 @@
 # Filebrowser retained CSI migration proposal
 
-Date: 2026-10-07. Status: proposal for review; no live mutation or allocation.
+Date: 2026-10-07. Status: approved design; protection merged, migration unperformed.
+
+Repository refresh on 2026-10-10 verified protection PR #1313 merged at
+`0519644d5e3c572912f4eaa03d5a54637a6e42f4`. PR #1316 independently updated
+Filebrowser to `1.5.8-stable@sha256:68455d4953bad8e984e1bc5d112ed1e9c918a0a04f104c13c9ece50790308894`.
+Both migration drafts preserve that current pin. The October7 observations below
+remain historical; refresh live identities, source state and restore compatibility
+before an operation. Earlier temporary evidence files are no longer available;
+the sanitized checked-in receipt remains historical evidence.
 
 ## Goal and scope
 

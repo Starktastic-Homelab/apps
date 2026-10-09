@@ -1,0 +1,55 @@
+{
+  "purpose": "Filebrowser CSI proposal read-only preflight",
+  "observed_at": "2026-10-07T17:14:11.947431+00:00",
+  "source_scan_at": "2026-10-07T17:15:10.538194+00:00",
+  "source_commit": "a60246b24e42fa8c77c56194f3542f0d44c7a620",
+  "source_claim_uid": "2bbe10f6-bd7c-409e-96e5-428803b4a861",
+  "source_pv_uid": "e2e9c578-644b-4965-ab67-e5d05195c6a5",
+  "source_node": "kube-master-01",
+  "source_bytes": 251173380,
+  "source_files": 19,
+  "source_scan_complete": true,
+  "proposed_capacity_bytes": 4294967296,
+  "dataset_guid": "13918781591004512447",
+  "dataset_quota_bytes": 137438953472,
+  "dataset_available_bytes": 79352655872,
+  "target_filename_absent": true,
+  "applications": [
+    {
+      "name": "base-configs",
+      "sync": "Synced",
+      "health": "Healthy",
+      "revisions": ["a60246b24e42fa8c77c56194f3542f0d44c7a620", "a60246b24e42fa8c77c56194f3542f0d44c7a620"]
+    },
+    {
+      "name": "filebrowser",
+      "sync": "Synced",
+      "health": "Healthy",
+      "revisions": [
+        "5.2.1",
+        "a60246b24e42fa8c77c56194f3542f0d44c7a620",
+        "a60246b24e42fa8c77c56194f3542f0d44c7a620",
+        "a60246b24e42fa8c77c56194f3542f0d44c7a620"
+      ]
+    },
+    {
+      "name": "jellyfin",
+      "sync": "Synced",
+      "health": "Healthy",
+      "revisions": [
+        "5.2.1",
+        "a60246b24e42fa8c77c56194f3542f0d44c7a620",
+        "a60246b24e42fa8c77c56194f3542f0d44c7a620",
+        "a60246b24e42fa8c77c56194f3542f0d44c7a620"
+      ]
+    },
+    {
+      "name": "proxmox-csi",
+      "sync": "Synced",
+      "health": "Healthy",
+      "revisions": ["0.5.10", "a60246b24e42fa8c77c56194f3542f0d44c7a620"]
+    }
+  ],
+  "changes_performed": false,
+  "backup_restore_cutover_executed": false
+}

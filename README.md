@@ -285,6 +285,7 @@ Each ArgoCD Application pulls from up to 4 sources: the Helm chart repo, the Git
 | `scripts/new-service.sh` | Interactive scaffolding — prompts for image, ingress, persistence and generates `app.yaml` + `values.yaml` |
 | `scripts/seal.sh` | Encrypts secrets into SealedSecret YAML using the cluster's pre-seeded certificate |
 | `scripts/ntfy-manager.sh` | CLI wrapper for managing ntfy users and access rules inside the running pod |
+| [Retained PostgreSQL startup guard](scripts/postgres-retained-startup/README.md) | Inactive read-only data identity check for retained PG18 recovery |
 | `scripts/check-alert-policy.py` | Checks rendered alert behavior, bounded Job retention, and the scoped Falco exception |
 
 ---

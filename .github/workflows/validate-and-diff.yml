@@ -3,16 +3,7 @@ name: Validate manifests and generate ArgoCD diff preview
 on:
   pull_request:
     branches: [main]
-    paths:
-      - 'bootstrap/**'
-      - 'foundation/**'
-      - 'infrastructure/**'
-      - 'services/**'
-      - 'templates/**'
-      - 'scripts/**'
-      - 'renovate.json'
-      - '.github/workflows/**'
-      - '.github/yamllint.yaml'
+    # Both jobs are required checks; path filters leave docs-only PRs blocked.
 
 jobs:
   validate:

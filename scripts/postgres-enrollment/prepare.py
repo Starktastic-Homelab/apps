@@ -67,7 +67,7 @@ def validate_sealed(obj, name, namespace):
             if any(annotations.get('sealedsecrets.bitnami.com/' + scope) not in (None, 'false')
                    for scope in ('cluster-wide', 'namespace-wide')):
                 raise ValueError('Strict sealing scope required')
-        if (obj['spec']['template'].get('type') != 'Opaque'
+        if (obj['spec']['template'].get('type', 'Opaque') != 'Opaque'
                 or 'data' in obj['spec']['template'] or 'stringData' in obj['spec']['template']
                 or 'data' in obj or 'stringData' in obj
                 or not isinstance(obj['spec']['encryptedData'], dict)

@@ -70,6 +70,8 @@ For subsequent entries, pass the existing encrypted aggregate with
 `--aggregate-secret PATH`; it must contain every prior declared credential key.
 Use `--app-sealed-secret PATH` to retain unrelated application encrypted keys and
 metadata. Both inputs must match exact name/namespace and strict sealing scope.
+An omitted Secret template type uses the native `Opaque` default; explicit
+non-`Opaque` types and null or empty types are rejected.
 Existing target keys are refused rather than overwritten. Application inputs
 cannot target databases/postgres-admin-secret or databases/postgres-enrollment-credentials. `adopt` uses the same
 arguments and reads the exact current password from stdin (no trailing newline).

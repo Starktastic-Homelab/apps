@@ -1,0 +1,52 @@
+# INACTIVE: apply only as a reviewed final overlay for an existing retained PG18
+# server. Verify the expected physical ID independently before activation.
+primary:
+  initContainers:
+    # This list REPLACES the existing unconditional rm-postmaster-lock-file init.
+    - name: verify-retained-data
+      image: registry-1.docker.io/bitnami/postgresql:latest@sha256:b74b23f091dcc87041bcae557d840c36458af46b955279cb13aedec4c32d7f71
+      imagePullPolicy: IfNotPresent
+      command: ["/bin/bash", "/retained-startup/guard.sh"]
+      env:
+        - name: EXPECTED_SYSTEM_IDENTIFIER
+          value: REPLACE_WITH_VERIFIED_SYSTEM_IDENTIFIER
+      securityContext:
+        runAsUser: 1001
+        runAsGroup: 1001
+        runAsNonRoot: true
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: [ALL]
+        seccompProfile:
+          type: RuntimeDefault
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          cpu: 100m
+          memory: 64Mi
+      volumeMounts:
+        - name: data
+          mountPath: /bitnami/postgresql
+          readOnly: true
+        - name: retained-startup-guard
+          mountPath: /retained-startup
+          readOnly: true
+        - name: retained-startup-scratch
+          mountPath: /tmp
+  extraVolumes:
+    - name: retained-startup-guard
+      configMap:
+        name: postgres-retained-startup-guard
+        defaultMode: 0444
+    - name: retained-startup-scratch
+      emptyDir:
+        sizeLimit: 16Mi
+  podSecurityContext:
+    # Existing retained data must already be accessible to1001; no kubelet chown.
+    fsGroup: null
+# Do not mutate ownership before the guard; first installation is separate.
+volumePermissions:
+  enabled: false

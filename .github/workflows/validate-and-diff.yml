@@ -81,6 +81,14 @@ jobs:
       - name: Check PostgreSQL enrollment lifecycle
         run: python3 scripts/test-pg-enrollment.py
 
+      - name: Check retained PostgreSQL startup guard
+        run: |
+          helm template postgres oci://registry-1.docker.io/bitnamicharts/postgresql \
+            --version 18.12.4 --namespace databases -f templates/globals.yaml \
+            -f infrastructure/controllers/databases/postgres/values.yaml \
+            -f scripts/postgres-retained-startup/values.yaml > /tmp/postgres-startup.yaml
+          PG_STARTUP_RENDER=/tmp/postgres-startup.yaml python3 scripts/test-pg-retained-startup.py
+
       - name: Check NAS transport failure handling
         run: |
           pip install -r scripts/storage/requirements.txt

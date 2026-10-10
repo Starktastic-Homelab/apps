@@ -455,7 +455,7 @@ class PreparationTests(unittest.TestCase):
         obj = {'apiVersion':'bitnami.com/v1alpha1','kind':'SealedSecret',
                'metadata':{'name':name,'namespace':namespace},
                'spec':{'encryptedData':{k:'ciphertext-' + hashlib.sha256(v.encode()).hexdigest() for k,v in values.items()},
-                       'template':{'metadata':{'name':name,'namespace':namespace},'type':'Opaque'}}}
+                       'template':{'metadata':{'name':name,'namespace':namespace}}}}
         (Path(kwargs['cwd']) / (name + '.yaml')).write_text(yaml.safe_dump(obj))
         return subprocess.CompletedProcess(args,0,'sealed','')
 
@@ -464,6 +464,25 @@ class PreparationTests(unittest.TestCase):
         from unittest.mock import patch
         with patch.object(self.module.subprocess, 'run', side_effect=self.fake_seal), patch.object(self.module.sys,'stdin',io.StringIO(password or '')):
             return self.module.prepare_bundle(self.opts)
+
+    def test_native_sealed_secret_type_default(self):
+        # Native kubeseal omits Opaque; explicit incompatible types still fail.
+        import copy
+        obj = {'apiVersion':'bitnami.com/v1alpha1','kind':'SealedSecret',
+               'metadata':{'name':'alpha-secret','namespace':'media'},
+               'spec':{'encryptedData':{'password':'synthetic-ciphertext'},
+                       'template':{'metadata':{'name':'alpha-secret','namespace':'media'}}}}
+        self.module.validate_sealed(obj, 'alpha-secret', 'media')
+        for secret_type in ('Opaque', 'kubernetes.io/service-account-token',
+                            'kubernetes.io/dockerconfigjson', '', None):
+            candidate = copy.deepcopy(obj)
+            candidate['spec']['template']['type'] = secret_type
+            with self.subTest(secret_type=secret_type):
+                if secret_type == 'Opaque':
+                    self.module.validate_sealed(candidate, 'alpha-secret', 'media')
+                else:
+                    with self.assertRaises(ValueError):
+                        self.module.validate_sealed(candidate, 'alpha-secret', 'media')
 
     def test_pair_generation_and_retry_preserve_ciphertext(self):
         # Break caught: independently generated passwords or overwriting a prepared bundle.

@@ -1,9 +1,11 @@
 # Native PostgreSQL enrollment: remaining disposable lab gate
 
-Status: source preparation only. No external allocation, live credential transfer,
-production activation or migration is authorized by this plan. Merge the inactive
-engine-source PR first. Then obtain a fresh read-only allocation preflight and
-present its concrete manifest/inventory/credential scope for approval.
+Status: the separately approved disposable operation completed qualification and
+cleanup on 11 October 2026. See the
+[qualification record](../../operations/postgresql-enrollment-qualification.md)
+for measured results and limits. Production activation or migration remains
+unauthorized by this plan. The allocation and transfer requirements below record
+the approval boundary used for the completed operation.
 
 ## Bind the next operation before approval
 

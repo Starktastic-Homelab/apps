@@ -256,7 +256,7 @@ jobs:
         # repository secrets.
         env:
           # renovate: datasource=docker depName=dagandersen/argocd-diff-preview
-          DIFF_PREVIEW_VERSION: 'v0.2.15'
+          DIFF_PREVIEW_VERSION: 'v0.2.16'
         run: |
           docker run \
             --network=host \

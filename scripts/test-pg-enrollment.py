@@ -382,5 +382,124 @@ class EnrollmentTests(unittest.TestCase):
 
 
 
+class PreparationTests(unittest.TestCase):
+    def setUp(self):
+        import importlib.util
+        from argparse import Namespace
+        self.assertTrue((SOURCE / 'prepare.py').is_file(), 'Sealed preparation helper is missing')
+        spec = importlib.util.spec_from_file_location('prepare', SOURCE / 'prepare.py')
+        self.module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.module)
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.config = self.root / 'config.json'
+        self.config.write_text(json.dumps({'version':1,'expectedSystemIdentifier':'12345','entries':[]}))
+        self.opts = Namespace(mode='new', config=self.config, id='alpha', database='alpha', role='alpha',
+                              password_key='alpha-password', app_namespace='media', app_secret='alpha-secret',
+                              app_password_key='password', app_url_key='url', output_dir=self.root / 'bundle',
+                              aggregate_secret=None, app_sealed_secret=None)
+        self.calls = []
+
+    def fake_seal(self, args, **kwargs):
+        import base64
+        import hashlib
+        import yaml
+        name, namespace = args[1:3]
+        self.calls.append((name, namespace, kwargs['input']))
+        if getattr(self, 'fail_second', False) and len(self.calls) == 2:
+            raise subprocess.CalledProcessError(1, args, stderr=kwargs['input'])
+        values = dict(line.split('=',1) for line in kwargs['input'].splitlines())
+        obj = {'apiVersion':'bitnami.com/v1alpha1','kind':'SealedSecret',
+               'metadata':{'name':name,'namespace':namespace},
+               'spec':{'encryptedData':{k:'ciphertext-' + hashlib.sha256(v.encode()).hexdigest() for k,v in values.items()},
+                       'template':{'metadata':{'name':name,'namespace':namespace},'type':'Opaque'}}}
+        (Path(kwargs['cwd']) / (name + '.yaml')).write_text(yaml.safe_dump(obj))
+        return subprocess.CompletedProcess(args,0,'sealed','')
+
+    def prepare(self, password=None):
+        import io
+        from unittest.mock import patch
+        with patch.object(self.module.subprocess, 'run', side_effect=self.fake_seal), patch.object(self.module.sys,'stdin',io.StringIO(password or '')):
+            return self.module.prepare_bundle(self.opts)
+
+    def test_pair_generation_and_retry_preserve_ciphertext(self):
+        # Break caught: independently generated passwords or overwriting a prepared bundle.
+        import yaml
+        import yaml
+        original = {'apiVersion':'bitnami.com/v1alpha1','kind':'SealedSecret',
+                    'metadata':{'name':'postgres-enrollment-credentials','namespace':'databases','labels':{'keep':'yes'}},
+                    'spec':{'encryptedData':{'beta-password':'unchanged-aggregate-ciphertext'},
+                            'template':{'metadata':{'name':'postgres-enrollment-credentials','namespace':'databases'},'type':'Opaque'}}}
+        self.opts.aggregate_secret = self.root / 'aggregate.yaml'
+        self.opts.aggregate_secret.write_text(yaml.safe_dump(original))
+        self.config.write_text(json.dumps({'version':1,'expectedSystemIdentifier':'12345',
+                                          'entries':[EnrollmentTests.entry('beta')]}))
+        path = self.prepare()
+        aggregate = yaml.safe_load((path / 'enrollment-secret.yaml').read_text())
+        app = yaml.safe_load((path / 'application-secret.yaml').read_text())
+        self.assertEqual(aggregate['spec']['encryptedData']['beta-password'], 'unchanged-aggregate-ciphertext')
+        self.assertEqual(aggregate['metadata']['labels'], {'keep':'yes'})
+        self.assertEqual(aggregate['spec']['encryptedData']['alpha-password'], app['spec']['encryptedData']['password'])
+        before = {p.name:p.read_bytes() for p in path.iterdir()}
+        with self.assertRaises(ValueError):
+            self.prepare()
+        self.assertEqual(before, {p.name:p.read_bytes() for p in path.iterdir()})
+        plain = self.calls[0][2].split('=',1)[1].strip()
+        self.assertGreaterEqual(len(plain),40)
+        self.opts.config = path / 'config.json'
+        self.opts.output_dir = self.root / 'duplicate'
+        with self.assertRaises(ValueError):
+            self.prepare()
+        self.assertFalse(self.opts.output_dir.exists())
+        for data in before.values():
+            self.assertNotIn(plain.encode(), data, 'Published bundle contains plaintext')
+
+    def test_adopt_uses_supplied_password_and_preserves_unrelated_keys(self):
+        # Break caught: canonical credentials or unrelated sealed inputs are replaced.
+        import copy
+        import yaml
+        original = {'apiVersion':'bitnami.com/v1alpha1','kind':'SealedSecret',
+                    'metadata':{'name':'alpha-secret','namespace':'media','labels':{'keep':'yes'}},
+                    'spec':{'encryptedData':{'existing':'unchanged-ciphertext'},
+                            'template':{'metadata':{'name':'alpha-secret','namespace':'media'},'type':'Opaque'}}}
+        supplied = " exact 'quote' \\ $ ` UTF8-é "
+        self.opts.mode='adopt'
+        self.opts.app_sealed_secret=self.root / 'app.yaml'
+        self.opts.app_sealed_secret.write_text(yaml.safe_dump(original))
+        path=self.prepare(supplied)
+        app=yaml.safe_load((path/'application-secret.yaml').read_text())
+        self.assertEqual(app['spec']['encryptedData']['existing'],'unchanged-ciphertext')
+        self.assertEqual(app['metadata']['labels'],{'keep':'yes'})
+        import hashlib
+        self.assertEqual(app['spec']['encryptedData']['password'], 'ciphertext-' + hashlib.sha256(supplied.encode()).hexdigest())
+        from urllib.parse import quote
+        expected_url='postgresql://alpha:' + quote(supplied,safe='') + '@postgres-postgresql.databases:5432/alpha'
+        self.assertEqual(app['spec']['encryptedData']['url'], 'ciphertext-' + hashlib.sha256(expected_url.encode()).hexdigest())
+        # Invalid scope, collisions and bytes fail before a final directory is visible.
+        for i, bad in enumerate(('scope','collision','bytes','template','unknown-config')):
+            self.opts.output_dir=self.root / ('bad-'+bad)
+            obj=copy.deepcopy(original)
+            pw=supplied
+            if bad=='scope': obj['metadata']['annotations']={'sealedsecrets.bitnami.com/cluster-wide':'true'}
+            if bad=='collision': obj['spec']['encryptedData']['password']='already-encrypted'
+            if bad=='bytes': pw='bad\npassword'
+            if bad=='template': obj['spec']['template']['metadata']['namespace']='different'
+            if bad=='unknown-config': self.config.write_text('{"version":1,"expectedSystemIdentifier":"12345","entries":[],"extra":true}')
+            self.opts.app_sealed_secret.write_text(yaml.safe_dump(obj))
+            with self.assertRaises(ValueError): self.prepare(pw)
+            self.assertFalse(self.opts.output_dir.exists())
+
+    def test_partial_sealing_failure_publishes_nothing(self):
+        # Break caught: a partial pair/config becomes reviewable despite failed second sealing.
+        self.fail_second=True
+        with self.assertRaises(ValueError) as raised:
+            self.prepare()
+        self.assertFalse(self.opts.output_dir.exists())
+        self.assertEqual(sorted(p.name for p in self.root.iterdir()), ['config.json'])
+        for _,_,text in self.calls:
+            self.assertNotIn(text, str(raised.exception))
+
+
 if __name__ == '__main__':
     unittest.main()

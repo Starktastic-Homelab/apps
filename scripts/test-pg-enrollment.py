@@ -99,7 +99,7 @@ class EnrollmentTests(unittest.TestCase):
                 '--user', '1001:1001', '--read-only', '--cap-drop', 'ALL',
                 '--security-opt', 'no-new-privileges', '--tmpfs', '/tmp:rw,noexec,nosuid,size=16m',
                 '-e', 'PGHOST=server', '-e', 'PGPORT=5432', '-e', 'PGUSER=postgres',
-                '-e', 'PGDATABASE=postgres', '-v', str(self.root / 'config') + ':/config:ro',
+                '-e', 'PGDATABASE=postgres', '-e', 'PGAPPNAME=homelab-enrollment', '-v', str(self.root / 'config') + ':/config:ro',
                 '-v', str(self.root / 'admin') + ':/credentials/admin:ro',
                 '-v', str(self.root / 'apps') + ':/credentials/apps:ro',
                 '-v', str(runtime or SOURCE / 'runtime') + ':/scripts:ro',
@@ -203,6 +203,183 @@ class EnrollmentTests(unittest.TestCase):
         # Even accidental CONNECT alone must not grant object access.
         self.sql('GRANT CONNECT ON DATABASE beta TO alpha')
         self.assertNotEqual(self.app_query('SELECT * FROM private_data', 'beta').returncode, 0)
+
+    def set_password(self, key, value):
+        p = self.root / 'apps' / key
+        if p.exists():
+            p.chmod(0o644)
+        p.write_bytes(value.encode() if isinstance(value, str) else value)
+        p.chmod(0o444)
+
+    def catalog_snapshot(self):
+        return self.snapshot() + self.sql("SELECT row_to_json(r) FROM pg_roles r WHERE rolname='alpha'") + self.sql(
+            "SELECT datacl FROM pg_database WHERE datname='alpha'; SELECT roleid,member,admin_option,inherit_option,set_option FROM pg_auth_members ORDER BY roleid,member") + self.sql(
+            "SELECT nspname,nspowner,nspacl FROM pg_namespace ORDER BY nspname; SELECT relname,relowner,relacl FROM pg_class WHERE relnamespace='public'::regnamespace ORDER BY relname; SELECT defaclrole,defaclnamespace,defaclobjtype,defaclacl FROM pg_default_acl ORDER BY oid; SELECT extname,extversion FROM pg_extension ORDER BY extname; SELECT * FROM sentinel", 'alpha')
+
+    def test_adopt_and_remove_preserve_existing_database(self):
+        # Break caught: adoption rewrites passwords, owners, memberships or legacy grants.
+        self.bootstrap()
+        self.run_enrollment()
+        self.sql("DELETE FROM homelab_enrollment.enrollments; CREATE ROLE readers NOLOGIN; GRANT readers TO alpha; GRANT CONNECT ON DATABASE alpha TO PUBLIC")
+        self.sql("CREATE EXTENSION pgcrypto; CREATE TABLE sentinel(value text); INSERT INTO sentinel VALUES ('legacy'); GRANT SELECT ON sentinel TO readers; ALTER DEFAULT PRIVILEGES FOR ROLE alpha GRANT SELECT ON TABLES TO readers", 'alpha')
+        before = self.catalog_snapshot()
+        self.config['entries'][0]['mode'] = 'adopt'
+        self.run_enrollment()
+        self.run_enrollment()
+        self.config['entries'] = []
+        self.run_enrollment()
+        self.assertTrue(before == self.catalog_snapshot(), 'Adoption/removal changed legacy catalog or credential')
+        self.assertEqual(self.sql("SELECT phase FROM homelab_enrollment.enrollments").strip(), 'ready')
+        self.config['entries'] = [self.entry('alpha', 'adopt')]
+        self.set_password('alpha-password', 'wrong-synthetic')
+        self.run_enrollment(ok=False)
+        self.set_password('alpha-password', self.password)
+        for change, undo in [('ALTER DATABASE alpha OWNER TO postgres', 'ALTER DATABASE alpha OWNER TO alpha'),
+                             ('ALTER ROLE alpha CREATEDB', 'ALTER ROLE alpha NOCREATEDB')]:
+            self.sql(change)
+            self.run_enrollment(ok=False)
+            self.sql(undo)
+        self.assertTrue(before == self.catalog_snapshot(), 'Rejected adoption modified legacy state')
+
+    def test_conflicting_set_is_rejected_before_writes(self):
+        # Break caught: one valid entry mutates before a later incompatible entry fails.
+        import copy
+        self.bootstrap()
+        base = copy.deepcopy(self.config)
+        invalid = []
+        for field in ('id', 'database', 'role', 'passwordKey'):
+            c = copy.deepcopy(base)
+            second = self.entry('beta')
+            second[field] = c['entries'][0][field]
+            c['entries'].append(second)
+            invalid.append(c)
+        for field, value in [('role','postgres'), ('role','pg_shadow'), ('database','template1'),
+                             ('database','A'), ('database','a'*64), ('passwordKey','../alpha'), ('id','bad\nname')]:
+            c = copy.deepcopy(base)
+            c['entries'][0][field] = value
+            invalid.append(c)
+        for c in invalid:
+            self.config = c
+            self.run_enrollment(ok=False)
+            self.assertEqual(self.sql("SELECT count(*) FROM pg_roles WHERE rolname IN ('alpha','beta')").strip(), '0')
+        self.config = base
+        for value in (b'bad\npassword', b'bad\rpassword', b'bad\0password', b''):
+            self.set_password('alpha-password', value)
+            self.run_enrollment(ok=False)
+            self.assertEqual(self.sql("SELECT count(*) FROM pg_roles WHERE rolname='alpha'").strip(), '0')
+        self.set_password('alpha-password', self.password)
+        self.run_enrollment()
+        self.config['entries'] = [dict(self.entry('alpha'), id='renamed')]
+        self.run_enrollment(ok=False)
+        self.config['entries'] = [self.entry('beta'), dict(self.entry('alpha'), id='renamed')]
+        self.set_password('beta-password', 'synthetic-beta')
+        self.run_enrollment(ok=False)
+        self.assertEqual(self.sql("SELECT count(*) FROM pg_roles WHERE rolname='beta'").strip(), '0')
+        # Authentication preflight is also whole-set: valid beta cannot precede bad alpha.
+        self.sql('DELETE FROM homelab_enrollment.enrollments')
+        self.config['entries'] = [dict(self.entry('beta'), id='abeta'), dict(self.entry('alpha','adopt'), id='zalpha')]
+        self.set_password('alpha-password', 'wrong-synthetic')
+        self.run_enrollment(ok=False)
+        self.assertEqual(self.sql("SELECT count(*) FROM pg_roles WHERE rolname='beta'").strip(), '0')
+
+    def paused_runtime(self, boundary, schema=False):
+        import hashlib
+        import shutil
+        path = self.root / ('pause-' + boundary)
+        shutil.copytree(SOURCE / 'runtime', path)
+        target = path / ('schema.sql' if schema else 'enroll.sql')
+        source = target.read_text()
+        pause = "SELECT pg_sleep(50) /* enrollment_test_pause */;\n"
+        changed = source + pause if schema else source.replace('-- boundary: ' + boundary + '\n', '-- boundary: ' + boundary + '\n' + pause)
+        self.assertTrue(changed.replace(pause, '') == source, 'Fault fixture changed more than adding pause')
+        target.write_text(changed)
+        # Public transformation evidence contains only hashes and boundary names.
+        self.pause_hash = hashlib.sha256(source.encode()).hexdigest()
+        return path
+
+    def wait_pause(self):
+        for _ in range(100):
+            result = self.sql("SELECT pid FROM pg_stat_activity WHERE application_name='homelab-enrollment' AND query LIKE 'SELECT pg_sleep(50)%'").strip()
+            if result:
+                return int(result)
+            time.sleep(0.1)
+        self.fail('Native fault fixture never reached pause boundary')
+
+    def test_interrupted_provisioning_resumes_exact_objects(self):
+        # Break caught: a durable pending role/DB is taken over, replaced or enabled early.
+        self.bootstrap()
+        for boundary in ('before-role', 'after-role', 'after-password', 'after-database', 'after-schema', 'after-ready'):
+            with self.subTest(boundary=boundary):
+                runtime = self.paused_runtime(boundary)
+                process = self.client('/bin/sh /scripts/enroll.sh run', runtime=runtime, asynchronous=True)
+                pid = self.wait_pause()
+                role_oid = self.sql("SELECT oid FROM pg_roles WHERE rolname='alpha'").strip()
+                db_oid = self.sql("SELECT oid FROM pg_database WHERE datname='alpha'").strip()
+                if boundary != 'after-ready' and role_oid:
+                    self.assertEqual(self.sql("SELECT rolcanlogin FROM pg_roles WHERE rolname='alpha'").strip(), 'f')
+                if boundary == 'after-ready':
+                    self.sql("CREATE TABLE sentinel(value text); INSERT INTO sentinel VALUES ('latest-ack')", 'alpha')
+                docker('kill', self.clients[-1])
+                self.sql(f'SELECT pg_terminate_backend({pid})')
+                process.communicate(timeout=10)
+                self.run_enrollment()
+                if role_oid:
+                    self.assertEqual(self.sql("SELECT oid FROM pg_roles WHERE rolname='alpha'").strip(), role_oid)
+                if db_oid:
+                    self.assertEqual(self.sql("SELECT oid FROM pg_database WHERE datname='alpha'").strip(), db_oid)
+                if boundary == 'after-ready':
+                    self.assertEqual(self.sql('SELECT value FROM sentinel', 'alpha').strip(), 'latest-ack')
+                self.sql('DROP DATABASE alpha; DROP ROLE alpha; DELETE FROM homelab_enrollment.enrollments')
+        # Pending LOGIN tamper and missing recorded role are rejection, not repair.
+        import shutil
+        shutil.rmtree(self.root / 'pause-after-role')
+        runtime = self.paused_runtime('after-role')
+        process = self.client('/bin/sh /scripts/enroll.sh run', runtime=runtime, asynchronous=True)
+        pid = self.wait_pause()
+        docker('kill', self.clients[-1]); self.sql(f'SELECT pg_terminate_backend({pid})'); process.communicate(timeout=10)
+        self.sql('ALTER ROLE alpha LOGIN')
+        self.run_enrollment(ok=False)
+        self.sql('ALTER ROLE alpha NOLOGIN; DROP ROLE alpha')
+        self.run_enrollment(ok=False)
+        self.assertEqual(self.sql("SELECT count(*) FROM pg_roles WHERE rolname='alpha'").strip(), '0')
+
+    def test_ready_missing_or_changed_state_is_not_recreated(self):
+        # Break caught: an established missing object is recreated empty.
+        self.bootstrap(); self.run_enrollment()
+        self.sql("UPDATE homelab_enrollment.enrollments SET database_name='other'")
+        self.run_enrollment(ok=False)
+        self.sql("UPDATE homelab_enrollment.enrollments SET database_name='alpha'; DROP DATABASE alpha")
+        self.run_enrollment(ok=False)
+        self.assertEqual(self.sql("SELECT count(*) FROM pg_database WHERE datname='alpha'").strip(), '0')
+        self.sql('DROP ROLE alpha')
+        self.run_enrollment(ok=False)
+        self.assertEqual(self.sql("SELECT count(*) FROM pg_roles WHERE rolname='alpha'").strip(), '0')
+        self.sql('DROP SCHEMA homelab_enrollment CASCADE')
+        self.run_enrollment(ok=False)
+        self.assertEqual(self.sql("SELECT count(*) FROM pg_namespace WHERE nspname='homelab_enrollment'").strip(), '0')
+
+    def test_concurrent_clients_serialize_and_timeout(self):
+        # Break caught: parent unlocks while the child is still granting schema rights.
+        self.bootstrap()
+        runtime = self.paused_runtime('schema', schema=True)
+        first = self.client('/bin/sh /scripts/enroll.sh run', runtime=runtime, asynchronous=True)
+        child_pid = self.wait_pause()
+        self.assertEqual(self.sql("SELECT count(*) FROM pg_locks l JOIN pg_stat_activity a USING(pid) WHERE l.locktype='advisory' AND l.granted AND a.application_name='homelab-enrollment' AND a.datname='postgres'").strip(), '1')
+        started = time.monotonic()
+        second = self.client('/bin/sh /scripts/enroll.sh run', asynchronous=True)
+        # Force the second client to exhaust the actual 30-second acquisition deadline.
+        out, err = second.communicate(timeout=45)
+        self.assertNotEqual(second.returncode, 0)
+        self.assertTrue(29 <= time.monotonic() - started < 45, 'Lock wait was not bounded')
+        self.sql(f'SELECT pg_terminate_backend({child_pid})')
+        first.communicate(timeout=10)
+        self.assertNotEqual(first.returncode, 0)
+        self.run_enrollment()
+        a = self.client('/bin/sh /scripts/enroll.sh run', asynchronous=True)
+        b = self.client('/bin/sh /scripts/enroll.sh run', asynchronous=True)
+        a.communicate(timeout=40); b.communicate(timeout=40)
+        self.assertEqual(a.returncode, 0); self.assertEqual(b.returncode, 0)
+
 
 
 if __name__ == '__main__':

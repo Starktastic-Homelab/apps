@@ -106,7 +106,9 @@ BEGIN
 END $$;
 \if :preflight
 \o :rows
-SELECT id,database_name,role_name,mode,password_key FROM entries ORDER BY id;
+SELECT e.id,e.database_name,e.role_name,e.mode,e.password_key,
+       (e.mode='adopt' OR l.phase='ready') IS TRUE AS verify
+FROM entries e LEFT JOIN homelab_enrollment.enrollments l USING(id) ORDER BY e.id;
 \o
 \else
 SELECT id,database_name AS database,role_name AS role,mode,password_key AS key FROM entries WHERE id=:'entry' \gset

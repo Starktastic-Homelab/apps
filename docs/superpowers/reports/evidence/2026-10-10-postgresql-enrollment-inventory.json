@@ -1,0 +1,329 @@
+{
+  "pod": "postgres-postgresql-0",
+  "images": {
+    "postgresql": "registry-1.docker.io/bitnami/postgresql:latest@sha256:b74b23f091dcc87041bcae557d840c36458af46b955279cb13aedec4c32d7f71",
+    "metrics": "registry-1.docker.io/bitnami/postgres-exporter:latest@sha256:c6b5bd91427e5fad89c4995c198c9cf2851555cbc7d8f720d37f0ba201933a3b"
+  },
+  "ready": true,
+  "catalog": {
+    "version": "18.6",
+    "system_identifier": "7584099661242523698",
+    "databases": [
+      {
+        "name": "authentik",
+        "owner": "authentik",
+        "allow_connections": true,
+        "acl": null
+      },
+      {
+        "name": "dispatcharr",
+        "owner": "dispatch",
+        "allow_connections": true,
+        "acl": null
+      },
+      {
+        "name": "lingarr",
+        "owner": "lingarr",
+        "allow_connections": true,
+        "acl": null
+      },
+      {
+        "name": "listmonk",
+        "owner": "listmonk",
+        "allow_connections": true,
+        "acl": null
+      },
+      {
+        "name": "mealie",
+        "owner": "mealie",
+        "allow_connections": true,
+        "acl": null
+      },
+      {
+        "name": "paperless",
+        "owner": "paperless",
+        "allow_connections": true,
+        "acl": null
+      },
+      {
+        "name": "postgres",
+        "owner": "postgres",
+        "allow_connections": true,
+        "acl": null
+      },
+      {
+        "name": "vaultwarden",
+        "owner": "vaultwarden",
+        "allow_connections": true,
+        "acl": null
+      },
+      {
+        "name": "vikunja",
+        "owner": "vikunja",
+        "allow_connections": true,
+        "acl": null
+      }
+    ],
+    "roles": [
+      {
+        "name": "authentik",
+        "login": true,
+        "superuser": false,
+        "createdb": false,
+        "createrole": false,
+        "replication": false,
+        "bypassrls": false,
+        "inherit": true
+      },
+      {
+        "name": "dispatch",
+        "login": true,
+        "superuser": false,
+        "createdb": false,
+        "createrole": false,
+        "replication": false,
+        "bypassrls": false,
+        "inherit": true
+      },
+      {
+        "name": "lingarr",
+        "login": true,
+        "superuser": false,
+        "createdb": false,
+        "createrole": false,
+        "replication": false,
+        "bypassrls": false,
+        "inherit": true
+      },
+      {
+        "name": "listmonk",
+        "login": true,
+        "superuser": false,
+        "createdb": false,
+        "createrole": false,
+        "replication": false,
+        "bypassrls": false,
+        "inherit": true
+      },
+      {
+        "name": "mealie",
+        "login": true,
+        "superuser": false,
+        "createdb": false,
+        "createrole": false,
+        "replication": false,
+        "bypassrls": false,
+        "inherit": true
+      },
+      {
+        "name": "paperless",
+        "login": true,
+        "superuser": false,
+        "createdb": false,
+        "createrole": false,
+        "replication": false,
+        "bypassrls": false,
+        "inherit": true
+      },
+      {
+        "name": "postgres",
+        "login": true,
+        "superuser": true,
+        "createdb": true,
+        "createrole": true,
+        "replication": true,
+        "bypassrls": true,
+        "inherit": true
+      },
+      {
+        "name": "vaultwarden",
+        "login": true,
+        "superuser": false,
+        "createdb": false,
+        "createrole": false,
+        "replication": false,
+        "bypassrls": false,
+        "inherit": true
+      },
+      {
+        "name": "vikunja",
+        "login": true,
+        "superuser": false,
+        "createdb": false,
+        "createrole": false,
+        "replication": false,
+        "bypassrls": false,
+        "inherit": true
+      }
+    ],
+    "active_clients": [
+      {
+        "database": "authentik",
+        "user": "authentik",
+        "application": "",
+        "connections": 11
+      },
+      {
+        "database": "authentik",
+        "user": "authentik",
+        "application": "authentik-server@2026.8.3",
+        "connections": 2
+      },
+      {
+        "database": "authentik",
+        "user": "authentik",
+        "application": "authentik-worker@2026.8.3",
+        "connections": 1
+      },
+      {
+        "database": "dispatcharr",
+        "user": "dispatch",
+        "application": "Dispatcharr-celery-beat-51",
+        "connections": 1
+      },
+      {
+        "database": "dispatcharr",
+        "user": "dispatch",
+        "application": "Dispatcharr-uwsgi-325",
+        "connections": 1
+      },
+      {
+        "database": "dispatcharr",
+        "user": "dispatch",
+        "application": "Dispatcharr-uwsgi-326",
+        "connections": 1
+      },
+      {
+        "database": "dispatcharr",
+        "user": "dispatch",
+        "application": "Dispatcharr-uwsgi-327",
+        "connections": 1
+      },
+      {
+        "database": "dispatcharr",
+        "user": "dispatch",
+        "application": "Dispatcharr-uwsgi-328",
+        "connections": 2
+      },
+      {
+        "database": "lingarr",
+        "user": "lingarr",
+        "application": "",
+        "connections": 2
+      },
+      {
+        "database": "mealie",
+        "user": "mealie",
+        "application": "",
+        "connections": 2
+      },
+      {
+        "database": "paperless",
+        "user": "paperless",
+        "application": "paperless-ngx",
+        "connections": 2
+      },
+      {
+        "database": "postgres",
+        "user": "postgres",
+        "application": "",
+        "connections": 1
+      },
+      {
+        "database": "postgres",
+        "user": "postgres",
+        "application": "psql",
+        "connections": 1
+      },
+      {
+        "database": "vaultwarden",
+        "user": "vaultwarden",
+        "application": "",
+        "connections": 4
+      },
+      {
+        "database": "vikunja",
+        "user": "vikunja",
+        "application": "",
+        "connections": 4
+      }
+    ]
+  },
+  "extensions": {
+    "authentik": [
+      {
+        "name": "plpgsql",
+        "version": "1.0",
+        "schema": "pg_catalog"
+      }
+    ],
+    "dispatcharr": [
+      {
+        "name": "plpgsql",
+        "version": "1.0",
+        "schema": "pg_catalog"
+      }
+    ],
+    "lingarr": [
+      {
+        "name": "plpgsql",
+        "version": "1.0",
+        "schema": "pg_catalog"
+      }
+    ],
+    "listmonk": [
+      {
+        "name": "pgcrypto",
+        "version": "1.4",
+        "schema": "public"
+      },
+      {
+        "name": "plpgsql",
+        "version": "1.0",
+        "schema": "pg_catalog"
+      }
+    ],
+    "mealie": [
+      {
+        "name": "pg_trgm",
+        "version": "1.6",
+        "schema": "public"
+      },
+      {
+        "name": "plpgsql",
+        "version": "1.0",
+        "schema": "pg_catalog"
+      }
+    ],
+    "paperless": [
+      {
+        "name": "plpgsql",
+        "version": "1.0",
+        "schema": "pg_catalog"
+      }
+    ],
+    "postgres": [
+      {
+        "name": "plpgsql",
+        "version": "1.0",
+        "schema": "pg_catalog"
+      }
+    ],
+    "vaultwarden": [
+      {
+        "name": "plpgsql",
+        "version": "1.0",
+        "schema": "pg_catalog"
+      }
+    ],
+    "vikunja": [
+      {
+        "name": "plpgsql",
+        "version": "1.0",
+        "schema": "pg_catalog"
+      }
+    ]
+  },
+  "observed_at": "2026-10-10",
+  "read_only": true
+}

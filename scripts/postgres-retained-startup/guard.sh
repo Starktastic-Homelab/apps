@@ -2,7 +2,10 @@
 # Identity guard only. RWOP attachment and verified VM retirement fence writers.
 set -eu
 export LC_ALL=C
-fail() { echo 'Retained PostgreSQL startup refused: data identity validation failed.' >&2; exit 1; }
+fail() {
+  echo 'Retained PostgreSQL startup refused: data identity validation failed.' >&2
+  exit 1
+}
 data=/bitnami/postgresql/data
 bin=/opt/bitnami/postgresql/bin/pg_controldata
 expected=${EXPECTED_SYSTEM_IDENTIFIER:-}

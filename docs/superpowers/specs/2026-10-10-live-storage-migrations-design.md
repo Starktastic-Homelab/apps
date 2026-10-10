@@ -172,7 +172,8 @@ the accepted encrypted backup and old source; cleanup authority excludes them.
 |---|---|---|
 | Workflow | Isolated qualification of native maintenance hold | Required before any new live cutover |
 | First CSI app | Prowlarr private /config, preserving SQLite | One main writer; measure current bytes and qualify existing state first |
-| Shared database | Shared PostgreSQL retained CSI | Own operation; include database clients, backup jobs and Authentik availability in outage scope |
+| PostgreSQL prerequisite | Select and qualify deployment plus automatic database/role enrollment | Complete the PostgreSQL research decision before step 3; prove unattended metadata-loss recovery |
+| Shared database | Selected shared PostgreSQL deployment on retained CSI | Own operation after qualification; include database clients, backup jobs and Authentik availability in outage scope |
 | PostgreSQL conversion | Autobrr, then Seerr instances, then Bazarr | Start conversions only after shared PostgreSQL CSI and tested restore; rehearse pinned versions |
 | Further conversions | ntfy, Grafana and pgAdmin qualification | Require proof of existing-data preservation, not just backend configuration |
 | Later CSI waves | Embedded state, files for PostgreSQL-backed apps, monitoring | Recheck writer topology and full growth budget before each small cohort |
@@ -184,6 +185,17 @@ candidate. Research/rehearsal design can proceed alongside CSI preparation;
 production cutovers sharing PostgreSQL, NAS quota or attachment resources remain
 serialized. Do not move Autobrr to CSI first merely to migrate its SQLite database
 again immediately afterward: determine and rehearse the final engine first.
+
+The user requested PostgreSQL deployment/enrollment research before step 3 because
+database, user and password creation are currently manual. The
+[research report](../reports/2026-10-10-postgresql-deployment-enrollment-research.md)
+shortlists CloudNativePG qualification and an enrollment Job on the existing
+server. Do not commit to migrating the current Bitnami workload first: choose the
+deployment before planning the shared-database cutover. CNPG's retained-PVC
+adoption is a source-based candidate requiring disposable full-rebuild proof;
+static storage support alone is insufficient. Credentials must recover consistently
+from durable encrypted declarations. Deployment replacement must preserve existing
+databases and does not authorize a PostgreSQL major upgrade.
 
 Treat converter dry-run as potentially mutating. Inspect the exact installed
 Autobrr converter: current develop-branch code can initialize PostgreSQL schema and modify
@@ -229,7 +241,8 @@ the permanent storage declarations retain the existing unattended rebuild model.
 
 The next review is this written workflow and its proposed first candidate. Its
 implementation plan will specify the isolated qualification and Prowlarr read-only
-preflight. Production Prowlarr and shared PostgreSQL execution will each require
+preflight. Before step 3, resolve the PostgreSQL deployment/enrollment choice and
+qualify its storage and credential recovery. Production Prowlarr and shared PostgreSQL execution will each require
 a concrete operation approval with refreshed capacity and recoverability evidence.
 
 ## Primary references

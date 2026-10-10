@@ -2,6 +2,7 @@
 """Prepare reviewable encrypted inputs once. Never contacts PostgreSQL or applies resources."""
 import argparse
 import copy
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -14,6 +15,8 @@ import tempfile
 from urllib.parse import quote
 
 import yaml
+
+from completion_gate import generation, hook_name
 
 ROOT = Path(__file__).resolve().parent
 NAME = re.compile(r'[a-z][a-z0-9_]{0,62}', re.ASCII)
@@ -46,14 +49,78 @@ def validate_config(config: dict) -> None:
             raise ValueError('Reserved PostgreSQL identity')
 
 
-def render_configmap(config: dict) -> dict:
+def render_configmap(config: dict, encrypted_data=None) -> dict:
     validate_config(config)
-    return {'apiVersion': 'v1', 'kind': 'ConfigMap',
+    result = {'apiVersion': 'v1', 'kind': 'ConfigMap',
             'metadata': {'name': 'postgres-enrollment-config', 'namespace': 'databases',
                          'annotations': {'argocd.argoproj.io/sync-wave': '-1'}},
             'data': {'config.json': json.dumps(config, indent=2) + '\n',
                      **{name: (ROOT / 'runtime' / name).read_text()
                         for name in ('enroll.sh', 'enroll.sql', 'schema.sql')}}}
+
+    if encrypted_data is not None:
+        data = result['data']
+        data.update({'completion-protocol-version': '1',
+                     'completion_gate.py': (ROOT / 'completion_gate.py').read_text(),
+                     'encrypted-inputs-sha256': hashlib.sha256(json.dumps(
+                         encrypted_data, sort_keys=True, separators=(',', ':')).encode()).hexdigest(),
+                     'job-template.json': json.dumps(yaml.safe_load((ROOT / 'job.yaml').read_text()),
+                                                     sort_keys=True, separators=(',', ':'))})
+        data['acceptance-generation'] = generation(data)
+    return result
+
+
+def consumer_sources(options) -> tuple[list[dict], dict]:
+    # Include the enrollment ID: several credentials may share an application Secret.
+    suffix = hashlib.sha256(json.dumps([options.id, options.app_namespace, options.app_secret]).encode()).hexdigest()[:20]
+    name = 'pg-enrollment-' + suffix
+    metadata = {'name': name, 'namespace': options.app_namespace,
+                'annotations': {'argocd.argoproj.io/sync-wave': '-1'}}
+    resources = [{'apiVersion': 'v1', 'kind': 'ServiceAccount', 'metadata': metadata,
+                  'automountServiceAccountToken': False},
+                 {'apiVersion': 'v1', 'kind': 'ConfigMap', 'metadata': metadata,
+                  'data': {'completion_gate.py': (ROOT / 'completion_gate.py').read_text()}}]
+    for namespace in ('argocd', 'databases'):
+        resources.append({'apiVersion': 'rbac.authorization.k8s.io/v1', 'kind': 'RoleBinding',
+                          'metadata': {**metadata, 'namespace': namespace},
+                          'roleRef': {'apiGroup': 'rbac.authorization.k8s.io', 'kind': 'Role',
+                                      'name': 'postgres-enrollment-completion-reader'},
+                          'subjects': [{'kind': 'ServiceAccount', 'name': name,
+                                        'namespace': options.app_namespace}]})
+    security = {'runAsNonRoot': True, 'runAsUser': 1001, 'runAsGroup': 1001,
+                'allowPrivilegeEscalation': False, 'readOnlyRootFilesystem': True,
+                'capabilities': {'drop': ['ALL']}, 'seccompProfile': {'type': 'RuntimeDefault'}}
+    def mount(volume, path):
+        return {'name': volume, 'mountPath': path, 'readOnly': True}
+    fragment = {
+        'serviceAccountName': name, 'automountServiceAccountToken': False,
+        'initContainers': [
+            {'name': 'postgres-enrollment-acceptance',
+             'image': 'python@sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c',
+             'command': ['python3', '-B', '/gate/completion_gate.py'],
+             'args': ['--id', options.id, '--database', options.database, '--role', options.role],
+             'securityContext': security,
+             'resources': {'requests': {'cpu': '25m', 'memory': '32Mi'}, 'limits': {'cpu': '100m', 'memory': '64Mi'}},
+             'volumeMounts': [mount('pg-completion-script', '/gate'), mount('pg-completion-api', '/gate-api')]},
+            {'name': 'postgres-canonical-login',
+             'image': yaml.safe_load((ROOT / 'job.yaml').read_text())['spec']['template']['spec']['containers'][0]['image'],
+             'command': ['/bin/sh', '-ec',
+                         'export PGPASSWORD="$(cat /credentials/password)"; '
+                         'exec psql -XqAt -v ON_ERROR_STOP=1 -c "SELECT 1" >/dev/null 2>&1'],
+             'env': [{'name': k, 'value': v} for k, v in {
+                 'PGHOST': 'postgres-postgresql.databases', 'PGPORT': '5432',
+                 'PGUSER': options.role, 'PGDATABASE': options.database, 'PGCONNECT_TIMEOUT': '10'}.items()],
+             'securityContext': security,
+             'resources': {'requests': {'cpu': '10m', 'memory': '16Mi'}, 'limits': {'cpu': '100m', 'memory': '32Mi'}},
+             'volumeMounts': [mount('pg-completion-password', '/credentials')]}],
+        'volumes': [
+            {'name': 'pg-completion-script', 'configMap': {'name': name, 'defaultMode': 0o444}},
+            {'name': 'pg-completion-api', 'projected': {'defaultMode': 0o444, 'sources': [
+                {'serviceAccountToken': {'path': 'token', 'expirationSeconds': 600}},
+                {'configMap': {'name': 'kube-root-ca.crt', 'items': [{'key': 'ca.crt', 'path': 'ca.crt'}]}}]}},
+            {'name': 'pg-completion-password', 'secret': {'secretName': options.app_secret,
+                'defaultMode': 0o444, 'items': [{'key': options.app_password_key, 'path': 'password'}]}}]}
+    return resources, fragment
 
 
 def validate_sealed(obj, name, namespace):
@@ -152,8 +219,15 @@ def prepare_bundle(options: argparse.Namespace) -> Path:
         a.mkdir(mode=0o700); b.mkdir(mode=0o700)
         encrypted = seal(a, AGGREGATE, 'databases', {options.password_key: password}, aggregate)
         client = seal(b, options.app_secret, options.app_namespace, values, app)
-        documents = {'config.json': json.dumps(config, indent=2) + '\n',
-                     'enrollment-configmap.yaml': yaml.safe_dump(render_configmap(config), sort_keys=False),
+        configmap = render_configmap(config, encrypted['spec']['encryptedData'])
+        job = json.loads(configmap['data']['job-template.json'])
+        job['metadata']['name'] = hook_name(configmap['data']['acceptance-generation'])
+        consumer, init = consumer_sources(options)
+        documents = {'enrollment-job.yaml': yaml.safe_dump(job, sort_keys=False),
+                     'consumer-gate.yaml': yaml.safe_dump_all(consumer, sort_keys=False),
+                     'consumer-init.yaml': yaml.safe_dump(init, sort_keys=False),
+                     'config.json': json.dumps(config, indent=2) + '\n',
+                     'enrollment-configmap.yaml': yaml.safe_dump(configmap, sort_keys=False),
                      'enrollment-secret.yaml': yaml.safe_dump(encrypted, sort_keys=False),
                      'application-secret.yaml': yaml.safe_dump(client, sort_keys=False)}
         # Exclusive reservation: concurrent/repeated runs cannot replace another bundle.

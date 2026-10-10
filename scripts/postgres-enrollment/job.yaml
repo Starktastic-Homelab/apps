@@ -1,0 +1,102 @@
+# Inactive source: copy into the PostgreSQL Application only after the native lab gate.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: postgres-enrollment
+  namespace: databases
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+spec:
+  activeDeadlineSeconds: 600
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: postgres-enrollment
+    spec:
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: enroll
+          # renovate: datasource=docker depName=postgres
+          image: postgres:18.6-alpine@sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd
+          command: [/bin/sh, /scripts/enroll.sh, run]
+          env:
+            - name: PGHOST
+              value: postgres-postgresql.databases
+            - name: PGPORT
+              value: "5432"
+            - name: PGUSER
+              value: postgres
+            - name: PGDATABASE
+              value: postgres
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 128Mi
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+            - name: admin
+              mountPath: /credentials/admin
+              readOnly: true
+            - name: apps
+              mountPath: /credentials/apps
+              readOnly: true
+            - name: scratch
+              mountPath: /tmp
+      volumes:
+        - name: config
+          configMap:
+            name: postgres-enrollment-config
+            defaultMode: 0444
+            items:
+              - key: config.json
+                path: config.json
+        - name: scripts
+          configMap:
+            name: postgres-enrollment-config
+            defaultMode: 0444
+            items:
+              - key: enroll.sh
+                path: enroll.sh
+              - key: enroll.sql
+                path: enroll.sql
+              - key: schema.sql
+                path: schema.sql
+        - name: admin
+          secret:
+            secretName: postgres-admin-secret
+            defaultMode: 0440
+            items:
+              - key: postgres-password
+                path: postgres-password
+        - name: apps
+          secret:
+            secretName: postgres-enrollment-credentials
+            defaultMode: 0440
+        - name: scratch
+          emptyDir:
+            medium: Memory
+            sizeLimit: 16Mi

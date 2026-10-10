@@ -117,6 +117,17 @@ side effect of every sync. Password assignment must use client-side SCRAM hashin
 or PostgreSQL's native psql password mechanism to avoid plaintext statement logs.
 Its noninteractive behavior and interrupted NOLOGIN setup require qualification.
 
+The ready ledger phase means server-side provisioning has committed. Native login
+verification runs after that same commit enables LOGIN: a NOLOGIN role cannot
+perform the authentication check earlier. If the authentication child then fails,
+the Job fails while ready/LOGIN and the completed database remain intact. A retry
+verifies the canonical credential without reset/recreation. Schema/setup child
+failure occurs before that commit and retains provisioning/NOLOGIN. Therefore a
+new writer must wait for successful Job/acceptance completion, not merely LOGIN
+or the ready ledger row. This ordering exception resolves the implementation
+plan's broader child-failure wording; it must pass the native writer-gating lab
+before any activation.
+
 For new databases, restrict PUBLIC database/schema privileges and grant only the
 owner's required rights. Verify both connection and actual object-access denial
 between enrolled services. This does not tighten legacy database ACLs silently;

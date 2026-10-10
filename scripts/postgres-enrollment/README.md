@@ -11,7 +11,7 @@ existing application databases and their credentials remain unchanged.
 those inputs repeatedly; it never generates credentials. Declarations are stable
 ID/database/role/mode bindings. Removing one retains SQL objects and the ledger.
 Names use lower-case ASCII with a leading letter; SQL names allow digits and
-underscores, IDs/credential keys also allow hyphens, maximum63 characters.
+underscores, IDs/credential keys also allow hyphens, maximum 63 characters.
 Reserved PostgreSQL identities and duplicate bindings are rejected.
 
 The maintenance database `postgres` contains the admin-only
@@ -24,7 +24,7 @@ rebinding. Enrollment does not restore lost data.
 
 All declarations, catalogs and existing/adopted credentials are preflighted before
 writes. A session advisory lock `(1346848082,1)` serializes cooperating enrollment
-sessions, with a30-second acquisition deadline. Each mutating session rechecks the
+sessions, with a 30-second acquisition deadline. Each mutating session rechecks the
 complete catalog and keeps the same maintenance connection through child schema
 and authentication checks. Direct administrators are outside this lock contract.
 The batch is not transactional across databases: a conflict appearing after
@@ -34,6 +34,12 @@ New roles begin restricted and `NOLOGIN`. The role and provisioning ledger row
 commit together. Native psql `\password` assigns SCRAM without plaintext SQL;
 `CREATE DATABASE` then runs outside a transaction. A child connection restricts
 new PUBLIC schema privileges. The final ready marker and `LOGIN` commit together.
+Native authentication needs committed LOGIN. A later authentication-child failure
+fails the Job but keeps completed ready/LOGIN; a retry never resets that credential.
+Writers must wait for Job/acceptance success, not simply LOGIN or the ready row.
+Schema/setup child failure keeps provisioning/NOLOGIN. This protocol still needs
+native writer-gate qualification before activation.
+
 Interrupted provisioning resumes the recorded names/owner; missing recorded roles,
 unexpected LOGIN or wrong database ownership fail. Ready databases are never
 recreated. Canonical authentication failure never resets an established password.
@@ -64,10 +70,11 @@ For subsequent entries, pass the existing encrypted aggregate with
 `--aggregate-secret PATH`; it must contain every prior declared credential key.
 Use `--app-sealed-secret PATH` to retain unrelated application encrypted keys and
 metadata. Both inputs must match exact name/namespace and strict sealing scope.
-Existing target keys are refused rather than overwritten. `adopt` uses the same
+Existing target keys are refused rather than overwritten. Application inputs
+cannot target databases/postgres-admin-secret or databases/postgres-enrollment-credentials. `adopt` uses the same
 arguments and reads the exact current password from stdin (no trailing newline).
 Passwords support quotes, spaces, backslashes, dollar signs, backticks and UTF-8;
-empty, NUL/CR/LF or values over4096 bytes are rejected before writes/publication.
+empty, NUL/CR/LF or values over 4096 bytes are rejected before writes/publication.
 Never place passwords in command arguments or shell tracing.
 
 The private bundle contains updated config, a ConfigMap and two SealedSecrets.
@@ -92,7 +99,7 @@ python3 scripts/test-pg-backup.py
 The suite needs the local Docker socket. It uses synthetic passwords, an internal
 network with no published ports, digest-pinned PG18.6 client/current Bitnami server,
 once-named containers and one owned volume. Server limit1GiB/1CPU; at most two
-clients128Mi/0.5CPU each; logs two5Mi files. Data usage is observed below1GiB,
+clients 128Mi/0.5CPU each; logs two5Mi files. Data usage is observed below 1GiB,
 not a filesystem quota. Cleanup removes only recorded test resources, never prunes
 the daemon. No arbitrary external DSN, existing container or production credential
 is accepted. Pause-only copies of native SQL qualify six interruption boundaries;

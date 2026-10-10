@@ -57,7 +57,9 @@ class EnrollmentTests(unittest.TestCase):
             time.sleep(0.25)
         else:
             self.fail('Isolated server not ready')
-        probe = docker('run', '--rm', '--network', self.network, '--memory', '128m', '--cpus', '0.5',
+        probe_name = self.prefix + '-probe'
+        self.clients.append(probe_name)
+        probe = docker('run', '--rm', '--name', probe_name, '--network', self.network, '--memory', '128m', '--cpus', '0.5',
                        '--log-opt', 'max-size=5m', '--log-opt', 'max-file=2',
                        '--entrypoint', '/bin/sh', CLIENT, '-c',
                        'n=0; until pg_isready -h server -U postgres >/dev/null 2>&1; do n=$((n+1)); [ $n -lt 120 ] || exit 1; sleep 0.25; done')
@@ -399,6 +401,28 @@ class EnrollmentTests(unittest.TestCase):
         self.assertEqual(a.returncode, 0); self.assertEqual(b.returncode, 0)
 
 
+    def test_postcommit_login_check_failure_preserves_completed_identity(self):
+        # Characterization: native authentication requires committed LOGIN; failed acceptance is not reset permission.
+        import shutil
+        self.bootstrap()
+        runtime = self.root / 'failed-auth-runtime'
+        shutil.copytree(SOURCE / 'runtime', runtime)
+        script = runtime / 'enroll.sh'
+        source = script.read_text()
+        fault = '    exit 23 # test-only failed authentication child\n'
+        changed = source.replace('  verify-login)\n', '  verify-login)\n' + fault)
+        self.assertTrue(changed.replace(fault, '') == source, 'Fault changed more than child failure')
+        script.write_text(changed)
+        result = self.run_enrollment(ok=False, runtime=runtime)
+        self.assertNotEqual(result.returncode, 0, 'Failed acceptance reported Job success')
+        self.assertEqual(self.sql("SELECT phase FROM homelab_enrollment.enrollments").strip(), 'ready')
+        self.assertEqual(self.sql("SELECT rolcanlogin FROM pg_roles WHERE rolname='alpha'").strip(), 't')
+        before = self.snapshot()
+        self.assertEqual(self.app_query("CREATE TABLE sentinel(value text); INSERT INTO sentinel VALUES ('completed')").returncode, 0)
+        self.run_enrollment()
+        self.assertTrue(before == self.snapshot(), 'Acceptance retry reset completed identity or password')
+        self.assertEqual(self.sql('SELECT value FROM sentinel', 'alpha').strip(), 'completed')
+
 
 class PreparationTests(unittest.TestCase):
     def setUp(self):
@@ -507,6 +531,18 @@ class PreparationTests(unittest.TestCase):
             self.opts.app_sealed_secret.write_text(yaml.safe_dump(obj))
             with self.assertRaises(ValueError): self.prepare(pw)
             self.assertFalse(self.opts.output_dir.exists())
+
+    def test_reserved_application_secret_identity_is_rejected_before_sealing(self):
+        # Break caught: the app payload overwrites aggregate or administrator Secret keys.
+        for name in ('postgres-enrollment-credentials', 'postgres-admin-secret'):
+            self.opts.app_namespace = 'databases'
+            self.opts.app_secret = name
+            self.opts.output_dir = self.root / name
+            with self.subTest(name=name):
+                with self.assertRaises(ValueError):
+                    self.prepare()
+                self.assertFalse(self.opts.output_dir.exists())
+                self.assertEqual(self.calls, [], 'Reserved identity reached the sealing boundary')
 
     def test_partial_sealing_failure_publishes_nothing(self):
         # Break caught: a partial pair/config becomes reviewable despite failed second sealing.

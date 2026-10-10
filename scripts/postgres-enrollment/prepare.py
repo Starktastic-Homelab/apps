@@ -123,6 +123,8 @@ def prepare_bundle(options: argparse.Namespace) -> Path:
     for name in (options.app_namespace, options.app_secret):
         if not KUBE_NAME.fullmatch(name):
             raise ValueError('Invalid Kubernetes identity')
+    if options.app_namespace == 'databases' and options.app_secret in (AGGREGATE, 'postgres-admin-secret'):
+        raise ValueError('Application Secret conflicts with enrollment or administrator credentials')
     app_keys = [options.app_password_key]
     if options.app_url_key is not None:
         app_keys.append(options.app_url_key)

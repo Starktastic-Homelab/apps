@@ -8,10 +8,10 @@ present its concrete manifest/inventory/credential scope for approval.
 ## Bind the next operation before approval
 
 Use a new operation identity `pg-enrollment-native-qualification`, separate from
-removed CNPG operations. Candidate VM IDs980–983 are proposals, not reservations;
+removed CNPG operations. Candidate VM IDs 980–983 are proposals, not reservations;
 prove they are free and unrelated on the actual Proxmox cluster before using them.
 Fresh evidence must bind Proxmox node/pool/storage identities, resource capacity,
-NAS dataset/quota, template900 source generation, network bridge and IP ownership,
+NAS dataset/quota, template 900 source generation, network bridge and IP ownership,
 VM300 maintenance runtime hash/receipt/owner, current Terraform and Ansible commits,
 and installed k3s, ArgoCD/ApplicationSet, Sealed Secrets and CSI versions.
 
@@ -23,15 +23,15 @@ Proposed maximum topology, subject to that preflight:
 | VM981 control plane | 2vCPU,4GiB RAM,20GiB local-zfs root | replaced in rebuild test |
 | VM982–983 workers | 2vCPU,4GiB RAM,20GiB local-zfs root each | replaced in rebuild test |
 | Synthetic retained PostgreSQL disk | 8GiB on shared vm-pool | survives compute replacement; deleted at cleanup |
-| Dedicated lab dataset | aggregate hard quota64GiB | no production directory or media mount |
+| Dedicated lab dataset | aggregate hard quota 64GiB | no production directory or media mount |
 
-Total maximum7vCPU/14GiB RAM/76GiB local root allocation plus the separate lab
+Total maximum 7vCPU/14GiB RAM/76GiB local root allocation plus the separate lab
 shared-storage cap. Do not silently choose another template, ID, storage or larger
 budget if unavailable: update the concrete proposal first. Never import/delete a
 production VM, PVC, disk or database. Bind every created resource in the receipt.
 
 Freeze exact chart/image digests and source hashes from the merged engine PR.
-Use current Bitnami PostgreSQL server at the existing major18.6 and the pinned native
+Use current Bitnami PostgreSQL server at the existing major 18.6 and the pinned native
 client; do not substitute a different image as proof of this implementation.
 Use the installed native Argo/Sealed Secrets workflow and existing verified Ansible
 Node retirement; no CCM or custom CSI driver. Repository engine tests must pass
@@ -69,7 +69,9 @@ approval is not reusable. No production API write ACL is required.
 3. **Consumer gate.** Include a synthetic service consumer and a synthetic consumer
    in the same controllers rollout group as PostgreSQL. Use an explicit database
    acceptance gate; prove no writer before enrollment completion, including a
-   deliberately failed/blocked hook. Do not rely on same-group RollingSync order.
+   deliberately failed/blocked hook. Force the authentication child to fail after
+   ready/LOGIN commits while canonical app login is possible; the writer must still
+   wait for successful Job/acceptance completion. Do not rely on same-group RollingSync order.
    Any required new writer-gate source gets its own reviewable PR before use.
 4. **Adoption.** Create a synthetic legacy database with data, extension, membership
    and nontrivial grants. Adopt the actual sealed credential without changing its

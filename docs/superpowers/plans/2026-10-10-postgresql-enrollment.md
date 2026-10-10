@@ -23,7 +23,7 @@
 ## Review Focus
 
 1. Unknown enrollment names conflicting with removed ledger entries or another declaration must fail before any role/password/database write (Task2).
-2. A helper or schema-grant child process fails while parent psql remains alive: parent must exit nonzero and must not commit ready/LOGIN (Task1/2).
+2. A schema/setup child fails while parent psql remains alive: parent must exit nonzero without ready/LOGIN. Native authentication runs after LOGIN commits; its failure must return nonzero while preserving completed ready state, with writer gating required before activation (Task1/2; final review ruling).
 3. Missing registry, unexpected owner/structure/ACL, wrong cluster identity, standby or incomplete identity pin must never trigger automatic bootstrap (Task1/2).
 4. Mixed successful/new/conflicting entries: preflight the complete declaration set before starting; concurrent runs and retries must preserve completed work without claiming atomicity across databases (Task2).
 5. Password/key/URL quoting and partial sealing failure must not leak, regenerate on rerun or overwrite unrelated encrypted keys (Task3).

@@ -1,0 +1,162 @@
+{
+  "serverImage": "registry-1.docker.io/bitnami/postgresql:latest@sha256:b74b23f091dcc87041bcae557d840c36458af46b955279cb13aedec4c32d7f71",
+  "clientImage": "postgres:18.6-alpine@sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd",
+  "testsRun": 11,
+  "successful": true,
+  "resourceReceipts": [
+    {
+      "test": "__main__.EnrollmentTests.test_adopt_and_remove_preserve_existing_database",
+      "network": "pg-enrollment-a4e9e117570c-net",
+      "volume": "pg-enrollment-a4e9e117570c-data",
+      "server": "pg-enrollment-a4e9e117570c-server",
+      "clients": [
+        "pg-enrollment-a4e9e117570c-client-0",
+        "pg-enrollment-a4e9e117570c-client-1",
+        "pg-enrollment-a4e9e117570c-client-2",
+        "pg-enrollment-a4e9e117570c-client-3",
+        "pg-enrollment-a4e9e117570c-client-4",
+        "pg-enrollment-a4e9e117570c-client-5",
+        "pg-enrollment-a4e9e117570c-client-6",
+        "pg-enrollment-a4e9e117570c-client-7"
+      ],
+      "dataKiB": 42104,
+      "cleanupVerified": true
+    },
+    {
+      "test": "__main__.EnrollmentTests.test_concurrent_clients_serialize_and_timeout",
+      "network": "pg-enrollment-708775857e4a-net",
+      "volume": "pg-enrollment-708775857e4a-data",
+      "server": "pg-enrollment-708775857e4a-server",
+      "clients": [
+        "pg-enrollment-708775857e4a-client-0",
+        "pg-enrollment-708775857e4a-client-1",
+        "pg-enrollment-708775857e4a-client-2",
+        "pg-enrollment-708775857e4a-client-3",
+        "pg-enrollment-708775857e4a-client-4",
+        "pg-enrollment-708775857e4a-client-5"
+      ],
+      "dataKiB": 42104,
+      "cleanupVerified": true
+    },
+    {
+      "test": "__main__.EnrollmentTests.test_conflicting_set_is_rejected_before_writes",
+      "network": "pg-enrollment-20e994db7c44-net",
+      "volume": "pg-enrollment-20e994db7c44-data",
+      "server": "pg-enrollment-20e994db7c44-server",
+      "clients": [
+        "pg-enrollment-20e994db7c44-client-0",
+        "pg-enrollment-20e994db7c44-client-1",
+        "pg-enrollment-20e994db7c44-client-2",
+        "pg-enrollment-20e994db7c44-client-3",
+        "pg-enrollment-20e994db7c44-client-4",
+        "pg-enrollment-20e994db7c44-client-5",
+        "pg-enrollment-20e994db7c44-client-6",
+        "pg-enrollment-20e994db7c44-client-7",
+        "pg-enrollment-20e994db7c44-client-8",
+        "pg-enrollment-20e994db7c44-client-9",
+        "pg-enrollment-20e994db7c44-client-10",
+        "pg-enrollment-20e994db7c44-client-11",
+        "pg-enrollment-20e994db7c44-client-12",
+        "pg-enrollment-20e994db7c44-client-13",
+        "pg-enrollment-20e994db7c44-client-14",
+        "pg-enrollment-20e994db7c44-client-15",
+        "pg-enrollment-20e994db7c44-client-16",
+        "pg-enrollment-20e994db7c44-client-17",
+        "pg-enrollment-20e994db7c44-client-18",
+        "pg-enrollment-20e994db7c44-client-19"
+      ],
+      "dataKiB": 42096,
+      "cleanupVerified": true
+    },
+    {
+      "test": "__main__.EnrollmentTests.test_interrupted_provisioning_resumes_exact_objects",
+      "network": "pg-enrollment-c8bb76959ef4-net",
+      "volume": "pg-enrollment-c8bb76959ef4-data",
+      "server": "pg-enrollment-c8bb76959ef4-server",
+      "clients": [
+        "pg-enrollment-c8bb76959ef4-client-0",
+        "pg-enrollment-c8bb76959ef4-client-1",
+        "pg-enrollment-c8bb76959ef4-client-2",
+        "pg-enrollment-c8bb76959ef4-client-3",
+        "pg-enrollment-c8bb76959ef4-client-4",
+        "pg-enrollment-c8bb76959ef4-client-5",
+        "pg-enrollment-c8bb76959ef4-client-6",
+        "pg-enrollment-c8bb76959ef4-client-7",
+        "pg-enrollment-c8bb76959ef4-client-8",
+        "pg-enrollment-c8bb76959ef4-client-9",
+        "pg-enrollment-c8bb76959ef4-client-10",
+        "pg-enrollment-c8bb76959ef4-client-11",
+        "pg-enrollment-c8bb76959ef4-client-12",
+        "pg-enrollment-c8bb76959ef4-client-13",
+        "pg-enrollment-c8bb76959ef4-client-14",
+        "pg-enrollment-c8bb76959ef4-client-15",
+        "pg-enrollment-c8bb76959ef4-client-16"
+      ],
+      "dataKiB": 72808,
+      "cleanupVerified": true
+    },
+    {
+      "test": "__main__.EnrollmentTests.test_new_enrollment_then_repeat_preserves_identity_and_data",
+      "network": "pg-enrollment-ace204b248fe-net",
+      "volume": "pg-enrollment-ace204b248fe-data",
+      "server": "pg-enrollment-ace204b248fe-server",
+      "clients": [
+        "pg-enrollment-ace204b248fe-client-0",
+        "pg-enrollment-ace204b248fe-client-1",
+        "pg-enrollment-ace204b248fe-client-2",
+        "pg-enrollment-ace204b248fe-client-3"
+      ],
+      "dataKiB": 42008,
+      "cleanupVerified": true
+    },
+    {
+      "test": "__main__.EnrollmentTests.test_ready_missing_or_changed_state_is_not_recreated",
+      "network": "pg-enrollment-b5e262bea20c-net",
+      "volume": "pg-enrollment-b5e262bea20c-data",
+      "server": "pg-enrollment-b5e262bea20c-server",
+      "clients": [
+        "pg-enrollment-b5e262bea20c-client-0",
+        "pg-enrollment-b5e262bea20c-client-1",
+        "pg-enrollment-b5e262bea20c-client-2",
+        "pg-enrollment-b5e262bea20c-client-3",
+        "pg-enrollment-b5e262bea20c-client-4",
+        "pg-enrollment-b5e262bea20c-client-5"
+      ],
+      "dataKiB": 56192,
+      "cleanupVerified": true
+    },
+    {
+      "test": "__main__.EnrollmentTests.test_registry_identity_and_child_failure_are_fail_closed",
+      "network": "pg-enrollment-f9ff152292be-net",
+      "volume": "pg-enrollment-f9ff152292be-data",
+      "server": "pg-enrollment-f9ff152292be-server",
+      "clients": [
+        "pg-enrollment-f9ff152292be-client-0",
+        "pg-enrollment-f9ff152292be-client-1",
+        "pg-enrollment-f9ff152292be-client-2",
+        "pg-enrollment-f9ff152292be-client-3",
+        "pg-enrollment-f9ff152292be-client-4",
+        "pg-enrollment-f9ff152292be-client-5",
+        "pg-enrollment-f9ff152292be-client-6",
+        "pg-enrollment-f9ff152292be-client-7",
+        "pg-enrollment-f9ff152292be-client-8",
+        "pg-enrollment-f9ff152292be-client-9",
+        "pg-enrollment-f9ff152292be-client-10",
+        "pg-enrollment-f9ff152292be-client-11",
+        "pg-enrollment-f9ff152292be-client-12",
+        "pg-enrollment-f9ff152292be-client-13",
+        "pg-enrollment-f9ff152292be-client-14",
+        "pg-enrollment-f9ff152292be-client-15",
+        "pg-enrollment-f9ff152292be-client-16"
+      ],
+      "dataKiB": 60592,
+      "cleanupVerified": true
+    }
+  ],
+  "runtimeSha256": {
+    "bootstrap.sql": "083c7b1281804f01cccbfde469d5180576736677ffee77995a48a0f2f7581d65",
+    "enroll.sh": "41b420dd5b57311d79297ddbf09776a9af738c2b3813cd94507eea8d35286903",
+    "schema.sql": "4bc1616c779b08e13c84cad208ba9f35337752fefdf1adb7111e3fd64c14d5be",
+    "enroll.sql": "5c6c1d5a1541a18f01cabda27c6ba1e9ca669127d5172a6439967c9f4dfe6cca"
+  }
+}

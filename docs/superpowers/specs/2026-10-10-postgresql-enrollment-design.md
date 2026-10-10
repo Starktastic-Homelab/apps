@@ -1,7 +1,7 @@
 # PostgreSQL application enrollment on the existing server
 
-Status: proposed design for user review. No SQL changes, credential generation,
-lab allocation or production activation are authorized by this document.
+Status: approved for inactive source and synthetic local Docker qualification.
+External lab allocation and production activation require separate exact approval.
 
 ## Intent and decisions carried forward
 
@@ -201,5 +201,6 @@ wrong/missing database disk safe and does not authorize that cutover.
 - [PostgreSQL psql](https://www.postgresql.org/docs/18/app-psql.html): safe variable quoting, error handling and native client-side password hashing.
 - [PostgreSQL REVOKE](https://www.postgresql.org/docs/18/sql-revoke.html): PUBLIC and owner privilege semantics.
 
-The ledger and failure rules are this proposal's design, not a standard PostgreSQL
-operator feature. No implementation or rebuild qualification is claimed.
+The ledger and failure rules are this design's policy, not a standard PostgreSQL
+operator feature. Local engine qualification is recorded separately; native Argo
+and retained-disk rebuild qualification remain required before production activation.

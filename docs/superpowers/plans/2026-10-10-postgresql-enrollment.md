@@ -8,7 +8,7 @@
 
 **Tech Stack:** PostgreSQL18.6, POSIX shell/psql, Python standard library and existing PyYAML tooling, Sealed Secrets, native Argo Sync Job, Docker-backed unittest qualification.
 
-**Spec:** [Approved enrollment design](../specs/2026-10-10-postgresql-enrollment-design.md). The user's Continue following the idempotency/adoption clarification approves that design; this plan awaits review before implementation.
+**Spec:** [Approved enrollment design](../specs/2026-10-10-postgresql-enrollment-design.md). The user's Continue following the idempotency/adoption clarification approves that design; the user approved this source/local-qualification plan before implementation.
 
 ## Global Constraints
 

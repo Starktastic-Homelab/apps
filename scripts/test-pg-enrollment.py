@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import secrets
+import sys
 import subprocess
 import tempfile
 import time
@@ -12,6 +13,8 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / 'scripts/postgres-enrollment'
 CLIENT = 'postgres:18.6-alpine@sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd'
+RECEIPTS = []
+
 SERVER = 'registry-1.docker.io/bitnami/postgresql:latest@sha256:b74b23f091dcc87041bcae557d840c36458af46b955279cb13aedec4c32d7f71'
 
 
@@ -64,16 +67,28 @@ class EnrollmentTests(unittest.TestCase):
                        'entries': [self.entry('alpha')]}
 
     def cleanup(self):
+        errors = []
+        usage = None
         for name in self.clients:
-            docker('rm', '-f', name)
+            if docker('container', 'inspect', name).returncode == 0:
+                if docker('rm', '-f', name).returncode != 0:
+                    errors.append('Owned client cleanup failed')
         if hasattr(self, 'server'):
             size = docker('exec', self.server, 'du', '-sk', '/bitnami/postgresql')
             if size.returncode == 0:
-                assert int(size.stdout.split()[0]) < 1024 * 1024, 'Lab data cap exceeded'
-            docker('rm', '-f', self.server)
-            docker('volume', 'rm', self.volume)
-            docker('network', 'rm', self.network)
+                usage = int(size.stdout.split()[0])
+                if usage >= 1024 * 1024:
+                    errors.append('Lab data cap exceeded')
+            elif docker('container', 'inspect', self.server).returncode == 0:
+                errors.append('Owned data usage could not be verified')
+            for args in [('rm','-f',self.server), ('volume','rm',self.volume), ('network','rm',self.network)]:
+                if docker(*args).returncode != 0:
+                    errors.append('Owned resource cleanup failed')
+            RECEIPTS.append({'test':self.id(), 'network':self.network,'volume':self.volume,
+                             'server':self.server,'clients':self.clients,'dataKiB':usage,
+                             'cleanupVerified':not errors})
         self.tmp.cleanup()
+        self.assertFalse(errors, '; '.join(errors))
 
     @staticmethod
     def entry(name, mode='new'):
@@ -107,8 +122,8 @@ class EnrollmentTests(unittest.TestCase):
         if asynchronous:
             return subprocess.Popen(['docker', *args], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         result = docker(*args, timeout=100)
-        self.assertNotIn(self.password, result.stdout + result.stderr, 'Credential leaked')
-        self.assertNotIn(self.admin, result.stdout + result.stderr, 'Admin credential leaked')
+        self.assertTrue(self.password not in result.stdout + result.stderr, 'Credential leaked')
+        self.assertTrue(self.admin not in result.stdout + result.stderr, 'Admin credential leaked')
         return result
 
     def bootstrap(self):
@@ -141,7 +156,7 @@ class EnrollmentTests(unittest.TestCase):
         self.assertEqual(self.sql('SELECT value FROM sentinel', 'alpha').strip(), 'committed')
         self.assertEqual(self.sql('SELECT system_identifier FROM pg_control_system()').strip(), self.system_id)
         logs = docker('logs', self.server)
-        self.assertNotIn(self.password, logs.stdout + logs.stderr, 'Server log leaked credential')
+        self.assertTrue(self.password not in logs.stdout + logs.stderr, 'Server log leaked credential')
 
     def app_query(self, sql, database='alpha'):
         # Copy SQL into mounted config; synthetic credential stays in its projected file.
@@ -456,7 +471,7 @@ class PreparationTests(unittest.TestCase):
             self.prepare()
         self.assertFalse(self.opts.output_dir.exists())
         for data in before.values():
-            self.assertNotIn(plain.encode(), data, 'Published bundle contains plaintext')
+            self.assertTrue(plain.encode() not in data, 'Published bundle contains plaintext')
 
     def test_adopt_uses_supplied_password_and_preserves_unrelated_keys(self):
         # Break caught: canonical credentials or unrelated sealed inputs are replaced.
@@ -557,4 +572,17 @@ class ManifestTests(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    evidence = None
+    if '--evidence' in sys.argv:
+        index = sys.argv.index('--evidence')
+        evidence = Path(sys.argv[index + 1])
+        del sys.argv[index:index + 2]
+    program = unittest.main(exit=False)
+    if evidence is not None:
+        import hashlib
+        data = {'serverImage':SERVER,'clientImage':CLIENT,'testsRun':program.result.testsRun,
+                'successful':program.result.wasSuccessful(),'resourceReceipts':RECEIPTS,
+                'runtimeSha256':{p.name:hashlib.sha256(p.read_bytes()).hexdigest()
+                                 for p in (SOURCE / 'runtime').iterdir() if p.is_file()}}
+        evidence.write_text(json.dumps(data,indent=2) + '\n')
+    sys.exit(not program.result.wasSuccessful())

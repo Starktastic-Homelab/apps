@@ -189,13 +189,16 @@ again immediately afterward: determine and rehearse the final engine first.
 The user requested PostgreSQL deployment/enrollment research before step 3 because
 database, user and password creation are currently manual. The
 [research report](../reports/2026-10-10-postgresql-deployment-enrollment-research.md)
-shortlists CloudNativePG qualification and an enrollment Job on the existing
-server. Do not commit to migrating the current Bitnami workload first: choose the
-deployment before planning the shared-database cutover. CNPG's retained-PVC
-adoption is a source-based candidate requiring disposable full-rebuild proof;
-static storage support alone is insufficient. Credentials must recover consistently
-from durable encrypted declarations. Deployment replacement must preserve existing
-databases and does not authorize a PostgreSQL major upgrade.
+shortlisted CloudNativePG qualification and an enrollment Job on the existing
+server. The [disposable qualification results](../reports/2026-10-10-cnpg-qualification-results.md)
+reject stock CNPG 1.30.1 for the proposed retained-data rebuild design: an
+interrupted orphan-PVC adoption required manual intervention. Full Terraform
+rebuild tests were not completed. Continue with the existing deployment plus an
+idempotent enrollment Job as the next design direction; that Job and the shared
+PostgreSQL CSI cutover remain unimplemented and require their own reviewed plan
+and live approval. Credentials must recover consistently from durable encrypted
+declarations. Any deployment replacement must preserve existing databases and
+does not authorize a PostgreSQL major upgrade.
 
 Treat converter dry-run as potentially mutating. Inspect the exact installed
 Autobrr converter: current develop-branch code can initialize PostgreSQL schema and modify

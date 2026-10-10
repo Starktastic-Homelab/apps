@@ -21,10 +21,17 @@ and [proposed migration workflow](../specs/2026-10-10-live-storage-migrations-de
 are reviewable lab-only declarations; they require accepted existing PGDATA and
 generated lab SealedSecrets before use. Never apply them to a blank image.
 
-Status: the user approved CNPG qualification with the enrollment-Job fallback.
+Initial review status: the user approved CNPG qualification with the enrollment-Job fallback.
 This document defines the new allocation and credential-transfer scope for review;
-no lab has been allocated. Native execution continues in this session after that
-scope is authorized. No production adoption or migration is authorized by the lab.
+no lab had been allocated at that review. The execution outcome is recorded below. No production adoption or migration is authorized by the lab.
+
+## Execution outcome
+
+The approved disposable lab completed initial deployment/enrollment but failed the
+interrupted orphan-PVC adoption gate. The remaining matrix was stopped; cleanup
+was verified. See [results and scope limits](../reports/2026-10-10-cnpg-qualification-results.md).
+The allocation language/checklist below preserves the original reviewed plan;
+unchecked acceptance gates must not be inferred to have passed.
 
 ## Global constraints
 

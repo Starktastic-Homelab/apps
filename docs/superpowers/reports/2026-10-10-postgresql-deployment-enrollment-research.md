@@ -3,7 +3,16 @@
 Date: 2026-10-10. Read-only research and proposed direction; no production changes,
 lab allocation, credential transfers or migration authorization.
 
-## Recommendation
+## Qualification outcome
+
+The approved [disposable qualification](2026-10-10-cnpg-qualification-results.md)
+passed automatic enrollment but failed interrupted orphan-PVC adoption with stock
+CNPG1.30.1. Use the existing PostgreSQL deployment plus an enrollment Job as the
+next implementation direction; production migration remains separately gated.
+The assessment below records the initial shortlist and why this recovery test was
+required, rather than a current CNPG adoption recommendation.
+
+## Initial recommendation
 
 Evaluate CloudNativePG (CNPG) as the leading replacement for the shared PostgreSQL
 deployment, with automatic application enrollment. Keep the existing server plus

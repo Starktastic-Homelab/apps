@@ -1,3 +1,5 @@
+# Qualification failed interrupted adoption with stock CNPG1.30.1.
+# Retained as lab evidence; do not use as a qualified production recovery recipe.
 # LAB ONLY: established data recovery candidate, not first initialization.
 # Restore generated lab SealedSecrets and ready admission policies before Cluster.
 # This namespace-wide Job guard is deliberately limited to a disposable cluster.

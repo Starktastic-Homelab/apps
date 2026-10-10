@@ -1,0 +1,33 @@
+# LAB ONLY: admission fault used in the stock CNPG1.30.1 qualification.
+# Require a Bound, ownerless databases/cnpg-lab-1 with accepted retained PGDATA.
+# Wait for an explicit server-dry-run first-owner PATCH denial before Cluster creation.
+# After Initialized=True and an observed real denial, restart the operator.
+# Remove only this binding and observe recovery without changing status/ownership.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: cnpg-lab-deny-first-pvc-owner
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [UPDATE]
+        resources: [persistentvolumeclaims]
+  matchConditions:
+    - name: exact-lab-pvc
+      expression: request.namespace == 'databases' && object.metadata.name == 'cnpg-lab-1'
+  validations:
+    - expression: >-
+        !has(object.metadata.ownerReferences) || size(object.metadata.ownerReferences) == 0 ||
+        (has(oldObject.metadata.ownerReferences) && size(oldObject.metadata.ownerReferences) > 0)
+      message: "Owned lab fault: deny first PVC ownership assignment"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: cnpg-lab-deny-first-pvc-owner
+spec:
+  policyName: cnpg-lab-deny-first-pvc-owner
+  validationActions: [Deny]

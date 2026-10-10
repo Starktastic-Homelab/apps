@@ -4,15 +4,7 @@
   "capacityAndCollisions": {
     "pve": {
       "candidateVMsAbsent": true,
-      "vmIDs": [
-        100,
-        101,
-        200,
-        201,
-        202,
-        300,
-        900
-      ],
+      "vmIDs": [100, 101, 200, 201, 202, 300, 900],
       "memory": {
         "available": 8291606528,
         "free": 8740323328,
@@ -53,9 +45,7 @@
           "used": 58021904384
         }
       ],
-      "pools": [
-        "k3s-csi"
-      ],
+      "pools": ["k3s-csi"],
       "template": {
         "name": "packer-debian-13.7.0-20260919201032",
         "template": 1,
@@ -70,21 +60,14 @@
       "priorLabFiles": [
         {
           "operation": "csi-integration-20261004",
-          "publicScriptNames": [
-            "install-worker.py"
-          ]
+          "publicScriptNames": ["install-worker.py"]
         },
         {
           "operation": "csi-rebuild-20261004",
-          "publicScriptNames": [
-            "install-worker.py"
-          ]
+          "publicScriptNames": ["install-worker.py"]
         }
       ],
-      "postgresVersion": [
-        "postgres (PostgreSQL) 18.6",
-        "18"
-      ]
+      "postgresVersion": ["postgres (PostgreSQL) 18.6", "18"]
     },
     "nas": {
       "datasets": [

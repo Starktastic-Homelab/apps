@@ -17,7 +17,8 @@ stock Proxmox CSI v0.20.0/chart 0.5.10, ext4, existing maintenance runner.
 ## Global Constraints
 
 - Target capacity 4Gi; handle `homelab//k3s-block/9999/vm-9999-filebrowser.raw`.
-- Main image remains `gtstef/filebrowser:1.5.6-stable@sha256:7c5d7ac8ffda31294d278063cf9d2e04303b39e6dce1f4c691342240ca7703b8`.
+- Preserve current main's image: `gtstef/filebrowser:1.5.8-stable@sha256:68455d4953bad8e984e1bc5d112ed1e9c918a0a04f104c13c9ece50790308894`
+  (updated independently in PR #1316 before protection merged).
 - Keep the existing ConfigMap, Secret reference, OIDC, ingress and NAS mounts.
 - One replica/Recreate in final state, worker placement, indefinite NoExecute holds.
 - Retain/RWOP with bidirectional prebinding; both new objects prune/delete protected.
@@ -61,14 +62,16 @@ protection PR with source-claim annotations and no change to current writers.
 **Interfaces:** Consumes protected source and approved destination identities;
 produces the held application and declared destination, without releasing a writer.
 
-- [ ] Add static 4Gi ext4/cache-none PV and RWOP PVC mirroring Jellyfin's explicit
+- [x] Add static 4Gi ext4/cache-none PV and RWOP PVC mirroring Jellyfin's explicit
   retention, topology, prebinding and Argo protections.
-- [ ] Add one native policy/binding denying Pod use of `filebrowser-data-pvc` in
+- [x] Add one native policy/binding denying Pod use of `filebrowser-data-pvc` in
   namespace `operations`; no exemptions and no effect on unrelated namespaces.
-- [ ] Set `controllers.main.replicas: 0`; retain the old data claim during hold.
-- [ ] Render and verify zero replicas, exact binding/attributes, source protection
+  Protect both policy and binding with Prune=false,Delete=false so stale Git reverts
+  cannot remove the guard.
+- [x] Set `controllers.main.replicas: 0`; retain the old data claim during hold.
+- [x] Render and verify zero replicas, exact binding/attributes, source protection
   and guard scope; validate the policy schema and preserved auth/NFS mounts.
-- [ ] Commit/open as draft. Merge only for a separately approved maintenance window
+- [x] Commit/open as draft. Merge only for a separately approved maintenance window
   after source preflight and with a verified independent-backup/restore capability.
 
 ## Task 3: Draft writer-release PR stacked on maintenance

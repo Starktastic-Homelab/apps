@@ -1,6 +1,14 @@
 # Filebrowser retained CSI migration proposal
 
-Date: 2026-10-07. Status: proposal for review; no live mutation or allocation.
+Date: 2026-10-07. Status: approved design; protection merged, migration unperformed.
+
+Repository refresh on 2026-10-10 verified protection PR #1313 merged at
+`0519644d5e3c572912f4eaa03d5a54637a6e42f4`. PR #1316 independently updated
+Filebrowser to `1.5.8-stable@sha256:68455d4953bad8e984e1bc5d112ed1e9c918a0a04f104c13c9ece50790308894`.
+Both migration drafts preserve that current pin. The October7 observations below
+remain historical; refresh live identities, source state and restore compatibility
+before an operation. Earlier temporary evidence files are no longer available;
+the sanitized checked-in receipt remains historical evidence.
 
 ## Goal and scope
 
@@ -115,7 +123,9 @@ Prepare small reviewed changes using current main, preserving unrelated work:
    policy to Retain and verify the readback. Retain cannot preserve a control-plane
    root disk through VM destruction, so a verified independent backup remains
    essential. Prepare a Git-visible zero-replica maintenance hold and native
-   admission guard denying Pod use of the old claim. Keep it inactive until the
+   admission guard denying Pod use of the old claim. Protect both admission
+   objects against Argo prune/delete so reverting their YAML cannot reopen the
+   source. Keep it inactive until the
    approved window. The cold source reader uses verified VM200 filesystem access;
    no source-mounted application or helper Pod is exempted from the guard.
 2. **Destination declarations.** Put PV/PVC templates in
@@ -211,7 +221,8 @@ assert that the 14 historical restarts are fixed by changing storage.
 
 Before the production target starts writing, a failed migration can return to the
 held original source: terminate/verify target helpers, retain the new image,
-explicitly withdraw the source guard and restore the reviewed source binding and
+explicitly withdraw both protected admission objects under rollback approval
+and restore the reviewed source binding and
 replica count. Do this as a coordinated action; an ordinary Git revert must not
 bypass the guard.
 

@@ -134,7 +134,7 @@ class EnrollmentTests(unittest.TestCase):
         self.run_enrollment()
         self.assertEqual(self.sql("SELECT phase FROM homelab_enrollment.enrollments WHERE id='alpha'").strip(), 'ready')
         self.assertEqual(self.sql("SELECT rolcanlogin FROM pg_roles WHERE rolname='alpha'").strip(), 't')
-        self.sql('CREATE TABLE sentinel(value text); INSERT INTO sentinel VALUES (\'committed\');', 'alpha')
+        self.assertEqual(self.app_query("CREATE TABLE sentinel(value text); INSERT INTO sentinel VALUES ('committed')").returncode, 0)
         before = self.snapshot()
         self.run_enrollment()
         self.assertTrue(before == self.snapshot(), 'Established identity/credential changed')
@@ -339,7 +339,10 @@ class EnrollmentTests(unittest.TestCase):
         docker('kill', self.clients[-1]); self.sql(f'SELECT pg_terminate_backend({pid})'); process.communicate(timeout=10)
         self.sql('ALTER ROLE alpha LOGIN')
         self.run_enrollment(ok=False)
-        self.sql('ALTER ROLE alpha NOLOGIN; DROP ROLE alpha')
+        self.sql('ALTER ROLE alpha NOLOGIN; CREATE DATABASE alpha OWNER postgres')
+        self.run_enrollment(ok=False)
+        self.assertEqual(self.sql("SELECT datdba='postgres'::regrole FROM pg_database WHERE datname='alpha'").strip(), 't')
+        self.sql('DROP DATABASE alpha; DROP ROLE alpha')
         self.run_enrollment(ok=False)
         self.assertEqual(self.sql("SELECT count(*) FROM pg_roles WHERE rolname='alpha'").strip(), '0')
 
@@ -499,6 +502,58 @@ class PreparationTests(unittest.TestCase):
         self.assertEqual(sorted(p.name for p in self.root.iterdir()), ['config.json'])
         for _,_,text in self.calls:
             self.assertNotIn(text, str(raised.exception))
+
+
+class ManifestTests(unittest.TestCase):
+    def test_job_contract_and_inactive_delivery(self):
+        # Break caught: a Job cannot consume projections safely, or bootstrap enters ordinary runtime.
+        import importlib.util
+        import yaml
+        self.assertTrue((SOURCE / 'job.yaml').is_file(), 'Inactive Job source is missing')
+        job = yaml.safe_load((SOURCE / 'job.yaml').read_text())
+        self.assertEqual(job['metadata']['name'], 'postgres-enrollment')
+        self.assertEqual(job['metadata']['namespace'], 'databases')
+        annotations = job['metadata']['annotations']
+        self.assertEqual(annotations['argocd.argoproj.io/hook'], 'Sync')
+        self.assertEqual(annotations['argocd.argoproj.io/sync-wave'], '1')
+        self.assertEqual(set(annotations['argocd.argoproj.io/hook-delete-policy'].split(',')), {'BeforeHookCreation', 'HookSucceeded'})
+        self.assertNotIn('ttlSecondsAfterFinished', job['spec'])
+        self.assertEqual(job['spec']['activeDeadlineSeconds'], 600)
+        self.assertEqual(job['spec']['backoffLimit'], 2)
+        pod = job['spec']['template']['spec']
+        self.assertFalse(pod['automountServiceAccountToken'])
+        self.assertEqual(pod['securityContext']['runAsUser'], 1001)
+        self.assertTrue(pod['securityContext']['runAsNonRoot'])
+        self.assertEqual(pod['securityContext']['seccompProfile']['type'], 'RuntimeDefault')
+        self.assertEqual(len(pod['containers']), 1)
+        container = pod['containers'][0]
+        self.assertEqual(container['image'], CLIENT)
+        self.assertEqual(container['command'], ['/bin/sh', '/scripts/enroll.sh', 'run'])
+        self.assertFalse(container['securityContext']['allowPrivilegeEscalation'])
+        self.assertTrue(container['securityContext']['readOnlyRootFilesystem'])
+        self.assertEqual(container['securityContext']['capabilities']['drop'], ['ALL'])
+        self.assertEqual(container['resources'], {'requests':{'cpu':'100m','memory':'64Mi'}, 'limits':{'cpu':'500m','memory':'128Mi'}})
+        mounts = {v['mountPath']:v for v in container['volumeMounts']}
+        for path in ('/config','/scripts','/credentials/admin','/credentials/apps'):
+            self.assertTrue(mounts[path]['readOnly'])
+        self.assertEqual(set(mounts), {'/config','/scripts','/credentials/admin','/credentials/apps','/tmp'})
+        volumes = {v['name']:v for v in pod['volumes']}
+        self.assertEqual(volumes[mounts['/tmp']['name']]['emptyDir']['medium'], 'Memory')
+        self.assertFalse(any('csi' in v or 'persistentVolumeClaim' in v or 'hostPath' in v for v in volumes.values()))
+        for path in ('/credentials/admin','/credentials/apps'):
+            self.assertEqual(volumes[mounts[path]['name']]['secret']['defaultMode'], 0o440)
+        self.assertEqual(volumes[mounts['/credentials/admin']['name']]['secret']['secretName'], 'postgres-admin-secret')
+        self.assertEqual(volumes[mounts['/credentials/apps']['name']]['secret']['secretName'], 'postgres-enrollment-credentials')
+        spec = importlib.util.spec_from_file_location('prepare', SOURCE / 'prepare.py')
+        module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+        config = json.loads((SOURCE / 'example-config.json').read_text())
+        cm = module.render_configmap(config)
+        self.assertEqual(set(cm['data']), {'config.json','enroll.sh','enroll.sql','schema.sql'})
+        for path in ('/config','/scripts'):
+            projection = volumes[mounts[path]['name']]['configMap']
+            self.assertEqual(projection['name'], cm['metadata']['name'])
+            self.assertTrue({item['key'] for item in projection['items']} <= set(cm['data']))
+        self.assertFalse(list(SOURCE.rglob('app.yaml')), 'Source entered ApplicationSet discovery')
 
 
 if __name__ == '__main__':

@@ -78,6 +78,9 @@ jobs:
       - name: Check PostgreSQL backup failure handling
         run: python3 scripts/test-pg-backup.py
 
+      - name: Check PostgreSQL enrollment lifecycle
+        run: python3 scripts/test-pg-enrollment.py
+
       - name: Check NAS transport failure handling
         run: |
           pip install -r scripts/storage/requirements.txt

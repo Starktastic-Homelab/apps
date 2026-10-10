@@ -27,16 +27,16 @@ case "${1:-}" in
     tab=$(printf '\t')
     psql -XqAt -F "$tab" -v ON_ERROR_STOP=1 -v preflight=true -v rows="$scratch/entries" -f /scripts/enroll.sql > /dev/null 2>&1 || fail
     # Validate ALL credential projections before creating anything.
-    while IFS="$tab" read -r id db role mode key verify; do
+    while IFS="$tab" read -r id db role _mode key verify; do
       password_file "/credentials/apps/$key"
     done < "$scratch/entries"
     # Existing credentials are acceptance checks, never password reset permission.
-    while IFS="$tab" read -r id db role mode key verify; do
+    while IFS="$tab" read -r id db role _mode key verify; do
       if [ "$verify" = t ]; then
         ENROLL_DATABASE=$db ENROLL_ROLE=$role ENROLL_KEY=$key /bin/sh /scripts/enroll.sh verify-login || fail
       fi
     done < "$scratch/entries"
-    while IFS="$tab" read -r id db role mode key verify; do
+    while IFS="$tab" read -r id db role _mode key verify; do
       password=$(cat "/credentials/apps/$key")
       if ! printf '%s\n%s\n' "$password" "$password" |
         psql -XqAt -v ON_ERROR_STOP=1 -v preflight=false -v entry="$id" -f /scripts/enroll.sql > /dev/null 2>&1; then

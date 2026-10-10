@@ -1,0 +1,541 @@
+{
+  "date": "2026-10-10",
+  "decision": "Reject tested stock CNPG1.30.1 retained-metadata recovery candidate; return to existing PostgreSQL plus enrollment Job design",
+  "productionPostgreSQLMigrated": false,
+  "scope": {
+    "dataset": "apps/cnpg-qualification-20261010",
+    "guid": "3032057416834972763",
+    "share_id": 11,
+    "quota_bytes": 8589934592,
+    "encryption_root": "apps",
+    "existing_exports_unchanged": true,
+    "nfs_reload_source_sha256": "aa4ef1d4da05fd9433baa32e1cc3ed2fb2f4e3304ce82ebf374d3eac264109a3"
+  },
+  "nativeClusterCreation": {
+    "native_apply_complete": true,
+    "generations": {
+      "981": {
+        "vmid": 981,
+        "name": "cnpg-lab-master-01",
+        "uuid": "be93b8bb-1524-4798-9b1f-0e12d2a5d478",
+        "root": "vm-pool:vm-981-disk-0,discard=on,iothread=1,replicate=0,size=8G",
+        "net0": "virtio=BC:24:11:AE:75:A2,bridge=vmbr0",
+        "available_after_start": 6723461120
+      },
+      "982": {
+        "vmid": 982,
+        "name": "cnpg-lab-worker-01",
+        "uuid": "0e39a7e1-8d40-42de-b0d5-3d2c3298a2d3",
+        "root": "vm-pool:vm-982-disk-0,discard=on,iothread=1,replicate=0,size=8G",
+        "net0": "virtio=BC:24:11:C9:91:20,bridge=vmbr0",
+        "available_after_start": 6723461120
+      },
+      "983": {
+        "vmid": 983,
+        "name": "cnpg-lab-worker-02",
+        "uuid": "009d29c2-b474-4e51-a7c5-986431a8a1cf",
+        "root": "vm-pool:vm-983-disk-0,discard=on,iothread=1,replicate=0,size=8G",
+        "net0": "virtio=BC:24:11:84:D3:73,bridge=vmbr0",
+        "available_after_start": 6723461120
+      }
+    },
+    "observed_generations": [
+      {
+        "vmid": 981,
+        "name": "cnpg-lab-master-01",
+        "uuid": "d19dfe75-0206-4481-b5b3-9f63ab134b24",
+        "root": "vm-pool:vm-981-disk-0,discard=on,iothread=1,replicate=0,size=8G",
+        "net0": "virtio=BC:24:11:FB:99:F9,bridge=vmbr0",
+        "available_after_start": 6407405568
+      },
+      {
+        "vmid": 981,
+        "name": "cnpg-lab-master-01",
+        "uuid": "be93b8bb-1524-4798-9b1f-0e12d2a5d478",
+        "root": "vm-pool:vm-981-disk-0,discard=on,iothread=1,replicate=0,size=8G",
+        "net0": "virtio=BC:24:11:AE:75:A2,bridge=vmbr0",
+        "available_after_start": 6867984384
+      },
+      {
+        "vmid": 983,
+        "name": "cnpg-lab-worker-02",
+        "uuid": "009d29c2-b474-4e51-a7c5-986431a8a1cf",
+        "root": "vm-pool:vm-983-disk-0,discard=on,iothread=1,replicate=0,size=8G",
+        "net0": "virtio=BC:24:11:84:D3:73,bridge=vmbr0",
+        "available_after_start": 6756225024
+      },
+      {
+        "vmid": 982,
+        "name": "cnpg-lab-worker-01",
+        "uuid": "0e39a7e1-8d40-42de-b0d5-3d2c3298a2d3",
+        "root": "vm-pool:vm-982-disk-0,discard=on,iothread=1,replicate=0,size=8G",
+        "net0": "virtio=BC:24:11:C9:91:20,bridge=vmbr0",
+        "available_after_start": 7330054144
+      }
+    ],
+    "minimum_host_available_bytes": 3876237312,
+    "local_maintenance_released": true,
+    "module_unmodified": true,
+    "retired_uuid": "d19dfe75-0206-4481-b5b3-9f63ab134b24",
+    "adaptation": "Clear lab-only host autostart after sequential native creation; sample every generation and final native state"
+  },
+  "nativeAnsible": {
+    "native_ansible_complete": true,
+    "nodes": [
+      {
+        "name": "cnpg-lab-master-01",
+        "uuid": "be93b8bb-1524-4798-9b1f-0e12d2a5d478",
+        "version": "v1.37.0+k3s1",
+        "ready": true
+      },
+      {
+        "name": "cnpg-lab-worker-01",
+        "uuid": "0e39a7e1-8d40-42de-b0d5-3d2c3298a2d3",
+        "version": "v1.37.0+k3s1",
+        "ready": true
+      },
+      {
+        "name": "cnpg-lab-worker-02",
+        "uuid": "009d29c2-b474-4e51-a7c5-986431a8a1cf",
+        "version": "v1.37.0+k3s1",
+        "ready": true
+      }
+    ],
+    "lab_operation_released": true,
+    "adaptations": [
+      "explicit inventory",
+      "separate configuration without Vault",
+      "single eth0",
+      "skip production Argo/VIP",
+      "public registry credentials empty",
+      "lab API trust/retirement root"
+    ]
+  },
+  "controllers": {
+    "isolated_git": "git://10.9.9.106:19418/lab.git",
+    "foundation_sync": "Synced",
+    "lab_csi_config_recovered": true,
+    "proxmox_tls_verified": true,
+    "protected_node_label_self_assignment_denied": true,
+    "node_generations": {
+      "cnpg-lab-master-01": "be93b8bb-1524-4798-9b1f-0e12d2a5d478",
+      "cnpg-lab-worker-01": "0e39a7e1-8d40-42de-b0d5-3d2c3298a2d3",
+      "cnpg-lab-worker-02": "009d29c2-b474-4e51-a7c5-986431a8a1cf"
+    },
+    "charts": {
+      "argocd": "10.9.2",
+      "sealed-secrets": "2.20.0",
+      "proxmox-csi": "0.5.10"
+    },
+    "cnpg": "1.30.1",
+    "native_manifest_sha256": "37237f145d8138256ea25ae830f87759255665ff08f8d552fdd8224a5ec032fb",
+    "adaptations": [
+      "lab-only native read-only Git daemon contains encrypted/public objects",
+      "reduced Argo lab resources",
+      "upstream CNPG operator image digest pin",
+      "controllers initially installed through native Helm/SSA"
+    ]
+  },
+  "initialPrimary": {
+    "cluster_uid": "2a781f1d-19cc-425b-bd04-372f5fa32d41",
+    "namespace_uid": "7261a58a-265f-46e3-9821-04dc44aba449",
+    "system_identifier": "7695050982632251412",
+    "filesystem": "/dev/sda /var/lib/postgresql/data ext4 rw,relatime 0 0",
+    "pvc_uid": "c3e85b4d-d6d9-4041-93d8-7e685081ed35",
+    "pvc_owner": [
+      {
+        "apiVersion": "postgresql.cnpg.io/v1",
+        "controller": true,
+        "kind": "Cluster",
+        "name": "cnpg-lab",
+        "uid": "2a781f1d-19cc-425b-bd04-372f5fa32d41"
+      }
+    ],
+    "pvc_annotations": {
+      "cnpg.io/nodeSerial": "1",
+      "cnpg.io/operatorVersion": "1.30.1",
+      "cnpg.io/pvcStatus": "ready",
+      "pv.kubernetes.io/bind-completed": "yes"
+    },
+    "enrollment": ["app_alpha", "app_beta"],
+    "canonical_login_pass": true,
+    "cross_database_denied_after_explicit_revoke": true,
+    "synthetic_rows": 1
+  },
+  "imageFilesystem": {
+    "filesystem_uuid": "35d2a43c-6492-4e2e-b9c4-430adc1ba52f",
+    "type": "ext4",
+    "image_inode": 4,
+    "size_bytes": 2147483648
+  },
+  "interruptedAdoption": {
+    "test": "stock CNPG interrupted orphan-PVC adoption",
+    "boundary": {
+      "new_namespace_uid": "77d87da2-35bd-4a28-8de6-e17632da5409",
+      "new_cluster_uid": "1f74b1cf-fc23-4be5-949e-9850211f670b",
+      "initialized": true,
+      "target_primary": "cnpg-lab-1",
+      "pvc_uid": "9a99eb29-997c-423e-9386-7ad3ad121aa2",
+      "pvc_owner_absent": true,
+      "fault_message_observed": true
+    },
+    "automatic_recovery": false,
+    "observation_seconds": 185.2,
+    "observations": [
+      {
+        "elapsed_seconds": 0.2,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 5.5,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 10.9,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 16.1,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 21.3,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 26.5,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 31.9,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 37.1,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 42.3,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 47.8,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 53.0,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 58.5,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 63.7,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 68.9,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 74.1,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 79.6,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 84.8,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 90.0,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 95.5,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 100.7,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 105.9,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 111.3,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 116.5,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 121.7,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 127.0,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 132.5,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 137.6,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 142.8,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 148.3,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 153.5,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 158.7,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 164.1,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 169.3,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 174.5,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 180.0,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      },
+      {
+        "elapsed_seconds": 185.2,
+        "phase": "Cluster is unrecoverable and needs manual intervention",
+        "ready": false,
+        "owned": false,
+        "pods": []
+      }
+    ],
+    "manual_status_or_owner_repair": false,
+    "retain_on_removal_passed": true,
+    "established_bootstrap_guard_denial_verified": true,
+    "observed_claims": ["cnpg-lab-1"],
+    "bootstrap_jobs": [],
+    "old_identity": {
+      "system_identifier": "7695050982632251412",
+      "cluster_uid": "2a781f1d-19cc-425b-bd04-372f5fa32d41",
+      "namespace_uid": "7261a58a-265f-46e3-9821-04dc44aba449"
+    },
+    "qualification_limitation": "Fresh namespace/Cluster/PV/PVC metadata on original lab k3s; not Terraform VM rebuild proof",
+    "operator_errors": []
+  },
+  "cleanup": {
+    "writers": {
+      "operator_stopped": true,
+      "writer_pods_absent": true,
+      "native_volume_attachments_absent": true,
+      "lab_private_copies_deleted": true,
+      "local_operation_idle": true
+    },
+    "proxmox": {
+      "pve_cleanup_complete": true
+    },
+    "nas": {
+      "dataset": "apps/cnpg-qualification-20261010",
+      "guid": "3032057416834972763",
+      "share_id": 11,
+      "dataset_share_removed": true,
+      "native_delete_complete": true,
+      "non_disruptive_export_reload_observed": true,
+      "remaining_share_ids": [1, 2, 5, 10]
+    },
+    "verified": {
+      "lab_vm_ids_absent": true,
+      "lab_roots_cloud_init_absent": true,
+      "original_vm_container_config_hashes_match": true,
+      "original_acl_semantics_match": true,
+      "original_storage_semantics_match_recorded_mid_lab_readback": true,
+      "storage_native_content_order_variants": {
+        "local": [
+          "backup,iso,vztmpl",
+          "backup,vztmpl,iso",
+          "iso,backup,vztmpl",
+          "iso,vztmpl,backup",
+          "vztmpl,backup,iso",
+          "vztmpl,iso,backup"
+        ],
+        "local-zfs": ["images,rootdir", "rootdir,images"],
+        "vm-pool": ["images,rootdir", "rootdir,images"],
+        "k3s-block": ["images"]
+      },
+      "original_storage_preallocation_raw_hash_comparison": "unverified; baseline included global API digest and original raw bytes were not preserved",
+      "pve_private_copies_absent": true,
+      "runner": {
+        "generated_credential_copies_deleted": true,
+        "only_owned_maintenance_record_remains": true,
+        "removed_file_count": 20
+      }
+    },
+    "maintenance": {
+      "operation": "cnpg-qualification-20261010",
+      "maintenance_released": true,
+      "generated_runner_private_copies_absent": true,
+      "public_receipts_preserved": true
+    }
+  },
+  "limits": [
+    "Fresh database namespace/Cluster/PV/PVC and foundation Application metadata on original k3s; no Terraform full cluster destroy/apply completed",
+    "Remaining rebuild/fault/growth/rotation/import/off-NAS-restore matrix stopped after the failed gate",
+    "Original storage baseline included global API digest; raw preallocation bytes were not preserved",
+    "No existing application schema/extension/role compatibility claim",
+    "CNPG1.30 Kubernetes1.37 production compatibility remains unresolved"
+  ],
+  "credentialScope": {
+    "administratorLoginTransferred": false,
+    "temporaryGeneratedTokensOnly": true,
+    "productionWriteDenials": {
+      "csi": {
+        "production_vm_config": 403,
+        "production_storage_allocate": 403
+      },
+      "tf": {
+        "production_vm_config": 403,
+        "production_storage_allocate": 403
+      },
+      "audit": {
+        "production_vm_config": 403,
+        "production_storage_allocate": 403
+      }
+    },
+    "guestAudit": {
+      "role": "CNPGQualificationTF",
+      "added": "VM.GuestAgent.Audit",
+      "guest_scope": [981, 982, 983],
+      "vm980_excluded": true,
+      "guest_execution_file_read_freeze_privileges_absent": true
+    },
+    "discovery": {
+      "group": "cnpg-qualification-20261010",
+      "members": ["cnpg-qualification-tf@pve"]
+    }
+  }
+}

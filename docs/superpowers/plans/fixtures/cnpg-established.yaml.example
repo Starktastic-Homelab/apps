@@ -1,0 +1,204 @@
+# Qualification failed interrupted adoption with stock CNPG1.30.1.
+# Retained as lab evidence; do not use as a qualified production recovery recipe.
+# LAB ONLY: established data recovery candidate, not first initialization.
+# Restore generated lab SealedSecrets and ready admission policies before Cluster.
+# This namespace-wide Job guard is deliberately limited to a disposable cluster.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: databases
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cnpg-lab-clients
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cnpg-lab-data
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  capacity:
+    storage: 2Gi
+  accessModes: [ReadWriteOncePod]
+  volumeMode: Filesystem
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: proxmox-retained
+  claimRef:
+    namespace: databases
+    name: cnpg-lab-1
+  csi:
+    driver: csi.proxmox.sinextra.dev
+    fsType: ext4
+    volumeHandle: cnpg-lab//cnpg-qualification-20261010/9980/vm-9980-cnpg-primary.raw
+    volumeAttributes:
+      storage: cnpg-qualification-20261010
+      cache: none
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: topology.kubernetes.io/region
+              operator: In
+              values: [cnpg-lab]
+            - key: topology.kubernetes.io/zone
+              operator: In
+              values: [pve]
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cnpg-lab-1
+  namespace: databases
+  labels:
+    cnpg.io/cluster: cnpg-lab
+    cnpg.io/instanceName: cnpg-lab-1
+    cnpg.io/instanceRole: primary
+    cnpg.io/pvcRole: PG_DATA
+  annotations:
+    cnpg.io/nodeSerial: "1"
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  accessModes: [ReadWriteOncePod]
+  volumeMode: Filesystem
+  storageClassName: proxmox-retained
+  volumeName: cnpg-lab-data
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: cnpg-lab-established-no-bootstrap
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [batch]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [jobs]
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [pods]
+  matchConditions:
+    - name: lab-primary-namespace
+      expression: request.namespace == 'databases'
+  validations:
+    - expression: >-
+        request.resource.resource != 'jobs' &&
+        !(has(object.metadata.labels) && 'cnpg.io/jobRole' in object.metadata.labels) &&
+        !(has(object.metadata.ownerReferences) &&
+          object.metadata.ownerReferences.exists(o, o.kind == 'Job'))
+      message: Established lab PostgreSQL permits existing-data instance Pods, not bootstrap Jobs or Job Pods.
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: cnpg-lab-established-no-bootstrap
+spec:
+  policyName: cnpg-lab-established-no-bootstrap
+  validationActions: [Deny]
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: cnpg-lab-exact-claim
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [persistentvolumeclaims]
+  matchConditions:
+    - name: lab-primary-namespace
+      expression: request.namespace == 'databases'
+  validations:
+    - expression: >-
+        object.metadata.name == 'cnpg-lab-1' &&
+        has(object.spec.volumeName) && object.spec.volumeName == 'cnpg-lab-data' &&
+        has(object.spec.storageClassName) && object.spec.storageClassName == 'proxmox-retained' &&
+        size(object.spec.accessModes) == 1 && object.spec.accessModes[0] == 'ReadWriteOncePod'
+      message: Lab primary claims must explicitly bind the one retained RWOP image; replacement claims are forbidden.
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: cnpg-lab-exact-claim
+spec:
+  policyName: cnpg-lab-exact-claim
+  validationActions: [Deny]
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cnpg-lab
+  namespace: databases
+spec:
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.6-system-trixie@sha256:3e89ea90485ffda67094fd6950d9d61dec9ec314aabc8d63c048c67759918621
+  enableSuperuserAccess: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+  affinity:
+    nodeSelector:
+      node-role.kubernetes.io/worker: "true"
+      topology.kubernetes.io/region: cnpg-lab
+      node-restriction.kubernetes.io/cnpg-lab-approved: "true"
+    tolerations:
+      - key: node.kubernetes.io/not-ready
+        operator: Exists
+        effect: NoExecute
+      - key: node.kubernetes.io/unreachable
+        operator: Exists
+        effect: NoExecute
+  storage:
+    size: 2Gi
+    storageClass: proxmox-retained
+    pvcTemplate:
+      volumeName: cnpg-lab-data
+      storageClassName: proxmox-retained
+      accessModes: [ReadWriteOncePod]
+      resources:
+        requests:
+          storage: 2Gi
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: app-alpha
+  namespace: databases
+spec:
+  cluster:
+    name: cnpg-lab
+  name: app_alpha
+  login: true
+  superuser: false
+  createdb: false
+  createrole: false
+  databaseRoleReclaimPolicy: retain
+  passwordSecret:
+    name: app-alpha-credentials
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: app-alpha
+  namespace: databases
+spec:
+  cluster:
+    name: cnpg-lab
+  name: app_alpha
+  owner: app_alpha
+  databaseReclaimPolicy: retain

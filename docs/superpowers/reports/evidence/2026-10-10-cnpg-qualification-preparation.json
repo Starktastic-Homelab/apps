@@ -1,0 +1,158 @@
+{
+  "date": "2026-10-10",
+  "mode": "read-only; no lab allocated",
+  "capacityAndCollisions": {
+    "pve": {
+      "candidateVMsAbsent": true,
+      "vmIDs": [100, 101, 200, 201, 202, 300, 900],
+      "memory": {
+        "available": 8291606528,
+        "free": 8740323328,
+        "total": 134812368896,
+        "used": 126520762368
+      },
+      "storage": [
+        {
+          "storage": "local",
+          "type": "dir",
+          "active": 1,
+          "avail": 24442961920,
+          "total": 203829280768,
+          "used": 179386318848
+        },
+        {
+          "storage": "vm-pool",
+          "type": "zfspool",
+          "active": 1,
+          "avail": 146188533760,
+          "total": 495263416320,
+          "used": 349074882560
+        },
+        {
+          "storage": "local-zfs",
+          "type": "zfspool",
+          "active": 1,
+          "avail": 24442961920,
+          "total": 51915018240,
+          "used": 27472056320
+        },
+        {
+          "storage": "k3s-block",
+          "type": "nfs",
+          "active": 1,
+          "avail": 76759957504,
+          "total": 134781861888,
+          "used": 58021904384
+        }
+      ],
+      "pools": ["k3s-csi"],
+      "template": {
+        "name": "packer-debian-13.7.0-20260919201032",
+        "template": 1,
+        "scsi0": null,
+        "ide2": null,
+        "memory": "1024",
+        "smbios1": "uuid=b4d35e14-1a1e-4c8e-b93d-5810ff8d8fc8"
+      }
+    },
+    "runner": {
+      "owners": [],
+      "priorLabFiles": [
+        {
+          "operation": "csi-integration-20261004",
+          "publicScriptNames": ["install-worker.py"]
+        },
+        {
+          "operation": "csi-rebuild-20261004",
+          "publicScriptNames": ["install-worker.py"]
+        }
+      ],
+      "postgresVersion": ["postgres (PostgreSQL) 18.6", "18"]
+    },
+    "nas": {
+      "datasets": [
+        {
+          "name": "apps",
+          "guid": "17665739518018686955",
+          "used": 296337358848,
+          "available": 218066620416,
+          "quota": 0
+        },
+        {
+          "name": "apps/k3s-block",
+          "guid": "13918781591004512447",
+          "used": 60679716864,
+          "available": 76759236608,
+          "quota": 137438953472
+        }
+      ],
+      "shares": [
+        {
+          "id": 1,
+          "path": "/mnt/main/media",
+          "enabled": true
+        },
+        {
+          "id": 2,
+          "path": "/mnt/apps/pv",
+          "enabled": true
+        },
+        {
+          "id": 5,
+          "path": "/mnt/nvme-cache/incomplete",
+          "enabled": true
+        },
+        {
+          "id": 10,
+          "path": "/mnt/apps/k3s-block",
+          "enabled": true
+        }
+      ],
+      "poolHealth": "apps\tONLINE"
+    }
+  },
+  "identityAndOwnership": {
+    "candidateUsersAbsent": true,
+    "candidateRolesAbsent": true,
+    "runner": {
+      "maintenanceHeld": false,
+      "operation": null,
+      "stage": null
+    },
+    "template": {
+      "name": "packer-debian-13.7.0-20260919201032",
+      "template": 1,
+      "virtio0": "local-zfs:base-900-disk-0,cache=none,discard=on,replicate=0,size=4G",
+      "ide2": null,
+      "memory": "1024",
+      "smbios1": "uuid=b4d35e14-1a1e-4c8e-b93d-5810ff8d8fc8"
+    },
+    "nas": {
+      "poolGUID": "9917900421692286909"
+    }
+  },
+  "artifacts": {
+    "cloudnative-pg/cloudnative-pg": {
+      "tag": "1.30.1",
+      "indexDigest": "sha256:923c267ec29636db3bee20f993d0ec4973fa22998e1adad37da79e4d32b5bc07",
+      "amd64Digest": "sha256:b0f9805bd5f98592e7320b5ea624dd10a7a6ef8e477df5650655c94f0b242497",
+      "image": "ghcr.io/cloudnative-pg/cloudnative-pg:1.30.1@sha256:923c267ec29636db3bee20f993d0ec4973fa22998e1adad37da79e4d32b5bc07"
+    },
+    "cloudnative-pg/postgresql": {
+      "tag": "18.6-system-trixie",
+      "indexDigest": "sha256:3e89ea90485ffda67094fd6950d9d61dec9ec314aabc8d63c048c67759918621",
+      "amd64Digest": "sha256:e689407a7a51bdf26ff3166d6ebbe134bdeff00ac10f36edc9fc49d49a8ee3f5",
+      "image": "ghcr.io/cloudnative-pg/postgresql:18.6-system-trixie@sha256:3e89ea90485ffda67094fd6950d9d61dec9ec314aabc8d63c048c67759918621"
+    },
+    "upstreamManifest": {
+      "url": "https://github.com/cloudnative-pg/cloudnative-pg/releases/download/v1.30.1/cnpg-1.30.1.yaml",
+      "sha256": "37237f145d8138256ea25ae830f87759255665ff08f8d552fdd8224a5ec032fb"
+    }
+  },
+  "sources": {
+    "apps": "6db9609a96c7c60030f64e5172333ef64fa46cd1",
+    "ansible": "6d520867695f8d9b3071dec2ef53938abf808e04",
+    "terraform": "3331a4f058ae7ae7a4e8f70a060d60f9ecf39a4b",
+    "cnpg": "2a35abb4628f209d149825ef3c38011e0701ff2f"
+  }
+}

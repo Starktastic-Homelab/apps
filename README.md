@@ -286,6 +286,7 @@ Each ArgoCD Application pulls from up to 4 sources: the Helm chart repo, the Git
 | `scripts/seal.sh` | Encrypts secrets into SealedSecret YAML using the cluster's pre-seeded certificate |
 | `scripts/ntfy-manager.sh` | CLI wrapper for managing ntfy users and access rules inside the running pod |
 | [Retained PostgreSQL startup guard](scripts/postgres-retained-startup/README.md) | Inactive read-only data identity check for retained PG18 recovery |
+| [PostgreSQL qualification](docs/operations/postgresql-enrollment-qualification.md) | Disposable enrollment, startup and full cluster rebuild results; production remains inactive |
 | `scripts/check-alert-policy.py` | Checks rendered alert behavior, bounded Job retention, and the scoped Falco exception |
 
 ---

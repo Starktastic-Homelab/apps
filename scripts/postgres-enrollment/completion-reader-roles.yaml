@@ -1,0 +1,26 @@
+# Inactive shared Roles: integrate once with the PostgreSQL Application after qualification.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: postgres-enrollment-completion-reader
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+rules:
+  - apiGroups: [argoproj.io]
+    resources: [applications]
+    resourceNames: [postgres]
+    verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: postgres-enrollment-completion-reader
+  namespace: databases
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+rules:
+  - apiGroups: [""]
+    resources: [configmaps]
+    resourceNames: [postgres-enrollment-config]
+    verbs: [get]

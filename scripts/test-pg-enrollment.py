@@ -12,6 +12,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / 'scripts/postgres-enrollment'
+sys.path.insert(0, str(SOURCE))
 CLIENT = 'postgres:18.6-alpine@sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd'
 RECEIPTS = []
 
@@ -424,6 +425,128 @@ class EnrollmentTests(unittest.TestCase):
         self.assertEqual(self.sql('SELECT value FROM sentinel', 'alpha').strip(), 'completed')
 
 
+class CompletionGateTests(unittest.TestCase):
+    def setUp(self):
+        import completion_gate
+        self.gate = completion_gate
+        self.identity = {'id':'alpha', 'database':'alpha', 'role':'alpha'}
+        config = {'version':1, 'expectedSystemIdentifier':'12345', 'entries':[
+            {**self.identity, 'mode':'new', 'passwordKey':'alpha-password'}]}
+        data = {'config.json':json.dumps(config), 'enroll.sh':'runtime', 'enroll.sql':'sql',
+                'schema.sql':'schema', 'completion_gate.py':'gate', 'completion-protocol-version':'1',
+                'encrypted-inputs-sha256':'a' * 64, 'job-template.json':'{"kind":"Job"}'}
+        data['acceptance-generation'] = self.gate.generation(data)
+        self.cm = {'metadata':{'name':'postgres-enrollment-config','namespace':'databases',
+                               'uid':'config-uid','resourceVersion':'1'}, 'data':data}
+        self.app = {'metadata':{'name':'postgres','namespace':'argocd'}, 'status':{
+            'sync':{'status':'Synced','revisions':['chart-rev','git-rev']},
+            'health':{'status':'Healthy'}, 'operationState':{'phase':'Succeeded',
+                'operation':{'sync':{'syncStrategy':{'hook':{}}}}, 'syncResult':{
+                    'revisions':['chart-rev','git-rev'], 'resources':[
+                        {'group':'batch','kind':'Job','namespace':'databases',
+                         'name':self.gate.hook_name(data['acceptance-generation']),
+                         'hookType':'Sync','hookPhase':'Succeeded'}]}}}}
+
+    def test_current_full_hook_is_accepted(self):
+        self.assertTrue(self.gate.accepted(self.cm, self.app, self.identity))
+        self.assertEqual(self.gate.hook_name(self.cm['data']['acceptance-generation']),
+                         'postgres-enrollment-' + self.cm['data']['acceptance-generation'][:32])
+
+    def test_failed_running_selective_apply_and_stale_are_rejected(self):
+        import copy
+        cases = []
+        for phase in ('Running','Failed','Error','Terminating'):
+            app = copy.deepcopy(self.app); app['status']['operationState']['phase'] = phase; cases.append(app)
+        for sync in ({'resources':[{'kind':'ConfigMap'}]}, {'resources':[]}, {'dryRun':True}, {'syncStrategy':{'apply':{}}}):
+            app = copy.deepcopy(self.app); app['status']['operationState']['operation']['sync'] = sync; cases.append(app)
+        app = copy.deepcopy(self.app); app['operation'] = {'sync':{}}; cases.append(app)
+        app = copy.deepcopy(self.app); app['status']['health']['status'] = 'Progressing'; cases.append(app)
+        app = copy.deepcopy(self.app); app['status']['sync']['status'] = 'OutOfSync'; cases.append(app)
+        for field,value in [('name','old-hook'),('hookPhase','Failed'),('hookType','PostSync'),('namespace','other')]:
+            app = copy.deepcopy(self.app); app['status']['operationState']['syncResult']['resources'][0][field] = value; cases.append(app)
+        app = copy.deepcopy(self.app); app['status']['operationState']['syncResult']['resources'] = []; cases.append(app)
+        for app in cases:
+            with self.subTest(app=app):
+                self.assertFalse(self.gate.accepted(self.cm, app, self.identity))
+
+    def test_unrelated_git_revision_does_not_invalidate_current_inputs(self):
+        self.app['status']['sync']['revisions'] = ['chart-rev','unrelated-git-commit']
+        self.assertTrue(self.gate.accepted(self.cm,self.app,self.identity))
+
+    def test_input_changes_and_identity_rebinding_require_new_hook(self):
+        import copy
+        for key in set(self.cm['data']) - {'acceptance-generation'}:
+            cm = copy.deepcopy(self.cm); cm['data'][key] += 'changed'
+            self.assertFalse(self.gate.accepted(cm, self.app, self.identity), key)
+            cm['data']['acceptance-generation'] = self.gate.generation(cm['data'])
+            self.assertFalse(self.gate.accepted(cm, self.app, self.identity), key)
+        for identity in ({**self.identity,'id':'removed'}, {**self.identity,'role':'rebound'}, {**self.identity,'database':'rebound'}):
+            self.assertFalse(self.gate.accepted(self.cm, self.app, identity))
+
+    def test_malformed_objects_fail_closed(self):
+        import copy
+        for value in (None, [], {}, {'data':{}}, {'metadata':[]}, {'status':None}):
+            self.assertFalse(self.gate.accepted(value, self.app, self.identity))
+            self.assertFalse(self.gate.accepted(self.cm, value, self.identity))
+        cm = copy.deepcopy(self.cm); del cm['data']['job-template.json']
+        self.assertFalse(self.gate.accepted(cm, self.app, self.identity))
+        app = copy.deepcopy(self.app); del app['status']['sync']['revisions']
+        self.assertFalse(self.gate.accepted(self.cm, app, self.identity))
+
+    def test_reads_bracket_application_and_reject_config_updates(self):
+        import copy
+        calls = []
+        def get(path):
+            calls.append(path)
+            return copy.deepcopy(self.app if 'applications/' in path else self.cm)
+        self.assertTrue(self.gate.check_once(get, self.identity))
+        self.assertEqual(calls, [self.gate.CONFIG_PATH,self.gate.APPLICATION_PATH,self.gate.CONFIG_PATH])
+        updated = copy.deepcopy(self.cm); updated['metadata']['resourceVersion'] = '2'
+        from unittest.mock import Mock
+        self.assertFalse(self.gate.check_once(Mock(side_effect=[self.cm,self.app,updated]), self.identity))
+        self.assertFalse(self.gate.check_once(Mock(side_effect=OSError('private transport error')), self.identity))
+
+    def test_incomplete_and_malformed_http_responses_remain_pending(self):
+        from http.client import BadStatusLine, IncompleteRead
+        from unittest.mock import Mock
+        for error in (IncompleteRead(b'private-server-fragment'), BadStatusLine('private-server-line')):
+            self.assertFalse(self.gate.check_once(Mock(side_effect=error), self.identity))
+
+    def test_api_reader_rejects_redirects_large_invalid_and_non_object_responses(self):
+        import io
+        from unittest.mock import MagicMock
+        reader = self.gate.APIReader.__new__(self.gate.APIReader)
+        reader.token = lambda:'synthetic-private-token'
+        for payload in (b'[]', b'not-json', b'x' * (self.gate.MAX_RESPONSE + 1)):
+            reader.opener = MagicMock(); reader.opener.open.return_value.__enter__.return_value = io.BytesIO(payload)
+            with self.assertRaises((ValueError, json.JSONDecodeError)):
+                reader.get(self.gate.CONFIG_PATH)
+        with self.assertRaises(ValueError):
+            reader.get('https://untrusted.invalid/')
+        from urllib.request import Request
+        with self.assertRaises(OSError):
+            self.gate.NoRedirect().redirect_request(Request('https://kubernetes.default.svc/'), None, 302,
+                                                   'redirect', {}, 'https://untrusted.invalid/')
+
+    def test_api_uses_only_named_paths_and_rereads_projected_token(self):
+        import io
+        from unittest.mock import MagicMock
+        reader = self.gate.APIReader.__new__(self.gate.APIReader)
+        tokens = iter(['private-token-one', 'private-token-two'])
+        reader.token = lambda:next(tokens)
+        reader.opener = MagicMock()
+        reader.opener.open.return_value.__enter__.side_effect = [io.BytesIO(b'{"ok":true}'), io.BytesIO(b'{"ok":true}')]
+        for path in (self.gate.CONFIG_PATH,self.gate.APPLICATION_PATH):
+            self.assertEqual(reader.get(path), {'ok':True})
+        calls = reader.opener.open.call_args_list
+        self.assertEqual([call.args[0].full_url for call in calls],
+                         ['https://kubernetes.default.svc' + path for path in (self.gate.CONFIG_PATH,self.gate.APPLICATION_PATH)])
+        self.assertEqual([call.args[0].get_header('Authorization') for call in calls],
+                         ['Bearer private-token-one','Bearer private-token-two'])
+        self.assertTrue(all(call.kwargs['timeout']==10 for call in calls))
+
+
+
 class PreparationTests(unittest.TestCase):
     def setUp(self):
         import importlib.util
@@ -465,6 +588,76 @@ class PreparationTests(unittest.TestCase):
         with patch.object(self.module.subprocess, 'run', side_effect=self.fake_seal), patch.object(self.module.sys,'stdin',io.StringIO(password or '')):
             return self.module.prepare_bundle(self.opts)
 
+    def test_prepared_hook_generation_and_consumer_least_privilege(self):
+        import completion_gate
+        import yaml
+        path = self.prepare()
+        cm = yaml.safe_load((path / 'enrollment-configmap.yaml').read_text())
+        job = yaml.safe_load((path / 'enrollment-job.yaml').read_text())
+        value = completion_gate.generation(cm['data'])
+        self.assertEqual(cm['data']['acceptance-generation'], value)
+        self.assertEqual(job['metadata']['name'], completion_gate.hook_name(value))
+        template = json.loads(cm['data']['job-template.json'])
+        template['metadata']['name'] = job['metadata']['name']
+        self.assertEqual(template, job)
+        inputs = [*yaml.safe_load_all((path / 'consumer-gate.yaml').read_text())]
+        service = next(obj for obj in inputs if obj['kind'] == 'ServiceAccount')
+        self.assertFalse(service['automountServiceAccountToken'])
+        bindings = [obj for obj in inputs if obj['kind'] == 'RoleBinding']
+        self.assertEqual({obj['metadata']['namespace'] for obj in bindings}, {'databases','argocd'})
+        for obj in bindings:
+            self.assertEqual(obj['subjects'], [{'kind':'ServiceAccount','name':service['metadata']['name'],'namespace':'media'}])
+            self.assertEqual(obj['roleRef']['kind'], 'Role')
+        roles = list(yaml.safe_load_all((SOURCE / 'completion-reader-roles.yaml').read_text()))
+        self.assertEqual(len(roles), 2)
+        for obj in roles:
+            self.assertEqual(obj['kind'],'Role')
+            self.assertEqual(obj['rules'][0]['verbs'], ['get'])
+            self.assertEqual(len(obj['rules']), 1)
+            expected = ('applications','postgres','argoproj.io') if obj['metadata']['namespace']=='argocd' else ('configmaps','postgres-enrollment-config','')
+            self.assertEqual(obj['rules'][0]['resources'], [expected[0]])
+            self.assertEqual(obj['rules'][0]['resourceNames'], [expected[1]])
+            self.assertEqual(obj['rules'][0]['apiGroups'], [expected[2]])
+        pod = yaml.safe_load((path / 'consumer-init.yaml').read_text())
+        self.assertFalse(pod['automountServiceAccountToken'])
+        self.assertEqual(pod['serviceAccountName'], service['metadata']['name'])
+        gate, login = pod['initContainers']
+        self.assertEqual(gate['args'], ['--id','alpha','--database','alpha','--role','alpha'])
+        self.assertTrue(gate['image'].startswith('python@sha256:'))
+        self.assertEqual(login['image'], CLIENT)
+        self.assertIn('SELECT 1', login['command'][-1])
+        for init in (gate,login):
+            self.assertFalse(init['securityContext']['allowPrivilegeEscalation'])
+            self.assertTrue(init['securityContext']['readOnlyRootFilesystem'])
+            self.assertEqual(init['securityContext']['capabilities']['drop'], ['ALL'])
+            self.assertEqual(init['securityContext']['runAsUser'],1001)
+        self.assertEqual({v['name'] for v in gate['volumeMounts']}, {'pg-completion-script','pg-completion-api'})
+        self.assertEqual({v['name'] for v in login['volumeMounts']}, {'pg-completion-password'})
+        volumes = {v['name']:v for v in pod['volumes']}
+        secret = volumes['pg-completion-password']['secret']
+        self.assertEqual(secret['secretName'],'alpha-secret')
+        self.assertEqual(secret['items'], [{'key':'password','path':'password'}])
+        self.assertEqual([e for e in login['env'] if e['name']=='PGUSER'], [{'name':'PGUSER','value':'alpha'}])
+        self.assertEqual([e for e in login['env'] if e['name']=='PGDATABASE'], [{'name':'PGDATABASE','value':'alpha'}])
+        self.assertNotIn('containers',pod, 'Prepared fragment must not activate an application')
+        for artifact in path.iterdir():
+            self.assertEqual(artifact.stat().st_mode & 0o777, 0o600)
+
+    def test_ciphertext_and_job_semantics_change_generation_without_password_hashes(self):
+        import completion_gate
+        config = {'version':1,'expectedSystemIdentifier':'12345','entries':[EnrollmentTests.entry('alpha')]}
+        first = self.module.render_configmap(config, {'alpha-password':'cipher-one'})
+        repeat = self.module.render_configmap(config, {'alpha-password':'cipher-one'})
+        second = self.module.render_configmap(config, {'alpha-password':'cipher-two'})
+        self.assertEqual(first,repeat)
+        self.assertNotEqual(first['data']['acceptance-generation'],second['data']['acceptance-generation'])
+        import hashlib
+        self.assertEqual(first['data']['encrypted-inputs-sha256'], hashlib.sha256(
+            json.dumps({'alpha-password':'cipher-one'},sort_keys=True,separators=(',',':')).encode()).hexdigest())
+        template = json.loads(first['data']['job-template.json']); template['spec']['activeDeadlineSeconds'] = 601
+        changed = dict(first['data']); changed['job-template.json'] = json.dumps(template)
+        self.assertNotEqual(first['data']['acceptance-generation'],completion_gate.generation(changed))
+
     def test_native_sealed_secret_type_default(self):
         # Native kubeseal omits Opaque; explicit incompatible types still fail.
         import copy
@@ -486,7 +679,6 @@ class PreparationTests(unittest.TestCase):
 
     def test_pair_generation_and_retry_preserve_ciphertext(self):
         # Break caught: independently generated passwords or overwriting a prepared bundle.
-        import yaml
         import yaml
         original = {'apiVersion':'bitnami.com/v1alpha1','kind':'SealedSecret',
                     'metadata':{'name':'postgres-enrollment-credentials','namespace':'databases','labels':{'keep':'yes'}},

@@ -1,0 +1,4 @@
+name: postgres-enrollment-pilot
+namespace: operations
+deployPhase: services
+manifests: true

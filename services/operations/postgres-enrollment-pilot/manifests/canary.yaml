@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-enrollment-pilot-canary
+  namespace: operations
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+data:
+  canary.sql: |
+    \set ON_ERROR_STOP on
+    SET statement_timeout = '30s';
+    SET lock_timeout = '10s';
+    BEGIN;
+    CREATE TABLE IF NOT EXISTS public.enrollment_canary (
+      id integer PRIMARY KEY CHECK (id = 1),
+      payload text NOT NULL
+    );
+    INSERT INTO public.enrollment_canary VALUES (1, 'pg-enrollment-pilot-v1')
+      ON CONFLICT (id) DO NOTHING;
+    DO $$
+    BEGIN
+      IF (SELECT count(*) FROM public.enrollment_canary) <> 1 OR
+         (SELECT payload FROM public.enrollment_canary WHERE id = 1)
+           IS DISTINCT FROM 'pg-enrollment-pilot-v1' THEN
+        RAISE EXCEPTION 'Enrollment canary sentinel mismatch';
+      END IF;
+    END $$;
+    COMMIT;

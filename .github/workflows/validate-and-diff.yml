@@ -81,6 +81,9 @@ jobs:
       - name: Check PostgreSQL enrollment lifecycle
         run: python3 scripts/test-pg-enrollment.py
 
+      - name: Check PostgreSQL enrollment canary
+        run: python3 scripts/test-pg-enrollment-pilot.py
+
       - name: Check retained PostgreSQL startup guard
         run: |
           helm template postgres oci://registry-1.docker.io/bitnamicharts/postgresql \

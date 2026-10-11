@@ -33,7 +33,9 @@ def main():
              '-e', 'POSTGRES_PASSWORD=synthetic-local-only', image])
         created = True
         for _ in range(60):
-            if run(['docker', 'exec', name, 'pg_isready', '-U', 'postgres'], check=False).returncode == 0:
+            # The entrypoint's temporary initialization server listens only on
+            # the Unix socket. Wait for the final TCP server before SQL.
+            if run(['docker', 'exec', name, 'pg_isready', '-h', '127.0.0.1', '-U', 'postgres'], check=False).returncode == 0:
                 break
             time.sleep(1)
         else:

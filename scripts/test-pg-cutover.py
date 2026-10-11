@@ -50,6 +50,7 @@ class CutoverTests(unittest.TestCase):
         index_path = BUNDLE / 'patches/index.yaml'
         self.assertTrue(index_path.exists(), 'Concrete staged Git patches are missing')
         index = yaml.safe_load(index_path.read_text())
+        self.assertTrue('bootstrap/appsets/config-apps.yaml' in index['baseline'], 'Config ApplicationSet discovery must be frozen')
         self.assertEqual([s['name'] for s in index['stages']], [
             'clients-held', 'nfs-held', 'target-held', 'server-only',
             'hook-only', 'hook-pilot', 'authentik-only', 'consumers-only', 'released'])

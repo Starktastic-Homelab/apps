@@ -1,6 +1,7 @@
 # Inactive, sequential Git changes; merging this index starts no operation.
 baseline:
   bootstrap/appsets/cluster-apps.yaml: 8516b30b799495b2d105e6c05e9bdb75b85c865616fa475a6d29a5d96d5b2b95
+  bootstrap/appsets/config-apps.yaml: ead8bea5ac0b68be9505a662bf3beb083d0fbd870c384f03cc902cbf12de467f
   infrastructure/base-configs/Chart.yaml: a30701cf9c57aed348dac44a2748bdd8baa52e3a87015a71b390482e19c3bee4
   infrastructure/base-configs/app.yaml: null
   infrastructure/base-configs/templates/pg-backup/cronjob.yaml: 7b9e9ca40ffc7ae72754c78e1af5a727fc4c540265b1d77e074b697819463ad0

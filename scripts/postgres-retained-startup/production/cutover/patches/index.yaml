@@ -1,0 +1,100 @@
+# Inactive, sequential Git changes; merging this index starts no operation.
+baseline:
+  bootstrap/appsets/cluster-apps.yaml: 8516b30b799495b2d105e6c05e9bdb75b85c865616fa475a6d29a5d96d5b2b95
+  infrastructure/base-configs/Chart.yaml: a30701cf9c57aed348dac44a2748bdd8baa52e3a87015a71b390482e19c3bee4
+  infrastructure/base-configs/app.yaml: null
+  infrastructure/base-configs/templates/pg-backup/cronjob.yaml: 7b9e9ca40ffc7ae72754c78e1af5a727fc4c540265b1d77e074b697819463ad0
+  infrastructure/base-configs/templates/postgres-block-storage/pv.yaml: null
+  infrastructure/base-configs/templates/postgres-block-storage/pvc.yaml: null
+  infrastructure/base-configs/values.yaml: null
+  infrastructure/controllers/authentik/app.yaml: 0ed09d40afa8f1bb9ec8404b139c57ee1ebe46e651b363a8b2241de537d0ae99
+  infrastructure/controllers/authentik/values.yaml: 78a67c9e712e74597d35fe8c5b4ab1bdacf487fa13a2bad77abfe7e38fc8292f
+  infrastructure/controllers/databases/postgres/app.yaml: 8db8c5d4585385da2b613eb618ccc457add5afff5498d98f0418308aec5aca2b
+  infrastructure/controllers/databases/postgres/manifests/enrollment-job.yaml: f5f77a6db567865de6c91c9ad9bc4c518b2fc0aeec20166c17a2933253296265
+  infrastructure/controllers/databases/postgres/manifests/retained-startup-guard.yaml: null
+  infrastructure/controllers/databases/postgres/manifests/source-hold.yaml: null
+  infrastructure/controllers/databases/postgres/values.yaml: 578cdb8788b2574ba6f278d5788089b0e0a2cb5ccff45aad83e305871b1f0144
+  services/media/dispatcharr/app.yaml: 6da2a32dbdf44bf191dc652e97654df03fd37a5cf2703a1a79bb369d52f491ef
+  services/media/dispatcharr/values.yaml: 604a9d9f0c9585a948f65403e116e382e3f63ba4b550ba6969c52a9ab197c3a3
+  services/media/lingarr/app.yaml: 86f18e116b641b58eba9d8764b4b40d5e93774ca10a8697263703b25d1df9709
+  services/media/lingarr/values.yaml: c9090b0c24d6678eaf2fc9a3c125f0a4cc5dd18a0a5c5ebb9021db952905885a
+  services/operations/listmonk/app.yaml: 8f7aac0dbe453346388062f5127745c792e17a54e5927cb6e2ddb46228ef5e05
+  services/operations/listmonk/values.yaml: 5ec8d0412df6438d51f0f2370c576e2028ec00e60fbf727259a414f306e0f2b3
+  services/operations/mealie/app.yaml: c6b2d1392048fc04442e8c7d471957dc98cd28b741940edfc5e4c52dcae54dbb
+  services/operations/mealie/values.yaml: 829256f373e6bc64d0e51a04cba6a06fdcf2681fb92d9dc23e58e32a54bf9921
+  services/operations/paperless-ngx/app.yaml: 279e3fe6d96b72d962ba5710334ca365254a21e2c4e403d82cf3adb0bf0cdaab
+  services/operations/paperless-ngx/values.yaml: f0c2f293fe5e4cc9a4beb03459522339018518533017d1b5cd2acadeae906ac5
+  services/operations/postgres-enrollment-pilot/app.yaml: 8c007a57bb02130cf91a4b2dad666bd22845df493defc4483a5c782ca6adf8d8
+  services/operations/postgres-enrollment-pilot/values.yaml: ffb2d1b6eb1076f38f2531a6e042b5980704464a006dd5772b6121bd72567485
+  services/operations/vaultwarden/app.yaml: c1cf60f4058abe7903e8d01b4af95d7689a3fcc2a3684f0a449621c23dd97c4e
+  services/operations/vaultwarden/values.yaml: 6719077c1d85a6e9650dcae33b1968e7723ee451aa04fa0b9553017dfc98ba95
+  services/operations/vikunja/app.yaml: f107c962c2c3a193b7a551fa2e2ab71a2a87c956a670aa78c1773982688ad0ec
+  services/operations/vikunja/values.yaml: 875944332e1b1b921a36fc7b45f7a02de04eac3f75a4fa0b5757a8de3992235f
+  templates/common.yaml: 0077e8f0c99f6ac038914db8f9ae55c772b3e9e1073da8a8c8c484f6c11ec747
+  templates/globals.yaml: 88572e5d079e84fe252d5ca1647981e604a416cbdb2e14ff7978431fb3cda2fa
+stages:
+  - name: clients-held
+    patch: 01-clients-held.patch
+    sha256: 4dfec33e709406942417479e471141723f847d728b1d003749069a6ed73d217a
+    updates:
+      infrastructure/base-configs/templates/pg-backup/cronjob.yaml: 41e190564b63780a50124ab99a0b7046d3e4b41e58026be857bda4447699ef0e
+      infrastructure/controllers/authentik/values.yaml: 1413de5e951a03439ed0d749f2f9a1b17e64c1c9dcbd85c8e0e2d08702f48d5a
+      infrastructure/controllers/databases/postgres/manifests/enrollment-job.yaml: null
+      services/media/dispatcharr/values.yaml: 511cdf5ab457712b97ebf65c8fad3a55e817f69951c1acc03ba10cea03474d78
+      services/media/lingarr/values.yaml: 698df8973d877a241c65ed8016ce062becc8107b1497de310876d0f35ffe97be
+      services/operations/listmonk/values.yaml: ece3f6344ec0f60d77438a05f35428fec1ec467e5ed09c77023320ea63b6e92e
+      services/operations/mealie/values.yaml: 5fd53593b1b4b19e2299e8d47352e5a91956feff0ee6163c2b69e8d49b15f0e8
+      services/operations/paperless-ngx/values.yaml: 61c57caf2b42e7eef0f043129e86765f992a2b139889da10485b949ee0590299
+      services/operations/postgres-enrollment-pilot/values.yaml: b96dda891af908e93db8e4d6d7569721ea837231f4ed41d7387f4398c9663ac1
+      services/operations/vaultwarden/values.yaml: d7b851fa18e8c82f38ca64188a88fb6160f7a7d8ba24db1d985f7488cf3c8c5c
+      services/operations/vikunja/values.yaml: c21de607b0f926ec0029288d2bb9e16a140812ab92163d095f40c9240277c56b
+  - name: nfs-held
+    patch: 02-nfs-held.patch
+    sha256: b6fad04a6fa6e00c4eff672110bbc62f00de71f2c783afddd04ba059a18467b8
+    updates:
+      infrastructure/controllers/databases/postgres/manifests/source-hold.yaml: 854aba4c0706b706ceec578907f810adc62ed86c77c3b2b362e78502dadc81da
+      infrastructure/controllers/databases/postgres/values.yaml: b3a22c62c5ba0d466ef41b80e58884c4f4f43b194e88bad4612f2b4f26884e0e
+  - name: target-held
+    patch: 03-target-held.patch
+    sha256: bff5ea13e0e5b3dd597479c23a88041d8fffe5e2d826eb9db84fdb60df9cf653
+    updates:
+      infrastructure/base-configs/templates/postgres-block-storage/pv.yaml: 31177b37c4608ea019ed4ab6837400a3d6152fa9e08d231ac8641ec3d141b915
+      infrastructure/base-configs/templates/postgres-block-storage/pvc.yaml: a2705559471be95062212eae07eb2116441b6edcb5f23422bb682a35070b6b6b
+      infrastructure/controllers/databases/postgres/manifests/retained-startup-guard.yaml: 214ecb0e214f97b5b7b7e6fba5a2e82a4c884350cd1c7842a19c5974a4a86006
+      infrastructure/controllers/databases/postgres/values.yaml: d9071d56c43f7c2168bdb430ca8105a90683d7011b34f9b3e20516c789cd64b9
+  - name: server-only
+    patch: 04-server-only.patch
+    sha256: 966c1bc89c957a126c98f2515c4925c7e1d70909e3d2248e84edb62eb5fc85f8
+    updates:
+      infrastructure/controllers/databases/postgres/values.yaml: 2da7307c6e8729edec6150bf67c5c0402f3cbe994ebd19ea12b165a528278759
+  - name: hook-only
+    patch: 05-hook-only.patch
+    sha256: fe9c7b548a202a68669bf78f405378aae1d50383d689044470c1d10c8693cb51
+    updates:
+      infrastructure/controllers/databases/postgres/manifests/enrollment-job.yaml: f5f77a6db567865de6c91c9ad9bc4c518b2fc0aeec20166c17a2933253296265
+  - name: hook-pilot
+    patch: 06-hook-pilot.patch
+    sha256: 7664f530d3780bd0e8338f9bc415262cd8df63b2a97915d9f51e8290915a2fd0
+    updates:
+      services/operations/postgres-enrollment-pilot/values.yaml: ffb2d1b6eb1076f38f2531a6e042b5980704464a006dd5772b6121bd72567485
+  - name: authentik-only
+    patch: 07-authentik-only.patch
+    sha256: f745e84d1b1667d287747f6419d3b75e5c3790ac0418c6d634bfc4ba7b37b47e
+    updates:
+      infrastructure/controllers/authentik/values.yaml: 78a67c9e712e74597d35fe8c5b4ab1bdacf487fa13a2bad77abfe7e38fc8292f
+  - name: consumers-only
+    patch: 08-consumers-only.patch
+    sha256: 266b742b1dac76857595cdfa05a04ceaac1fd15c49db011be58ac55602d260cd
+    updates:
+      services/media/dispatcharr/values.yaml: 604a9d9f0c9585a948f65403e116e382e3f63ba4b550ba6969c52a9ab197c3a3
+      services/media/lingarr/values.yaml: c9090b0c24d6678eaf2fc9a3c125f0a4cc5dd18a0a5c5ebb9021db952905885a
+      services/operations/listmonk/values.yaml: 5ec8d0412df6438d51f0f2370c576e2028ec00e60fbf727259a414f306e0f2b3
+      services/operations/mealie/values.yaml: 829256f373e6bc64d0e51a04cba6a06fdcf2681fb92d9dc23e58e32a54bf9921
+      services/operations/paperless-ngx/values.yaml: f0c2f293fe5e4cc9a4beb03459522339018518533017d1b5cd2acadeae906ac5
+      services/operations/vaultwarden/values.yaml: 6719077c1d85a6e9650dcae33b1968e7723ee451aa04fa0b9553017dfc98ba95
+      services/operations/vikunja/values.yaml: 875944332e1b1b921a36fc7b45f7a02de04eac3f75a4fa0b5757a8de3992235f
+  - name: released
+    patch: 09-released.patch
+    sha256: 23d8b158700f26ef061b35ec2cecaf69b40c11c24c2837dd332244b58a86ecc8
+    updates:
+      infrastructure/base-configs/templates/pg-backup/cronjob.yaml: 7b9e9ca40ffc7ae72754c78e1af5a727fc4c540265b1d77e074b697819463ad0

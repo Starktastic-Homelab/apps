@@ -1,0 +1,231 @@
+diff --git a/infrastructure/base-configs/templates/pg-backup/cronjob.yaml b/infrastructure/base-configs/templates/pg-backup/cronjob.yaml
+--- a/infrastructure/base-configs/templates/pg-backup/cronjob.yaml
++++ b/infrastructure/base-configs/templates/pg-backup/cronjob.yaml
+@@ -4,6 +4,7 @@
+   name: pg-backup
+   namespace: databases
+ spec:
++  suspend: true
+   schedule: "0 2 * * *"
+   successfulJobsHistoryLimit: 1
+   failedJobsHistoryLimit: 3
+diff --git a/infrastructure/controllers/authentik/values.yaml b/infrastructure/controllers/authentik/values.yaml
+--- a/infrastructure/controllers/authentik/values.yaml
++++ b/infrastructure/controllers/authentik/values.yaml
+@@ -49,7 +49,7 @@
+   disable_update_check: true
+   disable_startup_analytics: true
+ server:
+-  replicas: 2
++  replicas: 0
+   pdb:
+     enabled: true
+     minAvailable: 1
+@@ -98,6 +98,7 @@
+     - secretRef:
+         name: authentik-secret
+ worker:
++  replicas: 0
+   env:
+     - name: AUTHENTIK_EMAIL__PASSWORD
+       valueFrom:
+diff --git a/infrastructure/controllers/databases/postgres/manifests/enrollment-job.yaml b/infrastructure/controllers/databases/postgres/manifests/enrollment-job.yaml
+deleted file mode 100644
+--- a/infrastructure/controllers/databases/postgres/manifests/enrollment-job.yaml
++++ /dev/null
+@@ -1,104 +0,0 @@
+-apiVersion: batch/v1
+-kind: Job
+-metadata:
+-  annotations:
+-    argocd.argoproj.io/hook: Sync
+-    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+-    argocd.argoproj.io/sync-wave: "1"
+-  name: postgres-enrollment-cb545aadb424a7d6a6b3bfe32e1cf8b3
+-  namespace: databases
+-spec:
+-  activeDeadlineSeconds: 600
+-  backoffLimit: 2
+-  template:
+-    metadata:
+-      labels:
+-        app.kubernetes.io/name: postgres-enrollment
+-    spec:
+-      automountServiceAccountToken: false
+-      containers:
+-        - command:
+-            - /bin/sh
+-            - /scripts/enroll.sh
+-            - run
+-          env:
+-            - name: PGHOST
+-              value: postgres-postgresql.databases
+-            - name: PGPORT
+-              value: "5432"
+-            - name: PGUSER
+-              value: postgres
+-            - name: PGDATABASE
+-              value: postgres
+-          image: postgres:18.6-alpine@sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd
+-          name: enroll
+-          resources:
+-            limits:
+-              cpu: 500m
+-              memory: 128Mi
+-            requests:
+-              cpu: 100m
+-              memory: 64Mi
+-          securityContext:
+-            allowPrivilegeEscalation: false
+-            capabilities:
+-              drop:
+-                - ALL
+-            readOnlyRootFilesystem: true
+-          volumeMounts:
+-            - mountPath: /config
+-              name: config
+-              readOnly: true
+-            - mountPath: /scripts
+-              name: scripts
+-              readOnly: true
+-            - mountPath: /credentials/admin
+-              name: admin
+-              readOnly: true
+-            - mountPath: /credentials/apps
+-              name: apps
+-              readOnly: true
+-            - mountPath: /tmp
+-              name: scratch
+-      restartPolicy: Never
+-      securityContext:
+-        fsGroup: 1001
+-        runAsGroup: 1001
+-        runAsNonRoot: true
+-        runAsUser: 1001
+-        seccompProfile:
+-          type: RuntimeDefault
+-      volumes:
+-        - configMap:
+-            defaultMode: 292
+-            items:
+-              - key: config.json
+-                path: config.json
+-            name: postgres-enrollment-config
+-          name: config
+-        - configMap:
+-            defaultMode: 292
+-            items:
+-              - key: enroll.sh
+-                path: enroll.sh
+-              - key: enroll.sql
+-                path: enroll.sql
+-              - key: schema.sql
+-                path: schema.sql
+-            name: postgres-enrollment-config
+-          name: scripts
+-        - name: admin
+-          secret:
+-            defaultMode: 288
+-            items:
+-              - key: postgres-password
+-                path: postgres-password
+-            secretName: postgres-admin-secret
+-        - name: apps
+-          secret:
+-            defaultMode: 288
+-            secretName: postgres-enrollment-credentials
+-        - emptyDir:
+-            medium: Memory
+-            sizeLimit: 16Mi
+-          name: scratch
+diff --git a/services/media/dispatcharr/values.yaml b/services/media/dispatcharr/values.yaml
+--- a/services/media/dispatcharr/values.yaml
++++ b/services/media/dispatcharr/values.yaml
+@@ -2,6 +2,7 @@
+   main:
+     enabled: false
+   web:
++    replicas: 0
+     containers:
+       main:
+         image:
+@@ -38,6 +39,7 @@
+               periodSeconds: 5
+ 
+   celery:
++    replicas: 0
+     containers:
+       main:
+         image:
+diff --git a/services/media/lingarr/values.yaml b/services/media/lingarr/values.yaml
+--- a/services/media/lingarr/values.yaml
++++ b/services/media/lingarr/values.yaml
+@@ -1,5 +1,6 @@
+ controllers:
+   main:
++    replicas: 0
+     containers:
+       main:
+         image:
+diff --git a/services/operations/listmonk/values.yaml b/services/operations/listmonk/values.yaml
+--- a/services/operations/listmonk/values.yaml
++++ b/services/operations/listmonk/values.yaml
+@@ -1,5 +1,6 @@
+ controllers:
+   main:
++    replicas: 0
+     containers:
+       main:
+         image:
+diff --git a/services/operations/mealie/values.yaml b/services/operations/mealie/values.yaml
+--- a/services/operations/mealie/values.yaml
++++ b/services/operations/mealie/values.yaml
+@@ -1,5 +1,6 @@
+ controllers:
+   main:
++    replicas: 0
+     containers:
+       main:
+         image:
+diff --git a/services/operations/paperless-ngx/values.yaml b/services/operations/paperless-ngx/values.yaml
+--- a/services/operations/paperless-ngx/values.yaml
++++ b/services/operations/paperless-ngx/values.yaml
+@@ -1,5 +1,6 @@
+ controllers:
+   main:
++    replicas: 0
+     containers:
+       main:
+         image:
+diff --git a/services/operations/postgres-enrollment-pilot/values.yaml b/services/operations/postgres-enrollment-pilot/values.yaml
+--- a/services/operations/postgres-enrollment-pilot/values.yaml
++++ b/services/operations/postgres-enrollment-pilot/values.yaml
+@@ -5,7 +5,7 @@
+ controllers:
+   main:
+     type: deployment
+-    replicas: 1
++    replicas: 0
+     strategy: Recreate
+     serviceAccount:
+       name: pg-enrollment-1e4986c3643f40013471
+diff --git a/services/operations/vaultwarden/values.yaml b/services/operations/vaultwarden/values.yaml
+--- a/services/operations/vaultwarden/values.yaml
++++ b/services/operations/vaultwarden/values.yaml
+@@ -1,5 +1,6 @@
+ controllers:
+   main:
++    replicas: 0
+     containers:
+       main:
+         image:
+diff --git a/services/operations/vikunja/values.yaml b/services/operations/vikunja/values.yaml
+--- a/services/operations/vikunja/values.yaml
++++ b/services/operations/vikunja/values.yaml
+@@ -1,5 +1,6 @@
+ controllers:
+   main:
++    replicas: 0
+     containers:
+       main:
+         image:

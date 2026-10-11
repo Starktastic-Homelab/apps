@@ -174,6 +174,12 @@ releasing the destination. Retain the accepted backup and the original NFS tree.
 
 ## Later maintenance, copy and release sequence
 
+The [concrete sequential Git changes](../../scripts/postgres-retained-startup/production/cutover/README.md#concrete-git-changes-for-the-approved-operation)
+are inactive review inputs. Their checked stages separate client shutdown, server
+shutdown, storage switch, server/hook/pilot startup, Authentik and other consumer
+release, then backup scheduling. Actual stage PRs and execution helpers still need
+review and separate production approval; merging preparation does not start them.
+
 This sequence is a contract for the future reviewed operation, not a runnable
 maintenance change in this preparation PR.
 
@@ -183,8 +189,9 @@ maintenance change in this preparation PR.
    and does not consume its prepared database. Capture database/role identities,
    grants, memberships, extensions, physical ID, both ready ledger entries and
    the fixed pilot sentinel without publishing application records or secrets.
-2. Reconcile an approved maintenance PR that holds affected consumers and the
-   pilot at zero, suspends backup scheduling and holds PostgreSQL at zero. Omit
+2. Reconcile the approved client-hold PR that holds affected consumers and the
+   pilot at zero and suspends backup scheduling. Drain jobs and client sessions,
+   then reconcile the separate zero-replica server/source-hold PR. Omit
    the enrollment Sync Job from that temporary desired state while the server
    is stopped; preserve its canonical config, scripts and credentials. Otherwise
    a full sync would start a hook against an unavailable server. Verify all

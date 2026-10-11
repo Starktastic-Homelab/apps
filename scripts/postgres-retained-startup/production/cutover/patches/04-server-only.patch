@@ -1,0 +1,12 @@
+diff --git a/infrastructure/controllers/databases/postgres/values.yaml b/infrastructure/controllers/databases/postgres/values.yaml
+--- a/infrastructure/controllers/databases/postgres/values.yaml
++++ b/infrastructure/controllers/databases/postgres/values.yaml
+@@ -28,7 +28,7 @@
+   repository: bitnami/postgresql
+   tag: "latest@sha256:b74b23f091dcc87041bcae557d840c36458af46b955279cb13aedec4c32d7f71"
+ primary:
+-  replicaCount: 0
++  replicaCount: 1
+   resourcesPreset: "none"
+   resources:
+     requests:

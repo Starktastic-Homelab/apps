@@ -1,0 +1,220 @@
+diff --git a/infrastructure/base-configs/templates/postgres-block-storage/pv.yaml b/infrastructure/base-configs/templates/postgres-block-storage/pv.yaml
+new file mode 100644
+--- /dev/null
++++ b/infrastructure/base-configs/templates/postgres-block-storage/pv.yaml
+@@ -0,0 +1,36 @@
++apiVersion: v1
++kind: PersistentVolume
++metadata:
++  name: postgres-data-block
++  annotations:
++    argocd.argoproj.io/sync-options: Prune=false,Delete=false
++spec:
++  capacity:
++    storage: 16Gi
++  accessModes:
++    - ReadWriteOncePod
++  volumeMode: Filesystem
++  persistentVolumeReclaimPolicy: Retain
++  storageClassName: proxmox-retained
++  claimRef:
++    name: postgres-data-block
++    namespace: databases
++  csi:
++    driver: csi.proxmox.sinextra.dev
++    fsType: ext4
++    volumeHandle: homelab//k3s-block/9999/vm-9999-postgres.raw
++    volumeAttributes:
++      storage: k3s-block
++      cache: none
++  nodeAffinity:
++    required:
++      nodeSelectorTerms:
++        - matchExpressions:
++            - key: topology.kubernetes.io/region
++              operator: In
++              values:
++                - homelab
++            - key: topology.kubernetes.io/zone
++              operator: In
++              values:
++                - pve
+diff --git a/infrastructure/base-configs/templates/postgres-block-storage/pvc.yaml b/infrastructure/base-configs/templates/postgres-block-storage/pvc.yaml
+new file mode 100644
+--- /dev/null
++++ b/infrastructure/base-configs/templates/postgres-block-storage/pvc.yaml
+@@ -0,0 +1,16 @@
++apiVersion: v1
++kind: PersistentVolumeClaim
++metadata:
++  name: postgres-data-block
++  namespace: databases
++  annotations:
++    argocd.argoproj.io/sync-options: Prune=false,Delete=false
++spec:
++  accessModes:
++    - ReadWriteOncePod
++  volumeMode: Filesystem
++  storageClassName: proxmox-retained
++  volumeName: postgres-data-block
++  resources:
++    requests:
++      storage: 16Gi
+diff --git a/infrastructure/controllers/databases/postgres/manifests/retained-startup-guard.yaml b/infrastructure/controllers/databases/postgres/manifests/retained-startup-guard.yaml
+new file mode 100644
+--- /dev/null
++++ b/infrastructure/controllers/databases/postgres/manifests/retained-startup-guard.yaml
+@@ -0,0 +1,48 @@
++apiVersion: v1
++kind: ConfigMap
++metadata:
++  name: postgres-retained-startup-guard
++  namespace: databases
++  annotations:
++    argocd.argoproj.io/sync-wave: "-1"
++data:
++  guard.sh: |
++    #!/bin/bash
++    # Identity guard only. RWOP attachment and verified VM retirement fence writers.
++    set -eu
++    export LC_ALL=C
++    fail() {
++      echo 'Retained PostgreSQL startup refused: data identity validation failed.' >&2
++      exit 1
++    }
++    data=/bitnami/postgresql/data
++    bin=/opt/bitnami/postgresql/bin/pg_controldata
++    expected=${EXPECTED_SYSTEM_IDENTIFIER:-}
++    # Canonical decimal identifiers only; the native identifier comparison also
++    # rejects values outside uint64 range. Never infer the expectation from PGDATA.
++    [[ $expected =~ ^[1-9][0-9]{0,19}$ ]] || fail
++    [[ $("$bin" --version) == 'pg_controldata (PostgreSQL) 18.'* ]] || fail
++    for directory in /bitnami/postgresql "$data" "$data/base" "$data/global" "$data/pg_wal"; do
++      [ -d "$directory" ] && [ ! -L "$directory" ] && [ -r "$directory" ] && [ -x "$directory" ] || fail
++    done
++    for file in "$data/PG_VERSION" "$data/global/pg_control"; do
++      [ -f "$file" ] && [ ! -L "$file" ] && [ -r "$file" ] || fail
++    done
++    [ "$(cat "$data/PG_VERSION")" = 18 ] || fail
++    # PG18 stores an8192-byte control file; the native tool reads only its header.
++    [ "$(stat -c %s "$data/global/pg_control")" = 8192 ] || fail
++    # Test existence including dangling symlinks, before Bitnami can delete signals.
++    for signal in standby.signal recovery.signal; do
++      [ ! -e "$data/$signal" ] && [ ! -L "$data/$signal" ] || fail
++    done
++    scratch=$(mktemp -d)
++    trap 'rm -rf "$scratch"' EXIT
++    # Native pg_controldata may return0 despite a CRC warning. Reject all stderr.
++    if ! timeout 30 "$bin" "$data" >"$scratch/control" 2>"$scratch/error"; then fail; fi
++    [ ! -s "$scratch/error" ] || fail
++    actual=$(awk '/^Database system identifier:[[:space:]]+[0-9]+$/ {print $NF}' "$scratch/control")
++    [ "$actual" = "$expected" ] || fail
++    # Leave a remaining postmaster.pid untouched; stock entrypoint handles restart
++    # cleanup under the separately verified fencing contract. Do not initialize,
++    # repair, chown or connect to this database here.
++    echo 'Retained PostgreSQL data identity verified.'
+diff --git a/infrastructure/controllers/databases/postgres/values.yaml b/infrastructure/controllers/databases/postgres/values.yaml
+--- a/infrastructure/controllers/databases/postgres/values.yaml
++++ b/infrastructure/controllers/databases/postgres/values.yaml
+@@ -44,6 +44,7 @@
+       # (not working_set) again approaches the limit.
+       memory: 1Gi
+   persistence:
++    existingClaim: postgres-data-block
+     enabled: true
+     # storageClass provided by global.storageClass in globals.yaml
+     size: 8Gi
+@@ -64,25 +65,42 @@
+     timeoutSeconds: 10
+     failureThreshold: 30
+   initContainers:
+-    - name: rm-postmaster-lock-file
+-      # Pinned to the digest already running. An init container that fails
+-      # leaves the pod stuck in Init forever, i.e. database down, so this
+-      # floats no more freely than the server image does.
+-      image: busybox:latest@sha256:dc2d74b28e4cf8984fa52af1f39bc7c3d9c73760b41a74d629f5d11b1ab28616
++    - name: verify-retained-data
++      image: registry-1.docker.io/bitnami/postgresql:latest@sha256:b74b23f091dcc87041bcae557d840c36458af46b955279cb13aedec4c32d7f71
+       imagePullPolicy: IfNotPresent
++      command:
++        - /bin/bash
++        - /retained-startup/guard.sh
++      env:
++        - name: EXPECTED_SYSTEM_IDENTIFIER
++          value: "7584099661242523698"
+       securityContext:
+-        # Match the main container's uid/gid so we don't need to escalate to
+-        # root just to delete a single file that's owned by postgres.
+         runAsUser: 1001
++        runAsGroup: 1001
+         runAsNonRoot: true
+-      command:
+-        - sh
+-        - -c
+-        - |
+-          if [ -f /bitnami/postgresql/data/postmaster.pid ]; then
+-            echo "🧟 Zombie Lock Found: Deleting postmaster.pid"
+-            rm -f /bitnami/postgresql/data/postmaster.pid
+-          fi
++        allowPrivilegeEscalation: false
++        readOnlyRootFilesystem: true
++        capabilities:
++          drop:
++            - ALL
++        seccompProfile:
++          type: RuntimeDefault
++      resources:
++        requests:
++          cpu: 10m
++          memory: 32Mi
++        limits:
++          cpu: 100m
++          memory: 64Mi
++      volumeMounts:
++        - name: data
++          mountPath: /bitnami/postgresql
++          readOnly: true
++        - name: retained-startup-guard
++          mountPath: /retained-startup
++          readOnly: true
++        - name: retained-startup-scratch
++          mountPath: /tmp
+   extendedConfiguration: |
+     # Peak observed usage is ~35 connections. 200 was never reachable within
+     # the memory limit: worst case is max_connections x work_mem (4MB) of
+@@ -94,14 +112,32 @@
+     # cached and under-costed index scans. Keep this ~50% of the memory limit.
+     effective_cache_size = 512MB
+   podSecurityContext:
+-    fsGroup: 1001
++    fsGroup: null
+     enabled: true
+   containerSecurityContext:
+     runAsUser: 1001
+     enabled: true
++  extraVolumes:
++    - name: retained-startup-guard
++      configMap:
++        name: postgres-retained-startup-guard
++        defaultMode: 292
++    - name: retained-startup-scratch
++      emptyDir:
++        sizeLimit: 16Mi
++  nodeSelector:
++    kubernetes.io/os: linux
++    node-role.kubernetes.io/worker: "true"
++  tolerations:
++    - key: node.kubernetes.io/not-ready
++      operator: Exists
++      effect: NoExecute
++    - key: node.kubernetes.io/unreachable
++      operator: Exists
++      effect: NoExecute
+ volumePermissions:
+-  enabled: true
+-  # Runs before the server as an init container to chmod/chown the data dir.
++  enabled: false
++  # Disabled for retained data: startup must not recursively change ownership.
+   # repository restates the chart default so Renovate can see the pin.
+   image:
+     repository: bitnami/os-shell

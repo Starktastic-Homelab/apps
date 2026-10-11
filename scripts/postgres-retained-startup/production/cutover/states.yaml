@@ -1,0 +1,143 @@
+# Inactive review inputs, not an Application or executable controller.
+consumers:
+  authentik:
+    namespace: authentik
+    path: infrastructure/controllers/authentik
+    hold:
+      server:
+        replicas: 0
+      worker:
+        replicas: 0
+    release:
+      server:
+        replicas: 2
+      worker:
+        replicas: 1
+  dispatcharr:
+    namespace: media
+    path: services/media/dispatcharr
+    hold:
+      controllers:
+        web:
+          replicas: 0
+        celery:
+          replicas: 0
+    release:
+      controllers:
+        web:
+          replicas: 1
+        celery:
+          replicas: 1
+  lingarr:
+    namespace: media
+    path: services/media/lingarr
+    hold:
+      controllers:
+        main:
+          replicas: 0
+    release:
+      controllers:
+        main:
+          replicas: 1
+  listmonk:
+    namespace: operations
+    path: services/operations/listmonk
+    hold:
+      controllers:
+        main:
+          replicas: 0
+    release:
+      controllers:
+        main:
+          replicas: 1
+  mealie:
+    namespace: operations
+    path: services/operations/mealie
+    hold:
+      controllers:
+        main:
+          replicas: 0
+    release:
+      controllers:
+        main:
+          replicas: 1
+  paperless-ngx:
+    namespace: operations
+    path: services/operations/paperless-ngx
+    hold:
+      controllers:
+        main:
+          replicas: 0
+    release:
+      controllers:
+        main:
+          replicas: 1
+  vaultwarden:
+    namespace: operations
+    path: services/operations/vaultwarden
+    hold:
+      controllers:
+        main:
+          replicas: 0
+    release:
+      controllers:
+        main:
+          replicas: 1
+  vikunja:
+    namespace: operations
+    path: services/operations/vikunja
+    hold:
+      controllers:
+        main:
+          replicas: 0
+    release:
+      controllers:
+        main:
+          replicas: 1
+  postgres-enrollment-pilot:
+    namespace: operations
+    path: services/operations/postgres-enrollment-pilot
+    hold:
+      controllers:
+        main:
+          replicas: 0
+    release:
+      controllers:
+        main:
+          replicas: 1
+stages:
+  nfs-held:
+    postgresStorage: source
+    postgresReplicas: 0
+    enrollmentHook: false
+    pilotReleased: false
+    consumersReleased: false
+    backupSuspended: true
+  target-held:
+    postgresStorage: target
+    postgresReplicas: 0
+    enrollmentHook: false
+    pilotReleased: false
+    consumersReleased: false
+    backupSuspended: true
+  server-only:
+    postgresStorage: target
+    postgresReplicas: 1
+    enrollmentHook: false
+    pilotReleased: false
+    consumersReleased: false
+    backupSuspended: true
+  hook-pilot:
+    postgresStorage: target
+    postgresReplicas: 1
+    enrollmentHook: true
+    pilotReleased: true
+    consumersReleased: false
+    backupSuspended: true
+  released:
+    postgresStorage: target
+    postgresReplicas: 1
+    enrollmentHook: true
+    pilotReleased: true
+    consumersReleased: true
+    backupSuspended: false

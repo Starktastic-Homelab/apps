@@ -79,6 +79,81 @@ CI renders baseline, generic guard and production guard overlays, checks static
 bindings and exact embedded source, and compares the actual production-overlay
 containers to baseline. These checks establish source preparation only.
 
+The [inactive cutover states](../../scripts/postgres-retained-startup/production/cutover/README.md)
+record exact consumer holds, original release counts and the reviewed stage gates.
+Their merge does not activate maintenance or storage.
+
+## Read-only source transport qualification
+
+On 2026-10-11, VM300's application-network route could not reach the NAS's NFS
+ports. The same verified NAS exposes NFSv4 on its management address
+`10.9.9.30`; a temporary `ro,nosuid,nodev,noexec` mount of the existing export
+passed the metadata probe and was independently verified unmounted. It read no
+database file contents and produced no backup.
+
+The source uses numeric owner/group `1001:1001`, with `data` mode `0700`.
+Native NAS inspection found no extended attributes in the tree; sampled ACLs
+were trivial POSIX ACLs matching ordinary modes. NFS exposes `system.nfs4_acl`
+as its protocol representation. Do not copy that synthetic representation to
+ext4 or include it in native metadata equality. At the real cold-backup gate,
+recheck native ownership, modes, ACLs and xattrs; unexpected native metadata
+requires a revised preservation plan before copying or releasing any writer.
+
+## Synthetic encrypted physical-restore qualification
+
+On 2026-10-11, disposable VM980 ran an offline `v1.37.0+k3s1` API and the exact
+pinned PostgreSQL 18.6 image. Its approved identity was
+`4437e3df-6827-416c-a178-474e28c43b02`, with no NIC/passthrough, 2 CPUs, 2 GiB RAM,
+and captured 8 GiB root plus 2 GiB fixture disks. The fixture used the production
+chart's writable scratch mounts with a non-root, read-only-root main container;
+no pod fsGroup was used to rewrite retained data. The guard script was unchanged.
+
+Acceptance passed:
+
+- Old source claim Pod CREATE/UPDATE denied; target and unrelated-namespace
+  claims allowed; no CEL type warnings.
+- Clean native shutdown before a complete sparse/PAX archive; AES256 ciphertext
+  transferred with full hash readback and independently decrypted on VM300.
+  Restore media contained ciphertext only.
+- Original fixture data and original archive copies removed before acceptance.
+  The restored tree matched content, numeric ownership, modes, nanosecond mtimes,
+  named POSIX ACLs, user xattrs and hardlink groups before PostgreSQL started.
+  The 32 MiB sparse payload occupied 8 KiB after restore.
+- Restored physical identifier, PostgreSQL 18.6, 1,000 records, sum 500,500,
+  sentinel, restricted-role attributes and stored password hash matched the
+  baseline; a clean restart retained them. Wrong-ID and empty-data guard cases
+  rejected startup without changing/initializing the data.
+
+The synthetic archive was 42,485,760 bytes; ciphertext was 42,485,841 bytes.
+Measured successful phases were: bootstrap ISO transfer/full readback 190 s,
+clone 29 s, ciphertext fixture transfer/full readback 217 s, independent VM300
+decryption 0.75 s, restore ISO transfer/full readback 17 s, and native restore,
+negative guard checks and restart 20 s. The first QGA response was verified at
+148 s VM uptime; interrupted boot-check reconciliation completed readiness
+acceptance at 218 s without another start or reboot. These are synthetic lab
+measurements, not a production outage estimate.
+
+The lab exposed helper defects before acceptance: oversized SSH command payloads,
+content/config digest comparison, missing chart scratch mounts, and captured
+daemon pipes/missing public agent client. Completed failures and corrected
+attempts were retained; original operation ownership was preserved/reconciled
+before continuing. No failed database initialization or guest command was blindly
+replayed. The corrected procedure saves terminal QGA results before evaluating
+success and checks remaining shared-pool growth before each allocation phase.
+
+Runner free space remained at least 16.08 GiB, incremental usage peaked at
+0.95 GiB, and shared-pool availability remained at least 20.34 GiB; all reservation
+checks passed. Guest/disks/media, fixture keys, plaintext/ciphertext copies,
+public temporary files and the temporary Docker alias were removed. The original
+cached image remains; independent cleanup confirmed an idle maintenance runtime
+and retained root-only receipts under
+`/var/lib/homelab-maintenance/operations/pg-csi-rehearsal-20261011/`.
+
+This qualifies the synthetic procedure. Production remains on NFS, with no real
+backup/key transfer or target allocation performed. A real independent cold
+restore, current catalog/application acceptance and separate execution approval
+remain mandatory before a production writer can move to CSI.
+
 ## Required run-specific approval
 
 Before downtime, prepare a concrete operation manifest on verified VM300:

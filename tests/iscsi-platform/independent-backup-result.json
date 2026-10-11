@@ -1,0 +1,14 @@
+[
+  {
+    "service": "service-a",
+    "integrity": "ok",
+    "acknowledged_survived": 11,
+    "independent_destination": true
+  },
+  {
+    "service": "service-b",
+    "integrity": "ok",
+    "acknowledged_survived": 11,
+    "independent_destination": true
+  }
+]

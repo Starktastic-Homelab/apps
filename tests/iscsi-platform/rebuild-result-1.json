@@ -1,0 +1,44 @@
+{
+  "nodes": [
+    {
+      "name": "iscsi-lab-server-1d3e8de3",
+      "old_uid": "44b7b3ec-223d-47e0-8eda-f5443ccba7ca",
+      "new_uid": "a29611ac-b70a-439e-b98b-a1113253437a"
+    },
+    {
+      "name": "iscsi-lab-worker-a-1d3e8de3",
+      "old_uid": "0b6b2639-4a6f-45c7-b7ce-edc06e02ba8d",
+      "new_uid": "959e586a-cbd5-404d-89b3-fb52c6b16292"
+    },
+    {
+      "name": "iscsi-lab-worker-b-1d3e8de3",
+      "old_uid": "6507cd0a-b039-49df-aeec-c0d849cce4a3",
+      "new_uid": "8445449a-5827-4c8d-9f75-d0a5259147ba"
+    }
+  ],
+  "volumes": [
+    {
+      "service": "service-a",
+      "same_zfs_guid": "7069681847755015095",
+      "old_pv_uid": "3cc2769f-a48c-416c-9872-bfb3e50b6290",
+      "new_pv_uid": "6f2d14c2-73ed-4809-9416-9116f226f0a6",
+      "new_pvc_uid": "f656465a-9178-410b-a42b-592f849a0fd8",
+      "nas_bytes": 4294967296,
+      "filesystem_bytes": 4152066048,
+      "pvc_capacity": "4Gi"
+    },
+    {
+      "service": "service-b",
+      "same_zfs_guid": "4716043096016099582",
+      "old_pv_uid": "5847948b-c78c-4754-a067-9b8469bba98a",
+      "new_pv_uid": "0f610bf5-1c2b-42a1-acd9-e5c2b9404b85",
+      "new_pvc_uid": "703696c9-82ac-4f20-b42e-5706dfc904dd",
+      "nas_bytes": 2147483648,
+      "filesystem_bytes": 2040373248,
+      "pvc_capacity": "2Gi"
+    }
+  ],
+  "old_disks_destroyed": true,
+  "create_volume_requests": 0,
+  "new_ca_sha256": "4539e20af165ef7ebfda4febac2af5d0cda088f11815e56d9778bf37c526bc75"
+}

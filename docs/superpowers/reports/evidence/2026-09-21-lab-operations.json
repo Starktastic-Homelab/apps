@@ -1,0 +1,57 @@
+[
+  {
+    "operation": "onboard-two-2Gi",
+    "state": "consumed",
+    "claims": ["service-a", "service-b"]
+  },
+  {
+    "operation": "export",
+    "claims": ["service-a", "service-b"],
+    "state": "captured"
+  },
+  {
+    "operation": "initialize",
+    "state": "consumed",
+    "services": ["service-a", "service-b"]
+  },
+  {
+    "operation": "snapshot-restore",
+    "claim": "restore-a",
+    "source": "service-a-point",
+    "state": "consumed"
+  },
+  {
+    "operation": "expand",
+    "service": "service-a",
+    "from": "2Gi",
+    "requested": "3Gi",
+    "state": "controller-paused-before-backend"
+  },
+  {
+    "operation": "expand",
+    "service": "service-a",
+    "verified": "3Gi",
+    "requested": "4Gi",
+    "backend_bytes": 4294967296,
+    "state": "interrupted-before-filesystem-and-record"
+  },
+  {
+    "operation": "reconcile-resize",
+    "service": "service-a",
+    "same_guid": true,
+    "actual_backend_bytes": 4294967296,
+    "action": "resume native expansion after binding"
+  },
+  {
+    "operation": "expand",
+    "service": "service-a",
+    "state": "verified",
+    "capacity": "4Gi"
+  },
+  {
+    "operation": "expand",
+    "service": "service-a",
+    "state": "verified",
+    "capacity": "4Gi"
+  }
+]

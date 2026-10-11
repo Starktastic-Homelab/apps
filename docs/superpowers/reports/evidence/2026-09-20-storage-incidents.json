@@ -1,0 +1,1263 @@
+{
+  "collected_at_utc": "2026-09-20T18:10:01.442179+00:00",
+  "method": {
+    "requested_since_hours": 168,
+    "per_container_tail_lines": 15000,
+    "per_container_limit_bytes": 8000000,
+    "raw_logs_persisted": false,
+    "matching_counts_are_log_lines_not_distinct_incidents": true
+  },
+  "pod_status": [
+    {
+      "app": "home-assistant",
+      "created_at": "2026-09-20T10:31:10Z",
+      "phase": "Running",
+      "containers": [
+        {
+          "container": "main",
+          "ready": true,
+          "restart_count": 0,
+          "state": "running",
+          "current_started_at": "2026-09-20T10:44:03Z",
+          "last_terminated_reason": null,
+          "last_exit_code": null,
+          "last_finished_at": null
+        },
+        {
+          "container": "matter-server",
+          "ready": true,
+          "restart_count": 0,
+          "state": "running",
+          "current_started_at": "2026-09-20T10:45:25Z",
+          "last_terminated_reason": null,
+          "last_exit_code": null,
+          "last_finished_at": null
+        }
+      ]
+    },
+    {
+      "app": "cleanuparr",
+      "created_at": "2026-09-20T10:30:54Z",
+      "phase": "Running",
+      "containers": [
+        {
+          "container": "main",
+          "ready": true,
+          "restart_count": 0,
+          "state": "running",
+          "current_started_at": "2026-09-20T10:38:53Z",
+          "last_terminated_reason": null,
+          "last_exit_code": null,
+          "last_finished_at": null
+        }
+      ]
+    },
+    {
+      "app": "jellyfin",
+      "created_at": "2026-09-20T15:14:19Z",
+      "phase": "Running",
+      "containers": [
+        {
+          "container": "main",
+          "ready": true,
+          "restart_count": 0,
+          "state": "running",
+          "current_started_at": "2026-09-20T15:14:19Z",
+          "last_terminated_reason": null,
+          "last_exit_code": null,
+          "last_finished_at": null
+        }
+      ]
+    },
+    {
+      "app": "jellyfin-ldap-library-sync-29832120-4tr5k",
+      "created_at": "2026-09-20T18:00:00Z",
+      "phase": "Succeeded",
+      "containers": [
+        {
+          "container": "sync",
+          "ready": false,
+          "restart_count": 0,
+          "state": "terminated",
+          "current_started_at": null,
+          "last_terminated_reason": null,
+          "last_exit_code": null,
+          "last_finished_at": null
+        }
+      ]
+    },
+    {
+      "app": "lidarr",
+      "created_at": "2026-09-20T10:30:46Z",
+      "phase": "Running",
+      "containers": [
+        {
+          "container": "main",
+          "ready": true,
+          "restart_count": 0,
+          "state": "running",
+          "current_started_at": "2026-09-20T10:43:15Z",
+          "last_terminated_reason": null,
+          "last_exit_code": null,
+          "last_finished_at": null
+        }
+      ]
+    },
+    {
+      "app": "navidrome",
+      "created_at": "2026-09-20T10:30:47Z",
+      "phase": "Running",
+      "containers": [
+        {
+          "container": "main",
+          "ready": true,
+          "restart_count": 0,
+          "state": "running",
+          "current_started_at": "2026-09-20T10:43:04Z",
+          "last_terminated_reason": null,
+          "last_exit_code": null,
+          "last_finished_at": null
+        }
+      ]
+    },
+    {
+      "app": "prowlarr",
+      "created_at": "2026-09-20T10:30:56Z",
+      "phase": "Running",
+      "containers": [
+        {
+          "container": "main",
+          "ready": true,
+          "restart_count": 0,
+          "state": "running",
+          "current_started_at": "2026-09-20T10:38:24Z",
+          "last_terminated_reason": null,
+          "last_exit_code": null,
+          "last_finished_at": null
+        }
+      ]
+    },
+    {
+      "app": "radarr",
+      "created_at": "2026-09-20T10:31:01Z",
+      "phase": "Running",
+      "containers": [
+        {
+          "container": "main",
+          "ready": true,
+          "restart_count": 0,
+          "state": "running",
+          "current_started_at": "2026-09-20T10:43:57Z",
+          "last_terminated_reason": null,
+          "last_exit_code": null,
+          "last_finished_at": null
+        }
+      ]
+    },
+    {
+      "app": "radarr-ru",
+      "created_at": "2026-09-20T16:23:59Z",
+      "phase": "Running",
+      "containers": [
+        {
+          "container": "main",
+          "ready": true,
+          "restart_count": 0,
+          "state": "running",
+          "current_started_at": "2026-09-20T16:24:06Z",
+          "last_terminated_reason": null,
+          "last_exit_code": null,
+          "last_finished_at": null
+        }
+      ]
+    },
+    {
+      "app": "seerr",
+      "created_at": "2026-09-20T10:31:02Z",
+      "phase": "Running",
+      "containers": [
+        {
+          "container": "main",
+          "ready": true,
+          "restart_count": 0,
+          "state": "running",
+          "current_started_at": "2026-09-20T10:38:04Z",
+          "last_terminated_reason": null,
+          "last_exit_code": null,
+          "last_finished_at": null
+        }
+      ]
+    },
+    {
+      "app": "seerr-ru",
+      "created_at": "2026-09-20T10:30:50Z",
+      "phase": "Running",
+      "containers": [
+        {
+          "container": "main",
+          "ready": true,
+          "restart_count": 0,
+          "state": "running",
+          "current_started_at": "2026-09-20T10:38:04Z",
+          "last_terminated_reason": null,
+          "last_exit_code": null,
+          "last_finished_at": null
+        }
+      ]
+    },
+    {
+      "app": "sonarr",
+      "created_at": "2026-09-20T16:30:20Z",
+      "phase": "Running",
+      "containers": [
+        {
+          "container": "main",
+          "ready": true,
+          "restart_count": 0,
+          "state": "running",
+          "current_started_at": "2026-09-20T16:30:21Z",
+          "last_terminated_reason": null,
+          "last_exit_code": null,
+          "last_finished_at": null
+        }
+      ]
+    },
+    {
+      "app": "sonarr-ru",
+      "created_at": "2026-09-20T10:30:51Z",
+      "phase": "Running",
+      "containers": [
+        {
+          "container": "main",
+          "ready": true,
+          "restart_count": 0,
+          "state": "running",
+          "current_started_at": "2026-09-20T10:42:07Z",
+          "last_terminated_reason": null,
+          "last_exit_code": null,
+          "last_finished_at": null
+        }
+      ]
+    },
+    {
+      "app": "kube-prometheus-stack",
+      "created_at": "2026-09-20T10:32:11Z",
+      "phase": "Running",
+      "containers": [
+        {
+          "container": "grafana",
+          "ready": true,
+          "restart_count": 0,
+          "state": "running",
+          "current_started_at": "2026-09-20T10:45:55Z",
+          "last_terminated_reason": null,
+          "last_exit_code": null,
+          "last_finished_at": null
+        },
+        {
+          "container": "grafana-sc-dashboard",
+          "ready": true,
+          "restart_count": 0,
+          "state": "running",
+          "current_started_at": "2026-09-20T10:40:18Z",
+          "last_terminated_reason": null,
+          "last_exit_code": null,
+          "last_finished_at": null
+        },
+        {
+          "container": "grafana-sc-datasources",
+          "ready": true,
+          "restart_count": 0,
+          "state": "running",
+          "current_started_at": "2026-09-20T10:40:48Z",
+          "last_terminated_reason": null,
+          "last_exit_code": null,
+          "last_finished_at": null
+        }
+      ]
+    },
+    {
+      "app": "kube-prometheus-stack",
+      "created_at": "2026-09-20T10:32:11Z",
+      "phase": "Running",
+      "containers": [
+        {
+          "container": "grafana-image-renderer",
+          "ready": true,
+          "restart_count": 0,
+          "state": "running",
+          "current_started_at": "2026-09-20T10:43:15Z",
+          "last_terminated_reason": null,
+          "last_exit_code": null,
+          "last_finished_at": null
+        }
+      ]
+    }
+  ],
+  "log_scan": [
+    {
+      "app": "cleanuparr",
+      "container": "main",
+      "incarnation": "current",
+      "lines_examined": 311,
+      "timestamped_lines": 311,
+      "first_log": "2026-09-20T13:38:54.331065579+03:00",
+      "last_log": "2026-09-20T17:38:54.555522436+03:00",
+      "categories": {},
+      "available": true
+    },
+    {
+      "app": "grafana",
+      "container": "grafana",
+      "incarnation": "current",
+      "lines_examined": 1081,
+      "timestamped_lines": 1081,
+      "first_log": "2026-09-20T13:45:55.170787751+03:00",
+      "last_log": "2026-09-20T21:05:57.549774777+03:00",
+      "categories": {},
+      "available": true
+    },
+    {
+      "app": "home-assistant",
+      "container": "main",
+      "incarnation": "current",
+      "lines_examined": 29,
+      "timestamped_lines": 29,
+      "first_log": "2026-09-20T13:44:05.031609999+03:00",
+      "last_log": "2026-09-20T13:44:33.089544816+03:00",
+      "categories": {},
+      "available": true
+    },
+    {
+      "app": "home-assistant",
+      "container": "matter-server",
+      "incarnation": "current",
+      "lines_examined": 68,
+      "timestamped_lines": 68,
+      "first_log": "2026-09-20T13:45:28.949962205+03:00",
+      "last_log": "2026-09-20T20:30:27.371780149+03:00",
+      "categories": {},
+      "available": true
+    },
+    {
+      "app": "jellyfin",
+      "container": "main",
+      "incarnation": "current",
+      "lines_examined": 823,
+      "timestamped_lines": 823,
+      "first_log": "2026-09-20T18:14:19.873169470+03:00",
+      "last_log": "2026-09-20T21:08:19.267463262+03:00",
+      "categories": {
+        "sqlite_locked": {
+          "matching_lines": 4,
+          "first": "2026-09-20T19:34:27.952167883+03:00",
+          "last": "2026-09-20T19:34:27.955476874+03:00"
+        },
+        "sqlite_busy": {
+          "matching_lines": 4,
+          "first": "2026-09-20T19:34:27.952167883+03:00",
+          "last": "2026-09-20T19:34:27.955476874+03:00"
+        }
+      },
+      "available": true
+    },
+    {
+      "app": "lidarr",
+      "container": "main",
+      "incarnation": "current",
+      "lines_examined": 299,
+      "timestamped_lines": 299,
+      "first_log": "2026-09-20T13:43:55.053459868+03:00",
+      "last_log": "2026-09-20T21:00:41.571820188+03:00",
+      "categories": {},
+      "available": true
+    },
+    {
+      "app": "navidrome",
+      "container": "main",
+      "incarnation": "current",
+      "lines_examined": 311,
+      "timestamped_lines": 311,
+      "first_log": "2026-09-20T13:43:04.646025279+03:00",
+      "last_log": "2026-09-20T21:08:06.032320559+03:00",
+      "categories": {},
+      "available": true
+    },
+    {
+      "app": "prowlarr",
+      "container": "main",
+      "incarnation": "current",
+      "lines_examined": 15000,
+      "timestamped_lines": 15000,
+      "first_log": "2026-09-20T16:00:31.390617581+03:00",
+      "last_log": "2026-09-20T21:05:50.139971985+03:00",
+      "categories": {},
+      "available": true
+    },
+    {
+      "app": "radarr",
+      "container": "main",
+      "incarnation": "current",
+      "lines_examined": 389,
+      "timestamped_lines": 389,
+      "first_log": "2026-09-20T13:44:00.451431526+03:00",
+      "last_log": "2026-09-20T21:00:57.113216157+03:00",
+      "categories": {},
+      "available": true
+    },
+    {
+      "app": "radarr-ru",
+      "container": "main",
+      "incarnation": "current",
+      "lines_examined": 123,
+      "timestamped_lines": 123,
+      "first_log": "2026-09-20T19:24:06.916045990+03:00",
+      "last_log": "2026-09-20T21:05:39.733047531+03:00",
+      "categories": {},
+      "available": true
+    },
+    {
+      "app": "seerr",
+      "container": "main",
+      "incarnation": "current",
+      "lines_examined": 607,
+      "timestamped_lines": 607,
+      "first_log": "2026-09-20T13:38:05.080875019+03:00",
+      "last_log": "2026-09-20T21:05:12.751484409+03:00",
+      "categories": {},
+      "available": true
+    },
+    {
+      "app": "seerr-ru",
+      "container": "main",
+      "incarnation": "current",
+      "lines_examined": 623,
+      "timestamped_lines": 623,
+      "first_log": "2026-09-20T13:38:04.665640453+03:00",
+      "last_log": "2026-09-20T21:05:12.599371738+03:00",
+      "categories": {},
+      "available": true
+    },
+    {
+      "app": "sonarr",
+      "container": "main",
+      "incarnation": "current",
+      "lines_examined": 1092,
+      "timestamped_lines": 1092,
+      "first_log": "2026-09-20T19:30:21.573826967+03:00",
+      "last_log": "2026-09-20T21:06:16.721327076+03:00",
+      "categories": {},
+      "available": true
+    },
+    {
+      "app": "sonarr-ru",
+      "container": "main",
+      "incarnation": "current",
+      "lines_examined": 525,
+      "timestamped_lines": 525,
+      "first_log": "2026-09-20T13:42:44.980782623+03:00",
+      "last_log": "2026-09-20T21:05:50.676922753+03:00",
+      "categories": {},
+      "available": true
+    }
+  ],
+  "probe_events": [
+    {
+      "app": "jellyfin",
+      "reason": "Unhealthy",
+      "categories": ["readiness_probe"],
+      "count": 33,
+      "first": "2026-09-20T15:24:03Z",
+      "last": "2026-09-20T17:54:03Z"
+    },
+    {
+      "app": "jellyfin",
+      "reason": "Unhealthy",
+      "categories": ["liveness_probe", "probe_timeout"],
+      "count": 34,
+      "first": "2026-09-20T15:24:04Z",
+      "last": "2026-09-20T17:54:04Z"
+    },
+    {
+      "app": "jellyfin",
+      "reason": "Unhealthy",
+      "categories": ["readiness_probe"],
+      "count": 6,
+      "first": "2026-09-20T16:34:23Z",
+      "last": "2026-09-20T17:59:53Z"
+    },
+    {
+      "app": "lidarr",
+      "reason": "Unhealthy",
+      "categories": ["readiness_probe", "probe_timeout"],
+      "count": 86,
+      "first": "2026-09-20T11:19:06Z",
+      "last": "2026-09-20T17:22:56Z"
+    },
+    {
+      "app": "lidarr",
+      "reason": "Unhealthy",
+      "categories": ["liveness_probe", "probe_timeout"],
+      "count": 91,
+      "first": "2026-09-20T11:19:07Z",
+      "last": "2026-09-20T17:26:57Z"
+    },
+    {
+      "app": "prowlarr",
+      "reason": "Unhealthy",
+      "categories": ["readiness_probe", "probe_timeout"],
+      "count": 52,
+      "first": "2026-09-20T10:44:40Z",
+      "last": "2026-09-20T17:49:40Z"
+    },
+    {
+      "app": "prowlarr",
+      "reason": "Unhealthy",
+      "categories": ["liveness_probe", "probe_timeout"],
+      "count": 40,
+      "first": "2026-09-20T10:44:45Z",
+      "last": "2026-09-20T17:49:35Z"
+    },
+    {
+      "app": "radarr",
+      "reason": "Unhealthy",
+      "categories": ["readiness_probe", "probe_timeout"],
+      "count": 75,
+      "first": "2026-09-20T10:52:14Z",
+      "last": "2026-09-20T17:28:14Z"
+    },
+    {
+      "app": "radarr",
+      "reason": "Unhealthy",
+      "categories": ["liveness_probe", "probe_timeout"],
+      "count": 76,
+      "first": "2026-09-20T10:52:15Z",
+      "last": "2026-09-20T17:27:35Z"
+    },
+    {
+      "app": "radarr-ru",
+      "reason": "Unhealthy",
+      "categories": ["readiness_probe", "probe_timeout"],
+      "count": 61,
+      "first": "2026-09-20T16:42:09Z",
+      "last": "2026-09-20T18:02:49Z"
+    },
+    {
+      "app": "radarr-ru",
+      "reason": "Unhealthy",
+      "categories": ["liveness_probe", "probe_timeout"],
+      "count": 47,
+      "first": "2026-09-20T16:42:14Z",
+      "last": "2026-09-20T18:02:44Z"
+    },
+    {
+      "app": "sonarr-ru",
+      "reason": "Unhealthy",
+      "categories": ["readiness_probe", "probe_timeout"],
+      "count": 187,
+      "first": "2026-09-20T10:44:07Z",
+      "last": "2026-09-20T18:02:07Z"
+    },
+    {
+      "app": "sonarr-ru",
+      "reason": "Unhealthy",
+      "categories": ["liveness_probe", "probe_timeout"],
+      "count": 149,
+      "first": "2026-09-20T10:48:22Z",
+      "last": "2026-09-20T18:01:12Z"
+    }
+  ],
+  "probe_summary": {
+    "jellyfin": {
+      "readiness_probe": 39,
+      "liveness_probe": 34,
+      "first": "2026-09-20T15:24:03Z",
+      "last": "2026-09-20T17:59:53Z"
+    },
+    "lidarr": {
+      "readiness_probe": 86,
+      "liveness_probe": 91,
+      "first": "2026-09-20T11:19:06Z",
+      "last": "2026-09-20T17:26:57Z"
+    },
+    "prowlarr": {
+      "readiness_probe": 52,
+      "liveness_probe": 40,
+      "first": "2026-09-20T10:44:40Z",
+      "last": "2026-09-20T17:49:40Z"
+    },
+    "radarr": {
+      "readiness_probe": 75,
+      "liveness_probe": 76,
+      "first": "2026-09-20T10:52:14Z",
+      "last": "2026-09-20T17:28:14Z"
+    },
+    "radarr-ru": {
+      "readiness_probe": 61,
+      "liveness_probe": 47,
+      "first": "2026-09-20T16:42:09Z",
+      "last": "2026-09-20T18:02:49Z"
+    },
+    "sonarr-ru": {
+      "readiness_probe": 187,
+      "liveness_probe": 149,
+      "first": "2026-09-20T10:44:07Z",
+      "last": "2026-09-20T18:02:07Z"
+    }
+  },
+  "probes_and_resources": [
+    {
+      "app": "home-assistant",
+      "container": "main",
+      "probes": {
+        "startupProbe": {
+          "timeoutSeconds": 1,
+          "periodSeconds": 10,
+          "failureThreshold": 60,
+          "successThreshold": 1,
+          "initialDelaySeconds": 10
+        },
+        "readinessProbe": {
+          "timeoutSeconds": 5,
+          "periodSeconds": 10,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        },
+        "livenessProbe": {
+          "timeoutSeconds": 5,
+          "periodSeconds": 10,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        }
+      },
+      "resources": {
+        "requests": {
+          "cpu": "10m",
+          "memory": "512Mi"
+        },
+        "limits": {}
+      }
+    },
+    {
+      "app": "home-assistant",
+      "container": "matter-server",
+      "probes": {
+        "startupProbe": {
+          "timeoutSeconds": 2,
+          "periodSeconds": 5,
+          "failureThreshold": 180,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        },
+        "livenessProbe": {
+          "timeoutSeconds": 2,
+          "periodSeconds": 10,
+          "failureThreshold": 3,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        }
+      },
+      "resources": {
+        "requests": {
+          "cpu": "10m",
+          "memory": "128Mi"
+        },
+        "limits": {}
+      }
+    },
+    {
+      "app": "cleanuparr",
+      "container": "main",
+      "probes": {
+        "startupProbe": {
+          "timeoutSeconds": 1,
+          "periodSeconds": 5,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        },
+        "readinessProbe": {
+          "timeoutSeconds": 5,
+          "periodSeconds": 10,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        },
+        "livenessProbe": {
+          "timeoutSeconds": 5,
+          "periodSeconds": 10,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        }
+      },
+      "resources": {
+        "requests": {
+          "cpu": "10m",
+          "memory": "64Mi"
+        },
+        "limits": {}
+      }
+    },
+    {
+      "app": "jellyfin",
+      "container": "main",
+      "probes": {
+        "startupProbe": {
+          "timeoutSeconds": 1,
+          "periodSeconds": 10,
+          "failureThreshold": 60,
+          "successThreshold": 1,
+          "initialDelaySeconds": 30
+        },
+        "readinessProbe": {
+          "timeoutSeconds": 5,
+          "periodSeconds": 10,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        },
+        "livenessProbe": {
+          "timeoutSeconds": 5,
+          "periodSeconds": 10,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        }
+      },
+      "resources": {
+        "requests": {
+          "cpu": "10m",
+          "memory": "64Mi"
+        },
+        "limits": {}
+      }
+    },
+    {
+      "app": "lidarr",
+      "container": "main",
+      "probes": {
+        "startupProbe": {
+          "timeoutSeconds": 1,
+          "periodSeconds": 5,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        },
+        "readinessProbe": {
+          "timeoutSeconds": 5,
+          "periodSeconds": 10,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        },
+        "livenessProbe": {
+          "timeoutSeconds": 5,
+          "periodSeconds": 10,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        }
+      },
+      "resources": {
+        "requests": {
+          "cpu": "10m",
+          "memory": "64Mi"
+        },
+        "limits": {}
+      }
+    },
+    {
+      "app": "navidrome",
+      "container": "main",
+      "probes": {
+        "startupProbe": {
+          "timeoutSeconds": 1,
+          "periodSeconds": 5,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        },
+        "readinessProbe": {
+          "timeoutSeconds": 5,
+          "periodSeconds": 10,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        },
+        "livenessProbe": {
+          "timeoutSeconds": 5,
+          "periodSeconds": 10,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        }
+      },
+      "resources": {
+        "requests": {
+          "cpu": "10m",
+          "memory": "64Mi"
+        },
+        "limits": {}
+      }
+    },
+    {
+      "app": "prowlarr",
+      "container": "main",
+      "probes": {
+        "startupProbe": {
+          "timeoutSeconds": 1,
+          "periodSeconds": 5,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        },
+        "readinessProbe": {
+          "timeoutSeconds": 5,
+          "periodSeconds": 10,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        },
+        "livenessProbe": {
+          "timeoutSeconds": 5,
+          "periodSeconds": 10,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        }
+      },
+      "resources": {
+        "requests": {
+          "cpu": "10m",
+          "memory": "64Mi"
+        },
+        "limits": {}
+      }
+    },
+    {
+      "app": "radarr",
+      "container": "main",
+      "probes": {
+        "startupProbe": {
+          "timeoutSeconds": 1,
+          "periodSeconds": 5,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        },
+        "readinessProbe": {
+          "timeoutSeconds": 5,
+          "periodSeconds": 10,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        },
+        "livenessProbe": {
+          "timeoutSeconds": 5,
+          "periodSeconds": 10,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        }
+      },
+      "resources": {
+        "requests": {
+          "cpu": "10m",
+          "memory": "64Mi"
+        },
+        "limits": {}
+      }
+    },
+    {
+      "app": "radarr-ru",
+      "container": "main",
+      "probes": {
+        "startupProbe": {
+          "timeoutSeconds": 1,
+          "periodSeconds": 5,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        },
+        "readinessProbe": {
+          "timeoutSeconds": 5,
+          "periodSeconds": 10,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        },
+        "livenessProbe": {
+          "timeoutSeconds": 5,
+          "periodSeconds": 10,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        }
+      },
+      "resources": {
+        "requests": {
+          "cpu": "10m",
+          "memory": "64Mi"
+        },
+        "limits": {}
+      }
+    },
+    {
+      "app": "seerr",
+      "container": "main",
+      "probes": {
+        "startupProbe": {
+          "timeoutSeconds": 1,
+          "periodSeconds": 5,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        },
+        "readinessProbe": {
+          "timeoutSeconds": 5,
+          "periodSeconds": 10,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        },
+        "livenessProbe": {
+          "timeoutSeconds": 5,
+          "periodSeconds": 10,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        }
+      },
+      "resources": {
+        "requests": {
+          "cpu": "10m",
+          "memory": "64Mi"
+        },
+        "limits": {}
+      }
+    },
+    {
+      "app": "seerr-ru",
+      "container": "main",
+      "probes": {
+        "startupProbe": {
+          "timeoutSeconds": 1,
+          "periodSeconds": 5,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        },
+        "readinessProbe": {
+          "timeoutSeconds": 5,
+          "periodSeconds": 10,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        },
+        "livenessProbe": {
+          "timeoutSeconds": 5,
+          "periodSeconds": 10,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        }
+      },
+      "resources": {
+        "requests": {
+          "cpu": "10m",
+          "memory": "64Mi"
+        },
+        "limits": {}
+      }
+    },
+    {
+      "app": "sonarr",
+      "container": "main",
+      "probes": {
+        "startupProbe": {
+          "timeoutSeconds": 1,
+          "periodSeconds": 5,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        },
+        "readinessProbe": {
+          "timeoutSeconds": 5,
+          "periodSeconds": 10,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        },
+        "livenessProbe": {
+          "timeoutSeconds": 5,
+          "periodSeconds": 10,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        }
+      },
+      "resources": {
+        "requests": {
+          "cpu": "10m",
+          "memory": "64Mi"
+        },
+        "limits": {}
+      }
+    },
+    {
+      "app": "sonarr-ru",
+      "container": "main",
+      "probes": {
+        "startupProbe": {
+          "timeoutSeconds": 1,
+          "periodSeconds": 5,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        },
+        "readinessProbe": {
+          "timeoutSeconds": 5,
+          "periodSeconds": 10,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        },
+        "livenessProbe": {
+          "timeoutSeconds": 5,
+          "periodSeconds": 10,
+          "failureThreshold": 30,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        }
+      },
+      "resources": {
+        "requests": {
+          "cpu": "10m",
+          "memory": "64Mi"
+        },
+        "limits": {}
+      }
+    },
+    {
+      "app": "grafana",
+      "container": "grafana",
+      "probes": {
+        "readinessProbe": {
+          "timeoutSeconds": 1,
+          "periodSeconds": 10,
+          "failureThreshold": 3,
+          "successThreshold": 1,
+          "initialDelaySeconds": 0
+        },
+        "livenessProbe": {
+          "timeoutSeconds": 30,
+          "periodSeconds": 10,
+          "failureThreshold": 10,
+          "successThreshold": 1,
+          "initialDelaySeconds": 60
+        }
+      },
+      "resources": {
+        "requests": {
+          "memory": "640Mi"
+        },
+        "limits": {}
+      }
+    }
+  ],
+  "metrics_snapshot": [
+    {
+      "app": "home-assistant",
+      "timestamp": "2026-09-20T18:07:56Z",
+      "window": "16.183s",
+      "containers": [
+        {
+          "container": "main",
+          "cpu": "4224228n",
+          "memory": "734756Ki"
+        },
+        {
+          "container": "matter-server",
+          "cpu": "212012n",
+          "memory": "155384Ki"
+        }
+      ]
+    },
+    {
+      "app": "cleanuparr",
+      "timestamp": "2026-09-20T18:07:47Z",
+      "window": "12.95s",
+      "containers": [
+        {
+          "container": "main",
+          "cpu": "981003n",
+          "memory": "161428Ki"
+        }
+      ]
+    },
+    {
+      "app": "jellyfin",
+      "timestamp": "2026-09-20T18:07:55Z",
+      "window": "12.965s",
+      "containers": [
+        {
+          "container": "main",
+          "cpu": "25291168n",
+          "memory": "558032Ki"
+        }
+      ]
+    },
+    {
+      "app": "lidarr",
+      "timestamp": "2026-09-20T18:07:55Z",
+      "window": "15.659s",
+      "containers": [
+        {
+          "container": "main",
+          "cpu": "1221150n",
+          "memory": "156776Ki"
+        }
+      ]
+    },
+    {
+      "app": "navidrome",
+      "timestamp": "2026-09-20T18:07:56Z",
+      "window": "18.502s",
+      "containers": [
+        {
+          "container": "main",
+          "cpu": "1002270n",
+          "memory": "23876Ki"
+        }
+      ]
+    },
+    {
+      "app": "prowlarr",
+      "timestamp": "2026-09-20T18:07:48Z",
+      "window": "11.286s",
+      "containers": [
+        {
+          "container": "main",
+          "cpu": "884370n",
+          "memory": "251276Ki"
+        }
+      ]
+    },
+    {
+      "app": "radarr",
+      "timestamp": "2026-09-20T18:07:59Z",
+      "window": "14.608s",
+      "containers": [
+        {
+          "container": "main",
+          "cpu": "1174698n",
+          "memory": "257816Ki"
+        }
+      ]
+    },
+    {
+      "app": "radarr-ru",
+      "timestamp": "2026-09-20T18:07:56Z",
+      "window": "12.422s",
+      "containers": [
+        {
+          "container": "main",
+          "cpu": "736354n",
+          "memory": "186136Ki"
+        }
+      ]
+    },
+    {
+      "app": "seerr",
+      "timestamp": "2026-09-20T18:07:51Z",
+      "window": "19.435s",
+      "containers": [
+        {
+          "container": "main",
+          "cpu": "1323334n",
+          "memory": "211156Ki"
+        }
+      ]
+    },
+    {
+      "app": "seerr-ru",
+      "timestamp": "2026-09-20T18:07:55Z",
+      "window": "10.747s",
+      "containers": [
+        {
+          "container": "main",
+          "cpu": "506001n",
+          "memory": "213528Ki"
+        }
+      ]
+    },
+    {
+      "app": "sonarr",
+      "timestamp": "2026-09-20T18:07:51Z",
+      "window": "19.438s",
+      "containers": [
+        {
+          "container": "main",
+          "cpu": "3403282n",
+          "memory": "216420Ki"
+        }
+      ]
+    },
+    {
+      "app": "sonarr-ru",
+      "timestamp": "2026-09-20T18:07:44Z",
+      "window": "22.827s",
+      "containers": [
+        {
+          "container": "main",
+          "cpu": "1236342n",
+          "memory": "164524Ki"
+        }
+      ]
+    },
+    {
+      "app": "kube-prometheus-stack",
+      "timestamp": "2026-09-20T18:07:54Z",
+      "window": "16.501s",
+      "containers": [
+        {
+          "container": "grafana",
+          "cpu": "9995961n",
+          "memory": "378036Ki"
+        },
+        {
+          "container": "grafana-sc-dashboard",
+          "cpu": "1450064n",
+          "memory": "76960Ki"
+        },
+        {
+          "container": "grafana-sc-datasources",
+          "cpu": "617538n",
+          "memory": "75152Ki"
+        }
+      ]
+    },
+    {
+      "app": "kube-prometheus-stack",
+      "timestamp": "2026-09-20T18:07:55Z",
+      "window": "19.415s",
+      "containers": [
+        {
+          "container": "grafana-image-renderer",
+          "cpu": "84110n",
+          "memory": "8828Ki"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Current pod incarnations only; every selected pod was created on 2026-09-20.",
+    "Prowlarr hit 15000-line cap.",
+    "Kubernetes Events have limited retention and aggregate repeated failures.",
+    "Metrics snapshot is not historical CPU, memory, storage latency or NFS evidence.",
+    "Jellyfin sqlite_locked and sqlite_busy categories overlap on the same four log lines."
+  ]
+}

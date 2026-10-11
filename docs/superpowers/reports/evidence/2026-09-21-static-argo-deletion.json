@@ -1,0 +1,14 @@
+{
+  "cascading_argo_application_deleted": true,
+  "retained_pv_pvc_uids": {
+    "pv": {
+      "static-service-a": "2568c1dc-fad5-42e2-9730-8d963166a1e5",
+      "static-service-b": "5e811b54-0377-4aef-a8dd-7090f551eadb"
+    },
+    "pvc": {
+      "service-a": "8c53d472-a8b2-4b6c-9e13-3b9b8ace5766",
+      "service-b": "61ad4f85-d3cb-4bba-a3b2-56f96c742048"
+    }
+  },
+  "native_identities_unchanged": true
+}

@@ -1,0 +1,29 @@
+{
+  "run_id": "35530355071",
+  "terraform_version": "1.16.3",
+  "plan_exitcode": "2",
+  "resource_changes": [
+    {
+      "address": "module.worker_nodes[0].proxmox_vm_qemu.vm",
+      "mode": "managed",
+      "actions": ["update"],
+      "replace_paths": [],
+      "changed_paths": ["memory"],
+      "vmid": {
+        "before": 201,
+        "after": 201
+      },
+      "memory": {
+        "before": 28672,
+        "after": 20480
+      },
+      "unknown_paths": []
+    }
+  ],
+  "resource_drift": [],
+  "outputs_changed": [],
+  "head_sha": "466a292f72ac7f5bb726ccb6714cfb2e5e790330",
+  "pull_request": "https://github.com/Starktastic-Homelab/terraform/pull/222",
+  "plan_upload_conclusion": "success",
+  "sensitive_artifact_handling": "Saved plan downloaded into a private temporary directory, filtered in memory, and deleted after review; no raw plan or state retained here."
+}

@@ -1,0 +1,128 @@
+[
+  {
+    "authentication_negative_checks": [
+      {
+        "test": "wrong-chap",
+        "login_rejected": true,
+        "exit_code": 24
+      },
+      {
+        "test": "wrong-initiator",
+        "login_rejected": true,
+        "exit_code": 19
+      }
+    ]
+  },
+  {
+    "filesystem_identity_negative_checks": ["filesystem_uuid", "marker"],
+    "whole_device_hash_unchanged": true,
+    "sha256": "865cf5cbb2087a76075ac62b8dc2fc384e674a548b91175d398de91f6054c24a"
+  },
+  {
+    "missing_sealing_key_failed_decryption": true,
+    "replacement_held": true,
+    "denial": "The pods \"initialize-service-a\" is invalid: : ValidatingAdmissionPolicy 'static-iscsi-writer-hold' with binding 'static-iscsi-writer-hold' denied request: failed to configure binding: no params found for policy binding with `Deny` parameterNotFoundAction\n"
+  },
+  {
+    "snapshot_clone_verified": true,
+    "source_guid": "6253329045690822869",
+    "clone_guid": "15766227262448048091",
+    "chap_acl_preserved": true,
+    "acknowledged_rows": 26,
+    "lost_response_reconciled_without_retry": true
+  },
+  {
+    "growth_stage": "nas",
+    "state": "intent",
+    "guid": "6253329045690822869",
+    "planned_bytes": 3221225472
+  },
+  {
+    "growth_stage": "nas",
+    "state": "observed",
+    "guid": "6253329045690822869",
+    "bytes": 3221225472,
+    "record_not_updated": true
+  },
+  {
+    "interrupted_growth_held_by_identity_gate": true
+  },
+  {
+    "growth_stage": "device",
+    "service": "service-a",
+    "device_bytes": 3221225472,
+    "filesystem_before": 2147483648,
+    "filesystem_after": 2147483648,
+    "filesystem_uuid": "ab4369ad-a0d0-42ed-8987-a733d82889d2"
+  },
+  {
+    "growth_stage": "filesystem",
+    "service": "service-a",
+    "device_bytes": 3221225472,
+    "filesystem_before": 2147483648,
+    "filesystem_after": 3221225472,
+    "filesystem_uuid": "ab4369ad-a0d0-42ed-8987-a733d82889d2"
+  },
+  {
+    "growth_stage": "record",
+    "service": "service-a",
+    "device_bytes": 3221225472,
+    "filesystem_before": 3221225472,
+    "filesystem_after": 3221225472,
+    "filesystem_uuid": "ab4369ad-a0d0-42ed-8987-a733d82889d2"
+  },
+  {
+    "argo_prune_retained_original_pv_pvc": true,
+    "uids": {
+      "pv": "6f1f7f37-2089-4400-9d30-864e1853edc2",
+      "pvc": "2e20f674-6402-4155-bedd-1cd90a226774"
+    },
+    "prune_statuses": [
+      {
+        "group": "",
+        "hookPhase": "Succeeded",
+        "kind": "PersistentVolumeClaim",
+        "message": "ignored (no prune)",
+        "name": "service-a",
+        "namespace": "iscsi-fixture",
+        "status": "PruneSkipped",
+        "syncPhase": "Sync",
+        "version": "v1"
+      },
+      {
+        "group": "",
+        "hookPhase": "Succeeded",
+        "kind": "PersistentVolume",
+        "message": "ignored (no prune)",
+        "name": "static-service-a",
+        "namespace": "",
+        "status": "PruneSkipped",
+        "syncPhase": "Sync",
+        "version": "v1"
+      }
+    ]
+  },
+  {
+    "explicit_pv_pvc_deletion_retained_native_data": true,
+    "argo_prune_skipped_both": true,
+    "native_volume_count": 4
+  },
+  {
+    "damaged_clone_case": "wrong-valid-filesystem",
+    "refused_before_writable_mount": true,
+    "whole_device_hash_unchanged": true,
+    "sha256": "8c0fde678ddb425522fa48d7a0cdde84b85faa8ac66e6c77935df23f2f0aa191"
+  },
+  {
+    "damaged_clone_case": "corrupt-superblock",
+    "refused_before_writable_mount": true,
+    "whole_device_hash_unchanged": true,
+    "sha256": "ee7fc14fc9d770205b386f9525603f25a3ca0a6f8890d9ed2a5dd9329a5f0987"
+  },
+  {
+    "damaged_clone_case": "partitioned",
+    "refused_before_writable_mount": true,
+    "whole_device_hash_unchanged": true,
+    "sha256": "6ffea16574890790043eea164657482913949a0895461b247d471f36f5396505"
+  }
+]

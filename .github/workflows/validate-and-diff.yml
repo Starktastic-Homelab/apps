@@ -86,11 +86,25 @@ jobs:
 
       - name: Check retained PostgreSQL startup guard
         run: |
+          kubeconform -strict -summary \
+            scripts/postgres-retained-startup/production/pv.yaml \
+            scripts/postgres-retained-startup/production/pvc.yaml \
+            scripts/postgres-retained-startup/production/guard-configmap.yaml
+          helm template postgres oci://registry-1.docker.io/bitnamicharts/postgresql \
+            --version 18.12.4 --namespace databases -f templates/globals.yaml \
+            -f infrastructure/controllers/databases/postgres/values.yaml > /tmp/postgres-baseline.yaml
           helm template postgres oci://registry-1.docker.io/bitnamicharts/postgresql \
             --version 18.12.4 --namespace databases -f templates/globals.yaml \
             -f infrastructure/controllers/databases/postgres/values.yaml \
             -f scripts/postgres-retained-startup/values.yaml > /tmp/postgres-startup.yaml
-          PG_STARTUP_RENDER=/tmp/postgres-startup.yaml python3 scripts/test-pg-retained-startup.py
+          helm template postgres oci://registry-1.docker.io/bitnamicharts/postgresql \
+            --version 18.12.4 --namespace databases -f templates/globals.yaml \
+            -f infrastructure/controllers/databases/postgres/values.yaml \
+            -f scripts/postgres-retained-startup/production/values.yaml > /tmp/postgres-csi-preparation.yaml
+          PG_BASELINE_RENDER=/tmp/postgres-baseline.yaml \
+            PG_STARTUP_RENDER=/tmp/postgres-startup.yaml \
+            PG_CSI_PREPARATION_RENDER=/tmp/postgres-csi-preparation.yaml \
+            python3 scripts/test-pg-retained-startup.py
 
       - name: Check NAS transport failure handling
         run: |

@@ -1,0 +1,17 @@
+# INACTIVE: publish only after the separately approved cold-copy and restore gates.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data-block
+  namespace: databases
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  accessModes:
+    - ReadWriteOncePod
+  volumeMode: Filesystem
+  storageClassName: proxmox-retained
+  volumeName: postgres-data-block
+  resources:
+    requests:
+      storage: 16Gi

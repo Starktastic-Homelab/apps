@@ -141,10 +141,65 @@ class GuardTests(unittest.TestCase):
         self.assertEqual(guard['env'][0]['value'], 'REPLACE_WITH_VERIFIED_SYSTEM_IDENTIFIER')
         self.assertFalse((SOURCE / 'app.yaml').exists())
 
+    def test_production_bundle_prebinds_retained_data_without_discovery(self):
+        # Break caught: missing/stale guard, dynamic allocation, UID-bound claim
+        # recovery or a mismatched physical identity in the prepared bundle.
+        import yaml
+        bundle = SOURCE / 'production'
+        self.assertTrue((bundle / 'values.yaml').is_file(), 'Production preparation is missing')
+        values = yaml.safe_load((bundle / 'values.yaml').read_text())
+        pv = yaml.safe_load((bundle / 'pv.yaml').read_text())
+        pvc = yaml.safe_load((bundle / 'pvc.yaml').read_text())
+        config = yaml.safe_load((bundle / 'guard-configmap.yaml').read_text())
+        canonical = yaml.safe_load((ROOT / 'infrastructure/controllers/databases/postgres/manifests/enrollment-configmap.yaml').read_text())
+        self.assertEqual(config['data'], {'guard.sh': (SOURCE / 'guard.sh').read_text()})
+        self.assertEqual(config['metadata']['namespace'], pvc['metadata']['namespace'])
+        self.assertEqual(values['primary']['initContainers'][0]['env'][0]['value'], json.loads(canonical['data']['config.json'])['expectedSystemIdentifier'])
+        self.assertEqual(values['primary']['persistence']['existingClaim'], pvc['metadata']['name'])
+        self.assertEqual(pv['spec']['claimRef'], {'name': pvc['metadata']['name'], 'namespace': pvc['metadata']['namespace']})
+        self.assertEqual(pvc['spec']['volumeName'], pv['metadata']['name'])
+        self.assertEqual(pv['spec']['capacity']['storage'], pvc['spec']['resources']['requests']['storage'])
+        self.assertEqual(pv['spec']['persistentVolumeReclaimPolicy'], 'Retain')
+        for volume in (pv, pvc):
+            self.assertEqual(volume['spec']['accessModes'], ['ReadWriteOncePod'])
+            self.assertEqual(volume['spec']['volumeMode'], 'Filesystem')
+            self.assertEqual(volume['spec']['storageClassName'], 'proxmox-retained')
+            self.assertEqual(volume['metadata']['annotations']['argocd.argoproj.io/sync-options'], 'Prune=false,Delete=false')
+        self.assertEqual(pv['spec']['csi']['driver'], 'csi.proxmox.sinextra.dev')
+        self.assertEqual(pv['spec']['csi']['fsType'], 'ext4')
+        self.assertEqual(pv['spec']['csi']['volumeAttributes'], {'storage': 'k3s-block', 'cache': 'none'})
+        self.assertEqual(pv['spec']['csi']['volumeHandle'], 'homelab//k3s-block/9999/vm-9999-postgres.raw')
+        self.assertEqual(list(bundle.rglob('app.yaml')), [])
+
+    @unittest.skipUnless(os.environ.get('PG_CSI_PREPARATION_RENDER'), 'Set PG_CSI_PREPARATION_RENDER to an actual chart render')
+    def test_production_render_uses_guarded_single_writer_and_existing_claim(self):
+        # Break caught: overlay ignored, ownership init preceding validation,
+        # consumer/config changes, controller placement or timed Pod eviction.
+        import yaml
+        docs = [x for x in yaml.safe_load_all(Path(os.environ['PG_CSI_PREPARATION_RENDER']).read_text()) if x]
+        baseline = list(yaml.safe_load_all(Path(os.environ['PG_BASELINE_RENDER']).read_text()))
+        stateful = next(x for x in docs if x['kind'] == 'StatefulSet')
+        before = next(x for x in baseline if x and x['kind'] == 'StatefulSet')
+        pod = stateful['spec']['template']['spec']
+        self.assertEqual(stateful['spec']['replicas'], 1)
+        self.assertFalse(stateful['spec'].get('volumeClaimTemplates'))
+        self.assertFalse(any(x['kind'] == 'PersistentVolumeClaim' for x in docs))
+        self.assertEqual(next(v for v in pod['volumes'] if v['name'] == 'data')['persistentVolumeClaim']['claimName'], 'postgres-data-block')
+        self.assertEqual(pod['containers'], before['spec']['template']['spec']['containers'])
+        self.assertEqual([x['name'] for x in pod['initContainers']], ['verify-retained-data'])
+        self.assertNotIn('fsGroup', pod['securityContext'])
+        self.assertFalse(pod['automountServiceAccountToken'])
+        guard = pod['initContainers'][0]
+        self.assertEqual(guard['image'], next(x['image'] for x in pod['containers'] if x['name'] == 'postgresql'))
+        self.assertTrue(next(v for v in guard['volumeMounts'] if v['name'] == 'data')['readOnly'])
+        self.assertEqual({v['name'] for v in guard['volumeMounts']}, {'data', 'retained-startup-guard', 'retained-startup-scratch'})
+        self.assertEqual(pod['nodeSelector'], {'kubernetes.io/os': 'linux', 'node-role.kubernetes.io/worker': 'true'})
+        self.assertEqual(pod['tolerations'], [{'key': 'node.kubernetes.io/not-ready', 'operator': 'Exists', 'effect': 'NoExecute'}, {'key': 'node.kubernetes.io/unreachable', 'operator': 'Exists', 'effect': 'NoExecute'}])
+
 
 if __name__ == '__main__':
     if '--manifests-only' in sys.argv:
-        suite = unittest.TestSuite([GuardTests('test_inactive_chart_values_use_readonly_nonroot_guard'), GuardTests('test_rendered_chart_guard_precedes_main_without_ownership_mutation')])
+        suite = unittest.TestSuite([GuardTests(name) for name in ('test_inactive_chart_values_use_readonly_nonroot_guard', 'test_rendered_chart_guard_precedes_main_without_ownership_mutation', 'test_production_bundle_prebinds_retained_data_without_discovery', 'test_production_render_uses_guarded_single_writer_and_existing_claim')])
     elif '--native-only' in sys.argv:
         suite = unittest.TestSuite([GuardTests('test_real_control_file_and_rejected_data_are_unchanged')])
     else:

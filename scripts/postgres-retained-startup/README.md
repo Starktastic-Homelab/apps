@@ -5,6 +5,12 @@ PVC, credentials or application. It is for an **already initialized PG18 server*
 whose retained data must survive a fresh Kubernetes cluster. Initial installation
 and logical restore require separate reviewed procedures.
 
+The [production preparation bundle](production/) binds the qualified guard to
+the current physical system ID and an explicit 16GiB static RWOP claim. It also
+remains outside ApplicationSet discovery. Read the
+[PostgreSQL storage runbook](../../docs/runbooks/postgresql-storage.md) before
+proposing activation, allocation, backup transfer or downtime.
+
 The init runs before the unmodified Bitnami18.6 entrypoint, using the same pinned
 server image. It requires an independently declared, canonical physical system
 identifier, PG_VERSION18, real readable full-sized control/version files and searchable data directories,
@@ -80,6 +86,12 @@ empty/missing data. Every invocation compares file hashes before/after, even on
 rejection; all fixture containers/volumes are removed and absence verified.
 `--native-only` avoids PyYAML; `--manifests-only` avoids Docker. Set
 `PG_STARTUP_TEST_RECEIPT` to save a non-secret result and cleanup receipt.
+
+CI also renders the current chart without an overlay and with each inactive
+overlay. `PG_BASELINE_RENDER` and `PG_CSI_PREPARATION_RENDER` enable comparison of
+the production preparation against the actual baseline, checking the existing
+claim, unchanged server/exporter containers and guarded worker placement. The
+bundle check rejects stale embedded guard source and mismatched static bindings.
 
 These source checks precede native Kubernetes startup and full Terraform/Ansible
 fresh-metadata rebuild qualification. Those remaining gates must pass after merge

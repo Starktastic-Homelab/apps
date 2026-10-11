@@ -1,0 +1,64 @@
+# INACTIVE final overlay for the populated retained PG18 volume.
+# Merge arrays carefully; see docs/runbooks/postgresql-storage.md before activation.
+primary:
+  initContainers:
+    - name: verify-retained-data
+      image: registry-1.docker.io/bitnami/postgresql:latest@sha256:b74b23f091dcc87041bcae557d840c36458af46b955279cb13aedec4c32d7f71
+      imagePullPolicy: IfNotPresent
+      command:
+        - /bin/bash
+        - /retained-startup/guard.sh
+      env:
+        - name: EXPECTED_SYSTEM_IDENTIFIER
+          value: "7584099661242523698"
+      securityContext:
+        runAsUser: 1001
+        runAsGroup: 1001
+        runAsNonRoot: true
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+            - ALL
+        seccompProfile:
+          type: RuntimeDefault
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          cpu: 100m
+          memory: 64Mi
+      volumeMounts:
+        - name: data
+          mountPath: /bitnami/postgresql
+          readOnly: true
+        - name: retained-startup-guard
+          mountPath: /retained-startup
+          readOnly: true
+        - name: retained-startup-scratch
+          mountPath: /tmp
+  extraVolumes:
+    - name: retained-startup-guard
+      configMap:
+        name: postgres-retained-startup-guard
+        defaultMode: 292
+    - name: retained-startup-scratch
+      emptyDir:
+        sizeLimit: 16Mi
+  podSecurityContext:
+    fsGroup: null
+  persistence:
+    existingClaim: postgres-data-block
+  nodeSelector:
+    kubernetes.io/os: linux
+    node-role.kubernetes.io/worker: "true"
+  tolerations:
+    - key: node.kubernetes.io/not-ready
+      operator: Exists
+      effect: NoExecute
+    - key: node.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+volumePermissions:
+  enabled: false

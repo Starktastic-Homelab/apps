@@ -1,10 +1,19 @@
 # PostgreSQL enrollment operations
 
-The first activation declares only the retained synthetic `pg-enrollment-pilot`
-canary. Its SQL database and role are `homelab_enrollment_pilot`; PostgreSQL
-reserves role names beginning with `pg_`. Existing application databases and
-credentials are not adopted or changed by this activation. PostgreSQL remains on
-its current retained NFS volume, chart and Pod template.
+The retained synthetic `pg-enrollment-pilot` canary's SQL database and role are
+`homelab_enrollment_pilot`; PostgreSQL reserves role names beginning with `pg_`.
+Existing application databases and credentials are not adopted or changed by
+enrollment preparation. PostgreSQL remains on its current retained NFS volume,
+chart and Pod template.
+
+The `autobrr` declaration prepares a new empty database and restricted role with
+the same name. Its password is sealed once in the aggregate's `autobrr-password`
+key and in `media/autobrr-postgres-secret` under `password`. The latter Secret is
+reserved for later conversion and is unused by the current Autobrr deployment.
+Autobrr keeps its existing configuration, Pod template and retained NFS claim;
+this stage does not read or convert its SQLite data. After the user merges the
+preparation PR, verify full-hook acceptance, canonical login, ownership/grants
+and a full-sync retry, preserving the pilot and existing consumers.
 
 The expected physical system identifier is `7584099661242523698`. Installation
 requires the separately approved one-time bootstrap of the admin-only
@@ -25,10 +34,12 @@ rebuilds and hook retries do not generate or reseal passwords.
 Use the existing [preparation helper](../../scripts/postgres-enrollment/README.md)
 for each approved consumer, starting with the current config and encrypted
 aggregate. Preserve prior ciphertext and unrelated application Secret keys.
-Integrate the helper's generated gate into actual chart values and render its
-dedicated ServiceAccount, ordered init containers and exact volume mounts before
-merging. Runtime/gate/Job-template changes require regenerating the matching
-ConfigMap and Job from existing ciphertext. Do not patch only one input.
+Before enabling a consumer to use PostgreSQL, integrate the helper's generated
+gate into actual chart values and render its dedicated ServiceAccount, ordered
+init containers and exact volume mounts before merging that activation.
+Enrollment-only preparation leaves these consumer fragments inactive.
+Runtime/gate/Job-template changes require regenerating the matching ConfigMap and
+Job from existing ciphertext. Do not patch only one input.
 
 Existing databases require a separate `adopt` review, complete privilege and
 application inventory, and their verified current credential. Adoption preserves

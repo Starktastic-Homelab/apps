@@ -1,0 +1,392 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-enrollment-config
+  namespace: databases
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+data:
+  config.json: |
+    {
+      "version": 1,
+      "expectedSystemIdentifier": "7584099661242523698",
+      "entries": [
+        {
+          "id": "pg-enrollment-pilot",
+          "database": "homelab_enrollment_pilot",
+          "role": "homelab_enrollment_pilot",
+          "mode": "new",
+          "passwordKey": "pilot-password"
+        }
+      ]
+    }
+  enroll.sh: |
+    #!/bin/sh
+    # Secret values never enter arguments, tracing or diagnostic output.
+    set +x
+    set -eu
+    umask 077
+    export PGCONNECT_TIMEOUT=5
+    export PGOPTIONS='-c statement_timeout=60000'
+    fail() {
+      echo 'PostgreSQL enrollment failed; inspect declared identity, registry and credentials.' >&2
+      exit 1
+    }
+    password_file() {
+      [ -f "$1" ] && [ -s "$1" ] && [ "$(wc -c <"$1")" -le 4096 ] || fail
+      if ! od -An -tu1 "$1" | awk '{for(i=1;i<=NF;i++) if($i==0 || $i==10 || $i==13) exit 1}'; then
+        echo 'Password contains unsupported NUL/CR/LF bytes.' >&2
+        exit 1
+      fi
+    }
+    admin() {
+      password_file /credentials/admin/postgres-password
+      PGPASSWORD=$(cat /credentials/admin/postgres-password)
+      export PGPASSWORD
+    }
+    case "${1:-}" in
+      run)
+        [ "${PGDATABASE:-}" = postgres ] && [ "${PGUSER:-}" = postgres ] || fail
+        admin
+        scratch=$(mktemp -d)
+        trap 'rm -rf "$scratch"' EXIT HUP INT TERM
+        tab=$(printf '\t')
+        psql -XqAt -F "$tab" -v ON_ERROR_STOP=1 -v preflight=true -v rows="$scratch/entries" -f /scripts/enroll.sql >/dev/null 2>&1 || fail
+        # Validate ALL credential projections before creating anything.
+        while IFS="$tab" read -r id db role _mode key verify; do
+          password_file "/credentials/apps/$key"
+        done <"$scratch/entries"
+        # Existing credentials are acceptance checks, never password reset permission.
+        while IFS="$tab" read -r id db role _mode key verify; do
+          if [ "$verify" = t ]; then
+            ENROLL_DATABASE=$db ENROLL_ROLE=$role ENROLL_KEY=$key /bin/sh /scripts/enroll.sh verify-login || fail
+          fi
+        done <"$scratch/entries"
+        while IFS="$tab" read -r id db role _mode key verify; do
+          password=$(cat "/credentials/apps/$key")
+          if ! printf '%s\n%s\n' "$password" "$password" |
+            psql -XqAt -v ON_ERROR_STOP=1 -v preflight=false -v entry="$id" -f /scripts/enroll.sql >/dev/null 2>&1; then
+            echo "Enrollment $id failed." >&2
+            fail
+          fi
+          echo "Enrollment $id verified."
+        done <"$scratch/entries"
+        ;;
+      schema)
+        admin
+        PGDATABASE=$ENROLL_DATABASE
+        export PGDATABASE
+        psql -Xq -v ON_ERROR_STOP=1 -v role="$ENROLL_ROLE" -f /scripts/schema.sql >/dev/null 2>&1 || fail
+        ;;
+      verify-login)
+        password_file "/credentials/apps/$ENROLL_KEY"
+        PGPASSWORD=$(cat "/credentials/apps/$ENROLL_KEY")
+        PGUSER=$ENROLL_ROLE
+        PGDATABASE=$ENROLL_DATABASE
+        export PGPASSWORD PGUSER PGDATABASE
+        psql -XqAt -v ON_ERROR_STOP=1 -c 'SELECT 1' >/dev/null 2>&1 || fail
+        ;;
+      *) fail ;;
+    esac
+  enroll.sql: |
+    \set ON_ERROR_STOP on
+    SET statement_timeout = '60s';
+    \set config `cat /config/config.json`
+    CREATE TEMP TABLE config AS SELECT :'config'::jsonb AS value;
+    DO $$
+    DECLARE c jsonb := (SELECT value FROM config);
+            deadline timestamptz := clock_timestamp() + interval '30 seconds';
+    BEGIN
+      IF current_database() <> 'postgres' OR current_user <> 'postgres'
+         OR c->>'expectedSystemIdentifier' IS NULL
+         OR c->>'expectedSystemIdentifier' !~ '^[0-9]+$'
+         OR c->>'expectedSystemIdentifier' <> (SELECT system_identifier::text FROM pg_control_system())
+         OR pg_is_in_recovery() THEN RAISE EXCEPTION 'Server identity rejected'; END IF;
+      WHILE NOT pg_try_advisory_lock(1346848082, 1) LOOP
+        IF clock_timestamp() >= deadline THEN RAISE EXCEPTION 'Enrollment lock timeout'; END IF;
+        PERFORM pg_sleep(0.1);
+      END LOOP;
+      IF (SELECT array_agg(k ORDER BY k) FROM jsonb_object_keys(c) k)
+           <> ARRAY['entries','expectedSystemIdentifier','version']
+         OR c->'version' <> '1'::jsonb OR jsonb_typeof(c->'entries') <> 'array'
+         OR jsonb_typeof(c->'expectedSystemIdentifier') <> 'string' THEN
+        RAISE EXCEPTION 'Invalid enrollment config';
+      END IF;
+      IF NOT EXISTS (SELECT FROM pg_namespace WHERE nspname='homelab_enrollment'
+          AND nspowner='postgres'::regrole AND NOT EXISTS
+            (SELECT FROM aclexplode(nspacl) a WHERE a.grantee <> 'postgres'::regrole))
+         OR NOT EXISTS (SELECT FROM pg_class WHERE oid=to_regclass('homelab_enrollment.enrollments')
+            AND relkind='r' AND relowner='postgres'::regrole AND NOT relrowsecurity AND NOT relforcerowsecurity
+            AND NOT EXISTS (SELECT FROM aclexplode(relacl) a WHERE a.grantee <> 'postgres'::regrole)) THEN
+        RAISE EXCEPTION 'Registry missing or unsafe';
+      END IF;
+      IF (SELECT array_agg(attname::text ORDER BY attnum) FROM pg_attribute
+           WHERE attrelid='homelab_enrollment.enrollments'::regclass AND attnum>0 AND NOT attisdropped)
+           <> ARRAY['id','database_name','role_name','mode','phase']
+         OR EXISTS (SELECT FROM pg_attribute WHERE attrelid='homelab_enrollment.enrollments'::regclass
+           AND attnum>0 AND (attisdropped OR atttypid<>'text'::regtype OR NOT attnotnull OR atthasdef OR attgenerated<>'' OR attidentity<>''))
+         OR (SELECT count(*) FROM pg_constraint WHERE conrelid='homelab_enrollment.enrollments'::regclass AND contype<>'n') <> 5
+         OR (SELECT array_agg(pg_get_constraintdef(oid) ORDER BY pg_get_constraintdef(oid)) FROM pg_constraint
+             WHERE conrelid='homelab_enrollment.enrollments'::regclass AND convalidated AND contype<>'n')
+           <> ARRAY['CHECK ((mode = ANY (ARRAY[''new''::text, ''adopt''::text])))',
+                    'CHECK ((phase = ANY (ARRAY[''provisioning''::text, ''ready''::text])))',
+                    'PRIMARY KEY (id)', 'UNIQUE (database_name)', 'UNIQUE (role_name)']
+         OR EXISTS (SELECT FROM pg_trigger WHERE tgrelid='homelab_enrollment.enrollments'::regclass AND NOT tgisinternal)
+         OR EXISTS (SELECT FROM pg_rewrite WHERE ev_class='homelab_enrollment.enrollments'::regclass)
+         OR EXISTS (SELECT FROM pg_index WHERE indrelid='homelab_enrollment.enrollments'::regclass AND NOT indisvalid) THEN
+        RAISE EXCEPTION 'Registry structure changed';
+      END IF;
+    END $$;
+    CREATE TEMP TABLE entries AS
+    SELECT e->>'id' AS id,e->>'database' AS database_name,e->>'role' AS role_name,
+           e->>'mode' AS mode,e->>'passwordKey' AS password_key,e AS raw
+    FROM config, jsonb_array_elements(value->'entries') e;
+    DO $$
+    DECLARE e record; r record; d record; l record;
+    BEGIN
+      IF EXISTS (SELECT FROM entries WHERE
+          (SELECT array_agg(k ORDER BY k) FROM jsonb_object_keys(raw) k)
+            <> ARRAY['database','id','mode','passwordKey','role']
+          OR EXISTS (SELECT FROM jsonb_each(raw) WHERE jsonb_typeof(value)<>'string')
+          OR id IS NULL OR database_name IS NULL OR role_name IS NULL OR mode IS NULL OR password_key IS NULL
+          OR id !~ '^[a-z][a-z0-9_-]{0,62}$' OR database_name !~ '^[a-z][a-z0-9_]{0,62}$'
+          OR role_name !~ '^[a-z][a-z0-9_]{0,62}$' OR password_key !~ '^[a-z][a-z0-9_-]{0,62}$'
+          OR mode NOT IN ('new','adopt') OR role_name='postgres' OR role_name LIKE 'pg\_%'
+          OR database_name IN ('postgres','template0','template1'))
+        OR EXISTS (SELECT FROM entries GROUP BY id HAVING count(*)>1)
+        OR EXISTS (SELECT FROM entries GROUP BY database_name HAVING count(*)>1)
+        OR EXISTS (SELECT FROM entries GROUP BY role_name HAVING count(*)>1)
+        OR EXISTS (SELECT FROM entries GROUP BY password_key HAVING count(*)>1) THEN
+        RAISE EXCEPTION 'Invalid enrollment entries';
+      END IF;
+      FOR e IN SELECT * FROM entries LOOP
+        SELECT * INTO l FROM homelab_enrollment.enrollments WHERE id=e.id;
+        IF l.id IS NOT NULL AND (l.database_name<>e.database_name OR l.role_name<>e.role_name OR l.mode<>e.mode) THEN
+          RAISE EXCEPTION 'Recorded binding changed';
+        END IF;
+        IF EXISTS (SELECT FROM homelab_enrollment.enrollments WHERE id<>e.id
+            AND (database_name=e.database_name OR role_name=e.role_name)) THEN
+          RAISE EXCEPTION 'Identity already recorded';
+        END IF;
+        SELECT * INTO r FROM pg_roles WHERE rolname=e.role_name;
+        SELECT * INTO d FROM pg_database WHERE datname=e.database_name;
+        IF l.id IS NULL AND e.mode='new' THEN
+          IF r.oid IS NOT NULL OR d.oid IS NOT NULL THEN RAISE EXCEPTION 'New identity already exists'; END IF;
+        ELSE
+          IF r.oid IS NULL OR r.rolsuper OR r.rolcreatedb OR r.rolcreaterole OR r.rolreplication
+            OR r.rolbypassrls OR NOT r.rolinherit OR r.rolvaliduntil IS NOT NULL
+            OR (e.mode='new' AND EXISTS (SELECT FROM pg_auth_members WHERE member=r.oid)) THEN
+            RAISE EXCEPTION 'Role missing or incompatible';
+          END IF;
+          IF e.mode='adopt' AND EXISTS (
+            WITH RECURSIVE parents(oid) AS (
+              SELECT roleid FROM pg_auth_members WHERE member=r.oid
+              UNION SELECT m.roleid FROM pg_auth_members m JOIN parents p ON m.member=p.oid)
+            SELECT FROM parents JOIN pg_roles p USING(oid)
+            WHERE p.rolsuper OR p.rolcreatedb OR p.rolcreaterole OR p.rolreplication OR p.rolbypassrls OR p.rolname LIKE 'pg\_%') THEN
+            RAISE EXCEPTION 'Elevated membership';
+          END IF;
+          IF l.phase='provisioning' THEN
+            IF e.mode<>'new' OR r.rolcanlogin THEN RAISE EXCEPTION 'Invalid pending role'; END IF;
+          ELSIF NOT r.rolcanlogin OR d.oid IS NULL THEN RAISE EXCEPTION 'Established identity missing'; END IF;
+          IF d.oid IS NOT NULL AND (d.datdba<>r.oid OR NOT d.datallowconn OR d.datistemplate) THEN
+            RAISE EXCEPTION 'Database incompatible';
+          END IF;
+        END IF;
+      END LOOP;
+    END $$;
+    \if :preflight
+    \o :rows
+    SELECT e.id,e.database_name,e.role_name,e.mode,e.password_key,
+           (e.mode='adopt' OR l.phase='ready') IS TRUE AS verify
+    FROM entries e LEFT JOIN homelab_enrollment.enrollments l USING(id) ORDER BY e.id;
+    \o
+    \else
+    SELECT id,database_name AS database,role_name AS role,mode,password_key AS key FROM entries WHERE id=:'entry' \gset
+    SELECT NOT EXISTS (SELECT FROM homelab_enrollment.enrollments WHERE id=:'id') AS unknown \gset
+    -- boundary: before-role
+    \if :unknown
+    SELECT :'mode'='new' AS create_new \gset
+    \if :create_new
+    BEGIN;
+    SELECT format('CREATE ROLE %I NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS INHERIT', :'role') \gexec
+    INSERT INTO homelab_enrollment.enrollments VALUES (:'id',:'database',:'role','new','provisioning');
+    COMMIT;
+    \endif
+    \endif
+    -- boundary: after-role
+    SELECT EXISTS (SELECT FROM homelab_enrollment.enrollments WHERE id=:'id' AND phase='provisioning') AS provisioning \gset
+    \setenv ENROLL_DATABASE :database
+    \setenv ENROLL_ROLE :role
+    \setenv ENROLL_KEY :key
+    \if :provisioning
+    SET password_encryption='scram-sha-256';
+    \password :"role"
+    -- boundary: after-password
+    SELECT format('CREATE DATABASE %I OWNER %I', :'database', :'role') WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname=:'database') \gexec
+    -- boundary: after-database
+    SELECT format('REVOKE ALL ON DATABASE %I FROM PUBLIC', :'database') \gexec
+    \! /bin/sh /scripts/enroll.sh schema
+    \if :SHELL_ERROR
+    DO $$ BEGIN RAISE EXCEPTION 'Enrollment child failed'; END $$;
+    \endif
+    -- boundary: after-schema
+    BEGIN;
+    UPDATE homelab_enrollment.enrollments SET phase='ready' WHERE id=:'id';
+    SELECT format('ALTER ROLE %I LOGIN', :'role') \gexec
+    COMMIT;
+    \endif
+    -- boundary: after-ready
+    \! /bin/sh /scripts/enroll.sh verify-login
+    \if :SHELL_ERROR
+    DO $$ BEGIN RAISE EXCEPTION 'Enrollment child failed'; END $$;
+    \endif
+    \if :unknown
+    \if :create_new
+    \else
+    INSERT INTO homelab_enrollment.enrollments VALUES (:'id',:'database',:'role','adopt','ready');
+    \endif
+    \endif
+    \endif
+  schema.sql: |
+    \set ON_ERROR_STOP on
+    BEGIN;
+    REVOKE ALL ON SCHEMA public FROM PUBLIC;
+    GRANT ALL ON SCHEMA public TO :"role";
+    COMMIT;
+  completion-protocol-version: "1"
+  completion_gate.py: |
+    #!/usr/bin/env python3
+    """Read-only, fail-closed native Argo enrollment acceptance for consumer init."""
+    import argparse
+    import hashlib
+    from http.client import HTTPException
+    import json
+    from pathlib import Path
+    import ssl
+    import time
+    from urllib.request import HTTPSHandler, HTTPRedirectHandler, ProxyHandler, Request, build_opener
+
+    CONFIG_PATH = '/api/v1/namespaces/databases/configmaps/postgres-enrollment-config'
+    APPLICATION_PATH = '/apis/argoproj.io/v1alpha1/namespaces/argocd/applications/postgres'
+    MAX_RESPONSE = 1024 * 1024
+    REQUIRED_DATA = {'config.json', 'enroll.sh', 'enroll.sql', 'schema.sql', 'completion_gate.py',
+                     'completion-protocol-version', 'encrypted-inputs-sha256', 'job-template.json'}
+
+
+    def generation(data: dict) -> str:
+        inputs = {key: value for key, value in data.items() if key != 'acceptance-generation'}
+        return hashlib.sha256(json.dumps(inputs, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+
+
+    def hook_name(value: str) -> str:
+        return 'postgres-enrollment-' + value[:32]
+
+
+    def accepted(configmap: dict, application: dict, identity: dict) -> bool:
+        try:
+            if (configmap['metadata']['name'] != 'postgres-enrollment-config'
+                    or configmap['metadata']['namespace'] != 'databases'
+                    or application['metadata']['name'] != 'postgres'
+                    or application['metadata']['namespace'] != 'argocd'
+                    or application.get('operation') is not None):
+                return False
+            data = configmap['data']
+            if (not REQUIRED_DATA <= set(data) or not all(isinstance(v, str) for v in data.values())
+                    or data['completion-protocol-version'] != '1'
+                    or data['acceptance-generation'] != generation(data)):
+                return False
+            config = json.loads(data['config.json'])
+            if type(config['version']) is not int or config['version'] != 1:
+                return False
+            entries = [entry for entry in config['entries'] if entry['id'] == identity['id']]
+            if len(entries) != 1 or any(entries[0][key] != identity[key] for key in ('database', 'role')):
+                return False
+            status = application['status']
+            state = status['operationState']
+            sync = state['operation']['sync']
+            revisions = (status['sync']['revisions'], state['syncResult']['revisions'])
+            if (state['phase'] != 'Succeeded' or status['sync']['status'] != 'Synced'
+                    or status['health']['status'] != 'Healthy'
+                    or sync.get('resources') is not None or sync.get('dryRun') is True
+                    or 'apply' in sync.get('syncStrategy', {})
+                    or any(not isinstance(values, list) or not values
+                           or not all(isinstance(v, str) and v for v in values) for values in revisions)):
+                return False
+            # A newer unrelated Git commit can be Synced without a new operation.
+            # The current input fingerprint, rather than repository SHA, binds acceptance.
+            hooks = [resource for resource in state['syncResult']['resources']
+                     if resource.get('group') == 'batch' and resource.get('kind') == 'Job'
+                     and resource.get('namespace') == 'databases'
+                     and resource.get('name') == hook_name(data['acceptance-generation'])]
+            return (len(hooks) == 1 and hooks[0].get('hookType') == 'Sync'
+                    and hooks[0].get('hookPhase') == 'Succeeded')
+        except (KeyError, TypeError, ValueError, AttributeError):
+            return False
+
+
+    def check_once(get, identity: dict) -> bool:
+        try:
+            before = get(CONFIG_PATH)
+            application = get(APPLICATION_PATH)
+            after = get(CONFIG_PATH)
+            # ResourceVersion catches updates even if the configuration changes back.
+            for key in ('uid', 'resourceVersion'):
+                if not before['metadata'][key] or before['metadata'][key] != after['metadata'][key]:
+                    return False
+            return before['data'] == after['data'] and accepted(after, application, identity)
+        except (OSError, HTTPException, KeyError, TypeError, ValueError, AttributeError):
+            return False
+
+
+    class NoRedirect(HTTPRedirectHandler):
+        def redirect_request(self, req, fp, code, msg, headers, newurl):
+            raise OSError('Kubernetes API redirect refused')
+
+
+    class APIReader:
+        def __init__(self):
+            directory = Path('/gate-api')
+            self.token = lambda: (directory / 'token').read_text().strip()
+            self.opener = build_opener(ProxyHandler({}), NoRedirect(),
+                                       HTTPSHandler(context=ssl.create_default_context(cafile=str(directory / 'ca.crt'))))
+
+        def get(self, path: str) -> dict:
+            if path not in (CONFIG_PATH, APPLICATION_PATH):
+                raise ValueError('Unexpected Kubernetes resource')
+            request = Request('https://kubernetes.default.svc' + path,
+                              headers={'Authorization': 'Bearer ' + self.token(), 'Accept': 'application/json'})
+            with self.opener.open(request, timeout=10) as response:
+                payload = response.read(MAX_RESPONSE + 1)
+            if len(payload) > MAX_RESPONSE:
+                raise ValueError('Kubernetes response exceeds limit')
+            result = json.loads(payload)
+            if not isinstance(result, dict):
+                raise ValueError('Expected Kubernetes object')
+            return result
+
+
+    def main():
+        parser = argparse.ArgumentParser(description=__doc__)
+        for key in ('id', 'database', 'role'):
+            parser.add_argument('--' + key, required=True)
+        args = parser.parse_args()
+        deadline = time.monotonic() + 600
+        print('Waiting for current PostgreSQL enrollment acceptance', flush=True)
+        while time.monotonic() < deadline:
+            try:
+                if check_once(APIReader().get, vars(args)):
+                    print('Current PostgreSQL enrollment accepted', flush=True)
+                    return 0
+            except (OSError, HTTPException, ValueError):
+                pass
+            time.sleep(5)
+        print('PostgreSQL enrollment acceptance unavailable; startup remains blocked', flush=True)
+        return 1
+
+
+    if __name__ == '__main__':
+        raise SystemExit(main())
+  encrypted-inputs-sha256: 56f7f9a3fcec99152c9cce9887448d0e88b3381493440c5636a67ac48841bec2
+  job-template.json: '{"apiVersion":"batch/v1","kind":"Job","metadata":{"annotations":{"argocd.argoproj.io/hook":"Sync","argocd.argoproj.io/hook-delete-policy":"BeforeHookCreation,HookSucceeded","argocd.argoproj.io/sync-wave":"1"},"name":"postgres-enrollment","namespace":"databases"},"spec":{"activeDeadlineSeconds":600,"backoffLimit":2,"template":{"metadata":{"labels":{"app.kubernetes.io/name":"postgres-enrollment"}},"spec":{"automountServiceAccountToken":false,"containers":[{"command":["/bin/sh","/scripts/enroll.sh","run"],"env":[{"name":"PGHOST","value":"postgres-postgresql.databases"},{"name":"PGPORT","value":"5432"},{"name":"PGUSER","value":"postgres"},{"name":"PGDATABASE","value":"postgres"}],"image":"postgres:18.6-alpine@sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd","name":"enroll","resources":{"limits":{"cpu":"500m","memory":"128Mi"},"requests":{"cpu":"100m","memory":"64Mi"}},"securityContext":{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true},"volumeMounts":[{"mountPath":"/config","name":"config","readOnly":true},{"mountPath":"/scripts","name":"scripts","readOnly":true},{"mountPath":"/credentials/admin","name":"admin","readOnly":true},{"mountPath":"/credentials/apps","name":"apps","readOnly":true},{"mountPath":"/tmp","name":"scratch"}]}],"restartPolicy":"Never","securityContext":{"fsGroup":1001,"runAsGroup":1001,"runAsNonRoot":true,"runAsUser":1001,"seccompProfile":{"type":"RuntimeDefault"}},"volumes":[{"configMap":{"defaultMode":292,"items":[{"key":"config.json","path":"config.json"}],"name":"postgres-enrollment-config"},"name":"config"},{"configMap":{"defaultMode":292,"items":[{"key":"enroll.sh","path":"enroll.sh"},{"key":"enroll.sql","path":"enroll.sql"},{"key":"schema.sql","path":"schema.sql"}],"name":"postgres-enrollment-config"},"name":"scripts"},{"name":"admin","secret":{"defaultMode":288,"items":[{"key":"postgres-password","path":"postgres-password"}],"secretName":"postgres-admin-secret"}},{"name":"apps","secret":{"defaultMode":288,"secretName":"postgres-enrollment-credentials"}},{"emptyDir":{"medium":"Memory","sizeLimit":"16Mi"},"name":"scratch"}]}}}}'
+  acceptance-generation: 2ba830c0435c29a9e42d0dbb38e386cc184ccab364d37e37ce1a302c274ee4b9

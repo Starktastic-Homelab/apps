@@ -1,8 +1,10 @@
 # PostgreSQL enrollment and retained startup qualification
 
 The disposable native PostgreSQL qualification passed on 11 October 2026.
-Production enrollment and the retained startup overlay remain inactive. This
-record does not authorize production database changes or an NFS-to-CSI migration.
+At qualification completion, production enrollment and the retained startup
+overlay remained inactive. This record does not authorize production database
+changes or an NFS-to-CSI migration; subsequent activation is documented in the
+[operations guide](postgresql-enrollment.md).
 
 The tested sources are [PR1324](https://github.com/Starktastic-Homelab/apps/pull/1324)
 (enrollment), [PR1326](https://github.com/Starktastic-Homelab/apps/pull/1326)

@@ -1,9 +1,10 @@
-# PostgreSQL application enrollment (inactive source)
+# PostgreSQL application enrollment sources
 
-This directory is outside ApplicationSet discovery. Nothing here installs a
-registry, creates production credentials or starts a Job until separately reviewed
-manifests are copied into the PostgreSQL Application. The current server, eight
-existing application databases and their credentials remain unchanged.
+This directory is outside ApplicationSet discovery. Reviewed generated manifests
+in the PostgreSQL Application activate the retained synthetic canary described in
+the [operations guide](../../docs/operations/postgresql-enrollment.md). The eight
+existing application databases and their credentials remain unchanged. Bootstrap
+is a separately approved one-time operation and is never mounted in the Sync Job.
 
 ## Contracts
 
@@ -134,9 +135,10 @@ fresh Pods waiting. The init polls every5seconds for600seconds (plus bounded
 in-flight10second API requests), then fails so kubelet can retry. Existing running
 Pods continue. This is startup verification of an observed generation, not a
 continuous SQL reconciler or an atomic lock on future configuration changes.
-This source is locally regression-tested; native consumer ordering, failed-child
-and fresh-metadata retained-disk rebuild qualification are still required after
-this source PR merges. No production consumer is activated here.
+This source is regression-tested and the native consumer ordering, failed-child
+and fresh-metadata retained-disk rebuild checks passed in the
+[disposable qualification](../../docs/operations/postgresql-enrollment-qualification.md).
+Generated manifests, rather than this source directory, activate consumers.
 
 ## Native runtime and qualification
 
@@ -161,8 +163,8 @@ the daemon. No arbitrary external DSN, existing container or production credenti
 is accepted. Pause-only copies of native SQL qualify six interruption boundaries;
 no production fault flag exists. Private verifier assertions never print hashes.
 
-Local SQL qualification is distinct from the remaining Argo/Sealed Secrets and
-retained-disk rebuild gate. Sync hooks do not run during selective sync. Keep
+Local SQL qualification is distinct from the completed disposable Argo/Sealed
+Secrets and retained-disk rebuild qualification. Sync hooks do not run during selective sync. Keep
 failed Job evidence; retries require full PostgreSQL Application sync. Controller
 consumers sharing the PostgreSQL rollout group need explicit writer gating.
 Production activation, synthetic pilot, individual legacy adoption, Autobrr

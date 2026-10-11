@@ -1,0 +1,217 @@
+defaultPodOptions:
+  automountServiceAccountToken: false
+  securityContext:
+    fsGroup: 1001
+controllers:
+  main:
+    type: deployment
+    replicas: 1
+    strategy: Recreate
+    serviceAccount:
+      name: pg-enrollment-1e4986c3643f40013471
+    initContainers:
+      postgres-enrollment-acceptance:
+        image:
+          repository: python
+          digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+        command:
+          - python3
+          - -B
+          - /gate/completion_gate.py
+        args:
+          - --id
+          - pg-enrollment-pilot
+          - --database
+          - homelab_enrollment_pilot
+          - --role
+          - homelab_enrollment_pilot
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 25m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
+      postgres-canonical-login:
+        image:
+          repository: postgres
+          tag: 18.6-alpine
+          digest: sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd
+        command:
+          - /bin/sh
+          - -ec
+          - export PGPASSWORD="$(cat /credentials/password)"; exec psql -XqAt -v ON_ERROR_STOP=1 -c "SELECT 1"
+            >/dev/null 2>&1
+        env:
+          - name: PGHOST
+            value: postgres-postgresql.databases
+          - name: PGPORT
+            value: "5432"
+          - name: PGUSER
+            value: homelab_enrollment_pilot
+          - name: PGDATABASE
+            value: homelab_enrollment_pilot
+          - name: PGCONNECT_TIMEOUT
+            value: "10"
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 10m
+            memory: 16Mi
+          limits:
+            cpu: 100m
+            memory: 32Mi
+        dependsOn:
+          - postgres-enrollment-acceptance
+    containers:
+      main:
+        image:
+          repository: postgres
+          tag: 18.6-alpine
+          digest: sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd
+        command:
+          - /bin/sh
+          - -ec
+          - rm -f /tmp/enrollment-ready; export PGPASSWORD="$(cat /credentials/password)"; psql -Xq -v ON_ERROR_STOP=1
+            -f /canary/canary.sql >/dev/null 2>&1; touch /tmp/enrollment-ready; echo "Enrollment canary verified"; exec
+            tail -f /dev/null
+        env:
+          PGHOST: postgres-postgresql.databases
+          PGPORT: "5432"
+          PGUSER: homelab_enrollment_pilot
+          PGDATABASE: homelab_enrollment_pilot
+          PGCONNECT_TIMEOUT: "10"
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 10m
+            memory: 16Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+        probes:
+          liveness:
+            enabled: false
+          startup:
+            enabled: false
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              exec:
+                command:
+                  - /bin/sh
+                  - -ec
+                  - test -f /tmp/enrollment-ready
+              periodSeconds: 5
+              timeoutSeconds: 2
+service: {}
+persistence:
+  config:
+    enabled: false
+  pg-completion-script:
+    enabled: true
+    type: custom
+    volumeSpec:
+      configMap:
+        name: pg-enrollment-1e4986c3643f40013471
+        defaultMode: 292
+    globalMounts: []
+    advancedMounts:
+      main:
+        postgres-enrollment-acceptance:
+          - path: /gate
+            readOnly: true
+  pg-completion-api:
+    enabled: true
+    type: custom
+    volumeSpec:
+      projected:
+        defaultMode: 292
+        sources:
+          - serviceAccountToken:
+              path: token
+              expirationSeconds: 600
+          - configMap:
+              name: kube-root-ca.crt
+              items:
+                - key: ca.crt
+                  path: ca.crt
+    globalMounts: []
+    advancedMounts:
+      main:
+        postgres-enrollment-acceptance:
+          - path: /gate-api
+            readOnly: true
+  pg-completion-password:
+    enabled: true
+    type: custom
+    volumeSpec:
+      secret:
+        secretName: postgres-enrollment-pilot-secret
+        defaultMode: 292
+        items:
+          - key: password
+            path: password
+    globalMounts: []
+    advancedMounts:
+      main:
+        postgres-canonical-login:
+          - path: /credentials
+            readOnly: true
+        main:
+          - path: /credentials
+            readOnly: true
+  canary:
+    enabled: true
+    type: configMap
+    name: postgres-enrollment-pilot-canary
+    globalMounts: []
+    advancedMounts:
+      main:
+        main:
+          - path: /canary
+            readOnly: true
+  scratch:
+    enabled: true
+    type: emptyDir
+    medium: Memory
+    sizeLimit: 1Mi
+    globalMounts: []
+    advancedMounts:
+      main:
+        main:
+          - path: /tmp
+global:
+  createDefaultServiceAccount: false

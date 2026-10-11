@@ -1,0 +1,52 @@
+diff --git a/infrastructure/controllers/databases/postgres/manifests/source-hold.yaml b/infrastructure/controllers/databases/postgres/manifests/source-hold.yaml
+new file mode 100644
+--- /dev/null
++++ b/infrastructure/controllers/databases/postgres/manifests/source-hold.yaml
+@@ -0,0 +1,36 @@
++# Inactive: install only during the separately approved stopped-writer operation.
++apiVersion: admissionregistration.k8s.io/v1
++kind: ValidatingAdmissionPolicy
++metadata:
++  name: postgres-storage-hold
++  annotations:
++    argocd.argoproj.io/sync-wave: "-6"
++    argocd.argoproj.io/sync-options: Prune=false,Delete=false
++spec:
++  failurePolicy: Fail
++  matchConstraints:
++    resourceRules:
++      - apiGroups: [""]
++        apiVersions: [v1]
++        operations: [CREATE, UPDATE]
++        resources: [pods]
++  matchConditions:
++    - name: held-data-claim
++      expression: >-
++        object.metadata.namespace == 'databases' && has(object.spec.volumes) && object.spec.volumes.exists(v,
++        has(v.persistentVolumeClaim) && v.persistentVolumeClaim.claimName == 'data-postgres-postgresql-0')
++  validations:
++    - expression: "false"
++      message:
++        The preserved PostgreSQL NFS claim is held. Restore acceptance is required before reopening any source writer.
++---
++apiVersion: admissionregistration.k8s.io/v1
++kind: ValidatingAdmissionPolicyBinding
++metadata:
++  name: postgres-storage-hold
++  annotations:
++    argocd.argoproj.io/sync-wave: "-6"
++    argocd.argoproj.io/sync-options: Prune=false,Delete=false
++spec:
++  policyName: postgres-storage-hold
++  validationActions: [Deny]
+diff --git a/infrastructure/controllers/databases/postgres/values.yaml b/infrastructure/controllers/databases/postgres/values.yaml
+--- a/infrastructure/controllers/databases/postgres/values.yaml
++++ b/infrastructure/controllers/databases/postgres/values.yaml
+@@ -28,6 +28,7 @@
+   repository: bitnami/postgresql
+   tag: "latest@sha256:b74b23f091dcc87041bcae557d840c36458af46b955279cb13aedec4c32d7f71"
+ primary:
++  replicaCount: 0
+   resourcesPreset: "none"
+   resources:
+     requests:

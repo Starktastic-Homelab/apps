@@ -90,17 +90,18 @@ jobs:
             scripts/postgres-retained-startup/production/pv.yaml \
             scripts/postgres-retained-startup/production/pvc.yaml \
             scripts/postgres-retained-startup/production/guard-configmap.yaml
+          # Preparation previews stay at one; the staged-patch check renders actual holds.
           helm template postgres oci://registry-1.docker.io/bitnamicharts/postgresql \
             --version 18.12.4 --namespace databases -f templates/globals.yaml \
-            -f infrastructure/controllers/databases/postgres/values.yaml > /tmp/postgres-baseline.yaml
-          helm template postgres oci://registry-1.docker.io/bitnamicharts/postgresql \
-            --version 18.12.4 --namespace databases -f templates/globals.yaml \
-            -f infrastructure/controllers/databases/postgres/values.yaml \
-            -f scripts/postgres-retained-startup/values.yaml > /tmp/postgres-startup.yaml
+            -f infrastructure/controllers/databases/postgres/values.yaml --set primary.replicaCount=1 > /tmp/postgres-baseline.yaml
           helm template postgres oci://registry-1.docker.io/bitnamicharts/postgresql \
             --version 18.12.4 --namespace databases -f templates/globals.yaml \
             -f infrastructure/controllers/databases/postgres/values.yaml \
-            -f scripts/postgres-retained-startup/production/values.yaml > /tmp/postgres-csi-preparation.yaml
+            -f scripts/postgres-retained-startup/values.yaml --set primary.replicaCount=1 > /tmp/postgres-startup.yaml
+          helm template postgres oci://registry-1.docker.io/bitnamicharts/postgresql \
+            --version 18.12.4 --namespace databases -f templates/globals.yaml \
+            -f infrastructure/controllers/databases/postgres/values.yaml \
+            -f scripts/postgres-retained-startup/production/values.yaml --set primary.replicaCount=1 > /tmp/postgres-csi-preparation.yaml
           PG_BASELINE_RENDER=/tmp/postgres-baseline.yaml \
             PG_STARTUP_RENDER=/tmp/postgres-startup.yaml \
             PG_CSI_PREPARATION_RENDER=/tmp/postgres-csi-preparation.yaml \
@@ -113,7 +114,10 @@ jobs:
           AUTH_VERSION=$(python3 -c 'import yaml; print(yaml.safe_load(open("infrastructure/controllers/authentik/app.yaml"))["chart"]["version"])')
           helm pull app-template --repo https://bjw-s-labs.github.io/helm-charts --version "$APP_VERSION" --untar --untardir /tmp/pg-cutover-charts
           helm pull authentik --repo https://charts.goauthentik.io --version "$AUTH_VERSION" --untar --untardir /tmp/pg-cutover-charts
-          PG_CUTOVER_CHARTS='{"authentik":"/tmp/pg-cutover-charts/authentik","app-template":"/tmp/pg-cutover-charts/app-template"}' python3 scripts/test-pg-cutover.py
+          PG_VERSION=$(python3 -c 'import yaml; print(yaml.safe_load(open("infrastructure/controllers/databases/postgres/app.yaml"))["chart"]["version"])')
+          helm pull oci://registry-1.docker.io/bitnamicharts/postgresql --version "$PG_VERSION" --untar --untardir /tmp/pg-cutover-charts
+          PG_CUTOVER_POSTGRES_CHART=/tmp/pg-cutover-charts/postgresql \
+            PG_CUTOVER_CHARTS='{"authentik":"/tmp/pg-cutover-charts/authentik","app-template":"/tmp/pg-cutover-charts/app-template"}' python3 scripts/test-pg-cutover.py
 
       - name: Check NAS transport failure handling
         run: |

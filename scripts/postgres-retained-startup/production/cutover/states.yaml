@@ -141,3 +141,36 @@ stages:
     pilotReleased: true
     consumersReleased: true
     backupSuspended: false
+
+  clients-held:
+    postgresStorage: source
+    postgresReplicas: 1
+    enrollmentHook: false
+    pilotReleased: false
+    consumersReleased: false
+    backupSuspended: true
+
+  hook-only:
+    postgresStorage: target
+    postgresReplicas: 1
+    enrollmentHook: true
+    pilotReleased: false
+    consumersReleased: false
+    backupSuspended: true
+
+  authentik-only:
+    postgresStorage: target
+    postgresReplicas: 1
+    enrollmentHook: true
+    pilotReleased: true
+    consumersReleased: false
+    backupSuspended: true
+    authentikReleased: true
+
+  consumers-only:
+    postgresStorage: target
+    postgresReplicas: 1
+    enrollmentHook: true
+    pilotReleased: true
+    consumersReleased: true
+    backupSuspended: true

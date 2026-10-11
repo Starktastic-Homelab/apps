@@ -1,0 +1,11 @@
+diff --git a/infrastructure/base-configs/templates/pg-backup/cronjob.yaml b/infrastructure/base-configs/templates/pg-backup/cronjob.yaml
+--- a/infrastructure/base-configs/templates/pg-backup/cronjob.yaml
++++ b/infrastructure/base-configs/templates/pg-backup/cronjob.yaml
+@@ -4,7 +4,6 @@
+   name: pg-backup
+   namespace: databases
+ spec:
+-  suspend: true
+   schedule: "0 2 * * *"
+   successfulJobsHistoryLimit: 1
+   failedJobsHistoryLimit: 3

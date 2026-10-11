@@ -1,0 +1,79 @@
+diff --git a/services/media/dispatcharr/values.yaml b/services/media/dispatcharr/values.yaml
+--- a/services/media/dispatcharr/values.yaml
++++ b/services/media/dispatcharr/values.yaml
+@@ -2,7 +2,6 @@
+   main:
+     enabled: false
+   web:
+-    replicas: 0
+     containers:
+       main:
+         image:
+@@ -39,7 +38,6 @@
+               periodSeconds: 5
+ 
+   celery:
+-    replicas: 0
+     containers:
+       main:
+         image:
+diff --git a/services/media/lingarr/values.yaml b/services/media/lingarr/values.yaml
+--- a/services/media/lingarr/values.yaml
++++ b/services/media/lingarr/values.yaml
+@@ -1,6 +1,5 @@
+ controllers:
+   main:
+-    replicas: 0
+     containers:
+       main:
+         image:
+diff --git a/services/operations/listmonk/values.yaml b/services/operations/listmonk/values.yaml
+--- a/services/operations/listmonk/values.yaml
++++ b/services/operations/listmonk/values.yaml
+@@ -1,6 +1,5 @@
+ controllers:
+   main:
+-    replicas: 0
+     containers:
+       main:
+         image:
+diff --git a/services/operations/mealie/values.yaml b/services/operations/mealie/values.yaml
+--- a/services/operations/mealie/values.yaml
++++ b/services/operations/mealie/values.yaml
+@@ -1,6 +1,5 @@
+ controllers:
+   main:
+-    replicas: 0
+     containers:
+       main:
+         image:
+diff --git a/services/operations/paperless-ngx/values.yaml b/services/operations/paperless-ngx/values.yaml
+--- a/services/operations/paperless-ngx/values.yaml
++++ b/services/operations/paperless-ngx/values.yaml
+@@ -1,6 +1,5 @@
+ controllers:
+   main:
+-    replicas: 0
+     containers:
+       main:
+         image:
+diff --git a/services/operations/vaultwarden/values.yaml b/services/operations/vaultwarden/values.yaml
+--- a/services/operations/vaultwarden/values.yaml
++++ b/services/operations/vaultwarden/values.yaml
+@@ -1,6 +1,5 @@
+ controllers:
+   main:
+-    replicas: 0
+     containers:
+       main:
+         image:
+diff --git a/services/operations/vikunja/values.yaml b/services/operations/vikunja/values.yaml
+--- a/services/operations/vikunja/values.yaml
++++ b/services/operations/vikunja/values.yaml
+@@ -1,6 +1,5 @@
+ controllers:
+   main:
+-    replicas: 0
+     containers:
+       main:
+         image:

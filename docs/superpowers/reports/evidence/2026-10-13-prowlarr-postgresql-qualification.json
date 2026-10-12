@@ -1,0 +1,137 @@
+{
+  "qualificationDate": "2026-10-13",
+  "scope": "Scheduled-main-backup rehearsal in an offline disposable VM; no production migration",
+  "versions": {
+    "prowlarr": "2.6.5.5623",
+    "postgresql": "18.6"
+  },
+  "images": {
+    "prowlarr": "lscr.io/linuxserver/prowlarr:2.6.5.5623-ls161@sha256:c96b56d94d116a9f4de94bc23d3381689492e6c3cfb7435320e8d982e406f99a",
+    "postgresql": "registry-1.docker.io/bitnami/postgresql:latest@sha256:b74b23f091dcc87041bcae557d840c36458af46b955279cb13aedec4c32d7f71",
+    "pgloader": "ghcr.io/roxedus/pgloader@sha256:1a7a86ad56623c00ee714ee4969913ed5c6f59ac9785073e2ffd1bea9cc54d31"
+  },
+  "source": {
+    "scheduledBackupIncludes": ["prowlarr.db", "config.xml", "INFO"],
+    "excludedLogDatabase": true,
+    "sqliteIntegrity": "ok",
+    "foreignKeyViolations": 0,
+    "invalidUtf8Fields": 0,
+    "nulContainingTextFields": 0,
+    "immutableSourceUnchanged": true
+  },
+  "conversion": {
+    "stockSchemaRetained": true,
+    "allTypedFieldsCompared": true,
+    "timestampComparison": "PostgreSQL-native cast at microsecond resolution; not byte-exact 100ns timestamp preservation",
+    "tableRows": {
+      "AppSyncProfiles": 1,
+      "ApplicationIndexerMapping": 45,
+      "ApplicationStatus": 5,
+      "Applications": 5,
+      "Commands": 280,
+      "Config": 6,
+      "CustomFilters": 1,
+      "DownloadClientStatus": 0,
+      "DownloadClients": 1,
+      "History": 268864,
+      "IndexerDefinitionVersions": 0,
+      "IndexerProxies": 1,
+      "IndexerStatus": 20,
+      "Indexers": 20,
+      "NotificationStatus": 1,
+      "Notifications": 1,
+      "ScheduledTasks": 8,
+      "Tags": 3,
+      "Users": 1,
+      "VersionInfo": 42
+    },
+    "noLoaderErrors": true,
+    "mainSequenceCount": 19,
+    "allocatorUsesBothCurrentMaximumAndSQLiteHighWater": true
+  },
+  "application": {
+    "apiCounts": {
+      "indexer": 20,
+      "applications": 5,
+      "downloadclient": 1,
+      "indexerproxy": 1,
+      "notification": 1,
+      "tag": 3,
+      "appprofile": 1,
+      "customfilter": 1
+    },
+    "databaseType": "postgreSQL",
+    "newWriteID": 4,
+    "newWriteDeleted": true,
+    "housekeepingCompleted": true,
+    "restrictedRoles": [
+      {
+        "role": "prowlarr_main",
+        "superuser": false,
+        "createDB": false,
+        "createRole": false
+      },
+      {
+        "role": "prowlarr_log",
+        "superuser": false,
+        "createDB": false,
+        "createRole": false
+      }
+    ],
+    "boundedPools": [
+      {
+        "database": "prowlarr_log",
+        "user": "prowlarr_log",
+        "connections": 1
+      },
+      {
+        "database": "prowlarr_main",
+        "user": "prowlarr_main",
+        "connections": 2
+      }
+    ],
+    "cleanRestartProtectedDataVerified": true
+  },
+  "restore": {
+    "independentFreshPGDataRestoreVerified": true,
+    "bothDatabaseTableDigestsMatched": true,
+    "stockApplicationReadyAfterRestore": true,
+    "databaseType": "postgreSQL"
+  },
+  "restoredAllocators": {
+    "restoredSequenceCount": {
+      "prowlarr_main": 19,
+      "prowlarr_log": 2
+    },
+    "onlyCommandsAndLogsMayAdvanceAfterStockStartup": true,
+    "restoredTagAllocatorNextID": 5,
+    "restoredWriteDeleted": true,
+    "protectedDataVerifiedAfterRestoreWrite": true,
+    "fixtureApplicationStopped": true
+  },
+  "cleanup": {
+    "VM980Absent": true,
+    "labDisksAndISORemoved": true,
+    "privateApplicationCopiesRemoved": true,
+    "nativeOwnerReleased": true
+  },
+  "production": {
+    "samePodAndContainer": true,
+    "sameDeploymentAndNFSVolume": true,
+    "SQLiteBackendUnchanged": true,
+    "configuredAPIEntitiesUnchanged": true,
+    "prowlarrPostgresDatabases": 0,
+    "prowlarrPostgresRoles": 0
+  },
+  "policy": {
+    "oldDiagnosticLogs": "Retain in encrypted cold recovery archive and original source; no import",
+    "newDiagnosticLogDatabase": "Fresh PostgreSQL",
+    "mainHistory": "Preserve all rows during conversion; normal application retention resumes once the application runs"
+  },
+  "limits": [
+    "Existing-data conversion is unsupported upstream",
+    "Fresh cold source and source/latest-data acceptance remain mandatory",
+    "No real external indexer/application/download-client integration tested in the offline lab",
+    "CSI config startup guard and dual-database consumer composition not yet qualified"
+  ]
+}

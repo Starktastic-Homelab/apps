@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: autobrr-retained-startup-guard
+  namespace: media
+data:
+  guard.py: |
+    import pathlib
+    import sqlite3
+    import sys
+    import tomllib
+
+    root = pathlib.Path(sys.argv[1])
+    try:
+        if (root / ".homelab-autobrr-config").read_text() != "homelab/autobrr/config/v1\n":
+            raise ValueError("wrong retained identity")
+        config = tomllib.loads((root / "config.toml").read_text())
+        if not isinstance(config.get("sessionSecret"), str) or not config["sessionSecret"].strip():
+            raise ValueError("missing preserved session secret")
+        database = root / "autobrr.db"
+        with database.open("rb") as source:
+            if source.read(16) != b"SQLite format 3\0":
+                raise ValueError("missing SQLite data")
+        # Read only the established main-file schema. Stock Autobrr handles any WAL
+        # recovery itself; this check neither opens a writable connection nor ignores
+        # a WAL during an integrity/backup check.
+        with sqlite3.connect(database.as_uri() + "?mode=ro&immutable=1", uri=True) as connection:
+            tables = {row[0] for row in connection.execute("SELECT name FROM sqlite_schema WHERE type='table'")}
+        expected = {"indexer", "irc_network", "filter", "action", "client", "release_profile_duplicate"}
+        if not expected <= tables:
+            raise ValueError("wrong SQLite application")
+    except (OSError, ValueError, sqlite3.Error):
+        print("Retained Autobrr state is missing or invalid; restore acceptance is required.", file=sys.stderr)
+        sys.exit(1)
+    print("Retained Autobrr configuration and SQLite schema accepted.")

@@ -1,0 +1,35 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: autobrr-source-hold
+  annotations:
+    argocd.argoproj.io/sync-wave: "-6"
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [pods]
+  matchConditions:
+    - name: held-data-claim
+      expression: >-
+        object.metadata.namespace == 'media' && has(object.spec.volumes) && object.spec.volumes.exists(v,
+        has(v.persistentVolumeClaim) && v.persistentVolumeClaim.claimName == 'autobrr')
+  validations:
+    - expression: "false"
+      message:
+        The preserved Autobrr NFS claim is held. Restore acceptance is required before reopening any source writer.
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: autobrr-source-hold
+  annotations:
+    argocd.argoproj.io/sync-wave: "-6"
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  policyName: autobrr-source-hold
+  validationActions: [Deny]

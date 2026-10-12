@@ -44,6 +44,7 @@ primary:
       # (not working_set) again approaches the limit.
       memory: 1Gi
   persistence:
+    existingClaim: postgres-data-block
     enabled: true
     # storageClass provided by global.storageClass in globals.yaml
     size: 8Gi
@@ -64,25 +65,42 @@ primary:
     timeoutSeconds: 10
     failureThreshold: 30
   initContainers:
-    - name: rm-postmaster-lock-file
-      # Pinned to the digest already running. An init container that fails
-      # leaves the pod stuck in Init forever, i.e. database down, so this
-      # floats no more freely than the server image does.
-      image: busybox:latest@sha256:dc2d74b28e4cf8984fa52af1f39bc7c3d9c73760b41a74d629f5d11b1ab28616
+    - name: verify-retained-data
+      image: registry-1.docker.io/bitnami/postgresql:latest@sha256:b74b23f091dcc87041bcae557d840c36458af46b955279cb13aedec4c32d7f71
       imagePullPolicy: IfNotPresent
-      securityContext:
-        # Match the main container's uid/gid so we don't need to escalate to
-        # root just to delete a single file that's owned by postgres.
-        runAsUser: 1001
-        runAsNonRoot: true
       command:
-        - sh
-        - -c
-        - |
-          if [ -f /bitnami/postgresql/data/postmaster.pid ]; then
-            echo "🧟 Zombie Lock Found: Deleting postmaster.pid"
-            rm -f /bitnami/postgresql/data/postmaster.pid
-          fi
+        - /bin/bash
+        - /retained-startup/guard.sh
+      env:
+        - name: EXPECTED_SYSTEM_IDENTIFIER
+          value: "7584099661242523698"
+      securityContext:
+        runAsUser: 1001
+        runAsGroup: 1001
+        runAsNonRoot: true
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+            - ALL
+        seccompProfile:
+          type: RuntimeDefault
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          cpu: 100m
+          memory: 64Mi
+      volumeMounts:
+        - name: data
+          mountPath: /bitnami/postgresql
+          readOnly: true
+        - name: retained-startup-guard
+          mountPath: /retained-startup
+          readOnly: true
+        - name: retained-startup-scratch
+          mountPath: /tmp
   extendedConfiguration: |
     # Peak observed usage is ~35 connections. 200 was never reachable within
     # the memory limit: worst case is max_connections x work_mem (4MB) of
@@ -94,14 +112,32 @@ primary:
     # cached and under-costed index scans. Keep this ~50% of the memory limit.
     effective_cache_size = 512MB
   podSecurityContext:
-    fsGroup: 1001
+    fsGroup: null
     enabled: true
   containerSecurityContext:
     runAsUser: 1001
     enabled: true
+  extraVolumes:
+    - name: retained-startup-guard
+      configMap:
+        name: postgres-retained-startup-guard
+        defaultMode: 292
+    - name: retained-startup-scratch
+      emptyDir:
+        sizeLimit: 16Mi
+  nodeSelector:
+    kubernetes.io/os: linux
+    node-role.kubernetes.io/worker: "true"
+  tolerations:
+    - key: node.kubernetes.io/not-ready
+      operator: Exists
+      effect: NoExecute
+    - key: node.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
 volumePermissions:
-  enabled: true
-  # Runs before the server as an init container to chmod/chown the data dir.
+  enabled: false
+  # Disabled for retained data: startup must not recursively change ownership.
   # repository restates the chart default so Renovate can see the pin.
   image:
     repository: bitnami/os-shell

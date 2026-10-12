@@ -5,7 +5,7 @@ defaultPodOptions:
 controllers:
   main:
     type: deployment
-    replicas: 0
+    replicas: 1
     strategy: Recreate
     serviceAccount:
       name: pg-enrollment-1e4986c3643f40013471

@@ -2,6 +2,7 @@ controllers:
   main:
     enabled: false
   web:
+    replicas: 0
     containers:
       main:
         image:
@@ -38,6 +39,7 @@ controllers:
               periodSeconds: 5
 
   celery:
+    replicas: 0
     containers:
       main:
         image:

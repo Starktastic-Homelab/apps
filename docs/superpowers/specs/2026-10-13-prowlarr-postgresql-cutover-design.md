@@ -36,10 +36,13 @@ profiles, filters, mappings and all main-database rows at conversion time.
 
 Four GiB allows growth beyond the measured roughly 305MiB directory without using
 an NFS request as a capacity measurement. Recheck current usage and the existing
-128GiB aggregate quota against all established image growth, snapshots and this
+160GiB aggregate quota against all established image growth, snapshots and this
 full 4GiB reservation before allocation. Refuse a conflicting image, consumed
 owner 9999, incompatible topology or insufficient headroom; never overwrite an
-existing target. No Ansible per-service inventory or new storage controller is
+existing target. The separately approved
+[October 13 quota amendment](../reports/2026-10-13-csi-quota-160g.md) raised the
+initial 128GiB ceiling without changing image sizes or the headroom gate.
+No Ansible per-service inventory or new storage controller is
 needed: the permanent app binding lives in Git. Established VM-retirement fencing
 and coupled worker replacement on control-plane replacement remain required.
 

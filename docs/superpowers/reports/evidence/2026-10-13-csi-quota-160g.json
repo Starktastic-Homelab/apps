@@ -1,0 +1,30 @@
+{
+  "at": "2026-10-13T07:31:52.423084+00:00",
+  "datasetGUID": "13918781591004512447",
+  "oldQuotaBytes": 137438953472,
+  "newQuotaBytes": 171798691840,
+  "availableBytes": 107509522432,
+  "fullGrowthRequiredBytes": 74375464960,
+  "growthGatePassed": true,
+  "allExistingImageIdentitiesPreserved": true,
+  "allPriorSnapshotGUIDsPreserved": true,
+  "noReservation": true,
+  "targetStillAbsent": true,
+  "dataset": "apps/k3s-block",
+  "stagingAllowanceBytes": 536870912,
+  "requiredHeadroomBytes": 8589934592,
+  "pveEffectiveCapacityGate": {
+    "availableBytes": 107509448704,
+    "requiredBytes": 74375464960,
+    "gatePassed": true
+  },
+  "nativeMaintenanceOwnerReleased": true,
+  "operation": "csi-quota-160g-20261013",
+  "command": ["zfs", "set", "quota=171798691840", "apps/k3s-block"],
+  "applicationMigrationPerformed": false,
+  "newProwlarrCapacityBudgetBytes": 4294967296,
+  "postChangeProwlarrSameContainer": true,
+  "postChangeOriginalNFSBindingPreserved": true,
+  "postChangePostgreSQLSameReadyPod": true,
+  "postChangeProwlarrHealthySynced": true
+}

@@ -18,6 +18,12 @@ stages deployment-access and secret-recovery checks before downtime, then a cold
 copy and isolated restore before worker replacement and controller activation.
 The controller activation follows those gates.
 
+The NAS dataset `apps/k3s-block` has a **160GiB aggregate quota** after the
+[October13 capacity amendment](../../../docs/superpowers/reports/2026-10-13-csi-quota-160g.md).
+It has no reservation. Individual images/PVCs retain their existing sizes;
+allocation and growth must account for all images, snapshots, historical files
+and required headroom using fresh measurements.
+
 ## Configuration and recovery contract
 
 - The API controller runs on the control plane; the node DaemonSet runs on Linux

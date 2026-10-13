@@ -1,0 +1,56 @@
+controllers:
+  main:
+    serviceAccount:
+      name: seerr-ru-postgres-completion
+    containers:
+      main:
+        env:
+          DB_USER: seerr_ru
+          DB_NAME: seerr_ru
+          DB_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: seerr-ru-postgres-secret
+    initContainers:
+      retained-state:
+        command:
+          - python3
+          - -I
+          - -B
+          - /retained-startup/guard.py
+          - /app/config
+          - seerr-ru
+        env:
+          DB_USER: seerr_ru
+          DB_NAME: seerr_ru
+          DB_PASS:
+            valueFrom:
+              secretKeyRef:
+                name: seerr-ru-postgres-secret
+      enrollment:
+        args:
+          - --id
+          - seerr-ru
+          - --database
+          - seerr_ru
+          - --role
+          - seerr_ru
+      database:
+        env:
+          - name: PGHOST
+            value: postgres-postgresql.databases
+          - name: PGPORT
+            value: "5432"
+          - name: PGUSER
+            value: seerr_ru
+          - name: PGDATABASE
+            value: seerr_ru
+          - name: PGCONNECT_TIMEOUT
+            value: "10"
+persistence:
+  pg-completion-script:
+    name: seerr-ru-postgres-completion
+  pg-completion-password:
+    name: seerr-ru-postgres-secret
+  seerr-config:
+    existingClaim: seerr-ru-config-block

@@ -223,7 +223,9 @@ rebuildable caches according to the previously agreed storage policy.
 
 Do not assign target sizes from PVC requests or NFS kubelet capacity. Measure
 actual source directories and shared dataset use at execution time. The existing
-128GiB aggregate quota must cover full planned image growth, staging, snapshots,
+160GiB aggregate quota, as amended on
+[October 13](../reports/2026-10-13-csi-quota-160g.md), must cover full planned image
+growth, staging, snapshots,
 preserved archives and headroom. Shared PostgreSQL also needs measured resource
 and connection headroom before adding new clients; its declared 1Gi memory limit
 is not evidence of sufficient capacity.

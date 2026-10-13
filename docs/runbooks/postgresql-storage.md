@@ -33,7 +33,9 @@ WAL files. Only the built-in tablespaces were present; no symlinks were reported
 The data directory was1001:1001/0700. These are live planning measurements,
 not an archive manifest or proof of stopped writers.
 
-The block dataset `apps/k3s-block`, GUID `13918781591004512447`, had128GiB quota.
+The block dataset `apps/k3s-block`, GUID `13918781591004512447`, had128GiB quota
+at the October11 preflight. Its current quota is160GiB after the separately
+approved [October13 amendment](../superpowers/reports/2026-10-13-csi-quota-160g.md).
 The published Jellyfin64GiB and Filebrowser4GiB images plus this16GiB destination
 would total84GiB nominal capacity. Before allocation, check complete dataset and
 pool usage, snapshots, hidden preserved files, staging/backup needs and full

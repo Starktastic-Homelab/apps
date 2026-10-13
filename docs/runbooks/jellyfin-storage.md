@@ -18,7 +18,9 @@ recovery procedure is in the [CSI runbook](../../infrastructure/system/proxmox-c
 
 For growth, increase the PVC request through Git, verify backend/filesystem
 expansion, then reconcile the declarative PV capacity. Account for the NAS dataset's
-128GiB aggregate quota before expansion; raising quota is a separate reviewed change.
+160GiB aggregate quota before expansion; raising quota is a separate reviewed change. The
+[October13 amendment](../superpowers/reports/2026-10-13-csi-quota-160g.md) records
+the approved ceiling increase; remeasure available space before growth.
 
 ## Backup and recovery
 

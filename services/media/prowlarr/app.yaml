@@ -3,14 +3,11 @@ namespace: media
 deployPhase: services
 commonValuesExtras:
   - templates/media-arr-common.yaml
-
-# Prowlarr is an indexer manager — it never touches the media library, so
-# unlike the other *arr services this one overrides persistence.media.enabled
-# to false in its values.yaml.
 ingress:
   enabled: true
   host: prowlarr
-  domainType: "internal"
+  domainType: internal
   port: 9696
   auth: true
   rateLimit: true
+manifests: true

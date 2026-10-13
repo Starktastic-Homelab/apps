@@ -1,0 +1,152 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prowlarr-postgres-completion
+  namespace: media
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prowlarr-postgres-completion
+  namespace: media
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+data:
+  completion_gate.py: "#!/usr/bin/env python3\n\"\"\"Read-only, fail-closed native Argo enrollment acceptance for
+    consumer\
+    \ init.\"\"\"\nimport argparse\nimport hashlib\nfrom http.client import HTTPException\nimport json\nfrom pathlib
+    import\
+    \ Path\nimport ssl\nimport time\nfrom urllib.request import HTTPSHandler, HTTPRedirectHandler, ProxyHandler,
+    Request,\
+    \ build_opener\n\nCONFIG_PATH =
+    '/api/v1/namespaces/databases/configmaps/postgres-enrollment-config'\nAPPLICATION_PATH\
+    \ = '/apis/argoproj.io/v1alpha1/namespaces/argocd/applications/postgres'\nMAX_RESPONSE = 1024 * 1024\nREQUIRED_DATA
+    =\
+    \ {'config.json', 'enroll.sh', 'enroll.sql', 'schema.sql',
+    'completion_gate.py',\n                 'completion-protocol-version',\
+    \ 'encrypted-inputs-sha256', 'job-template.json'}\n\n\ndef generation(data: dict) -> str:\n    inputs = {key: value
+    for\
+    \ key, value in data.items() if key != 'acceptance-generation'}\n    return hashlib.sha256(json.dumps(inputs,
+    sort_keys=True,\
+    \ separators=(',', ':')).encode()).hexdigest()\n\n\ndef hook_name(value: str) -> str:\n    return
+    'postgres-enrollment-'\
+    \ + value[:32]\n\n\ndef accepted(configmap: dict, application: dict, identity: dict) -> bool:\n    try:\n        if
+    (configmap['metadata']['name']\
+    \ != 'postgres-enrollment-config'\n                or configmap['metadata']['namespace'] !=
+    'databases'\n            \
+    \    or application['metadata']['name'] != 'postgres'\n                or application['metadata']['namespace'] !=
+    'argocd'\n\
+    \                or application.get('operation') is not None):\n            return False\n        data =
+    configmap['data']\n\
+    \        if (not REQUIRED_DATA <= set(data) or not all(isinstance(v, str) for v in
+    data.values())\n                or\
+    \ data['completion-protocol-version'] != '1'\n                or data['acceptance-generation'] !=
+    generation(data)):\n\
+    \            return False\n        config = json.loads(data['config.json'])\n        if type(config['version']) is
+    not\
+    \ int or config['version'] != 1:\n            return False\n        entries = [entry for entry in config['entries']
+    if\
+    \ entry['id'] == identity['id']]\n        if len(entries) != 1 or any(entries[0][key] != identity[key] for key in
+    ('database',\
+    \ 'role')):\n            return False\n        status = application['status']\n        state =
+    status['operationState']\n\
+    \        sync = state['operation']['sync']\n        revisions = (status['sync']['revisions'],
+    state['syncResult']['revisions'])\n\
+    \        if (state['phase'] != 'Succeeded' or status['sync']['status'] != 'Synced'\n                or
+    status['health']['status']\
+    \ != 'Healthy'\n                or sync.get('resources') is not None or sync.get('dryRun') is
+    True\n                or\
+    \ 'apply' in sync.get('syncStrategy', {})\n                or any(not isinstance(values, list) or not
+    values\n       \
+    \                or not all(isinstance(v, str) and v for v in values) for values in revisions)):\n            return
+    False\n\
+    \        # A newer unrelated Git commit can be Synced without a new operation.\n        # The current input
+    fingerprint,\
+    \ rather than repository SHA, binds acceptance.\n        hooks = [resource for resource in
+    state['syncResult']['resources']\n\
+    \                 if resource.get('group') == 'batch' and resource.get('kind') == 'Job'\n                 and
+    resource.get('namespace')\
+    \ == 'databases'\n                 and resource.get('name') ==
+    hook_name(data['acceptance-generation'])]\n        return\
+    \ (len(hooks) == 1 and hooks[0].get('hookType') == 'Sync'\n                and hooks[0].get('hookPhase') ==
+    'Succeeded')\n\
+    \    except (KeyError, TypeError, ValueError, AttributeError):\n        return False\n\n\ndef check_once(get,
+    identity:\
+    \ dict) -> bool:\n    try:\n        before = get(CONFIG_PATH)\n        application =
+    get(APPLICATION_PATH)\n        after\
+    \ = get(CONFIG_PATH)\n        # ResourceVersion catches updates even if the configuration changes back.\n        for
+    key\
+    \ in ('uid', 'resourceVersion'):\n            if not before['metadata'][key] or before['metadata'][key] !=
+    after['metadata'][key]:\n\
+    \                return False\n        return before['data'] == after['data'] and accepted(after, application,
+    identity)\n\
+    \    except (OSError, HTTPException, KeyError, TypeError, ValueError, AttributeError):\n        return
+    False\n\n\nclass\
+    \ NoRedirect(HTTPRedirectHandler):\n    def redirect_request(self, req, fp, code, msg, headers,
+    newurl):\n        raise\
+    \ OSError('Kubernetes API redirect refused')\n\n\nclass APIReader:\n    def __init__(self):\n        directory =
+    Path('/gate-api')\n\
+    \        self.token = lambda: (directory / 'token').read_text().strip()\n        self.opener =
+    build_opener(ProxyHandler({}),\
+    \
+    NoRedirect(),\n                                   HTTPSHandler(context=ssl.create_default_context(cafile=str(directory\
+    \ / 'ca.crt'))))\n\n    def get(self, path: str) -> dict:\n        if path not in (CONFIG_PATH, APPLICATION_PATH):\n
+    \
+    \           raise ValueError('Unexpected Kubernetes resource')\n        request =
+    Request('https://kubernetes.default.svc'\
+    \ + path,\n                          headers={'Authorization': 'Bearer ' + self.token(), 'Accept':
+    'application/json'})\n\
+    \        with self.opener.open(request, timeout=10) as response:\n            payload = response.read(MAX_RESPONSE +
+    1)\n\
+    \        if len(payload) > MAX_RESPONSE:\n            raise ValueError('Kubernetes response exceeds
+    limit')\n        result\
+    \ = json.loads(payload)\n        if not isinstance(result, dict):\n            raise ValueError('Expected Kubernetes
+    object')\n\
+    \        return result\n\n\ndef main():\n    parser = argparse.ArgumentParser(description=__doc__)\n    for key in
+    ('id',\
+    \ 'database', 'role'):\n        parser.add_argument('--' + key, required=True)\n    args =
+    parser.parse_args()\n    deadline\
+    \ = time.monotonic() + 600\n    print('Waiting for current PostgreSQL enrollment acceptance', flush=True)\n    while
+    time.monotonic()\
+    \ < deadline:\n        try:\n            if check_once(APIReader().get, vars(args)):\n                print('Current
+    PostgreSQL\
+    \ enrollment accepted', flush=True)\n                return 0\n        except (OSError, HTTPException,
+    ValueError):\n\
+    \            pass\n        time.sleep(5)\n    print('PostgreSQL enrollment acceptance unavailable; startup remains
+    blocked',\
+    \ flush=True)\n    return 1\n\n\nif __name__ == '__main__':\n    raise SystemExit(main())\n"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: prowlarr-postgres-completion
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: postgres-enrollment-completion-reader
+subjects:
+  - kind: ServiceAccount
+    name: prowlarr-postgres-completion
+    namespace: media
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: prowlarr-postgres-completion
+  namespace: databases
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: postgres-enrollment-completion-reader
+subjects:
+  - kind: ServiceAccount
+    name: prowlarr-postgres-completion
+    namespace: media

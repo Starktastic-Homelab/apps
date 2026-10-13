@@ -1,10 +1,11 @@
 # Prowlarr: PostgreSQL main state and retained CSI configuration
 
-Status: proposed bounded cutover. The user selected fresh PostgreSQL diagnostic
-logs after the [real-copy rehearsal](../reports/2026-10-13-prowlarr-postgresql-qualification.md).
-This preparation PR changes documentation only. Merging it starts no enrollment,
-allocation, maintenance hold or downtime. Execution approval comes after the
-concrete scripts and rendered manifests are ready for review.
+Status: live data cutover accepted on October 13, 2026. Prowlarr now uses the
+existing PostgreSQL service and retained CSI configuration. Independent cold and
+PostgreSQL restores, real integrations, clean recreation and healthy-worker
+movement passed. This activation publishes the tested live state; owned hold
+release requires exact current-main/Git/live equality after the CI-gated merge.
+See the [production report](../reports/2026-10-13-prowlarr-production-cutover.md).
 
 This specializes the established [live migration workflow](2026-10-10-live-storage-migrations-design.md)
 for Prowlarr. Its older recommendation to keep Prowlarr on SQLite is superseded

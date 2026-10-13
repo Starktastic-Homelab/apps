@@ -171,7 +171,7 @@ the accepted encrypted backup and old source; cleanup authority excludes them.
 | Track | Next step | Dependency or exception |
 |---|---|---|
 | Workflow | Isolated qualification of native maintenance hold | Required before any new live cutover |
-| First CSI app | Prowlarr private /config, preserving SQLite | One main writer; measure current bytes and qualify existing state first |
+| Prowlarr | PostgreSQL main/log databases and retained 4GiB CSI /config; live cutover accepted October 13 | [Production report](../reports/2026-10-13-prowlarr-production-cutover.md); final Git/live equality precedes hold release |
 | PostgreSQL prerequisite | Select and qualify deployment plus automatic database/role enrollment | Complete the PostgreSQL research decision before step 3; prove unattended metadata-loss recovery |
 | Shared database | Selected shared PostgreSQL deployment on retained CSI | Own operation after qualification; include database clients, backup jobs and Authentik availability in outage scope |
 | PostgreSQL conversion | Autobrr, then Seerr instances, then Bazarr | Start conversions only after shared PostgreSQL CSI and tested restore; rehearse pinned versions |

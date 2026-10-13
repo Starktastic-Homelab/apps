@@ -1,0 +1,292 @@
+controllers:
+  main:
+    replicas: 1
+    strategy: Recreate
+    serviceAccount:
+      name: prowlarr-postgres-completion
+    pod:
+      securityContext: {}
+      automountServiceAccountToken: false
+      nodeSelector:
+        node-role.kubernetes.io/worker: "true"
+    initContainers:
+      retained-state:
+        image:
+          repository: python
+          digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+        command:
+          - python3
+          - -I
+          - -B
+          - /retained-startup/guard.py
+          - /config
+          - /retained-credentials
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
+      enrollment-main:
+        command:
+          - python3
+          - -B
+          - /gate/completion_gate.py
+        args:
+          - --id
+          - prowlarr-main
+          - --database
+          - prowlarr_main
+          - --role
+          - prowlarr_main
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 25m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
+        image:
+          repository: python
+          digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+        dependsOn: retained-state
+      database-main:
+        command:
+          - /bin/sh
+          - -ec
+          - export PGPASSWORD="$(cat /credentials/password)"; exec psql -XqAt -v ON_ERROR_STOP=1 -f
+            /retained-startup/main.sql >/dev/null 2>&1
+        env:
+          - name: PGHOST
+            value: postgres-postgresql.databases
+          - name: PGPORT
+            value: "5432"
+          - name: PGUSER
+            value: prowlarr_main
+          - name: PGDATABASE
+            value: prowlarr_main
+          - name: PGCONNECT_TIMEOUT
+            value: "10"
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 10m
+            memory: 16Mi
+          limits:
+            cpu: 100m
+            memory: 32Mi
+        image:
+          repository: postgres:18.6-alpine
+          digest: sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd
+        dependsOn: enrollment-main
+      enrollment-log:
+        command:
+          - python3
+          - -B
+          - /gate/completion_gate.py
+        args:
+          - --id
+          - prowlarr-log
+          - --database
+          - prowlarr_log
+          - --role
+          - prowlarr_log
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 25m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
+        image:
+          repository: python
+          digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+        dependsOn: database-main
+      database-log:
+        command:
+          - /bin/sh
+          - -ec
+          - export PGPASSWORD="$(cat /credentials/password)"; exec psql -XqAt -v ON_ERROR_STOP=1 -c "SELECT 1"
+            >/dev/null 2>&1
+        env:
+          - name: PGHOST
+            value: postgres-postgresql.databases
+          - name: PGPORT
+            value: "5432"
+          - name: PGUSER
+            value: prowlarr_log
+          - name: PGDATABASE
+            value: prowlarr_log
+          - name: PGCONNECT_TIMEOUT
+            value: "10"
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 10m
+            memory: 16Mi
+          limits:
+            cpu: 100m
+            memory: 32Mi
+        image:
+          repository: postgres:18.6-alpine
+          digest: sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd
+        dependsOn: enrollment-log
+persistence:
+  pg-completion-script:
+    type: configMap
+    name: prowlarr-postgres-completion
+    defaultMode: 292
+    globalMounts: []
+    advancedMounts:
+      main:
+        enrollment-main:
+          - path: /gate
+            readOnly: true
+        enrollment-log:
+          - path: /gate
+            readOnly: true
+  pg-completion-api:
+    type: custom
+    volumeSpec:
+      projected:
+        defaultMode: 292
+        sources:
+          - serviceAccountToken:
+              path: token
+              expirationSeconds: 600
+          - configMap:
+              name: kube-root-ca.crt
+              items:
+                - key: ca.crt
+                  path: ca.crt
+    globalMounts: []
+    advancedMounts:
+      main:
+        enrollment-main:
+          - path: /gate-api
+            readOnly: true
+        enrollment-log:
+          - path: /gate-api
+            readOnly: true
+  pg-main-password:
+    type: secret
+    name: prowlarr-postgres-secret
+    defaultMode: 292
+    items:
+      - key: main-password
+        path: password
+    globalMounts: []
+    advancedMounts:
+      main:
+        database-main:
+          - path: /credentials
+            readOnly: true
+  pg-log-password:
+    type: secret
+    name: prowlarr-postgres-secret
+    defaultMode: 292
+    items:
+      - key: log-password
+        path: password
+    globalMounts: []
+    advancedMounts:
+      main:
+        database-log:
+          - path: /credentials
+            readOnly: true
+  config:
+    enabled: false
+  media:
+    enabled: false
+  prowlarr-config:
+    existingClaim: prowlarr-config-block
+    globalMounts: []
+    advancedMounts:
+      main:
+        main:
+          - path: /config
+        retained-state:
+          - path: /config
+            readOnly: true
+  retained-startup:
+    type: configMap
+    name: prowlarr-retained-startup-guard
+    defaultMode: 292
+    globalMounts: []
+    advancedMounts:
+      main:
+        retained-state:
+          - path: /retained-startup
+            readOnly: true
+        database-main:
+          - path: /retained-startup
+            readOnly: true
+  retained-credentials:
+    type: secret
+    name: prowlarr-postgres-secret
+    defaultMode: 292
+    items:
+      - key: main-password
+        path: main-password
+      - key: log-password
+        path: log-password
+    globalMounts: []
+    advancedMounts:
+      main:
+        retained-state:
+          - path: /retained-credentials
+            readOnly: true

@@ -1,0 +1,107 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prowlarr-retained-startup-guard
+  namespace: media
+data:
+  guard.py: |
+    #!/usr/bin/env python3
+    """Read-only retained Prowlarr configuration acceptance; never prints private data."""
+    from pathlib import Path
+    import sys
+    import xml.etree.ElementTree as ET
+
+
+    def connection(database: str, password: str) -> str:
+        if database not in ('prowlarr_main', 'prowlarr_log'):
+            raise ValueError('Unexpected database')
+        if not password or len(password.encode()) > 4096 or any(c in password for c in '\0\r\n'):
+            raise ValueError('Invalid credential')
+        quoted = password.replace('"', '""')
+        return (f'Host=postgres-postgresql.databases;Port=5432;Username={database};'
+                f'Password="{quoted}";Database={database};Maximum Pool Size=5;Timeout=10')
+
+
+    def validate(root: Path, credentials: Path) -> None:
+        def retained_file(name):
+            path = root / name
+            if path.is_symlink() or not path.is_file() or path.stat().st_size > 128 * 1024:
+                raise ValueError('Invalid retained file')
+            return path.read_text()
+
+        if retained_file('.homelab-prowlarr-config') != 'homelab/prowlarr/config/v1\n':
+            raise ValueError('Wrong retained identity')
+        text = retained_file('config.xml')
+        if '<!DOCTYPE' in text or '<!ENTITY' in text:
+            raise ValueError('Unexpected XML declaration')
+        config = ET.fromstring(text)
+        if config.tag != 'Config':
+            raise ValueError('Wrong configuration')
+        def field(name):
+            matches = config.findall(name)
+            if len(matches) != 1 or not matches[0].text or list(matches[0]):
+                raise ValueError('Missing or duplicate field')
+            return matches[0].text
+
+        if not field('ApiKey').strip():
+            raise ValueError('Missing preserved API key')
+        for kind in ('main', 'log'):
+            path = credentials / f'{kind}-password'
+            # Kubernetes Secret projections use AtomicWriter symlinks. Accept them
+            # only inside the credential mount; retained identity/config stay regular.
+            if not path.resolve().is_relative_to(credentials.resolve()) or not path.is_file() or path.stat().st_size > 4096:
+                raise ValueError('Invalid credential file')
+            expected = connection('prowlarr_' + kind, path.read_text())
+            if field(f'Postgres{kind.title()}DbConnectionString') != expected:
+                raise ValueError('Wrong connection')
+        for name in ('PostgresHost', 'PostgresPort', 'PostgresUser', 'PostgresPassword', 'PostgresMainDb', 'PostgresLogDb'):
+            if config.find(name) is not None:
+                raise ValueError('Conflicting scalar connection')
+        for database in ('prowlarr.db', 'logs.db'):
+            for suffix in ('', '-wal', '-shm', '-journal'):
+                path = root / (database + suffix)
+                if path.exists() or path.is_symlink():
+                    raise ValueError('Active SQLite fallback')
+
+
+    if __name__ == '__main__':
+        try:
+            if len(sys.argv) != 3:
+                raise ValueError('Expected config and credential directories')
+            validate(Path(sys.argv[1]), Path(sys.argv[2]))
+        except (OSError, ValueError, ET.ParseError):
+            print('Retained Prowlarr configuration is missing or invalid; restore acceptance is required.', file=sys.stderr)
+            raise SystemExit(1) from None
+        print('Retained Prowlarr configuration and database bindings accepted.')
+  main.sql: |
+    -- Canonical app-role login must not let stock Prowlarr bootstrap empty main data.
+    BEGIN READ ONLY;
+    SET LOCAL statement_timeout = '10s';
+    DO $guard$
+    DECLARE
+      expected text;
+    BEGIN
+      IF current_database() <> 'prowlarr_main' OR current_user <> 'prowlarr_main' THEN
+        RAISE EXCEPTION 'Retained Prowlarr database identity rejected';
+      END IF;
+      FOREACH expected IN ARRAY ARRAY[
+        'AppSyncProfiles', 'ApplicationIndexerMapping', 'ApplicationStatus',
+        'Applications', 'Commands', 'Config', 'CustomFilters', 'DownloadClientStatus',
+        'DownloadClients', 'History', 'IndexerDefinitionVersions', 'IndexerProxies',
+        'IndexerStatus', 'Indexers', 'NotificationStatus', 'Notifications',
+        'ScheduledTasks', 'Tags', 'Users', 'VersionInfo'
+      ] LOOP
+        IF NOT EXISTS (SELECT 1 FROM information_schema.tables
+                       WHERE table_schema = 'public' AND table_name = expected
+                       AND table_type = 'BASE TABLE') THEN
+          RAISE EXCEPTION 'Retained Prowlarr schema rejected';
+        END IF;
+      END LOOP;
+      IF NOT EXISTS (SELECT 1 FROM public."VersionInfo" WHERE "Version" >= 44)
+         OR NOT EXISTS (SELECT 1 FROM public."Users")
+         OR NOT EXISTS (SELECT 1 FROM public."Config") THEN
+        RAISE EXCEPTION 'Retained Prowlarr initialized data rejected';
+      END IF;
+    END
+    $guard$;
+    COMMIT;

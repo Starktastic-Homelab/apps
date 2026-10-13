@@ -1,11 +1,13 @@
-# Seerr PostgreSQL enrollment and retained CSI preparation
+# Seerr PostgreSQL and retained CSI lifecycle
 
 This package implements the [merged design](../../docs/superpowers/specs/2026-10-13-seerr-postgresql-csi-design.md)
 for Seerr and Seerr-RU. The shared PostgreSQL enrollment hook now declares both
 canonical owners, and each application discovers its own PostgreSQL SealedSecret.
-Both services remain on their original NFS/SQLite configuration. The retained
-CSI bindings, source holds and startup values in this package remain outside
-ApplicationSet discovery until the separately approved cutover and reconciliation.
+Both services use PostgreSQL and separate retained CSI configuration volumes.
+Their bindings, source holds, enrollment gates and retained startup guards are
+permanently discovered through the application and base-configs manifests.
+The protected original NFS claims remain available for reviewed recovery; they
+must not be reopened after target writes without preserving newest data.
 
 The read-only settings guard accepts only the instance marker, preserved API,
 session, client and VAPID identifiers, canonical PostgreSQL environment and no
@@ -33,12 +35,12 @@ adapter without modifying either application's active resources.
 ```sh
 helm template seerr app-template --repo https://bjw-s-labs.github.io/helm-charts \
   --version 5.2.1 --namespace media -f templates/globals.yaml -f templates/common.yaml \
-  -f services/media/seerr/values.yaml -f scripts/seerr-postgresql/production/values.yaml \
+  -f services/media/seerr/values.yaml \
   > /tmp/seerr-retained.yaml
 helm template seerr-ru app-template --repo https://bjw-s-labs.github.io/helm-charts \
   --version 5.2.1 --namespace media -f templates/globals.yaml -f templates/common.yaml \
-  -f services/media/seerr/values.yaml -f scripts/seerr-postgresql/production/values.yaml \
-  -f scripts/seerr-postgresql/production/seerr-ru/values.yaml > /tmp/seerr-ru-retained.yaml
+  -f services/media/seerr/values.yaml \
+  -f services/media/seerr-ru/values.yaml > /tmp/seerr-ru-retained.yaml
 SEERR_SQL_TEST=1 SEERR_RETAINED_RENDER=/tmp/seerr-retained.yaml \
   SEERR_RU_RETAINED_RENDER=/tmp/seerr-ru-retained.yaml python3 scripts/test-seerr-retained-startup.py
 ```
@@ -60,9 +62,9 @@ certificate; passwords flow only through captured private stdin, never into Git.
 Re-run byte/generation comparisons after pre-commit because formatting must not
 alter fingerprinted ConfigMap data.
 
-## Activation mapping, only after execution approval
+## Active resource mapping
 
-| Inactive source | Future destination |
+| Qualified source | Active destination |
 | --- | --- |
 | `production/values.yaml` | Merge into `services/media/seerr/values.yaml`, preserving image/service and the actual value cascade |
 | `production/seerr-ru/values.yaml` | New `services/media/seerr-ru/values.yaml`, instance overrides only |
@@ -74,7 +76,7 @@ alter fingerprinted ConfigMap data.
 | Each `production/<instance>/{pv,pvc}.yaml` | `infrastructure/base-configs/templates/<instance>-block-storage/` |
 | `production/enrollment/enrollment-{configmap,job,secret}.yaml` | Corresponding PostgreSQL `manifests/` files |
 
-The metadata patches must enable `manifests: true` in both apps and
+The active metadata enables `manifests: true` in both apps and
 `valuesOverride: true` in Seerr-RU. Otherwise resources/variant values escape
 permanent discovery. The common guard ConfigMap is provided by the base app in
 the shared media namespace; no guard/code duplication is needed in the variant.

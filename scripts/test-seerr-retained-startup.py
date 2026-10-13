@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Qualify inactive Seerr retained startup and instance composition."""
+"""Qualify active Seerr retained startup and instance composition."""
 import copy
 import hashlib
 import json
@@ -174,7 +174,7 @@ class PackageTests(unittest.TestCase):
             self.assertTrue(all(r['roleRef']['name']=='postgres-enrollment-completion-reader' for r in bindings))
             self.assertTrue(all(r['subjects']==[{'kind':'ServiceAccount','name':instance+'-postgres-completion','namespace':'media'}] for r in bindings))
 
-    def test_static_bindings_remain_inactive_with_enrollment_discovery(self):
+    def test_static_bindings_and_guards_are_permanently_discovered(self):
         for instance in ('seerr','seerr-ru'):
             folder=PACKAGE/'production'/instance
             self.assertTrue((folder/'pv.yaml').is_file(), 'Inactive binding not generated')
@@ -195,12 +195,21 @@ class PackageTests(unittest.TestCase):
             self.assertEqual(binding['spec']['policyName'],instance+'-source-hold')
         self.assertFalse(list(PACKAGE.rglob('app.yaml')))
         for instance in ('seerr','seerr-ru'):
+            folder=PACKAGE/'production'/instance
             self.assertTrue(yaml.safe_load((ROOT/'services/media'/instance/'app.yaml').read_text())['manifests'])
             manifests=ROOT/'services/media'/instance/'manifests'
-            self.assertEqual({p.name for p in manifests.glob('*.yaml')},{'postgres-secret.yaml'})
+            expected={'postgres-secret.yaml','postgres-completion-gate.yaml','source-hold.yaml'}
+            if instance=='seerr':expected.add('retained-startup-guard.yaml')
+            self.assertEqual({p.name for p in manifests.glob('*.yaml')},expected)
+            for dest,source in [('postgres-completion-gate.yaml',folder/'consumer-gate.yaml'),('source-hold.yaml',folder/'source-hold.yaml')]:
+                self.assertEqual(list(yaml.safe_load_all((manifests/dest).read_text())),list(yaml.safe_load_all(source.read_text())))
+            for name in ('pv.yaml','pvc.yaml'):
+                self.assertEqual(yaml.safe_load((ROOT/'infrastructure/base-configs/templates'/(instance+'-block-storage')/name).read_text()),yaml.safe_load((folder/name).read_text()))
             self.assertEqual(yaml.safe_load((manifests/'postgres-secret.yaml').read_text()),yaml.safe_load((PACKAGE/'production/enrollment'/(instance+'-application-secret.yaml')).read_text()))
-        self.assertNotIn('existingClaim',yaml.safe_load((ROOT/'services/media/seerr/values.yaml').read_text())['persistence']['config'])
-        self.assertFalse(yaml.safe_load((ROOT/'services/media/seerr-ru/app.yaml').read_text()).get('valuesOverride',False))
+        self.assertEqual(yaml.safe_load((ROOT/'services/media/seerr/values.yaml').read_text())['persistence']['seerr-config']['existingClaim'],'seerr-config-block')
+        self.assertEqual(yaml.safe_load((ROOT/'services/media/seerr-ru/values.yaml').read_text())['persistence']['seerr-config']['existingClaim'],'seerr-ru-config-block')
+        self.assertEqual(yaml.safe_load((ROOT/'services/media/seerr/manifests/retained-startup-guard.yaml').read_text()),yaml.safe_load((PACKAGE/'production/guard-configmap.yaml').read_text()))
+        self.assertTrue(yaml.safe_load((ROOT/'services/media/seerr-ru/app.yaml').read_text())['valuesOverride'])
 
     def test_existing_private_output_is_refused_without_replacement(self):
         prepare=self.prepare()
@@ -291,12 +300,11 @@ class RenderTests(unittest.TestCase):
             self.assertFalse(any(x.get('kind')=='PersistentVolumeClaim' for x in objects),'Dynamic claim remains')
 
     @unittest.skipUnless(os.environ.get('SEERR_RETAINED_RENDER'), 'Actual preparation renders required')
-    def test_future_base_config_bindings_render_without_dynamic_provisioning(self):
+    def test_active_base_config_bindings_render_without_dynamic_provisioning(self):
         with tempfile.TemporaryDirectory() as temporary:
             chart=Path(temporary)/'base-configs';shutil.copytree(ROOT/'infrastructure/base-configs',chart)
             for instance in ('seerr','seerr-ru'):
-                folder=chart/'templates'/(instance+'-block-storage');folder.mkdir()
-                for name in ('pv.yaml','pvc.yaml'):shutil.copyfile(PACKAGE/'production'/instance/name,folder/name)
+                folder=chart/'templates'/(instance+'-block-storage');self.assertTrue(folder.is_dir())
             r=subprocess.run(['helm','template','base-configs',str(chart),'-f',str(ROOT/'templates/globals.yaml')],capture_output=True,text=True,timeout=30)
             self.assertEqual(r.returncode,0,r.stderr)
             objects=[x for x in yaml.safe_load_all(r.stdout) if x]

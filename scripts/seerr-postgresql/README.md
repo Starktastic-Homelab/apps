@@ -48,7 +48,8 @@ verify separate static bindings. No cluster apply or real data is used.
 
 `prepare.py sources` regenerates only non-secret source serialization after an
 intentional source edit. For enrollment this migration's exact original completed
-bundle is retained privately; `publish_enrollment(output)` can reserialize those
+bundle is retained privately under the ignored
+`.superpowers/retained-artifacts/seerr-postgresql-csi-preparation/encrypted-bundle/`; `publish_enrollment(output)` can reserialize those
 same ciphertexts without sealing again. `prepare.py enrollment --output <private,
 exclusive path>` is for initial preparation only: existing output is refused,
 intermediate completed bundles remain on failure, and every previous aggregate

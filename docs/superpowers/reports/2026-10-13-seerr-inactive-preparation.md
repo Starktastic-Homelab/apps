@@ -28,7 +28,7 @@ partial output refuses regeneration. Prepared ciphertext creates no SQL objects.
 
 ## Verification
 
-- Fifteen Seerr tests passed with both actual app-template5.2.1 value cascades,
+- Sixteen Seerr tests passed with both actual app-template5.2.1 value cascades,
   the prospective base-configs chart from a temporary copy, and one bounded
   no-network PG18.6 fixture using synthetic data. No required test was skipped.
 - All 25 existing shared enrollment tests and the native canary passed. An initial
@@ -42,7 +42,8 @@ partial output refuses regeneration. Prepared ciphertext creates no SQL objects.
   Pod fsGroup mutation; the original UID/GID1000 and image pin remain.
 - Negative checks rejected a Seerr-RU render missing its override, absent/invalid
   retained state, stale/failed enrollment acceptance, wrong credentials and
-  incomplete PostgreSQL data. Accepted fixtures remained unchanged.
+  incomplete PostgreSQL data. Accepted fixtures remained unchanged. Eight
+  main-only environment mutations are rejected by the actual render contract.
 - Read-only production checks found no proposed SQL identities, declarations or
   application Secrets, and confirmed the existing PostgreSQL physical identity,
   current declaration equality and public sealing-certificate provenance.
@@ -56,3 +57,22 @@ encrypted recovery, live/Git reconciliation and release/watch requirements.
 Next is a private production execution package with fresh identities, allocation
 budgets, exact commands and absolute outage/recovery checkpoints. This preparation
 does not authorize those operations.
+
+## Independent review
+
+The independent final review found no critical issues. Its important finding was
+that the render contract accepted main-only `CONFIG_DIRECTORY`, `API_KEY`,
+`DB_SOCKET_PATH` and `envFrom` overrides invisible to the separate guard. Eight
+negative mutations reproduced the gap; the corrected contract rejects them for
+both instances. The full sixteen-test suite passed after the fix.
+
+Deferred minor: `publish_enrollment()` reads and writes inputs sequentially; a
+missing later input can partially overwrite inactive output. Preloading all five
+inputs before publication would improve recoverability. Exact completed bundles
+are retained privately, and no live resources are applied by this helper.
+
+Production enrollment/conversion/integration/movement/release checks remain in the
+separately approved execution scope; judging them from preparation would overclaim
+rollout readiness. Ciphertext decryption and live credential agreement also remain
+execution gates because this review uses no operational credentials. If either
+gate is omitted later, local consistency alone cannot establish production safety.

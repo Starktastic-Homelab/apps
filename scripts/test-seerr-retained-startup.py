@@ -230,6 +230,21 @@ class PackageTests(unittest.TestCase):
 
 class RenderTests(unittest.TestCase):
     @unittest.skipUnless(os.environ.get('SEERR_RETAINED_RENDER') and os.environ.get('SEERR_RU_RETAINED_RENDER'), 'Actual layered Helm renders required')
+    def test_main_only_configuration_bypasses_are_rejected(self):
+        for flag in ('SEERR_RETAINED_RENDER','SEERR_RU_RETAINED_RENDER'):
+            for name,value in (('DB_SOCKET_PATH','/tmp/another-db'),('CONFIG_DIRECTORY','/tmp/another-config'),('API_KEY','replacement-key'),('envFrom',None)):
+                with self.subTest(instance=flag,override=name),tempfile.TemporaryDirectory() as temporary:
+                    objects=list(yaml.safe_load_all(Path(os.environ[flag]).read_text()))
+                    deployment=next(x for x in objects if x.get('kind')=='Deployment')
+                    main=next(c for c in deployment['spec']['template']['spec']['containers'] if c['name']=='main')
+                    if name=='envFrom':main['envFrom']=[{'secretRef':{'name':'unaccounted-settings'}}]
+                    else:main['env'].append({'name':name,'value':value})
+                    path=Path(temporary)/'conflicting-render.yaml';path.write_text(yaml.safe_dump_all(objects))
+                    env=dict(os.environ);env[flag]=str(path)
+                    result=subprocess.run([sys.executable,str(Path(__file__).resolve()),'RenderTests.test_both_pods_mount_only_their_bound_state_and_credentials'],env=env,capture_output=True,text=True,timeout=30)
+                    self.assertNotEqual(result.returncode,0,'Render contract accepted a main-only configuration bypass')
+
+    @unittest.skipUnless(os.environ.get('SEERR_RETAINED_RENDER') and os.environ.get('SEERR_RU_RETAINED_RENDER'), 'Actual layered Helm renders required')
     def test_both_pods_mount_only_their_bound_state_and_credentials(self):
         for instance,db,flag in (('seerr','seerr','SEERR_RETAINED_RENDER'),('seerr-ru','seerr_ru','SEERR_RU_RETAINED_RENDER')):
             objects=list(yaml.safe_load_all(Path(os.environ[flag]).read_text()))
@@ -252,10 +267,13 @@ class RenderTests(unittest.TestCase):
                     self.assertEqual(container['name'],'database')
                     self.assertEqual(volumes[mounts['/credentials']['name']]['secret']['secretName'],instance+'-postgres-secret')
                 if container['name'] in ('main','retained-state'):
+                    self.assertFalse(container.get('envFrom'), 'Unaccounted environment source bypasses startup guard')
                     self.assertIn('/app/config',mounts)
                     self.assertEqual(mounts['/app/config'].get('readOnly',False),container['name']=='retained-state')
                     self.assertEqual(container['securityContext']['runAsUser'],1000);self.assertEqual(container['securityContext']['runAsGroup'],1000)
                     env={v['name']:v for v in container['env']}
+                    for name in ('DB_SOCKET_PATH','CONFIG_DIRECTORY','API_KEY'):
+                        self.assertNotIn(name,env, 'Stock configuration override bypasses startup guard')
                     for key,want in {'NODE_ENV':'production','DB_TYPE':'postgres','DB_HOST':'postgres-postgresql.databases','DB_PORT':'5432','DB_NAME':db,'DB_USER':db,'DB_POOL_SIZE':'3'}.items():self.assertEqual(env[key]['value'],want)
                     self.assertEqual(env['DB_PASS']['valueFrom']['secretKeyRef'],{'name':instance+'-postgres-secret','key':'password'})
                 else:self.assertNotIn('/app/config',mounts)

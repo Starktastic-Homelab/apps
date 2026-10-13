@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check Prowlarr retained config and its inactive PostgreSQL/CSI composition."""
+"""Check Prowlarr retained config through preparation, enrollment and CSI activation."""
 import hashlib
 import json
 import os
@@ -133,22 +133,26 @@ class RetainedConfigTests(unittest.TestCase):
 
 
 class CompositionTests(unittest.TestCase):
-    def test_activation_explicitly_enables_manifest_discovery_without_changing_current_app(self):
+    def test_manifest_discovery_matches_current_storage_phase(self):
         path = PACKAGE / 'production/app-metadata.yaml'
         self.assertTrue(path.is_file(), 'Activation manifest discovery patch missing')
         patch = yaml.safe_load(path.read_text())
         self.assertEqual(patch, {'manifests': True})
         current = yaml.safe_load((ROOT / 'services/media/prowlarr/app.yaml').read_text())
-        self.assertFalse(current.get('manifests', False), 'Preparation unexpectedly activates manifest discovery')
-        final = {**current, **patch}
+        values = yaml.safe_load((ROOT / 'services/media/prowlarr/values.yaml').read_text())
+        retained = values.get('persistence', {}).get('prowlarr-config', {}).get('existingClaim') == 'prowlarr-config-block'
+        self.assertEqual(current.get('manifests', False), retained,
+                         'Manifest discovery must be activated together with retained CSI')
+        baseline = {k: v for k, v in current.items() if k != 'manifests'}
+        final = {**baseline, **patch}
         self.assertTrue(final['manifests'])
-        self.assertEqual({k: v for k, v in final.items() if k != 'manifests'}, current)
+        self.assertEqual({k: v for k, v in final.items() if k != 'manifests'}, baseline)
         appset = yaml.safe_load((ROOT / 'bootstrap/appsets/cluster-apps.yaml').read_text())
         self.assertIn('{{- if dig "manifests" false . }}', appset['spec']['templatePatch'])
         self.assertIn("path: '{{.path.path}}/manifests'", appset['spec']['templatePatch'])
         self.assertEqual(final['commonValuesExtras'], ['templates/media-arr-common.yaml'])
 
-    def test_sources_are_inactive_and_reuse_named_reader_roles(self):
+    def test_prepared_sources_reuse_named_reader_roles(self):
         path = PACKAGE / 'production/consumer-gate.yaml'
         self.assertTrue(path.is_file(), 'Dual consumer sources not generated')
         objects = list(yaml.safe_load_all(path.read_text()))
@@ -166,7 +170,6 @@ class CompositionTests(unittest.TestCase):
         self.assertEqual(config['data']['completion_gate.py'],
                          (ROOT / 'scripts/postgres-enrollment/completion_gate.py').read_text())
         self.assertFalse(list(PACKAGE.rglob('app.yaml')))
-        self.assertNotIn('prowlarr_main', (ROOT / 'infrastructure/controllers/databases/postgres/manifests/enrollment-configmap.yaml').read_text())
 
     def test_guard_configmap_uses_the_tested_sources(self):
         path = PACKAGE / 'production/guard-configmap.yaml'
@@ -199,7 +202,9 @@ class CompositionTests(unittest.TestCase):
         original = yaml.safe_load((ROOT / 'infrastructure/controllers/databases/postgres/manifests/enrollment-configmap.yaml').read_text())
         config = json.loads(configmap['data']['config.json'])
         prior = json.loads(original['data']['config.json'])
-        self.assertEqual(config['entries'][:-2], prior['entries'])
+        # The deployed declarations are either the unchanged prior inputs or the
+        # complete prepared enrollment. Partial/altered declarations are refused.
+        self.assertIn(prior['entries'], [config['entries'][:-2], config['entries']])
         self.assertEqual(config['expectedSystemIdentifier'], prior['expectedSystemIdentifier'])
         for kind, entry in zip(('main', 'log'), config['entries'][-2:]):
             self.assertEqual(entry, {'id': 'prowlarr-' + kind, 'database': 'prowlarr_' + kind,

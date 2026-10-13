@@ -4,6 +4,7 @@ import copy
 import hashlib
 import json
 import os
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -225,6 +226,70 @@ class PackageTests(unittest.TestCase):
             identity={'id':instance,'database':db,'role':db};self.assertTrue(completion_gate.accepted(cm,app,identity))
             failed=copy.deepcopy(app);failed['status']['operationState']['syncResult']['resources'][0]['hookPhase']='Failed';self.assertFalse(completion_gate.accepted(cm,failed,identity))
             stale=copy.deepcopy(cm);stale['data']['encrypted-inputs-sha256']='new-input';self.assertFalse(completion_gate.accepted(stale,app,identity))
+
+
+class RenderTests(unittest.TestCase):
+    @unittest.skipUnless(os.environ.get('SEERR_RETAINED_RENDER') and os.environ.get('SEERR_RU_RETAINED_RENDER'), 'Actual layered Helm renders required')
+    def test_both_pods_mount_only_their_bound_state_and_credentials(self):
+        for instance,db,flag in (('seerr','seerr','SEERR_RETAINED_RENDER'),('seerr-ru','seerr_ru','SEERR_RU_RETAINED_RENDER')):
+            objects=list(yaml.safe_load_all(Path(os.environ[flag]).read_text()))
+            deployment=next(x for x in objects if x.get('kind')=='Deployment');pod=deployment['spec']['template']['spec']
+            self.assertEqual(deployment['spec']['replicas'],1);self.assertEqual(deployment['spec']['strategy']['type'],'Recreate')
+            self.assertEqual(pod['nodeSelector'],{'node-role.kubernetes.io/worker':'true'})
+            self.assertFalse(pod['automountServiceAccountToken']);self.assertNotIn('fsGroup',pod.get('securityContext',{}))
+            self.assertEqual(pod['serviceAccountName'],instance+'-postgres-completion')
+            volumes={v['name']:v for v in pod['volumes']}
+            self.assertEqual([v['persistentVolumeClaim']['claimName'] for v in volumes.values() if 'persistentVolumeClaim' in v],[instance+'-config-block'])
+            inits=pod['initContainers'];self.assertEqual([c['name'] for c in inits],['retained-state','enrollment','database'])
+            self.assertEqual(inits[1]['args'],['--id',instance,'--database',db,'--role',db])
+            self.assertEqual(inits[0]['command'][-1],instance)
+            for container in [*inits,*pod['containers']]:
+                mounts={m['mountPath']:m for m in container.get('volumeMounts',[])}
+                if '/gate-api' in mounts:
+                    self.assertEqual(container['name'],'enrollment')
+                    self.assertIn('projected',volumes[mounts['/gate-api']['name']])
+                if '/credentials' in mounts:
+                    self.assertEqual(container['name'],'database')
+                    self.assertEqual(volumes[mounts['/credentials']['name']]['secret']['secretName'],instance+'-postgres-secret')
+                if container['name'] in ('main','retained-state'):
+                    self.assertIn('/app/config',mounts)
+                    self.assertEqual(mounts['/app/config'].get('readOnly',False),container['name']=='retained-state')
+                    self.assertEqual(container['securityContext']['runAsUser'],1000);self.assertEqual(container['securityContext']['runAsGroup'],1000)
+                    env={v['name']:v for v in container['env']}
+                    for key,want in {'NODE_ENV':'production','DB_TYPE':'postgres','DB_HOST':'postgres-postgresql.databases','DB_PORT':'5432','DB_NAME':db,'DB_USER':db,'DB_POOL_SIZE':'3'}.items():self.assertEqual(env[key]['value'],want)
+                    self.assertEqual(env['DB_PASS']['valueFrom']['secretKeyRef'],{'name':instance+'-postgres-secret','key':'password'})
+                else:self.assertNotIn('/app/config',mounts)
+                if container['name']!='enrollment':self.assertNotIn('/gate-api',mounts)
+                if container['name']!='database':self.assertNotIn('/credentials',mounts)
+            main=next(c for c in pod['containers'] if c['name']=='main')
+            self.assertEqual(main['image'],'ghcr.io/seerr-team/seerr:v3.4.1@sha256:f4768de5f616248d723e05891f3345a1402123775d03bf0890dbfedc0831bda1')
+            for name in ('livenessProbe','readinessProbe','startupProbe'):self.assertEqual(main[name]['httpGet']['path'],'/api/v1/status/appdata')
+            self.assertFalse(any(x.get('kind')=='PersistentVolumeClaim' for x in objects),'Dynamic claim remains')
+
+    @unittest.skipUnless(os.environ.get('SEERR_RETAINED_RENDER'), 'Actual preparation renders required')
+    def test_future_base_config_bindings_render_without_dynamic_provisioning(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            chart=Path(temporary)/'base-configs';shutil.copytree(ROOT/'infrastructure/base-configs',chart)
+            for instance in ('seerr','seerr-ru'):
+                folder=chart/'templates'/(instance+'-block-storage');folder.mkdir()
+                for name in ('pv.yaml','pvc.yaml'):shutil.copyfile(PACKAGE/'production'/instance/name,folder/name)
+            r=subprocess.run(['helm','template','base-configs',str(chart),'-f',str(ROOT/'templates/globals.yaml')],capture_output=True,text=True,timeout=30)
+            self.assertEqual(r.returncode,0,r.stderr)
+            objects=[x for x in yaml.safe_load_all(r.stdout) if x]
+            for instance in ('seerr','seerr-ru'):
+                pv=next(x for x in objects if x['kind']=='PersistentVolume' and x['metadata']['name']==instance+'-config-block')
+                pvc=next(x for x in objects if x['kind']=='PersistentVolumeClaim' and x['metadata']['name']==instance+'-config-block')
+                self.assertEqual(pv['spec']['claimRef'],{'namespace':'media','name':instance+'-config-block'})
+                self.assertEqual(pvc['spec']['volumeName'],pv['metadata']['name'])
+                self.assertEqual(pv['spec']['csi']['volumeHandle'],'homelab//k3s-block/9999/vm-9999-'+instance+'.raw')
+
+    def test_embedded_guard_and_gate_bytes_match_qualified_source(self):
+        guard=yaml.safe_load((PACKAGE/'production/guard-configmap.yaml').read_text())
+        for name in ('guard.py','main.sql'):self.assertEqual(guard['data'][name],(PACKAGE/name).read_text())
+        for instance in ('seerr','seerr-ru'):
+            resources=list(yaml.safe_load_all((PACKAGE/'production'/instance/'consumer-gate.yaml').read_text()))
+            cm=next(x for x in resources if x['kind']=='ConfigMap')
+            self.assertEqual(cm['data']['completion_gate.py'],(ROOT/'scripts/postgres-enrollment/completion_gate.py').read_text())
 
 
 if __name__ == '__main__':unittest.main()

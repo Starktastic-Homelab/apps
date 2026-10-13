@@ -1,9 +1,12 @@
 # Seerr and Seerr-RU: PostgreSQL and retained CSI configuration
 
-Status: proposal for written review. The approved disposable rehearsal qualifies
-conversion compatibility; it does not authorize enrollment, storage allocation,
-a production outage or activation. Both live instances still use SQLite on NFS.
-See the [qualification report](../reports/2026-10-13-seerr-preflight.md).
+Status: accepted design with an approved inactive preparation plan. The disposable
+rehearsal qualifies conversion compatibility; production enrollment, storage
+allocation, outage and activation still require a separate execution proposal.
+Both live instances still use SQLite on NFS. See the
+[qualification report](../reports/2026-10-13-seerr-preflight.md),
+[preparation evidence](../reports/2026-10-13-seerr-inactive-preparation.md) and
+[activation mapping](../../../scripts/seerr-postgresql/README.md).
 
 ## Desired behavior
 

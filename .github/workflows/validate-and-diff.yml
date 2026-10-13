@@ -133,6 +133,32 @@ jobs:
           PROWLARR_SQL_TEST=1 PROWLARR_RETAINED_RENDER=/tmp/prowlarr-retained.yaml \
             python3 scripts/test-prowlarr-retained-startup.py
 
+      - name: Check inactive Seerr PostgreSQL and retained CSI preparation
+        run: |
+          for INSTANCE in seerr seerr-ru; do
+            kubeconform -strict -summary \
+              scripts/seerr-postgresql/production/$INSTANCE/pv.yaml \
+              scripts/seerr-postgresql/production/$INSTANCE/pvc.yaml \
+              scripts/seerr-postgresql/production/$INSTANCE/consumer-gate.yaml \
+              scripts/seerr-postgresql/production/$INSTANCE/source-hold.yaml
+          done
+          kubeconform -strict -summary \
+            scripts/seerr-postgresql/production/guard-configmap.yaml \
+            scripts/seerr-postgresql/production/enrollment/enrollment-configmap.yaml \
+            scripts/seerr-postgresql/production/enrollment/enrollment-job.yaml
+          helm template seerr app-template --repo https://bjw-s-labs.github.io/helm-charts \
+            --version 5.2.1 --namespace media -f templates/globals.yaml -f templates/common.yaml \
+            -f services/media/seerr/values.yaml -f scripts/seerr-postgresql/production/values.yaml \
+            > /tmp/seerr-retained.yaml
+          helm template seerr-ru app-template --repo https://bjw-s-labs.github.io/helm-charts \
+            --version 5.2.1 --namespace media -f templates/globals.yaml -f templates/common.yaml \
+            -f services/media/seerr/values.yaml -f scripts/seerr-postgresql/production/values.yaml \
+            -f scripts/seerr-postgresql/production/seerr-ru/values.yaml > /tmp/seerr-ru-retained.yaml
+          kubeconform -strict -summary /tmp/seerr-retained.yaml /tmp/seerr-ru-retained.yaml
+          SEERR_SQL_TEST=1 SEERR_RETAINED_RENDER=/tmp/seerr-retained.yaml \
+            SEERR_RU_RETAINED_RENDER=/tmp/seerr-ru-retained.yaml \
+            python3 scripts/test-seerr-retained-startup.py
+
       - name: Check inactive PostgreSQL cutover states
         run: |
           kubeconform -strict -summary scripts/postgres-retained-startup/production/cutover/source-hold.yaml

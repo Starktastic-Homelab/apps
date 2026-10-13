@@ -174,7 +174,7 @@ class PackageTests(unittest.TestCase):
             self.assertTrue(all(r['roleRef']['name']=='postgres-enrollment-completion-reader' for r in bindings))
             self.assertTrue(all(r['subjects']==[{'kind':'ServiceAccount','name':instance+'-postgres-completion','namespace':'media'}] for r in bindings))
 
-    def test_static_binding_and_discovery_patches_are_inactive_and_distinct(self):
+    def test_static_bindings_remain_inactive_with_enrollment_discovery(self):
         for instance in ('seerr','seerr-ru'):
             folder=PACKAGE/'production'/instance
             self.assertTrue((folder/'pv.yaml').is_file(), 'Inactive binding not generated')
@@ -194,7 +194,12 @@ class PackageTests(unittest.TestCase):
             self.assertIn("claimName == '"+instance+"'",policy['spec']['matchConditions'][0]['expression'])
             self.assertEqual(binding['spec']['policyName'],instance+'-source-hold')
         self.assertFalse(list(PACKAGE.rglob('app.yaml')))
-        self.assertFalse(yaml.safe_load((ROOT/'services/media/seerr/app.yaml').read_text()).get('manifests',False))
+        for instance in ('seerr','seerr-ru'):
+            self.assertTrue(yaml.safe_load((ROOT/'services/media'/instance/'app.yaml').read_text())['manifests'])
+            manifests=ROOT/'services/media'/instance/'manifests'
+            self.assertEqual({p.name for p in manifests.glob('*.yaml')},{'postgres-secret.yaml'})
+            self.assertEqual(yaml.safe_load((manifests/'postgres-secret.yaml').read_text()),yaml.safe_load((PACKAGE/'production/enrollment'/(instance+'-application-secret.yaml')).read_text()))
+        self.assertNotIn('existingClaim',yaml.safe_load((ROOT/'services/media/seerr/values.yaml').read_text())['persistence']['config'])
         self.assertFalse(yaml.safe_load((ROOT/'services/media/seerr-ru/app.yaml').read_text()).get('valuesOverride',False))
 
     def test_existing_private_output_is_refused_without_replacement(self):
@@ -209,7 +214,8 @@ class PackageTests(unittest.TestCase):
         self.assertTrue(path.is_file(), 'Encrypted preparation not published')
         cm=yaml.safe_load(path.read_text());config=json.loads(cm['data']['config.json'])
         prior=json.loads(yaml.safe_load((ROOT/'infrastructure/controllers/databases/postgres/manifests/enrollment-configmap.yaml').read_text())['data']['config.json'])
-        self.assertEqual(config['entries'][:-2],prior['entries']);self.assertEqual(config['expectedSystemIdentifier'],prior['expectedSystemIdentifier'])
+        self.assertEqual(config,prior)
+        self.assertEqual([entry['id'] for entry in config['entries'][:-2]],['pg-enrollment-pilot','autobrr','prowlarr-main','prowlarr-log'])
         for instance,db,entry in zip(('seerr','seerr-ru'),('seerr','seerr_ru'),config['entries'][-2:]):
             self.assertEqual(entry,{'id':instance,'database':db,'role':db,'mode':'new','passwordKey':instance+'-password'})
             app=yaml.safe_load((PACKAGE/'production/enrollment'/(instance+'-application-secret.yaml')).read_text())

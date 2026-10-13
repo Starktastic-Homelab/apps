@@ -3,8 +3,9 @@ namespace: media
 deployPhase: services
 ingress:
   enabled: true
-  host: "request"
-  domainType: "media"
+  host: request
+  domainType: media
   port: 5055
   auth: false
   rateLimit: true
+manifests: true

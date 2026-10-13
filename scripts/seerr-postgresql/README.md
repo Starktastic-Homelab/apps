@@ -1,9 +1,11 @@
-# Inactive Seerr PostgreSQL and retained CSI preparation
+# Seerr PostgreSQL enrollment and retained CSI preparation
 
 This package implements the [merged design](../../docs/superpowers/specs/2026-10-13-seerr-postgresql-csi-design.md)
-for Seerr and Seerr-RU. It is outside ApplicationSet discovery. Merging it does
-not enroll databases, allocate storage, install source holds or restart apps.
-Both services remain on their original NFS/SQLite configuration.
+for Seerr and Seerr-RU. The shared PostgreSQL enrollment hook now declares both
+canonical owners, and each application discovers its own PostgreSQL SealedSecret.
+Both services remain on their original NFS/SQLite configuration. The retained
+CSI bindings, source holds and startup values in this package remain outside
+ApplicationSet discovery until the separately approved cutover and reconciliation.
 
 The read-only settings guard accepts only the instance marker, preserved API,
 session, client and VAPID identifiers, canonical PostgreSQL environment and no

@@ -115,6 +115,24 @@ jobs:
             -f templates/common.yaml -f services/media/autobrr/values.yaml > /tmp/autobrr-retained.yaml
           AUTOBRR_RETAINED_RENDER=/tmp/autobrr-retained.yaml python3 scripts/test-autobrr-retained-startup.py
 
+      - name: Check inactive Prowlarr PostgreSQL and retained CSI preparation
+        run: |
+          kubeconform -strict -summary \
+            scripts/prowlarr-postgresql/production/pv.yaml \
+            scripts/prowlarr-postgresql/production/pvc.yaml \
+            scripts/prowlarr-postgresql/production/guard-configmap.yaml \
+            scripts/prowlarr-postgresql/production/consumer-gate.yaml \
+            scripts/prowlarr-postgresql/production/source-hold.yaml
+          APP_VERSION=$(python3 -c 'import yaml; a=yaml.safe_load(open("bootstrap/appsets/cluster-apps.yaml")); print(next(x["defaultChartVersion"] for x in a["spec"]["generators"][0]["matrix"]["generators"][0]["list"]["elements"] if x["category"]=="services"))')
+          helm template prowlarr app-template --repo https://bjw-s-labs.github.io/helm-charts \
+            --version "$APP_VERSION" --namespace media -f templates/globals.yaml \
+            -f templates/common.yaml -f templates/media-arr-common.yaml \
+            -f services/media/prowlarr/values.yaml -f scripts/prowlarr-postgresql/production/values.yaml \
+            > /tmp/prowlarr-retained.yaml
+          kubeconform -strict -summary /tmp/prowlarr-retained.yaml
+          PROWLARR_SQL_TEST=1 PROWLARR_RETAINED_RENDER=/tmp/prowlarr-retained.yaml \
+            python3 scripts/test-prowlarr-retained-startup.py
+
       - name: Check inactive PostgreSQL cutover states
         run: |
           kubeconform -strict -summary scripts/postgres-retained-startup/production/cutover/source-hold.yaml

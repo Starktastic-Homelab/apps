@@ -21,6 +21,27 @@ ACCOUNT = 'prowlarr-postgres-completion'
 SECRET = 'prowlarr-postgres-secret'
 
 
+class Literal(str):
+    pass
+
+
+class SourceDumper(yaml.SafeDumper):
+    pass
+
+
+SourceDumper.add_representer(Literal, lambda dumper, value: dumper.represent_scalar('tag:yaml.org,2002:str', value, style='|'))
+
+
+def source_yaml(objects: list[dict]) -> str:
+    objects = copy.deepcopy(objects)
+    for obj in objects:
+        if obj.get('kind') == 'ConfigMap':
+            # Formatting must preserve every fingerprinted byte, including the
+            # compact one-line Job template. Literal YAML scalars survive Prettier.
+            obj['data'] = {key: Literal(value) for key, value in obj['data'].items()}
+    return yaml.dump_all(objects, Dumper=SourceDumper, sort_keys=False, width=120)
+
+
 def build_sources() -> tuple[list[dict], dict]:
     declarations = {}
     for kind in ('main', 'log'):
@@ -112,7 +133,7 @@ def write_sources() -> None:
     text = (ROOT / 'services/media/autobrr/manifests/source-hold.yaml').read_text().replace('autobrr', 'prowlarr').replace('Autobrr', 'Prowlarr')
     documents['source-hold.yaml'] = list(yaml.safe_load_all(text))
     for name, objects in documents.items():
-        (directory / name).write_text(yaml.safe_dump_all(objects, sort_keys=False, width=120))
+        (directory / name).write_text(source_yaml(objects))
 
 
 def prepare_enrollment(output: Path) -> None:
@@ -137,6 +158,17 @@ def prepare_enrollment(output: Path) -> None:
             raise ValueError('Enrollment preparation failed; inspect exact intermediate bundle, do not regenerate')
         aggregate = output / kind / 'enrollment-secret.yaml'
         previous = output / kind / 'application-secret.yaml'
+    publish_enrollment(output / 'log')
+
+
+def publish_enrollment(bundle: Path) -> None:
+    # May reserialize the exact existing completed bundle after a formatting
+    # failure; never calls sealing or regenerates credentials.
+    directory = HERE / 'production/enrollment'
+    directory.mkdir(exist_ok=True)
+    for name in ('enrollment-configmap.yaml', 'enrollment-job.yaml', 'enrollment-secret.yaml', 'application-secret.yaml'):
+        obj = yaml.safe_load((bundle / name).read_text())
+        (directory / name).write_text(source_yaml([obj]))
 
 
 if __name__ == '__main__':

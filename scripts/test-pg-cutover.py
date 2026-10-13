@@ -70,6 +70,24 @@ class CutoverTests(unittest.TestCase):
         def digest(path):
             return hashlib.sha256(path.read_bytes()).hexdigest() if path.exists() else None
         current = {p: digest(ROOT / p) for p in index['baseline']}
+        archived_hook = None
+        # A completed cutover must not freeze future enrollment generations. Use
+        # its exact archived hook only in this temporary patch-test workspace.
+        if current[hook] != vectors[-1][hook] and all(current[p] == vectors[-1][p] for p in current if p != hook):
+            patch = next(stage for stage in index['stages'] if stage['name'] == 'hook-only')
+            archived_hook = ''.join(line[1:] + '\n' for line in (BUNDLE / 'patches' / patch['patch']).read_text().splitlines()
+                                    if line.startswith('+') and not line.startswith('+++')).encode()
+            self.assertEqual(hashlib.sha256(archived_hook).hexdigest(), index['baseline'][hook])
+            expected = yaml.safe_load(archived_hook)
+            actual = yaml.safe_load((ROOT / hook).read_text())
+            data = yaml.safe_load((ROOT / source / 'manifests/enrollment-configmap.yaml').read_text())['data']
+            import sys
+            sys.path.insert(0, str(ROOT / 'scripts/postgres-enrollment'))
+            import completion_gate
+            self.assertEqual(data['acceptance-generation'], completion_gate.generation(data))
+            expected['metadata']['name'] = completion_gate.hook_name(data['acceptance-generation'])
+            self.assertEqual(actual, expected, 'Only a verified enrollment hook name may differ after release')
+            current[hook] = index['baseline'][hook]
         matches = [i for i, v in enumerate(vectors) if v == current]
         self.assertEqual(len(matches), 1, 'Inputs drifted from all reviewed states; refresh/review rather than applying old patches')
         with tempfile.TemporaryDirectory() as tmp:
@@ -78,6 +96,8 @@ class CutoverTests(unittest.TestCase):
                 if (ROOT / p).exists():
                     (root / p).parent.mkdir(parents=True, exist_ok=True)
                     shutil.copyfile(ROOT / p, root / p)
+            if archived_hook is not None:
+                (root / hook).write_bytes(archived_hook)
             def apply(stage, reverse=False):
                 patch = BUNDLE / 'patches' / stage['patch']
                 self.assertEqual(Path(stage['patch']).name, stage['patch'])

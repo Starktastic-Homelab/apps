@@ -2,9 +2,11 @@
 
 Prowlarr 2.6.5.5623-ls161 now uses the existing PostgreSQL 18.6 service for both
 native databases and retained 4GiB ext4 CSI for `/config`. The stock image and
-upstream Proxmox CSI driver are unchanged. This PR publishes the accepted live
-payload; exact current-main desired/live equality is required before releasing
-the owned Argo hold. Disposable-resource cleanup follows reconciliation.
+upstream Proxmox CSI driver are unchanged. Activation PR
+[#1351](https://github.com/Starktastic-Homelab/apps/pull/1351) merged, native
+current-main desired/live equality passed, and the owned hold was released.
+Reconciliation, the six-minute watch and disposable-resource cleanup completed
+at 14:45 Israel time on October13, within the original 16:00 deadline.
 
 ## Accepted live and recovery evidence
 
@@ -43,6 +45,17 @@ the owned Argo hold. Disposable-resource cleanup follows reconciliation.
 - A uniquely owned post-acceptance Job from the unchanged `pg-backup` CronJob
   passed native gzip/completion-marker and both-database/role coverage checks.
   The existing schedule stayed enabled; PostgreSQL was not restarted.
+- Prowlarr, Filebrowser, base-configs and nfs-provisioner reached Healthy/Synced
+  with fresh successful operations at merged commit
+  `8714255d78e61a118685d1958eff819fd3955a52`. A native Deployment watch started
+  before hold release and ran for six minutes without an old-claim, zero-replica
+  or image regression. Prowlarr retained the same Ready Pod through release.
+- Exact owned helpers, policy, completed manual backup Job, VM980, temporary
+  media and plaintext copies were removed. The maintenance owner and inactive
+  nonce copy were released. Final read-only checks verified the unchanged Ready
+  PostgreSQL Pod, retained CSI binding, protected original NFS claim, both
+  encrypted recovery copies and separate keys. Unrelated deployments were
+  unchanged.
 
 ## Durable recovery contract
 
@@ -70,6 +83,23 @@ clone/start/data-conversion mutation was replayed, no network policy was widened
 and the original recovery/absolute-time gates stayed in force. A transient NAS
 read refusal was reconciled with a fresh held-source fingerprint before capture.
 
+Two revisionless RollingSync operations had been queued while the hold was
+active. Their captured UID, original operation/controller/start time and source
+snapshots matched; neither had a resolved revision or resource result. An
+explicitly approved bounded amendment terminated each once and atomically
+replaced only that captured generation with the complete current source set,
+resolved merged-main revisions and prune disabled. Desired/live equality was
+rechecked before and after replacement. This is not permission to discard an
+arbitrary unknown operation.
+
+Cleanup's ownership check initially included descendants of the extracted
+archive's source-check directory but omitted that directory itself. Its exact
+UID1000 directory metadata matched the retained archive manifest; the corrected
+boundary included only that verified root. The 1,028-entry inventory then exceeded
+Linux's per-argument size limit before deletion started. All entries still matched
+their hashes; sending the same inventory through stdin completed the unchanged
+deletion checks. Already completed cleanup steps were not replayed.
+
 The private packet and recovery credentials are excluded from Git. Cleanup is
 limited to exact owned temporary helpers, policy, completed manual backup Job,
 lab VM/media and plaintext working files; retained NFS/CSI/SQL state, encrypted
@@ -82,7 +112,8 @@ actual final layered Helm render. Formatting preserved every rendered object and
 all eight activation source objects. Raw and rendered schemas, scoped pre-commit,
 tracked-source YAML lint, Homepage coverage, Jellyfin compatibility and README
 image checks passed. PostgreSQL enrollment's 25 tests and its retained-state
-canary also passed. Whole-directory lint additionally found generated private
+canary also passed. All five required hosted checks passed at the exact activation
+head, and the Argo diff changed only the expected Prowlarr/base-configs resources.
+Whole-directory lint additionally found generated private
 rehearsal renders under ignored `.superpowers`; those are excluded from Git and
-from the checkout used by hosted CI. Required hosted checks and the exact Argo
-live-state diff remain merge gates for this activation.
+from the checkout used by hosted CI.

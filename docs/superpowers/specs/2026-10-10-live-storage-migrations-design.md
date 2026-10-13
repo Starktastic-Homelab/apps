@@ -1,7 +1,7 @@
 # Live storage migrations with final Git reconciliation
 
-Status: proposed written design. The user approved the direction in conversation;
-the maintenance mechanism below requires isolated qualification before production.
+Status: workflow direction approved; native hold qualification and the Prowlarr
+production operation completed. Application-specific preparation remains required.
 This document authorizes no outage, allocation, credential transfer or cutover.
 
 ## Intent and scope
@@ -17,9 +17,11 @@ not design every application's migration, change the CSI driver, move shared
 media or implement a general migration controller. Per-application preparation
 must still establish exact identities, writers, backup, copy and acceptance steps.
 
-The October10 inventory has Jellyfin and Filebrowser using retained CSI. Shared
-PostgreSQL and Immich's separate PostgreSQL remain on NFS. Shared media, downloads
-and multi-consumer files remain on NFS. Historical SQLite files are leads for
+The October13 repository state has Jellyfin, Filebrowser, shared PostgreSQL,
+Autobrr and Prowlarr using retained CSI. Autobrr retains SQLite; Prowlarr uses
+shared PostgreSQL. Immich's separate PostgreSQL remains outside these completed
+cutovers. Shared media, downloads and multi-consumer files remain on NFS.
+Historical SQLite files are leads for
 investigation, not proof of an application's currently selected database engine.
 
 ## Approach
@@ -89,6 +91,29 @@ started idle. Qualification must establish how to discard any operation queued
 while held without applying its stale revision, including after controller restart.
 Do not assume terminate-operation drains a denied operation. The production
 workflow is unavailable until safe acquisition and stale-operation release pass.
+
+The qualified [hold procedure](../reports/2026-10-12-native-argo-migration-hold-qualification.md)
+and completed [Prowlarr operation](../reports/2026-10-13-prowlarr-production-cutover.md)
+establish the current release path. For a revisionless held queue, capture and
+verify the exact Application UID, original operation/controller/start time and
+source snapshot, with no resolved revision or resource result. Require equality
+between accepted live resources and the actual merged-main manifests before any
+retirement. Request termination once, track its known outcome, then atomically
+retire only the captured generation and queue the complete current source set
+with its exact resolved revision array and prune disabled. Test UID,
+resourceVersion, the full operation and full operationState together; refuse
+changed or unknown generations. Recheck desired/live equality and every queued
+Git revision before releasing only the owned window. Start a bounded native
+Deployment watch before release and require fresh Healthy/Synced acceptance at
+the merged commit without transient old-claim, replica or image regression.
+
+Cleanup must use exact path/type/ownership/hash inventories, including the
+verified root of an archive-extracted directory whose ownership was preserved.
+Send large inventories through stdin or a verified private file, not a command
+argument. Keep receipts for completed steps; resume only untouched steps after
+a known precondition failure. Normalize expected objects through native server
+dry-run where API defaulting omits fields, and treat native guest-agent exited
+flags as values rather than Python boolean identities.
 
 RollingSync may delay other rollout groups while a held app is unhealthy. This is
 a temporary deployment-order effect, not a reason to promise completely independent
@@ -170,43 +195,42 @@ the accepted encrypted backup and old source; cleanup authority excludes them.
 
 | Track | Next step | Dependency or exception |
 |---|---|---|
-| Workflow | Isolated qualification of native maintenance hold | Required before any new live cutover |
-| Prowlarr | PostgreSQL main/log databases and retained 4GiB CSI /config; live cutover accepted October 13 | [Production report](../reports/2026-10-13-prowlarr-production-cutover.md); final Git/live equality precedes hold release |
-| PostgreSQL prerequisite | Select and qualify deployment plus automatic database/role enrollment | Complete the PostgreSQL research decision before step 3; prove unattended metadata-loss recovery |
-| Shared database | Selected shared PostgreSQL deployment on retained CSI | Own operation after qualification; include database clients, backup jobs and Authentik availability in outage scope |
-| PostgreSQL conversion | Autobrr, then Seerr instances, then Bazarr | Start conversions only after shared PostgreSQL CSI and tested restore; rehearse pinned versions |
+| Workflow | Native hold qualified; Prowlarr release and cleanup findings incorporated | Capture current generations and recheck each operation's scope |
+| Prowlarr | PostgreSQL main/log databases and retained 4GiB CSI /config; operation complete October13 | [Production report](../reports/2026-10-13-prowlarr-production-cutover.md); hold removed and cleanup accepted |
+| PostgreSQL prerequisite | Existing shared deployment and idempotent database/role enrollment selected and active | Reuse the existing completion/login gates; do not repeat deployment selection |
+| Shared database | Retained CSI cutover complete | Reuse existing backup/recovery and retained-data startup contract |
+| Autobrr | SQLite and private configuration on retained CSI | PostgreSQL enrollment is available but unused; stock invalid-UTF8 announcement behavior made SQLite the selected backend |
+| PostgreSQL conversion | Seerr and Seerr-RU preparation, then Bazarr | [Fresh Seerr preflight](../reports/2026-10-13-seerr-preflight.md); rehearse pinned versions before a production proposal |
 | Further conversions | ntfy, Grafana and pgAdmin qualification | Require proof of existing-data preservation, not just backend configuration |
 | Later CSI waves | Embedded state, files for PostgreSQL-backed apps, monitoring | Recheck writer topology and full growth budget before each small cohort |
 | Separate design | Calibre library and Dispatcharr shared data | Calibre metadata.db is beside books; Dispatcharr web/Celery share a claim across Pods |
 | Separate performance work | qBittorrent payload storage | Preserve shared completed/incomplete download paths during config migration |
 
-Autobrr's official converter makes it the strongest first database-conversion
-candidate. Research/rehearsal design can proceed alongside CSI preparation;
+Research/rehearsal design can proceed alongside CSI preparation;
 production cutovers sharing PostgreSQL, NAS quota or attachment resources remain
-serialized. Do not move Autobrr to CSI first merely to migrate its SQLite database
-again immediately afterward: determine and rehearse the final engine first.
+serialized. Autobrr's backend decision is complete; retain its selected SQLite
+engine and do not retry the rejected conversion as a prerequisite for Seerr.
 
 The user requested PostgreSQL deployment/enrollment research before step 3 because
-database, user and password creation are currently manual. The
+database, user and password creation were manual. The
 [research report](../reports/2026-10-10-postgresql-deployment-enrollment-research.md)
 shortlisted CloudNativePG qualification and an enrollment Job on the existing
 server. The [disposable qualification results](../reports/2026-10-10-cnpg-qualification-results.md)
 reject stock CNPG 1.30.1 for the proposed retained-data rebuild design: an
 interrupted orphan-PVC adoption required manual intervention. Full Terraform
 rebuild tests were not completed. Continue with the existing deployment plus an
-idempotent enrollment Job as the next design direction; that Job and the shared
-PostgreSQL CSI cutover remain unimplemented and require their own reviewed plan
-and live approval. Credentials must recover consistently from durable encrypted
+idempotent enrollment Job as the selected design direction. That Job and the shared
+PostgreSQL CSI cutover are now active. Credentials must recover consistently from
+durable encrypted
 declarations. Any deployment replacement must preserve existing databases and
 does not authorize a PostgreSQL major upgrade.
 
-Treat converter dry-run as potentially mutating. Inspect the exact installed
-Autobrr converter: current develop-branch code can initialize PostgreSQL schema and modify
-SQLite fixups before its dry-run branch, excludes sessions, and can report a
-completion message alongside table errors. Run qualification against disposable
-copies only, reject conversion errors, compare preserved records and explicitly
-accept any documented session reset. These source findings are not yet verified
-against the installed 1.86.0 tool. A successful process exit is insufficient.
+Treat converter dry-run as potentially mutating. Run conversion qualification
+against disposable copies only, reject conversion errors, compare preserved
+records and explicitly account for any session reset. A successful process exit
+is insufficient. Autobrr's completed assessment selected SQLite because its
+stock PostgreSQL backend rejects malformed UTF8 announcement text; see its
+[retained configuration contract](../../../services/media/autobrr/README.md).
 
 Seerr and Bazarr document existing-data conversion using PGLoader. ntfy's importer
 requires matching schema versions and qualification of auth, cache and webpush
@@ -216,7 +240,8 @@ ready. Do not modify production schema markers to bypass the check. Grafana's
 engine migration is user-managed, and pgAdmin's external database
 documentation alone does not establish preservation of the current configuration.
 
-Servarr conversions, Home Assistant recorder history and CrowdSec identity recovery
+Remaining Servarr conversions, Home Assistant recorder history and CrowdSec
+identity recovery
 have additional preservation limitations. Keep their existing embedded engines on
 CSI initially. Preserve shared NAS media, download payloads, ingest paths and
 rebuildable caches according to the previously agreed storage policy.

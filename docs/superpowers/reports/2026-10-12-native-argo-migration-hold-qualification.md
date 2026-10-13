@@ -43,3 +43,24 @@ old sync. After release, require final native Succeeded/Synced acceptance.
 These results qualify the mechanism used by the live-storage design. Each
 production operation still needs fresh project ownership, idle acquisition,
 writer inventory, source protection, backup, exact target and release evidence.
+
+## October13 production findings
+
+The completed [Prowlarr cutover](2026-10-13-prowlarr-production-cutover.md)
+encountered two revisionless held RollingSync operations. A known old Git SHA
+could not classify them. The separately approved amendment captured exact
+Application UIDs, operation bodies, controller, start time and unresolved source
+snapshots, and proved no resolved revision or resource result existed.
+
+One native termination request per captured generation was followed by an atomic
+UID/resourceVersion/full-operation/full-state tested replacement, marking the
+old state terminal and queuing the complete current sources with resolved final
+revision arrays and prune disabled. The hold stayed unchanged through this step.
+Current-main desired/live equality passed on both sides of replacement; all four
+owners then reconciled to the merged SHA and a full six-minute native Deployment
+watch passed before cleanup.
+
+Carry these checks into the next application-specific procedure. A missing Git
+revision alone, a sync-window message alone or an operation belonging to a
+different generation does not authorize retirement. Unknown API outcomes retain
+maintenance ownership and require reconciliation rather than a second request.

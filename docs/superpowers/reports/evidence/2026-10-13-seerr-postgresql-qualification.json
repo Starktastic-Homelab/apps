@@ -1,0 +1,79 @@
+{
+  "instances": {
+    "seerr": {
+      "all14ApplicationTablesAndTypedFieldsPreserved": true,
+      "tableCounts": {
+        "blocklist": 0,
+        "discover_slider": 12,
+        "issue": 3,
+        "issue_comment": 8,
+        "media": 415,
+        "media_request": 418,
+        "override_rule": 0,
+        "season": 541,
+        "season_request": 391,
+        "session": 43,
+        "user": 8,
+        "user_push_subscription": 0,
+        "user_settings": 6,
+        "watchlist": 45
+      },
+      "settingsPreserved": true,
+      "APIUserAndRequestCountsMatched": true,
+      "stockStartupAndRestartPassed": true,
+      "allocatorFloorsVerified": 14,
+      "postgresMigrationLedgerPreserved": true
+    },
+    "seerr-ru": {
+      "all14ApplicationTablesAndTypedFieldsPreserved": true,
+      "tableCounts": {
+        "blocklist": 0,
+        "discover_slider": 12,
+        "issue": 0,
+        "issue_comment": 0,
+        "media": 72,
+        "media_request": 70,
+        "override_rule": 0,
+        "season": 77,
+        "season_request": 63,
+        "session": 2,
+        "user": 2,
+        "user_push_subscription": 0,
+        "user_settings": 2,
+        "watchlist": 0
+      },
+      "settingsPreserved": true,
+      "APIUserAndRequestCountsMatched": true,
+      "stockStartupAndRestartPassed": true,
+      "allocatorFloorsVerified": 14,
+      "postgresMigrationLedgerPreserved": true
+    }
+  },
+  "sourceOnlineSnapshotsForRehearsalOnly": true,
+  "productionColdCaptureStillRequired": true,
+  "stockSeerrImage": "ghcr.io/seerr-team/seerr@sha256:f4768de5f616248d723e05891f3345a1402123775d03bf0890dbfedc0831bda1",
+  "postgresVersion": "18.6",
+  "noPhysicalNIC": true,
+  "cleanup": {
+    "bothInstancesQualified": true,
+    "disposableVMAndAllCredentialBearingCopiesRemoved": true,
+    "productionCutoverNotExecuted": true
+  },
+  "finalProductionVerification": {
+    "sourcePodsClaimsAndNFSUnchanged": true,
+    "sourceAppsHealthySynced": true,
+    "sharedPostgresPodUnchangedReady": true,
+    "noProductionHoldsCreated": true
+  },
+  "ownershipRelease": {
+    "maintenanceOwnerReleased": true,
+    "nonceRemoved": true
+  },
+  "independentCleanupVerification": {
+    "VM980Absent": true,
+    "publicAndPrivateProxmoxMediaAbsent": true,
+    "maintenanceOwnerAbsent": true,
+    "runnerPublicAndPrivateStagingEmpty": true,
+    "localMediaDirectoryAbsent": true
+  }
+}

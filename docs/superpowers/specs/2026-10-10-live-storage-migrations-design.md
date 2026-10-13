@@ -200,7 +200,7 @@ the accepted encrypted backup and old source; cleanup authority excludes them.
 | PostgreSQL prerequisite | Existing shared deployment and idempotent database/role enrollment selected and active | Reuse the existing completion/login gates; do not repeat deployment selection |
 | Shared database | Retained CSI cutover complete | Reuse existing backup/recovery and retained-data startup contract |
 | Autobrr | SQLite and private configuration on retained CSI | PostgreSQL enrollment is available but unused; stock invalid-UTF8 announcement behavior made SQLite the selected backend |
-| PostgreSQL conversion | Seerr and Seerr-RU preparation, then Bazarr | [Fresh Seerr preflight](../reports/2026-10-13-seerr-preflight.md); rehearse pinned versions before a production proposal |
+| PostgreSQL conversion | Seerr and Seerr-RU preparation, then Bazarr | [Seerr proposal](2026-10-13-seerr-postgresql-csi-design.md) and [qualification](../reports/2026-10-13-seerr-preflight.md); production remains separately approved |
 | Further conversions | ntfy, Grafana and pgAdmin qualification | Require proof of existing-data preservation, not just backend configuration |
 | Later CSI waves | Embedded state, files for PostgreSQL-backed apps, monitoring | Recheck writer topology and full growth budget before each small cohort |
 | Separate design | Calibre library and Dispatcharr shared data | Calibre metadata.db is beside books; Dispatcharr web/Celery share a claim across Pods |

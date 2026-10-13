@@ -146,4 +146,85 @@ class NativeDatabaseTests(unittest.TestCase):
             self.assertNotEqual(gate(db).returncode,0)
 
 
+class PackageTests(unittest.TestCase):
+    def prepare(self):
+        self.assertTrue((PACKAGE/'prepare.py').is_file(), 'Seerr preparation adapter not implemented')
+        import importlib.util
+        spec=importlib.util.spec_from_file_location('seerr_prepare',PACKAGE/'prepare.py')
+        module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);return module
+
+    def test_instance_composition_binds_its_own_gate_database_and_secret(self):
+        prepare=self.prepare()
+        for instance,db in (('seerr','seerr'),('seerr-ru','seerr_ru')):
+            resources,values=prepare.build_sources(instance)
+            main=values['controllers']['main'];inits=main['initContainers']
+            self.assertEqual(inits['enrollment']['dependsOn'],'retained-state')
+            self.assertEqual(inits['database']['dependsOn'],'enrollment')
+            self.assertEqual(inits['enrollment']['args'],['--id',instance,'--database',db,'--role',db])
+            self.assertEqual(main['serviceAccount']['name'],instance+'-postgres-completion')
+            self.assertEqual(inits['retained-state']['command'][-1],instance)
+            env=main['containers']['main']['env']
+            self.assertEqual(env['DB_NAME'],db);self.assertEqual(env['DB_USER'],db)
+            self.assertEqual(env['DB_PASS'],{'valueFrom':{'secretKeyRef':{'name':instance+'-postgres-secret','key':'password'}}})
+            self.assertEqual(inits['retained-state']['env'],env)
+            self.assertEqual(values['persistence']['seerr-config']['existingClaim'],instance+'-config-block')
+            bindings=[r for r in resources if r['kind']=='RoleBinding'];self.assertEqual(len(bindings),2)
+            self.assertEqual({r['metadata']['namespace'] for r in bindings},{'argocd','databases'})
+            self.assertTrue(all(r['roleRef']['name']=='postgres-enrollment-completion-reader' for r in bindings))
+            self.assertTrue(all(r['subjects']==[{'kind':'ServiceAccount','name':instance+'-postgres-completion','namespace':'media'}] for r in bindings))
+
+    def test_static_binding_and_discovery_patches_are_inactive_and_distinct(self):
+        for instance in ('seerr','seerr-ru'):
+            folder=PACKAGE/'production'/instance
+            self.assertTrue((folder/'pv.yaml').is_file(), 'Inactive binding not generated')
+            pv=yaml.safe_load((folder/'pv.yaml').read_text());pvc=yaml.safe_load((folder/'pvc.yaml').read_text())
+            self.assertEqual(pv['spec']['capacity']['storage'],'4Gi');self.assertEqual(pvc['spec']['resources']['requests']['storage'],'4Gi')
+            self.assertEqual(pv['spec']['csi']['volumeHandle'],'homelab//k3s-block/9999/vm-9999-'+instance+'.raw')
+            self.assertEqual(pv['spec']['persistentVolumeReclaimPolicy'],'Retain')
+            self.assertEqual(pv['spec']['claimRef'],{'name':instance+'-config-block','namespace':'media'})
+            self.assertEqual(pvc['spec']['volumeName'],pv['metadata']['name'])
+            for obj in (pv,pvc):
+                self.assertEqual(obj['spec']['accessModes'],['ReadWriteOncePod'])
+                self.assertEqual(obj['metadata']['annotations']['argocd.argoproj.io/sync-options'],'Prune=false,Delete=false')
+            metadata=yaml.safe_load((folder/'app-metadata.yaml').read_text())
+            self.assertTrue(metadata['manifests'])
+            if instance=='seerr-ru':self.assertTrue(metadata['valuesOverride'])
+            policy,binding=yaml.safe_load_all((folder/'source-hold.yaml').read_text())
+            self.assertIn("claimName == '"+instance+"'",policy['spec']['matchConditions'][0]['expression'])
+            self.assertEqual(binding['spec']['policyName'],instance+'-source-hold')
+        self.assertFalse(list(PACKAGE.rglob('app.yaml')))
+        self.assertFalse(yaml.safe_load((ROOT/'services/media/seerr/app.yaml').read_text()).get('manifests',False))
+        self.assertFalse(yaml.safe_load((ROOT/'services/media/seerr-ru/app.yaml').read_text()).get('valuesOverride',False))
+
+    def test_existing_private_output_is_refused_without_replacement(self):
+        prepare=self.prepare()
+        with tempfile.TemporaryDirectory() as name:
+            root=Path(name);(root/'sentinel').write_bytes(b'original')
+            with self.assertRaises(FileExistsError):prepare.prepare_enrollment(root)
+            self.assertEqual(list(root.iterdir()),[root/'sentinel']);self.assertEqual((root/'sentinel').read_bytes(),b'original')
+
+    def test_encrypted_inputs_preserve_previous_declarations_and_accept_current_hook(self):
+        path=PACKAGE/'production/enrollment/enrollment-configmap.yaml'
+        self.assertTrue(path.is_file(), 'Encrypted preparation not published')
+        cm=yaml.safe_load(path.read_text());config=json.loads(cm['data']['config.json'])
+        prior=json.loads(yaml.safe_load((ROOT/'infrastructure/controllers/databases/postgres/manifests/enrollment-configmap.yaml').read_text())['data']['config.json'])
+        self.assertEqual(config['entries'][:-2],prior['entries']);self.assertEqual(config['expectedSystemIdentifier'],prior['expectedSystemIdentifier'])
+        for instance,db,entry in zip(('seerr','seerr-ru'),('seerr','seerr_ru'),config['entries'][-2:]):
+            self.assertEqual(entry,{'id':instance,'database':db,'role':db,'mode':'new','passwordKey':instance+'-password'})
+            app=yaml.safe_load((PACKAGE/'production/enrollment'/(instance+'-application-secret.yaml')).read_text())
+            self.assertEqual(app['metadata']['name'],instance+'-postgres-secret');self.assertEqual(app['metadata']['namespace'],'media')
+            self.assertEqual(set(app['spec']['encryptedData']),{'password'});self.assertNotIn('stringData',app['spec']['template']);self.assertNotIn('data',app['spec']['template'])
+        aggregate=yaml.safe_load((PACKAGE/'production/enrollment/enrollment-secret.yaml').read_text())
+        existing=yaml.safe_load((ROOT/'infrastructure/controllers/databases/postgres/manifests/enrollment-secret.yaml').read_text())
+        for key,value in existing['spec']['encryptedData'].items():self.assertEqual(aggregate['spec']['encryptedData'][key],value)
+        sys.path.insert(0,str(ROOT/'scripts/postgres-enrollment'));import completion_gate
+        self.assertEqual(cm['data']['acceptance-generation'],completion_gate.generation(cm['data']))
+        job=yaml.safe_load((PACKAGE/'production/enrollment/enrollment-job.yaml').read_text());self.assertEqual(job['metadata']['name'],completion_gate.hook_name(cm['data']['acceptance-generation']))
+        app={'metadata':{'name':'postgres','namespace':'argocd'},'status':{'sync':{'status':'Synced','revisions':['fixture-revision']},'health':{'status':'Healthy'},'operationState':{'phase':'Succeeded','operation':{'sync':{}},'syncResult':{'revisions':['fixture-revision'],'resources':[{'group':'batch','kind':'Job','namespace':'databases','name':job['metadata']['name'],'hookType':'Sync','hookPhase':'Succeeded'}]}}}}
+        for instance,db in (('seerr','seerr'),('seerr-ru','seerr_ru')):
+            identity={'id':instance,'database':db,'role':db};self.assertTrue(completion_gate.accepted(cm,app,identity))
+            failed=copy.deepcopy(app);failed['status']['operationState']['syncResult']['resources'][0]['hookPhase']='Failed';self.assertFalse(completion_gate.accepted(cm,failed,identity))
+            stale=copy.deepcopy(cm);stale['data']['encrypted-inputs-sha256']='new-input';self.assertFalse(completion_gate.accepted(stale,app,identity))
+
+
 if __name__ == '__main__':unittest.main()

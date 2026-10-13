@@ -125,7 +125,8 @@ def write_sources() -> None:
     guard = {'apiVersion': 'v1', 'kind': 'ConfigMap',
              'metadata': {'name': 'prowlarr-retained-startup-guard', 'namespace': 'media'},
              'data': {name: (HERE / name).read_text() for name in ('guard.py', 'main.sql')}}
-    documents = {'values.yaml': [values], 'consumer-gate.yaml': resources, 'guard-configmap.yaml': [guard]}
+    documents = {'values.yaml': [values], 'app-metadata.yaml': [{'manifests': True}],
+                 'consumer-gate.yaml': resources, 'guard-configmap.yaml': [guard]}
     for name in ('pv.yaml', 'pvc.yaml'):
         obj = yaml.safe_load((ROOT / 'infrastructure/base-configs/templates/autobrr-block-storage' / name).read_text())
         text = yaml.safe_dump(obj, sort_keys=False).replace('autobrr', 'prowlarr').replace('1Gi', '4Gi')

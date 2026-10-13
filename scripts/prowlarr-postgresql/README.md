@@ -62,6 +62,7 @@ keys are retained. Neither command applies anything or talks to SQL.
 
 | Inactive source | Future active destination |
 | --- | --- |
+| `production/app-metadata.yaml` | Merge `manifests: true` into `services/media/prowlarr/app.yaml`, preserving namespace, phase, ingress and commonValuesExtras |
 | `production/enrollment/enrollment-{configmap,job,secret}.yaml` | Corresponding PostgreSQL `manifests/` files |
 | `production/enrollment/application-secret.yaml` | `services/media/prowlarr/manifests/prowlarr-postgres-secret.yaml` |
 | `production/consumer-gate.yaml` | `services/media/prowlarr/manifests/postgres-completion-gate.yaml` |
@@ -69,6 +70,11 @@ keys are retained. Neither command applies anything or talks to SQL.
 | `production/source-hold.yaml` | `services/media/prowlarr/manifests/source-hold.yaml` |
 | `production/pv.yaml`, `pvc.yaml` | `infrastructure/base-configs/templates/prowlarr-block-storage/` |
 | `production/values.yaml` | Merge into Prowlarr's current values, retaining image/probes/service and value cascade |
+
+The final app activation must include `manifests: true` in the same reconciliation
+PR as its new manifest directory. Without that flag, ApplicationSet does not add
+the directory as a source; imperative resources alone cannot provide rebuild
+recovery. The patch is inactive here and preserves the existing app metadata.
 
 Enrollment must become durable desired state before the new app starts: publish
 only its three inputs in the approved pre-outage enrollment activation PR, require

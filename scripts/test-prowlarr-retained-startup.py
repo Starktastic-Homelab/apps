@@ -133,6 +133,21 @@ class RetainedConfigTests(unittest.TestCase):
 
 
 class CompositionTests(unittest.TestCase):
+    def test_activation_explicitly_enables_manifest_discovery_without_changing_current_app(self):
+        path = PACKAGE / 'production/app-metadata.yaml'
+        self.assertTrue(path.is_file(), 'Activation manifest discovery patch missing')
+        patch = yaml.safe_load(path.read_text())
+        self.assertEqual(patch, {'manifests': True})
+        current = yaml.safe_load((ROOT / 'services/media/prowlarr/app.yaml').read_text())
+        self.assertFalse(current.get('manifests', False), 'Preparation unexpectedly activates manifest discovery')
+        final = {**current, **patch}
+        self.assertTrue(final['manifests'])
+        self.assertEqual({k: v for k, v in final.items() if k != 'manifests'}, current)
+        appset = yaml.safe_load((ROOT / 'bootstrap/appsets/cluster-apps.yaml').read_text())
+        self.assertIn('{{- if dig "manifests" false . }}', appset['spec']['templatePatch'])
+        self.assertIn("path: '{{.path.path}}/manifests'", appset['spec']['templatePatch'])
+        self.assertEqual(final['commonValuesExtras'], ['templates/media-arr-common.yaml'])
+
     def test_sources_are_inactive_and_reuse_named_reader_roles(self):
         path = PACKAGE / 'production/consumer-gate.yaml'
         self.assertTrue(path.is_file(), 'Dual consumer sources not generated')

@@ -202,17 +202,17 @@ class CompositionTests(unittest.TestCase):
         original = yaml.safe_load((ROOT / 'infrastructure/controllers/databases/postgres/manifests/enrollment-configmap.yaml').read_text())
         config = json.loads(configmap['data']['config.json'])
         prior = json.loads(original['data']['config.json'])
-        # The deployed declarations are either the unchanged prior inputs or the
-        # complete prepared enrollment. Partial/altered declarations are refused.
-        self.assertIn(prior['entries'], [config['entries'][:-2], config['entries']])
+        # Prowlarr is enrolled. Later consumers may append their own entries;
+        # the complete original Prowlarr declaration prefix must stay exact.
+        self.assertEqual(prior['entries'][:len(config['entries'])], config['entries'])
         self.assertEqual(config['expectedSystemIdentifier'], prior['expectedSystemIdentifier'])
         for kind, entry in zip(('main', 'log'), config['entries'][-2:]):
             self.assertEqual(entry, {'id': 'prowlarr-' + kind, 'database': 'prowlarr_' + kind,
                 'role': 'prowlarr_' + kind, 'mode': 'new', 'passwordKey': 'prowlarr-' + kind + '-password'})
         aggregate = yaml.safe_load((PACKAGE / 'production/enrollment/enrollment-secret.yaml').read_text())
         existing = yaml.safe_load((ROOT / 'infrastructure/controllers/databases/postgres/manifests/enrollment-secret.yaml').read_text())
-        for key, ciphertext in existing['spec']['encryptedData'].items():
-            self.assertEqual(aggregate['spec']['encryptedData'][key], ciphertext)
+        for key, ciphertext in aggregate['spec']['encryptedData'].items():
+            self.assertEqual(existing['spec']['encryptedData'][key], ciphertext)
         app = yaml.safe_load((PACKAGE / 'production/enrollment/application-secret.yaml').read_text())
         self.assertEqual(set(app['spec']['encryptedData']), {'main-password', 'log-password'})
         for obj in (app, aggregate):

@@ -33,7 +33,9 @@ Set stock `POSTGRES_ENABLED=true`, `POSTGRES_HOST=postgres-postgresql.databases`
 `POSTGRES_PORT=5432`, `POSTGRES_DATABASE=bazarr`, `POSTGRES_USERNAME=bazarr`, and a
 Secret-sourced `POSTGRES_PASSWORD`; reject conflicting `POSTGRES_URL`/config paths.
 Use `PGSSLCERT=/tmp/postgresql.crt` only if the pinned non-root runtime requires it.
-Preserve config YAML semantics and identifiers; add `.homelab-bazarr-config` containing
+Set `postgresql.enabled: true` in retained config as well: stock backup uses this
+setting independently of the environment. Preserve every other YAML setting and
+identifier; add `.homelab-bazarr-config` containing
 `homelab/bazarr/config/v1\n`. Exclude SQLite active-path files from accepted target
 only after recovery proof. Never delete them from the original source/archive.
 
@@ -81,7 +83,9 @@ Verify complete conversion, stock startup/restart, new generated-ID behavior and
 an independent fresh PostgreSQL custom-dump restore. Remove only captured owned
 lab/media/plaintext generations after acceptance or a safe failed-rehearsal cleanup.
 
-Production cold and SQL recovery copies are encrypted and readback verified on
+Stock PostgreSQL-mode backup ZIPs contain settings only; their SQLite-centric
+restore UI is not the database recovery path. Shared PostgreSQL backups plus the
+qualified SQL/config recovery procedure cover it. Production cold and SQL recovery copies are encrypted and readback verified on
 VM300 plus this computer, with a separate key outside Git. Protect original
 `/mnt/apps/pv/media/bazarr` and its bound source PVC/PV indefinitely.
 Before target writes, only a verified unchanged source may reopen. After target

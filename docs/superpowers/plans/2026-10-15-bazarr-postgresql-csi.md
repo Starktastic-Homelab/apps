@@ -29,7 +29,7 @@
 - Missing settings/database: stock defaults must not create a replacement installation on a fresh cluster.
 - Reconciliation: tracking metadata, stale sync history and native watch transport must retain full spec/generation checks.
 
-### Task1: Bazarr state contract and inactive preparation
+### Task 1: Bazarr state contract and inactive preparation
 
 **Files:** Create `scripts/bazarr-postgresql/{guard.py,main.sql,data.py,prepare.py,README.md}`, `scripts/test-bazarr-retained-startup.py`, inactive `production/` sources; update scoped CI checks after qualification.
 
@@ -39,7 +39,7 @@
 - [ ] Run tests and confirm expected missing-Bazarr-contract failures; implement minimal contract using stock vendored YAML and existing enrollment/serializer.
 - [ ] Render actual globals/common/media-arr/bazarr plus inactive override, validate schema and run focused tests. Confirm all existing discovered app values/secrets are unchanged. Commit.
 
-### Task2: Native offline real-data qualification and execution packet
+### Task 2: Native offline real-data qualification and execution packet
 
 **Files:** Private ignored `.superpowers/sdd/2026-10-15-bazarr-postgresql-csi/` transport, stage commands, receipts; sanitized qualification report in `docs/superpowers/reports/`; reuse existing maintenance lock/retirement/recovery primitives with Bazarr-specific bindings.
 
@@ -51,7 +51,7 @@
 - [ ] Produce inactive credentials once through existing sealing workflow, preserve all prior aggregate ciphertext, and assemble exact enrollment/cutover/recovery/reconciliation/cleanup commands. Include working typed API watch, metadata adoption and current-source full sync.
 - [ ] Validate local/real packet gates and preparation renders; commit sanitized qualification/implementation. Dispatch one fresh final whole-branch review with this spec, plan, all Review Focus items and ledger rulings; fix substantive findings once with failing regression tests before production.
 
-### Task3: Enrollment, cutover and final Git reconciliation
+### Task 3: Enrollment, cutover and final Git reconciliation
 
 **Files:** Scoped enrollment declarations; final `services/media/bazarr/{values.yaml,manifests/*}`, `infrastructure/base-configs/templates/bazarr-block-storage/{pv,pvc}.yaml`, scoped CI/README and Bazarr storage runbook. Private receipts/recovery outside Git.
 

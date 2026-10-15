@@ -1,0 +1,43 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: ntfy-source-hold
+  annotations:
+    argocd.argoproj.io/sync-wave: "-6"
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - pods
+  matchConditions:
+    - name: held-data-claim
+      expression:
+        has(object.spec.volumes) && object.spec.volumes.exists(v, (object.metadata.namespace == 'operations' &&
+        has(v.persistentVolumeClaim) && v.persistentVolumeClaim.claimName in ['ntfy-config', 'ntfy-cache']) ||
+        (has(v.nfs) && (v.nfs.path in ['/mnt/apps/pv/operations/ntfy-config', '/mnt/apps/pv/operations/ntfy-cache'] ||
+        v.nfs.path.startsWith('/mnt/apps/pv/operations/ntfy-config/') ||
+        v.nfs.path.startsWith('/mnt/apps/pv/operations/ntfy-cache/'))))
+  validations:
+    - expression: "false"
+      message: The preserved ntfy NFS sources are held; restore acceptance is required.
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: ntfy-source-hold
+  annotations:
+    argocd.argoproj.io/sync-wave: "-6"
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  policyName: ntfy-source-hold
+  validationActions:
+    - Deny

@@ -158,6 +158,10 @@ Smart home infrastructure including a home automation platform, MQTT broker, and
 
 ### 🎬 Media
 
+Bazarr keeps its database in shared PostgreSQL and private configuration on retained
+Proxmox CSI; media and subtitles remain on NFS. See the [storage and recovery
+runbook](docs/runbooks/bazarr-storage.md).
+
 A comprehensive media management ecosystem covering acquisition, organization, streaming, and discovery — with GPU-accelerated transcoding and multi-language support via base/variant service pairs.
 
 ### 🔧 Operations

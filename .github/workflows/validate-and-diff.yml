@@ -159,7 +159,7 @@ jobs:
             SEERR_RU_RETAINED_RENDER=/tmp/seerr-ru-retained.yaml \
             python3 scripts/test-seerr-retained-startup.py
 
-      - name: Check inactive Bazarr PostgreSQL and retained CSI preparation
+      - name: Check Bazarr PostgreSQL and retained CSI lifecycle
         run: |
           kubeconform -strict -summary \
             scripts/bazarr-postgresql/production/pv.yaml \
@@ -169,8 +169,7 @@ jobs:
             scripts/bazarr-postgresql/production/source-hold.yaml
           helm template bazarr app-template --repo https://bjw-s-labs.github.io/helm-charts \
             --version 5.2.1 --namespace media -f templates/globals.yaml -f templates/common.yaml \
-            -f templates/media-arr-common.yaml -f services/media/bazarr/values.yaml \
-            -f scripts/bazarr-postgresql/production/values.yaml > /tmp/bazarr-preparation.yaml
+            -f templates/media-arr-common.yaml -f services/media/bazarr/values.yaml > /tmp/bazarr-preparation.yaml
           kubeconform -strict -summary /tmp/bazarr-preparation.yaml
           BAZARR_SQL_TEST=1 BAZARR_RETAINED_RENDER=/tmp/bazarr-preparation.yaml python3 scripts/test-bazarr-retained-startup.py
 

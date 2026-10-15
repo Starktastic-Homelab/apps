@@ -6,6 +6,9 @@ import json
 import os
 from pathlib import Path
 import sqlite3
+import subprocess
+import time
+import uuid
 import tempfile
 import unittest
 
@@ -185,7 +188,84 @@ class DataTests(unittest.TestCase):
         self.data.compare(self.path, pg)
 
 
+@unittest.skipUnless(os.environ.get('BAZARR_SQL_TEST'), 'Enable disposable local SQL qualification')
+class NativeDatabaseTests(unittest.TestCase):
+    def test_empty_extra_wrong_and_incomplete_state_rejected_then_preserved_state_passes(self):
+        name = 'bazarr-retained-check-' + uuid.uuid4().hex[:12]
+        def command(args, data=None, check=True):
+            result = subprocess.run(args, input=data, text=True, capture_output=True, timeout=60)
+            if check and result.returncode:
+                raise AssertionError('Synthetic SQL fixture failed; private output suppressed')
+            return result
+        image = yaml.safe_load((ROOT / 'scripts/postgres-enrollment/job.yaml').read_text())['spec']['template']['spec']['containers'][0]['image']
+        command(['docker', 'run', '-d', '--name', name, '--network', 'none', '--memory', '256m', '--cpus', '1', '--pids-limit', '128',
+                 '--tmpfs', '/var/lib/postgresql:rw,size=128m', '-e', 'PGDATA=/var/lib/postgresql/data',
+                 '-e', 'POSTGRES_PASSWORD=fixture-admin', '-e', 'POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256 --auth-local=trust', image])
+        self.addCleanup(lambda: command(['docker', 'rm', '-f', name]))
+        for _ in range(100):
+            if command(['docker', 'exec', name, 'pg_isready', '-h127.0.0.1', '-Upostgres'], check=False).returncode == 0:
+                break
+            time.sleep(.2)
+        else:
+            self.fail('Synthetic SQL readiness deadline')
+        def sql(query, database='bazarr'):
+            return command(['docker', 'exec', '-i', name, 'psql', '-XqAt', '-vON_ERROR_STOP=1', '-Upostgres', '-d' + database], query).stdout
+        def gate(user='bazarr', password='fixture-password'):
+            return command(['docker', 'exec', '-i', '-e', 'PGPASSWORD=' + password, name, 'psql', '-XqAt', '-vON_ERROR_STOP=1',
+                            '-h127.0.0.1', '-U' + user, '-dbazarr'], (PACKAGE / 'main.sql').read_text(), check=False)
+        sql("CREATE ROLE bazarr LOGIN PASSWORD 'fixture-password';", 'postgres')
+        sql('CREATE DATABASE bazarr OWNER bazarr;', 'postgres')
+        self.assertNotEqual(gate().returncode, 0, 'Empty database accepted')
+        data = module(self, 'data')
+        sql(''.join('CREATE TABLE "' + table + '" (id integer); ALTER TABLE "' + table + '" OWNER TO bazarr;' for table in data.TABLES)
+            + 'ALTER TABLE public.system ADD COLUMN configured text; CREATE TABLE public.alembic_version(version_num text); ALTER TABLE public.alembic_version OWNER TO bazarr;'
+            + "INSERT INTO public.alembic_version VALUES ('537e9b4d10e3');")
+        self.assertNotEqual(gate().returncode, 0, 'Empty installation accepted')
+        sql("INSERT INTO public.system VALUES (1,'1'); INSERT INTO public.table_languages_profiles VALUES (1); INSERT INTO public.table_shows VALUES (1);")
+        self.assertEqual(gate().returncode, 0)
+        before = sql('SELECT * FROM public.system; SELECT * FROM public.alembic_version;')
+        self.assertEqual(gate().returncode, 0)
+        self.assertEqual(before, sql('SELECT * FROM public.system; SELECT * FROM public.alembic_version;'))
+        self.assertNotEqual(gate(password='wrong').returncode, 0)
+        self.assertNotEqual(gate(user='postgres', password='fixture-admin').returncode, 0)
+        sql('CREATE TABLE public.unrelated_extra(id integer);')
+        self.assertNotEqual(gate().returncode, 0, 'Unexpected public table accepted')
+        sql('DROP TABLE public.unrelated_extra;')
+        self.assertEqual(gate().returncode, 0)
+        sql('ALTER TABLE public.table_movies RENAME TO missing_movies;')
+        self.assertNotEqual(gate().returncode, 0, 'Missing stock table accepted')
+        sql("ALTER TABLE public.missing_movies RENAME TO table_movies; UPDATE public.alembic_version SET version_num='wrong';")
+        self.assertNotEqual(gate().returncode, 0, 'Wrong revision accepted')
+        sql("UPDATE public.alembic_version SET version_num='537e9b4d10e3'; DELETE FROM public.table_languages_profiles;")
+        self.assertNotEqual(gate().returncode, 0, 'Missing retained profile accepted')
+
+
 class SourcesTests(unittest.TestCase):
+    def test_embedded_guard_matches_source_and_encrypted_bundle_preserves_prior_inputs(self):
+        cm = yaml.safe_load((PACKAGE / 'production/guard-configmap.yaml').read_text())
+        for name in ('guard.py', 'main.sql'):
+            self.assertEqual(cm['data'][name], (PACKAGE / name).read_text())
+        folder = PACKAGE / 'production/enrollment'
+        cm = yaml.safe_load((folder / 'enrollment-configmap.yaml').read_text())
+        config = json.loads(cm['data']['config.json'])
+        prior = json.loads(yaml.safe_load((ROOT / 'infrastructure/controllers/databases/postgres/manifests/enrollment-configmap.yaml').read_text())['data']['config.json'])
+        if len(config['entries']) == len(prior['entries']) + 1:
+            self.assertEqual(config['entries'][:-1], prior['entries'])
+        else:
+            self.assertEqual(prior['entries'][:len(config['entries'])], config['entries'])
+        self.assertEqual(config['expectedSystemIdentifier'], prior['expectedSystemIdentifier'])
+        self.assertEqual(config['entries'][-1], {'id': 'bazarr', 'database': 'bazarr', 'role': 'bazarr', 'mode': 'new', 'passwordKey': 'bazarr-password'})
+        aggregate = yaml.safe_load((folder / 'enrollment-secret.yaml').read_text())
+        old = yaml.safe_load((ROOT / 'infrastructure/controllers/databases/postgres/manifests/enrollment-secret.yaml').read_text())
+        for key, value in old['spec']['encryptedData'].items():
+            self.assertEqual(aggregate['spec']['encryptedData'][key], value)
+        app = yaml.safe_load((folder / 'application-secret.yaml').read_text())
+        self.assertEqual(app['metadata']['name'], 'bazarr-postgres-secret')
+        self.assertEqual(app['metadata']['namespace'], 'media')
+        self.assertEqual(set(app['spec']['encryptedData']), {'password'})
+        self.assertNotIn('data', app['spec']['template'])
+        self.assertNotIn('stringData', app['spec']['template'])
+
     def test_fixed_target_native_env_and_existing_consumer_gate(self):
         prepare = module(self, 'prepare')
         resources, values = prepare.build_sources()

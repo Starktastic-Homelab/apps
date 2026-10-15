@@ -97,6 +97,10 @@ data:
       IF current_database() <> 'bazarr' OR current_user <> 'bazarr' THEN
         RAISE EXCEPTION 'Retained Bazarr database identity rejected';
       END IF;
+      IF (SELECT count(*) FROM pg_catalog.pg_class
+          WHERE relnamespace='public'::regnamespace AND relkind IN ('r','p')) <> 17 THEN
+        RAISE EXCEPTION 'Retained Bazarr unexpected schema rejected';
+      END IF;
       FOREACH expected IN ARRAY ARRAY[
         'system', 'table_announcements', 'table_blacklist', 'table_blacklist_movie',
         'table_episodes', 'table_episodes_subtitles', 'table_history', 'table_history_movie',

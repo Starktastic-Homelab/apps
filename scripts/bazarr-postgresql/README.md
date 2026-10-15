@@ -16,7 +16,9 @@ settings and existing credentials are preserved.
 `data.py` materializes committed WAL through SQLite's native backup API and compares
 all16 application tables using the actual PostgreSQL column types and discovered
 sequences. Preserve stock Alembic revision537e9b4d10e3; loader must exclude that ledger.
-Follow the documented data-only/quoted-identifier/timestamp conversion, reject errors
+Follow the documented data-only/quoted-identifier/timestamp conversion with `reset no sequences`;
+the pinned loader automatic reset mishandles mixed-case column names and prevents
+foreign-key restoration. Raise discovered sequence floors explicitly, reject errors
 and verify every row/field, constraints, binary caches and generated allocator floors.
 A checkpointed live-file count or successful pgloader exit is insufficient.
 

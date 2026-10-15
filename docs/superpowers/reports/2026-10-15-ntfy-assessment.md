@@ -54,6 +54,16 @@ credentials, and did not deliver to real notification subscribers.
 
 Native retained SQL tests reject wrong physical identity/database, wrong versions,
 missing columns, extra tables, missing anonymous identity and missing administrator.
+An isolated restored-state test exercises all4preserved non-admin ACLs:2read-only
+and2write-only rules, plus unmatched-topic read/write denial. It detects an
+intentionally incorrect read-permission expectation. Missing test tokens are minted
+only in the isolated lab; production users, passwords and ACLs are unchanged.
+
+The startup guard accepts Kubernetes Secret atomic-writer links only when their
+resolved password stays inside the mounted Secret directory. Retained identity
+markers still reject symlinks. Host-user readability of all3standalone cold copies
+is required before allocation.
+
 The layered Helm regression catches both inherited provisioning fields on the old
 cache entry and null SQLite variables that Helm still renders. The accepted overlay
 disables both old claims, uses a separately named retained volume, and explicitly

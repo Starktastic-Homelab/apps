@@ -166,6 +166,9 @@ A comprehensive media management ecosystem covering acquisition, organization, s
 
 ### 🔧 Operations
 
+ntfy stores users, tokens, ACLs, messages and webpush state in shared PostgreSQL;
+attachments use retained Proxmox CSI. See its [storage and recovery runbook](docs/runbooks/ntfy-storage.md).
+
 The operational backbone: full observability stack (metrics, logs, traces, dashboards, alerting), document management, password vault, push notifications, and a collection of self-hosted productivity tools.
 
 > Services are intentionally described by category rather than enumerated individually — the lineup evolves continuously as services are added, removed, or upgraded.

@@ -1,7 +1,8 @@
 # ntfy PostgreSQL and retained CSI recovery
 
-Preparation status: conversion and native command rehearsal accepted; production
-cutover and final GitOps activation are still pending.
+ntfy stores its database state in shared PostgreSQL and its attachments on retained
+Proxmox CSI. Runtime startup requires accepted enrollment, retained filesystem
+identity and the existing physical PostgreSQL schema.
 
 ntfy uses the existing shared PostgreSQL enrollment/completion path. Its users,
 password hashes, access tokens, ACLs, preferences, messages, statistics and webpush

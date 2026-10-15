@@ -5,41 +5,237 @@ controllers:
         image:
           repository: binwiederhier/ntfy
           tag: v2.29.0@sha256:4c599cf0818965782f93f652bd843e92714992e84d6b88ad17713dc0951cda1f
-
-        args: ["serve"]
-
+        args:
+          - serve
         env:
-          NTFY_BASE_URL: "https://ntfy.{{ .Values.global.domains.public }}"
-          NTFY_BEHIND_PROXY: "true"
-          NTFY_UPSTREAM_BASE_URL: "https://ntfy.sh"
-          NTFY_ENABLE_LOGIN: "true"
-          NTFY_AUTH_DEFAULT_ACCESS: "deny-all"
-          NTFY_AUTH_FILE: "/var/lib/ntfy/user.db"
-          NTFY_CACHE_FILE: "/var/cache/ntfy/cache.db"
-          NTFY_ATTACHMENT_CACHE_DIR: "/var/cache/ntfy/attachments"
-          NTFY_WEB_PUSH_FILE: "/var/lib/ntfy/webpush.db"
-
+          - name: TZ
+            value: Asia/Jerusalem
+          - name: PUID
+            value: "1000"
+          - name: PGID
+            value: "1000"
+          - name: NTFY_BASE_URL
+            value: https://ntfy.{{ .Values.global.domains.public }}
+          - name: NTFY_BEHIND_PROXY
+            value: "true"
+          - name: NTFY_UPSTREAM_BASE_URL
+            value: https://ntfy.sh
+          - name: NTFY_ENABLE_LOGIN
+            value: "true"
+          - name: NTFY_AUTH_DEFAULT_ACCESS
+            value: deny-all
+          - name: NTFY_ATTACHMENT_CACHE_DIR
+            value: /var/cache/ntfy/attachments
+          - name: NTFY_DATABASE_URL
+            valueFrom:
+              secretKeyRef:
+                name: ntfy-postgres-secret
+                key: database-url
         envFrom:
           - secretRef:
               name: ntfy-webpush-secret
               optional: true
-
+    replicas: 1
+    strategy: Recreate
+    serviceAccount:
+      name: ntfy-postgres-completion
+    pod:
+      securityContext: {}
+      automountServiceAccountToken: false
+      nodeSelector:
+        node-role.kubernetes.io/worker: "true"
+    initContainers:
+      retained-state:
+        image:
+          repository: python
+          digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+        command:
+          - python3
+          - -I
+          - -B
+          - /retained-startup/guard.py
+          - /var/cache/ntfy
+          - /credentials
+        env:
+          NTFY_DATABASE_URL:
+            valueFrom:
+              secretKeyRef:
+                name: ntfy-postgres-secret
+                key: database-url
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
+      enrollment:
+        command:
+          - python3
+          - -B
+          - /gate/completion_gate.py
+        args:
+          - --id
+          - ntfy
+          - --database
+          - ntfy
+          - --role
+          - ntfy
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 25m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
+        image:
+          repository: python
+          digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+        dependsOn: retained-state
+      database:
+        command:
+          - /bin/sh
+          - -ec
+          - export PGPASSWORD="$(cat /credentials/password)"; exec psql -XqAt -v ON_ERROR_STOP=1 -f
+            /retained-startup/main.sql >/dev/null 2>&1
+        env:
+          - name: PGHOST
+            value: postgres-postgresql.databases
+          - name: PGPORT
+            value: "5432"
+          - name: PGUSER
+            value: ntfy
+          - name: PGDATABASE
+            value: ntfy
+          - name: PGCONNECT_TIMEOUT
+            value: "10"
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 10m
+            memory: 16Mi
+          limits:
+            cpu: 100m
+            memory: 32Mi
+        image:
+          repository: postgres:18.6-alpine
+          digest: sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd
+        dependsOn: enrollment
 persistence:
   config:
-    enabled: true
+    enabled: false
     accessMode: ReadWriteMany
     size: 100Mi
     globalMounts:
       - path: /var/lib/ntfy
-
   cache:
-    enabled: true
+    enabled: false
     storageClass: nfs-pv
     accessMode: ReadWriteMany
     size: 5Gi
     globalMounts:
       - path: /var/cache/ntfy
-
+  pg-completion-script:
+    type: configMap
+    name: ntfy-postgres-completion
+    defaultMode: 292
+    globalMounts: []
+    advancedMounts:
+      main:
+        enrollment:
+          - path: /gate
+            readOnly: true
+  pg-completion-api:
+    type: custom
+    volumeSpec:
+      projected:
+        defaultMode: 292
+        sources:
+          - serviceAccountToken:
+              path: token
+              expirationSeconds: 600
+          - configMap:
+              name: kube-root-ca.crt
+              items:
+                - key: ca.crt
+                  path: ca.crt
+    globalMounts: []
+    advancedMounts:
+      main:
+        enrollment:
+          - path: /gate-api
+            readOnly: true
+  pg-completion-password:
+    type: secret
+    name: ntfy-postgres-secret
+    defaultMode: 292
+    items:
+      - key: password
+        path: password
+    globalMounts: []
+    advancedMounts:
+      main:
+        database:
+          - path: /credentials
+            readOnly: true
+        retained-state:
+          - path: /credentials
+            readOnly: true
+  ntfy-data:
+    existingClaim: ntfy-data-block
+    globalMounts: []
+    advancedMounts:
+      main:
+        main:
+          - path: /var/cache/ntfy
+        retained-state:
+          - path: /var/cache/ntfy
+            readOnly: true
+  retained-startup:
+    type: configMap
+    name: ntfy-retained-startup-guard
+    defaultMode: 292
+    globalMounts: []
+    advancedMounts:
+      main:
+        retained-state:
+          - path: /retained-startup
+            readOnly: true
+        database:
+          - path: /retained-startup
+            readOnly: true
 service:
   main:
     controller: main

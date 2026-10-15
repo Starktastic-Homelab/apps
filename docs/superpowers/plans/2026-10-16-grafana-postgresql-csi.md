@@ -38,8 +38,9 @@
 
 ### Task 2: Preparation
 
-- [ ] Refresh shared PostgreSQL capacity, full NAS growth budget and all writers; size retained files from evidence.
-- [ ] Write failing guard/serialization/completion tests, implement minimal Grafana-specific adapters, then run them.
+- [x] Refresh shared PostgreSQL capacity, full NAS growth budget and all writers; size retained files from evidence.
+- [x] Write failing retained guard/completion tests, implement Grafana chart adapters and run native SQL rejection cases.
+- [ ] Qualify cold serialization and exclusive native backup/population adapters.
 - [ ] Prepare enrollment once without changing previous credentials, retained storage and scoped old-source guards.
 - [ ] Render actual monitoring value layers; verify only intended Grafana resources change.
 - [ ] Freeze and rehearse the exact native command package, cold backup, independent recovery, rollback and cleanup.

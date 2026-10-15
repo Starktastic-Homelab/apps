@@ -112,6 +112,44 @@ datasources currently have no populated encrypted credential fields. Production
 rekeying is out of scope. Real login and connectivity still require production
 acceptance; configuration fingerprints cannot establish a fresh OIDC login.
 
+## Runtime preparation
+
+A fresh inventory finds 313 regular files and 63 directories, all UID/GID 472,
+with no symlinks, hardlinks or extended attributes. About 145MiB comprises plugins;
+the csv/png/pdf directories are empty. A 2Gi retained volume fits this state.
+NAS headroom is 104484741120 bytes versus a 97621433856-byte requirement including
+all outstanding existing image growth, the new volume, staging and an 8Gi reserve.
+Shared PostgreSQL has 60 of 100 connections in use and no Grafana role/database.
+The proposed main SQL pool is capped at five connections. Refresh these bounds
+again immediately before execution; they are assessment-time observations.
+
+The inactive overlay uses Recreate/RWOP, retains the chart service account and adds
+only the existing named enrollment-completion bindings. Native dashboard and
+datasource sidecars with startup probes complete their initial file sync before
+Grafana starts. Exact-version upstream source marks readiness after initial sync;
+normal discovery and reload continue afterward. The file guard refuses missing or
+wrong retained identity, credential projection escapes and SQLite fallback. The
+SQL guard checks the full stock catalog and native backend migration records.
+Tests prove rejection after wrong physical identity, column/index/constraint loss,
+missing application state and removed/altered migration logs. Negative SQL changes
+roll back; the populated fixture still passes afterward.
+
+The actual ApplicationSet cascade (globals, common and application values) renders
+against Kubernetes 1.37. All 71 standard resources validate; 41 custom monitoring
+resources have no bundled kubeconform schemas and are explicitly skipped. Eight
+inactive retained/gate/source-hold resources validate separately. The rendered diff
+affects the Grafana Deployment, its test Pod's worker selector and removal of its
+old chart claim. Source protection must be installed before that claim leaves
+chart management. The renderer Secret's offline random token is a known chart
+artifact: the live Application already ignores Secret data and respects those
+ignored values during sync. Production acceptance must independently prove that
+its existing renderer Secret identity/fingerprint is unchanged.
+
+The native guest-agent channel also passes a 1MiB fixture-only read response; the
+NAS has more than 15GiB temporary space. This qualifies the transport size, not a
+cold source archive or execution package. No production backup, hold, shutdown,
+allocation or enrollment has occurred.
+
 ## Next step
 
 Refresh full PostgreSQL/NAS capacity and overlapping writers; prepare retained
@@ -127,6 +165,7 @@ review before production. The remaining work is recorded in the
 - [Exact Grafana defaults](https://github.com/grafana/grafana/blob/v13.2.3/conf/defaults.ini)
 - [Stock dashboard orphan cleanup](https://github.com/grafana/grafana/blob/v13.2.3/pkg/services/provisioning/dashboards/dashboard.go)
 - [Stock data-key re-encryption](https://github.com/grafana/grafana/blob/v13.2.3/pkg/services/secrets/database/database.go)
+- [Exact sidecar startup and readiness](https://github.com/kiwigrid/k8s-sidecar/blob/2.11.2/src/sidecar.py)
 - [Stock AES decryption](https://github.com/grafana/grafana/blob/v13.2.3/pkg/services/encryption/provider/decipher_aes.go)
 - [PostgreSQL 18 date/time precision](https://www.postgresql.org/docs/18/datatype-datetime.html)
 - [Grafana-owned MySQL migrator](https://github.com/grafana/database-migrator)

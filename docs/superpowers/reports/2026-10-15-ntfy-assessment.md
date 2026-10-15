@@ -1,8 +1,9 @@
 # ntfy conversion qualification
 
-Status: real-data qualification accepted after the user's explicit approval of
-sensitive database copies to the protected local lab. Production remains unchanged;
-no outage clock has started. The autonomous migration request remains active.
+Status: production migration completed after real-data qualification and the user's
+explicit approval of sensitive copies. See the [production completion report](2026-10-15-ntfy-production-completion.md)
+for current runtime, recovery, lifecycle and GitOps acceptance. The assessment below
+records the earlier qualification state.
 
 ## Fresh production assessment
 
@@ -69,10 +70,11 @@ cache entry and null SQLite variables that Helm still renders. The accepted over
 disables both old claims, uses a separately named retained volume, and explicitly
 replaces the environment list while preserving all other effective settings.
 
-Production acceptance still requires the latest cold-source checks, independent
-recovery, actual CSI identity/recreation/movement, backup and live reconciliation.
-No populated omitted authentication store may be silently dropped. No VM980, ARC
-change, production enrollment, CSI allocation, hold or writer shutdown has occurred.
+Qualification required separate production gates for latest cold-source checks,
+independent recovery, actual CSI identity/recreation/movement, backup and live
+reconciliation. Those gates subsequently passed as recorded in the completion
+report. No populated omitted authentication store may be silently dropped.
+No VM980 or ARC change was needed.
 
 Sources: [pinned upstream importer](https://github.com/binwiederhier/ntfy/tree/v2.29.0/tools/pgimport),
 [stock store migrations](https://github.com/binwiederhier/ntfy/tree/v2.29.0/user),

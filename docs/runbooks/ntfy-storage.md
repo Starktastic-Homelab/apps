@@ -9,7 +9,7 @@ password hashes, access tokens, ACLs, preferences, messages, statistics and webp
 stores must be preserved together. The existing `ntfy-webpush-secret` carries the
 VAPID identity; do not rotate it as part of storage recovery.
 
-The prepared attachment volume is `operations/ntfy-data-block`:8GiB ext4,
+The attachment volume is `operations/ntfy-data-block`:8GiB ext4,
 ReadWriteOncePod, Retain, backed by
 `homelab//k3s-block/9999/vm-9999-ntfy.raw`. It mounts at `/var/cache/ntfy` and requires
 `.homelab-ntfy-data` containing `homelab/ntfy/data/v1` plus the attachments directory.
@@ -38,3 +38,6 @@ The initial conversion uses the unchanged importer from ntfyv2.29.0. Source sche
 markers must not be edited. Populated `user_email`/`user_magic_link`, duplicate
 message IDs or malformedUTF8/NUL are rejection conditions, not permission to drop
 state. See the [qualification report](../superpowers/reports/2026-10-15-ntfy-assessment.md).
+
+Production cutover and recovery/lifecycle acceptance are recorded in the
+[completion report](../superpowers/reports/2026-10-15-ntfy-production-completion.md).

@@ -223,7 +223,8 @@ class PackageTests(unittest.TestCase):
         self.assertTrue(path.is_file(), 'Encrypted preparation not published')
         cm=yaml.safe_load(path.read_text());config=json.loads(cm['data']['config.json'])
         prior=json.loads(yaml.safe_load((ROOT/'infrastructure/controllers/databases/postgres/manifests/enrollment-configmap.yaml').read_text())['data']['config.json'])
-        self.assertEqual(config,prior)
+        self.assertEqual(prior['entries'][:len(config['entries'])],config['entries'])
+        self.assertEqual(config['expectedSystemIdentifier'],prior['expectedSystemIdentifier'])
         self.assertEqual([entry['id'] for entry in config['entries'][:-2]],['pg-enrollment-pilot','autobrr','prowlarr-main','prowlarr-log'])
         for instance,db,entry in zip(('seerr','seerr-ru'),('seerr','seerr_ru'),config['entries'][-2:]):
             self.assertEqual(entry,{'id':instance,'database':db,'role':db,'mode':'new','passwordKey':instance+'-password'})
@@ -232,7 +233,7 @@ class PackageTests(unittest.TestCase):
             self.assertEqual(set(app['spec']['encryptedData']),{'password'});self.assertNotIn('stringData',app['spec']['template']);self.assertNotIn('data',app['spec']['template'])
         aggregate=yaml.safe_load((PACKAGE/'production/enrollment/enrollment-secret.yaml').read_text())
         existing=yaml.safe_load((ROOT/'infrastructure/controllers/databases/postgres/manifests/enrollment-secret.yaml').read_text())
-        for key,value in existing['spec']['encryptedData'].items():self.assertEqual(aggregate['spec']['encryptedData'][key],value)
+        for key,value in aggregate['spec']['encryptedData'].items():self.assertEqual(existing['spec']['encryptedData'][key],value)
         sys.path.insert(0,str(ROOT/'scripts/postgres-enrollment'));import completion_gate
         self.assertEqual(cm['data']['acceptance-generation'],completion_gate.generation(cm['data']))
         job=yaml.safe_load((PACKAGE/'production/enrollment/enrollment-job.yaml').read_text());self.assertEqual(job['metadata']['name'],completion_gate.hook_name(cm['data']['acceptance-generation']))

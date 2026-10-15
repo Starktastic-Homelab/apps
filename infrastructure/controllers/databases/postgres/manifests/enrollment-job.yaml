@@ -5,7 +5,7 @@ metadata:
     argocd.argoproj.io/hook: Sync
     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
     argocd.argoproj.io/sync-wave: "1"
-  name: postgres-enrollment-3d2606b9c8c1839a1072035db79d270a
+  name: postgres-enrollment-59804209fef8229d1bd3a948b546a068
   namespace: databases
 spec:
   activeDeadlineSeconds: 600

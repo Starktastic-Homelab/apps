@@ -1,9 +1,8 @@
 # Grafana PostgreSQL and retained-storage assessment
 
-Status: metadata discovery and synthetic conversion/recovery accepted. Real-data
-qualification is blocked on explicit sensitive-transfer approval. Production
-configuration and storage are unchanged; no outage, enrollment, CSI allocation,
-maintenance owner or migration hold has been started.
+Status: synthetic and explicitly approved real-data conversion/recovery accepted.
+Production configuration and storage are unchanged; no outage, enrollment, CSI
+allocation, maintenance owner or migration hold has been started.
 
 ## Actual runtime
 
@@ -13,8 +12,8 @@ It is Healthy/Synced with one Ready Pod and zero restarts. Effective admin setti
 confirm SQLite. Its 2Gi NFS claim holds about 159.3MiB logical / 81.5MiB allocated.
 `grafana.db` is about 14.3MiB, integrity ok, with 94 tables. Current metadata counts
 include 2 users, 4 data sources, 43 unified resources, 553 resource-history rows,
-95 data keys and existing OAuth/session state. These are online observations,
-not a consistent backup or evidence of a production conversion.
+95 data keys and existing OAuth/session state. These initial observations are distinct from the later consistent rehearsal copy
+and do not establish a production conversion.
 
 No explicit security-key override is declared in the main container, its ini file
 or the two-key OIDC Secret. Admin settings mask security values; a masked setting's
@@ -66,30 +65,68 @@ The restored app opens the same dashboard. An internal fixture upstream receives
 the correct Basic authentication password decrypted from the migrated ciphertext;
 this tests decryption, rather than only the presence of secureJsonFields.
 
-All six owned lab containers are stopped and generation identities are retained
-privately for exact cleanup. No real Grafana data has entered the local workspace.
-Synthetic success does not establish real-data conversion, real OIDC login,
-production datasource connectivity, CSI movement or production recoverability.
+The synthetic lab generations are stopped and retained by exact identities for
+cleanup. Synthetic success alone does not establish real OIDC login, production
+datasource connectivity, CSI movement or production recoverability.
 
-## Transfer decision and next step
+## Approved real-data qualification
 
-Automatic approval review rejected the proposed consistent SQLite-copy command
-because general Grafana authorization did not explicitly cover moving credential
-and OAuth/session records to this computer. The rejected command did not execute;
-no alternative route was attempted. The exact payload, private destinations,
-isolated use, encrypted recovery retention and plaintext cleanup are described in
-the [design's transfer scope](../specs/2026-10-16-grafana-postgresql-csi-design.md#sensitive-copy-scope-requiring-explicit-transfer-approval).
+After automatic review rejected the first transfer before execution, the user
+explicitly approved the design's named payloads, private destinations, closed lab,
+encrypted recovery retention and exact plaintext cleanup. The consistent SQLite
+backup was then copied with the source opened read-only. No Kubernetes credential
+Secret or infrastructure administrator credential entered the lab.
 
-After explicit transfer approval, copy current consistent state with SQLite backup
-semantics and perform real full-field comparison, fresh independent restore and
-functional qualification. Continue autonomous preparation/execution only while
-preservation and existing architecture requirements hold. The remaining plan is
-[recorded here](../plans/2026-10-16-grafana-postgresql-csi.md).
+The initial real import exposed four legacy Go UTC timestamp strings rejected by
+PGLoader. A new working copy changes only their SQL representation, retaining the
+wall-clock nanoseconds and original source. Go's process-local monotonic suffix
+has no SQL wall-clock meaning. PostgreSQL performs the final native cast. The
+fresh import completed without loader errors. The maintained comparator accepts
+all 87 application tables and 1883 rows, every field and duplicate included.
+Native CHAR(44) padding is explicit and bounded; arbitrary trimming is forbidden.
+The original source and the four PostgreSQL schema-operation logs remain intact.
+
+An independent custom-format dump restores all 91 tables exactly into a different
+physical PostgreSQL database. All 801 columns, 684 constraints and 252 indexes match
+the stock contract. All 63 serial allocators have safe floors. A production-like
+rehearsal with the exact dashboard provider and its 25 files accepts both existing
+account IDs and organization roles, all 35 current dashboards/search results,
+four datasource definitions, the folder and readable alert configuration. The
+closed-lab auth proxy exercises account identity/permissions without resetting
+passwords; it does not prove a real password or OIDC sign-in. Alert evaluation is
+disabled and the network has no external egress.
+
+A first startup without provisioning files removed 25 dashboard resources from
+that disposable restore. Grafana's stock orphan cleanup explains the behavior;
+all 35 remain available in production. The accepted conversion/dump was untouched.
+A fresh restore with the actual provider/files passes all 35. Final startup must
+keep the dashboard sidecar, provider, service account and its discovery RBAC.
+
+All 95 source data-key identities and ciphertexts survive full-field comparison,
+along with OAuth/session/password state. The stock CLI processes every restored
+key, but its success is not an authentication proof: the upstream AES-CFB cipher
+can rewrap with a wrong key without an error. Acceptance therefore relies on
+unchanged pinned-image encryption configuration, exact key/ciphertext preservation
+and the separate fixture's actual decrypted-credential request. The four real
+datasources currently have no populated encrypted credential fields. Production
+rekeying is out of scope. Real login and connectivity still require production
+acceptance; configuration fingerprints cannot establish a fresh OIDC login.
+
+## Next step
+
+Refresh full PostgreSQL/NAS capacity and overlapping writers; prepare retained
+startup guards, actual layered Helm output and the exact native execution package.
+Rehearse cold recovery and failure boundaries, then complete one independent final
+review before production. The remaining work is recorded in the
+[implementation plan](../plans/2026-10-16-grafana-postgresql-csi.md).
 
 ## Primary sources
 
 - [Grafana supported databases and customer-managed conversion](https://grafana.com/docs/grafana/latest/setup-grafana/installation/)
 - [Grafana 13 unified-storage behavior](https://grafana.com/docs/grafana/latest/upgrade-guide/upgrade-v13.0/)
 - [Exact Grafana defaults](https://github.com/grafana/grafana/blob/v13.2.3/conf/defaults.ini)
+- [Stock dashboard orphan cleanup](https://github.com/grafana/grafana/blob/v13.2.3/pkg/services/provisioning/dashboards/dashboard.go)
+- [Stock data-key re-encryption](https://github.com/grafana/grafana/blob/v13.2.3/pkg/services/secrets/database/database.go)
+- [Stock AES decryption](https://github.com/grafana/grafana/blob/v13.2.3/pkg/services/encryption/provider/decipher_aes.go)
 - [PostgreSQL 18 date/time precision](https://www.postgresql.org/docs/18/datatype-datetime.html)
 - [Grafana-owned MySQL migrator](https://github.com/grafana/database-migrator)

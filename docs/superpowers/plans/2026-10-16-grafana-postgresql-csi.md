@@ -32,9 +32,9 @@
 - [x] Generate the stock PostgreSQL schema using only the exact image and fixture credentials in a closed lab.
 - [x] Compare table/column coverage; identify empty obsolete source-only tables.
 - [x] Exercise representative synthetic SQLite state through the pinned loader, with negative preservation witnesses, stock app logins and an independent restore/decryption test.
-- [ ] Obtain explicit scoped transfer approval; copy consistent real state privately.
-- [ ] Compare all application fields and stock contract; restore independently and exercise the real-copy app.
-- [ ] Stop for any preservation decision; otherwise record accepted qualification.
+- [x] Obtain explicit scoped transfer approval; copy consistent real state privately.
+- [x] Compare all application fields and stock contract; restore independently and exercise the real-copy app.
+- [x] Record accepted qualification, explicit SQL representations and production provisioning requirements.
 
 ### Task 2: Preparation
 

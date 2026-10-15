@@ -173,6 +173,9 @@ jobs:
           kubeconform -strict -summary /tmp/bazarr-preparation.yaml
           BAZARR_SQL_TEST=1 BAZARR_RETAINED_RENDER=/tmp/bazarr-preparation.yaml python3 scripts/test-bazarr-retained-startup.py
 
+      - name: Check Grafana conversion preservation
+        run: python3 scripts/test-grafana-data.py
+
       - name: Check inactive ntfy PostgreSQL and retained CSI preparation
         run: |
           kubeconform -strict -summary \

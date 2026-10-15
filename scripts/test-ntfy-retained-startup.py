@@ -41,6 +41,21 @@ class GuardTests(unittest.TestCase):
         self.guard.validate(self.root, self.credentials, self.env)
         self.assertEqual(before, {str(p): p.read_bytes() for p in self.root.parent.rglob('*') if p.is_file()})
 
+    def test_kubernetes_projected_secret_is_accepted_but_escape_is_rejected(self):
+        password = self.credentials / 'password'
+        version = self.credentials / '..2026_10_15'
+        version.mkdir()
+        password.rename(version / 'password')
+        (self.credentials / '..data').symlink_to(version.name, target_is_directory=True)
+        password.symlink_to('..data/password')
+        self.guard.validate(self.root, self.credentials, self.env)
+        password.unlink()
+        outside = self.credentials.parent / 'outside-password'
+        outside.write_text('fixture-only-password')
+        password.symlink_to(outside)
+        with self.assertRaises(ValueError):
+            self.guard.validate(self.root, self.credentials, self.env)
+
     def test_wrong_missing_and_symlinked_identity_rejected(self):
         marker = self.root / '.homelab-ntfy-data'
         for value in ('', 'homelab/other/data/v1\n', 'x' * 129):
@@ -128,6 +143,29 @@ class SourceTests(unittest.TestCase):
         self.assertEqual({o['metadata']['namespace'] for o in bindings}, {'argocd', 'databases'})
         self.assertTrue(all(o['subjects'][0]['namespace'] == 'operations' for o in bindings))
 
+
+    def test_published_guard_and_append_only_enrollment_match_preparation(self):
+        import yaml
+        folder = PACKAGE / 'production'
+        guard = yaml.safe_load((folder / 'guard-configmap.yaml').read_text())
+        for name in ('guard.py', 'main.sql'):
+            self.assertEqual(guard['data'][name], (PACKAGE / name).read_text())
+        prepared = json.loads(yaml.safe_load((folder / 'enrollment/enrollment-configmap.yaml').read_text())['data']['config.json'])
+        current_folder = ROOT / 'infrastructure/controllers/databases/postgres/manifests'
+        current = json.loads(yaml.safe_load((current_folder / 'enrollment-configmap.yaml').read_text())['data']['config.json'])
+        self.assertEqual(current['entries'][:len(prepared['entries'])], prepared['entries'])
+        self.assertEqual(prepared['entries'][-1], {'id': 'ntfy', 'database': 'ntfy', 'role': 'ntfy', 'mode': 'new', 'passwordKey': 'ntfy-password'})
+        self.assertEqual(current['expectedSystemIdentifier'], prepared['expectedSystemIdentifier'])
+        aggregate = yaml.safe_load((folder / 'enrollment/enrollment-secret.yaml').read_text())
+        live = yaml.safe_load((current_folder / 'enrollment-secret.yaml').read_text())
+        for key, value in aggregate['spec']['encryptedData'].items():
+            self.assertEqual(live['spec']['encryptedData'][key], value)
+        app = yaml.safe_load((folder / 'enrollment/application-secret.yaml').read_text())
+        self.assertEqual(app['metadata']['namespace'], 'operations')
+        self.assertEqual(app['metadata']['name'], 'ntfy-postgres-secret')
+        self.assertEqual(set(app['spec']['encryptedData']), {'password', 'database-url'})
+        self.assertNotIn('data', app['spec']['template'])
+        self.assertNotIn('stringData', app['spec']['template'])
 
     def test_generator_accepts_the_reconciled_list_environment(self):
         from unittest.mock import patch

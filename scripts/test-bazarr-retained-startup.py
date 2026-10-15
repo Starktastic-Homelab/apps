@@ -257,8 +257,9 @@ class SourcesTests(unittest.TestCase):
         self.assertEqual(config['entries'][-1], {'id': 'bazarr', 'database': 'bazarr', 'role': 'bazarr', 'mode': 'new', 'passwordKey': 'bazarr-password'})
         aggregate = yaml.safe_load((folder / 'enrollment-secret.yaml').read_text())
         old = yaml.safe_load((ROOT / 'infrastructure/controllers/databases/postgres/manifests/enrollment-secret.yaml').read_text())
-        for key, value in old['spec']['encryptedData'].items():
-            self.assertEqual(aggregate['spec']['encryptedData'][key], value)
+        # Historical preparation is a preserved prefix; future consumers append only to current inputs.
+        for key, value in aggregate['spec']['encryptedData'].items():
+            self.assertEqual(old['spec']['encryptedData'][key], value)
         app = yaml.safe_load((folder / 'application-secret.yaml').read_text())
         self.assertEqual(app['metadata']['name'], 'bazarr-postgres-secret')
         self.assertEqual(app['metadata']['namespace'], 'media')

@@ -173,6 +173,21 @@ jobs:
           kubeconform -strict -summary /tmp/bazarr-preparation.yaml
           BAZARR_SQL_TEST=1 BAZARR_RETAINED_RENDER=/tmp/bazarr-preparation.yaml python3 scripts/test-bazarr-retained-startup.py
 
+      - name: Check inactive ntfy PostgreSQL and retained CSI preparation
+        run: |
+          kubeconform -strict -summary \
+            scripts/ntfy-postgresql/production/pv.yaml \
+            scripts/ntfy-postgresql/production/pvc.yaml \
+            scripts/ntfy-postgresql/production/guard-configmap.yaml \
+            scripts/ntfy-postgresql/production/consumer-gate.yaml \
+            scripts/ntfy-postgresql/production/source-hold.yaml
+          helm template ntfy app-template --repo https://bjw-s-labs.github.io/helm-charts \
+            --version 5.2.1 --namespace operations -f templates/globals.yaml -f templates/common.yaml \
+            -f services/operations/ntfy/values.yaml -f scripts/ntfy-postgresql/production/values.yaml \
+            > /tmp/ntfy-retained.yaml
+          kubeconform -strict -summary /tmp/ntfy-retained.yaml
+          NTFY_RETAINED_RENDER=/tmp/ntfy-retained.yaml python3 scripts/test-ntfy-retained-startup.py
+
       - name: Check inactive PostgreSQL cutover states
         run: |
           kubeconform -strict -summary scripts/postgres-retained-startup/production/cutover/source-hold.yaml

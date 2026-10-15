@@ -1,8 +1,8 @@
-# ntfy assessment and synthetic qualification
+# ntfy conversion qualification
 
-Status: production remains unchanged. Real-data qualification is pending explicit
-approval for transferring sensitive ntfy database copies to the protected local lab.
-The autonomous migration request remains active; no outage clock has started.
+Status: real-data qualification accepted after the user's explicit approval of
+sensitive database copies to the protected local lab. Production remains unchanged;
+no outage clock has started. The autonomous migration request remains active.
 
 ## Fresh production assessment
 
@@ -37,21 +37,32 @@ prefs and identity fields were compared privately. Source database hashes remain
 unchanged. SQLite/PG internal message surrogate IDs differ by backend; externally
 used message/sequence IDs and all other message fields are compared exactly.
 
-This does not qualify real ntfy data, populated omitted newer auth tables, actual
-webpush subscriptions, cold recovery, productionCSI attachment or live notification
-acceptance. The importer omits user_email/user_magic_link and sanitizes malformed
-message text; real/cold checks must reject lost rows, invalid text or embeddedNUL.
-The local fixture containers are stopped; their exact owned IDs and private proof
-files are retained for continuation. No VM980, ARC adjustment, enrollment, CSI
-allocation, production backup, hold or writer shutdown occurred.
+## Approved real-data qualification
 
-## Next gate
+Consistent read-only in-memory SQLite backups were transferred to an owner-only,
+Git-ignored local directory after explicit approval. The copies contain6users,
+4ACLs,3tokens,24messages and message statistics. Omitted newer email/magic-link
+stores and webpush subscriptions are empty; text contains no malformedUTF8/NUL.
+All11 application tables and every mapped field compare equal after unchanged
+upstream import and stock schema upgrades. Source hashes remain unchanged.
 
-Automatic approval review rejected copying databases containing existing credentials,
-tokens, messages and webpush state to this computer without explicit approval for
-the payload and destination. The pending request scopes copies to the owner-only,
-Git-ignored ntfy rehearsal directory, read-only source connections, an isolated lab
-and later plaintext cleanup. No production database copies have been transferred.
+An independent custom-dump restore into a different physical PostgreSQL instance
+again preserved all11 tables. All3existing tokens authenticated; an isolated unique
+topic accepted publish/poll and denied anonymous access. Restart retained the test
+message. The lab has no external egress or published ports, uses fixture SQL/VAPID
+credentials, and did not deliver to real notification subscribers.
+
+Native retained SQL tests reject wrong physical identity/database, wrong versions,
+missing columns, extra tables, missing anonymous identity and missing administrator.
+The layered Helm regression catches both inherited provisioning fields on the old
+cache entry and null SQLite variables that Helm still renders. The accepted overlay
+disables both old claims, uses a separately named retained volume, and explicitly
+replaces the environment list while preserving all other effective settings.
+
+Production acceptance still requires the latest cold-source checks, independent
+recovery, actual CSI identity/recreation/movement, backup and live reconciliation.
+No populated omitted authentication store may be silently dropped. No VM980, ARC
+change, production enrollment, CSI allocation, hold or writer shutdown has occurred.
 
 Sources: [pinned upstream importer](https://github.com/binwiederhier/ntfy/tree/v2.29.0/tools/pgimport),
 [stock store migrations](https://github.com/binwiederhier/ntfy/tree/v2.29.0/user),

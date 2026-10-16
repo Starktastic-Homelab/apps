@@ -54,3 +54,6 @@ Grafana role and database; it does not replace the private-file recovery copy.
 
 See the [qualification report](../superpowers/reports/2026-10-16-grafana-assessment.md)
 for the data conversion and independent recovery requirements.
+
+The [production completion report](../superpowers/reports/2026-10-16-grafana-production-completion.md)
+records the accepted live migration, recovery tests and cleanup.

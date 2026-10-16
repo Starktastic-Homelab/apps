@@ -1,39 +1,198 @@
 env:
-  email: "benfaingold@gmail.com"
-existingSecret: "pgadmin-secret"
+  email: benfaingold@gmail.com
+existingSecret: pgadmin-secret
 secretKeys:
-  pgadminPasswordKey: "password"
+  pgadminPasswordKey: password
 envVarsExtra:
   - name: PGADMIN_CONFIG_AUTHENTICATION_SOURCES
     value: "['webserver', 'internal']"
-
   - name: PGADMIN_CONFIG_WEBSERVER_REMOTE_USER
     value: "'X-authentik-email'"
-
   - name: PGADMIN_CONFIG_WEBSERVER_AUTO_CREATE_USER
     value: "False"
-
   - name: PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED
     value: "False"
+  - name: PGADMIN_CONFIG_CONFIG_DATABASE_URI_FILE
+    value: /etc/pgadmin-postgres/uri
+  - name: PGADMIN_CONFIG_SQLALCHEMY_ENGINE_OPTIONS
+    value: "{'pool_size': 2, 'max_overflow': 1, 'pool_recycle': 300, 'pool_pre_ping': True}"
 persistentVolume:
   enabled: true
   size: 1Gi
-  # Must stay explicit. infrastructure/** apps get commonValues: "" from the
-  # appset, so templates/common.yaml never reaches them and this has to be
-  # pinned per chart. See docs/adr/0009-explicit-storageclass-over-default.md.
-  storageClass: nfs-pv
+  storageClass: proxmox-retained
+  existingClaim: pgadmin-data-block
 serverDefinitions:
   enabled: true
   resourceType: ConfigMap
   servers:
     primaryDB:
-      Name: "Starktastic Postgres"
-      Group: "Servers"
-      Username: "postgres"
-      Host: "postgres-postgresql"
+      Name: Starktastic Postgres
+      Group: Servers
+      Username: postgres
+      Host: postgres-postgresql
       Port: 5432
-      SSLMode: "prefer"
-      MaintenanceDB: "postgres"
+      SSLMode: prefer
+      MaintenanceDB: postgres
 securityContext:
-  fsGroup: 5050
+  fsGroup: null
   runAsUser: 5050
+  runAsGroup: 5050
+replicaCount: 1
+strategy:
+  type: Recreate
+image:
+  tag: 9.18@sha256:c332c5f6dfba995d9ebc4af261d93506d6876085d712eaaa3defc8dd1a3f26de
+VolumePermissions:
+  enabled: false
+nodeSelector:
+  node-role.kubernetes.io/worker: "true"
+serviceAccount:
+  create: false
+  name: pgadmin-postgres-completion
+  automountServiceAccountToken: false
+extraInitContainers: |
+  - name: pgadmin-retained-state
+    image: python@sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+    command:
+    - python3
+    - -I
+    - -B
+    - /retained-startup/guard.py
+    - /var/lib/pgadmin
+    - /etc/pgadmin-postgres
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 5050
+      runAsGroup: 5050
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities: &id001
+        drop:
+        - ALL
+      seccompProfile: &id002
+        type: RuntimeDefault
+    env:
+    - name: PGADMIN_CONFIG_CONFIG_DATABASE_URI_FILE
+      value: /etc/pgadmin-postgres/uri
+    - name: PGADMIN_CONFIG_SQLALCHEMY_ENGINE_OPTIONS
+      value: '{''pool_size'': 2, ''max_overflow'': 1, ''pool_recycle'': 300, ''pool_pre_ping'':
+        True}'
+    volumeMounts:
+    - name: pgadmin-data
+      mountPath: /var/lib/pgadmin
+      readOnly: true
+    - name: retained-startup
+      mountPath: /retained-startup
+      readOnly: true
+    - name: pg-completion-password
+      mountPath: /etc/pgadmin-postgres
+      readOnly: true
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 100m
+        memory: 64Mi
+  - name: postgres-enrollment-acceptance
+    image: python@sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+    command:
+    - python3
+    - -B
+    - /gate/completion_gate.py
+    args:
+    - --id
+    - pgadmin
+    - --database
+    - pgadmin
+    - --role
+    - pgadmin
+    securityContext: &id003
+      runAsNonRoot: true
+      runAsUser: 1001
+      runAsGroup: 1001
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities: *id001
+      seccompProfile: *id002
+    resources:
+      requests:
+        cpu: 25m
+        memory: 32Mi
+      limits:
+        cpu: 100m
+        memory: 64Mi
+    volumeMounts:
+    - name: pg-completion-script
+      mountPath: /gate
+      readOnly: true
+    - name: pg-completion-api
+      mountPath: /gate-api
+      readOnly: true
+  - name: postgres-canonical-login
+    image: postgres:18.6-alpine@sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd
+    command:
+    - /bin/sh
+    - -ec
+    - export PGPASSWORD="$(cat /credentials/password)"; exec psql -XqAt -v ON_ERROR_STOP=1
+      -f /retained-startup/main.sql >/dev/null 2>&1
+    env:
+    - name: PGHOST
+      value: postgres-postgresql.databases
+    - name: PGPORT
+      value: '5432'
+    - name: PGUSER
+      value: pgadmin
+    - name: PGDATABASE
+      value: pgadmin
+    - name: PGCONNECT_TIMEOUT
+      value: '10'
+    securityContext: *id003
+    resources:
+      requests:
+        cpu: 10m
+        memory: 16Mi
+      limits:
+        cpu: 100m
+        memory: 32Mi
+    volumeMounts:
+    - name: pg-completion-password
+      mountPath: /credentials
+      readOnly: true
+    - name: retained-startup
+      mountPath: /retained-startup
+      readOnly: true
+extraVolumes:
+  - name: pg-completion-script
+    configMap:
+      name: pgadmin-postgres-completion
+      defaultMode: 292
+  - name: pg-completion-api
+    projected:
+      defaultMode: 292
+      sources:
+        - serviceAccountToken:
+            path: token
+            expirationSeconds: 600
+        - configMap:
+            name: kube-root-ca.crt
+            items:
+              - key: ca.crt
+                path: ca.crt
+  - name: pg-completion-password
+    secret:
+      secretName: pgadmin-postgres-secret
+      defaultMode: 292
+      items:
+        - key: password
+          path: password
+        - key: uri
+          path: uri
+  - name: retained-startup
+    configMap:
+      name: pgadmin-retained-startup-guard
+      defaultMode: 292
+extraVolumeMounts:
+  - name: pg-completion-password
+    mountPath: /etc/pgadmin-postgres
+    readOnly: true

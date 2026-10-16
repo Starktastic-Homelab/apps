@@ -1,0 +1,122 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pgadmin-retained-startup-guard
+  namespace: databases
+data:
+  guard.py: |
+    #!/usr/bin/env python3
+    """Read-only retained pgAdmin file identity and canonical PostgreSQL configuration guard."""
+    import os
+    from pathlib import Path
+    import sys
+
+
+    def validate(root, credentials, env):
+        if root.is_symlink() or not root.is_dir() or credentials.is_symlink() or not credentials.is_dir():
+            raise ValueError('Invalid retained directory')
+
+        def read(path, limit):
+            if path.is_symlink() or not path.is_file() or not 0 < path.stat().st_size <= limit:
+                raise ValueError('Invalid retained file')
+            return path.read_text()
+
+        if read(root / '.homelab-pgadmin-data', 128) != 'homelab/pgadmin/data/v1\n':
+            raise ValueError('Wrong retained identity')
+        for name in ('storage', 'sessions', 'azurecredentialcache'):
+            if (root / name).is_symlink() or not (root / name).is_dir():
+                raise ValueError('Missing retained private directory')
+        for suffix in ('', '-wal', '-shm', '-journal', '.prev.bak'):
+            path = root / ('pgadmin4.db' + suffix)
+            if path.exists() or path.is_symlink():
+                raise ValueError('Active SQLite fallback')
+        try:
+            password_path = (credentials / 'password').resolve(strict=True)
+            if not password_path.is_relative_to(credentials.resolve(strict=True)):
+                raise ValueError('Credential projection escapes its volume')
+        except (OSError, RuntimeError) as error:
+            raise ValueError('Invalid credential projection') from error
+        password = read(password_path, 4096)
+        if not password.strip() or any(c in password for c in '\0\r\n'):
+            raise ValueError('Invalid database credential')
+        import ast
+        from urllib.parse import quote
+        uri_path = (credentials / 'uri').resolve(strict=True)
+        if not uri_path.is_relative_to(credentials.resolve(strict=True)):
+            raise ValueError('URI projection escapes its volume')
+        uri = ast.literal_eval(read(uri_path, 8192))
+        expected_uri = 'postgresql://pgadmin:' + quote(password, safe='') + '@postgres-postgresql.databases:5432/pgadmin'
+        if uri != expected_uri:
+            raise ValueError('Wrong canonical database URI')
+        expected = {'PGADMIN_CONFIG_CONFIG_DATABASE_URI_FILE': '/etc/pgadmin-postgres/uri',
+                    'PGADMIN_CONFIG_SQLALCHEMY_ENGINE_OPTIONS': "{'pool_size': 2, 'max_overflow': 1, 'pool_recycle': 300, 'pool_pre_ping': True}"}
+        if any(env.get(k) != v for k, v in expected.items()):
+            raise ValueError('Wrong canonical database configuration')
+        if any(env.get(k) for k in ('PGADMIN_CONFIG_CONFIG_DATABASE_URI', 'PGADMIN_CUSTOM_CONFIG_DISTRO_FILE',
+                                    'PGADMIN_CONFIG_SQLALCHEMY_DATABASE_URI', 'PGADMIN_CONFIG_SQLITE_PATH')):
+            raise ValueError('Competing database configuration')
+
+
+    if __name__ == '__main__':
+        try:
+            if len(sys.argv) != 3:
+                raise ValueError('Expected retained and credential directories')
+            validate(Path(sys.argv[1]), Path(sys.argv[2]), os.environ)
+        except (OSError, UnicodeError, ValueError, SyntaxError, RuntimeError):
+            print('Retained pgAdmin state refused; restore acceptance is required.', file=sys.stderr)
+            raise SystemExit(1) from None
+        print('Retained pgAdmin identity accepted.')
+  main.sql: |
+    -- Stock pgAdmin9.18 native schema52: reject loss before stock initialization.
+    BEGIN READ ONLY;
+    SET LOCAL statement_timeout = '10s';
+    DO $guard$
+    DECLARE actual text;
+    BEGIN
+      IF current_database() <> 'pgadmin' OR current_user <> 'pgadmin'
+         OR (SELECT system_identifier::text FROM pg_control_system()) <> '7584099661242523698' THEN
+        RAISE EXCEPTION 'Retained pgAdmin physical database identity rejected';
+      END IF;
+      IF EXISTS (SELECT 1 FROM pg_class c JOIN pg_roles r ON r.oid=c.relowner
+                 WHERE c.relnamespace='public'::regnamespace AND c.relkind IN ('r','p','S') AND r.rolname <> 'pgadmin') THEN
+        RAISE EXCEPTION 'Retained pgAdmin schema owner rejected';
+      END IF;
+      SELECT encode(sha256(convert_to((
+    SELECT json_build_object(
+      'columns', (SELECT json_agg(row_to_json(t)) FROM (
+        SELECT table_name,column_name,data_type,udt_name,is_nullable,column_default
+        FROM information_schema.columns WHERE table_schema='public'
+        ORDER BY table_name,ordinal_position) t),
+      'constraints', (SELECT json_agg(row_to_json(t)) FROM (
+        SELECT c.relname,t.conname,t.contype,pg_get_constraintdef(t.oid,true) definition
+        FROM pg_constraint t JOIN pg_class c ON c.oid=t.conrelid
+        WHERE t.connamespace='public'::regnamespace ORDER BY c.relname,t.conname) t),
+      'indexes', (SELECT json_agg(row_to_json(t)) FROM (
+        SELECT tablename,indexname,indexdef FROM pg_indexes WHERE schemaname='public'
+        ORDER BY tablename,indexname) t)
+    )
+      )::jsonb::text,'UTF8')),'hex') INTO actual;
+      IF actual IS DISTINCT FROM '60e89b98ff8d9bb20ad69a29d7de943d98bda3b96f4645e95316f30b37b5efee' THEN
+        RAISE EXCEPTION 'Retained pgAdmin stock schema contract rejected';
+      END IF;
+      SELECT encode(sha256(convert_to((
+    SELECT jsonb_build_object('version',(SELECT jsonb_agg(to_jsonb(t) ORDER BY name) FROM public.version t),'alembic_version',(SELECT jsonb_agg(to_jsonb(t) ORDER BY version_num) FROM public.alembic_version t))
+      )::jsonb::text,'UTF8')),'hex') INTO actual;
+      IF actual IS DISTINCT FROM 'dfd8854c0b184e4b5d99c513858f87b3dfd464196b816b2c88c485f4ee07f922' THEN
+        RAISE EXCEPTION 'Retained pgAdmin initialized state rejected: markers';
+      END IF;
+      SELECT encode(sha256(convert_to((
+    SELECT jsonb_agg(to_jsonb(t) ORDER BY name) FROM public.keys t
+      )::jsonb::text,'UTF8')),'hex') INTO actual;
+      IF actual IS DISTINCT FROM '3e1c6e0bf817519fa64d4f363ad7b3101ece83f70953339cb753d695dbc1565e' THEN
+        RAISE EXCEPTION 'Retained pgAdmin initialized state rejected: keys';
+      END IF;
+      IF NOT EXISTS (SELECT 1 FROM public."user" u
+           JOIN public.roles_users ru ON ru.user_id=u.id JOIN public.role r ON r.id=ru.role_id
+           WHERE u.active AND NOT coalesce(u.locked,false) AND u.auth_source='internal'
+             AND u.password IS NOT NULL AND u.password<>'' AND r.name='Administrator') THEN
+        RAISE EXCEPTION 'Retained pgAdmin initialized state rejected: active administrator';
+      END IF;
+    END
+    $guard$;
+    COMMIT;

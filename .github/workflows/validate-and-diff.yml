@@ -176,7 +176,7 @@ jobs:
       - name: Check Grafana conversion preservation
         run: python3 scripts/test-grafana-data.py
 
-      - name: Check inactive pgAdmin PostgreSQL and retained CSI preparation
+      - name: Check pgAdmin PostgreSQL and retained CSI lifecycle
         run: |
           python3 scripts/test-pgadmin-data.py
           kubeconform -strict -summary \

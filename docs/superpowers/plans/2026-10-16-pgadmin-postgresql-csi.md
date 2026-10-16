@@ -57,12 +57,12 @@ Expected: all conversion/negative preservation checks pass; no source write.
 **Interfaces:** Consumes Task1 accepted stock schema and credentials; produces
 inactive guards/static bindings/enrollment and an immutable exclusive operation.
 
-- [ ] Measure shared SQL capacity and every raw-image growth reservation; select target capacity from current facts.
-- [ ] Write rejecting guard/render tests first, implement retained-file/current-enrollment/native-SQL guards and chart adapters.
-- [ ] Prepare one append-only sealed enrollment without rotating existing entries.
-- [ ] Freeze/rehearse exact native cold backup/restore/allocation/import/rollback/cleanup commands and no-replay fencing.
-- [ ] Render actual layers and inspect only intended resources and scoped application changes.
-- [ ] Dispatch one independent final review, fix verified important findings with regression tests, then publish/merge preparation on exact green checks.
+- [x] Measure shared SQL capacity and every raw-image growth reservation; select target capacity from current facts.
+- [x] Write rejecting guard/render tests first, implement retained-file/current-enrollment/native-SQL guards and chart adapters.
+- [x] Prepare one append-only sealed enrollment without rotating existing entries.
+- [x] Freeze/rehearse exact native cold backup/restore/allocation/import/rollback/cleanup commands and no-replay fencing.
+- [x] Render actual layers and inspect only intended resources and scoped application changes.
+- [x] Dispatch one independent final review, fix verified important findings with regression tests, then publish/merge preparation on exact green checks.
 
 Run: `python3 scripts/test-pgadmin-data.py && python3 scripts/test-pgadmin-retained-startup.py`.
 Expected: complete positive/negative checks pass; actual layered Helm render and raw manifests validate.
@@ -78,11 +78,11 @@ production completion report. Resolve exact existing base-configs path from app 
 current enrollment and fresh native identities; produces healthy GitOps runtime,
 encrypted durable recovery and exact cleanup receipts.
 
-- [ ] Acquire existing native owner/hold; protect source; stop and retire every writer.
-- [ ] Independently restore latest encrypted cold data before exclusive allocation/import.
-- [ ] Independently restore latest SQL dump; retire helper; mark authority and start stock app.
-- [ ] Accept actual authentication/server connection/state, recreation and healthy-worker movement.
-- [ ] Verify full shared PostgreSQL backup and exact final Git/live resources.
+- [x] Acquire existing native owner/hold; protect source; stop and retire every writer.
+- [x] Independently restore latest encrypted cold data before exclusive allocation/import.
+- [x] Independently restore latest SQL dump; retire helper; mark authority and start stock app.
+- [x] Accept actual authentication/server connection/state, recreation and healthy-worker movement.
+- [ ] Verify full shared PostgreSQL backup and exact final Git/live resources. (Backup accepted; final Git/live equality follows activation merge.)
 - [ ] Merge activation with all exact-head hosted checks; safely release full current sync and watch six minutes.
 - [ ] Encrypt audits, clean only owned temporary resources/plaintext, release native owner last.
 - [ ] Merge completion report on exact green checks; encrypt final audit and remove exact local private working directory.

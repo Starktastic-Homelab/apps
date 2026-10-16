@@ -1,0 +1,62 @@
+loki:
+  image:
+    digest: sha256:44148ad243c07957113baea950ee5ba9b0c8eff8d7e38ff3cc1c0af705790945
+    registry: docker.io
+    repository: grafana/loki
+    tag: 3.6.11
+  podSecurityContext:
+    fsGroup: null
+singleBinary:
+  persistence:
+    enabled: false
+    enableStatefulSetAutoDeletePVC: false
+    whenScaled: Retain
+    whenDeleted: Retain
+  nodeSelector:
+    node-role.kubernetes.io/worker: "true"
+  initContainers:
+    - name: retained-state
+      image: python@sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+      command:
+        - python3
+        - -I
+        - -B
+        - /retained-startup/guard.py
+        - loki
+        - /data
+      securityContext:
+        runAsUser: 10001
+        runAsGroup: 10001
+        runAsNonRoot: true
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+            - ALL
+        seccompProfile:
+          type: RuntimeDefault
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          cpu: 100m
+          memory: 64Mi
+      volumeMounts:
+        - name: retained-data
+          mountPath: /data
+          readOnly: true
+        - name: retained-startup
+          mountPath: /retained-startup
+          readOnly: true
+  extraVolumes:
+    - name: retained-data
+      persistentVolumeClaim:
+        claimName: loki-data-block
+    - name: retained-startup
+      configMap:
+        name: monitoring-retained-startup-guard
+        defaultMode: 292
+  extraVolumeMounts:
+    - name: retained-data
+      mountPath: /var/loki

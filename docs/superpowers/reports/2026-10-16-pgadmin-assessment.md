@@ -104,8 +104,10 @@ Fresh capacity measured60of100PostgreSQL connections and103790915584NAS bytes
 available against98591333376required for all outstanding raw growth, a1Gi target,
 512Mi staging and8Gi headroom. Preparation uses a dedicated scoped account because
 the current chart uses the default account with automatic token mount disabled.
-Current cold recovery, retained disk allocation, cutover, lifecycle acceptance,
-final backup, Git reconciliation and cleanup remain under the implementation plan.
+Production cold recovery and independent SQL recovery have now passed. The retained
+disk is authoritative; original internal login, encrypted saved-server connection,
+recreation and movement between workers passed. Git reconciliation, final sync
+watch and exact temporary-resource cleanup remain under the implementation plan.
 
 ## Primary references
 

@@ -14,8 +14,11 @@ This uses upstream chart options and the installed unmodified sidecar image.
 The file guard requires the retained marker and plugins directory, canonical
 PostgreSQL credentials and no `grafana.db` fallback artifacts. The read-only SQL
 guard checks the physical server, role/database, table owners, the entire stock
-catalog and all four native backend migration logs. Its signatures exclude log
-serial IDs and execution timestamps. Keep the image, schema signatures and guard
+catalog and the identities/status/errors in all four native backend migration logs.
+Historical SQL text can use a different equivalent column order on separate stock
+initializations, so it is not a fixed runtime signature. Every generation keeps its
+original SQL log text, verified exactly by its own dump/restore. Signatures also
+exclude log serial IDs and execution timestamps. Keep the image, schema signatures and guard
 qualification together when changing Grafana versions. `catalog.sql` and
 `migrations.sql` document the native signature inputs.
 

@@ -32,13 +32,13 @@ SELECT json_build_object(
   END IF;
   SELECT encode(sha256(convert_to((
 SELECT jsonb_build_object(
-  'migration_log', (SELECT jsonb_agg(jsonb_build_array(migration_id,sql,success,error) ORDER BY migration_id,id) FROM public.migration_log),
-  'resource_migration_log', (SELECT jsonb_agg(jsonb_build_array(migration_id,sql,success,error) ORDER BY migration_id,id) FROM public.resource_migration_log),
-  'secret_migration_log', (SELECT jsonb_agg(jsonb_build_array(migration_id,sql,success,error) ORDER BY migration_id,id) FROM public.secret_migration_log),
-  'unifiedstorage_migration_log', (SELECT jsonb_agg(jsonb_build_array(migration_id,sql,success,error) ORDER BY migration_id,id) FROM public.unifiedstorage_migration_log)
+  'migration_log', (SELECT jsonb_agg(jsonb_build_array(migration_id,success,error) ORDER BY migration_id,id) FROM public.migration_log),
+  'resource_migration_log', (SELECT jsonb_agg(jsonb_build_array(migration_id,success,error) ORDER BY migration_id,id) FROM public.resource_migration_log),
+  'secret_migration_log', (SELECT jsonb_agg(jsonb_build_array(migration_id,success,error) ORDER BY migration_id,id) FROM public.secret_migration_log),
+  'unifiedstorage_migration_log', (SELECT jsonb_agg(jsonb_build_array(migration_id,success,error) ORDER BY migration_id,id) FROM public.unifiedstorage_migration_log)
 )
   )::text,'UTF8')),'hex') INTO actual;
-  IF actual IS DISTINCT FROM '8937bbf74a20a46011d80235bc7444307d352ac4218cdd4e38f4ac608110b08b' THEN
+  IF actual IS DISTINCT FROM 'c214683731f7dd124f1223757456fe92c30f278482c72f5b90433e872c3ee929' THEN
     RAISE EXCEPTION 'Retained Grafana initialized state rejected: native migration records';
   END IF;
   IF NOT EXISTS (SELECT 1 FROM public."user" WHERE is_disabled=false AND is_service_account=false)

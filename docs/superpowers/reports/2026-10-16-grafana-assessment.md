@@ -129,7 +129,10 @@ datasource sidecars with startup probes complete their initial file sync before
 Grafana starts. Exact-version upstream source marks readiness after initial sync;
 normal discovery and reload continue afterward. The file guard refuses missing or
 wrong retained identity, credential projection escapes and SQLite fallback. The
-SQL guard checks the full stock catalog and native backend migration records.
+SQL guard checks the full stock catalog and native backend migration identities, status and errors. Stock copy-table SQL uses
+equivalent column ordering that can differ between initializations; it is retained
+unchanged, rather than used as a cross-generation runtime signature. The guard
+also passes the independent real-copy generation after actual stock app startup.
 Tests prove rejection after wrong physical identity, column/index/constraint loss,
 missing application state and removed/altered migration logs. Negative SQL changes
 roll back; the populated fixture still passes afterward.

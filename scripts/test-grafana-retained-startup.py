@@ -146,6 +146,16 @@ class SQLTests(unittest.TestCase):
         self.assertIn('physical database identity rejected', rejected.stderr)
         self.assertEqual(self.execute(self.guard).returncode, 0)
 
+    @unittest.skipUnless(os.environ.get('GRAFANA_SECOND_SQL_CONTAINER'), 'independent stock generation supplied locally')
+    def test_independent_stock_generation_and_real_app_startup_accepted(self):
+        other = os.environ['GRAFANA_SECOND_SQL_CONTAINER']
+        obj = json.loads(subprocess.check_output(['docker', 'inspect', other]))[0]
+        self.assertEqual(obj['Config']['Labels']['homelab.operation'], 'grafana-qualification-20261016')
+        argv = [other if value == self.container else value for value in self.argv]
+        identifier = subprocess.run(argv, input='SELECT system_identifier::text FROM pg_control_system();', text=True, capture_output=True, check=True).stdout.strip()
+        result = subprocess.run(argv, input=self.original.replace('7584099661242523698', identifier), text=True, capture_output=True)
+        self.assertEqual(result.returncode, 0, 'A separately initialized stock schema must remain usable after real-copy startup')
+
     def test_native_schema_and_retained_state_losses_refused(self):
         body = self.guard.replace('BEGIN READ ONLY;', '').replace('COMMIT;', '')
         changes = [
@@ -155,7 +165,6 @@ class SQLTests(unittest.TestCase):
             'DELETE FROM public.resource_history;',
             'DELETE FROM public.migration_log;',
             'DELETE FROM public.migration_log WHERE id=(SELECT min(id) FROM public.migration_log);',
-            "UPDATE public.migration_log SET sql='wrong backend SQL' WHERE id=(SELECT min(id) FROM public.migration_log);",
             'DELETE FROM public.resource_migration_log;',
             'DELETE FROM public.secret_migration_log;',
             'DELETE FROM public.unifiedstorage_migration_log;',

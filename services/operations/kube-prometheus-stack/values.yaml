@@ -111,6 +111,198 @@ alertmanager:
 # Grafana
 # -----------------------------------------------------------------------------
 grafana:
+  replicas: 1
+  deploymentStrategy:
+    type: Recreate
+  image:
+    sha: 202e5d5b3f8499e70ccac7991eea6d7da72d2790eb2e0597e7987acf724e7180
+  securityContext:
+    fsGroup: null
+  nodeSelector:
+    node-role.kubernetes.io/worker: "true"
+  env:
+    GF_DATABASE_TYPE: postgres
+    GF_DATABASE_HOST: postgres-postgresql.databases:5432
+    GF_DATABASE_NAME: grafana
+    GF_DATABASE_USER: grafana
+    GF_DATABASE_SSL_MODE: disable
+    GF_DATABASE_MAX_OPEN_CONN: "5"
+    GF_DATABASE_MAX_IDLE_CONN: "2"
+  envValueFrom:
+    GF_DATABASE_PASSWORD: &id001
+      secretKeyRef:
+        name: grafana-postgres-secret
+        key: password
+  extraInitContainers:
+    - name: grafana-retained-state
+      image: python@sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+      command:
+        - python3
+        - -I
+        - -B
+        - /retained-startup/guard.py
+        - /var/lib/grafana
+        - /credentials
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 472
+        runAsGroup: 472
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities: &id002
+          drop:
+            - ALL
+        seccompProfile: &id003
+          type: RuntimeDefault
+      env:
+        - name: GF_DATABASE_TYPE
+          value: postgres
+        - name: GF_DATABASE_HOST
+          value: postgres-postgresql.databases:5432
+        - name: GF_DATABASE_NAME
+          value: grafana
+        - name: GF_DATABASE_USER
+          value: grafana
+        - name: GF_DATABASE_SSL_MODE
+          value: disable
+        - name: GF_DATABASE_MAX_OPEN_CONN
+          value: "5"
+        - name: GF_DATABASE_MAX_IDLE_CONN
+          value: "2"
+        - name: GF_DATABASE_PASSWORD
+          valueFrom: *id001
+      volumeMounts:
+        - name: storage
+          mountPath: /var/lib/grafana
+          readOnly: true
+        - name: retained-startup
+          mountPath: /retained-startup
+          readOnly: true
+        - name: pg-completion-password
+          mountPath: /credentials
+          readOnly: true
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          cpu: 100m
+          memory: 64Mi
+    - name: postgres-enrollment-acceptance
+      image: python@sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+      command:
+        - python3
+        - -B
+        - /gate/completion_gate.py
+      args:
+        - --id
+        - grafana
+        - --database
+        - grafana
+        - --role
+        - grafana
+      securityContext: &id004
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities: *id002
+        seccompProfile: *id003
+      resources:
+        requests:
+          cpu: 25m
+          memory: 32Mi
+        limits:
+          cpu: 100m
+          memory: 64Mi
+      volumeMounts:
+        - name: pg-completion-script
+          mountPath: /gate
+          readOnly: true
+        - name: pg-completion-api
+          mountPath: /gate-api
+          readOnly: true
+    - name: postgres-canonical-login
+      image: postgres:18.6-alpine@sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd
+      command:
+        - /bin/sh
+        - -ec
+        - export PGPASSWORD="$(cat /credentials/password)"; exec psql -XqAt -v ON_ERROR_STOP=1 -f
+          /retained-startup/main.sql >/dev/null 2>&1
+      env:
+        - name: PGHOST
+          value: postgres-postgresql.databases
+        - name: PGPORT
+          value: "5432"
+        - name: PGUSER
+          value: grafana
+        - name: PGDATABASE
+          value: grafana
+        - name: PGCONNECT_TIMEOUT
+          value: "10"
+      securityContext: *id004
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          cpu: 100m
+          memory: 32Mi
+      volumeMounts:
+        - name: pg-completion-password
+          mountPath: /credentials
+          readOnly: true
+        - name: retained-startup
+          mountPath: /retained-startup
+          readOnly: true
+  extraContainerVolumes:
+    - name: pg-completion-script
+      configMap:
+        name: grafana-postgres-completion
+        defaultMode: 292
+    - name: pg-completion-api
+      projected:
+        defaultMode: 292
+        sources:
+          - serviceAccountToken:
+              path: token
+              expirationSeconds: 600
+          - configMap:
+              name: kube-root-ca.crt
+              items:
+                - key: ca.crt
+                  path: ca.crt
+    - name: pg-completion-password
+      secret:
+        secretName: grafana-postgres-secret
+        defaultMode: 292
+        items:
+          - key: password
+            path: password
+    - name: retained-startup
+      configMap:
+        name: grafana-retained-startup-guard
+        defaultMode: 292
+  sidecar:
+    dashboards:
+      initDashboards: true
+      restartPolicy: Always
+      startupProbe:
+        httpGet:
+          path: /healthz
+          port: 8080
+        periodSeconds: 2
+        failureThreshold: 60
+    datasources:
+      initDatasources: true
+      restartPolicy: Always
+      startupProbe:
+        httpGet:
+          path: /healthz
+          port: 8081
+        periodSeconds: 2
+        failureThreshold: 60
   enabled: true
   resources:
     requests:
@@ -150,6 +342,7 @@ grafana:
       capture: true
   persistence:
     enabled: true
+    existingClaim: grafana-data-block
     storageClassName: nfs-pv
     accessModes: ["ReadWriteMany"]
     size: 2Gi

@@ -1,0 +1,115 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-retained-startup-guard
+  namespace: monitoring
+data:
+  guard.py: |
+    #!/usr/bin/env python3
+    """Read-only retained Grafana file identity and canonical PostgreSQL configuration guard."""
+    import os
+    from pathlib import Path
+    import sys
+
+
+    def validate(root, credentials, env):
+        if root.is_symlink() or not root.is_dir() or credentials.is_symlink() or not credentials.is_dir():
+            raise ValueError('Invalid retained directory')
+
+        def read(path, limit):
+            if path.is_symlink() or not path.is_file() or not 0 < path.stat().st_size <= limit:
+                raise ValueError('Invalid retained file')
+            return path.read_text()
+
+        if read(root / '.homelab-grafana-data', 128) != 'homelab/grafana/data/v1\n':
+            raise ValueError('Wrong retained identity')
+        if (root / 'plugins').is_symlink() or not (root / 'plugins').is_dir():
+            raise ValueError('Missing retained plugins')
+        for suffix in ('', '-wal', '-shm', '-journal'):
+            path = root / ('grafana.db' + suffix)
+            if path.exists() or path.is_symlink():
+                raise ValueError('Active SQLite fallback')
+        try:
+            password_path = (credentials / 'password').resolve(strict=True)
+            if not password_path.is_relative_to(credentials.resolve(strict=True)):
+                raise ValueError('Credential projection escapes its volume')
+        except (OSError, RuntimeError) as error:
+            raise ValueError('Invalid credential projection') from error
+        password = read(password_path, 4096)
+        if not password.strip() or any(c in password for c in '\0\r\n'):
+            raise ValueError('Invalid database credential')
+        expected = {'GF_DATABASE_TYPE': 'postgres', 'GF_DATABASE_HOST': 'postgres-postgresql.databases:5432',
+                    'GF_DATABASE_NAME': 'grafana', 'GF_DATABASE_USER': 'grafana', 'GF_DATABASE_PASSWORD': password}
+        if any(env.get(k) != v for k, v in expected.items()):
+            raise ValueError('Wrong canonical database configuration')
+        if any(env.get(k) for k in ('GF_DATABASE_URL', 'GF_DATABASE_PATH', 'GF_DATABASE_PASSWORD__FILE')):
+            raise ValueError('Competing database configuration')
+
+
+    if __name__ == '__main__':
+        try:
+            if len(sys.argv) != 3:
+                raise ValueError('Expected retained and credential directories')
+            validate(Path(sys.argv[1]), Path(sys.argv[2]), os.environ)
+        except (OSError, UnicodeError, ValueError):
+            print('Retained Grafana state refused; restore acceptance is required.', file=sys.stderr)
+            raise SystemExit(1) from None
+        print('Retained Grafana identity accepted.')
+  main.sql: |
+    -- Stock Grafana 13.2.3 schema signature; read-only, no empty-database initialization.
+    BEGIN READ ONLY;
+    SET LOCAL statement_timeout = '10s';
+    DO $guard$
+    DECLARE actual text;
+    BEGIN
+      IF current_database() <> 'grafana' OR current_user <> 'grafana'
+         OR (SELECT system_identifier::text FROM pg_control_system()) <> '7584099661242523698' THEN
+        RAISE EXCEPTION 'Retained Grafana physical database identity rejected';
+      END IF;
+      IF EXISTS (SELECT 1 FROM pg_class c JOIN pg_roles r ON r.oid=c.relowner
+                 WHERE c.relnamespace='public'::regnamespace AND c.relkind IN ('r','p') AND r.rolname <> 'grafana') THEN
+        RAISE EXCEPTION 'Retained Grafana schema owner rejected';
+      END IF;
+      SELECT encode(sha256(convert_to((
+    SELECT json_build_object(
+      'columns', (SELECT json_agg(row_to_json(t)) FROM (
+        SELECT table_name,column_name,data_type,udt_name,is_nullable,column_default
+        FROM information_schema.columns WHERE table_schema='public'
+        ORDER BY table_name,ordinal_position) t),
+      'constraints', (SELECT json_agg(row_to_json(t)) FROM (
+        SELECT c.relname,t.conname,t.contype,pg_get_constraintdef(t.oid,true) definition
+        FROM pg_constraint t JOIN pg_class c ON c.oid=t.conrelid
+        WHERE t.connamespace='public'::regnamespace ORDER BY c.relname,t.conname) t),
+      'indexes', (SELECT json_agg(row_to_json(t)) FROM (
+        SELECT tablename,indexname,indexdef FROM pg_indexes WHERE schemaname='public'
+        ORDER BY tablename,indexname) t)
+    )
+      )::jsonb::text,'UTF8')),'hex') INTO actual;
+      IF actual IS DISTINCT FROM 'b6f101e43c7767cb9bf779c8e76d602086e84b6db3cfea302fb1bd556c8bdbe9' THEN
+        RAISE EXCEPTION 'Retained Grafana stock schema contract rejected';
+      END IF;
+      SELECT encode(sha256(convert_to((
+    SELECT jsonb_build_object(
+      'migration_log', (SELECT jsonb_agg(jsonb_build_array(migration_id,success,error) ORDER BY migration_id,id) FROM public.migration_log),
+      'resource_migration_log', (SELECT jsonb_agg(jsonb_build_array(migration_id,success,error) ORDER BY migration_id,id) FROM public.resource_migration_log),
+      'secret_migration_log', (SELECT jsonb_agg(jsonb_build_array(migration_id,success,error) ORDER BY migration_id,id) FROM public.secret_migration_log),
+      'unifiedstorage_migration_log', (SELECT jsonb_agg(jsonb_build_array(migration_id,success,error) ORDER BY migration_id,id) FROM public.unifiedstorage_migration_log)
+    )
+      )::text,'UTF8')),'hex') INTO actual;
+      IF actual IS DISTINCT FROM 'c214683731f7dd124f1223757456fe92c30f278482c72f5b90433e872c3ee929' THEN
+        RAISE EXCEPTION 'Retained Grafana initialized state rejected: native migration records';
+      END IF;
+      IF NOT EXISTS (SELECT 1 FROM public."user" WHERE is_disabled=false AND is_service_account=false)
+         OR NOT EXISTS (SELECT 1 FROM public.data_source)
+         OR NOT EXISTS (SELECT 1 FROM public.resource WHERE resource='dashboards')
+         OR NOT EXISTS (SELECT 1 FROM public.resource_history)
+         OR NOT EXISTS (SELECT 1 FROM public.data_keys)
+         OR EXISTS (SELECT 1 FROM public.migration_log WHERE NOT success)
+         OR EXISTS (SELECT 1 FROM public.resource_migration_log WHERE NOT success)
+         OR EXISTS (SELECT 1 FROM public.secret_migration_log WHERE NOT success)
+         OR EXISTS (SELECT 1 FROM public.unifiedstorage_migration_log WHERE NOT success) THEN
+        RAISE EXCEPTION 'Retained Grafana initialized state rejected';
+      END IF;
+    END
+    $guard$;
+    COMMIT;

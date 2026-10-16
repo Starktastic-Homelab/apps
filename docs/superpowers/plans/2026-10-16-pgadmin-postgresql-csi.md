@@ -39,10 +39,10 @@ under ignored `.superpowers/sdd/2026-10-16-pgadmin-postgresql-csi/`.
 **Interfaces:** Consumes a read-only SQLite copy and a freshly initialized stock
 PostgreSQL schema; produces complete preservation proof and independent recovery.
 
-- [ ] Refresh exact source engine/image/schema/files/auth and upstream behavior.
-- [ ] Write negative representation/coverage tests first; run and observe failure.
-- [ ] Implement minimal native-schema data transfer and complete comparison, preserving migration markers.
-- [ ] Exercise synthetic stock app login, encrypted saved connection, restart, corruption rejection and independent restore.
+- [x] Refresh exact source engine/image/schema/files/auth and upstream behavior.
+- [x] Write negative representation/coverage tests first; run and observe failure.
+- [x] Implement minimal native-schema data transfer and complete comparison, preserving migration markers.
+- [x] Exercise synthetic stock app login, encrypted saved connection, restart, corruption rejection and independent restore.
 - [ ] Complete scoped real-data qualification and record evidence; pause only for a necessary approval/decision.
 - [ ] Commit public converter/tests/assessment and mark task complete only after its whole test command passes.
 
@@ -70,7 +70,7 @@ Expected: complete positive/negative checks pass; actual layered Helm render and
 ### Task 3: Native migration, reconciliation and cleanup
 
 **Files:** Update `infrastructure/controllers/databases/pgadmin/values.yaml`, scoped
-manifests and `infrastructure/configs/base/manifests/templates/` following current
+manifests and `infrastructure/base-configs/templates/` following current
 base-configs storage paths; create `docs/runbooks/pgadmin-storage.md` and a sanitized
 production completion report. Resolve exact existing base-configs path from app source.
 

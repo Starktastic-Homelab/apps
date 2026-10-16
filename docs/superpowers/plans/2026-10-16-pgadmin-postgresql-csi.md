@@ -43,8 +43,8 @@ PostgreSQL schema; produces complete preservation proof and independent recovery
 - [x] Write negative representation/coverage tests first; run and observe failure.
 - [x] Implement minimal native-schema data transfer and complete comparison, preserving migration markers.
 - [x] Exercise synthetic stock app login, encrypted saved connection, restart, corruption rejection and independent restore.
-- [ ] Complete scoped real-data qualification and record evidence; pause only for a necessary approval/decision.
-- [ ] Commit public converter/tests/assessment and mark task complete only after its whole test command passes.
+- [x] Complete scoped real-data qualification and record evidence; pause only for a necessary approval/decision.
+- [x] Commit public converter/tests/assessment and mark task complete only after its whole test command passes.
 
 Run: `python3 scripts/test-pgadmin-data.py`.
 Expected: all conversion/negative preservation checks pass; no source write.

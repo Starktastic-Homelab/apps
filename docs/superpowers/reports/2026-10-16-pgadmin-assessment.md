@@ -1,7 +1,7 @@
-# pgAdmin PostgreSQL assessment and synthetic qualification
+# pgAdmin PostgreSQL assessment and qualification
 
-Status: production remains unchanged on SQLite/NFS. Real-data qualification is
-blocked on explicit sensitive-transfer approval; no production data was exported.
+Status: production remains unchanged on SQLite/NFS. Approved real-data conversion,
+restricted-role stock startup and independent recovery passed in the closed lab.
 
 ## Current source
 
@@ -70,22 +70,26 @@ internal login and saved-password connection passed under it. An independent
 restore captures465rows after normal browser startup added one user-preference
 record (zero before, one afterward); the other table counts stayed unchanged.
 
-These tests and synthetic evidence do not establish real-data compatibility or
-production acceptance.
+## Approved real-data evidence
 
-## Next required gate
+The user approved the exact sensitive payload, private destinations and cleanup
+in the [transfer scope](../plans/2026-10-16-pgadmin-sensitive-transfer.md). A consistent
+read-only snapshot was received privately; the production source stayed unchanged.
+The closed lab received no plaintext production login or infrastructure credentials.
 
-The real source contains sensitive application keys, the internal account's
-password hash and an encrypted saved PostgreSQL password. Automatic approval
-review rejected exporting that payload to a private local rehearsal directory:
-autonomous migration authority did not explicitly identify the payload/destination.
-The rejected process never started; the planned source copy does not exist.
+Data-only conversion, stock startup and an independent restore preserved every
+original field and duplicate across all22tables,475rows. The original user hash,
+three application keys and encrypted saved password remained unchanged; native
+migration markers and all serial states passed. The target used a restricted role.
+The first independent restore exposed a missing fixture role referenced by native
+ACLs. Its known failed terminal and partial database were preserved; a new recovery
+database with that role restored the same dump successfully. Import did not replay.
 
-Obtain the scoped [transfer approval](../plans/2026-10-16-pgadmin-sensitive-transfer.md),
-then qualify complete real-data preservation and restricted-role startup/recovery.
-Afterward complete native-package review, enrollment, current cold recovery,
-retained disk allocation, cutover, lifecycle/connection acceptance, final backup,
-Git reconciliation and exact cleanup under the
+This establishes real-data conversion and recoverability. Actual authentication
+and saved-server connection remain production acceptance gates; they were not
+claimed from ciphertext equality or supplied with production passwords in the lab.
+Native startup guards, current cold recovery, retained disk allocation, cutover,
+lifecycle acceptance, final backup, Git reconciliation and exact cleanup follow the
 [implementation plan](../plans/2026-10-16-pgadmin-postgresql-csi.md).
 
 ## Primary references

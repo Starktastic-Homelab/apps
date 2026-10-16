@@ -43,12 +43,12 @@ Expected: all recovered files and native data checks pass; no production mutatio
 **Files:** scripts/monitoring-retained/{guard.py,production/*,README.md}, scripts/test-monitoring-retained.py and scoped CI; ignored native package.
 **Interfaces:** Consumes Task1 accepted native data/paths/adapter; produces read-only guards, deterministic static PV/PVCs, source admission holds and immutable native operation stages.
 
-- [ ] Write guard refusal tests first: wrong/missing marker, missing native data, symlink/path escape, read-only accepted input; observe RED.
-- [ ] Implement minimal shared file identity guard plus app-specific native structure validation.
-- [ ] Render exact layered sources and native operator-generated claims; test mount order, retained source, fixed images/credentials and no unrelated changes.
-- [ ] Prepare protected ownership, bounded original clock, cold backup, file/POSIX roundtrip, native restore, full-growth allocation, physical fencing, authority, lifecycle and cleanup stages.
-- [ ] Rehearse cancellation, known failure and exact recovery without replay; freeze exact packet and obtain one independent final review.
-- [ ] Fix verified important findings RED→GREEN, then publish preparation with all exact-head checks and reviewed intended-only diff.
+- [x] Write guard refusal tests first: wrong/missing marker, missing native data, symlink/path escape, read-only accepted input; observe RED.
+- [x] Implement minimal shared file identity guard plus app-specific native structure validation.
+- [x] Render exact layered sources and native operator-generated claims; test mount order, retained source, fixed images/credentials and no unrelated changes.
+- [x] Prepare protected ownership, bounded original clock, cold backup, file/POSIX roundtrip, native restore, full-growth allocation, physical fencing, authority, lifecycle and cleanup stages.
+- [x] Rehearse cancellation, known failure and exact recovery without replay; freeze exact packet and obtain one independent final review.
+- [x] Fix verified important findings RED→GREEN, then publish preparation with all exact-head checks and reviewed intended-only diff.
 
 Run: python3 scripts/test-monitoring-retained.py plus actual layered render/kubeconform and native isolated package qualification.
 Expected: all positive/negative gates and exact native adapters pass; runtime stays on original NFS until production execution.
@@ -58,13 +58,23 @@ Expected: all positive/negative gates and exact native adapters pass; runtime st
 **Files:** scoped three service values/app/manifests, infrastructure/base-configs/templates/monitoring-block-storage/*; docs/runbooks/monitoring-storage.md and sanitized completion report.
 **Interfaces:** Consumes frozen reviewed package/current source recovery and fresh native identities; produces native accepted retained disks, healthy current-main GitOps runtime and durable encrypted recovery.
 
-- [ ] Acquire fresh owner/hold, pin original deadline and preserve credentials/owners; recheck full growth/physical space before scoped quota192Gi and allocations.
-- [ ] For each app, stop/retire every source writer, cold archive/encrypt and independently restore current files/native state before target authority.
-- [ ] Allocate/populate exactly once and prove physical identity; start target with guards only after helper/old writers retire.
-- [ ] Accept historical/current APIs and data, clean recreation and healthy-worker movement; restore default placement and overlapping services.
-- [ ] Merge reviewed desired values/bindings under the owned hold before the first target writer, on exact-head green checks; after every app passes acceptance, safely release full current-source sync preserving all options and observe six clean minutes.
-- [ ] Encrypt audits, remove only exact owned temporary API/guest/NAS/runner/lab plaintext and release owner last.
-- [ ] Merge final sanitized report/runbook, protect final local audit and remove only this plan's private working files. Retain source/CSI/recovery and separate keys.
+- [x] Acquire fresh owner/hold, pin original deadline and preserve credentials/owners; recheck full growth/physical space before scoped quota192Gi and allocations.
+- [x] For each app, stop/retire every source writer, cold archive/encrypt and independently restore current files/native state before target authority.
+- [x] Allocate/populate exactly once and prove physical identity; start target with guards only after helper/old writers retire.
+- [x] Accept historical/current APIs and data, clean recreation and healthy-worker movement; restore default placement and overlapping services.
+- [x] Merge reviewed desired values/bindings under the owned hold before the first target writer, on exact-head green checks; after every app passes acceptance, safely release full current-source sync preserving all options and observe six clean minutes.
+- [x] Encrypt audits, remove only exact owned temporary API/guest/NAS/runner/lab plaintext and release owner last.
+- [x] Publish final sanitized report/runbook and prepare the post-merge final audit and exact private-working cleanup. Retain source/CSI/recovery and separate keys; the final terminal is recorded outside Git after merge.
 
 Run: each immutable native stage exactly once under its original owner/clock; final paired acceptance receipts and exact cleanup.
 Expected: all four native data/lifecycle gates and all scoped Argo apps healthy/synced, no fresh restarts or loss, full recovery and owned cleanup accepted.
+
+
+## Completion evidence
+
+See the [production report](../reports/2026-10-16-monitoring-production-completion.md).
+The exact normal Prometheus retention expiry is explicitly approved and recorded
+in the design amendment. Local/hosted checks qualified the implementation; actual
+cold recovery, native history/ingestion, all lifecycle checks, full current-source
+syncs, continuous six-minute watch and native protected cleanup passed separately.
+The prepared final local audit/working cleanup runs only after this report merges.

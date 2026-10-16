@@ -82,10 +82,12 @@ encrypted durable recovery and exact cleanup receipts.
 - [x] Independently restore latest encrypted cold data before exclusive allocation/import.
 - [x] Independently restore latest SQL dump; retire helper; mark authority and start stock app.
 - [x] Accept actual authentication/server connection/state, recreation and healthy-worker movement.
-- [ ] Verify full shared PostgreSQL backup and exact final Git/live resources. (Backup accepted; final Git/live equality follows activation merge.)
-- [ ] Merge activation with all exact-head hosted checks; safely release full current sync and watch six minutes.
-- [ ] Encrypt audits, clean only owned temporary resources/plaintext, release native owner last.
-- [ ] Merge completion report on exact green checks; encrypt final audit and remove exact local private working directory.
+- [x] Verify full shared PostgreSQL backup and exact final Git/live resources.
+- [x] Merge activation with all exact-head hosted checks; safely release full current sync and watch six minutes.
+- [x] Encrypt audits, clean only owned temporary resources/plaintext, release native owner last.
+After this completion report merges on exact green checks, run the reviewed finalizer
+to encrypt the final audit and remove only the exact local private working directory.
+The durable off-NAS completion receipt records this final post-merge closeout.
 
 Run: reviewed native stage dispatcher, one stage at a time under its original clock.
 Expected: every stage has paired intent/known terminal/acceptance; four apps Healthy/Synced,

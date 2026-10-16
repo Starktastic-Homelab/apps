@@ -448,6 +448,7 @@ jobs:
             -e AUTO_DETECT_FILES_CHANGED=true \
             -e WATCH_IF_NO_WATCH_PATTERN_FOUND=false \
             -e MAX_DIFF_LENGTH=65536 \
+            -e DEBUG=true \
             dagandersen/argocd-diff-preview:$DIFF_PREVIEW_VERSION
 
       - name: Upload diff artifact

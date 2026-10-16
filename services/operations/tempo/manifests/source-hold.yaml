@@ -1,0 +1,42 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: tempo-source-hold
+  annotations:
+    argocd.argoproj.io/sync-wave: "-6"
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - pods
+  matchConditions:
+    - name: held-data-claim
+      expression:
+        has(object.spec.volumes) && object.spec.volumes.exists(v, (object.metadata.namespace == 'monitoring' &&
+        has(v.persistentVolumeClaim) && v.persistentVolumeClaim.claimName == 'storage-tempo-0') || (has(v.nfs) &&
+        (v.nfs.path == '/mnt/apps/pv/monitoring/storage-tempo-0' ||
+        v.nfs.path.startsWith('/mnt/apps/pv/monitoring/storage-tempo-0/'))))
+  validations:
+    - expression: "false"
+      message: The preserved tempo NFS source is held; recovery acceptance is required.
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: tempo-source-hold
+  annotations:
+    argocd.argoproj.io/sync-wave: "-6"
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  policyName: tempo-source-hold
+  validationActions:
+    - Deny

@@ -1,0 +1,151 @@
+global:
+  createDefaultServiceAccount: false
+controllers:
+  main:
+    type: statefulset
+    forceRename: tempo
+    replicas: 1
+    serviceAccount:
+      name: tempo
+    pod:
+      labels:
+        app.kubernetes.io/name: tempo
+        app.kubernetes.io/instance: tempo
+      securityContext:
+        runAsGroup: 10001
+        runAsNonRoot: true
+        runAsUser: 10001
+      automountServiceAccountToken: true
+      nodeSelector:
+        node-role.kubernetes.io/worker: "true"
+    containers:
+      tempo:
+        image:
+          repository: docker.io/grafana/tempo
+          tag: 2.9.0@sha256:65a5789759435f1ef696f1953258b9bbdb18eb571d5ce711ff812d2e128288a4
+        args:
+          - -config.file=/conf/tempo.yaml
+          - -mem-ballast-size-mbs=1024
+        ports:
+          - containerPort: 3200
+            name: prom-metrics
+          - containerPort: 6831
+            name: jaeger-thrift-c
+            protocol: UDP
+          - containerPort: 6832
+            name: jaeger-thrift-b
+            protocol: UDP
+          - containerPort: 14268
+            name: jaeger-thrift-h
+          - containerPort: 14250
+            name: jaeger-grpc
+          - containerPort: 9411
+            name: zipkin
+          - containerPort: 55680
+            name: otlp-legacy
+          - containerPort: 4317
+            name: otlp-grpc
+          - containerPort: 55681
+            name: otlp-httplegacy
+          - containerPort: 4318
+            name: otlp-http
+          - containerPort: 55678
+            name: opencensus
+        env: {}
+        resources: {}
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              failureThreshold: 3
+              httpGet:
+                path: /ready
+                port: 3200
+              initialDelaySeconds: 30
+              periodSeconds: 10
+              successThreshold: 1
+              timeoutSeconds: 5
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              failureThreshold: 3
+              httpGet:
+                path: /ready
+                port: 3200
+              initialDelaySeconds: 20
+              periodSeconds: 10
+              successThreshold: 1
+              timeoutSeconds: 5
+      main:
+        enabled: false
+    initContainers:
+      retained-state:
+        image:
+          repository: python
+          digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+        command:
+          - python3
+          - -I
+          - -B
+          - /retained-startup/guard.py
+          - tempo
+          - /data
+        securityContext:
+          runAsUser: 10001
+          runAsGroup: 10001
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
+    statefulset:
+      serviceName: tempo-headless
+    revisionHistoryLimit: 10
+persistence:
+  data:
+    existingClaim: tempo-data-block
+    advancedMounts:
+      main:
+        retained-state:
+          - path: /data
+            readOnly: true
+        tempo:
+          - path: /var/tempo
+  native-config:
+    type: configMap
+    name: tempo
+    advancedMounts:
+      main:
+        tempo:
+          - path: /conf
+            readOnly: true
+  tmp:
+    type: emptyDir
+    advancedMounts:
+      main:
+        tempo:
+          - path: /tmp
+  retained-startup:
+    type: configMap
+    name: monitoring-retained-startup-guard
+    advancedMounts:
+      main:
+        retained-state:
+          - path: /retained-startup
+            readOnly: true
+  config:
+    enabled: false
+  media:
+    enabled: false

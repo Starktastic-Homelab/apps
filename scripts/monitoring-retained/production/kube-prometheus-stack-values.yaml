@@ -1,0 +1,145 @@
+prometheus:
+  prometheusSpec:
+    replicas: 1
+    persistentVolumeClaimRetentionPolicy:
+      whenDeleted: Retain
+      whenScaled: Retain
+    nodeSelector:
+      node-role.kubernetes.io/worker: "true"
+    securityContext:
+      fsGroup: null
+      runAsUser: 1000
+      runAsGroup: 2000
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+    initContainers:
+      - name: retained-state
+        image: python@sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+        command:
+          - python3
+          - -I
+          - -B
+          - /retained-startup/guard.py
+          - prometheus
+          - /data
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 2000
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
+        volumeMounts:
+          - name: prometheus-data-block
+            mountPath: /data
+            readOnly: true
+          - name: retained-startup
+            mountPath: /retained-startup
+            readOnly: true
+    volumes:
+      - &id001
+        name: retained-startup
+        configMap:
+          name: monitoring-retained-startup-guard
+          defaultMode: 292
+    storageSpec:
+      volumeClaimTemplate:
+        metadata:
+          name: prometheus-data-block
+          annotations: &id002
+            argocd.argoproj.io/sync-options: Prune=false,Delete=false
+        spec:
+          storageClassName: proxmox-retained
+          accessModes:
+            - ReadWriteOncePod
+          resources:
+            requests:
+              storage: 16Gi
+          volumeName: prometheus-data-block
+    image:
+      sha: b2a413d5a03ea6a76782a508d1c7947440bba3b973931a25676e278431891b01
+      registry: quay.io
+      repository: prometheus/prometheus
+      tag: v3.15.0-distroless
+alertmanager:
+  alertmanagerSpec:
+    replicas: 1
+    persistentVolumeClaimRetentionPolicy:
+      whenDeleted: Retain
+      whenScaled: Retain
+    nodeSelector:
+      node-role.kubernetes.io/worker: "true"
+    securityContext:
+      fsGroup: null
+      runAsUser: 1000
+      runAsGroup: 2000
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+    initContainers:
+      - name: retained-state
+        image: python@sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+        command:
+          - python3
+          - -I
+          - -B
+          - /retained-startup/guard.py
+          - alertmanager
+          - /data
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 2000
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
+        volumeMounts:
+          - name: alertmanager-data-block
+            mountPath: /data
+            readOnly: true
+          - name: retained-startup
+            mountPath: /retained-startup
+            readOnly: true
+    volumes:
+      - *id001
+    storage:
+      volumeClaimTemplate:
+        metadata:
+          name: alertmanager-data-block
+          annotations: *id002
+        spec:
+          storageClassName: proxmox-retained
+          accessModes:
+            - ReadWriteOncePod
+          resources:
+            requests:
+              storage: 2Gi
+          volumeName: alertmanager-data-block
+    image:
+      sha: e9733bafb1bdef9b00e25a21f8f99dc26a22224bf16641ad754d1649f4c3357a
+      registry: quay.io
+      repository: prometheus/alertmanager
+      tag: v0.34.1

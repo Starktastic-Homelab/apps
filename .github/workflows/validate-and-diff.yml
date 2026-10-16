@@ -115,6 +115,29 @@ jobs:
             -f templates/common.yaml -f services/media/autobrr/values.yaml > /tmp/autobrr-retained.yaml
           AUTOBRR_RETAINED_RENDER=/tmp/autobrr-retained.yaml python3 scripts/test-autobrr-retained-startup.py
 
+      - name: Check monitoring retained CSI lifecycle
+        run: |
+          mkdir -p /tmp/monitoring-retained
+          helm template kube-prometheus-stack kube-prometheus-stack --repo https://prometheus-community.github.io/helm-charts \
+            --version 91.9.0 --namespace monitoring --kube-version 1.37.0 \
+            -f templates/globals.yaml -f templates/common.yaml \
+            -f services/operations/kube-prometheus-stack/values.yaml > /tmp/monitoring-retained/prometheus.yaml
+          cp /tmp/monitoring-retained/prometheus.yaml /tmp/monitoring-retained/alertmanager.yaml
+          helm template loki loki --repo https://grafana.github.io/helm-charts \
+            --version 7.3.0 --namespace monitoring --kube-version 1.37.0 \
+            -f templates/globals.yaml -f templates/common.yaml -f services/operations/loki/values.yaml > /tmp/monitoring-retained/loki.yaml
+          helm template tempo app-template --repo https://bjw-s-labs.github.io/helm-charts \
+            --version 5.2.1 --namespace monitoring --kube-version 1.37.0 \
+            -f templates/globals.yaml -f templates/common.yaml \
+            -f services/operations/tempo/values.yaml > /tmp/monitoring-retained/tempo.yaml
+          kubeconform -strict -summary -ignore-missing-schemas \
+            /tmp/monitoring-retained/prometheus.yaml /tmp/monitoring-retained/loki.yaml /tmp/monitoring-retained/tempo.yaml \
+            scripts/monitoring-retained/production/*-bindings.yaml \
+            scripts/monitoring-retained/production/*-source-hold.yaml \
+            scripts/monitoring-retained/production/guard-configmap.yaml \
+            scripts/monitoring-retained/production/tempo/manifests.yaml
+          MONITORING_RETAINED_RENDERS=/tmp/monitoring-retained python3 scripts/test-monitoring-retained.py
+
       - name: Check inactive Prowlarr PostgreSQL and retained CSI preparation
         run: |
           kubeconform -strict -summary \
@@ -425,6 +448,7 @@ jobs:
             -e AUTO_DETECT_FILES_CHANGED=true \
             -e WATCH_IF_NO_WATCH_PATTERN_FOUND=false \
             -e MAX_DIFF_LENGTH=65536 \
+            -e DEBUG=true \
             dagandersen/argocd-diff-preview:$DIFF_PREVIEW_VERSION
 
       - name: Upload diff artifact

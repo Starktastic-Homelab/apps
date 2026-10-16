@@ -1,0 +1,128 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tempo
+  namespace: monitoring
+  labels:
+    helm.sh/chart: tempo-1.24.4
+    app.kubernetes.io/name: tempo
+    app.kubernetes.io/instance: tempo
+    app.kubernetes.io/version: 2.9.0
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tempo
+  namespace: monitoring
+  labels:
+    helm.sh/chart: tempo-1.24.4
+    app.kubernetes.io/name: tempo
+    app.kubernetes.io/instance: tempo
+    app.kubernetes.io/version: 2.9.0
+    app.kubernetes.io/managed-by: Helm
+data:
+  overrides.yaml: "overrides:\n  {}\n"
+  tempo.yaml: "memberlist:\n  cluster_label: \"tempo.monitoring\"\nmultitenancy_enabled:\
+    \ false\nusage_report:\n  reporting_enabled: false\ncompactor:\n  compaction:\n\
+    \    block_retention: 72h\ndistributor:\n  receivers:\n        jaeger:\n     \
+    \     protocols:\n            grpc:\n              endpoint: 0.0.0.0:14250\n \
+    \           thrift_binary:\n              endpoint: 0.0.0.0:6832\n           \
+    \ thrift_compact:\n              endpoint: 0.0.0.0:6831\n            thrift_http:\n\
+    \              endpoint: 0.0.0.0:14268\n        otlp:\n          protocols:\n\
+    \            grpc:\n              endpoint: 0.0.0.0:4317\n            http:\n\
+    \              endpoint: 0.0.0.0:4318\ningester:\n      {}\nserver:\n      http_listen_port:\
+    \ 3200\nstorage:\n      trace:\n        backend: local\n        local:\n     \
+    \     path: /var/tempo/traces\n        wal:\n          path: /var/tempo/wal\n\
+    querier:\n      {}\nquery_frontend:\n      {}\noverrides:\n      defaults: {}\n\
+    \      per_tenant_override_config: /conf/overrides.yaml\nmetrics_generator:\n\
+    \  storage:\n    path: \"/tmp/tempo\"\n    remote_write:\n      - url:
+    http://kube-prometheus-stack-prometheus.monitoring:9090/api/v1/write\n\
+    \  traces_storage:\n    path: \"/tmp/traces\"\n"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tempo
+  namespace: monitoring
+  labels:
+    helm.sh/chart: tempo-1.24.4
+    app.kubernetes.io/name: tempo
+    app.kubernetes.io/instance: tempo
+    app.kubernetes.io/version: 2.9.0
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - name: tempo-jaeger-thrift-compact
+      port: 6831
+      protocol: UDP
+      targetPort: 6831
+    - name: tempo-jaeger-thrift-binary
+      port: 6832
+      protocol: UDP
+      targetPort: 6832
+    - name: tempo-prom-metrics
+      port: 3200
+      protocol: TCP
+      targetPort: 3200
+    - name: tempo-jaeger-thrift-http
+      port: 14268
+      protocol: TCP
+      targetPort: 14268
+    - name: grpc-tempo-jaeger
+      port: 14250
+      protocol: TCP
+      targetPort: 14250
+    - name: tempo-zipkin
+      port: 9411
+      protocol: TCP
+      targetPort: 9411
+    - name: tempo-otlp-legacy
+      port: 55680
+      protocol: TCP
+      targetPort: 55680
+    - name: tempo-otlp-http-legacy
+      port: 55681
+      protocol: TCP
+      targetPort: 55681
+    - name: grpc-tempo-otlp
+      port: 4317
+      protocol: TCP
+      targetPort: 4317
+    - name: tempo-otlp-http
+      port: 4318
+      protocol: TCP
+      targetPort: 4318
+    - name: tempo-opencensus
+      port: 55678
+      protocol: TCP
+      targetPort: 55678
+  selector:
+    app.kubernetes.io/name: tempo
+    app.kubernetes.io/instance: tempo
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: tempo
+  namespace: monitoring
+  labels:
+    app: tempo
+    chart: tempo-1.24.4
+    heritage: Helm
+spec:
+  selector:
+    matchLabels:
+      helm.sh/chart: tempo-1.24.4
+      app.kubernetes.io/name: tempo
+      app.kubernetes.io/instance: tempo
+      app.kubernetes.io/version: 2.9.0
+      app.kubernetes.io/managed-by: Helm
+  namespaceSelector:
+    matchNames:
+      - monitoring
+  endpoints:
+    - port: tempo-prom-metrics
+    - port: jaeger-metrics

@@ -173,6 +173,26 @@ jobs:
           kubeconform -strict -summary /tmp/bazarr-preparation.yaml
           BAZARR_SQL_TEST=1 BAZARR_RETAINED_RENDER=/tmp/bazarr-preparation.yaml python3 scripts/test-bazarr-retained-startup.py
 
+      - name: Check Grafana conversion preservation
+        run: python3 scripts/test-grafana-data.py
+
+      - name: Check inactive Grafana PostgreSQL and retained CSI preparation
+        run: |
+          kubeconform -strict -summary \
+            scripts/grafana-postgresql/production/pv.yaml \
+            scripts/grafana-postgresql/production/pvc.yaml \
+            scripts/grafana-postgresql/production/guard-configmap.yaml \
+            scripts/grafana-postgresql/production/consumer-gate.yaml \
+            scripts/grafana-postgresql/production/source-hold.yaml
+          GRAFANA_STACK_VERSION=$(python3 -c 'import yaml; print(yaml.safe_load(open("services/operations/kube-prometheus-stack/app.yaml"))["chart"]["version"])')
+          helm template kube-prometheus-stack kube-prometheus-stack --repo https://prometheus-community.github.io/helm-charts \
+            --version "$GRAFANA_STACK_VERSION" --namespace monitoring --kube-version 1.37.0 \
+            -f templates/globals.yaml -f templates/common.yaml \
+            -f services/operations/kube-prometheus-stack/values.yaml \
+            -f scripts/grafana-postgresql/production/values.yaml > /tmp/grafana-retained.yaml
+          kubeconform -strict -ignore-missing-schemas -summary /tmp/grafana-retained.yaml
+          GRAFANA_RETAINED_RENDER=/tmp/grafana-retained.yaml python3 scripts/test-grafana-retained-startup.py
+
       - name: Check inactive ntfy PostgreSQL and retained CSI preparation
         run: |
           kubeconform -strict -summary \

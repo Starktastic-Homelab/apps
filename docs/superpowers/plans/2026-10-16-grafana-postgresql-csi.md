@@ -40,9 +40,9 @@
 
 - [x] Refresh shared PostgreSQL capacity, full NAS growth budget and all writers; size retained files from evidence.
 - [x] Write failing retained guard/completion tests, implement Grafana chart adapters and run native SQL rejection cases.
-- [ ] Qualify cold serialization and exclusive native backup/population adapters.
-- [ ] Prepare enrollment once without changing previous credentials, retained storage and scoped old-source guards.
-- [ ] Render actual monitoring value layers; verify only intended Grafana resources change.
+- [x] Qualify cold serialization and exclusive native backup/population adapters.
+- [x] Prepare enrollment once without changing previous credentials, retained storage and scoped old-source guards.
+- [x] Render actual monitoring value layers; verify only intended Grafana resources change.
 - [ ] Freeze and rehearse the exact native command package, cold backup, independent recovery, rollback and cleanup.
 - [ ] Perform one final independent review and fix its verified findings before production.
 - [ ] Publish preparation/enrollment; wait for exact-head hosted gates and current successful enrollment acceptance.

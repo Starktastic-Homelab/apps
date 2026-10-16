@@ -172,3 +172,28 @@ review before production. The remaining work is recorded in the
 - [Stock AES decryption](https://github.com/grafana/grafana/blob/v13.2.3/pkg/services/encryption/provider/decipher_aes.go)
 - [PostgreSQL 18 date/time precision](https://www.postgresql.org/docs/18/datatype-datetime.html)
 - [Grafana-owned MySQL migrator](https://github.com/grafana/database-migrator)
+
+## Native command preparation
+
+The private command package separates enrollment, original-clock source shutdown,
+cold recovery, target allocation/import, independent SQL recovery, authoritative
+startup, application acceptance, backup, GitOps adoption, release/watch and exact
+cleanup. No native production phase has run. Its 20 local safety tests cover
+exclusive receipts, unknown replies, helper generation/spec fencing, original
+clock behavior and cold restore/population.
+
+The actual pinned copy helper also passed a no-network 256MiB rehearsal of the
+worker entrypoints using the copied SQLite database: private-file population,
+working SQLite preparation, importer isolation from root-executed programs and
+the retained guard running as UID472. Native SQL snapshot/cast/sequence commands
+independently compare all 87 application tables and 1,883 rows against the approved
+real copy. Final helper/schema/NetworkPolicy manifests pass server-side CREATE
+dry-run without creating resources. Read-only native API commands accept the live
+35 dashboards, four datasources, organization users, settings and alert reads;
+administrative credentials stay inside the master.
+
+Final review and real browser OIDC acceptance still precede the outage. After
+startup, live PostgreSQL API/Secret/readiness checks, volume recreation and worker
+movement, a current full PostgreSQL backup and the six-minute GitOps watch remain
+production acceptance requirements. Rehearsal results do not establish those
+outcomes.

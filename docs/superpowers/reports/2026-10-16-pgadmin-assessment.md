@@ -88,9 +88,19 @@ database with that role restored the same dump successfully. Import did not repl
 This establishes real-data conversion and recoverability. Actual authentication
 and saved-server connection remain production acceptance gates; they were not
 claimed from ciphertext equality or supplied with production passwords in the lab.
-Native startup guards, current cold recovery, retained disk allocation, cutover,
-lifecycle acceptance, final backup, Git reconciliation and exact cleanup follow the
-[implementation plan](../plans/2026-10-16-pgadmin-postgresql-csi.md).
+Native file/URI, current enrollment and read-only SQL guards passed ten local
+checks, including actual layered chart rendering and transactional native losses.
+The stock image accepted a Secret-mounted quoted URI and its two-plus-one pool.
+Current production internal login and the saved-password server connection both
+passed natively; credentials stayed on the master. These are baseline checks,
+not post-migration acceptance.
+
+Fresh capacity measured60of100PostgreSQL connections and103790915584NAS bytes
+available against98591333376required for all outstanding raw growth, a1Gi target,
+512Mi staging and8Gi headroom. Preparation uses a dedicated scoped account because
+the current chart uses the default account with automatic token mount disabled.
+Current cold recovery, retained disk allocation, cutover, lifecycle acceptance,
+final backup, Git reconciliation and cleanup remain under the implementation plan.
 
 ## Primary references
 

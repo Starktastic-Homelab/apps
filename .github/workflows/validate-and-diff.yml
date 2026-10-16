@@ -176,6 +176,23 @@ jobs:
       - name: Check Grafana conversion preservation
         run: python3 scripts/test-grafana-data.py
 
+      - name: Check inactive pgAdmin PostgreSQL and retained CSI preparation
+        run: |
+          python3 scripts/test-pgadmin-data.py
+          kubeconform -strict -summary \
+            scripts/pgadmin-postgresql/production/pv.yaml \
+            scripts/pgadmin-postgresql/production/pvc.yaml \
+            scripts/pgadmin-postgresql/production/guard-configmap.yaml \
+            scripts/pgadmin-postgresql/production/consumer-gate.yaml \
+            scripts/pgadmin-postgresql/production/source-hold.yaml
+          helm repo add runix https://helm.runix.net
+          helm template pgadmin runix/pgadmin4 --version 1.70.4 \
+            --namespace databases --kube-version 1.37.0 -f templates/globals.yaml \
+            -f infrastructure/controllers/databases/pgadmin/values.yaml \
+            -f scripts/pgadmin-postgresql/production/values.yaml > /tmp/pgadmin-retained.yaml
+          kubeconform -strict -summary /tmp/pgadmin-retained.yaml
+          PGADMIN_RETAINED_RENDER=/tmp/pgadmin-retained.yaml python3 scripts/test-pgadmin-retained-startup.py
+
       - name: Check inactive Grafana PostgreSQL and retained CSI preparation
         run: |
           kubeconform -strict -summary \

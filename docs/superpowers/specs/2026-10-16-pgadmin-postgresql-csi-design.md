@@ -62,7 +62,7 @@ measurement. The existing NFS claim/path remains protected and admission-held.
 Retain canonical file identity and reject absent/wrong data, SQLite fallback or
 conflicting database configuration before the stock entrypoint starts.
 
-Use the chart's existing service account and native extraInitContainers/volumes
+Use a dedicated scoped completion service account and native extraInitContainers/volumes
 for current Argo enrollment acceptance plus restricted canonical SQL login and
 retained-schema/physical-database checks. Set Recreate and worker placement;
 preserve existing chart inheritance, auth and server discovery. Bound the

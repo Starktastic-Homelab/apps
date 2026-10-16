@@ -22,7 +22,7 @@ Keep image/schema signatures and guard qualification together when upgrading.
 
 `data.py` copies all22tables into a schema initialized by the exact stock image,
 leaving backend schema markers unchanged. It compares every field and duplicate,
-preserves JSON/SQL NULL distinctions and allocator floors, and refuses replay into
+preserves JSON/SQL NULL distinctions, exact numeric tokens and allocator floors, and refuses replay into
 a changed bootstrap generation. Rows are transactional; PostgreSQL sequence updates
 are not transactional, so exclusive operation receipts and no-replay fencing remain
 required. No pgloader, application patch or additional controller is introduced.

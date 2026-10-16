@@ -14,6 +14,10 @@ TABLES = frozenset({'alembic_version', 'application_state', 'database', 'debugge
 
 
 def json_value(value):
+    """Canonical JSON text; keep numeric tokens exact, including signed zero."""
+    class Number(str):
+        pass
+
     def pairs(items):
         result = {}
         for key, item in items:
@@ -27,7 +31,8 @@ def json_value(value):
 
     if not isinstance(value, str):
         raise ValueError('Expected native JSON text, preserving SQL NULL separately')
-    result = json.loads(value, object_pairs_hook=pairs, parse_constant=constant)
+    result = json.loads(value, object_pairs_hook=pairs, parse_constant=constant,
+                        parse_int=Number, parse_float=Number)
 
     def validate(item):
         if isinstance(item, str):
@@ -42,7 +47,23 @@ def json_value(value):
                 validate(key)
                 validate(child)
     validate(result)
-    return result
+
+    def render(item):
+        # Number tokens come only from the strict JSON parser. Rendering them
+        # directly avoids binary-float rounding, overflow and string collisions.
+        if isinstance(item, Number):
+            return str(item)
+        if isinstance(item, str):
+            return json.dumps(item, ensure_ascii=False)
+        if item is None:
+            return 'null'
+        if type(item) is bool:
+            return 'true' if item else 'false'
+        if isinstance(item, list):
+            return '[' + ','.join(render(child) for child in item) + ']'
+        return '{' + ','.join(json.dumps(key, ensure_ascii=False) + ':' + render(item[key])
+                              for key in sorted(item)) + '}'
+    return render(result)
 
 
 def timestamp(value):

@@ -40,9 +40,26 @@ class PgAdminDataTests(unittest.TestCase):
         result = data.canonical_rows([{'v': r'\u0000'}], {'v': 'text'})
         self.assertEqual(json.loads(result[0])['v'], r'\u0000')
         result = data.canonical_rows([{'v': '"\\\\u0000"'}], {'v': 'json'})
-        self.assertEqual(json.loads(result[0])['v']['jsonValue'], r'\u0000')
+        self.assertEqual(json.loads(json.loads(result[0])['v']['jsonValue']), r'\u0000')
         with self.assertRaises(ValueError):
             data.canonical_rows([{'v': '"\\u0000"'}], {'v': 'json'})
+
+    def test_json_numbers_preserve_precision_magnitude_and_literal_tokens(self):
+        data = self.data()
+        def rows(value):
+            return data.canonical_rows([{'v': value}], {'v': 'json'})
+        for left, right in [
+            ('{"fraction":0.12345678901234567890}', '{"fraction":0.12345678901234567891}'),
+            ('{"tiny":1e-4000}', '{"tiny":2e-4000}'),
+            ('{"huge":1e4000}', '{"huge":2e4000}'),
+            ('{"n":1.00}', '{"n":1.0}'),
+            ('{"n":-0}', '{"n":0}'),
+            ('{"n":123456789012345678901234567890}', '{"n":"123456789012345678901234567890"}'),
+        ]:
+            with self.subTest(left=left):
+                self.assertNotEqual(rows(left), rows(right))
+        self.assertEqual(rows('{"a":1.00,"b":[1e4000,null]}'),
+                         rows(' { "b": [1e4000, null], "a": 1.00 } '))
 
     def test_sql_null_json_null_and_json_string_are_distinct(self):
         data = self.data()

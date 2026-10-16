@@ -61,7 +61,7 @@ omitted the stock module path; its exact failed terminal was retained, and only
 that checker was resumed after fixing its import path. The dump and restore did
 not replay.
 
-Seven local comparison/source-boundary tests pass, including unchanged source files,
+Eight local comparison/source-boundary tests pass, including unchanged source files,
 rejected symlinks/unknown tables, malformed representations, equal-count changed
 fields and duplicate loss. A fresh second target was also initialized by stock pgAdmin under a restricted
 role with no superuser, role/database creation, replication or RLS-bypass privileges.
@@ -88,6 +88,11 @@ database with that role restored the same dump successfully. Import did not repl
 This establishes real-data conversion and recoverability. Actual authentication
 and saved-server connection remain production acceptance gates; they were not
 claimed from ciphertext equality or supplied with production passwords in the lab.
+An independent review found binary-float rounding in the JSON comparator. A failing
+regression reproduced distinct high-precision decimals comparing equal. Comparison
+now preserves original number tokens, including extreme exponents and signed zero;
+JSON input text was already copied unchanged. Existing real-copy state is rechecked
+with the corrected comparator without replaying import.
 Native file/URI, current enrollment and read-only SQL guards passed ten local
 checks, including actual layered chart rendering and transactional native losses.
 The stock image accepted a Secret-mounted quoted URI and its two-plus-one pool.

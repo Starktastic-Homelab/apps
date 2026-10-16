@@ -106,8 +106,10 @@ available against98591333376required for all outstanding raw growth, a1Gi target
 the current chart uses the default account with automatic token mount disabled.
 Production cold recovery and independent SQL recovery have now passed. The retained
 disk is authoritative; original internal login, encrypted saved-server connection,
-recreation and movement between workers passed. Git reconciliation, final sync
-watch and exact temporary-resource cleanup remain under the implementation plan.
+recreation and movement between workers passed. Git reconciliation, final six-minute
+watch and exact temporary-resource cleanup passed. See the
+[production completion report](2026-10-16-pgadmin-production-completion.md) for evidence
+and the separately tested runtime checker corrections.
 
 ## Primary references
 

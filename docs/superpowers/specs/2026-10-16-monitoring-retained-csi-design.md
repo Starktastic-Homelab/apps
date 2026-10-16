@@ -114,3 +114,18 @@ and recovery instructions; final local plaintext deletion follows report merge.
 - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.94.1/pkg/alertmanager/statefulset.go
 - Exact downloaded charts: kube-prometheus-stack91.9.0, loki7.3.0, tempo1.24.4.
 - Existing live-storage-migrations design and Grafana/pgAdmin recovery runbooks.
+
+
+## Approved production amendment and completion
+
+The user accepted the exact normal Prometheus size-retention expiry of the
+oldest18h block (2026-10-07 18:00 UTC through 2026-10-08 12:00 UTC) while retaining
+the original15d/8GiB policy. All source files and all24 historical cold queries
+were independently recovered first; only that exact live historical point was
+exempted. Every other preservation gate remained mandatory. The encrypted cold
+backup still contains the expired block.
+
+The [completion report](../reports/2026-10-16-monitoring-production-completion.md)
+records the final evidence, narrow empty Tempo WAL qualification, original
+operation clocks, current-source watch and protected cleanup. This amendment
+does not authorize a broader data-loss exception or a future retention change.

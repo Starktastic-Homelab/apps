@@ -1,0 +1,93 @@
+[
+  {
+    "apiVersion": "v1",
+    "kind": "PersistentVolume",
+    "metadata": {
+      "name": "static-blank-probe"
+    },
+    "spec": {
+      "capacity": {
+        "storage": "128Mi"
+      },
+      "accessModes": ["ReadWriteOncePod"],
+      "persistentVolumeReclaimPolicy": "Retain",
+      "storageClassName": "",
+      "volumeMode": "Filesystem",
+      "claimRef": {
+        "namespace": "iscsi-fixture",
+        "name": "blank-probe"
+      },
+      "csi": {
+        "driver": "org.democratic-csi.static-lab",
+        "volumeHandle": "c4ea9023-5c30-45f4-bf83-05e947ec325e",
+        "fsType": "ext4",
+        "nodeStageSecretRef": {
+          "name": "static-iscsi-chap",
+          "namespace": "static-iscsi-system"
+        },
+        "volumeAttributes": {
+          "node_attach_driver": "iscsi",
+          "provisioner_driver": "node-manual",
+          "portal": "172.30.91.10:3260",
+          "iqn": "iqn.2026-09.lab.static:blank-probe",
+          "lun": "0"
+        }
+      }
+    }
+  },
+  {
+    "apiVersion": "v1",
+    "kind": "PersistentVolumeClaim",
+    "metadata": {
+      "name": "blank-probe",
+      "namespace": "iscsi-fixture"
+    },
+    "spec": {
+      "volumeName": "static-blank-probe",
+      "storageClassName": "",
+      "accessModes": ["ReadWriteOncePod"],
+      "resources": {
+        "requests": {
+          "storage": "128Mi"
+        }
+      }
+    }
+  },
+  {
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+      "name": "blank-probe",
+      "namespace": "iscsi-fixture"
+    },
+    "spec": {
+      "nodeSelector": {
+        "kubernetes.io/hostname": "iscsi-lab-worker-a-6c168a2e"
+      },
+      "automountServiceAccountToken": false,
+      "restartPolicy": "Never",
+      "containers": [
+        {
+          "name": "probe",
+          "image": "docker.io/library/busybox:1.37.0@sha256:7a3ebe5bfd1a4a19797d20b0c0bb39d44393e9a03fd852c0865b0f540d868df0",
+          "imagePullPolicy": "IfNotPresent",
+          "command": ["sh", "-c", "sleep 3600"],
+          "volumeMounts": [
+            {
+              "name": "data",
+              "mountPath": "/data"
+            }
+          ]
+        }
+      ],
+      "volumes": [
+        {
+          "name": "data",
+          "persistentVolumeClaim": {
+            "claimName": "blank-probe"
+          }
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,1089 @@
+{
+  "capturedAt": "2026-09-20T22:06:35.466546+00:00",
+  "errors": {},
+  "nodes": [
+    {
+      "name": "kube-master-01",
+      "uid": "afb5a195-8503-4e05-9e39-d16774ae6c7d",
+      "createdAt": "2026-09-20T19:39:53Z",
+      "bootID": "52216c85-0bd5-41de-8baa-9aece7772952",
+      "memory": "16383232Ki",
+      "conditions": {
+        "EtcdIsVoter": "True",
+        "MemoryPressure": "False",
+        "DiskPressure": "False",
+        "PIDPressure": "False",
+        "Ready": "True"
+      },
+      "unschedulable": false
+    },
+    {
+      "name": "kube-worker-01",
+      "uid": "ed4cb64c-0c87-414e-9538-110650ba2f34",
+      "createdAt": "2026-09-20T19:40:18Z",
+      "bootID": "67af7b6c-d97e-4d19-b123-f0b023e8db76",
+      "memory": "20486868Ki",
+      "conditions": {
+        "MemoryPressure": "False",
+        "DiskPressure": "False",
+        "PIDPressure": "False",
+        "Ready": "True"
+      },
+      "unschedulable": false
+    },
+    {
+      "name": "kube-worker-02",
+      "uid": "63d963c8-0c04-4be8-81a3-07e8aa1cc240",
+      "createdAt": "2026-09-20T19:40:18Z",
+      "bootID": "45101f7f-cb67-448f-8590-8153ad88b531",
+      "memory": "20486872Ki",
+      "conditions": {
+        "MemoryPressure": "False",
+        "DiskPressure": "False",
+        "PIDPressure": "False",
+        "Ready": "True"
+      },
+      "unschedulable": false
+    }
+  ],
+  "claims": [
+    {
+      "namespace": "cert-backup",
+      "claim": "cert-backup",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/cert-backup/cert-backup",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-02688664-128d-4d21-8494-dc331b1f29c7"
+    },
+    {
+      "namespace": "crowdsec",
+      "claim": "crowdsec-db-pvc",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/crowdsec/crowdsec-db-pvc",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-52af637d-cdb1-47b7-bc81-c786c2f93736"
+    },
+    {
+      "namespace": "databases",
+      "claim": "data-postgres-postgresql-0",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/databases/data-postgres-postgresql-0",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-13cb5e92-ca6d-4e37-aa39-e421b680797b"
+    },
+    {
+      "namespace": "databases",
+      "claim": "pg-backup",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/databases/pg-backup",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-dde0a194-36b5-4454-b194-be4600493251"
+    },
+    {
+      "namespace": "databases",
+      "claim": "pgadmin-pgadmin4",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/databases/pgadmin-pgadmin4",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-b8583e9c-ecde-4c47-99c1-ef1fd3593899"
+    },
+    {
+      "namespace": "databases",
+      "claim": "redis-data-redis-master-0",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/databases/redis-data-redis-master-0",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-f01a1ce5-f28b-4a02-96e5-654c2f6d1d6f"
+    },
+    {
+      "namespace": "home-automation",
+      "claim": "home-assistant-config",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/home-automation/home-assistant-config",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-8f2a3ae7-c2da-43dd-8cd8-3445cb6c8b0d"
+    },
+    {
+      "namespace": "home-automation",
+      "claim": "matter-server-data",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/home-automation/matter-server-data",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-9c9901be-168e-4388-b368-a18f770c8bb1"
+    },
+    {
+      "namespace": "home-automation",
+      "claim": "mosquitto-config",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/home-automation/mosquitto-config",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-a6f43e09-6c03-4498-8c56-003f06e33ad7"
+    },
+    {
+      "namespace": "home-automation",
+      "claim": "zigbee2mqtt-config",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/home-automation/zigbee2mqtt-config",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-7a8af54d-6655-4c6d-be67-69843d894479"
+    },
+    {
+      "namespace": "media",
+      "claim": "audiobookshelf",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/audiobookshelf",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-07898ff8-7541-4b2a-b6ed-8b998fa5d425"
+    },
+    {
+      "namespace": "media",
+      "claim": "autobrr",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/autobrr",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-ffb09cef-7d3f-45b6-aca1-6060dda565de"
+    },
+    {
+      "namespace": "media",
+      "claim": "bazarr",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/bazarr",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-43df8449-01d8-4677-b9f9-697d6303bfd1"
+    },
+    {
+      "namespace": "media",
+      "claim": "calibre-web",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/calibre-web",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-28ed9b85-ccee-4d11-a099-17a59c643273"
+    },
+    {
+      "namespace": "media",
+      "claim": "cineplete-config",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/cineplete-config",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-393516ec-38c2-4389-9fac-fa1af77b6a66"
+    },
+    {
+      "namespace": "media",
+      "claim": "cineplete-data",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/cineplete-data",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-3ba3b523-64d0-4b00-afc4-3ce562ff1ae7"
+    },
+    {
+      "namespace": "media",
+      "claim": "cleanuparr",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/cleanuparr",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-98fce509-cac6-4c2f-a12a-84c499a43c4d"
+    },
+    {
+      "namespace": "media",
+      "claim": "cwa-book-ingest",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/cwa-book-ingest",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-2405e12a-7042-408f-a8c0-d07a29424624"
+    },
+    {
+      "namespace": "media",
+      "claim": "dispatcharr-data",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/dispatcharr-data",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-2e0e7305-2975-4116-916e-1f370d06eaea"
+    },
+    {
+      "namespace": "media",
+      "claim": "immich-model-cache",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/immich-model-cache",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-afefe00e-039f-48c7-874a-751b6b8f3863"
+    },
+    {
+      "namespace": "media",
+      "claim": "immich-pgdata",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/immich-pgdata",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-9dfe4584-47f6-45fd-8f77-bf5f7ea44ee9"
+    },
+    {
+      "namespace": "media",
+      "claim": "jellyfin-cache",
+      "phase": "Bound",
+      "class": "local-path",
+      "reclaim": "Delete",
+      "backend": {
+        "local": {
+          "path": "/var/lib/rancher/k3s/storage/pvc-0d918255-9385-4964-9962-8506d48abd01_media_jellyfin-cache"
+        }
+      },
+      "pv": "pvc-0d918255-9385-4964-9962-8506d48abd01"
+    },
+    {
+      "namespace": "media",
+      "claim": "jellyfin-config",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/jellyfin-config",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-ff162b0d-6ecf-4e11-accf-9fda8a18445f"
+    },
+    {
+      "namespace": "media",
+      "claim": "jellyfin-ldap-pip-cache",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/jellyfin-ldap-pip-cache",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-8defa548-c202-44f8-88c2-5d171d8f4a30"
+    },
+    {
+      "namespace": "media",
+      "claim": "libretranslate",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/libretranslate",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-38a33cee-2799-4688-83c4-5bbd8059433e"
+    },
+    {
+      "namespace": "media",
+      "claim": "lidarr",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/lidarr",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-5ec8a22f-3850-423f-939c-6b4dfcb7e518"
+    },
+    {
+      "namespace": "media",
+      "claim": "lingarr",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/lingarr",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-0475e885-ba3f-404a-bb15-441159a8ff24"
+    },
+    {
+      "namespace": "media",
+      "claim": "media-library-pvc",
+      "phase": "Bound",
+      "class": "",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/main/media",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "media-library-pv"
+    },
+    {
+      "namespace": "media",
+      "claim": "navidrome",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/navidrome",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-c3fa6676-f996-445a-85d5-c93809fc5228"
+    },
+    {
+      "namespace": "media",
+      "claim": "prowlarr",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/prowlarr",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-ea2e60cb-6398-475c-a7b7-edbb3fe52d07"
+    },
+    {
+      "namespace": "media",
+      "claim": "qbittorrent",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/qbittorrent",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-ac68ba67-b87a-4310-91d9-129039702174"
+    },
+    {
+      "namespace": "media",
+      "claim": "qbittorrent-incomplete-pvc",
+      "phase": "Bound",
+      "class": "",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/nvme-cache/incomplete",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "qbittorrent-incomplete-pv"
+    },
+    {
+      "namespace": "media",
+      "claim": "qbittorrent-ru",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/qbittorrent-ru",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-443aaaf9-6ce8-4f07-a1ce-f71ed02b8120"
+    },
+    {
+      "namespace": "media",
+      "claim": "radarr",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/radarr",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-3421fcfd-2464-469a-9e46-f77e6d15fa54"
+    },
+    {
+      "namespace": "media",
+      "claim": "radarr-ru",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/radarr-ru",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-6ea4ce93-e789-4704-95f7-aa6e60b2affa"
+    },
+    {
+      "namespace": "media",
+      "claim": "seerr",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/seerr",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-b3cb8f49-4e85-4f36-9551-70beec39c485"
+    },
+    {
+      "namespace": "media",
+      "claim": "seerr-ru",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/seerr-ru",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-82b06aed-f2a5-4f1a-bb4b-1bf87f77db80"
+    },
+    {
+      "namespace": "media",
+      "claim": "shelfmark",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/shelfmark",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-a839922c-a31a-413a-9da6-b806992b3227"
+    },
+    {
+      "namespace": "media",
+      "claim": "sonarr",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/sonarr",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-7fbadea5-b5a7-4cb7-9bfe-4de30676aeb1"
+    },
+    {
+      "namespace": "media",
+      "claim": "sonarr-ru",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/sonarr-ru",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-f8382b87-1cfa-45af-a0f5-04d022d745fc"
+    },
+    {
+      "namespace": "monitoring",
+      "claim": "alertmanager-kube-prometheus-stack-alertmanager-db-alertmanager-kube-prometheus-stack-alertmanager-0",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/monitoring/alertmanager-kube-prometheus-stack-alertmanager-db-alertmanager-kube-prometheus-stack-alertmanager-0",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-76e4759d-f667-4716-961b-ea25c83ff6fa"
+    },
+    {
+      "namespace": "monitoring",
+      "claim": "kube-prometheus-stack-grafana",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/monitoring/kube-prometheus-stack-grafana",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-c2828e87-26e7-4dff-b77f-8e038340ea4b"
+    },
+    {
+      "namespace": "monitoring",
+      "claim": "prometheus-kube-prometheus-stack-prometheus-db-prometheus-kube-prometheus-stack-prometheus-0",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/monitoring/prometheus-kube-prometheus-stack-prometheus-db-prometheus-kube-prometheus-stack-prometheus-0",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-fae9cd14-892a-45c1-9148-f15d999bf3f4"
+    },
+    {
+      "namespace": "monitoring",
+      "claim": "storage-loki-0",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/monitoring/storage-loki-0",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-8ae08212-42c3-4fed-9917-fd1f49ed4ce4"
+    },
+    {
+      "namespace": "monitoring",
+      "claim": "storage-tempo-0",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/monitoring/storage-tempo-0",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-da528434-fb60-48f3-bdb0-4b25ee51f2fb"
+    },
+    {
+      "namespace": "operations",
+      "claim": "bytestash",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/bytestash",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-81caf678-daf6-47e1-b0e5-8156b9bd5f1d"
+    },
+    {
+      "namespace": "operations",
+      "claim": "bytestash-data",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/bytestash-data",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-7ade393f-230f-4c51-b23a-392a05d9c0d6"
+    },
+    {
+      "namespace": "operations",
+      "claim": "changedetection-data",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/changedetection-data",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-cadcd79d-38f9-4b29-aa29-706b4637c656"
+    },
+    {
+      "namespace": "operations",
+      "claim": "convertx-config",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/convertx-config",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-6a06f61c-69fb-4ac0-b00a-eed9b5695a0c"
+    },
+    {
+      "namespace": "operations",
+      "claim": "excalidash-data",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/excalidash-data",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-b2783350-e858-4a7f-a18f-8a2a17e37694"
+    },
+    {
+      "namespace": "operations",
+      "claim": "filebrowser-apps-pvc",
+      "phase": "Bound",
+      "class": "",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "filebrowser-apps-pv"
+    },
+    {
+      "namespace": "operations",
+      "claim": "filebrowser-data-pvc",
+      "phase": "Bound",
+      "class": "local-path",
+      "reclaim": "Delete",
+      "backend": {
+        "local": {
+          "path": "/var/lib/rancher/k3s/storage/pvc-2bbe10f6-bd7c-409e-96e5-428803b4a861_operations_filebrowser-data-pvc"
+        }
+      },
+      "pv": "pvc-2bbe10f6-bd7c-409e-96e5-428803b4a861"
+    },
+    {
+      "namespace": "operations",
+      "claim": "filebrowser-media-pvc",
+      "phase": "Bound",
+      "class": "",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/main/media",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "filebrowser-media-pv"
+    },
+    {
+      "namespace": "operations",
+      "claim": "karakeep-data",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/karakeep-data",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-6db5e282-dc94-4bcc-aff2-436ac606ccb0"
+    },
+    {
+      "namespace": "operations",
+      "claim": "karakeep-meilisearch",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/karakeep-meilisearch",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-5395a403-82c4-4f7b-92fb-200f2f25d65c"
+    },
+    {
+      "namespace": "operations",
+      "claim": "listmonk",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/listmonk",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-12477f70-c897-4472-98e7-76b06a0035ed"
+    },
+    {
+      "namespace": "operations",
+      "claim": "listmonk-uploads",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/listmonk-uploads",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-697ed8d5-777e-49b7-b07c-3156f4081a84"
+    },
+    {
+      "namespace": "operations",
+      "claim": "mealie",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/mealie",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-b1549d47-e8bd-463c-bfc9-2e7e1834e599"
+    },
+    {
+      "namespace": "operations",
+      "claim": "mealie-data",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/mealie-data",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-3d58f856-5064-45a6-948b-f1116351766f"
+    },
+    {
+      "namespace": "operations",
+      "claim": "microbin-config",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/microbin-config",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-b3bd31f9-4d3c-466f-96fb-f591b5d6baaa"
+    },
+    {
+      "namespace": "operations",
+      "claim": "ntfy-cache",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/ntfy-cache",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-b510550d-4311-44a3-9cbf-2b3bec2efe4f"
+    },
+    {
+      "namespace": "operations",
+      "claim": "ntfy-config",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/ntfy-config",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-6f360b8d-c275-493d-b78d-b3843ee29205"
+    },
+    {
+      "namespace": "operations",
+      "claim": "paperless-ngx",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/paperless-ngx",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-df23fcbb-b11d-4d64-8d2d-95fc0fced43e"
+    },
+    {
+      "namespace": "operations",
+      "claim": "paperless-ngx-data",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/paperless-ngx-data",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-ad34c68f-5c4f-40d2-9f40-bea092fe0a0c"
+    },
+    {
+      "namespace": "operations",
+      "claim": "searxng",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/searxng",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-013516e3-9d33-4799-9212-780c0fca31ac"
+    },
+    {
+      "namespace": "operations",
+      "claim": "stirling-pdf-config",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/stirling-pdf-config",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-534f6679-4ae2-4cc8-ab35-c30861eb20c6"
+    },
+    {
+      "namespace": "operations",
+      "claim": "vaultwarden-data",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/vaultwarden-data",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-b3daf6aa-f617-4c55-9c94-a4e504925f86"
+    },
+    {
+      "namespace": "operations",
+      "claim": "vikunja-files",
+      "phase": "Bound",
+      "class": "nfs-pv",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/vikunja-files",
+          "server": "10.9.8.30"
+        }
+      },
+      "pv": "pvc-ec2bcf19-c974-4864-8c25-07d061307907"
+    }
+  ],
+  "storageComparison": {
+    "baselineCount": 68,
+    "currentCount": 68,
+    "boundCount": 68,
+    "mismatches": []
+  },
+  "pods": {
+    "active": 125,
+    "ready": 125,
+    "notReady": [],
+    "restarted": [
+      {
+        "namespace": "home-automation",
+        "name": "zigbee2mqtt-84cd98ddb7-9k625",
+        "node": "kube-worker-02",
+        "phase": "Running",
+        "ready": true,
+        "restarts": 6,
+        "waiting": [],
+        "lastTerminationReasons": ["Error"]
+      },
+      {
+        "namespace": "kube-system",
+        "name": "inteldeviceplugins-controller-manager-65cbb49ff-6gh8l",
+        "node": "kube-worker-02",
+        "phase": "Running",
+        "ready": true,
+        "restarts": 4,
+        "waiting": [],
+        "lastTerminationReasons": ["Error"]
+      },
+      {
+        "namespace": "kube-system",
+        "name": "nfs-provisioner-nfs-subdir-external-provisioner-694bb7bdff2t9zt",
+        "node": "kube-worker-01",
+        "phase": "Running",
+        "ready": true,
+        "restarts": 3,
+        "waiting": [],
+        "lastTerminationReasons": ["Error"]
+      },
+      {
+        "namespace": "media",
+        "name": "cross-seed-6b5886dfb7-6wsc6",
+        "node": "kube-worker-01",
+        "phase": "Running",
+        "ready": true,
+        "restarts": 2,
+        "waiting": [],
+        "lastTerminationReasons": ["Error"]
+      },
+      {
+        "namespace": "media",
+        "name": "sonarr-7b54f5475d-7t8zm",
+        "node": "kube-master-01",
+        "phase": "Running",
+        "ready": true,
+        "restarts": 6,
+        "waiting": [],
+        "lastTerminationReasons": ["Completed"]
+      },
+      {
+        "namespace": "operations",
+        "name": "paperless-ngx-6577557866-z8tqj",
+        "node": "kube-worker-02",
+        "phase": "Running",
+        "ready": true,
+        "restarts": 4,
+        "waiting": [],
+        "lastTerminationReasons": ["Error"]
+      }
+    ]
+  },
+  "applications": {
+    "total": 77,
+    "syncedHealthy": 77,
+    "notSyncedHealthy": []
+  },
+  "sealedSecrets": {
+    "total": 38,
+    "synced": 38,
+    "notCurrentSynced": []
+  },
+  "certificates": {
+    "total": 7,
+    "ready": 7,
+    "notReady": []
+  }
+}

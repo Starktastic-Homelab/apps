@@ -1,0 +1,518 @@
+[
+  {
+    "memory": {
+      "available": 23596486656,
+      "free": 24115798016,
+      "total": 134812356608,
+      "used": 111215869952
+    },
+    "swap": {
+      "free": 0,
+      "total": 0,
+      "used": 0
+    },
+    "vms": [
+      {
+        "vmid": 200,
+        "name": "kube-master-01",
+        "status": "running",
+        "maxmem": 17179869184,
+        "mem": 13298679808,
+        "uptime": 632,
+        "memory_config": ["balloon: 0", "memory: 16384", "name: kube-master-01"],
+        "guest_memory_kib": {
+          "MemTotal": 16383232,
+          "MemAvailable": 12068864
+        },
+        "guest_memory_pressure": [
+          "some avg10=0.00 avg60=0.00 avg300=0.00 total=1",
+          "full avg10=0.00 avg60=0.00 avg300=0.00 total=1"
+        ]
+      },
+      {
+        "vmid": 202,
+        "name": "kube-worker-02",
+        "status": "running",
+        "maxmem": 21474836480,
+        "mem": 21568446464,
+        "uptime": 589,
+        "memory_config": ["balloon: 0", "memory: 20480", "name: kube-worker-02"],
+        "guest_memory_kib": {
+          "MemTotal": 20486872,
+          "MemAvailable": 17591192
+        },
+        "guest_memory_pressure": [
+          "some avg10=0.00 avg60=0.00 avg300=0.00 total=192",
+          "full avg10=0.00 avg60=0.00 avg300=0.00 total=5"
+        ]
+      },
+      {
+        "vmid": 300,
+        "name": "runner",
+        "status": "running",
+        "maxmem": 4294967296,
+        "mem": 2771783680,
+        "uptime": 78628,
+        "memory_config": ["balloon: 1024", "memory: 4096", "name: runner"]
+      },
+      {
+        "vmid": 201,
+        "name": "kube-worker-01",
+        "status": "running",
+        "maxmem": 21474836480,
+        "mem": 21568548864,
+        "uptime": 540,
+        "memory_config": ["balloon: 0", "memory: 20480", "name: kube-worker-01"],
+        "guest_memory_kib": {
+          "MemTotal": 20486868,
+          "MemAvailable": 17674028
+        },
+        "guest_memory_pressure": [
+          "some avg10=0.00 avg60=0.00 avg300=0.00 total=2",
+          "full avg10=0.00 avg60=0.00 avg300=0.00 total=2"
+        ]
+      },
+      {
+        "vmid": 100,
+        "name": "truenas",
+        "status": "running",
+        "maxmem": 34359738368,
+        "mem": 34428387328,
+        "uptime": 78643,
+        "memory_config": ["balloon: 0", "memory: 32768", "name: truenas"]
+      }
+    ],
+    "active_tasks": [],
+    "capturedAt": "2026-09-20T19:46:23.976254+00:00"
+  },
+  {
+    "memory": {
+      "available": 19718475776,
+      "free": 20228829184,
+      "total": 134812356608,
+      "used": 115093880832
+    },
+    "swap": {
+      "free": 0,
+      "total": 0,
+      "used": 0
+    },
+    "vms": [
+      {
+        "vmid": 200,
+        "name": "kube-master-01",
+        "status": "running",
+        "maxmem": 17179869184,
+        "mem": 17248645120,
+        "uptime": 893,
+        "memory_config": ["balloon: 0", "memory: 16384", "name: kube-master-01"],
+        "guest_memory_kib": {
+          "MemTotal": 16383232,
+          "MemAvailable": 10092472
+        },
+        "guest_memory_pressure": [
+          "some avg10=0.00 avg60=0.02 avg300=0.00 total=357219",
+          "full avg10=0.00 avg60=0.00 avg300=0.00 total=317875"
+        ]
+      },
+      {
+        "vmid": 202,
+        "name": "kube-worker-02",
+        "status": "running",
+        "maxmem": 21474836480,
+        "mem": 21569036288,
+        "uptime": 850,
+        "memory_config": ["balloon: 0", "memory: 20480", "name: kube-worker-02"],
+        "guest_memory_kib": {
+          "MemTotal": 20486872,
+          "MemAvailable": 16354860
+        },
+        "guest_memory_pressure": [
+          "some avg10=0.00 avg60=0.00 avg300=0.00 total=181250",
+          "full avg10=0.00 avg60=0.00 avg300=0.00 total=176292"
+        ]
+      },
+      {
+        "vmid": 201,
+        "name": "kube-worker-01",
+        "status": "running",
+        "maxmem": 21474836480,
+        "mem": 21568524288,
+        "uptime": 801,
+        "memory_config": ["balloon: 0", "memory: 20480", "name: kube-worker-01"],
+        "guest_memory_kib": {
+          "MemTotal": 20486868,
+          "MemAvailable": 16388584
+        },
+        "guest_memory_pressure": [
+          "some avg10=0.00 avg60=0.00 avg300=0.00 total=264213",
+          "full avg10=0.00 avg60=0.00 avg300=0.00 total=253133"
+        ]
+      },
+      {
+        "vmid": 100,
+        "name": "truenas",
+        "status": "running",
+        "maxmem": 34359738368,
+        "mem": 34426818560,
+        "uptime": 78904,
+        "memory_config": ["balloon: 0", "memory: 32768", "name: truenas"]
+      },
+      {
+        "vmid": 300,
+        "name": "runner",
+        "status": "running",
+        "maxmem": 4294967296,
+        "mem": 1605685248,
+        "uptime": 78889,
+        "memory_config": ["balloon: 1024", "memory: 4096", "name: runner"]
+      }
+    ],
+    "active_tasks": [],
+    "capturedAt": "2026-09-20T19:50:44.916370+00:00"
+  },
+  {
+    "memory": {
+      "available": 22367608832,
+      "free": 22876758016,
+      "total": 134812356608,
+      "used": 112444747776
+    },
+    "swap": {
+      "free": 0,
+      "total": 0,
+      "used": 0
+    },
+    "vms": [
+      {
+        "vmid": 202,
+        "name": "kube-worker-02",
+        "status": "running",
+        "maxmem": 21474836480,
+        "mem": 21566636032,
+        "uptime": 1426,
+        "memory_config": ["balloon: 0", "memory: 20480", "name: kube-worker-02"],
+        "guest_memory_kib": {
+          "MemTotal": 20486872,
+          "MemAvailable": 11468472
+        },
+        "guest_memory_pressure": [
+          "some avg10=0.00 avg60=0.00 avg300=0.00 total=704570",
+          "full avg10=0.00 avg60=0.00 avg300=0.00 total=637789"
+        ]
+      },
+      {
+        "vmid": 201,
+        "name": "kube-worker-01",
+        "status": "running",
+        "maxmem": 21474836480,
+        "mem": 21566054400,
+        "uptime": 1377,
+        "memory_config": ["balloon: 0", "memory: 20480", "name: kube-worker-01"],
+        "guest_memory_kib": {
+          "MemTotal": 20486868,
+          "MemAvailable": 12704456
+        },
+        "guest_memory_pressure": [
+          "some avg10=0.00 avg60=0.00 avg300=0.00 total=824240",
+          "full avg10=0.00 avg60=0.00 avg300=0.00 total=712105"
+        ]
+      },
+      {
+        "vmid": 300,
+        "name": "runner",
+        "status": "running",
+        "maxmem": 4294967296,
+        "mem": 1065193472,
+        "uptime": 79465,
+        "memory_config": ["balloon: 1024", "memory: 4096", "name: runner"]
+      },
+      {
+        "vmid": 100,
+        "name": "truenas",
+        "status": "running",
+        "maxmem": 34359738368,
+        "mem": 34429173760,
+        "uptime": 79480,
+        "memory_config": ["balloon: 0", "memory: 32768", "name: truenas"]
+      },
+      {
+        "vmid": 200,
+        "name": "kube-master-01",
+        "status": "running",
+        "maxmem": 17179869184,
+        "mem": 15879815168,
+        "uptime": 1469,
+        "memory_config": ["balloon: 0", "memory: 16384", "name: kube-master-01"],
+        "guest_memory_kib": {
+          "MemTotal": 16383232,
+          "MemAvailable": 8798464
+        },
+        "guest_memory_pressure": [
+          "some avg10=0.00 avg60=0.00 avg300=0.00 total=818774",
+          "full avg10=0.00 avg60=0.00 avg300=0.00 total=694331"
+        ]
+      }
+    ],
+    "active_tasks": [],
+    "capturedAt": "2026-09-20T20:00:20.678382+00:00"
+  },
+  {
+    "memory": {
+      "available": 22387412992,
+      "free": 22894137344,
+      "total": 134812356608,
+      "used": 112424943616
+    },
+    "swap": {
+      "free": 0,
+      "total": 0,
+      "used": 0
+    },
+    "vms": [
+      {
+        "vmid": 200,
+        "name": "kube-master-01",
+        "status": "running",
+        "maxmem": 17179869184,
+        "mem": 15840145408,
+        "uptime": 1762,
+        "memory_config": ["balloon: 0", "memory: 16384", "name: kube-master-01"],
+        "guest_memory_kib": {
+          "MemTotal": 16383232,
+          "MemAvailable": 8422912
+        },
+        "guest_memory_pressure": [
+          "some avg10=0.00 avg60=0.00 avg300=0.00 total=820663",
+          "full avg10=0.00 avg60=0.00 avg300=0.00 total=696211"
+        ]
+      },
+      {
+        "vmid": 202,
+        "name": "kube-worker-02",
+        "status": "running",
+        "maxmem": 21474836480,
+        "mem": 21566468096,
+        "uptime": 1719,
+        "memory_config": ["balloon: 0", "memory: 20480", "name: kube-worker-02"],
+        "guest_memory_kib": {
+          "MemTotal": 20486872,
+          "MemAvailable": 11343204
+        },
+        "guest_memory_pressure": [
+          "some avg10=0.00 avg60=0.00 avg300=0.00 total=790205",
+          "full avg10=0.00 avg60=0.00 avg300=0.00 total=721961"
+        ]
+      },
+      {
+        "vmid": 300,
+        "name": "runner",
+        "status": "running",
+        "maxmem": 4294967296,
+        "mem": 1063931904,
+        "uptime": 79758,
+        "memory_config": ["balloon: 1024", "memory: 4096", "name: runner"]
+      },
+      {
+        "vmid": 201,
+        "name": "kube-worker-01",
+        "status": "running",
+        "maxmem": 21474836480,
+        "mem": 21566586880,
+        "uptime": 1670,
+        "memory_config": ["balloon: 0", "memory: 20480", "name: kube-worker-01"],
+        "guest_memory_kib": {
+          "MemTotal": 20486868,
+          "MemAvailable": 12737944
+        },
+        "guest_memory_pressure": [
+          "some avg10=0.00 avg60=0.00 avg300=0.00 total=830322",
+          "full avg10=0.00 avg60=0.00 avg300=0.00 total=717997"
+        ]
+      },
+      {
+        "vmid": 100,
+        "name": "truenas",
+        "status": "running",
+        "maxmem": 34359738368,
+        "mem": 34426335232,
+        "uptime": 79773,
+        "memory_config": ["balloon: 0", "memory: 32768", "name: truenas"]
+      }
+    ],
+    "active_tasks": [],
+    "capturedAt": "2026-09-20T20:05:13.707000+00:00"
+  },
+  {
+    "memory": {
+      "available": 23406891008,
+      "free": 23911362560,
+      "total": 134812356608,
+      "used": 111405465600
+    },
+    "swap": {
+      "free": 0,
+      "total": 0,
+      "used": 0
+    },
+    "vms": [
+      {
+        "vmid": 200,
+        "name": "kube-master-01",
+        "status": "running",
+        "maxmem": 17179869184,
+        "mem": 15853326336,
+        "uptime": 2088,
+        "memory_config": ["balloon: 0", "memory: 16384", "name: kube-master-01"],
+        "guest_memory_kib": {
+          "MemTotal": 16383232,
+          "MemAvailable": 8328672
+        },
+        "guest_memory_pressure": [
+          "some avg10=0.00 avg60=0.00 avg300=0.00 total=829930",
+          "full avg10=0.00 avg60=0.00 avg300=0.00 total=705132"
+        ]
+      },
+      {
+        "vmid": 201,
+        "name": "kube-worker-01",
+        "status": "running",
+        "maxmem": 21474836480,
+        "mem": 21566410752,
+        "uptime": 1996,
+        "memory_config": ["balloon: 0", "memory: 20480", "name: kube-worker-01"],
+        "guest_memory_kib": {
+          "MemTotal": 20486868,
+          "MemAvailable": 12684240
+        },
+        "guest_memory_pressure": [
+          "some avg10=0.00 avg60=0.00 avg300=0.00 total=845602",
+          "full avg10=0.00 avg60=0.00 avg300=0.00 total=732006"
+        ]
+      },
+      {
+        "vmid": 300,
+        "name": "runner",
+        "status": "stopped",
+        "maxmem": 4294967296,
+        "mem": 0,
+        "uptime": 0,
+        "memory_config": ["balloon: 1024", "memory: 4096", "name: runner"]
+      },
+      {
+        "vmid": 202,
+        "name": "kube-worker-02",
+        "status": "running",
+        "maxmem": 21474836480,
+        "mem": 21566418944,
+        "uptime": 2045,
+        "memory_config": ["balloon: 0", "memory: 20480", "name: kube-worker-02"],
+        "guest_memory_kib": {
+          "MemTotal": 20486872,
+          "MemAvailable": 11679044
+        },
+        "guest_memory_pressure": [
+          "some avg10=0.10 avg60=0.15 avg300=0.05 total=1962278",
+          "full avg10=0.10 avg60=0.15 avg300=0.05 total=1880638"
+        ]
+      },
+      {
+        "vmid": 100,
+        "name": "truenas",
+        "status": "running",
+        "maxmem": 34359738368,
+        "mem": 34426363904,
+        "uptime": 80099,
+        "memory_config": ["balloon: 0", "memory: 32768", "name: truenas"]
+      }
+    ],
+    "active_tasks": [],
+    "capturedAt": "2026-09-20T20:10:39.568404+00:00"
+  },
+  {
+    "memory": {
+      "available": 23444992000,
+      "free": 23943262208,
+      "total": 134812356608,
+      "used": 111367364608
+    },
+    "swap": {
+      "free": 0,
+      "total": 0,
+      "used": 0
+    },
+    "vms": [
+      {
+        "vmid": 100,
+        "name": "truenas",
+        "status": "running",
+        "maxmem": 34359738368,
+        "mem": 34426343424,
+        "uptime": 80470,
+        "memory_config": ["balloon: 0", "memory: 32768", "name: truenas"]
+      },
+      {
+        "vmid": 202,
+        "name": "kube-worker-02",
+        "status": "running",
+        "maxmem": 21474836480,
+        "mem": 21565911040,
+        "uptime": 2415,
+        "memory_config": ["balloon: 0", "memory: 20480", "name: kube-worker-02"],
+        "guest_memory_kib": {
+          "MemTotal": 20486872,
+          "MemAvailable": 11837756
+        },
+        "guest_memory_pressure": [
+          "some avg10=0.00 avg60=0.00 avg300=0.00 total=3023395",
+          "full avg10=0.00 avg60=0.00 avg300=0.00 total=2926043"
+        ]
+      },
+      {
+        "vmid": 201,
+        "name": "kube-worker-01",
+        "status": "running",
+        "maxmem": 21474836480,
+        "mem": 21566210048,
+        "uptime": 2367,
+        "memory_config": ["balloon: 0", "memory: 20480", "name: kube-worker-01"],
+        "guest_memory_kib": {
+          "MemTotal": 20486868,
+          "MemAvailable": 12614784
+        },
+        "guest_memory_pressure": [
+          "some avg10=0.00 avg60=0.00 avg300=0.00 total=846342",
+          "full avg10=0.00 avg60=0.00 avg300=0.00 total=732239"
+        ]
+      },
+      {
+        "vmid": 300,
+        "name": "runner",
+        "status": "stopped",
+        "maxmem": 4294967296,
+        "mem": 0,
+        "uptime": 0,
+        "memory_config": ["balloon: 1024", "memory: 4096", "name: runner"]
+      },
+      {
+        "vmid": 200,
+        "name": "kube-master-01",
+        "status": "running",
+        "maxmem": 17179869184,
+        "mem": 15727009792,
+        "uptime": 2458,
+        "memory_config": ["balloon: 0", "memory: 16384", "name: kube-master-01"],
+        "guest_memory_kib": {
+          "MemTotal": 16383232,
+          "MemAvailable": 8343964
+        },
+        "guest_memory_pressure": [
+          "some avg10=0.00 avg60=0.00 avg300=0.00 total=831347",
+          "full avg10=0.00 avg60=0.00 avg300=0.00 total=706285"
+        ]
+      }
+    ],
+    "active_tasks": [],
+    "capturedAt": "2026-09-20T20:16:50.411625+00:00"
+  }
+]

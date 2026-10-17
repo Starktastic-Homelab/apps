@@ -1,0 +1,2226 @@
+{
+  "capturedAt": "2026-09-20T18:07:25.525244+00:00",
+  "claims": [
+    {
+      "namespace": "cert-backup",
+      "claim": "cert-backup",
+      "pv": "pvc-fc2feacb-8412-478b-bf58-e0aee7344be9",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Mi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/cert-backup/cert-backup",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": []
+    },
+    {
+      "namespace": "crowdsec",
+      "claim": "crowdsec-db-pvc",
+      "pv": "pvc-d79db513-2d10-4179-bfa5-6a24dbaf93d1",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/crowdsec/crowdsec-db-pvc",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "crowdsec-lapi-7c4c569bd8-sxpk6",
+          "container": "crowdsec-lapi",
+          "image": "crowdsecurity/crowdsec:v1.8.1",
+          "node": "kube-worker-01",
+          "mount": "/var/lib/crowdsec/data",
+          "subPath": "crowdsec",
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "databases",
+      "claim": "data-postgres-postgresql-0",
+      "pv": "pvc-3145ec65-fd86-4227-aeb0-e65ac026fd6f",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteOnce"],
+      "requested": "8Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/databases/data-postgres-postgresql-0",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "postgres-postgresql-0",
+          "container": "postgresql",
+          "image": "registry-1.docker.io/bitnami/postgresql:latest@sha256:b74b23f091dcc87041bcae557d840c36458af46b955279cb13aedec4c32d7f71",
+          "node": "kube-worker-01",
+          "mount": "/bitnami/postgresql",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "databases",
+      "claim": "pg-backup",
+      "pv": "pvc-15e5607d-388b-4207-8a7f-4d3a6074e443",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/databases/pg-backup",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": []
+    },
+    {
+      "namespace": "databases",
+      "claim": "pgadmin-pgadmin4",
+      "pv": "pvc-b6da6c8e-d3aa-4e30-aad9-c54fa9c1431b",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteOnce"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/databases/pgadmin-pgadmin4",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "pgadmin-pgadmin4-64b5c596d9-2w58s",
+          "container": "pgadmin4",
+          "image": "docker.io/dpage/pgadmin4:9.17",
+          "node": "kube-worker-02",
+          "mount": "/var/lib/pgadmin",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "databases",
+      "claim": "redis-data-redis-master-0",
+      "pv": "pvc-adae0ffd-be6b-4d1e-bbcf-246d51afc529",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteOnce"],
+      "requested": "2Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/databases/redis-data-redis-master-0",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "redis-master-0",
+          "container": "redis",
+          "image": "registry-1.docker.io/bitnami/redis:latest",
+          "node": "kube-worker-01",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "home-automation",
+      "claim": "home-assistant-config",
+      "pv": "pvc-f531bc3c-79d2-4d78-bb1c-37f3d3c2674b",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "5Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/home-automation/home-assistant-config",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "home-assistant-655b989f87-hskt5",
+          "container": "main",
+          "image": "ghcr.io/home-assistant/home-assistant:2026.9.3@sha256:d8922685169707fd91e8b9729902d975f06157d005e422874d201e0261dda196",
+          "node": "kube-worker-01",
+          "mount": "/config",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "home-automation",
+      "claim": "matter-server-data",
+      "pv": "pvc-edb43b2b-d28c-46c8-b3b7-c06df076ea29",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/home-automation/matter-server-data",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "home-assistant-655b989f87-hskt5",
+          "container": "matter-server",
+          "image": "ghcr.io/matter-js/matterjs-server:1.4.0@sha256:54232d0d3e7dff5a54759469d2753399270412b4c30c55b31750a4595e4cb236",
+          "node": "kube-worker-01",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "home-automation",
+      "claim": "mosquitto-config",
+      "pv": "pvc-becb4fc6-a948-47da-80ae-f59829a37d11",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/home-automation/mosquitto-config",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "mosquitto-65d97b48dd-hg6n7",
+          "container": "main",
+          "image": "eclipse-mosquitto:2.0.22@sha256:199ea8ef2e35ec2b1b37e59cfd1dbae538ed4dfa4a2251a121a52215a6248a21",
+          "node": "kube-master-01",
+          "mount": "/mosquitto/data",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "home-automation",
+      "claim": "zigbee2mqtt-config",
+      "pv": "pvc-580c10f8-ba8f-4216-800f-6545a566fb67",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "2Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/home-automation/zigbee2mqtt-config",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "zigbee2mqtt-84cd98ddb7-s7rx8",
+          "container": "main",
+          "image": "ghcr.io/koenkk/zigbee2mqtt:2.14.1@sha256:fef0de769dcd04c27b3a6d277b61046eb96284bdd4198dcb1687c3a01b3020f3",
+          "node": "kube-worker-02",
+          "mount": "/app/data",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "audiobookshelf",
+      "pv": "pvc-ba19934c-731a-4def-b817-71d28e7dc57b",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "2Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/audiobookshelf",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "audiobookshelf-58d955cf4c-wcdwx",
+          "container": "main",
+          "image": "ghcr.io/advplyr/audiobookshelf:2.36.1@sha256:3528a93b6442ffe54bd46771bbbab7c97084e1101071586d9dc2254f30bb4358",
+          "node": "kube-master-01",
+          "mount": "/config",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "autobrr",
+      "pv": "pvc-54c98c88-4c41-4d7f-88df-b24186e0dd31",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/autobrr",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "autobrr-7bd55cdb7f-gbqj8",
+          "container": "main",
+          "image": "ghcr.io/autobrr/autobrr:v1.86.0@sha256:0b8b997c40424557a4bd688a4cb487dd8a765a69b5aa5b003c0d8106f6a895af",
+          "node": "kube-worker-02",
+          "mount": "/config",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "bazarr",
+      "pv": "pvc-586a8ff5-9e3b-4c4f-99ae-e5f5d956dcc5",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/bazarr",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "bazarr-54f484fffc-md2js",
+          "container": "main",
+          "image": "lscr.io/linuxserver/bazarr:v1.6.1-ls364@sha256:d24bd0048c759a468970989e9df11a6b96a7628d556d00f923e60a35ba59237b",
+          "node": "kube-master-01",
+          "mount": "/config",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "calibre-web",
+      "pv": "pvc-ad2514ce-8bec-4027-a2d9-20ec3947df42",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "2Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/calibre-web",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "calibre-web-7444f86fb5-8km9n",
+          "container": "main",
+          "image": "ghcr.io/crocodilestick/calibre-web-automated:v4.0.6@sha256:fbf0c866e77b366f07050a6a12fee4e840b60d364485576a810109851a488eec",
+          "node": "kube-worker-02",
+          "mount": "/config",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "cineplete-config",
+      "pv": "pvc-81d14262-6a3a-44e6-9fd1-d57efa0e64dc",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/cineplete-config",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "cineplete-77ffd64bc6-2vbqv",
+          "container": "main",
+          "image": "sdblepas/cineplete:v4.7.17@sha256:5cc664c411538d2e7f9923931c3d9b744dc24fca8481e2a9f41f4b9d0dd48268",
+          "node": "kube-master-01",
+          "mount": "/config",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "cineplete-data",
+      "pv": "pvc-2941a272-695e-4dc2-b573-91bf5e6cca39",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/cineplete-data",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "cineplete-77ffd64bc6-2vbqv",
+          "container": "main",
+          "image": "sdblepas/cineplete:v4.7.17@sha256:5cc664c411538d2e7f9923931c3d9b744dc24fca8481e2a9f41f4b9d0dd48268",
+          "node": "kube-master-01",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "cleanuparr",
+      "pv": "pvc-64ba3b2d-60cf-45c5-83d5-13892d055aaf",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/cleanuparr",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "cleanuparr-7c6647c8c4-mx5tq",
+          "container": "main",
+          "image": "ghcr.io/cleanuparr/cleanuparr:2.10.6@sha256:8136c3beda7aa217012657e0ee31f0473ff4ae7e54a156730ff04523987fa815",
+          "node": "kube-worker-01",
+          "mount": "/config",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "cwa-book-ingest",
+      "pv": "pvc-ae854657-a2eb-41ee-97fe-ec632a64bcc6",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "5Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/cwa-book-ingest",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "calibre-web-7444f86fb5-8km9n",
+          "container": "main",
+          "image": "ghcr.io/crocodilestick/calibre-web-automated:v4.0.6@sha256:fbf0c866e77b366f07050a6a12fee4e840b60d364485576a810109851a488eec",
+          "node": "kube-worker-02",
+          "mount": "/cwa-book-ingest",
+          "subPath": null,
+          "readOnly": false
+        },
+        {
+          "pod": "shelfmark-556b496d78-vcxv7",
+          "container": "main",
+          "image": "ghcr.io/calibrain/shelfmark:v1.3.15@sha256:dae6e16fc40f42b2558d9f47d05e4ba7a7d268d23365a7c3eba266055249a124",
+          "node": "kube-worker-01",
+          "mount": "/books",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "dispatcharr-data",
+      "pv": "pvc-3821eea5-07b1-4a00-af49-8e53f9ed9b5a",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "20Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/dispatcharr-data",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "dispatcharr-celery-579cb979df-pbrcb",
+          "container": "main",
+          "image": "ghcr.io/dispatcharr/dispatcharr:0.31.0@sha256:f81924fa3dbfeb463b3908be7e086bf58aacbd2ba56062bfb555ee3a471acf8f",
+          "node": "kube-worker-02",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        },
+        {
+          "pod": "dispatcharr-web-bfc966c94-gspfr",
+          "container": "main",
+          "image": "ghcr.io/dispatcharr/dispatcharr:0.31.0@sha256:f81924fa3dbfeb463b3908be7e086bf58aacbd2ba56062bfb555ee3a471acf8f",
+          "node": "kube-worker-01",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "immich-model-cache",
+      "pv": "pvc-6d5cf1a8-354d-4bf6-8bfe-b85451be0ea5",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "5Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/immich-model-cache",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "immich-machine-learning-65ddb4d95b-f2cbg",
+          "container": "main",
+          "image": "ghcr.io/immich-app/immich-machine-learning:v3.2.2-openvino@sha256:4013ec28ccf6344d7ae24554743a116d7f61124b98858f5646a401d5c5df12e2",
+          "node": "kube-worker-02",
+          "mount": "/cache",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "immich-pgdata",
+      "pv": "pvc-8d1654dc-f9b1-4eb8-a66a-3bb5ac4f9deb",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "10Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/immich-pgdata",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "immich-postgres-87994dc77-fsc5c",
+          "container": "main",
+          "image": "ghcr.io/immich-app/postgres:17-vectorchord0.4.3-pgvector0.8.1@sha256:79b95b795f0911e95ffa4d092a2162c4d81a984d5629bc8f786afe0bc0657671",
+          "node": "kube-worker-01",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "jellyfin-cache",
+      "pv": "pvc-26bf0d83-18e7-43a7-a793-d392743ecc97",
+      "class": "local-path",
+      "accessModes": ["ReadWriteOnce"],
+      "requested": "50Gi",
+      "phase": "Bound",
+      "reclaim": "Delete",
+      "backend": {
+        "local": {
+          "path": "/var/lib/rancher/k3s/storage/pvc-26bf0d83-18e7-43a7-a793-d392743ecc97_media_jellyfin-cache"
+        }
+      },
+      "nodeAffinity": {
+        "required": {
+          "nodeSelectorTerms": [
+            {
+              "matchExpressions": [
+                {
+                  "key": "kubernetes.io/hostname",
+                  "operator": "In",
+                  "values": ["kube-worker-02"]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "jellyfin-55c9866cb5-62fb8",
+          "container": "main",
+          "image": "lscr.io/linuxserver/jellyfin:12.1ubu2604-ls50@sha256:51252e7a416e703cdc3cd91e8a54673a2430cc80409be8a38abe511411577b95",
+          "node": "kube-worker-02",
+          "mount": "/config/cache",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "jellyfin-config",
+      "pv": "pvc-507c085d-1a89-4136-9d0a-796fe5ba23ba",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "15Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/jellyfin-config",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "jellyfin-55c9866cb5-62fb8",
+          "container": "main",
+          "image": "lscr.io/linuxserver/jellyfin:12.1ubu2604-ls50@sha256:51252e7a416e703cdc3cd91e8a54673a2430cc80409be8a38abe511411577b95",
+          "node": "kube-worker-02",
+          "mount": "/config",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "jellyfin-ldap-pip-cache",
+      "pv": "pvc-bb2a2a0e-7fa3-48a7-b504-49e1024b77a9",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "128Mi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/jellyfin-ldap-pip-cache",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "jellyfin-ldap-library-sync-29832120-4tr5k",
+          "container": "sync",
+          "image": "python:alpine",
+          "node": "kube-master-01",
+          "mount": "/pip-cache",
+          "subPath": null,
+          "readOnly": true
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "libretranslate",
+      "pv": "pvc-8e969535-2eae-4dca-9268-378121fbf2ae",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "2Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/libretranslate",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "libretranslate-684874fd66-46cf6",
+          "container": "main",
+          "image": "libretranslate/libretranslate:v1.9.6@sha256:1de2d7056bb8ad607a412f4563d9abe324ff632b43b5be9428bcc8e213aebb32",
+          "node": "kube-worker-02",
+          "mount": "/home/libretranslate/.local",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "lidarr",
+      "pv": "pvc-14ad20ca-c2e9-45c4-815d-0466ae9126b0",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/lidarr",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "lidarr-6b4cb9b7d7-7xdpr",
+          "container": "main",
+          "image": "lscr.io/linuxserver/lidarr:3.1.0.4875-ls41@sha256:8ab0fd370b604ae034d9a9c261a9d8d873bece33d9736852e7ce4f3566e4a35d",
+          "node": "kube-master-01",
+          "mount": "/config",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "lingarr",
+      "pv": "pvc-6908eaf7-8f41-41cc-8a31-80bfb4a22e84",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/lingarr",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "lingarr-7bfb7fcc7d-fdnwh",
+          "container": "main",
+          "image": "ghcr.io/lingarr-translate/lingarr:1.3.0@sha256:12473f6f40beac1bb91ffadc7d8c7f1c2a0cd99ba336e4bf2c1dfa617c27a763",
+          "node": "kube-master-01",
+          "mount": "/app/config",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "media-library-pvc",
+      "pv": "media-library-pv",
+      "class": "",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "10Ti",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/main/media",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": ["nfsvers=4.1", "noatime", "hard", "rsize=1048576", "wsize=1048576", "nconnect=8"],
+      "consumers": [
+        {
+          "pod": "audiobookshelf-58d955cf4c-wcdwx",
+          "container": "main",
+          "image": "ghcr.io/advplyr/audiobookshelf:2.36.1@sha256:3528a93b6442ffe54bd46771bbbab7c97084e1101071586d9dc2254f30bb4358",
+          "node": "kube-master-01",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        },
+        {
+          "pod": "bazarr-54f484fffc-md2js",
+          "container": "main",
+          "image": "lscr.io/linuxserver/bazarr:v1.6.1-ls364@sha256:d24bd0048c759a468970989e9df11a6b96a7628d556d00f923e60a35ba59237b",
+          "node": "kube-master-01",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        },
+        {
+          "pod": "calibre-web-7444f86fb5-8km9n",
+          "container": "main",
+          "image": "ghcr.io/crocodilestick/calibre-web-automated:v4.0.6@sha256:fbf0c866e77b366f07050a6a12fee4e840b60d364485576a810109851a488eec",
+          "node": "kube-worker-02",
+          "mount": "/calibre-library",
+          "subPath": "library/books",
+          "readOnly": false
+        },
+        {
+          "pod": "cross-seed-6b5886dfb7-fz4wf",
+          "container": "main",
+          "image": "ghcr.io/cross-seed/cross-seed:latest",
+          "node": "kube-worker-02",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        },
+        {
+          "pod": "immich-main-6f75d8cd54-phhdt",
+          "container": "main",
+          "image": "ghcr.io/immich-app/immich-server:v3.2.2@sha256:79cc1623323d5894922686d8743b4780181428f98eecbfb58ce12c41ef02d1ea",
+          "node": "kube-worker-02",
+          "mount": "/usr/src/app/upload",
+          "subPath": "immich",
+          "readOnly": false
+        },
+        {
+          "pod": "jellyfin-55c9866cb5-62fb8",
+          "container": "main",
+          "image": "lscr.io/linuxserver/jellyfin:12.1ubu2604-ls50@sha256:51252e7a416e703cdc3cd91e8a54673a2430cc80409be8a38abe511411577b95",
+          "node": "kube-worker-02",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        },
+        {
+          "pod": "lidarr-6b4cb9b7d7-7xdpr",
+          "container": "main",
+          "image": "lscr.io/linuxserver/lidarr:3.1.0.4875-ls41@sha256:8ab0fd370b604ae034d9a9c261a9d8d873bece33d9736852e7ce4f3566e4a35d",
+          "node": "kube-master-01",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        },
+        {
+          "pod": "lingarr-7bfb7fcc7d-fdnwh",
+          "container": "main",
+          "image": "ghcr.io/lingarr-translate/lingarr:1.3.0@sha256:12473f6f40beac1bb91ffadc7d8c7f1c2a0cd99ba336e4bf2c1dfa617c27a763",
+          "node": "kube-master-01",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        },
+        {
+          "pod": "metube-5449b947b-qf95f",
+          "container": "main",
+          "image": "ghcr.io/alexta69/metube:2026.09.15@sha256:554e9171bc7960cf91c93e9896e63f42baf96424342a9e4b9d1bdec13ddef724",
+          "node": "kube-master-01",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        },
+        {
+          "pod": "navidrome-68ff8cfc56-h9fjc",
+          "container": "main",
+          "image": "ghcr.io/navidrome/navidrome:0.64.0@sha256:a384948b81bd1529986c5960169e7fc4fa00f46bde6bd517971a4c36671db2af",
+          "node": "kube-master-01",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        },
+        {
+          "pod": "qbit-manage-7cdd558d77-wj649",
+          "container": "main",
+          "image": "ghcr.io/stuffanthings/qbit_manage:v4.13.0@sha256:ea04167f627e506b3691304f4c639a52c05584cc9aea4af7ec87d4ed1299e7f5",
+          "node": "kube-worker-02",
+          "mount": "/data/torrents/.cross-seed-links",
+          "subPath": "cross-seed-links",
+          "readOnly": true
+        },
+        {
+          "pod": "qbit-manage-7cdd558d77-wj649",
+          "container": "main",
+          "image": "ghcr.io/stuffanthings/qbit_manage:v4.13.0@sha256:ea04167f627e506b3691304f4c639a52c05584cc9aea4af7ec87d4ed1299e7f5",
+          "node": "kube-worker-02",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        },
+        {
+          "pod": "qbit-manage-ru-6d687cb8f9-tvl7j",
+          "container": "main",
+          "image": "ghcr.io/stuffanthings/qbit_manage:v4.13.0@sha256:ea04167f627e506b3691304f4c639a52c05584cc9aea4af7ec87d4ed1299e7f5",
+          "node": "kube-worker-02",
+          "mount": "/data/torrents/.cross-seed-links",
+          "subPath": "cross-seed-links",
+          "readOnly": true
+        },
+        {
+          "pod": "qbit-manage-ru-6d687cb8f9-tvl7j",
+          "container": "main",
+          "image": "ghcr.io/stuffanthings/qbit_manage:v4.13.0@sha256:ea04167f627e506b3691304f4c639a52c05584cc9aea4af7ec87d4ed1299e7f5",
+          "node": "kube-worker-02",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        },
+        {
+          "pod": "qbittorrent-6657497f99-fjppx",
+          "container": "main",
+          "image": "lscr.io/linuxserver/qbittorrent:5.2.3_v2.0.14-ls476@sha256:2be038f3421f60f62e8e4bf201f66f385b68e4fbc9ed3ab79051069ea22e2650",
+          "node": "kube-worker-02",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        },
+        {
+          "pod": "qbittorrent-ru-6698b8f597-2vcrm",
+          "container": "main",
+          "image": "lscr.io/linuxserver/qbittorrent:5.2.3_v2.0.14-ls476@sha256:2be038f3421f60f62e8e4bf201f66f385b68e4fbc9ed3ab79051069ea22e2650",
+          "node": "kube-worker-02",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        },
+        {
+          "pod": "radarr-85759fd47-csrzv",
+          "container": "main",
+          "image": "lscr.io/linuxserver/radarr:6.4.4.10685-ls317@sha256:c960f2b52ec6542dbe6707c5a21e696a7c74fd8b17997454f4d10a55dacee133",
+          "node": "kube-master-01",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        },
+        {
+          "pod": "radarr-ru-f8f49f554-mr58b",
+          "container": "main",
+          "image": "lscr.io/linuxserver/radarr:6.4.4.10685-ls317@sha256:c960f2b52ec6542dbe6707c5a21e696a7c74fd8b17997454f4d10a55dacee133",
+          "node": "kube-worker-02",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        },
+        {
+          "pod": "shelfmark-556b496d78-vcxv7",
+          "container": "main",
+          "image": "ghcr.io/calibrain/shelfmark:v1.3.15@sha256:dae6e16fc40f42b2558d9f47d05e4ba7a7d268d23365a7c3eba266055249a124",
+          "node": "kube-worker-01",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        },
+        {
+          "pod": "sonarr-574885968b-bgbkt",
+          "container": "main",
+          "image": "lscr.io/linuxserver/sonarr:4.0.20.3014-ls325@sha256:a5c1a5fecbef946927ab90ad68df319ac5fe644057e5fc18cd993f01ac07b2b2",
+          "node": "kube-worker-02",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        },
+        {
+          "pod": "sonarr-ru-f9b84fc88-27svn",
+          "container": "main",
+          "image": "lscr.io/linuxserver/sonarr:4.0.20.3014-ls325@sha256:a5c1a5fecbef946927ab90ad68df319ac5fe644057e5fc18cd993f01ac07b2b2",
+          "node": "kube-worker-02",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        },
+        {
+          "pod": "subgen-56c7bb4848-wq6mq",
+          "container": "main",
+          "image": "mccloud/subgen:2026.07.3-cpu@sha256:d26f285ee7ab1f48d45a6b5aea7c1b1f999b16c3770b71eee10e8602ae374cc5",
+          "node": "kube-worker-02",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        },
+        {
+          "pod": "unpackerr-6767b5c4b8-94djq",
+          "container": "main",
+          "image": "ghcr.io/unpackerr/unpackerr:v0.16.1@sha256:406586865431b40b29353d899fb75a788f5384743f7f381444db5fe55d206914",
+          "node": "kube-worker-02",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "navidrome",
+      "pv": "pvc-310a4d93-1e73-480a-a5e3-d2e29dd5dac9",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/navidrome",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "navidrome-68ff8cfc56-h9fjc",
+          "container": "main",
+          "image": "ghcr.io/navidrome/navidrome:0.64.0@sha256:a384948b81bd1529986c5960169e7fc4fa00f46bde6bd517971a4c36671db2af",
+          "node": "kube-master-01",
+          "mount": "/config",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "prowlarr",
+      "pv": "pvc-af505e29-ea8b-4fae-9d42-7b4f10476968",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/prowlarr",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "prowlarr-5764fbf6b5-fq6sk",
+          "container": "main",
+          "image": "lscr.io/linuxserver/prowlarr:2.6.5.5623-ls161@sha256:c96b56d94d116a9f4de94bc23d3381689492e6c3cfb7435320e8d982e406f99a",
+          "node": "kube-worker-01",
+          "mount": "/config",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "qbittorrent",
+      "pv": "pvc-e7bc9116-d379-4dff-bd7f-7206f93a87bb",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/qbittorrent",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "qbittorrent-6657497f99-fjppx",
+          "container": "main",
+          "image": "lscr.io/linuxserver/qbittorrent:5.2.3_v2.0.14-ls476@sha256:2be038f3421f60f62e8e4bf201f66f385b68e4fbc9ed3ab79051069ea22e2650",
+          "node": "kube-worker-02",
+          "mount": "/config",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "qbittorrent-incomplete-pvc",
+      "pv": "qbittorrent-incomplete-pv",
+      "class": "",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1300Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/nvme-cache/incomplete",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": ["nfsvers=4.1", "noatime", "hard", "rsize=1048576", "wsize=1048576", "nconnect=8"],
+      "consumers": [
+        {
+          "pod": "qbittorrent-6657497f99-fjppx",
+          "container": "main",
+          "image": "lscr.io/linuxserver/qbittorrent:5.2.3_v2.0.14-ls476@sha256:2be038f3421f60f62e8e4bf201f66f385b68e4fbc9ed3ab79051069ea22e2650",
+          "node": "kube-worker-02",
+          "mount": "/downloads/incomplete",
+          "subPath": "qbittorrent",
+          "readOnly": false
+        },
+        {
+          "pod": "qbittorrent-ru-6698b8f597-2vcrm",
+          "container": "main",
+          "image": "lscr.io/linuxserver/qbittorrent:5.2.3_v2.0.14-ls476@sha256:2be038f3421f60f62e8e4bf201f66f385b68e4fbc9ed3ab79051069ea22e2650",
+          "node": "kube-worker-02",
+          "mount": "/downloads/incomplete",
+          "subPath": "qbittorrent-ru",
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "qbittorrent-ru",
+      "pv": "pvc-834ab109-e4ce-416a-8648-d66111df82cc",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/qbittorrent-ru",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "qbittorrent-ru-6698b8f597-2vcrm",
+          "container": "main",
+          "image": "lscr.io/linuxserver/qbittorrent:5.2.3_v2.0.14-ls476@sha256:2be038f3421f60f62e8e4bf201f66f385b68e4fbc9ed3ab79051069ea22e2650",
+          "node": "kube-worker-02",
+          "mount": "/config",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "radarr",
+      "pv": "pvc-9af5e6bf-3e5c-4620-90e6-8de30ea91469",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/radarr",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "radarr-85759fd47-csrzv",
+          "container": "main",
+          "image": "lscr.io/linuxserver/radarr:6.4.4.10685-ls317@sha256:c960f2b52ec6542dbe6707c5a21e696a7c74fd8b17997454f4d10a55dacee133",
+          "node": "kube-master-01",
+          "mount": "/config",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "radarr-ru",
+      "pv": "pvc-fe1386c8-da01-41a6-a2f0-b126df3a7631",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/radarr-ru",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "radarr-ru-f8f49f554-mr58b",
+          "container": "main",
+          "image": "lscr.io/linuxserver/radarr:6.4.4.10685-ls317@sha256:c960f2b52ec6542dbe6707c5a21e696a7c74fd8b17997454f4d10a55dacee133",
+          "node": "kube-worker-02",
+          "mount": "/config",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "seerr",
+      "pv": "pvc-7ffc48b9-c845-4034-8453-7d014faaa49c",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/seerr",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "seerr-767c689f8d-hxgjb",
+          "container": "main",
+          "image": "ghcr.io/seerr-team/seerr:v3.4.1@sha256:f4768de5f616248d723e05891f3345a1402123775d03bf0890dbfedc0831bda1",
+          "node": "kube-worker-02",
+          "mount": "/app/config",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "seerr-ru",
+      "pv": "pvc-853841f6-bd62-40c6-b27a-1c3ef85734e5",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/seerr-ru",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "seerr-ru-65455d7bc4-cc7sd",
+          "container": "main",
+          "image": "ghcr.io/seerr-team/seerr:v3.4.1@sha256:f4768de5f616248d723e05891f3345a1402123775d03bf0890dbfedc0831bda1",
+          "node": "kube-worker-02",
+          "mount": "/app/config",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "shelfmark",
+      "pv": "pvc-2c91d3cb-15ee-484e-9454-2f221aef42bd",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/shelfmark",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "shelfmark-556b496d78-vcxv7",
+          "container": "main",
+          "image": "ghcr.io/calibrain/shelfmark:v1.3.15@sha256:dae6e16fc40f42b2558d9f47d05e4ba7a7d268d23365a7c3eba266055249a124",
+          "node": "kube-worker-01",
+          "mount": "/config",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "sonarr",
+      "pv": "pvc-99787563-16df-4008-adc9-09ff6243aa1f",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/sonarr",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "sonarr-574885968b-bgbkt",
+          "container": "main",
+          "image": "lscr.io/linuxserver/sonarr:4.0.20.3014-ls325@sha256:a5c1a5fecbef946927ab90ad68df319ac5fe644057e5fc18cd993f01ac07b2b2",
+          "node": "kube-worker-02",
+          "mount": "/config",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "media",
+      "claim": "sonarr-ru",
+      "pv": "pvc-46358e28-cba1-4de9-bdd1-416c67a43deb",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/media/sonarr-ru",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "sonarr-ru-f9b84fc88-27svn",
+          "container": "main",
+          "image": "lscr.io/linuxserver/sonarr:4.0.20.3014-ls325@sha256:a5c1a5fecbef946927ab90ad68df319ac5fe644057e5fc18cd993f01ac07b2b2",
+          "node": "kube-worker-02",
+          "mount": "/config",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "monitoring",
+      "claim": "alertmanager-kube-prometheus-stack-alertmanager-db-alertmanager-kube-prometheus-stack-alertmanager-0",
+      "pv": "pvc-26818421-7975-4b7d-a558-4f4c0ae3e66c",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "2Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/monitoring/alertmanager-kube-prometheus-stack-alertmanager-db-alertmanager-kube-prometheus-stack-alertmanager-0",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "alertmanager-kube-prometheus-stack-alertmanager-0",
+          "container": "alertmanager",
+          "image": "quay.io/prometheus/alertmanager:v0.34.0",
+          "node": "kube-master-01",
+          "mount": "/alertmanager",
+          "subPath": "alertmanager-db",
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "monitoring",
+      "claim": "kube-prometheus-stack-grafana",
+      "pv": "pvc-7e3f3edf-2651-49af-a916-636e00f87922",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "2Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/monitoring/kube-prometheus-stack-grafana",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "kube-prometheus-stack-grafana-6676f4b87-hbx6t",
+          "container": "grafana",
+          "image": "docker.io/grafana/grafana:13.2.2-distroless",
+          "node": "kube-worker-01",
+          "mount": "/var/lib/grafana",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "monitoring",
+      "claim": "prometheus-kube-prometheus-stack-prometheus-db-prometheus-kube-prometheus-stack-prometheus-0",
+      "pv": "pvc-bb7cabb7-f4da-47ac-bf68-47533bc1d18d",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "10Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/monitoring/prometheus-kube-prometheus-stack-prometheus-db-prometheus-kube-prometheus-stack-prometheus-0",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "prometheus-kube-prometheus-stack-prometheus-0",
+          "container": "prometheus",
+          "image": "quay.io/prometheus/prometheus:v3.14.0-distroless",
+          "node": "kube-worker-01",
+          "mount": "/prometheus",
+          "subPath": "prometheus-db",
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "monitoring",
+      "claim": "storage-loki-0",
+      "pv": "pvc-ae12027d-1745-4df4-aab8-d51430cc9119",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteOnce"],
+      "requested": "10Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/monitoring/storage-loki-0",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "loki-0",
+          "container": "loki",
+          "image": "docker.io/grafana/loki:3.6.11",
+          "node": "kube-master-01",
+          "mount": "/var/loki",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "monitoring",
+      "claim": "storage-tempo-0",
+      "pv": "pvc-06af9b0f-d0cc-4ffb-be79-73cd0ead60c5",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "5Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/monitoring/storage-tempo-0",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "tempo-0",
+          "container": "tempo",
+          "image": "docker.io/grafana/tempo:2.9.0",
+          "node": "kube-worker-01",
+          "mount": "/var/tempo",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "operations",
+      "claim": "bytestash",
+      "pv": "pvc-57f24015-28f2-4084-a4c1-b21b536950db",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/bytestash",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "bytestash-5bddc6b674-6jprf",
+          "container": "main",
+          "image": "ghcr.io/jordan-dalby/bytestash:1.5.12@sha256:eb4f736b8cd45443be0ed6d8da3ee49b76dbf27f4d3925b81b3c407207e62531",
+          "node": "kube-worker-01",
+          "mount": "/config",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "operations",
+      "claim": "bytestash-data",
+      "pv": "pvc-0e27a740-09e2-49f8-aeeb-0687da67cd0a",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/bytestash-data",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "bytestash-5bddc6b674-6jprf",
+          "container": "main",
+          "image": "ghcr.io/jordan-dalby/bytestash:1.5.12@sha256:eb4f736b8cd45443be0ed6d8da3ee49b76dbf27f4d3925b81b3c407207e62531",
+          "node": "kube-worker-01",
+          "mount": "/data/snippets",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "operations",
+      "claim": "changedetection-data",
+      "pv": "pvc-7fd371bd-4772-401a-9c22-450650c04b14",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "2Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/changedetection-data",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "changedetection-794c7f8b45-xxcl6",
+          "container": "main",
+          "image": "ghcr.io/dgtlmoon/changedetection.io:0.60.7@sha256:096dae27b5d677b89f0e810fff95a70403271aa3ff3b6437952d2db9be7e74c5",
+          "node": "kube-worker-01",
+          "mount": "/datastore",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "operations",
+      "claim": "convertx-config",
+      "pv": "pvc-6e8bd672-450d-4d14-962e-3611c66fcea7",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "5Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/convertx-config",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "convertx-7fd5d669f-hsjnv",
+          "container": "main",
+          "image": "ghcr.io/c4illin/convertx:v0.18.0@sha256:b515b04bfd25298a5cdc775b2fcd48b9399bab658ce13e2598b65df1b16098c8",
+          "node": "kube-worker-01",
+          "mount": "/app/data",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "operations",
+      "claim": "excalidash-data",
+      "pv": "pvc-58b663e8-896e-41b5-9146-18c8fd6c7235",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "2Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/excalidash-data",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "excalidash-7855f8b978-l972w",
+          "container": "backend",
+          "image": "zimengxiong/excalidash-backend:0.6.0@sha256:cbdab75f31b21e342b464d6404a454791e5da7452e3614b137021a800fc4cac6",
+          "node": "kube-master-01",
+          "mount": "/app/prisma",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "operations",
+      "claim": "filebrowser-apps-pvc",
+      "pv": "filebrowser-apps-pv",
+      "class": "",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "10Ti",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": ["nfsvers=4.1", "noatime", "hard", "rsize=1048576", "wsize=1048576"],
+      "consumers": [
+        {
+          "pod": "filebrowser-555569b4c5-46wbb",
+          "container": "main",
+          "image": "gtstef/filebrowser:1.5.6-stable@sha256:7c5d7ac8ffda31294d278063cf9d2e04303b39e6dce1f4c691342240ca7703b8",
+          "node": "kube-worker-01",
+          "mount": "/srv/apps",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "operations",
+      "claim": "filebrowser-data-pvc",
+      "pv": "pvc-f1df3e0d-4a59-429e-9814-c1dc472b5c8e",
+      "class": "local-path",
+      "accessModes": ["ReadWriteOnce"],
+      "requested": "20Gi",
+      "phase": "Bound",
+      "reclaim": "Delete",
+      "backend": {
+        "local": {
+          "path": "/var/lib/rancher/k3s/storage/pvc-f1df3e0d-4a59-429e-9814-c1dc472b5c8e_operations_filebrowser-data-pvc"
+        }
+      },
+      "nodeAffinity": {
+        "required": {
+          "nodeSelectorTerms": [
+            {
+              "matchExpressions": [
+                {
+                  "key": "kubernetes.io/hostname",
+                  "operator": "In",
+                  "values": ["kube-worker-01"]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "filebrowser-555569b4c5-46wbb",
+          "container": "main",
+          "image": "gtstef/filebrowser:1.5.6-stable@sha256:7c5d7ac8ffda31294d278063cf9d2e04303b39e6dce1f4c691342240ca7703b8",
+          "node": "kube-worker-01",
+          "mount": "/home/filebrowser/data",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "operations",
+      "claim": "filebrowser-media-pvc",
+      "pv": "filebrowser-media-pv",
+      "class": "",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "10Ti",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/main/media",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": ["nfsvers=4.1", "noatime", "hard", "rsize=1048576", "wsize=1048576"],
+      "consumers": [
+        {
+          "pod": "filebrowser-555569b4c5-46wbb",
+          "container": "main",
+          "image": "gtstef/filebrowser:1.5.6-stable@sha256:7c5d7ac8ffda31294d278063cf9d2e04303b39e6dce1f4c691342240ca7703b8",
+          "node": "kube-worker-01",
+          "mount": "/srv/media",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "operations",
+      "claim": "karakeep-data",
+      "pv": "pvc-0f8b75d1-01c7-4099-b2c6-33e044a13720",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "5Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/karakeep-data",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "karakeep-5dd984cdf4-lw4sh",
+          "container": "main",
+          "image": "ghcr.io/karakeep-app/karakeep:0.33.2@sha256:b069e4307dec06ea06d16989c6861c30a1ff208568be44ed5fb5d422cd3e950c",
+          "node": "kube-worker-01",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "operations",
+      "claim": "karakeep-meilisearch",
+      "pv": "pvc-f5ac67d1-2af1-46d1-81f3-8014d69853c3",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "2Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/karakeep-meilisearch",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "karakeep-5dd984cdf4-lw4sh",
+          "container": "meilisearch",
+          "image": "getmeili/meilisearch:v1.53.2@sha256:c94e58ca09662dd6e65e8f1b0fd145767be3da7d5422a863a27b8d2b68e090c9",
+          "node": "kube-worker-01",
+          "mount": "/meili_data",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "operations",
+      "claim": "listmonk",
+      "pv": "pvc-6719a185-644d-48f0-a1ea-b0e6f9d1f78c",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/listmonk",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "listmonk-5fb76bfbfc-xjknd",
+          "container": "main",
+          "image": "listmonk/listmonk:v6.2.0@sha256:f535d59e14991337a9f2d570273685378ae86b0d7698c3e00da444e3bc205286",
+          "node": "kube-worker-02",
+          "mount": "/config",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "operations",
+      "claim": "listmonk-uploads",
+      "pv": "pvc-459b727c-af36-4aba-9edf-823b83f2d0ab",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/listmonk-uploads",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "listmonk-5fb76bfbfc-xjknd",
+          "container": "main",
+          "image": "listmonk/listmonk:v6.2.0@sha256:f535d59e14991337a9f2d570273685378ae86b0d7698c3e00da444e3bc205286",
+          "node": "kube-worker-02",
+          "mount": "/listmonk/uploads",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "operations",
+      "claim": "mealie",
+      "pv": "pvc-70afd434-1ab2-435a-b468-e7c8d3279ea1",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/mealie",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "mealie-8df84f7f8-zp9bz",
+          "container": "main",
+          "image": "ghcr.io/mealie-recipes/mealie:v3.27.0",
+          "node": "kube-worker-02",
+          "mount": "/config",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "operations",
+      "claim": "mealie-data",
+      "pv": "pvc-4c82a3e4-18f8-4596-b162-61099184c4d0",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "5Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/mealie-data",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "mealie-8df84f7f8-zp9bz",
+          "container": "main",
+          "image": "ghcr.io/mealie-recipes/mealie:v3.27.0",
+          "node": "kube-worker-02",
+          "mount": "/app/data",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "operations",
+      "claim": "microbin-config",
+      "pv": "pvc-cd0c6905-bbf5-4bf9-9465-eff863b98a44",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/microbin-config",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "microbin-6dbc49d849-b9vwg",
+          "container": "main",
+          "image": "danielszabo99/microbin:2.1.4@sha256:6660e5ccad0d764fa3c0032464ffb8f4b4f28c92a2eb9e39202b94cdc5b68909",
+          "node": "kube-worker-01",
+          "mount": "/app/microbin_data",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "operations",
+      "claim": "ntfy-cache",
+      "pv": "pvc-e6523276-eb51-48ce-a8e6-00c8deb28dc0",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "5Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/ntfy-cache",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "ntfy-7ff474599-8p96b",
+          "container": "main",
+          "image": "binwiederhier/ntfy:v2.28.0@sha256:6ef4b819f722fccdc036af611c4774cfdc2de821ab74fdd48bbf4c9d6f8973da",
+          "node": "kube-worker-02",
+          "mount": "/var/cache/ntfy",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "operations",
+      "claim": "ntfy-config",
+      "pv": "pvc-63c84c37-2116-485e-8d4a-802125c29f57",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "100Mi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/ntfy-config",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "ntfy-7ff474599-8p96b",
+          "container": "main",
+          "image": "binwiederhier/ntfy:v2.28.0@sha256:6ef4b819f722fccdc036af611c4774cfdc2de821ab74fdd48bbf4c9d6f8973da",
+          "node": "kube-worker-02",
+          "mount": "/var/lib/ntfy",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "operations",
+      "claim": "paperless-ngx",
+      "pv": "pvc-eed47342-ab2c-4e51-b618-8b641dc9edf6",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/paperless-ngx",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "paperless-ngx-6577557866-lnknn",
+          "container": "main",
+          "image": "ghcr.io/paperless-ngx/paperless-ngx:3.1.3@sha256:aa810a36942c63d4ee70d00eda7236cd3d6acfb7eb3f7987fb568ed14df8817a",
+          "node": "kube-worker-01",
+          "mount": "/config",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "operations",
+      "claim": "paperless-ngx-data",
+      "pv": "pvc-c14f3f9b-72db-4ec8-8ca7-0d80f009cdb9",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "5Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/paperless-ngx-data",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "paperless-ngx-6577557866-lnknn",
+          "container": "main",
+          "image": "ghcr.io/paperless-ngx/paperless-ngx:3.1.3@sha256:aa810a36942c63d4ee70d00eda7236cd3d6acfb7eb3f7987fb568ed14df8817a",
+          "node": "kube-worker-01",
+          "mount": "/usr/src/paperless/data",
+          "subPath": "data",
+          "readOnly": false
+        },
+        {
+          "pod": "paperless-ngx-6577557866-lnknn",
+          "container": "main",
+          "image": "ghcr.io/paperless-ngx/paperless-ngx:3.1.3@sha256:aa810a36942c63d4ee70d00eda7236cd3d6acfb7eb3f7987fb568ed14df8817a",
+          "node": "kube-worker-01",
+          "mount": "/usr/src/paperless/media",
+          "subPath": "media",
+          "readOnly": false
+        },
+        {
+          "pod": "paperless-ngx-6577557866-lnknn",
+          "container": "main",
+          "image": "ghcr.io/paperless-ngx/paperless-ngx:3.1.3@sha256:aa810a36942c63d4ee70d00eda7236cd3d6acfb7eb3f7987fb568ed14df8817a",
+          "node": "kube-worker-01",
+          "mount": "/usr/src/paperless/consume",
+          "subPath": "consume",
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "operations",
+      "claim": "searxng",
+      "pv": "pvc-1eb30b7d-2694-448d-82b6-faccf9dc1fe6",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "256Mi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/searxng",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "searxng-5bc47c755b-4wsck",
+          "container": "main",
+          "image": "searxng/searxng:2026.4.7-08ef7a63d@sha256:6a89a150d0163877caab1982b7a20d0a03fd4b39401a0d3f26f61ad205949442",
+          "node": "kube-worker-02",
+          "mount": "/var/cache/searxng",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "operations",
+      "claim": "stirling-pdf-config",
+      "pv": "pvc-4d413f2c-9c8c-40b2-8465-d64f6c0f69cd",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/stirling-pdf-config",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "stirling-pdf-654956768d-bnk7p",
+          "container": "main",
+          "image": "stirlingtools/stirling-pdf:latest@sha256:3b3670fce70b396ec56ba380a3cc7858e0abf83fe13f31c88f7737847763a396",
+          "node": "kube-worker-02",
+          "mount": "/configs",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "operations",
+      "claim": "vaultwarden-data",
+      "pv": "pvc-9abce4b0-4a4c-4dd2-acbe-ceab31a8cb23",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "1Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/vaultwarden-data",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "vaultwarden-8567b6688b-qlp2w",
+          "container": "main",
+          "image": "ghcr.io/dani-garcia/vaultwarden:1.37.3@sha256:1587c45feaa479f1f5e8af3b00eded36bff77bcf1880cf8dbf0541706dd470e0",
+          "node": "kube-master-01",
+          "mount": "/data",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "namespace": "operations",
+      "claim": "vikunja-files",
+      "pv": "pvc-1589d760-c130-4244-a566-50b9280d47a8",
+      "class": "nfs-pv",
+      "accessModes": ["ReadWriteMany"],
+      "requested": "5Gi",
+      "phase": "Bound",
+      "reclaim": "Retain",
+      "backend": {
+        "nfs": {
+          "path": "/mnt/apps/pv/operations/vikunja-files",
+          "server": "10.9.8.30"
+        }
+      },
+      "nodeAffinity": null,
+      "declaredMountOptions": [],
+      "consumers": [
+        {
+          "pod": "vikunja-5f7f8cfcdd-jwnfs",
+          "container": "main",
+          "image": "vikunja/vikunja:2.6.0@sha256:417ada6f94e81f0267aa2f007d0a811fc82d38dd2aa58351e3ea520ca01c2ea5",
+          "node": "kube-worker-02",
+          "mount": "/app/vikunja/files",
+          "subPath": null,
+          "readOnly": false
+        }
+      ]
+    }
+  ]
+}

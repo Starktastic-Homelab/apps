@@ -1,0 +1,80 @@
+{
+  "files": [
+    {
+      "name": "TrueNAS-SCALE-25.10.7.iso",
+      "bytes": 2339317760,
+      "sha256": "54ce9441ce66966a392e28f63604ca3c2c083d0bec4db7bb5af2f74f7a007c8e"
+    },
+    {
+      "name": "k3s",
+      "bytes": 81522850,
+      "sha256": "39eed8f53f277497dfc2542f66eab0ed68a94dfc598946dbebfb50366916c7a2"
+    },
+    {
+      "name": "k3s-airgap-images-amd64.tar.zst",
+      "bytes": 194444184,
+      "sha256": "0b4ff0d6e233de54be4e16cb5aa298fd53ad88f66ad8ae31093b5ef4dcefcdd0"
+    },
+    {
+      "name": "democratic-csi-0.15.1.tgz",
+      "bytes": 14204,
+      "sha256": "3d87e129cea46d49d810e9e5085b61d06c01a313bcf92160e3d106adc30426ed"
+    },
+    {
+      "name": "app-template-5.2.1.tgz",
+      "bytes": 206954,
+      "sha256": "1cf49aeb5d5fc33275813d152e1f63c7f82c0930558d548bf0166fa9c4a8c5a8"
+    },
+    {
+      "name": "install-k3s.sh",
+      "bytes": 38620,
+      "sha256": "ed01f89fd977bf20ac1516bbebf8370bf3ddbaa55dac8aba610956a4c78cc00b"
+    },
+    {
+      "name": "argocd-core-v3.5.3.yaml",
+      "bytes": 1882880,
+      "sha256": "1a87025d8eb2eae621653fd312fb9ca51df1b4b3b6992a030e3a9ef38e45c448"
+    },
+    {
+      "name": "sealed-secrets-v0.40.0.yaml",
+      "bytes": 11466,
+      "sha256": "ac8aabccdd9110430d117501705818115b2ab0993700a9c118d4d42cf4015a17"
+    },
+    {
+      "name": "kubeseal.tar.gz",
+      "bytes": 23842243,
+      "sha256": "9314c35916646e9d59c8f06b1314574b4e79c4d76f079433607ed7b697bb5eb7"
+    },
+    {
+      "name": "crane.tar.gz",
+      "bytes": 15213147,
+      "sha256": "36c67a932f489b3f2724b64af90b599a8ef2aa7b004872597373c0ad694dc059"
+    }
+  ],
+  "extra_images": [
+    {
+      "tag": "quay.io/argoproj/argocd:v3.5.3",
+      "pinned": "quay.io/argoproj/argocd:v3.5.3@sha256:5a7367b15ab5c9fcce917954ec74527c8e401671756611654a9d998d9fff0662",
+      "archive": "extra-0.tar",
+      "sha256": "99b2ddb8debe9e6c7678eeab9388ae4ed5be690112dc1a6452caacfb2de16d98"
+    },
+    {
+      "tag": "public.ecr.aws/docker/library/redis:8.2.3-alpine",
+      "pinned": "public.ecr.aws/docker/library/redis:8.2.3-alpine@sha256:e499175dfb27569cd40010c2eee346113db95fdd0efc88ab9fd70a9e807f4542",
+      "archive": "extra-1.tar",
+      "sha256": "90d2d1379ec5873e615ca9863e84509f81ba837f8d39ae7192c3dba526d53811"
+    },
+    {
+      "tag": "docker.io/bitnami/sealed-secrets-controller:0.40.0",
+      "pinned": "docker.io/bitnami/sealed-secrets-controller:0.40.0@sha256:6742135a6d131d793d8248a267076333427f2391ce764845dcea3f8a2be85ace",
+      "archive": "extra-2.tar",
+      "sha256": "0fd506eeb58c0e40a04be3f9d1a28143d9983a5433622b4ecf4b351d36ab85cd"
+    },
+    {
+      "tag": "docker.io/library/python:3.13-alpine@sha256:f3ebba2ace255c93267a0278da88c7f1044432991abc4e6ad20d22e34dd0f8ee",
+      "pinned": "docker.io/library/python:3.13-alpine@sha256:f3ebba2ace255c93267a0278da88c7f1044432991abc4e6ad20d22e34dd0f8ee",
+      "archive": "extra-3.tar",
+      "sha256": "148755b3fd4ae3d2cca5631af0935ec32d9710697f276bb647ef6866dd0ff28e"
+    }
+  ]
+}

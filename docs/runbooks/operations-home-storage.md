@@ -1,6 +1,6 @@
 # Operations and home application storage
 
-Karakeep (including Meilisearch), ByteStash, ConvertX and Home Assistant (including Matter) use six retained ext4 Proxmox CSI volumes. Excalidash and CrowdSec use the existing PostgreSQL service and recover their original credentials from Sealed Secrets. The preparation definitions in `scripts/operations-home-retained/production/` are inactive until copied into their normal Argo source directories during the approved cutover.
+This is inactive preparation; production has not migrated yet. The selected design puts Karakeep (including Meilisearch), ByteStash, ConvertX and Home Assistant (including Matter) on six retained ext4 Proxmox CSI volumes. Excalidash and CrowdSec will use the existing PostgreSQL service and recover their original credentials from Sealed Secrets. The preparation definitions in `scripts/operations-home-retained/production/` are inactive until copied into their normal Argo source directories during the approved cutover.
 
 | Application | Retained state | Capacity |
 | --- | --- | --- |

@@ -14,6 +14,11 @@ class Preservation(unittest.TestCase):
  def test_native_timezone_and_invalid_dates_refused(self):
   for v in ('2026-10-17 00:00:00','2026-19-45T00:00:00Z','nonsense'):
    with self.subTest(v=v),self.assertRaises(ValueError):data.normalize('crowdsec',v,'timestamp with time zone',False)
+ def test_malformed_timezone_components_refused(self):
+  for suffix in ('+00:60','+00:99','-01:99','+24:00','-99:00'):
+   for source in (True,False):
+    with self.subTest(suffix=suffix,source=source),self.assertRaises(ValueError):data.normalize('crowdsec','2026-10-17T12:00:00'+suffix,'timestamp with time zone',source)
+  self.assertEqual(data.normalize('crowdsec','2026-10-17T12:00:00+02:30','timestamp with time zone',True),'2026-10-17T09:30:00.000000+00:00')
  def test_text_binary_null_and_boolean_preserved(self):
   self.assertEqual(data.normalize('excalidash',b'\x00\xff','bytea',True),('bytes','00ff'))
   self.assertIsNone(data.normalize('excalidash',None,'text',True))

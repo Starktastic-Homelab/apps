@@ -95,6 +95,8 @@ def timestamp(app, value, kind, source):
                 raise ValueError('Unapproved timestamp precision loss')
             fraction = fraction[:6]
         suffix = match[4] or ''
+        if suffix and suffix != 'Z' and (int(suffix[1:3]) > 23 or int(suffix[4:6]) > 59):
+            raise ValueError('Invalid timezone offset components')
         value = datetime.datetime.fromisoformat(match[1] + 'T' + match[2]
             + ('.' + fraction if fraction else '') + suffix.replace('Z', '+00:00'))
     if not isinstance(value, datetime.datetime):

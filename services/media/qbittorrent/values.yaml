@@ -3,6 +3,8 @@ controllers:
     pod:
       nodeSelector:
         node-role.kubernetes.io/worker: "true"
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 600
     initContainers:
       clean-stale-locks:
         image:
@@ -13,6 +15,36 @@ controllers:
           - -c
           - |
             rm -fv /config/qBittorrent/lockfile /config/qBittorrent/ipc-socket
+        dependsOn: retained-data
+      retained-data:
+        image:
+          repository: python
+          digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+        command:
+          - python3
+          - -I
+          - -B
+          - /retained-startup/guard.py
+          - qbittorrent
+          - /retained
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
     containers:
       main:
         image:
@@ -37,6 +69,8 @@ controllers:
             spec:
               failureThreshold: 30
               periodSeconds: 5
+    replicas: 1
+    strategy: Recreate
 service:
   main:
     controller: main
@@ -65,8 +99,14 @@ persistence:
       # Keep downloaded mods available when the registry is unreachable at startup.
       - path: /modcache
         subPath: modcache
+    enabled: false
   media:
     enabled: true
+    globalMounts: []
+    advancedMounts:
+      main:
+        main:
+          - path: /data
   incomplete:
     enabled: true
     type: persistentVolumeClaim
@@ -76,3 +116,29 @@ persistence:
         main:
           - path: /downloads/incomplete
             subPath: qbittorrent
+    globalMounts: []
+  retained-startup:
+    type: configMap
+    name: utility-home-retained-startup-guard
+    defaultMode: 292
+    globalMounts: []
+    advancedMounts:
+      main:
+        retained-data:
+          - path: /retained-startup
+            readOnly: true
+  retained-config:
+    enabled: true
+    existingClaim: qbittorrent-block
+    globalMounts: []
+    advancedMounts:
+      main:
+        main:
+          - path: /config
+          - subPath: modcache
+            path: /modcache
+        retained-data:
+          - path: /retained
+            readOnly: true
+        clean-stale-locks:
+          - path: /config

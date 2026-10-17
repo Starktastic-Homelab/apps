@@ -17,3 +17,16 @@ persistence:
         main:
           - path: /downloads/incomplete
             subPath: qbittorrent-ru
+  retained-config:
+    existingClaim: qbittorrent-ru-block
+controllers:
+  main:
+    initContainers:
+      retained-data:
+        command:
+          - python3
+          - -I
+          - -B
+          - /retained-startup/guard.py
+          - qbittorrent-ru
+          - /retained

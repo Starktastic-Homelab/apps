@@ -201,5 +201,20 @@ class RenderTests(unittest.TestCase):
                 self.assertEqual([d for d in before if d['kind'] == kind], [d for d in after if d['kind'] == kind])
 
 
+class EnrollmentInputsTests(unittest.TestCase):
+    def test_generation_hook_and_embedded_gate_preserve_original_script_bytes(self):
+        sys.path.insert(0, str(ROOT / 'scripts/postgres-enrollment'))
+        import completion_gate
+        source = (ROOT / 'scripts/postgres-enrollment/completion_gate.py').read_text()
+        candidate = ROOT / 'scripts/media-retained/production/cleanuparr-postgresql'
+        data = yaml.safe_load((candidate / 'enrollment/enrollment-configmap.yaml').read_text())['data']
+        self.assertEqual(data['completion_gate.py'], source)
+        self.assertEqual(data['acceptance-generation'], completion_gate.generation(data))
+        job = yaml.safe_load((candidate / 'enrollment/enrollment-job.yaml').read_text())
+        self.assertEqual(job['metadata']['name'], completion_gate.hook_name(data['acceptance-generation']))
+        consumer = next(d for d in yaml.safe_load_all((candidate / 'consumer-gate.yaml').read_text()) if d['kind'] == 'ConfigMap')
+        self.assertEqual(consumer['data']['completion_gate.py'], source)
+
+
 if __name__ == '__main__':
     unittest.main()

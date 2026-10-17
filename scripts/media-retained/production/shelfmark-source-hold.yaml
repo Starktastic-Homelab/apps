@@ -1,0 +1,41 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: shelfmark-source-hold
+  annotations:
+    argocd.argoproj.io/sync-wave: "-6"
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - pods
+  matchConditions:
+    - name: held-data-claim
+      expression:
+        has(object.spec.volumes) && object.spec.volumes.exists(v, (object.metadata.namespace == 'media' &&
+        has(v.persistentVolumeClaim) && v.persistentVolumeClaim.claimName == 'shelfmark') || (has(v.nfs) && (v.nfs.path
+        == '/mnt/apps/pv/media/shelfmark' || v.nfs.path.startsWith('/mnt/apps/pv/media/shelfmark/'))))
+  validations:
+    - expression: "false"
+      message: The preserved shelfmark NFS source is held; recovery acceptance is required.
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: shelfmark-source-hold
+  annotations:
+    argocd.argoproj.io/sync-wave: "-6"
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  policyName: shelfmark-source-hold
+  validationActions:
+    - Deny

@@ -9,8 +9,8 @@ controllers:
           requests:
             memory: 512Mi
         env:
-          PUID: null
-          PGID: null
+          PUID:
+          PGID:
         probes:
           liveness:
             enabled: true
@@ -62,6 +62,74 @@ controllers:
               periodSeconds: 5
               timeoutSeconds: 2
 
+    replicas: 1
+    strategy: Recreate
+    pod:
+      automountServiceAccountToken: false
+      nodeSelector:
+        node-role.kubernetes.io/worker: "true"
+      securityContext:
+        supplementalGroups:
+          - 0
+    initContainers:
+      retained-home-assistant-config:
+        image:
+          repository: python
+          digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+        command:
+          - python3
+          - -I
+          - -B
+          - /retained-startup/guard.py
+          - home-assistant
+          - /retained
+        securityContext:
+          runAsNonRoot: false
+          runAsUser: 0
+          runAsGroup: 0
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
+      retained-matter-server-data:
+        image:
+          repository: python
+          digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+        command:
+          - python3
+          - -I
+          - -B
+          - /retained-startup/guard.py
+          - home-assistant-matter
+          - /retained
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
 defaultPodOptions:
   hostNetwork: true
   dnsPolicy: ClusterFirstWithHostNet
@@ -91,16 +159,37 @@ persistence:
   config:
     enabled: false
   home-assistant-config:
-    existingClaim: home-assistant-config
+    existingClaim: home-assistant-config-block
     advancedMounts:
       main:
         main:
           - path: /config
+        retained-home-assistant-config:
+          - path: /retained
+            readOnly: true
+    globalMounts: []
   matter-server-data:
-    existingClaim: matter-server-data
+    existingClaim: home-assistant-matter-block
     advancedMounts:
       main:
         matter-server:
           - path: /data
+        retained-matter-server-data:
+          - path: /retained
+            readOnly: true
+    globalMounts: []
   media:
     enabled: false
+  retained-startup:
+    type: configMap
+    name: operations-home-retained-startup-guard
+    defaultMode: 292
+    globalMounts: []
+    advancedMounts:
+      main:
+        retained-home-assistant-config:
+          - path: /retained-startup
+            readOnly: true
+        retained-matter-server-data:
+          - path: /retained-startup
+            readOnly: true

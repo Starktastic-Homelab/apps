@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: crowdsec-retained-database-guard
+  namespace: crowdsec
+data:
+  main.sql: |
+    -- Read-only retained-state acceptance; never creates or repairs application state.
+    BEGIN READ ONLY;
+    SET LOCAL statement_timeout = '10s';
+    DO $guard$
+    BEGIN
+      IF current_database() <> 'crowdsec' OR current_user <> 'crowdsec'
+         OR (SELECT system_identifier::text FROM pg_control_system()) <> '7584099661242523698' THEN
+        RAISE EXCEPTION 'Retained database identity rejected';
+      END IF;
+      IF to_regclass('public."alerts"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."allow_list_allowlist_items"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."allow_list_items"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."allow_lists"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."bouncers"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."config_items"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."decisions"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."events"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."locks"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."machines"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."meta"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."metrics"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF NOT EXISTS (SELECT FROM public."machines") THEN
+        RAISE EXCEPTION 'Empty retained native state';
+      END IF;
+      IF NOT EXISTS (SELECT FROM public."bouncers") THEN
+        RAISE EXCEPTION 'Empty retained native state';
+      END IF;
+    END
+    $guard$;
+    ROLLBACK;

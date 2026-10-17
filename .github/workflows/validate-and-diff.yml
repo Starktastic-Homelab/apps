@@ -127,6 +127,9 @@ jobs:
           helm pull crowdsec --repo https://crowdsecurity.github.io/helm-charts --version "$CROWDSEC_VERSION" --untar --untardir /tmp/operations-home-charts
           OPERATIONS_HOME_RENDERS=/tmp/operations-home-renders APP_TEMPLATE_CHART=/tmp/operations-home-charts/app-template CROWDSEC_CHART=/tmp/operations-home-charts/crowdsec bash scripts/operations-home-retained/check.sh
 
+      - name: Check utility and MQTT retained CSI preparation
+        run: UTILITY_HOME_RENDERS=/tmp/utility-home-renders APP_TEMPLATE_CHART=/tmp/operations-home-charts/app-template bash scripts/utility-home-retained/check.sh
+
       - name: Check monitoring retained CSI lifecycle
         run: |
           mkdir -p /tmp/monitoring-retained

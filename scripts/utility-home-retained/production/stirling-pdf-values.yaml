@@ -1,0 +1,60 @@
+controllers:
+  main:
+    replicas: 1
+    strategy: Recreate
+    pod:
+      automountServiceAccountToken: false
+    initContainers:
+      retained-data:
+        image:
+          repository: python
+          digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+        command:
+          - python3
+          - -I
+          - -B
+          - /retained-startup/guard.py
+          - stirling-pdf
+          - /retained
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
+persistence:
+  retained-startup:
+    type: configMap
+    name: utility-home-retained-startup-guard
+    defaultMode: 292
+    globalMounts: []
+    advancedMounts:
+      main:
+        retained-data:
+          - path: /retained-startup
+            readOnly: true
+  stirling-pdf-config:
+    enabled: false
+  retained-config:
+    enabled: true
+    existingClaim: stirling-pdf-config-block
+    globalMounts: []
+    advancedMounts:
+      main:
+        main:
+          - path: /configs
+        retained-data:
+          - path: /retained
+            readOnly: true

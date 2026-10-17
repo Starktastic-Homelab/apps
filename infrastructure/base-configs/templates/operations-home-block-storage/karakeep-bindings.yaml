@@ -1,0 +1,107 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: karakeep-data-block
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  capacity:
+    storage: 4Gi
+  accessModes:
+    - ReadWriteOncePod
+  volumeMode: Filesystem
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: proxmox-retained
+  claimRef:
+    name: karakeep-data-block
+    namespace: operations
+  csi:
+    driver: csi.proxmox.sinextra.dev
+    fsType: ext4
+    volumeHandle: homelab//k3s-block/9999/vm-9999-karakeep-data.raw
+    volumeAttributes:
+      storage: k3s-block
+      cache: none
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: topology.kubernetes.io/region
+              operator: In
+              values:
+                - homelab
+            - key: topology.kubernetes.io/zone
+              operator: In
+              values:
+                - pve
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: karakeep-data-block
+  namespace: operations
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  accessModes:
+    - ReadWriteOncePod
+  volumeMode: Filesystem
+  storageClassName: proxmox-retained
+  volumeName: karakeep-data-block
+  resources:
+    requests:
+      storage: 4Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: karakeep-meilisearch-block
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  capacity:
+    storage: 4Gi
+  accessModes:
+    - ReadWriteOncePod
+  volumeMode: Filesystem
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: proxmox-retained
+  claimRef:
+    name: karakeep-meilisearch-block
+    namespace: operations
+  csi:
+    driver: csi.proxmox.sinextra.dev
+    fsType: ext4
+    volumeHandle: homelab//k3s-block/9999/vm-9999-karakeep-meilisearch.raw
+    volumeAttributes:
+      storage: k3s-block
+      cache: none
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: topology.kubernetes.io/region
+              operator: In
+              values:
+                - homelab
+            - key: topology.kubernetes.io/zone
+              operator: In
+              values:
+                - pve
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: karakeep-meilisearch-block
+  namespace: operations
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  accessModes:
+    - ReadWriteOncePod
+  volumeMode: Filesystem
+  storageClassName: proxmox-retained
+  volumeName: karakeep-meilisearch-block
+  resources:
+    requests:
+      storage: 4Gi

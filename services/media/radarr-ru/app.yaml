@@ -1,7 +1,9 @@
 name: radarr-ru
 namespace: media
 deployPhase: services
+manifests: true
 baseApp: services/media/radarr
+valuesOverride: true
 commonValuesExtras:
   - templates/media-arr-common.yaml
 

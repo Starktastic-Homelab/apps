@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: media-retained-startup-guard
+  namespace: media
+data:
+  guard.py: "#!/usr/bin/env python3\n\"\"\"Read retained identity and native headers; never open SQLite or\
+    \ repair data.\"\"\"\nimport os\nfrom pathlib import Path\nimport stat\nimport sys\n\nLAYOUTS = {\n   \
+    \ 'sonarr': ('sonarr.db', 'logs.db', 'config.xml'),\n    'sonarr-ru': ('sonarr.db', 'logs.db', 'config.xml'),\n\
+    \    'radarr': ('radarr.db', 'logs.db', 'config.xml'),\n    'radarr-ru': ('radarr.db', 'logs.db', 'config.xml'),\n\
+    \    'lidarr': ('lidarr.db', 'logs.db', 'config.xml'),\n    'cleanuparr': ('DataProtection-Keys/', 'jwt-key.bin',\
+    \ 'plex-client-id.txt'),\n    'navidrome': ('navidrome.db',),\n    'audiobookshelf': ('config/absdatabase.sqlite',\
+    \ 'metadata/'),\n    'shelfmark': ('users.db', 'settings.json', '.flask_secret'),\n    'cineplete':
+    ('config/config.yml',\
+    \ 'data/overrides.json', 'data/results.json'),\n}\n\n\ndef validate(app, root):\n    if app not in LAYOUTS\
+    \ or root.absolute() != root.resolve(strict=True) or not root.is_dir():\n        raise ValueError('Invalid\
+    \ retained root or application')\n    if app == 'cleanuparr':\n        expected = {'DATABASE_PROVIDER':\
+    \ 'postgres', 'POSTGRES_HOST': 'postgres-postgresql.databases',\n                    'POSTGRES_PORT': '5432',\
+    \ 'POSTGRES_USER': 'cleanuparr', 'POSTGRES_DB': 'cleanuparr'}\n        if any(os.environ.get(key) != value\
+    \ for key, value in expected.items()):\n            raise ValueError('Wrong database backend')\n      \
+    \  password = os.environ.get('POSTGRES_PASS', '')\n        if not password or len(password.encode()) >\
+    \ 4096 or any(c in password for c in '\\0\\r\\n'):\n            raise ValueError('Invalid database credential')\n\
+    \        keyring = root / 'DataProtection-Keys'\n        if not stat.S_ISDIR(keyring.lstat().st_mode):\n\
+    \            raise ValueError('Invalid retained keyring')\n        keys = list(keyring.glob('key-*.xml'))\n\
+    \        if not keys or any(not stat.S_ISREG(p.lstat().st_mode) or not 0 < p.stat().st_size <= 65536 for\
+    \ p in keys):\n            raise ValueError('Missing preserved data-protection keys')\n        if (root\
+    \ / 'jwt-key.bin').lstat().st_size != 32:\n            raise ValueError('Invalid preserved JWT key')\n\
+    \        for database in ('cleanuparr.db', 'events.db', 'users.db'):\n            for suffix in ('', '-wal',\
+    \ '-shm', '-journal'):\n                path = root / (database + suffix)\n                if path.exists()\
+    \ or path.is_symlink():\n                    raise ValueError('Active SQLite fallback')\n    marker = root\
+    \ / ('.homelab-' + app + '-data')\n    with os.fdopen(os.open(marker, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK),\
+    \ 'rb') as source:\n        info = os.fstat(source.fileno())\n        if not stat.S_ISREG(info.st_mode)\
+    \ or not 0 < info.st_size <= 128:\n            raise ValueError('Invalid retained identity')\n        if\
+    \ source.read(129) != ('homelab/' + app + '/data/v1\\n').encode():\n            raise ValueError('Wrong\
+    \ retained identity')\n    for name in LAYOUTS[app]:\n        path = root\n        parts = Path(name).parts\n\
+    \        for part in parts[:-1]:\n            path = path / part\n            if not
+    stat.S_ISDIR(path.lstat().st_mode):\n\
+    \                raise ValueError('Invalid retained parent directory')\n        path = path / parts[-1]\n\
+    \        if name.endswith('/'):\n            if not stat.S_ISDIR(path.lstat().st_mode):\n             \
+    \   raise ValueError('Missing retained directory')\n            continue\n        with os.fdopen(os.open(path,\
+    \ os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK), 'rb') as source:\n            info = os.fstat(source.fileno())\n\
+    \            if not stat.S_ISREG(info.st_mode) or info.st_size == 0:\n                raise ValueError('Missing\
+    \ retained file')\n            if path.suffix in ('.db', '.sqlite') and source.read(16) != b'SQLite format\
+    \ 3\\0':\n                raise ValueError('Invalid native SQLite header')\n\n\nif __name__ == '__main__':\n\
+    \    try:\n        if len(sys.argv) != 3:\n            raise ValueError('Expected application and retained\
+    \ root')\n        validate(sys.argv[1], Path(sys.argv[2]))\n    except (OSError, ValueError, RuntimeError):\n\
+    \        print('Retained media state refused; recovery acceptance is required.', file=sys.stderr)\n   \
+    \     raise SystemExit(1) from None\n    print('Retained media identity and native paths accepted.')\n"

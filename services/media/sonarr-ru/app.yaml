@@ -1,7 +1,9 @@
 name: sonarr-ru
 namespace: media
 deployPhase: services
+manifests: true
 baseApp: services/media/sonarr
+valuesOverride: true
 commonValuesExtras:
   - templates/media-arr-common.yaml
 

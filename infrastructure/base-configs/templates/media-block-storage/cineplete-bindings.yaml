@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cineplete-config-block
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  capacity:
+    storage: 4Gi
+  accessModes:
+    - ReadWriteOncePod
+  volumeMode: Filesystem
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: proxmox-retained
+  claimRef:
+    name: cineplete-config-block
+    namespace: media
+  csi:
+    driver: csi.proxmox.sinextra.dev
+    fsType: ext4
+    volumeHandle: homelab//k3s-block/9999/vm-9999-cineplete.raw
+    volumeAttributes:
+      storage: k3s-block
+      cache: none
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: topology.kubernetes.io/region
+              operator: In
+              values:
+                - homelab
+            - key: topology.kubernetes.io/zone
+              operator: In
+              values:
+                - pve
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cineplete-config-block
+  namespace: media
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  accessModes:
+    - ReadWriteOncePod
+  volumeMode: Filesystem
+  storageClassName: proxmox-retained
+  volumeName: cineplete-config-block
+  resources:
+    requests:
+      storage: 4Gi

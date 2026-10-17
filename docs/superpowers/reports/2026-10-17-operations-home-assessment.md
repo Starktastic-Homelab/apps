@@ -119,3 +119,17 @@ Inactive file overlays use six static retained claims totaling 20GiB. Their guar
 refuse missing/wrong identity, invalid native files and mismatched Meilisearch
 versions without writing data. Supplemental groups retain current access while
 avoiding CSI fsGroup ownership rewriting. No production cutover has started.
+
+The corrected fresh-namespace test passed: with the entire namespace and Secrets
+absent, Argo recreated the namespace before PreSync, restored the same credential
+bytes and ran the unchanged upstream registration command, which skipped external
+registration. The exact CrowdSec chart startup script also passed PostgreSQL,
+TLS health, unchanged synthetic bouncer identity and no SQLite fallback checks.
+Both read-only SQL guards accepted populated native data and rejected a wrong
+physical PostgreSQL identity or empty/incomplete native state without mutation.
+Independent SQL restores preserved all 11 CrowdSec sequence definitions and floors.
+
+Excalidash's 30 generated Prisma files match its pinned stock image exactly; its
+ephemeral uploads directory is empty. Other persisted files are the SQLite store
+and the two preserved secrets. Complete actual cold-state conversion, restore
+and stock startup remain mandatory before granting either SQL target authority.

@@ -313,3 +313,26 @@ def transfer(app, path, connection, expected_bootstrap_sha256, expected_identity
         result.update({'sourceSHA256': source['sourceSHA256'], 'serialFloorsChecked': len(serials),
                        'nativeMigrationMarkersUnchanged': True, 'sourceUnchanged': True})
     return result
+
+
+def allocators(app, connection):
+    """Read sequence history without nextval, setval or any allocator mutation."""
+    from psycopg import sql
+    if app not in APPS:
+        raise ValueError('Unknown application')
+    serials = connection.execute("SELECT table_name,column_name,pg_get_serial_sequence(format('%I.%I',"
+        "table_schema,table_name),column_name) FROM information_schema.columns WHERE table_schema='public' "
+        "AND (column_default LIKE 'nextval(%' OR is_identity='YES') ORDER BY table_name,column_name").fetchall()
+    result = {}
+    for table, column, sequence in serials:
+        if app not in APPS or table not in TABLES[app] or not sequence or not sequence.startswith('public.') or sequence in result:
+            raise ValueError('Unexpected native allocator')
+        definition = connection.execute('SELECT seqstart,seqincrement,seqmax,seqmin,seqcache,seqcycle '
+                                        'FROM pg_sequence WHERE seqrelid=%s::regclass', (sequence,)).fetchone()
+        last, called = connection.execute(sql.SQL('SELECT last_value,is_called FROM {}').format(
+            sql.Identifier(*sequence.split('.')))).fetchone()
+        if not definition or definition[1] != 1 or definition[5]:
+            raise ValueError('Unsupported native allocator definition')
+        result[sequence] = {'table': table, 'column': column, 'definition': list(definition),
+                            'lastValue': last, 'isCalled': called}
+    return result

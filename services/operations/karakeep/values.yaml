@@ -67,19 +67,12 @@ controllers:
         image:
           repository: getmeili/meilisearch
           tag: v1.55.0@sha256:ff546679970126f8822e15d1b6a06bfbff1f2ce2e43f810cfb5258012f92de5c
-        command: ["sh", "-c"]
+        command:
+          - sh
+          - -ec
         args:
           - |
-            CURRENT=$(meilisearch --version | head -1)
-            STORED=$(cat /meili_data/.version_marker 2>/dev/null || echo "none")
-            if [ "$CURRENT" != "$STORED" ]; then
-              echo "Meilisearch version change: $STORED → $CURRENT"
-              echo "Wiping data for clean re-index..."
-              find /meili_data -mindepth 1 -not -name '.version_marker' -delete
-              echo "$CURRENT" > /meili_data/.version_marker
-            else
-              echo "Meilisearch version unchanged ($CURRENT), keeping data"
-            fi
+            test "$(meilisearch --version | head -1)" = "$(cat /meili_data/.version_marker)"
             exec meilisearch
         env:
           MEILI_NO_ANALYTICS: "true"
@@ -95,6 +88,74 @@ controllers:
           startup:
             enabled: false
 
+    replicas: 1
+    strategy: Recreate
+    pod:
+      automountServiceAccountToken: false
+      nodeSelector:
+        node-role.kubernetes.io/worker: "true"
+      securityContext:
+        supplementalGroups:
+          - 1000
+    initContainers:
+      retained-data:
+        image:
+          repository: python
+          digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+        command:
+          - python3
+          - -I
+          - -B
+          - /retained-startup/guard.py
+          - karakeep
+          - /retained
+        securityContext:
+          runAsNonRoot: false
+          runAsUser: 0
+          runAsGroup: 0
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
+      retained-meilisearch:
+        image:
+          repository: python
+          digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+        command:
+          - python3
+          - -I
+          - -B
+          - /retained-startup/guard.py
+          - karakeep-meilisearch
+          - /retained
+        securityContext:
+          runAsNonRoot: false
+          runAsUser: 0
+          runAsGroup: 0
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
 service:
   main:
     controller: main
@@ -106,14 +167,35 @@ persistence:
   config:
     enabled: false
   data:
-    existingClaim: karakeep-data
+    existingClaim: karakeep-data-block
     advancedMounts:
       main:
         main:
           - path: /data
+        retained-data:
+          - path: /retained
+            readOnly: true
+    globalMounts: []
   meilisearch:
-    existingClaim: karakeep-meilisearch
+    existingClaim: karakeep-meilisearch-block
     advancedMounts:
       main:
         meilisearch:
           - path: /meili_data
+        retained-meilisearch:
+          - path: /retained
+            readOnly: true
+    globalMounts: []
+  retained-startup:
+    type: configMap
+    name: operations-home-retained-startup-guard
+    defaultMode: 292
+    globalMounts: []
+    advancedMounts:
+      main:
+        retained-data:
+          - path: /retained-startup
+            readOnly: true
+        retained-meilisearch:
+          - path: /retained-startup
+            readOnly: true

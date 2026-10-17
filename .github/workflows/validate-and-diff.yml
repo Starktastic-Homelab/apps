@@ -115,6 +115,9 @@ jobs:
             -f templates/common.yaml -f services/media/autobrr/values.yaml > /tmp/autobrr-retained.yaml
           AUTOBRR_RETAINED_RENDER=/tmp/autobrr-retained.yaml python3 scripts/test-autobrr-retained-startup.py
 
+      - name: Check media retained CSI preparation
+        run: MEDIA_RETAINED_RENDERS=/tmp/media-retained bash scripts/media-retained/check.sh
+
       - name: Check monitoring retained CSI lifecycle
         run: |
           mkdir -p /tmp/monitoring-retained

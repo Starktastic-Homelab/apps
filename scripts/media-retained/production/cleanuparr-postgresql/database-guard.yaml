@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cleanuparr-retained-database-guard
+  namespace: media
+data:
+  main.sql: "-- Init performs no DDL, seed, migration or enrollment.\nBEGIN READ ONLY;\nSET LOCAL statement_timeout\
+    \ = '10s';\nDO $guard$\nBEGIN\n  IF current_database() <> 'cleanuparr' OR current_user <> 'cleanuparr'\
+    \ THEN\n    RAISE EXCEPTION 'Retained Cleanuparr database identity rejected';\n  END IF;\n  IF
+    to_regclass('data.general_configs')\
+    \ IS NULL\n     OR to_regclass('users.users') IS NULL\n     OR to_regclass('events.__ef_migrations_history')\
+    \ IS NULL\n     OR to_regclass('data.__ef_migrations_history') IS NULL\n     OR
+    to_regclass('users.__ef_migrations_history')\
+    \ IS NULL THEN\n    RAISE EXCEPTION 'Missing imported Cleanuparr state';\n  END IF;\n  IF NOT EXISTS (SELECT\
+    \ FROM data.general_configs)\n     OR NOT EXISTS (SELECT FROM data.__ef_migrations_history)\n     OR NOT\
+    \ EXISTS (SELECT FROM users.__ef_migrations_history)\n     OR NOT EXISTS (SELECT FROM
+    events.__ef_migrations_history)\
+    \ THEN\n    RAISE EXCEPTION 'Empty imported Cleanuparr state';\n  END IF;\nEND\n$guard$;\nROLLBACK;\n"

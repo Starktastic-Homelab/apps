@@ -1,0 +1,14 @@
+controllers:
+  main:
+    initContainers:
+      retained-state:
+        command:
+          - python3
+          - -I
+          - -B
+          - /retained-startup/guard.py
+          - radarr-ru
+          - /retained
+persistence:
+  retained-config:
+    existingClaim: radarr-ru-config-block

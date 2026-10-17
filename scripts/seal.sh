@@ -28,7 +28,10 @@ for option in "$@"; do
   case "$option" in
     --cluster-wide) SCOPE="cluster-wide" ;;
     --from-file=*) CREATE_ARGS+=("$option") ;;
-    *) echo "Unknown sealing option: $option" >&2; exit 1 ;;
+    *)
+      echo "Unknown sealing option: $option" >&2
+      exit 1
+      ;;
   esac
 done
 

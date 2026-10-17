@@ -1,0 +1,82 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: excalidash-retained-database-guard
+  namespace: operations
+data:
+  main.sql: |
+    -- Read-only retained-state acceptance; never creates or repairs application state.
+    BEGIN READ ONLY;
+    SET LOCAL statement_timeout = '10s';
+    DO $guard$
+    BEGIN
+      IF current_database() <> 'excalidash' OR current_user <> 'excalidash'
+         OR (SELECT system_identifier::text FROM pg_control_system()) <> '7584099661242523698' THEN
+        RAISE EXCEPTION 'Retained database identity rejected';
+      END IF;
+      IF to_regclass('public."ApiKey"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."AuditLog"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."AuthIdentity"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."ChatGptAuthState"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."ChatGptConnection"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."Collection"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."CollectionShare"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."Drawing"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."DrawingFile"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."DrawingLinkShare"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."DrawingPermission"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."DrawingSnapshot"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."Library"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."PasswordResetToken"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."RefreshToken"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."SystemConfig"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."User"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF to_regclass('public."_prisma_migrations"') IS NULL THEN
+        RAISE EXCEPTION 'Missing retained native table';
+      END IF;
+      IF NOT EXISTS (SELECT FROM public."User") THEN
+        RAISE EXCEPTION 'Empty retained native state';
+      END IF;
+      IF NOT EXISTS (SELECT FROM public."SystemConfig") THEN
+        RAISE EXCEPTION 'Empty retained native state';
+      END IF;
+      IF NOT EXISTS (SELECT FROM public."_prisma_migrations") THEN
+        RAISE EXCEPTION 'Empty retained native state';
+      END IF;
+    END
+    $guard$;
+    ROLLBACK;

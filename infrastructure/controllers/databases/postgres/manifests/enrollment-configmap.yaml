@@ -87,6 +87,20 @@ data:
           "role": "cleanuparr",
           "mode": "new",
           "passwordKey": "cleanuparr-password"
+        },
+        {
+          "id": "excalidash",
+          "database": "excalidash",
+          "role": "excalidash",
+          "mode": "new",
+          "passwordKey": "excalidash-password"
+        },
+        {
+          "id": "crowdsec",
+          "database": "crowdsec",
+          "role": "crowdsec",
+          "mode": "new",
+          "passwordKey": "crowdsec-password"
         }
       ]
     }
@@ -324,7 +338,8 @@ data:
     REVOKE ALL ON SCHEMA public FROM PUBLIC;
     GRANT ALL ON SCHEMA public TO :"role";
     COMMIT;
-  completion-protocol-version: "1"
+  completion-protocol-version: |-
+    1
   completion_gate.py: |
     #!/usr/bin/env python3
     """Read-only, fail-closed native Argo enrollment acceptance for consumer init."""
@@ -457,6 +472,9 @@ data:
 
     if __name__ == '__main__':
         raise SystemExit(main())
-  encrypted-inputs-sha256: 79bba8de032fbfdc1cc2c7f03279904f23f1fb13a36c78d289acd92c32a5915c
-  job-template.json: '{"apiVersion":"batch/v1","kind":"Job","metadata":{"annotations":{"argocd.argoproj.io/hook":"Sync","argocd.argoproj.io/hook-delete-policy":"BeforeHookCreation,HookSucceeded","argocd.argoproj.io/sync-wave":"1"},"name":"postgres-enrollment","namespace":"databases"},"spec":{"activeDeadlineSeconds":600,"backoffLimit":2,"template":{"metadata":{"labels":{"app.kubernetes.io/name":"postgres-enrollment"}},"spec":{"automountServiceAccountToken":false,"containers":[{"command":["/bin/sh","/scripts/enroll.sh","run"],"env":[{"name":"PGHOST","value":"postgres-postgresql.databases"},{"name":"PGPORT","value":"5432"},{"name":"PGUSER","value":"postgres"},{"name":"PGDATABASE","value":"postgres"}],"image":"postgres:18.6-alpine@sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd","name":"enroll","resources":{"limits":{"cpu":"500m","memory":"128Mi"},"requests":{"cpu":"100m","memory":"64Mi"}},"securityContext":{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true},"volumeMounts":[{"mountPath":"/config","name":"config","readOnly":true},{"mountPath":"/scripts","name":"scripts","readOnly":true},{"mountPath":"/credentials/admin","name":"admin","readOnly":true},{"mountPath":"/credentials/apps","name":"apps","readOnly":true},{"mountPath":"/tmp","name":"scratch"}]}],"restartPolicy":"Never","securityContext":{"fsGroup":1001,"runAsGroup":1001,"runAsNonRoot":true,"runAsUser":1001,"seccompProfile":{"type":"RuntimeDefault"}},"volumes":[{"configMap":{"defaultMode":292,"items":[{"key":"config.json","path":"config.json"}],"name":"postgres-enrollment-config"},"name":"config"},{"configMap":{"defaultMode":292,"items":[{"key":"enroll.sh","path":"enroll.sh"},{"key":"enroll.sql","path":"enroll.sql"},{"key":"schema.sql","path":"schema.sql"}],"name":"postgres-enrollment-config"},"name":"scripts"},{"name":"admin","secret":{"defaultMode":288,"items":[{"key":"postgres-password","path":"postgres-password"}],"secretName":"postgres-admin-secret"}},{"name":"apps","secret":{"defaultMode":288,"secretName":"postgres-enrollment-credentials"}},{"emptyDir":{"medium":"Memory","sizeLimit":"16Mi"},"name":"scratch"}]}}}}'
-  acceptance-generation: a34ff271ed6fe54b06ddf954c6f16ebb10547b3ce8f0f4c51529bc59b09f9013
+  encrypted-inputs-sha256: |-
+    16d4b372640452cf06b4cc8122d9ba87ef618357f6aa9cbac30595b2fd5fb857
+  job-template.json: |-
+    {"apiVersion":"batch/v1","kind":"Job","metadata":{"annotations":{"argocd.argoproj.io/hook":"Sync","argocd.argoproj.io/hook-delete-policy":"BeforeHookCreation,HookSucceeded","argocd.argoproj.io/sync-wave":"1"},"name":"postgres-enrollment","namespace":"databases"},"spec":{"activeDeadlineSeconds":600,"backoffLimit":2,"template":{"metadata":{"labels":{"app.kubernetes.io/name":"postgres-enrollment"}},"spec":{"automountServiceAccountToken":false,"containers":[{"command":["/bin/sh","/scripts/enroll.sh","run"],"env":[{"name":"PGHOST","value":"postgres-postgresql.databases"},{"name":"PGPORT","value":"5432"},{"name":"PGUSER","value":"postgres"},{"name":"PGDATABASE","value":"postgres"}],"image":"postgres:18.6-alpine@sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd","name":"enroll","resources":{"limits":{"cpu":"500m","memory":"128Mi"},"requests":{"cpu":"100m","memory":"64Mi"}},"securityContext":{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true},"volumeMounts":[{"mountPath":"/config","name":"config","readOnly":true},{"mountPath":"/scripts","name":"scripts","readOnly":true},{"mountPath":"/credentials/admin","name":"admin","readOnly":true},{"mountPath":"/credentials/apps","name":"apps","readOnly":true},{"mountPath":"/tmp","name":"scratch"}]}],"restartPolicy":"Never","securityContext":{"fsGroup":1001,"runAsGroup":1001,"runAsNonRoot":true,"runAsUser":1001,"seccompProfile":{"type":"RuntimeDefault"}},"volumes":[{"configMap":{"defaultMode":292,"items":[{"key":"config.json","path":"config.json"}],"name":"postgres-enrollment-config"},"name":"config"},{"configMap":{"defaultMode":292,"items":[{"key":"enroll.sh","path":"enroll.sh"},{"key":"enroll.sql","path":"enroll.sql"},{"key":"schema.sql","path":"schema.sql"}],"name":"postgres-enrollment-config"},"name":"scripts"},{"name":"admin","secret":{"defaultMode":288,"items":[{"key":"postgres-password","path":"postgres-password"}],"secretName":"postgres-admin-secret"}},{"name":"apps","secret":{"defaultMode":288,"secretName":"postgres-enrollment-credentials"}},{"emptyDir":{"medium":"Memory","sizeLimit":"16Mi"},"name":"scratch"}]}}}}
+  acceptance-generation: |-
+    df50cbcb6a24efd6e2bfa873b5d477ba0c5e62add661022413528485591ba138

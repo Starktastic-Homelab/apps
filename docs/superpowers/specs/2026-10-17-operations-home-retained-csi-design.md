@@ -3,8 +3,9 @@
 User authority: autonomously migrate Karakeep plus Meilisearch, Bytestash,
 ConvertX, Excalidash, Home Assistant and CrowdSec; pause for real decisions,
 missing access or actual unresolved approval-review rejection. The user accepted
-CrowdSec timestamp truncation below one microsecond. This is the sole permitted
-loss exception; all other application records, fields and identities must survive.
+CrowdSec timestamp truncation below one microsecond. The user also authorized fresh ConvertX application state without preserving its
+old database or working files, while retaining its original encrypted recovery.
+All other application records, fields and identities must survive.
 
 ## Final behavior
 
@@ -18,7 +19,7 @@ two independent4GiB disks. Bytestash uses2GiB; ConvertX4GiB. Home Assistant
 keeps SQLite history and custom components on4GiB and Matter identity/state on
 2GiB. Total maximum new capacity20GiB. Each claim is APP-SUFFIX-block with static
 raw image `k3s-block:9999/vm-9999-APP-SUFFIX.raw`. Preserve whole trees/POSIX
-metadata; no cache or history removal. Old empty Bytestash inherited config claim
+metadata; no cache or history removal except the authorized ConvertX reset. Old empty Bytestash inherited config claim
 is retained/protected but no longer mounted. Existing Meilisearch wipe-on-version-
 change wrapper is replaced by a guard that refuses missing/wrong native version;
 ordinary startup runs the unchanged stock binary and never deletes an index.
@@ -47,6 +48,19 @@ Excalidash integer-epoch-millisecond and native textual datetimes require exact
 instant equivalence. Real-current source conversion, full independent comparison,
 stock startup and independent SQL dump restore are required before authority.
 Any further incompatibility requires a decision; never silently weaken proofs.
+
+## ConvertX fresh initialization
+
+ConvertX uses its unchanged pinned image, deployment environment and interfaces to
+initialize an empty store in an isolated fixture. Require zero users, jobs and
+file-name records, strict SQLite integrity/foreign-key checks, native logical
+backup equality, and healthy setup before creating an immutable seed archive and
+complete file/POSIX proof. Only this newly initialized empty store may populate
+ConvertX's retained image; restored or fixture-mutated original data never does.
+The original encrypted NFS recovery and separate keys remain protected. This is a
+one-time reset; ordinary Pod restarts and cluster rebuilds reuse retained state.
+The explicit fresh-state continuation preserves the original outage clock and
+failed restore evidence, without repeating stop, snapshot or backup transfers.
 
 ## Execution and recovery
 

@@ -72,4 +72,5 @@ Retain the original NFS sources and per-app `apps/pv` cold snapshots, independen
 of cleanup of owned helpers/private staging. Verify hashes and independently
 restore before relying on a recovery copy. These are point-in-time recovery
 copies; retained disks and fresh Kubernetes metadata reconstruction are not
-ongoing backups. Final production evidence is recorded separately after acceptance.
+ongoing backups. Accepted production, lifecycle, reconciliation and cleanup evidence is recorded in
+[the completion report](../superpowers/reports/2026-10-17-media-production-completion.md).

@@ -29,6 +29,15 @@ config:
       server:
         auto_registration:
           enabled: false
+    db_config:
+      type: postgresql
+      host: postgres-postgresql.databases
+      port: 5432
+      db_name: crowdsec
+      user: crowdsec
+      password: ${CROWDSEC_POSTGRES_PASSWORD}
+      sslmode: disable
+      max_open_conns: 5
 
 # ---------------------------------------------------------------------------
 # LAPI (Local API) - central decision engine
@@ -47,13 +56,19 @@ lapi:
           name: crowdsec-secrets
           key: enroll-key
     - name: ENROLL_INSTANCE_NAME
-      value: "homelab"
+      value: homelab
     - name: ENROLL_TAGS
-      value: "k3s homelab"
-
+      value: k3s homelab
+    - name: CROWDSEC_BYPASS_DB_VOLUME_CHECK
+      value: "true"
+    - name: CROWDSEC_POSTGRES_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: crowdsec-database
+          key: password
   persistentVolume:
     data:
-      enabled: true
+      enabled: false
       accessModes:
         - ReadWriteMany
       size: 1Gi
@@ -90,21 +105,122 @@ lapi:
       # Steady state is ~163-226Mi, so 128Mi under-declared it to the scheduler.
       memory: 192Mi
 
-# ---------------------------------------------------------------------------
-# Agent - reads log sources and sends alerts to LAPI
-# ---------------------------------------------------------------------------
+  # ---------------------------------------------------------------------------
+  # Agent - reads log sources and sends alerts to LAPI
+  # ---------------------------------------------------------------------------
+  strategy:
+    type: Recreate
+  replicas: 1
+  extraInitContainers:
+    - name: postgres-enrollment-acceptance
+      image: python@sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+      command:
+        - python3
+        - -B
+        - /gate/completion_gate.py
+      args:
+        - --id
+        - crowdsec
+        - --database
+        - crowdsec
+        - --role
+        - crowdsec
+      securityContext: &id001
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+            - ALL
+        seccompProfile:
+          type: RuntimeDefault
+      resources:
+        requests:
+          cpu: 25m
+          memory: 32Mi
+        limits:
+          cpu: 100m
+          memory: 64Mi
+      volumeMounts:
+        - name: pg-completion-script
+          mountPath: /gate
+          readOnly: true
+        - name: pg-completion-api
+          mountPath: /gate-api
+          readOnly: true
+    - name: retained-database
+      image: postgres:18.6-alpine@sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd
+      command:
+        - /bin/sh
+        - -ec
+        - |
+          export PGPASSWORD="$(cat /credentials/password)"
+          exec psql -XqAt -v ON_ERROR_STOP=1 -f /retained-database/main.sql >/dev/null 2>&1
+      env:
+        - name: PGHOST
+          value: postgres-postgresql.databases
+        - name: PGPORT
+          value: "5432"
+        - name: PGUSER
+          value: crowdsec
+        - name: PGDATABASE
+          value: crowdsec
+        - name: PGCONNECT_TIMEOUT
+          value: "10"
+      securityContext: *id001
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          cpu: 100m
+          memory: 32Mi
+      volumeMounts:
+        - name: pg-completion-password
+          mountPath: /credentials
+          readOnly: true
+        - name: retained-database
+          mountPath: /retained-database
+          readOnly: true
+  extraVolumes:
+    - name: pg-completion-script
+      configMap:
+        name: pg-enrollment-37b3e2d681d0f51c59c4
+        defaultMode: 292
+    - name: pg-completion-api
+      projected:
+        defaultMode: 292
+        sources:
+          - serviceAccountToken:
+              path: token
+              expirationSeconds: 600
+          - configMap:
+              name: kube-root-ca.crt
+              items:
+                - key: ca.crt
+                  path: ca.crt
+    - name: pg-completion-password
+      secret:
+        secretName: crowdsec-database
+        defaultMode: 292
+        items:
+          - key: password
+            path: password
+    - name: retained-database
+      configMap:
+        name: crowdsec-retained-database-guard
+        defaultMode: 292
 agent:
   env:
     - name: COLLECTIONS
-      value: >-
-        crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/base-http-scenarios
-
+      value: crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/base-http-scenarios
   acquisition:
     - namespace: traefik-system
       podName: traefik-*
       program: traefik
       poll_without_inotify: true
-
   metrics:
     enabled: true
     serviceMonitor:
@@ -119,9 +235,15 @@ agent:
 
   # Allow running on control-plane nodes (Traefik runs there too)
   tolerations:
-    - key: "node-role.kubernetes.io/master"
-      operator: "Exists"
-      effect: "NoSchedule"
-    - key: "node-role.kubernetes.io/control-plane"
-      operator: "Exists"
-      effect: "NoSchedule"
+    - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+secrets:
+  externalSecret:
+    name: crowdsec-lapi-secrets
+image:
+  repository: crowdsecurity/crowdsec
+  tag: v1.8.1@sha256:0f2523fa61ef507f15d953045cface490cc880670c62f2755ced17524107f71a

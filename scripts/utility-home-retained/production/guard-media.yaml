@@ -1,0 +1,134 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: utility-home-retained-startup-guard
+  namespace: media
+data:
+  guard.py: |
+    #!/usr/bin/env python3
+    """Refuse missing/wrong retained utility state; read headers without repair or writes."""
+    import configparser
+    import json
+    import os
+    from pathlib import Path
+    import stat
+    import struct
+    import sys
+
+    LAYOUTS = {
+        'qbittorrent': ('qBittorrent/qBittorrent.conf', 'qBittorrent/categories.json', 'qBittorrent/BT_backup/', 'modcache/'),
+        'qbittorrent-ru': ('qBittorrent/qBittorrent.conf', 'qBittorrent/categories.json', 'qBittorrent/BT_backup/', 'modcache/'),
+        'changedetection': ('changedetection.json', 'secret.txt'),
+        'stirling-pdf': ('settings.yml', 'stirling-pdf-DB-2.3.232.mv.db'),
+        'microbin': ('database.sqlite', 'attachments/'),
+        'lingarr': ('local.db', 'Hangfire.db', 'keys/'),
+        'mosquitto': ('mosquitto.db',),
+        'zigbee2mqtt': ('configuration.yaml', 'database.db', 'coordinator_backup.json', 'state.json'),
+    }
+    SQLITE = {'microbin': ('database.sqlite',), 'lingarr': ('local.db', 'Hangfire.db')}
+
+
+    def native_file(root, name, limit=64 * 1024 * 1024):
+        path = root
+        for component in Path(name).parts[:-1]:
+            path /= component
+            if not stat.S_ISDIR(path.lstat().st_mode):
+                raise ValueError('Redirected native parent')
+        path /= Path(name).name
+        with os.fdopen(os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK), 'rb') as source:
+            info = os.fstat(source.fileno())
+            if not stat.S_ISREG(info.st_mode) or info.st_size <= 0:
+                raise ValueError('Missing native file')
+            return source.read(limit)
+
+
+    def native_json(root, name):
+        raw = native_file(root, name, 64 * 1024 * 1024 + 1)
+        if len(raw) > 64 * 1024 * 1024:
+            raise ValueError('Oversized native configuration')
+        value = json.loads(raw)
+        if not isinstance(value, dict):
+            raise ValueError('Wrong native configuration type')
+        return value
+
+
+    def validate_mqtt(root):
+        with os.fdopen(os.open(root / 'mosquitto.db', os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK), 'rb') as source:
+            info = os.fstat(source.fileno())
+            header = source.read(23)
+            if not stat.S_ISREG(info.st_mode) or len(header) != 23 or header[:15] != b'\x00\xb5\x00mosquitto db' or int.from_bytes(header[19:23], 'big') != 6:
+                raise ValueError('Wrong Mosquitto persistence format')
+            configuration = False
+            while source.tell() < info.st_size:
+                chunk = source.read(8)
+                if len(chunk) != 8:
+                    raise ValueError('Truncated Mosquitto chunk header')
+                kind, length = struct.unpack('!II', chunk)
+                if kind not in range(1, 7) or not 0 < length <= info.st_size - source.tell():
+                    raise ValueError('Truncated or unknown Mosquitto chunk')
+                if kind == 1:
+                    if configuration or length != 16:
+                        raise ValueError('Invalid Mosquitto configuration chunk')
+                    body = source.read(length)
+                    if body[9] != 8:
+                        raise ValueError('Wrong Mosquitto identifier width')
+                    configuration = True
+                else:
+                    source.seek(length, os.SEEK_CUR)
+            if not configuration:
+                raise ValueError('Missing Mosquitto configuration chunk')
+
+
+    def validate(app, root):
+        if app not in LAYOUTS or root.absolute() != root.resolve(strict=True) or not stat.S_ISDIR(root.lstat().st_mode):
+            raise ValueError('Invalid retained application or root')
+        identity = native_file(root, '.homelab-' + app + '-data', 129)
+        if identity != ('homelab/' + app + '/data/v1\n').encode():
+            raise ValueError('Wrong retained identity')
+        for name in LAYOUTS[app]:
+            if name.endswith('/'):
+                path = root
+                for component in Path(name).parts:
+                    path /= component
+                    if not stat.S_ISDIR(path.lstat().st_mode):
+                        raise ValueError('Missing native directory')
+            else:
+                native_file(root, name, 1)
+        for name in SQLITE.get(app, ()):
+            if native_file(root, name, 16) != b'SQLite format 3\0':
+                raise ValueError('Wrong SQLite header')
+        if app.startswith('qbittorrent'):
+            config = configparser.ConfigParser(interpolation=None, strict=False)
+            config.read_string(native_file(root, 'qBittorrent/qBittorrent.conf').decode())
+            if not config.has_section('BitTorrent'):
+                raise ValueError('Missing qBittorrent session configuration')
+            native_json(root, 'qBittorrent/categories.json')
+        elif app == 'changedetection':
+            native_json(root, 'changedetection.json')
+            if len(native_file(root, 'secret.txt', 65)) != 64:
+                raise ValueError('Wrong preserved application secret')
+        elif app == 'stirling-pdf':
+            if not native_file(root, 'stirling-pdf-DB-2.3.232.mv.db', 32).startswith(b'H:2,'):
+                raise ValueError('Wrong H2 MVStore header')
+        elif app == 'mosquitto':
+            validate_mqtt(root)
+        elif app == 'zigbee2mqtt':
+            raw = native_file(root, 'database.db', 64 * 1024 * 1024 + 1)
+            rows = [json.loads(line) for line in raw.splitlines() if line.strip()]
+            if len(raw) > 64 * 1024 * 1024 or not rows or any(not isinstance(row, dict) for row in rows):
+                raise ValueError('Wrong coordinator device database')
+            backup = native_json(root, 'coordinator_backup.json')
+            if backup.get('metadata', {}).get('format') != 'zigpy/open-coordinator-backup' or backup['metadata'].get('version') != 1:
+                raise ValueError('Wrong coordinator backup format')
+            native_json(root, 'state.json')
+
+
+    if __name__ == '__main__':
+        try:
+            if len(sys.argv) != 3:
+                raise ValueError('Expected application and root')
+            validate(sys.argv[1], Path(sys.argv[2]))
+        except (OSError, ValueError, RuntimeError, UnicodeError, configparser.Error):
+            print('Retained utility state refused; verified recovery is required.', file=sys.stderr)
+            raise SystemExit(1) from None
+        print('Retained identity and native state headers accepted.')

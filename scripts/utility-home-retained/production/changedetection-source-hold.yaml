@@ -1,0 +1,39 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: changedetection-source-hold
+  annotations:
+    argocd.argoproj.io/sync-wave: "-6"
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - pods
+  matchConditions:
+    - name: held-source
+      expression: |-
+        has(object.spec.volumes) && object.spec.volumes.exists(v, (object.metadata.namespace == "operations" && has(v.persistentVolumeClaim) && v.persistentVolumeClaim.claimName == "changedetection-data") || (has(v.nfs) && v.nfs.server in ["10.9.8.30", "10.9.9.30"] && (v.nfs.path == "/mnt/apps/pv/operations/changedetection-data" || v.nfs.path.startsWith("/mnt/apps/pv/operations/changedetection-data/"))))
+  validations:
+    - expression: "false"
+      message: Preserved changedetection NFS state is retired; verified recovery is required.
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: changedetection-source-hold
+  annotations:
+    argocd.argoproj.io/sync-wave: "-6"
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  policyName: changedetection-source-hold
+  validationActions:
+    - Deny

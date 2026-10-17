@@ -79,6 +79,12 @@
       "matchFileNames": ["services/operations/karakeep/values.yaml"],
       "matchPackageNames": ["getmeili/meilisearch"],
       "automerge": false
+    },
+    {
+      "description": "Retained Stirling H2 filename and engine need storage-format review before an image update",
+      "matchPackageNames": ["stirlingtools/stirling-pdf"],
+      "matchFileNames": ["services/operations/stirling-pdf/values.yaml"],
+      "automerge": false
     }
   ],
   "customManagers": [

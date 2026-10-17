@@ -1,0 +1,39 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: zigbee2mqtt-source-hold
+  annotations:
+    argocd.argoproj.io/sync-wave: "-6"
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - pods
+  matchConditions:
+    - name: held-source
+      expression: |-
+        has(object.spec.volumes) && object.spec.volumes.exists(v, (object.metadata.namespace == "home-automation" && has(v.persistentVolumeClaim) && v.persistentVolumeClaim.claimName == "zigbee2mqtt-config") || (has(v.nfs) && v.nfs.server in ["10.9.8.30", "10.9.9.30"] && (v.nfs.path == "/mnt/apps/pv/home-automation/zigbee2mqtt-config" || v.nfs.path.startsWith("/mnt/apps/pv/home-automation/zigbee2mqtt-config/"))))
+  validations:
+    - expression: "false"
+      message: Preserved zigbee2mqtt NFS state is retired; verified recovery is required.
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: zigbee2mqtt-source-hold
+  annotations:
+    argocd.argoproj.io/sync-wave: "-6"
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  policyName: zigbee2mqtt-source-hold
+  validationActions:
+    - Deny

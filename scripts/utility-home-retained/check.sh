@@ -16,6 +16,7 @@ for app in qbittorrent qbittorrent-ru changedetection stirling-pdf microbin ling
   helm template "$app" "$APP_TEMPLATE_CHART" --namespace "$category" --kube-version 1.37.0 "${layers[@]}" >"$UTILITY_HOME_RENDERS/$app-before.yaml"
   if [[ $app == qbittorrent-ru ]]; then layers+=(-f scripts/utility-home-retained/production/qbittorrent-values.yaml); fi
   helm template "$app" "$APP_TEMPLATE_CHART" --namespace "$category" --kube-version 1.37.0 "${layers[@]}" -f "scripts/utility-home-retained/production/$app-values.yaml" >"$UTILITY_HOME_RENDERS/$app.yaml"
+  if [[ $app == mosquitto ]]; then printf '\n---\n' >>"$UTILITY_HOME_RENDERS/$app.yaml"; cat scripts/utility-home-retained/production/mosquitto-configmap.yaml >>"$UTILITY_HOME_RENDERS/$app.yaml"; fi
 done
 kubeconform -strict -summary -ignore-missing-schemas "$UTILITY_HOME_RENDERS"/*.yaml scripts/utility-home-retained/production/*-bindings.yaml scripts/utility-home-retained/production/*-source-hold.yaml scripts/utility-home-retained/production/guard-*.yaml
 python3 scripts/test-utility-home-retained.py

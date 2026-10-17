@@ -39,9 +39,14 @@ The user requested complete removal. Its PostgreSQL database/role are dedicated,
 
 ## Preparation validation
 
--90 rendered resources validated, zero schema errors or missing schemas.
+-91 rendered resources validated, zero schema errors or missing schemas.
 -10 retained-state/manifest checks passed, including complete app container and Service comparison against actual inherited source layers.
--27 native safety checks passed, including full shutdown/cold program assembly, exclusive intents/known terminals, clocks, exact placement restoration, watcher scope and transport encoding.
+-33 native safety checks passed, including full shutdown/cold program assembly, exclusive intents/known terminals, clocks, exact placement restoration, watcher scope and transport encoding.
 -Exact-image isolated qBittorrent shutdown/reload and MQTT persistence repair/recreation passed. Fresh native preflight confirmed all11 scoped Argo owners idle/Healthy/Synced, original source generations, healthy nodes, verified runner runtime, no maintenance owner and no target collisions.
 
 These are preparation results. They do not claim production migration or Vikunja removal is complete.
+
+
+## Independent preparation review
+
+One independent review reproduced three important gaps. The corrected frozen contract now includes the repaired raw Mosquitto ConfigMap; target acceptance reads its mounted bytes, native process arguments and preserved database header, and isolated fixtures consume the same candidate. The assembled final watch requires the eight named original Deployment generations and exactly one Pod per app. Pre-authority rollback checks both admission guards against their recorded creation UIDs and documented server-defaulted specs before removing either. Focused regressions reproduced the original failures, then passed with the corrections; the complete native suite passes33 tests. No production cutover is claimed by this review.

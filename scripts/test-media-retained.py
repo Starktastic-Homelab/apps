@@ -185,9 +185,16 @@ class RenderTests(unittest.TestCase):
             new_main = next(c for c in new['containers'] if c['name'] == 'main')
             for key in ('image', 'command', 'args', 'env', 'envFrom', 'livenessProbe', 'readinessProbe', 'startupProbe', 'securityContext', 'ports'):
                 if app == 'cleanuparr' and key == 'env':
-                    before_env = {v['name']: v for v in old_main.get('env', [])}
+                    before_env = {v['name']: v for v in old_main.get('env', []) if not v['name'].startswith('POSTGRES_') and v['name'] != 'DATABASE_PROVIDER'}
                     after_env = {v['name']: v for v in new_main.get('env', []) if not v['name'].startswith('POSTGRES_') and v['name'] != 'DATABASE_PROVIDER'}
                     self.assertEqual(before_env, after_env)
+                    pg_env = {v['name']: v for v in new_main.get('env', []) if v['name'].startswith('POSTGRES_') or v['name'] == 'DATABASE_PROVIDER'}
+                    expected_pg = {name: {'name': name, 'value': value} for name, value in {
+                        'DATABASE_PROVIDER': 'postgres', 'POSTGRES_HOST': 'postgres-postgresql.databases',
+                        'POSTGRES_PORT': '5432', 'POSTGRES_USER': 'cleanuparr', 'POSTGRES_DB': 'cleanuparr',
+                    }.items()}
+                    expected_pg['POSTGRES_PASS'] = {'name': 'POSTGRES_PASS', 'valueFrom': {'secretKeyRef': {'name': 'cleanuparr-postgres-secret', 'key': 'password'}}}
+                    self.assertEqual(pg_env, expected_pg)
                 else:
                     self.assertEqual(old_main.get(key), new_main.get(key), (app, key))
             for kind in ('Service', 'Ingress'):

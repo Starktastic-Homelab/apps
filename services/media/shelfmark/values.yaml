@@ -7,7 +7,7 @@ controllers:
           tag: v1.3.15@sha256:dae6e16fc40f42b2558d9f47d05e4ba7a7d268d23365a7c3eba266055249a124
         env:
           FLASK_PORT: "8084"
-          INGEST_DIR: "/books"
+          INGEST_DIR: /books
           HIDE_LOCAL_AUTH: "true"
           DISABLE_LOCAL_AUTH: "true"
           OIDC_AUTO_REDIRECT: "true"
@@ -27,18 +27,83 @@ controllers:
             type: HTTP
             path: /api/health
             port: 8084
-
+    replicas: 1
+    strategy: Recreate
+    pod:
+      securityContext: {}
+      automountServiceAccountToken: false
+      nodeSelector:
+        node-role.kubernetes.io/worker: "true"
+    initContainers:
+      retained-state:
+        image:
+          repository: python
+          digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+        command:
+          - python3
+          - -I
+          - -B
+          - /retained-startup/guard.py
+          - shelfmark
+          - /retained
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
 service:
   main:
     controller: main
     ports:
       http:
         port: 8084
-
 persistence:
   ingest:
     existingClaim: cwa-book-ingest
-    globalMounts:
-      - path: /books
+    globalMounts: []
+    advancedMounts:
+      main:
+        main:
+          - path: /books
   media:
     enabled: true
+    globalMounts: []
+    advancedMounts:
+      main:
+        main:
+          - path: /data
+  config:
+    enabled: false
+  retained-config:
+    existingClaim: shelfmark-config-block
+    globalMounts: []
+    advancedMounts:
+      main:
+        main:
+          - path: /config
+        retained-state:
+          - path: /retained
+            readOnly: true
+  retained-startup:
+    type: configMap
+    name: media-retained-startup-guard
+    defaultMode: 292
+    globalMounts: []
+    advancedMounts:
+      main:
+        retained-state:
+          - path: /retained-startup
+            readOnly: true

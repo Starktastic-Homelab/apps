@@ -69,9 +69,16 @@
       "automerge": false
     },
     {
-      "description": "Group the Authentik Helm chart and its outpost docker images into a single PR — they release in lockstep and must be upgraded together",
+      "description": "Group the Authentik Helm chart and its outpost docker images into a single PR \u2014 they release in lockstep and must be upgraded together",
       "matchPackageNames": ["authentik", "/^ghcr\\.io/goauthentik//"],
       "groupName": "authentik"
+    },
+    {
+      "description": "Require retained-index upgrade qualification before changing Karakeep Meilisearch; startup refuses another native data version instead of deleting and rebuilding the index.",
+      "matchDatasources": ["docker"],
+      "matchFileNames": ["services/operations/karakeep/values.yaml"],
+      "matchPackageNames": ["getmeili/meilisearch"],
+      "automerge": false
     }
   ],
   "customManagers": [

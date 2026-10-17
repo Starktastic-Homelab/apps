@@ -7,8 +7,8 @@ mkdir -p "$UTILITY_HOME_RENDERS"
 for app in qbittorrent qbittorrent-ru changedetection stirling-pdf microbin lingarr mosquitto zigbee2mqtt; do
   category=operations
   case "$app" in
-    qbittorrent|qbittorrent-ru|lingarr) category=media ;;
-    mosquitto|zigbee2mqtt) category=home-automation ;;
+    qbittorrent | qbittorrent-ru | lingarr) category=media ;;
+    mosquitto | zigbee2mqtt) category=home-automation ;;
   esac
   layers=(-f templates/globals.yaml -f templates/common.yaml)
   if [[ $app == qbittorrent-ru ]]; then layers+=(-f services/media/qbittorrent/values.yaml); fi

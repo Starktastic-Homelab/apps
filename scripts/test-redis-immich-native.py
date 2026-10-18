@@ -45,10 +45,30 @@ class RedisNative(unittest.TestCase):
         self.assertTrue(result.get('bullmq_pending_recovered'), 'Native BullMQ recovery is unqualified')
 
 
+class PostgresNative(unittest.TestCase):
+    def test_crc_warning_and_stale_pid_contract(self):
+        import fixtures
+        self.assertTrue(hasattr(fixtures, 'run_postgres_case'), 'Exact PG17 guard/recovery fixture is missing')
+        for case in ('crc-warning-exit-zero', 'standby-signal', 'wrong-identity'):
+            result = fixtures.run_postgres_case(case)
+            self.assertTrue(result['guard_refused'])
+            self.assertTrue(result['guard_read_only'])
+        result = fixtures.run_postgres_case('stale-pid')
+        self.assertTrue(result['guard_read_only'])
+        self.assertTrue(result['stock_recovery_qualified'])
+
+    def test_complete_physical_and_independent_logical_recovery(self):
+        import fixtures
+        self.assertTrue(hasattr(fixtures, 'run_postgres'), 'Exact PG17 physical/logical fixture is missing')
+        result = fixtures.run_postgres()
+        self.assertTrue(result['physical_identity_preserved'])
+        self.assertTrue(result['logical_identity_differs'])
+        self.assertTrue(result['all_state_preserved'])
+        self.assertTrue(result['cleanup_verified'])
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--app', choices=['redis', 'immich'], required=True)
     args, rest = parser.parse_known_args()
-    if args.app != 'redis':
-        parser.error('Immich fixture is not implemented yet')
-    unittest.main(argv=[sys.argv[0], *rest])
+    unittest.main(argv=[sys.argv[0], RedisNative.__name__ if args.app == 'redis' else PostgresNative.__name__, *rest])

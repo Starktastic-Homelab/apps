@@ -3,6 +3,8 @@ import argparse
 import contextlib
 import hashlib
 import json
+import os
+import tempfile
 import subprocess
 import sys
 import time
@@ -11,6 +13,7 @@ from pathlib import Path
 
 REDIS = 'registry-1.docker.io/bitnami/redis@sha256:f4797b37502e6db910d3653368fcfadc171ef605586917774de125ddd05b3e62'
 PYTHON = 'ghcr.io/paperless-ngx/paperless-ngx:3.1.3@sha256:aa810a36942c63d4ee70d00eda7236cd3d6acfb7eb3f7987fb568ed14df8817a'
+POSTGRES = 'ghcr.io/immich-app/postgres:17-vectorchord0.4.3-pgvector0.8.1@sha256:79b95b795f0911e95ffa4d092a2162c4d81a984d5629bc8f786afe0bc0657671'
 IMMICH_SERVER = 'ghcr.io/immich-app/immich-server:v3.2.2@sha256:79cc1623323d5894922686d8743b4780181428f98eecbfb58ce12c41ef02d1ea'
 ROOT = Path(__file__).resolve().parent
 PASSWORD = 'synthetic-fixture-only'
@@ -44,6 +47,8 @@ class Owned:
                    '--read-only', '--tmpfs', '/tmp:rw,nosuid,nodev', '--user', user]
         for mount in mounts:
             options += ['--mount', mount]
+        if image == POSTGRES:
+            options += ['--tmpfs', '/etc/postgresql:rw,uid=999,gid=999,mode=1777', '--tmpfs', '/var/run/postgresql:rw,uid=999,gid=999,mode=3777']
         if detached:
             options.append('-d')
         else:
@@ -62,7 +67,7 @@ class Owned:
         self.shell('chown 1001:0 /data; chmod 0770 /data', [f'type=volume,src={volume},dst=/data'], user='0:0')
 
     def copy(self, source, target):
-        self.shell('cd /src; tar cpf - . | (cd /dst; tar xpf -)',
+        self.shell('set -o pipefail; cd /src; tar --format=pax --numeric-owner --acls --xattrs --xattrs-include="*" -cpf - . | (cd /dst; tar --numeric-owner --same-owner --same-permissions --acls --xattrs --xattrs-include="*" -xpf -)',
                    [f'type=volume,src={source},dst=/src,readonly', f'type=volume,src={target},dst=/dst'], user='0:0')
 
     def server(self, volume, aof=True, expect_refusal=False):
@@ -368,6 +373,206 @@ def run_redis_case(case):
     result['cleanup_verified'] = True
     return result
 
+
+_POSTGRES_RESULT = None
+
+
+def _pg_sql(server, sql, database='immich'):
+    return docker('exec', '-i', server, '/usr/bin/psql', '-X', '-q', '-A', '-t', '-w',
+                  '-U', 'immich', '-d', database, '-v', 'ON_ERROR_STOP=1', input=sql).stdout
+
+
+def _pg_server(owned, volume):
+    name = owned.run(POSTGRES, '/usr/bin/env', 'PGDATA=/data/pgdata', 'POSTGRES_USER=immich',
+        'POSTGRES_DB=immich', 'POSTGRES_PASSWORD=synthetic-fixture-only', 'POSTGRES_INITDB_ARGS=--data-checksums',
+        '/usr/local/bin/immich-docker-entrypoint.sh', 'postgres', '-c', 'config_file=/etc/postgresql/postgresql.conf',
+        '-c', 'listen_addresses=', mounts=[f'type=volume,src={volume},dst=/data'], user='999:999', detached=True)
+    for _ in range(120):
+        status = docker('exec', name, '/usr/bin/pg_isready', '-U', 'immich', '-d', 'immich', check=False)
+        if status.returncode == 0:
+            # Do not accept the entrypoint's temporary initialization server.
+            command = docker('exec', name, '/bin/bash', '-c', 'tr "\\0" " " < /proc/1/cmdline').stdout
+            if command.startswith('postgres '):
+                return name
+        time.sleep(.1)
+    log = docker('logs', name, check=False)
+    raise RuntimeError('Synthetic PostgreSQL did not start: ' + log.stdout[-1500:] + log.stderr[-1500:])
+
+
+def _tree_digest(owned, volume):
+    code = r"""
+import hashlib, json, os, stat
+from pathlib import Path
+root=Path('/data'); result=[]
+for path in [root,*sorted(root.rglob('*'))]:
+    info=path.lstat()
+    value=os.readlink(path) if path.is_symlink() else hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
+    attrs=[] if path.is_symlink() else [(key,os.getxattr(path,key).hex()) for key in sorted(os.listxattr(path))]
+    result.append([str(path.relative_to(root)),info.st_mode,info.st_uid,info.st_gid,info.st_mtime_ns,value,attrs])
+print(hashlib.sha256(json.dumps(result,separators=(',',':')).encode()).hexdigest())
+"""
+    return owned.run(PYTHON, 'python3', '-c', code, user='0:0',
+                     mounts=[f'type=volume,src={volume},dst=/data,readonly']).strip()
+
+
+def _pg_guard(owned, volume, identity):
+    before = _tree_digest(owned, volume)
+    output = owned.run(POSTGRES, '/bin/bash', '-c',
+        'EXPECTED_SYSTEM_IDENTIFIER="$1" bash /work/postgres-guard.sh >/tmp/guard.log 2>&1; status=$?; cat /tmp/guard.log; echo $status',
+        'guard', identity, user='999:999', mounts=[f'type=volume,src={volume},dst=/data,readonly', f'type=bind,src={ROOT},dst=/work,readonly'])
+    if before != _tree_digest(owned, volume):
+        raise AssertionError('PG17 guard changed retained bytes/metadata')
+    return {'guard_refused': output.strip().splitlines()[-1] != '0', 'guard_read_only': True}
+
+
+def _pg_native(owned, volume, script, readonly=False, user='999:999'):
+    return owned.run(POSTGRES, '/bin/bash', '-euc', script, user=user,
+        mounts=[f'type=volume,src={volume},dst=/data' + (',readonly' if readonly else '')])
+
+
+def _pg_proof(server, root, label):
+    import postgres_checkpoint
+    connection = root / (label + '-connection.json')
+    connection.write_text(json.dumps({'argv_prefix': ['docker', 'exec', '-i', server], 'user': 'immich', 'database': 'immich'}))
+    connection.chmod(0o600)
+    destination = root / label
+    return postgres_checkpoint.export(connection, destination), destination
+
+
+def run_postgres():
+    global _POSTGRES_RESULT
+    if _POSTGRES_RESULT is not None:
+        return _POSTGRES_RESULT
+    import postgres_checkpoint as state
+    owned = Owned()
+    result = {'cases': {}}
+    try:
+        with tempfile.TemporaryDirectory(prefix=owned.identity + '-', dir='/tmp') as temporary:
+            private = Path(temporary)
+            source = owned.volume('postgres-source')
+            _pg_native(owned, source, 'chmod 0777 /data; mkdir /data/pgdata; chown 999:0 /data/pgdata; chmod 0700 /data/pgdata', user='0:0')
+            server = _pg_server(owned, source)
+            _pg_sql(server, """
+CREATE EXTENSION cube; CREATE EXTENSION earthdistance; CREATE EXTENSION pg_trgm;
+CREATE EXTENSION unaccent; CREATE EXTENSION "uuid-ossp";
+CREATE EXTENSION vector VERSION '0.8.1'; CREATE EXTENSION vchord VERSION '0.4.3';
+CREATE ROLE fixture_writer LOGIN PASSWORD 'synthetic-role-only';
+CREATE TABLE public.assets(id bigint GENERATED BY DEFAULT AS IDENTITY, name text, payload bytea, embedding vector(3));
+INSERT INTO public.assets(name,payload,embedding) VALUES ('שלום',decode('ff000a','hex'),'[1,2,3]'),('second',decode('00ff','hex'),'[0,0.5,2]');
+CREATE TABLE public.duplicates(value text, payload bytea, embedding vector(3));
+INSERT INTO public.duplicates VALUES ('duplicate',decode('ff00','hex'),'[1,2,3]'),('duplicate',decode('ff00','hex'),'[1,2,3]');
+CREATE TABLE public.migrations(id bigint, name text);
+INSERT INTO public.migrations VALUES (1792320000000,'native-schema');
+""")
+            expected, recovery = _pg_proof(server, private, 'source')
+            identity = expected['physical_system_identifier']
+            # Physical identity is recorded independently before any clone/guard.
+            native_identity = _pg_native(owned, source, "/usr/lib/postgresql/17/bin/pg_controldata /data/pgdata | awk '/^Database system identifier:/ {print $NF}'", readonly=True).strip()
+            assert identity == native_identity
+            owned.stop(server)
+            assert 'shut down' in _pg_native(owned, source, '/usr/lib/postgresql/17/bin/pg_controldata /data/pgdata', readonly=True)
+            # Synthetic metadata exercises the same full POSIX archive contract.
+            owned.run(PYTHON, 'python3', '-c', "import os; os.setxattr('/data/pgdata/PG_VERSION','user.homelab',b'synthetic-posix-proof')", user='0:0', mounts=[f'type=volume,src={source},dst=/data'])
+            source_digest = _tree_digest(owned, source)
+            physical = owned.volume('postgres-physical')
+            owned.copy(source, physical)
+            assert _tree_digest(owned, physical) == source_digest, 'Cold archive lost bytes/POSIX metadata'
+            valid = _pg_guard(owned, physical, identity)
+            assert not valid['guard_refused']
+            current = _pg_server(owned, physical)
+            actual, _ = _pg_proof(current, private, 'physical')
+            assert state.compare(expected, actual)['physical_identity_equal']
+            owned.stop(current)
+            result['physical_identity_preserved'] = True
+            result['cold_posix_preserved'] = True
+            # A separately initialized engine proves native logical recovery.
+            logical = owned.volume('postgres-logical')
+            _pg_native(owned, logical, 'chmod 0777 /data; mkdir /data/pgdata; chown 999:0 /data/pgdata; chmod 0700 /data/pgdata', user='0:0')
+            independent = _pg_server(owned, logical)
+            globals_sql = (recovery / 'globals.sql').read_text()
+            bootstrap = 'CREATE ROLE "immich";'
+            assert globals_sql.count(bootstrap) == 1
+            # initdb already owns the bootstrap role. Only its duplicate CREATE
+            # is omitted; every native ALTER (including verifier) still applies.
+            _pg_sql(independent, globals_sql.replace(bootstrap, '-- bootstrap role already exists'), database='postgres')
+            for database, proof in expected['databases'].items():
+                dump = recovery / (hashlib.sha256(database.encode()).hexdigest() + '.dump')
+                with dump.open('rb') as archive:
+                    restored = subprocess.run(['docker', 'exec', '-i', independent, '/usr/bin/pg_restore', '-w', '-U', 'immich',
+                        '--dbname', database, '--clean', '--if-exists', '--exit-on-error'], stdin=archive, capture_output=True, timeout=180)
+                if restored.returncode:
+                    raise RuntimeError('Synthetic native logical restore failed: ' + restored.stderr.decode()[-1500:])
+            logical_proof, _ = _pg_proof(independent, private, 'logical')
+            comparison = state.compare(expected, logical_proof)
+            assert comparison['logical_preserved'] and not comparison['physical_identity_equal']
+            result['logical_identity_differs'] = True
+            owned.stop(independent)
+            # Each fault starts from the untouched cold source, not an already
+            # mutated fixture. All guards run as UID999 on read-only data.
+            mutations = {
+                'wrong-identity': ':',
+                'standby-signal': 'touch /data/pgdata/standby.signal',
+                'recovery-signal': 'touch /data/pgdata/recovery.signal',
+                'linked-standby': 'ln -s /missing /data/pgdata/standby.signal',
+                'linked-recovery': 'ln -s /missing /data/pgdata/recovery.signal',
+                'wrong-version': "printf '18\\n' > /data/pgdata/PG_VERSION",
+                'missing-version': 'rm /data/pgdata/PG_VERSION',
+                'linked-version': 'mv /data/pgdata/PG_VERSION /data/saved; ln -s /data/saved /data/pgdata/PG_VERSION',
+                'unreadable-version': 'chmod 000 /data/pgdata/PG_VERSION',
+                'missing-control': 'rm /data/pgdata/global/pg_control',
+                'linked-control': 'mv /data/pgdata/global/pg_control /data/saved; ln -s /data/saved /data/pgdata/global/pg_control',
+                'unreadable-control': 'chmod 000 /data/pgdata/global/pg_control',
+                'truncated-control': 'truncate -s 1024 /data/pgdata/global/pg_control',
+                'crc-warning-exit-zero': "printf X | dd of=/data/pgdata/global/pg_control bs=1 seek=100 count=1 conv=notrunc status=none",
+                'linked-wal': 'mv /data/pgdata/pg_wal /data/saved; ln -s /data/saved /data/pgdata/pg_wal',
+                'unreadable-data': 'chmod 000 /data/pgdata',
+                'linked-data': 'mv /data/pgdata /data/saved; ln -s /data/saved /data/pgdata',
+                'empty-data': 'mv /data/pgdata /data/saved; mkdir /data/pgdata',
+                'missing-data': 'mv /data/pgdata /data/saved',
+                'stale-pid': "printf '999999\\n/data/pgdata\\n0\\n5432\\n/var/run/postgresql\\nlocalhost\\n0\\nready\\n' > /data/pgdata/postmaster.pid",
+            }
+            for case, mutation in mutations.items():
+                volume = owned.volume('postgres-' + case)
+                owned.copy(source, volume)
+                _pg_native(owned, volume, mutation)
+                if case == 'crc-warning-exit-zero':
+                    warning = _pg_native(owned, volume, '/usr/lib/postgresql/17/bin/pg_controldata /data/pgdata >/tmp/control 2>/tmp/error; test -s /tmp/error; grep -q CRC /tmp/error', readonly=True)
+                check = _pg_guard(owned, volume, str(int(identity) + 1) if case == 'wrong-identity' else identity)
+                if case == 'stale-pid':
+                    assert not check['guard_refused'], 'Guard must leave a stale PID for stock recovery'
+                    replacement = _pg_server(owned, volume)
+                    stale_proof, _ = _pg_proof(replacement, private, 'stale-pid')
+                    state.compare(expected, stale_proof)
+                    owned.stop(replacement)
+                    check['stock_recovery_qualified'] = True
+                else:
+                    assert check['guard_refused'], case + ' incorrectly accepted'
+                result['cases'][case] = check
+            # Actual unclean PostgreSQL/WAL state, with committed new data.
+            crash = owned.volume('postgres-crash')
+            owned.copy(source, crash)
+            running = _pg_server(owned, crash)
+            _pg_sql(running, "INSERT INTO public.assets(name,payload,embedding) VALUES ('committed-before-kill',decode('fe00','hex'),'[3,2,1]');")
+            crash_expected, _ = _pg_proof(running, private, 'before-crash')
+            owned.stop(running, abrupt=True)
+            check = _pg_guard(owned, crash, identity)
+            assert not check['guard_refused']
+            recovered = _pg_server(owned, crash)
+            crash_actual, _ = _pg_proof(recovered, private, 'after-crash')
+            state.compare(crash_expected, crash_actual)
+            owned.stop(recovered)
+            result['cases']['unclean-wal'] = dict(check, stock_recovery_qualified=True)
+            result['all_state_preserved'] = True
+    finally:
+        owned.close()
+    result['cleanup_verified'] = True
+    _POSTGRES_RESULT = result
+    return result
+
+
+def run_postgres_case(case):
+    return run_postgres()['cases'][case]
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--redis-worker')
@@ -377,9 +582,9 @@ if __name__ == '__main__':
     if args.redis_worker:
         print(json.dumps(redis_worker(args.redis_worker)))
     else:
-        if args.app != 'redis':
-            parser.error('Select an implemented app fixture')
-        receipt = run_redis()
+        if args.app is None:
+            parser.error('Select an app fixture')
+        receipt = run_redis() if args.app == 'redis' else run_postgres()
         if args.receipt:
             args.receipt.write_text(json.dumps(receipt, indent=2) + '\n')
         print(json.dumps(receipt))

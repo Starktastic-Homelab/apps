@@ -71,5 +71,54 @@ class RedisState(unittest.TestCase):
             self.state.compare(changed, changed, now_ms=2000)
 
 
+class PostgresState(unittest.TestCase):
+    def setUp(self):
+        self.assertTrue((ROOT / 'postgres_checkpoint.py').exists(), 'PG17 checkpoint implementation is missing')
+        import postgres_checkpoint
+        self.state = postgres_checkpoint
+        self.before = {'version': 1, 'physical_system_identifier': '7614955115223928876',
+            'server_version': '17.6', 'globals_sha256': 'all-roles-and-password-verifiers',
+            'databases': {'immich': {'schema_sha256': 'all-columns-acls-and-extensions',
+                'tables': {'public.assets': {'rows': 3, 'sha256': 'duplicates-binary-unicode-vector-and-migration-rows'}},
+                'sequences': {'public.assets_id_seq': {'last_value': 42, 'is_called': True, 'increment': 1, 'cycle': False}}}}}
+
+    def test_logical_restore_may_change_physical_identity_only(self):
+        actual = copy.deepcopy(self.before)
+        actual['physical_system_identifier'] = '9999999999999999999'
+        self.assertTrue(self.state.compare(self.before, actual)['logical_preserved'])
+        self.assertFalse(self.state.compare(self.before, actual)['physical_identity_equal'])
+
+    def test_all_logical_content_and_metadata_are_required(self):
+        for path, value in (
+            (('globals_sha256',), 'changed-verifier'),
+            (('server_version',), '18.0'),
+            (('databases', 'immich', 'schema_sha256'), 'changed-columns-extension-owner-or-schema'),
+            (('databases', 'immich', 'tables', 'public.assets', 'rows'), 2),
+            (('databases', 'immich', 'tables', 'public.assets', 'sha256'), 'changed-binary-vector-or-row'),
+        ):
+            actual = copy.deepcopy(self.before)
+            cursor = actual
+            for name in path[:-1]:
+                cursor = cursor[name]
+            cursor[path[-1]] = value
+            with self.assertRaises(ValueError):
+                self.state.compare(self.before, actual)
+        actual = copy.deepcopy(self.before)
+        del actual['databases']['immich']['tables']['public.assets']
+        with self.assertRaises(ValueError):
+            self.state.compare(self.before, actual)
+
+    def test_native_sequence_recovery_must_never_lower_the_floor(self):
+        actual = copy.deepcopy(self.before)
+        actual['databases']['immich']['sequences']['public.assets_id_seq']['last_value'] = 41
+        with self.assertRaises(ValueError):
+            self.state.compare(self.before, actual)
+        actual['databases']['immich']['sequences']['public.assets_id_seq']['last_value'] = 74
+        self.assertTrue(self.state.compare(self.before, actual)['logical_preserved'])
+        actual['databases']['immich']['sequences']['public.assets_id_seq']['increment'] = 2
+        with self.assertRaises(ValueError):
+            self.state.compare(self.before, actual)
+
+
 if __name__ == '__main__':
     unittest.main()

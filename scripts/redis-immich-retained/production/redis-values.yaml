@@ -1,0 +1,83 @@
+image:
+  digest: sha256:f4797b37502e6db910d3653368fcfadc171ef605586917774de125ddd05b3e62
+commonConfiguration: |-
+  # Enable ReJSON y Redisearch
+  loadmodule /opt/bitnami/redis/lib/redis/modules/redisearch.so
+  loadmodule /opt/bitnami/redis/lib/redis/modules/rejson.so
+  # Enable AOF https://redis.io/topics/persistence#append-only-file
+  appendonly yes
+  # Disable RDB persistence, AOF persistence already enabled.
+  save ""
+  appendfsync everysec
+  timeout 300
+  aclfile /opt/bitnami/redis/acl/users.acl
+master:
+  persistence:
+    existingClaim: redis-data-block
+  podSecurityContext:
+    fsGroup: null
+  nodeSelector:
+    kubernetes.io/os: linux
+    node-role.kubernetes.io/worker: "true"
+  tolerations:
+    - key: node.kubernetes.io/not-ready
+      operator: Exists
+      effect: NoExecute
+    - key: node.kubernetes.io/unreachable
+      operator: Exists
+      effect: NoExecute
+  initContainers:
+    - name: verify-retained-data
+      image: registry-1.docker.io/bitnami/redis@sha256:f4797b37502e6db910d3653368fcfadc171ef605586917774de125ddd05b3e62
+      command:
+        - /bin/bash
+        - /retained-startup/guard.sh
+      securityContext:
+        runAsUser: 1001
+        runAsGroup: 1001
+        runAsNonRoot: true
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+            - ALL
+        seccompProfile:
+          type: RuntimeDefault
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+          ephemeral-storage: 2Gi
+        limits:
+          memory: 256Mi
+          ephemeral-storage: 3Gi
+      volumeMounts:
+        - name: redis-data
+          mountPath: /data
+          readOnly: true
+        - name: retained-startup
+          mountPath: /retained-startup
+          readOnly: true
+        - name: retained-scratch
+          mountPath: /tmp
+  extraVolumeMounts:
+    - name: server-acl
+      mountPath: /opt/bitnami/redis/acl
+      readOnly: true
+  extraVolumes:
+    - name: server-acl
+      secret:
+        secretName: redis-server-acl
+        defaultMode: 292
+    - name: retained-startup
+      configMap:
+        name: redis-retained-startup
+        defaultMode: 292
+    - name: retained-scratch
+      emptyDir:
+        sizeLimit: 3Gi
+volumePermissions:
+  enabled: false
+metrics:
+  image:
+    digest: sha256:a7144e7e82d7dc5dc5ce5b78e096fe74d9508379a1b8eef07a197adda6d964ad

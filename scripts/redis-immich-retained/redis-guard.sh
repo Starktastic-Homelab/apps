@@ -1,0 +1,56 @@
+#!/bin/bash
+# Identity and native integrity only. RWOP and verified retirement fence writers.
+set -eu
+export LC_ALL=C
+fail() {
+  echo 'Retained Redis startup refused: identity/integrity check failed.' >&2
+  exit 1
+}
+bin=/opt/bitnami/redis/bin
+[ "$("$bin/redis-server" --version | cut -d' ' -f3)" = v=8.10.2 ] || fail
+for directory in /data /data/appendonlydir; do
+  [ -d "$directory" ] && [ ! -L "$directory" ] && [ -r "$directory" ] && [ -x "$directory" ] || fail
+done
+marker=/data/.homelab-redis-data
+[ -f "$marker" ] && [ ! -L "$marker" ] && [ -r "$marker" ] || fail
+[ "$(stat -c %s "$marker")" = 22 ] || fail
+[ "$(cat "$marker")" = homelab/redis/data/v1 ] || fail
+manifest=/data/appendonlydir/appendonly.aof.manifest
+[ -f "$manifest" ] && [ ! -L "$manifest" ] && [ -s "$manifest" ] && [ -r "$manifest" ] || fail
+scratch=$(mktemp -d)
+trap 'rm -rf "$scratch"' EXIT
+# Reject path escapes, duplicate names and ambiguous
+# manifest syntax before allowing the native checker to follow a filename.
+awk '
+  (NF != 6 && NF != 8 && NF != 10) || $1 != "file" || $3 != "seq" || $5 != "type" {exit 1}
+  $2 !~ /^appendonly[.]aof[.][0-9]+[.](base[.](rdb|aof)|incr[.]aof)$/ {exit 1}
+  $4 !~ /^[1-9][0-9]*$/ || ($6 != "b" && $6 != "i" && $6 != "h") {exit 1}
+  NF >= 8 && ($7 != "startoffset" || $8 !~ /^[0-9]+$/) {exit 1}
+  NF == 10 && ($9 != "endoffset" || $10 !~ /^[0-9]+$/ || $10 < $8) {exit 1}
+  seen[$2]++ {exit 1}
+  $6 == "b" {base++; if ($2 !~ /[.]base[.](rdb|aof)$/) exit 1}
+  $6 == "i" {incr++; if ($4 <= previous || $2 !~ /[.]incr[.]aof$/) exit 1; previous=$4}
+  $6 != "h" {print $2}
+  END {if (base != 1 || incr < 1) exit 1}
+' "$manifest" >"$scratch/files" || fail
+last=$(tail -n 1 "$scratch/files")
+while IFS= read -r name; do
+  file=/data/appendonlydir/$name
+  [ -f "$file" ] && [ ! -L "$file" ] && [ -r "$file" ] || fail
+  # The native checker opens r+ even without --fix. Check private copies,
+  # never grant it write access to retained media. Zero-byte increments are valid.
+  cp -- "$file" "$scratch/$name" || fail
+  chmod u+w "$scratch/$name" || fail
+  case "$name" in
+    *.base.rdb) checker=redis-check-rdb ;;
+    *) checker=redis-check-aof ;;
+  esac
+  if ! timeout 120 "$bin/$checker" "$scratch/$name" >"$scratch/check" 2>&1; then
+    # The accepted everysec policy permits stock Redis to discard an incomplete
+    # final command after a crash. Never repair here: the real native loader
+    # validates the final increment and refuses non-tail corruption itself.
+    [ "$name" = "$last" ] && [[ $name == *.incr.aof ]] || fail
+    echo 'Final AOF validation deferred to stock Redis crash recovery.'
+  fi
+done <"$scratch/files"
+echo 'Retained Redis identity and base state verified; stock loader validates increments.'

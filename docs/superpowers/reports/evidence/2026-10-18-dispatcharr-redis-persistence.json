@@ -1,0 +1,96 @@
+{
+  "scope": "Synthetic qualification and read-only deployed source verification; no production changes",
+  "redisImage": "registry-1.docker.io/bitnami/redis@sha256:f4797b37502e6db910d3653368fcfadc171ef605586917774de125ddd05b3e62",
+  "dispatcharrImage": "ghcr.io/dispatcharr/dispatcharr@sha256:f81924fa3dbfeb463b3908be7e086bf58aacbd2ba56062bfb555ee3a471acf8f",
+  "deployedModuleSHA256": "f39389cae183f8767b48abed38f3d8cc88b6db8e2313b6368d38bae7883ebc08",
+  "deployedWebAndCeleryMatchFixture": true,
+  "deployedRedisConfig": {
+    "appendonly": "no",
+    "timeout": "300",
+    "save": ""
+  },
+  "unrestricted": {
+    "mode": "unrestricted",
+    "productionChanged": false,
+    "appEntrypointInvoked": false,
+    "dispatcharr": {
+      "clients": {
+        "decoded": {
+          "connected": true,
+          "readWrite": true
+        },
+        "binary": {
+          "connected": true,
+          "readWrite": true
+        }
+      },
+      "moduleSHA256": "f39389cae183f8767b48abed38f3d8cc88b6db8e2313b6368d38bae7883ebc08",
+      "redisVersion": "6.4.0",
+      "classStart": 145,
+      "classEnd": 329
+    },
+    "appendonlyBefore": "yes",
+    "appendonlyAfter": "no",
+    "cleanupVerified": true
+  },
+  "restrictedCandidate": {
+    "mode": "restricted",
+    "productionChanged": false,
+    "appEntrypointInvoked": false,
+    "dispatcharr": {
+      "clients": {
+        "decoded": {
+          "connected": true,
+          "readWrite": true
+        },
+        "binary": {
+          "connected": true,
+          "readWrite": true
+        }
+      },
+      "moduleSHA256": "f39389cae183f8767b48abed38f3d8cc88b6db8e2313b6368d38bae7883ebc08",
+      "redisVersion": "6.4.0",
+      "classStart": 145,
+      "classEnd": 329
+    },
+    "appendonlyBefore": "yes",
+    "appendonlyAfter": "yes",
+    "unauthorizedConfigSetRefused": true,
+    "selfEscalationRefused": true,
+    "separateMaintenanceAccess": true,
+    "exporter": {
+      "redis_aof_enabled": 1.0,
+      "redis_aof_last_write_status": 1.0,
+      "redis_exporter_last_scrape_error": 0.0,
+      "redis_up": 1.0
+    },
+    "celeryQueueNativeRecovery": true,
+    "bullmqQueueNativeRecovery": true,
+    "recreatedDispatcharr": {
+      "clients": {
+        "decoded": {
+          "connected": true,
+          "readWrite": true
+        },
+        "binary": {
+          "connected": true,
+          "readWrite": true
+        }
+      },
+      "moduleSHA256": "f39389cae183f8767b48abed38f3d8cc88b6db8e2313b6368d38bae7883ebc08",
+      "redisVersion": "6.4.0",
+      "classStart": 145,
+      "classEnd": 329
+    },
+    "nativeAclSurvivedRedisRecreation": true,
+    "passed": true,
+    "cleanupVerified": true
+  },
+  "fixtureSHA256": "44db058ee56649d7412d12156273611a026446cb5cc5062acf104fb0d85f0d00",
+  "limits": [
+    "Actual RedisClient class extracted unchanged from the pinned image; minimal Django settings and TRACE logging initialized without application entrypoint",
+    "No full Dispatcharr Django/Celery service startup or production task executed",
+    "Native configuration-file ACL persistence tested; chart/SealedSecret composition and full operation packet still pending",
+    "No attribution of an individually recorded historical CONFIG SET request"
+  ]
+}

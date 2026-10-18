@@ -1,0 +1,11 @@
+{
+  "ruleSelection": [
+    {
+      "name": "kube-prometheus-stack-prometheus",
+      "selector": {},
+      "namespaceSelector": {}
+    }
+  ],
+  "enabledMetric": "redis_aof_enabled{container=\"metrics\", endpoint=\"http-metrics\", instance=\"10.42.1.17:9121\", job=\"redis-metrics\", namespace=\"databases\", pod=\"redis-master-0\", service=\"redis-metrics\"} => 0 @[1792325886.18]\n",
+  "writeMetric": "redis_aof_last_write_status{container=\"metrics\", endpoint=\"http-metrics\", instance=\"10.42.1.17:9121\", job=\"redis-metrics\", namespace=\"databases\", pod=\"redis-master-0\", service=\"redis-metrics\"} => 1 @[1792325886.321]\n"
+}

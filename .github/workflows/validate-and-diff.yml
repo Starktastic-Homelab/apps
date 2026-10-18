@@ -8,9 +8,14 @@ on:
 jobs:
   validate:
     name: Validate
+    needs: redis-immich-preparation
+    if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      - name: Require native recovery qualification
+        if: ${{ needs['redis-immich-preparation'].result != 'success' }}
+        run: exit 1
       - name: Checkout
         uses: actions/checkout@v7
 
@@ -424,6 +429,73 @@ jobs:
           steps.alerts.outputs.exit_code == ''
         run: exit 1
 
+  redis-immich-preparation:
+    name: Redis and Immich recovery preparation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: '3.x'
+      - name: Install YAML support
+        run: pip install pyyaml
+      - name: Setup Helm
+        uses: azure/setup-helm@v5
+        with:
+          version: v4.3.0
+      - name: Setup Kubeconform
+        env:
+          # renovate: datasource=github-releases depName=yannh/kubeconform
+          KUBECONFORM_VERSION: 'v0.8.0'
+        run: |
+          curl -fLsS "https://github.com/yannh/kubeconform/releases/download/${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz" | tar xz
+          echo "$PWD" >> "$GITHUB_PATH"
+      - name: Check private state preservation
+        run: python3 scripts/test-redis-immich-state.py
+      - name: Pull pinned recovery images
+        run: |
+          python3 - <<'PY_IMAGES' > /tmp/redis-immich-images
+          import sys
+          sys.path.insert(0, 'scripts/redis-immich-retained')
+          import fixtures
+          print('\n'.join((fixtures.REDIS, fixtures.PYTHON, fixtures.POSTGRES,
+                            fixtures.IMMICH_SERVER, fixtures.DISPATCHARR)))
+          PY_IMAGES
+          while IFS= read -r image; do
+            for attempt in 1 2 3; do
+              if docker pull "$image"; then
+                break
+              fi
+              if [ "$attempt" -eq 3 ]; then exit 1; fi
+              sleep 30
+            done
+          done < /tmp/redis-immich-images
+      - name: Qualify exact native engine recovery
+        run: |
+          python3 scripts/test-redis-immich-native.py --app redis
+          python3 scripts/test-redis-immich-native.py --app immich
+      - name: Check inactive bindings, layered renders and alerts
+        run: |
+          helm pull oci://registry-1.docker.io/bitnamicharts/redis --version 28.3.1 --untar --untardir /tmp/redis-immich-charts
+          helm pull app-template --repo https://bjw-s-labs.github.io/helm-charts --version 5.3.0 --untar --untardir /tmp/redis-immich-charts
+          REDIS_CHART=/tmp/redis-immich-charts/redis APP_TEMPLATE_CHART=/tmp/redis-immich-charts/app-template REDIS_IMMICH_RENDERS=/tmp/redis-immich-renders bash scripts/redis-immich-retained/check.sh
+      - name: Record recovery validation status
+        if: always()
+        env:
+          RESULT: ${{ job.status }}
+        run: |
+          printf 'Redis and Immich recovery preparation: **%s**\n' "$RESULT" > redis-immich-validation.md
+      - name: Upload recovery validation status
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: redis-immich-validation
+          path: redis-immich-validation.md
+          retention-days: 1
+
   diff:
     name: ArgoCD diff preview
     needs: validate
@@ -476,7 +548,7 @@ jobs:
 
   report:
     name: Report status
-    needs: [validate, diff]
+    needs: [validate, diff, redis-immich-preparation]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -497,6 +569,11 @@ jobs:
             cat artifacts/validation-report.md >> comment.md
             echo "" >> comment.md
             echo "---" >> comment.md
+            echo "" >> comment.md
+          fi
+
+          if [ -f artifacts/redis-immich-validation.md ]; then
+            cat artifacts/redis-immich-validation.md >> comment.md
             echo "" >> comment.md
           fi
 

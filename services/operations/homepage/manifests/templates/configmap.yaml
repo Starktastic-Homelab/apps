@@ -284,17 +284,6 @@ data:
                   url: http://radarr.media:7878/feed/v3/calendar/Radarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_RADARR_KEY{{ "}}" }}
                   name: Movies
                   color: red
-        - Tasks Due:
-            icon: vikunja.png
-            href: https://vikunja.starktastic.net
-            description: Shared to-do lists
-            siteMonitor: http://vikunja.operations:3456
-            widget:
-              type: vikunja
-              url: http://vikunja.operations:3456
-              key: {{ "{{" }}HOMEPAGE_VAR_VIKUNJA_KEY{{ "}}" }}
-              enableTaskList: true
-              version: 2
     # ==================== PLAY ====================
     - Watch:
         - Jellyfin:
@@ -408,11 +397,6 @@ data:
               url: http://karakeep.operations:3000
               key: {{ "{{" }}HOMEPAGE_VAR_KARAKEEP_KEY{{ "}}" }}
     - Organise:
-        - Vikunja:
-            icon: vikunja.png
-            href: https://vikunja.starktastic.net
-            description: Tasks & projects
-            siteMonitor: http://vikunja.operations:3456
         - Mealie:
             icon: mealie.png
             href: https://mealie.starktastic.net

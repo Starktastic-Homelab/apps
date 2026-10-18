@@ -527,19 +527,6 @@ data:
                   service_group: Acquire
                   service_name: Lidarr
                   color: green
-        - Tasks Due:
-            icon: vikunja.png
-            href: https://vikunja.starktastic.net
-            description: Open tasks
-            siteMonitor: http://vikunja.operations:3456
-            namespace: operations
-            app: vikunja
-            widget:
-              type: vikunja
-              url: http://vikunja.operations:3456
-              key: {{ "{{" }}HOMEPAGE_VAR_VIKUNJA_KEY{{ "}}" }}
-              enableTaskList: true
-              version: 2
         - Recipe Box:
             icon: mealie.png
             href: https://mealie.starktastic.net
@@ -762,13 +749,6 @@ data:
               url: http://changedetection.operations:5000
               key: {{ "{{" }}HOMEPAGE_VAR_CHANGEDETECTION_KEY{{ "}}" }}
     - Organise:
-        - Vikunja:
-            icon: vikunja.png
-            href: https://vikunja.starktastic.net
-            description: Tasks & projects
-            namespace: operations
-            app: vikunja
-            siteMonitor: http://vikunja.operations:3456
         - Paperless-ngx:
             icon: paperless-ngx.png
             href: https://paperless.internal.starktastic.net

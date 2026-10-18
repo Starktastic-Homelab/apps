@@ -5,4 +5,4 @@ manifests: true
 chart:
   repo: https://bjw-s-labs.github.io/helm-charts
   name: app-template
-  version: 5.2.1
+  version: 5.3.0

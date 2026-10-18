@@ -121,6 +121,19 @@ class PostgresState(unittest.TestCase):
 
 
 class RedisACL(unittest.TestCase):
+    def test_existing_password_verifier_avoids_copying_the_password_for_sealing(self):
+        import hashlib
+        import redis_acl
+        self.assertTrue(callable(getattr(redis_acl, 'users_from_verifier', None)))
+        verifier = hashlib.sha256(b'existing-application').hexdigest()
+        self.assertEqual(redis_acl.users_from_verifier(verifier, b'new-maintenance'),
+                         redis_acl.users(b'existing-application', b'new-maintenance'))
+        for invalid in ('', 'a' * 63, 'g' * 64, verifier.upper(), None):
+            with self.subTest(verifier=invalid), self.assertRaises(ValueError):
+                redis_acl.users_from_verifier(invalid, b'new-maintenance')
+        with self.assertRaises(ValueError):
+            redis_acl.users_from_verifier(verifier, b'existing-application')
+
     def test_declarations_keep_passwords_hashed_and_app_commands_scoped(self):
         import redis_acl
         import hashlib

@@ -129,7 +129,7 @@ class Manifests(unittest.TestCase):
         for source, target in zip(ac, bc):
             expected = copy.deepcopy(source)
             expected['image'] = REDIS if source['name'] == 'redis' else EXPORTER
-            if source['name'] == 'redis':
+            if source['name'] == 'redis' and not any(v['name'] == 'server-acl' for v in expected['volumeMounts']):
                 expected['volumeMounts'].append({'name':'server-acl','mountPath':'/opt/bitnami/redis/acl','readOnly':True})
             self.assertEqual(target, expected)
         # Compare the whole StatefulSet after removing only the independently
@@ -154,7 +154,7 @@ class Manifests(unittest.TestCase):
             expected = copy.deepcopy(item)
             if key == ('ConfigMap', 'redis-configuration'):
                 conf = expected['data']['redis.conf']
-                expected['data']['redis.conf'] = conf.replace('save ""', 'save ""\nappendfsync everysec\ntimeout 300\naclfile /opt/bitnami/redis/acl/users.acl')
+                expected['data']['redis.conf'] = conf if 'aclfile /opt/bitnami/redis/acl/users.acl' in conf else conf.replace('save ""', 'save ""\nappendfsync everysec\ntimeout 300\naclfile /opt/bitnami/redis/acl/users.acl')
             self.assertEqual(after[key], expected, str(key))
 
     def test_immich_changes_only_postgres_storage_guard_and_placement(self):

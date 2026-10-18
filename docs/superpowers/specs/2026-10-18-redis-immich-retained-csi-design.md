@@ -1,9 +1,10 @@
 # Redis and Immich retained CSI
 
-Status: proposed written design for review. The user selected preserving Redis
-queues with AOF on retained CSI. That decision does not authorize an outage,
-runtime repair, secret/data transfer, lab creation, allocation or cutover.
-Implementation planning follows approval of this document.
+Status: written design approved by the user on18October2026; implementation
+planning is authorized. The user selected preserving Redis queues with AOF on
+retained CSI. Approval does not authorize an outage, runtime repair, secret/data
+transfer, lab creation, allocation or cutover. The implementation plan still
+requires review and an execution-method choice before command-package work.
 
 ## Intent and scope
 

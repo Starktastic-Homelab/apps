@@ -112,3 +112,52 @@ for all21 overlapping media workloads. Unrelated media apps resume after the
 immutable database/photo checkpoint barrier; Filebrowser and the NFS provisioner
 remain paused until database retirement permits their release. Actual downtime
 remains subject to the finished execution proposal.
+
+## Further packet qualification
+
+The private package now has independent commands for current-memory Redis and
+cold AOF restoration, PG17 physical and independent logical restoration, and
+complete metadata-preserving population of a fresh mounted target. The population
+command writes its retained marker after equality, syncs the filesystem and
+refuses a second population attempt. Damaged/changed input tests refuse recovery.
+These component checks do not yet establish the complete production sequence.
+
+Local native supervision tests cover original owner/clock identity, lost replies,
+nested child exclusion, failed-outcome inspection, private binary stdin and the
+actual maintenance lock. The real SSH/QGA adapter is prepared behind an explicit
+execution-approval check; its mutation methods have not run against homelab hosts.
+No homelab maintenance owner has been acquired.
+
+The pinned Immich image uses the `immich_bull` queue prefix. Its native BullMQ
+pause/drain/resume test preserves pending payloads and original pause flags while
+active work finishes. Preparation keeps web health checks available while holding
+external producers, then requires complete source shutdown and writer retirement.
+The full source-stop, snapshot, transfer, activation and recovery sequence remains
+in qualification; independent final review, hosted CI and the finished execution
+proposal are still required.
+
+The assembled read-only queue-plan command also passed against the existing Pods:
+19 Immich queues, one Paperless worker, and both Dispatcharr workers. Disposable
+queue tests include active, pending and scheduled ETA tasks; shutdown waits for
+all three states to drain. Exact native beat process generations are checked
+before signaling, and the generated commands fit the qualified guest argument
+bound. No live producer was stopped or queue paused during these checks.
+
+Original phase budgets now reach native child commands. A real local late-write
+regression is refused after its deadline; changing a command outcome or phase
+predecessor also blocks continuation. The cutover-specific PostgreSQL cold
+restore additionally requires a clean native shutdown. This does not alter the
+retained startup guard's accepted stock recovery behavior under fencing.
+
+A separate exact-image source-client fixture verifies the source run ID, full
+16-database checkpoint, connected-client census and selected native ACL/AOF
+transition. Wrong source generations and unaccounted clients fail closed;
+application credentials remain usable while their persistence-disable command
+is denied. These are synthetic records, not copies of production data.
+
+Read-only database directory sizing found about 49MiB of historical Redis files
+and 349MiB of Immich PostgreSQL files. Historical Redis files remain insufficient
+to recover its current memory. VM300 has about 7.1GiB free and the required native
+recovery tools; this supports the proposed bounded database staging. Fresh checks
+remain mandatory during execution. Original photos use the coordinated ZFS
+snapshot strategy, with no full-library copy.

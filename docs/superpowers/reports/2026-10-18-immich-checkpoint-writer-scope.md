@@ -74,3 +74,15 @@ media workloads after the immutable checkpoint barrier. Filebrowser and the NFS
 provisioner remain paused until database-source retirement permits their release.
 Production execution, outage, snapshot
 creation, real-data/key transfers, allocation and merges remain separately gated.
+
+## Additional read-only client census
+
+Only NFSv4 is enabled for these exports. There is no overlapping SMB share; SMB
+is disabled/stopped. The active NFS clients are the three Kubernetes nodes and
+Proxmox. Proxmox mounts only the separate CSI dataset, while VM300 currently has
+no NFS mount. The NAS scan found no local open file references under the recovery
+roots. No additional current client was identified for the pause.
+
+These are observations, not a permanent access restriction. Exports permit a
+broader subnet; the actual execution must refresh the client/root census and
+refuse an unknown writer before capturing the coordinated recovery point.

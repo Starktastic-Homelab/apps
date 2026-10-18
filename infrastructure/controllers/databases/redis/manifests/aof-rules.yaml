@@ -1,0 +1,27 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: redis-durability
+  namespace: databases
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: redis-aof-durability
+      rules:
+        - alert: RedisAOFDisabled
+          expr: redis_aof_enabled{namespace="databases",service="redis-metrics"} == 0
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: Redis AOF persistence is disabled
+            description: Protect current Redis memory before restarting; investigate why AOF was disabled.
+        - alert: RedisAOFWriteFailure
+          expr: redis_aof_last_write_status{namespace="databases",service="redis-metrics"} == 0
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: Redis cannot persist AOF writes
+            description: Investigate storage and protect current Redis memory before restarting.

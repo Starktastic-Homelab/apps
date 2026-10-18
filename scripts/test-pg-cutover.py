@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check inactive cutover inputs and real charts, without touching a cluster."""
+"""Replay the completed cutover against its archived inputs, without a cluster."""
 import json
 import os
 from pathlib import Path
@@ -16,7 +16,50 @@ ROOT = Path(__file__).resolve().parents[1]
 BUNDLE = ROOT / 'scripts/postgres-retained-startup/production/cutover'
 
 
+def reviewed_files(archive, index):
+    expected = index['baseline'].copy()
+    for stage in index['stages']:
+        expected.update(stage['updates'])
+    assert archive['state'] == 'released' and set(archive['files']) == set(expected)
+    for path, content in archive['files'].items():
+        digest = hashlib.sha256(content.encode()).hexdigest() if content is not None else None
+        assert digest == expected[path], path + ': archived input differs from the reviewed released state'
+    return archive['files']
+
+
 class CutoverTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        archive = json.loads((BUNDLE / 'released-inputs.json').read_text())
+        index = yaml.safe_load((BUNDLE / 'patches/index.yaml').read_text())
+        files = reviewed_files(archive, index)
+        tmp = tempfile.TemporaryDirectory()
+        cls.addClassCleanup(tmp.cleanup)
+        cls.root = Path(tmp.name)
+        for path, content in files.items():
+            if content is not None:
+                target = cls.root / path
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(content)
+
+    def test_reviewed_archive_rejects_corruption(self):
+        archive = json.loads((BUNDLE / 'released-inputs.json').read_text())
+        index = yaml.safe_load((BUNDLE / 'patches/index.yaml').read_text())
+        archive['files']['services/media/lingarr/values.yaml'] += '# unreviewed change\n'
+        with self.assertRaises(AssertionError):
+            reviewed_files(archive, index)
+
+    def test_current_enrollment_hook_matches_current_generation(self):
+        import sys
+        sys.path.insert(0, str(ROOT / 'scripts/postgres-enrollment'))
+        import completion_gate
+        source = ROOT / 'infrastructure/controllers/databases/postgres/manifests'
+        data = yaml.safe_load((source / 'enrollment-configmap.yaml').read_text())['data']
+        self.assertEqual(data['acceptance-generation'], completion_gate.generation(data))
+        expected = yaml.safe_load((self.root / source.relative_to(ROOT) / 'enrollment-job.yaml').read_text())
+        expected['metadata']['name'] = completion_gate.hook_name(data['acceptance-generation'])
+        self.assertEqual(yaml.safe_load((source / 'enrollment-job.yaml').read_text()), expected)
+
     def test_stages_keep_writers_held_until_restore_and_hook_acceptance(self):
         self.assertTrue((BUNDLE / 'states.yaml').exists(), 'Inactive cutover states are missing')
         states = yaml.safe_load((BUNDLE / 'states.yaml').read_text())
@@ -69,35 +112,15 @@ class CutoverTests(unittest.TestCase):
         self.assertLessEqual(allowed, set(index['baseline']))
         def digest(path):
             return hashlib.sha256(path.read_bytes()).hexdigest() if path.exists() else None
-        current = {p: digest(ROOT / p) for p in index['baseline']}
-        archived_hook = None
-        # A completed cutover must not freeze future enrollment generations. Use
-        # its exact archived hook only in this temporary patch-test workspace.
-        if current[hook] != vectors[-1][hook] and all(current[p] == vectors[-1][p] for p in current if p != hook):
-            patch = next(stage for stage in index['stages'] if stage['name'] == 'hook-only')
-            archived_hook = ''.join(line[1:] + '\n' for line in (BUNDLE / 'patches' / patch['patch']).read_text().splitlines()
-                                    if line.startswith('+') and not line.startswith('+++')).encode()
-            self.assertEqual(hashlib.sha256(archived_hook).hexdigest(), index['baseline'][hook])
-            expected = yaml.safe_load(archived_hook)
-            actual = yaml.safe_load((ROOT / hook).read_text())
-            data = yaml.safe_load((ROOT / source / 'manifests/enrollment-configmap.yaml').read_text())['data']
-            import sys
-            sys.path.insert(0, str(ROOT / 'scripts/postgres-enrollment'))
-            import completion_gate
-            self.assertEqual(data['acceptance-generation'], completion_gate.generation(data))
-            expected['metadata']['name'] = completion_gate.hook_name(data['acceptance-generation'])
-            self.assertEqual(actual, expected, 'Only a verified enrollment hook name may differ after release')
-            current[hook] = index['baseline'][hook]
+        current = {p: digest(self.root / p) for p in index['baseline']}
         matches = [i for i, v in enumerate(vectors) if v == current]
         self.assertEqual(len(matches), 1, 'Inputs drifted from all reviewed states; refresh/review rather than applying old patches')
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             for p in current:
-                if (ROOT / p).exists():
+                if (self.root / p).exists():
                     (root / p).parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copyfile(ROOT / p, root / p)
-            if archived_hook is not None:
-                (root / hook).write_bytes(archived_hook)
+                    shutil.copyfile(self.root / p, root / p)
             def apply(stage, reverse=False):
                 patch = BUNDLE / 'patches' / stage['patch']
                 self.assertEqual(Path(stage['patch']).name, stage['patch'])
@@ -121,6 +144,9 @@ class CutoverTests(unittest.TestCase):
                 return result
             rendered = {}
             pg_chart = os.environ.get('PG_CUTOVER_POSTGRES_CHART')
+            if pg_chart:
+                app = yaml.safe_load((self.root / source / 'app.yaml').read_text())
+                self.assertEqual(yaml.safe_load((Path(pg_chart) / 'Chart.yaml').read_text())['version'], app['chart']['version'])
             def render_pg():
                 key = (root / source / 'values.yaml').read_bytes()
                 if key not in rendered:
@@ -196,13 +222,16 @@ class CutoverTests(unittest.TestCase):
         self.assertTrue(helm)
         with tempfile.TemporaryDirectory() as tmp:
             for name, inputs in states['consumers'].items():
-                app = yaml.safe_load((ROOT / inputs['path'] / 'app.yaml').read_text())
+                app = yaml.safe_load((self.root / inputs['path'] / 'app.yaml').read_text())
                 chart = charts['authentik' if name == 'authentik' else 'app-template']
-                layers = [ROOT / 'templates/globals.yaml']
+                appset = yaml.safe_load((self.root / 'bootstrap/appsets/cluster-apps.yaml').read_text())
+                version = app['chart']['version'] if name == 'authentik' else next(row['defaultChartVersion'] for row in appset['spec']['generators'][0]['matrix']['generators'][0]['list']['elements'] if row['category'] == 'services')
+                self.assertEqual(yaml.safe_load((Path(chart) / 'Chart.yaml').read_text())['version'], version)
+                layers = [self.root / 'templates/globals.yaml']
                 if inputs['path'].startswith('services/'):
-                    layers.append(ROOT / 'templates/common.yaml')
-                layers.extend(ROOT / p for p in app.get('commonValuesExtras', []))
-                layers.append(ROOT / inputs['path'] / 'values.yaml')
+                    layers.append(self.root / 'templates/common.yaml')
+                layers.extend(self.root / p for p in app.get('commonValuesExtras', []))
+                layers.append(self.root / inputs['path'] / 'values.yaml')
                 def render(extra=None):
                     cmd = [str(helm), 'template', name, chart, '--namespace', inputs['namespace']]
                     for p in layers:

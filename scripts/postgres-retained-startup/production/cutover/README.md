@@ -30,9 +30,13 @@ passes. Active backup Jobs must finish before shutdown; suspending the CronJob
 alone does not drain them. The main server and exporter containers, image pins,
 credentials and SQL declarations stay unchanged.
 
-CI verifies the stage contract and strict admission schema, then renders every
-consumer with its actual globals/common/extras/application layers. Hold renders
-must change only controller replica counts; release renders must equal baseline.
+The production cutover is complete. CI replays its stage contract and renders
+the reviewed historical consumer and PostgreSQL inputs from `released-inputs.json`.
+Every archived file must match the released hashes in `patches/index.yaml`; all
+patch hashes, intermediate states and replica-only hold/release checks remain
+enforced. Current application changes and removals do not change this historical
+rehearsal. Current enrollment generation and hook validation remain separate.
+The archive is test input, not an executable recovery or redeployment plan.
 Offline lab admission and synthetic PostgreSQL backup/restore qualify procedure
 only. The actual production cold backup still needs independent restore acceptance
 before the retained target can be released.
@@ -43,9 +47,11 @@ before the retained target can be released.
 Merging this preparation installs none of them. The index records every patch's
 SHA256 and the full before/after file hashes, including unchanged chart descriptors
 and value layers. CI applies all diffs in a temporary directory, verifies their
-scope and every state, and renders the real consumer/PostgreSQL charts. It also
-accepts an exact intermediate state by reversing to baseline in that temporary
-directory. Any input outside a reviewed state is a failure requiring fresh review.
+scope and every state, and renders the real consumer/PostgreSQL charts. It reverses the
+archived released state to baseline in that temporary directory. Any archived
+input outside the reviewed released hashes fails. A new live operation requires
+fresh source qualification and review; these old patches must not be applied to
+current application inputs.
 The final consumer, enrollment Job and CronJob files return to their original bytes.
 
 Prepare each actual PR from the preceding accepted state, using only its indexed

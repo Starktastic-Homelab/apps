@@ -4,9 +4,14 @@ metadata:
   name: mosquitto-config
   namespace: home-automation
 data:
-  mosquitto.conf: |
-    listener 1883
+  mosquitto.conf: "listener 1883
+
     allow_anonymous true
+
     persistence true
-    persistence_location /config/data/
+
+    persistence_location /mosquitto/data/
+
     log_dest stdout
+
+    "

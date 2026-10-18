@@ -10,6 +10,7 @@ import sys
 import time
 import uuid
 from pathlib import Path
+from redis_acl import ACL_PATH, MAINTENANCE_USER, users
 
 REDIS = 'registry-1.docker.io/bitnami/redis@sha256:f4797b37502e6db910d3653368fcfadc171ef605586917774de125ddd05b3e62'
 PYTHON = 'ghcr.io/paperless-ngx/paperless-ngx:3.1.3@sha256:aa810a36942c63d4ee70d00eda7236cd3d6acfb7eb3f7987fb568ed14df8817a'
@@ -18,11 +19,14 @@ IMMICH_SERVER = 'ghcr.io/immich-app/immich-server:v3.2.2@sha256:79cc1623323d5894
 REDIS_FIXTURE_CONFIG = '\n'.join([
     'loadmodule /opt/bitnami/redis/lib/redis/modules/redisearch.so',
     'loadmodule /opt/bitnami/redis/lib/redis/modules/rejson.so',
-    'appendonly yes', 'save ""', 'appendfsync everysec', 'dir /data',
+    'appendonly yes', 'save ""', 'appendfsync everysec', 'timeout 300',
+    'aclfile ' + ACL_PATH, 'dir /data',
     'rename-command FLUSHDB ""', 'rename-command FLUSHALL ""',
 ]) + '\n'
 ROOT = Path(__file__).resolve().parent
 PASSWORD = 'synthetic-fixture-only'
+MAINTENANCE_PASSWORD = 'synthetic-maintenance-only'
+DISPATCHARR = 'ghcr.io/dispatcharr/dispatcharr@sha256:f81924fa3dbfeb463b3908be7e086bf58aacbd2ba56062bfb555ee3a471acf8f'
 
 
 def docker(*args, check=True, input=None, timeout=180):
@@ -39,6 +43,7 @@ class Owned:
         self.label = 'homelab.synthetic=' + self.identity
         self.containers = []
         self.volumes = []
+        self.acl_volume = None
 
     def volume(self, suffix):
         name = self.identity + '-' + suffix
@@ -76,6 +81,19 @@ class Owned:
         self.shell('set -o pipefail; cd /src; tar --format=pax --numeric-owner --acls --xattrs --xattrs-include="*" -cpf - . | (cd /dst; tar --numeric-owner --same-owner --same-permissions --acls --xattrs --xattrs-include="*" -xpf -)',
                    [f'type=volume,src={source},dst=/src,readonly', f'type=volume,src={target},dst=/dst'], user='0:0')
 
+    def auth(self):
+        if self.acl_volume is None:
+            self.acl_volume = self.volume('native-acl')
+            import shlex
+            declaration = users(PASSWORD.encode(), MAINTENANCE_PASSWORD.encode())
+            self.shell("printf '%s' " + shlex.quote(declaration) + " > /acl/users.acl; chmod 0444 /acl/users.acl",
+                       [f'type=volume,src={self.acl_volume},dst=/acl'], user='0:0')
+        return self.acl_volume
+
+    def admin(self, server, *args):
+        return docker('exec', '-e', 'REDISCLI_AUTH=' + MAINTENANCE_PASSWORD, server,
+                      '/opt/bitnami/redis/bin/redis-cli', '--user', MAINTENANCE_USER, *args).stdout.strip()
+
     def server(self, volume, aof=True, expect_refusal=False, pressure=False):
         self.shell("[ -e /data/.synthetic-redis.conf ] || cat > /data/.synthetic-redis.conf <<'CONFIG'\n" + REDIS_FIXTURE_CONFIG + 'CONFIG\n', [f'type=volume,src={volume},dst=/data'])
         name = self.run(REDIS, '/opt/bitnami/redis/bin/redis-server',
@@ -83,7 +101,8 @@ class Owned:
                         '--dir', '/pressure' if pressure else '/data', '--bind', '127.0.0.1',
                         '--port', '6379', '--save', '', '--appendonly', 'yes' if aof else 'no',
                         '--appendfsync', 'everysec', '--requirepass', PASSWORD,
-                        mounts=[f'type=volume,src={volume},dst=/data'] + (['type=tmpfs,dst=/pressure,tmpfs-size=2097152,tmpfs-mode=0777'] if pressure else []), detached=True)
+                        mounts=[f'type=volume,src={volume},dst=/data',
+                                f'type=volume,src={self.auth()},dst=/opt/bitnami/redis/acl,readonly'] + (['type=tmpfs,dst=/pressure,tmpfs-size=2097152,tmpfs-mode=0777'] if pressure else []), detached=True)
         for _ in range(60):
             result = docker('exec', '-e', 'REDISCLI_AUTH=' + PASSWORD, name,
                             '/opt/bitnami/redis/bin/redis-cli', 'PING', check=False)
@@ -157,6 +176,7 @@ def redis_worker(action):
     import redis_checkpoint as state
     assert redis.__version__ == '5.2.1'
     client = redis.Redis(host='127.0.0.1', password=PASSWORD, decode_responses=False, single_connection_client=True)
+    admin = redis.Redis(host='127.0.0.1', username=MAINTENANCE_USER, password=MAINTENANCE_PASSWORD, decode_responses=False)
     checkpoint = Path('/data/checkpoint.synthetic.json')
     if action == 'celery-seed':
         import os
@@ -192,7 +212,7 @@ def redis_worker(action):
         client.set(b'historical-only', b'not-current-memory')
         client.bgrewriteaof()
         wait_persistence(client)
-        client.config_set('appendonly', 'no')
+        admin.config_set('appendonly', 'no')
         client.delete(b'historical-only')
         client.set(b'\xff\x00job', b'\x00payload\xff')
         client.rpush(b'list', b'a', b'a', b'\xff')
@@ -238,7 +258,7 @@ def redis_worker(action):
         actual = state.capture(client, state.source_time_ms(client))
         return state.compare(before, actual, state.source_time_ms(client))
     if action == 'enable-aof':
-        client.config_set('appendonly', 'yes')
+        admin.config_set('appendonly', 'yes')
         wait_persistence(client)
         return {'enabled': True}
     raise ValueError('Unknown fixture action')
@@ -388,6 +408,54 @@ def run_redis_case(case):
 
 
 
+def run_acl():
+    owned = Owned()
+    result = {}
+    try:
+        volume = owned.volume('acl-startup')
+        owned.initialize(volume)
+        server = owned.server(volume)
+        def default(*args):
+            return docker('exec', '-e', 'REDISCLI_AUTH=' + PASSWORD, server,
+                          '/opt/bitnami/redis/bin/redis-cli', *args).stdout.strip()
+        def dispatcharr():
+            value = json.loads(owned.run(DISPATCHARR, 'python3', '/work/dispatcharr_probe.py',
+                 network='container:' + server, mounts=[f'type=bind,src={ROOT},dst=/work,readonly']))
+            assert value['decoded_and_binary_clients_work']
+        dispatcharr()
+        assert json.loads(default('--json','CONFIG','GET','appendonly')) == {'appendonly':'yes'}
+        result['dispatcharr_clients_work'] = True
+        result['application_config_refused'] = 'NOPERM' in default('CONFIG','SET','appendonly','no')
+        result['application_acl_refused'] = 'NOPERM' in default('ACL','SETUSER','default','+@all')
+        assert owned.admin(server,'CONFIG','SET','appendonly','yes') == 'OK'
+        result['maintenance_config_works'] = True
+        # Reproduce the actual original fault, confined to disposable memory.
+        assert owned.admin(server,'ACL','SETUSER','default','+config|set','+acl') == 'OK'
+        dispatcharr()
+        assert json.loads(default('--json','CONFIG','GET','appendonly')) == {'appendonly':'no'}
+        result['unrestricted_disabling_reproduced'] = True
+        assert owned.admin(server,'ACL','SETUSER','default','-config|set','-acl') == 'OK'
+        owned.worker(server,volume,'enable-aof')
+        owned.stop(server)
+        server = owned.server(volume)
+        dispatcharr()
+        assert json.loads(default('--json','CONFIG','GET','appendonly','timeout')) == {'appendonly':'yes','timeout':'300'}
+        assert 'NOPERM' in default('CONFIG','SET','appendonly','no')
+        assert 'NOPERM' in default('ACL','SETUSER','default','+@all')
+        result['recreation_preserved'] = True
+        exporter_image = 'registry-1.docker.io/bitnami/redis-exporter@sha256:a7144e7e82d7dc5dc5ce5b78e096fe74d9508379a1b8eef07a197adda6d964ad'
+        owned.run(exporter_image, '/opt/bitnami/redis-exporter/bin/redis_exporter',
+                  '--redis.addr=redis://127.0.0.1:6379','--redis.password=' + PASSWORD,
+                  '--web.listen-address=127.0.0.1:9121',network='container:' + server,detached=True)
+        code = "import json,urllib.request; t=urllib.request.urlopen('http://127.0.0.1:9121/metrics',timeout=5).read().decode(); v={s.split(' ',1)[0].split('{',1)[0]:float(s.split(' ',1)[1]) for s in t.splitlines() if s.startswith(('redis_up ','redis_aof_enabled ','redis_aof_last_write_status ','redis_exporter_last_scrape_error'))}; assert v['redis_up']==v['redis_aof_enabled']==v['redis_aof_last_write_status']==1 and v['redis_exporter_last_scrape_error']==0,v; print(json.dumps(v))"
+        metrics = json.loads(owned.run(PYTHON, 'python3', '-c',code,network='container:' + server))
+        result['exporter_error'] = metrics['redis_exporter_last_scrape_error']
+    finally:
+        owned.close()
+    result['cleanup_verified'] = True
+    return result
+
+
 def run_exporter():
     exporter_image = 'registry-1.docker.io/bitnami/redis-exporter@sha256:a7144e7e82d7dc5dc5ce5b78e096fe74d9508379a1b8eef07a197adda6d964ad'
     owned = Owned()
@@ -431,7 +499,7 @@ print(json.dumps({key.removeprefix('redis_'):values[key] for key in required}))
                 time.sleep(.2)
         else:
             raise RuntimeError('Synthetic exporter did not become ready')
-        docker('exec', '-e', 'REDISCLI_AUTH=' + PASSWORD, server, '/opt/bitnami/redis/bin/redis-cli', 'CONFIG', 'SET', 'appendonly', 'no')
+        assert owned.admin(server, 'CONFIG', 'SET', 'appendonly', 'no') == 'OK'
         result['disabled'] = metrics()
         owned.worker(server, volume, 'enable-aof')
         full = docker('exec', server, '/bin/bash', '-c', 'LC_ALL=C dd if=/dev/zero of=/pressure/filler bs=4096 count=1024 status=none', check=False)

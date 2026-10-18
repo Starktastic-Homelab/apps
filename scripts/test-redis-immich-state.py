@@ -120,5 +120,20 @@ class PostgresState(unittest.TestCase):
             self.state.compare(self.before, actual)
 
 
+class RedisACL(unittest.TestCase):
+    def test_declarations_keep_passwords_hashed_and_app_commands_scoped(self):
+        import redis_acl
+        import hashlib
+        value = redis_acl.users(b'application-synthetic', b'maintenance-synthetic')
+        self.assertEqual(value.splitlines(), [
+            'user default on #' + hashlib.sha256(b'application-synthetic').hexdigest() + ' ~* &* +@all -config|set -acl',
+            'user homelab-maintenance on #' + hashlib.sha256(b'maintenance-synthetic').hexdigest() + ' ~* &* +@all'])
+        self.assertNotIn('application-synthetic', value)
+        self.assertNotIn('maintenance-synthetic', value)
+        for app, admin in [(b'',b'x'),(b'x',b''),(b'x',b'x'),('x',b'y')]:
+            with self.subTest(app=type(app).__name__, admin=type(admin).__name__), self.assertRaises(ValueError):
+                redis_acl.users(app,admin)
+
+
 if __name__ == '__main__':
     unittest.main()

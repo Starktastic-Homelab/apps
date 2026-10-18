@@ -11,6 +11,13 @@ keeps its PG17/VectorChord0.4.3/pgvector0.8.1 image and all existing server/ML
 settings. Photos/videos and model cache stay on NFS. Shared PG18/enrollment,
 Paperless’s own index and Calibre are outside this operation.
 
+The approved Redis ACL amendment preserves application passwords and data access,
+blocks default-account CONFIG SET/ACL, and gives administration a separate sealed
+maintenance credential. Redis alone mounts `redis-server-acl`; neither the guard
+nor the exporter receives it. The actual startup ACL file is tested across native
+recreation with the stock Dispatcharr client. Real Secret generation remains an
+execution step; synthetic credentials never become production declarations.
+
 ## Local qualification
 
 Use Python with PyYAML, Helm, kubeconform and Docker. The engine fixtures use

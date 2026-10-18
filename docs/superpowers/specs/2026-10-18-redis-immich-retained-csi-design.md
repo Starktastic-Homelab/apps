@@ -66,8 +66,15 @@ and server/ML images. No version upgrade or credential rotation is included.
 
 At assessment, mounted/Git configuration enables AOF, but the live server reports
 `appendonly no`, no scheduled RDB saves and `aof_enabled:0`. Old AOF files are
-not an authoritative backup of current memory. The disabling actor/reason is
-unattributed; preserve that evidence and do not infer an application-data loss.
+not an authoritative backup of current memory. The initial disabling actor/reason was
+unattributed. Preparation subsequently reproduced the exact deployed Dispatcharr
+client disabling persistence globally. The user approved the
+[native ACL amendment](../reports/2026-10-18-redis-dispatcharr-persistence-decision.md)
+on18October2026: preserve default application credentials and data permissions,
+deny application CONFIG SET/ACL, add a separate sealed maintenance account, and
+load native ACL declarations on every startup. Preserve the live300-second idle
+timeout explicitly. Credential creation and live permission changes remain part
+of the later execution proposal. Do not infer historical application-data loss.
 Preparation must trace available configuration/caller evidence and qualify the
 transition using the exact running image. If an active controller/client keeps
 disabling AOF, stop before execution until that cause is resolved.

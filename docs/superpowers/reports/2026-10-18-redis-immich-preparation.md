@@ -7,14 +7,15 @@ key has changed. No real records or credentials entered a fixture or Git.
 
 Task4 found a repeatable AOF-disabling path in the exact deployed Dispatcharr
 client. The [access-design decision](2026-10-18-redis-dispatcharr-persistence-decision.md)
-contains native reproduction and a qualified ACL candidate. The command packet
-is paused pending that decision; current inactive candidates are not yet a
-complete production solution.
+contains native reproduction and a qualified ACL candidate. The user approved that amendment. All seven Redis native tests now pass under
+the restricted startup configuration, and seven render checks validate the
+server-only ACL Secret mount. The finite command packet remains in preparation;
+current inactive candidates are not yet a complete production solution.
 
 ## Qualified components
 
-- Nine state tests, six native Redis/exporter tests and two native PG17 tests pass.
-- Six actual-render contract tests pass. Kubeconform validates all47 candidate and
+- Ten state tests, seven native Redis/exporter/ACL tests and two native PG17 tests pass.
+- Seven actual-render contract tests pass. Kubeconform validates all47 candidate and
   baseline resources with no invalid/error/skipped resources. Real promtool
   tests pass for two-minute AOF-disable/write-failure alerts and recovery.
 - The native Redis fixture matches the actual chart’s configuration and live
@@ -46,7 +47,10 @@ No application definition has been activated.
 
 Redis keeps its chart command/config/module/auth/service/probe behavior and pins
 the exact running Redis/exporter digests. It adds the read-only retained guard,
-explicit everysec fsync, named existing claim and durability rules. Full rendered
+explicit everysec fsync, named existing claim and durability rules. Approved native ACLs add a server-only
+`redis-server-acl` Secret mount, restrict application CONFIG SET/ACL commands and
+use a distinct maintenance credential. Timeout300 preserves the verified live
+idle policy. No real credential or SealedSecret has been generated. Full rendered
 StatefulSet/container/config/service comparisons permit only these scoped changes.
 
 Immich changes only its PG storage, guard, process permissions and placement.

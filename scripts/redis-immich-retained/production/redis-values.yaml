@@ -9,6 +9,8 @@ commonConfiguration: |-
   # Disable RDB persistence, AOF persistence already enabled.
   save ""
   appendfsync everysec
+  timeout 300
+  aclfile /opt/bitnami/redis/acl/users.acl
 master:
   persistence:
     existingClaim: redis-data-block
@@ -58,7 +60,15 @@ master:
           readOnly: true
         - name: retained-scratch
           mountPath: /tmp
+  extraVolumeMounts:
+    - name: server-acl
+      mountPath: /opt/bitnami/redis/acl
+      readOnly: true
   extraVolumes:
+    - name: server-acl
+      secret:
+        secretName: redis-server-acl
+        defaultMode: 292
     - name: retained-startup
       configMap:
         name: redis-retained-startup

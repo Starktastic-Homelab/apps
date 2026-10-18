@@ -93,6 +93,21 @@ class Manifests(unittest.TestCase):
             self.assertNotIn('secret', volumes[mount['name']])
         return guard
 
+    def test_redis_native_acl_is_mounted_only_for_the_server(self):
+        after = self.render('redis')
+        config = after[('ConfigMap', 'redis-configuration')]['data']['redis.conf']
+        self.assertIn('aclfile /opt/bitnami/redis/acl/users.acl', config)
+        self.assertIn('timeout 300', config)
+        pod = after[('StatefulSet', 'redis-master')]['spec']['template']['spec']
+        volume = next(v for v in pod['volumes'] if v['name'] == 'server-acl')
+        self.assertEqual(volume['secret'], {'secretName':'redis-server-acl', 'defaultMode':292})
+        main = next(c for c in pod['containers'] if c['name'] == 'redis')
+        self.assertIn({'name':'server-acl','mountPath':'/opt/bitnami/redis/acl','readOnly':True}, main['volumeMounts'])
+        for c in pod['containers'] + pod['initContainers']:
+            if c['name'] != 'redis':
+                self.assertFalse(any(v['name']=='server-acl' for v in c.get('volumeMounts',[])))
+        self.assertNotIn('redis-maintenance-auth', str(pod))
+
     def test_native_fixture_uses_the_actual_candidate_configuration(self):
         sys.path.insert(0, str(PACKAGE))
         import fixtures
@@ -114,6 +129,8 @@ class Manifests(unittest.TestCase):
         for source, target in zip(ac, bc):
             expected = copy.deepcopy(source)
             expected['image'] = REDIS if source['name'] == 'redis' else EXPORTER
+            if source['name'] == 'redis':
+                expected['volumeMounts'].append({'name':'server-acl','mountPath':'/opt/bitnami/redis/acl','readOnly':True})
             self.assertEqual(target, expected)
         # Compare the whole StatefulSet after removing only the independently
         # checked storage, guard, digest, ownership and placement differences.
@@ -125,9 +142,10 @@ class Manifests(unittest.TestCase):
             spec.pop('nodeSelector', None)
             spec.pop('tolerations', None)
             spec.get('securityContext', {}).pop('fsGroup', None)
-            spec['volumes'] = [v for v in spec['volumes'] if v['name'] not in ('redis-data','retained-startup','retained-scratch')]
+            spec['volumes'] = [v for v in spec['volumes'] if v['name'] not in ('redis-data','retained-startup','retained-scratch','server-acl')]
             for container in spec['containers']:
                 container.pop('image')
+                container['volumeMounts'] = [v for v in container['volumeMounts'] if v['name'] != 'server-acl']
             obj['spec']['template']['metadata'].get('annotations', {}).pop('checksum/configmap', None)
         self.assertEqual(aa, bb)
         for key, item in before.items():
@@ -136,7 +154,7 @@ class Manifests(unittest.TestCase):
             expected = copy.deepcopy(item)
             if key == ('ConfigMap', 'redis-configuration'):
                 conf = expected['data']['redis.conf']
-                expected['data']['redis.conf'] = conf.replace('save ""', 'save ""\nappendfsync everysec')
+                expected['data']['redis.conf'] = conf.replace('save ""', 'save ""\nappendfsync everysec\ntimeout 300\naclfile /opt/bitnami/redis/acl/users.acl')
             self.assertEqual(after[key], expected, str(key))
 
     def test_immich_changes_only_postgres_storage_guard_and_placement(self):

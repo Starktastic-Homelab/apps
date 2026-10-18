@@ -10,6 +10,15 @@ sys.path.insert(0, str(ROOT))
 
 
 class RedisNative(unittest.TestCase):
+    def test_application_configuration_is_protected_after_recreation(self):
+        import fixtures
+        self.assertTrue(hasattr(fixtures, 'run_acl'), 'Native startup ACL qualification is missing')
+        result = fixtures.run_acl()
+        for key in ('dispatcharr_clients_work','unrestricted_disabling_reproduced','application_config_refused',
+                    'application_acl_refused','maintenance_config_works','recreation_preserved','cleanup_verified'):
+            self.assertTrue(result[key], key)
+        self.assertEqual(result['exporter_error'], 0)
+
     def test_exporter_reports_native_durability_and_recovery(self):
         import fixtures
         self.assertTrue(hasattr(fixtures, 'run_exporter'), 'Native exporter durability qualification is missing')

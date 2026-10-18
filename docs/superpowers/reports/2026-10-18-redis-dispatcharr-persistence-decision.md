@@ -1,7 +1,7 @@
 # Redis durability: Dispatcharr access decision
 
-Status: a design decision is needed before finishing Task4 of the approved
-Redis/Immich preparation. Tasks1–3 remain locally qualified. No production
+Status: the user approved the native ACL amendment on18October2026. It extends
+Task4 of the approved Redis/Immich preparation. Tasks1–3 remain locally qualified. No production
 configuration, credentials, data, workloads or maintenance ownership changed.
 
 ## Verified disabling path
@@ -23,7 +23,7 @@ The [upstream function](https://github.com/Dispatcharr/Dispatcharr/blob/v0.31.0/
 shows the same persistence behavior. The pinned deployed image, rather than the
 movable tag or source lines, is the qualification authority.
 
-## Proposed bounded amendment — pending approval
+## Approved bounded amendment
 
 Use native [Redis ACLs](https://redis.io/docs/latest/operate/oss_and_stack/management/security/acl/)
 to protect the shared server configuration:
@@ -85,8 +85,8 @@ packet, whole-package review and hosted CI remain pending.
 
 ## Continuation gate
 
-A choice is required because this expands the approved access/credential design.
-Approving this amendment authorizes preparation and qualification only. Production
+The user approved this expanded access/credential design. The amendment
+authorizes preparation and qualification only. Production
 outages, real-data/key or credential handling, allocation, activation and merge
 authority still need the finished reviewed execution proposal. Redis cannot be
 accepted while a permitted client can keep disabling AOF.

@@ -25,6 +25,13 @@
 - Reuse fresh owner/nonce, immutable original clocks, recorded intents and known child outcomes; never replay a completed or uncertain mutation. Record authority before first target writes; never automatically reopen stale source afterward.
 - Tasks1–5 prepare the operation. Task6 is gated by a separate execution proposal, including lab/data transfers, outage scope, exact time limits and merge authority.
 
+Approved amendment (18October2026): qualify native Redis ACLs with the current
+application password unchanged, default-account CONFIG SET/ACL denied, one
+separate sealed maintenance credential and startup-mounted native ACL file.
+Preserve timeout300. Extend Task3 render/native tests and Task4 command assembly;
+credential creation/live permissions remain Task6. See the approved
+[access amendment](../reports/2026-10-18-redis-dispatcharr-persistence-decision.md).
+
 ## Review Focus
 
 1. A running Redis with AOF off and historical AOF files must never be stopped/restarted before current-memory recovery and the AOF transition pass (Tasks1/4: `test_stale_disk_is_not_memory_recovery`, `test_restart_blocked_before_current_memory_restore`).

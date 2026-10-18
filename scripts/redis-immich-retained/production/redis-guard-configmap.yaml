@@ -9,7 +9,10 @@ data:
     # Identity and native integrity only. RWOP and verified retirement fence writers.
     set -eu
     export LC_ALL=C
-    fail() { echo 'Retained Redis startup refused: identity/integrity check failed.' >&2; exit 1; }
+    fail() {
+      echo 'Retained Redis startup refused: identity/integrity check failed.' >&2
+      exit 1
+    }
     bin=/opt/bitnami/redis/bin
     [ "$("$bin/redis-server" --version | cut -d' ' -f3)" = v=8.10.2 ] || fail
     for directory in /data /data/appendonlydir; do

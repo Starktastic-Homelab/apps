@@ -1,0 +1,8 @@
+{
+  "postgres_identity": "uid=0(root) gid=0(root) groups=0(root),999(postgres)\nUid:\t999\t999\t999\t999\n/data 0:0 777 3\n/data/pgdata 999:0 700 26\n/data/pgdata/global/pg_control 999:999 600 8192",
+  "redis_appendonly": {
+    "appendonly": "no"
+  },
+  "redis_identity": "uid=1001 gid=1001 groups=1001\n/data 1001:1001 777 3\n/data/appendonlydir 1001:1001 755 5\n/data/appendonlydir/appendonly.aof.manifest 1001:1001 644 138",
+  "redis_modules": ["ReJSON", "vectorset", "search"]
+}

@@ -15,6 +15,12 @@ REDIS = 'registry-1.docker.io/bitnami/redis@sha256:f4797b37502e6db910d3653368fcf
 PYTHON = 'ghcr.io/paperless-ngx/paperless-ngx:3.1.3@sha256:aa810a36942c63d4ee70d00eda7236cd3d6acfb7eb3f7987fb568ed14df8817a'
 POSTGRES = 'ghcr.io/immich-app/postgres:17-vectorchord0.4.3-pgvector0.8.1@sha256:79b95b795f0911e95ffa4d092a2162c4d81a984d5629bc8f786afe0bc0657671'
 IMMICH_SERVER = 'ghcr.io/immich-app/immich-server:v3.2.2@sha256:79cc1623323d5894922686d8743b4780181428f98eecbfb58ce12c41ef02d1ea'
+REDIS_FIXTURE_CONFIG = '\n'.join([
+    'loadmodule /opt/bitnami/redis/lib/redis/modules/redisearch.so',
+    'loadmodule /opt/bitnami/redis/lib/redis/modules/rejson.so',
+    'appendonly yes', 'save ""', 'appendfsync everysec', 'dir /data',
+    'rename-command FLUSHDB ""', 'rename-command FLUSHALL ""',
+]) + '\n'
 ROOT = Path(__file__).resolve().parent
 PASSWORD = 'synthetic-fixture-only'
 
@@ -40,7 +46,7 @@ class Owned:
         self.volumes.append(name)
         return name
 
-    def run(self, image, *args, network='none', mounts=(), user='1001:0', detached=False):
+    def run(self, image, *args, network='none', mounts=(), user='1001:1001', detached=False):
         name = self.identity + '-' + str(len(self.containers))
         self.containers.append(name)
         options = ['run', '--name', name, '--label', self.label, '--network', network,
@@ -60,23 +66,24 @@ class Owned:
             raise RuntimeError('Synthetic container failed: ' + result.stdout[-2000:] + result.stderr[-2000:])
         return name if detached else result.stdout
 
-    def shell(self, script, mounts=(), user='1001:0'):
+    def shell(self, script, mounts=(), user='1001:1001'):
         return self.run(REDIS, '/bin/bash', '-euc', script, mounts=mounts, user=user)
 
     def initialize(self, volume):
-        self.shell('chown 1001:0 /data; chmod 0770 /data', [f'type=volume,src={volume},dst=/data'], user='0:0')
+        self.shell('chown 1001:1001 /data; chmod 0777 /data', [f'type=volume,src={volume},dst=/data'], user='0:0')
 
     def copy(self, source, target):
         self.shell('set -o pipefail; cd /src; tar --format=pax --numeric-owner --acls --xattrs --xattrs-include="*" -cpf - . | (cd /dst; tar --numeric-owner --same-owner --same-permissions --acls --xattrs --xattrs-include="*" -xpf -)',
                    [f'type=volume,src={source},dst=/src,readonly', f'type=volume,src={target},dst=/dst'], user='0:0')
 
-    def server(self, volume, aof=True, expect_refusal=False):
+    def server(self, volume, aof=True, expect_refusal=False, pressure=False):
+        self.shell("[ -e /data/.synthetic-redis.conf ] || cat > /data/.synthetic-redis.conf <<'CONFIG'\n" + REDIS_FIXTURE_CONFIG + 'CONFIG\n', [f'type=volume,src={volume},dst=/data'])
         name = self.run(REDIS, '/opt/bitnami/redis/bin/redis-server',
-                        '/opt/bitnami/redis/etc/redis.conf', '--daemonize', 'no', '--pidfile', '/tmp/redis.pid',
-                        '--dir', '/data', '--bind', '127.0.0.1',
+                        '--include', '/data/.synthetic-redis.conf', '--daemonize', 'no', '--pidfile', '/tmp/redis.pid',
+                        '--dir', '/pressure' if pressure else '/data', '--bind', '127.0.0.1',
                         '--port', '6379', '--save', '', '--appendonly', 'yes' if aof else 'no',
                         '--appendfsync', 'everysec', '--requirepass', PASSWORD,
-                        mounts=[f'type=volume,src={volume},dst=/data'], detached=True)
+                        mounts=[f'type=volume,src={volume},dst=/data'] + (['type=tmpfs,dst=/pressure,tmpfs-size=2097152,tmpfs-mode=0777'] if pressure else []), detached=True)
         for _ in range(60):
             result = docker('exec', '-e', 'REDISCLI_AUTH=' + PASSWORD, name,
                             '/opt/bitnami/redis/bin/redis-cli', 'PING', check=False)
@@ -340,6 +347,10 @@ def run_redis_case(case):
         server = owned.server(volume)
         if case in ('torn-tail', 'corrupt-increment'):
             docker('exec', '-e', 'REDISCLI_AUTH=' + PASSWORD, server, '/opt/bitnami/redis/bin/redis-cli', 'SET', 'accepted-complete', 'preserved-complete')
+        if case == 'source-config':
+            modules = json.loads(docker('exec', '-e', 'REDISCLI_AUTH=' + PASSWORD, server, '/opt/bitnami/redis/bin/redis-cli', '--json', 'MODULE', 'LIST').stdout)
+            source_config = {'modules': sorted(item['name'] for item in modules),
+                'uid': int(docker('exec', server, 'id', '-u').stdout), 'gid': int(docker('exec', server, 'id', '-g').stdout)}
         owned.stop(server)
         owned.shell("printf 'homelab/redis/data/v1\\n' > /data/.homelab-redis-data", [f'type=volume,src={volume},dst=/data'])
         if case == 'history':
@@ -366,6 +377,8 @@ def run_redis_case(case):
             failed = owned.server(volume, expect_refusal=True)
             status = json.loads(docker('inspect', failed).stdout)[0]['State']
             result = {'native_refused': not status['Running'] and status['ExitCode'] != 0, 'guard_read_only': True}
+        elif case == 'source-config':
+            result = source_config
         else:
             raise ValueError('Unknown native Redis case')
     finally:
@@ -373,6 +386,64 @@ def run_redis_case(case):
     result['cleanup_verified'] = True
     return result
 
+
+
+def run_exporter():
+    exporter_image = 'registry-1.docker.io/bitnami/redis-exporter@sha256:a7144e7e82d7dc5dc5ce5b78e096fe74d9508379a1b8eef07a197adda6d964ad'
+    owned = Owned()
+    result = {}
+    try:
+        volume = owned.volume('exporter-config')
+        owned.initialize(volume)
+        server = owned.server(volume, pressure=True)
+        owned.run(exporter_image, '/opt/bitnami/redis-exporter/bin/redis_exporter',
+            '--redis.addr=redis://127.0.0.1:6379', '--redis.password=' + PASSWORD,
+            '--web.listen-address=127.0.0.1:9121', network='container:' + server, detached=True)
+        def metrics():
+            code = r"""
+import json,urllib.request
+opener=urllib.request.build_opener(urllib.request.ProxyHandler({}))
+text=opener.open('http://127.0.0.1:9121/metrics',timeout=5).read().decode()
+values={}
+for line in text.splitlines():
+    if line.startswith('redis_aof_') or line.startswith('redis_up '):
+        key,value=line.split(' ',1); values[key]=float(value)
+if values.get('redis_up')!=1:raise ValueError('Synthetic Redis scrape failed')
+required=['redis_aof_enabled','redis_aof_last_write_status']
+if any(key not in values for key in required):raise ValueError('Missing durability metric; native keys: '+','.join(values))
+print(json.dumps({key.removeprefix('redis_'):values[key] for key in required}))
+"""
+            return json.loads(owned.run(PYTHON, 'python3', '-c', code, network='container:' + server))
+        def wait_for(write_status):
+            for _ in range(30):
+                value = metrics()
+                if value['aof_last_write_status'] == write_status:
+                    return value
+                time.sleep(.2)
+            raise AssertionError('Native AOF write status did not converge')
+        # Wait for the actual exporter listener, without accepting a failed
+        # scrape as a disabled-persistence signal.
+        for _ in range(30):
+            try:
+                result['enabled'] = metrics()
+                break
+            except RuntimeError:
+                time.sleep(.2)
+        else:
+            raise RuntimeError('Synthetic exporter did not become ready')
+        docker('exec', '-e', 'REDISCLI_AUTH=' + PASSWORD, server, '/opt/bitnami/redis/bin/redis-cli', 'CONFIG', 'SET', 'appendonly', 'no')
+        result['disabled'] = metrics()
+        owned.worker(server, volume, 'enable-aof')
+        full = docker('exec', server, '/bin/bash', '-c', 'LC_ALL=C dd if=/dev/zero of=/pressure/filler bs=4096 count=1024 status=none', check=False)
+        assert full.returncode != 0 and 'No space left on device' in full.stderr
+        docker('exec', '-e', 'REDISCLI_AUTH=' + PASSWORD, server, '/opt/bitnami/redis/bin/redis-cli', 'SET', 'synthetic-write-pressure', 'synthetic-payload')
+        result['failed_write'] = wait_for(0.0)
+        docker('exec', server, 'rm', '/pressure/filler')
+        result['recovered'] = wait_for(1.0)
+    finally:
+        owned.close()
+    result['cleanup_verified'] = True
+    return result
 
 _POSTGRES_RESULT = None
 

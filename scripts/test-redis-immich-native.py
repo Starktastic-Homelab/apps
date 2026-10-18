@@ -10,6 +10,23 @@ sys.path.insert(0, str(ROOT))
 
 
 class RedisNative(unittest.TestCase):
+    def test_exporter_reports_native_durability_and_recovery(self):
+        import fixtures
+        self.assertTrue(hasattr(fixtures, 'run_exporter'), 'Native exporter durability qualification is missing')
+        result = fixtures.run_exporter()
+        self.assertEqual(result['enabled'], {'aof_enabled': 1.0, 'aof_last_write_status': 1.0})
+        self.assertEqual(result['disabled']['aof_enabled'], 0.0)
+        self.assertEqual(result['failed_write'], {'aof_enabled': 1.0, 'aof_last_write_status': 0.0})
+        self.assertEqual(result['recovered'], result['enabled'])
+        self.assertTrue(result['cleanup_verified'])
+
+    def test_deployed_module_and_identity_configuration(self):
+        import fixtures
+        result = fixtures.run_redis_case('source-config')
+        self.assertEqual(result['modules'], ['ReJSON', 'search', 'vectorset'])
+        self.assertEqual((result['uid'], result['gid']), (1001, 1001))
+        self.assertTrue(result['cleanup_verified'])
+
     def test_middle_corruption_never_starts_an_empty_server(self):
         import fixtures
         result = fixtures.run_redis_case('corrupt-increment')

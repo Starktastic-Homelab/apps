@@ -1,0 +1,67 @@
+rule_files:
+  - redis-aof.yaml
+evaluation_interval: 1m
+tests:
+  - name: RedisAOFDisabled-enabled-failure-and-recovery
+    interval: 1m
+    input_series:
+      - series: redis_aof_enabled{namespace="databases",service="redis-metrics",instance="fixture:9121",job="redis-metrics"}
+        values: 1 0 0 0 1 1
+      - series: redis_aof_last_write_status{namespace="databases",service="redis-metrics",instance="fixture:9121",job="redis-metrics"}
+        values: 1 1 1 1 1 1
+      - series: redis_aof_enabled{namespace="other",service="redis-metrics"}
+        values: 0 0 0 0 0 0
+    alert_rule_test:
+      - eval_time: 0m
+        alertname: RedisAOFDisabled
+        exp_alerts: []
+      - eval_time: 2m
+        alertname: RedisAOFDisabled
+        exp_alerts: []
+      - eval_time: 3m
+        alertname: RedisAOFDisabled
+        exp_alerts:
+          - exp_labels: &id001
+              namespace: databases
+              service: redis-metrics
+              instance: fixture:9121
+              job: redis-metrics
+              severity: warning
+            exp_annotations:
+              summary: Redis AOF persistence is disabled
+              description: Protect current Redis memory before restarting; investigate why AOF was disabled.
+      - eval_time: 4m
+        alertname: RedisAOFDisabled
+        exp_alerts: []
+      - eval_time: 3m
+        alertname: RedisAOFWriteFailure
+        exp_alerts: []
+  - name: RedisAOFWriteFailure-enabled-failure-and-recovery
+    interval: 1m
+    input_series:
+      - series: redis_aof_enabled{namespace="databases",service="redis-metrics",instance="fixture:9121",job="redis-metrics"}
+        values: 1 1 1 1 1 1
+      - series: redis_aof_last_write_status{namespace="databases",service="redis-metrics",instance="fixture:9121",job="redis-metrics"}
+        values: 1 0 0 0 1 1
+      - series: redis_aof_last_write_status{namespace="other",service="redis-metrics"}
+        values: 0 0 0 0 0 0
+    alert_rule_test:
+      - eval_time: 0m
+        alertname: RedisAOFWriteFailure
+        exp_alerts: []
+      - eval_time: 2m
+        alertname: RedisAOFWriteFailure
+        exp_alerts: []
+      - eval_time: 3m
+        alertname: RedisAOFWriteFailure
+        exp_alerts:
+          - exp_labels: *id001
+            exp_annotations:
+              summary: Redis cannot persist AOF writes
+              description: Investigate storage and protect current Redis memory before restarting.
+      - eval_time: 4m
+        alertname: RedisAOFWriteFailure
+        exp_alerts: []
+      - eval_time: 3m
+        alertname: RedisAOFDisabled
+        exp_alerts: []

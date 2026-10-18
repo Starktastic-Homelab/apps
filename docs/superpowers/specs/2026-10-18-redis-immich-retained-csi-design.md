@@ -16,6 +16,12 @@ unmodified upstream Proxmox CSI driver, static ext4 RWOP/Retain bindings and
 verified VM retirement. Ordinary Terraform/Ansible rebuilds remain unattended,
 without Velero or a manual recovery checkpoint.
 
+Accepted exception on18October2026: keep Dispatcharr's existing native DVR queue
+reset during its web startup. Full source/recovery/target preservation still
+includes DVR messages before consumer release. Only the subsequent evidenced
+stock startup reset is accepted; there is no Dispatcharr source override or
+blanket exemption for missing keys. See the [decision](../reports/2026-10-18-dispatcharr-dvr-queue-decision.md).
+
 Perform two serial operations: **Redis first, then Immich PostgreSQL**. Stop only
 the freshly verified producers/consumers needed by each operation. Do not change
 shared PostgreSQL, enrollment, other application storage or cluster controllers.

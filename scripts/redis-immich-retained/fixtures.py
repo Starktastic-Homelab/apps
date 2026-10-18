@@ -408,6 +408,59 @@ def run_redis_case(case):
 
 
 
+
+def run_dispatcharr_startup():
+    """Accepted stock DVR resets occur only after the complete cold restore proof."""
+    probe = r"""
+import hashlib,json,sys
+from pathlib import Path
+import redis
+from kombu import Connection,Producer,Queue
+source=Path('/app/scripts/wait_for_redis.py').read_text()
+assert hashlib.sha256(source.encode()).hexdigest()=='76553144e5c2f1b47ccfc97ffd0e850ce3761c63d00e0d4995e3446b0f6e384c'
+client=redis.Redis(host='127.0.0.1',password='synthetic-fixture-only',db=4)
+with Connection('redis://:synthetic-fixture-only@127.0.0.1:6379/4') as connection:
+ channel=connection.default_channel
+ if sys.argv[1]=='seed':
+  producer=Producer(connection)
+  for queue,priority in [('celery',0),('dvr',0),('dvr',3)]:
+   producer.publish({'id':'synthetic-'+queue+'-'+str(priority)},exchange='',routing_key=queue,declare=[Queue(queue)],serializer='json',priority=priority)
+ if sys.argv[1]=='cleanup':
+  scope={'__name__':'synthetic_startup_probe'}
+  exec(compile(source,'/app/scripts/wait_for_redis.py','exec'),scope)
+  scope['_flush_non_celery_keys'](client)
+ counts={'celery':client.llen('celery'),'dvrPriority0':client.llen(channel._q_for_pri('dvr',0)),'dvrPriority3':client.llen(channel._q_for_pri('dvr',3))}
+ if sys.argv[1]=='cleanup':
+  with connection.SimpleQueue('celery') as queue:
+   message=queue.get(block=False);assert message.payload=={'id':'synthetic-celery-0'};message.ack()
+ print(json.dumps(counts))
+"""
+    owned = Owned()
+    try:
+        source, target = owned.volume('stock-startup-source'), owned.volume('stock-startup-target')
+        owned.initialize(source)
+        server = owned.server(source)
+        def run(server, action):
+            return json.loads(owned.run(DISPATCHARR, '/dispatcharrpy/bin/python', '-c', probe, action,
+                                        network='container:' + server))
+        seeded = run(server, 'seed')
+        owned.worker(server, source, 'checkpoint')
+        owned.stop(server)
+        owned.copy(source, target)
+        server = owned.server(target)
+        owned.worker(server, target, 'compare')
+        restored = run(server, 'check')
+        assert restored == seeded
+        after = run(server, 'cleanup')
+        assert after == {'celery': 1, 'dvrPriority0': 0, 'dvrPriority3': 0}
+        assert 'aof_enabled:1' in owned.admin(server, 'INFO', 'persistence')
+        result = {'source':seeded, 'restored':restored, 'afterStockStartup':after,
+                  'ordinaryMessageRecovered':True, 'aofRemainsEnabled':True}
+    finally:
+        owned.close()
+    return dict(result, cleanupVerified=True)
+
+
 def run_acl():
     owned = Owned()
     result = {}

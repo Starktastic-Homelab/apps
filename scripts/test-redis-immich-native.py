@@ -10,6 +10,17 @@ sys.path.insert(0, str(ROOT))
 
 
 class RedisNative(unittest.TestCase):
+    def test_accepted_stock_dvr_reset_follows_complete_restore(self):
+        import fixtures
+        self.assertTrue(hasattr(fixtures, 'run_dispatcharr_startup'), 'Stock DVR reset qualification is missing')
+        result = fixtures.run_dispatcharr_startup()
+        self.assertEqual(result['source'], {'celery': 1, 'dvrPriority0': 1, 'dvrPriority3': 1})
+        self.assertEqual(result['restored'], result['source'])
+        self.assertEqual(result['afterStockStartup'], {'celery': 1, 'dvrPriority0': 0, 'dvrPriority3': 0})
+        self.assertTrue(result['ordinaryMessageRecovered'])
+        self.assertTrue(result['aofRemainsEnabled'])
+        self.assertTrue(result['cleanupVerified'])
+
     def test_application_configuration_is_protected_after_recreation(self):
         import fixtures
         self.assertTrue(hasattr(fixtures, 'run_acl'), 'Native startup ACL qualification is missing')

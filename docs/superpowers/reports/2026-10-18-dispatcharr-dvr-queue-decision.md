@@ -1,8 +1,13 @@
 # Dispatcharr DVR queue preservation decision
 
-Status: decision needed during Redis/Immich preparation. Production is unchanged.
-The native Redis ACL amendment is approved; the additional application change
-below is proposed, not approved or deployed.
+Status: resolved on18October2026. The user selected **Accept existing DVR queue
+resets**. Keep Dispatcharr stock; do not add the proposed startup override. The
+approved Redis ACL amendment remains in scope. Production is unchanged.
+
+The complete current-memory, cold recovery and target checkpoint must still
+preserve every key, including DVR messages, before consumers resume. Only the
+subsequent evidenced stock Dispatcharr startup reset is accepted. This is not a
+missing-key exemption during migration or permission to delete unrelated queues.
 
 ## Finding and effect
 
@@ -36,7 +41,7 @@ access. They therefore do not prevent this startup deletion. Accepting a complet
 storage checkpoint cannot establish durable DVR queue recovery if normal client
 startup subsequently removes those messages.
 
-## Recommended preparation amendment
+## Evaluated alternative — not selected
 
 Qualify a minimal startup-script override for the web container, retaining the
 pinned image and all other script behavior. Its only functional source change is:
@@ -53,11 +58,12 @@ review and execution proposal. No fork of Redis or CSI is needed. Dispatcharr
 would have a local startup-script override, so future image upgrades must check
 that override against their upstream source; this is the maintenance trade-off.
 
-This decision authorizes preparation only. Credential generation, production
+The selected stock-behavior exception applies to preparation and the later
+proposal; it does not itself authorize production. Credential generation, production
 permissions, restarts, data transfers, storage allocation, activation and merges
 still require the finished execution proposal.
 
 The alternatives are to accept Dispatcharr's existing DVR queue reset behavior
 explicitly, weakening the selected queue-preservation contract, or defer the Redis
-operation until a stock fix is available. Redis/Immich Task 4 remains incomplete
-pending this decision; the approved Redis ACL work remains intact.
+operation until a stock fix is available. The user selected the existing reset behavior. Task4 continues with no local
+Dispatcharr source override; the approved Redis ACL work remains intact.

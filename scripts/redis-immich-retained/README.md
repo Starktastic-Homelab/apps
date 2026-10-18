@@ -110,3 +110,9 @@ Healthy/Synced state remain distinct production gates. Release only owned Argo
 holds while preserving every sync option, then watch for six minutes and release
 maintenance ownership last. Engine tests and lint are not a cluster rollout or
 a full Terraform destroy/apply rehearsal.
+
+
+The user accepted stock Dispatcharr DVR queue resets on web startup. The native
+fixture first restores and compares the complete frozen dataset, then exercises
+the actual unchanged startup cleanup and ordinary Celery consumption. DVR loss
+before that full checkpoint still fails; no Dispatcharr script override is added.

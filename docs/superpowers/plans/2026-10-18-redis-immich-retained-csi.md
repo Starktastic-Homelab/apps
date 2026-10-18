@@ -131,6 +131,11 @@ def test_crc_warning_and_stale_pid_contract(self):
 - [x] **Step4: Qualify exporter metrics and add the inactive PrometheusRule.** Verify metric names/values against the exact exporter with synthetic AOF-enabled, AOF-disabled and failed-write fixtures. Use alerts `RedisAOFDisabled` and `RedisAOFWriteFailure`, `for: 2m`, `severity: warning`, and rule-selection label `release: kube-prometheus-stack`; preserve current notification routing. Do not restart Redis for a durability failure or send a production test notification. Pin metric selectors to the Redis service and test alert/recovery with promtool. A recurring AOF disable under real clients remains an execution blocker, not an automatic CONFIG SET loop.
 - [x] **Step5: Run GREEN**, `REDIS_CHART=/tmp/redis-immich-charts/redis APP_TEMPLATE_CHART=/tmp/redis-immich-charts/app-template REDIS_IMMICH_RENDERS=/tmp/redis-immich-renders bash scripts/redis-immich-retained/check.sh`, kubeconform on complete renders/fragments, state/native tests, promtool fixtures and relevant pre-commit hooks. Add their CI checks and compare complete rendered main containers/services/configuration against actual baselines. Commit; prove no active deployment path changed.
 
+Accepted18October2026: keep stock Dispatcharr DVR startup resets. All keys,
+including DVR messages, must pass the complete migration checkpoint before
+consumer release. No startup-script override is selected; the post-release native
+reset is an explicit acceptance exception, not permission to waive preservation.
+
 ### Task 4: Finite native command package and failure recovery
 
 **Files:** private `native/{redis.py,immich.py,lifecycle.py,test_protocol.py}` and established transport/packet adapters; initial runbooks. Public CI tests do not import or depend on ignored private operation files.

@@ -5,6 +5,12 @@ packet, independent final review, hosted CI and concrete execution proposal are
 still pending. No production setting, workload, data, allocation, owner or backup
 key has changed. No real records or credentials entered a fixture or Git.
 
+Task4 found a repeatable AOF-disabling path in the exact deployed Dispatcharr
+client. The [access-design decision](2026-10-18-redis-dispatcharr-persistence-decision.md)
+contains native reproduction and a qualified ACL candidate. The command packet
+is paused pending that decision; current inactive candidates are not yet a
+complete production solution.
+
 ## Qualified components
 
 - Nine state tests, six native Redis/exporter tests and two native PG17 tests pass.

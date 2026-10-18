@@ -455,6 +455,24 @@ jobs:
           echo "$PWD" >> "$GITHUB_PATH"
       - name: Check private state preservation
         run: python3 scripts/test-redis-immich-state.py
+      - name: Pull pinned recovery images
+        run: |
+          python3 - <<'PY_IMAGES' > /tmp/redis-immich-images
+          import sys
+          sys.path.insert(0, 'scripts/redis-immich-retained')
+          import fixtures
+          print('\n'.join((fixtures.REDIS, fixtures.PYTHON, fixtures.POSTGRES,
+                            fixtures.IMMICH_SERVER, fixtures.DISPATCHARR)))
+          PY_IMAGES
+          while IFS= read -r image; do
+            for attempt in 1 2 3; do
+              if docker pull "$image"; then
+                break
+              fi
+              if [ "$attempt" -eq 3 ]; then exit 1; fi
+              sleep 30
+            done
+          done < /tmp/redis-immich-images
       - name: Qualify exact native engine recovery
         run: |
           python3 scripts/test-redis-immich-native.py --app redis

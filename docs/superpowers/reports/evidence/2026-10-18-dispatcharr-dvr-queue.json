@@ -1,0 +1,62 @@
+{
+  "before": {
+    "celery": 1,
+    "dvrPriority0": 1,
+    "dvrPriority3": 1
+  },
+  "stockAfter": {
+    "celery": 1,
+    "dvrPriority0": 0,
+    "dvrPriority3": 0
+  },
+  "candidateAfter": {
+    "celery": 1,
+    "dvrPriority0": 1,
+    "dvrPriority3": 1
+  },
+  "nativeDVRConsumptionVerified": true,
+  "transientCleanupPreserved": true,
+  "sourceSHA256": "76553144e5c2f1b47ccfc97ffd0e850ce3761c63d00e0d4995e3446b0f6e384c",
+  "candidateSHA256": "562010f658fd26f26b7e38be38b1062d478d4b5bf41463a40b80009675430267",
+  "entrypointInvoked": false,
+  "cleanupVerified": true,
+  "deployedQueueSnapshot": {
+    "database": 4,
+    "nativeQueueMessages": {
+      "celery": {
+        "type": "none",
+        "pending": 0
+      },
+      "dvr": {
+        "type": "none",
+        "pending": 0
+      }
+    }
+  },
+  "upstream": {
+    "main": {
+      "blobSHA": "028ef9ec802ffa1edee2dca8c5d5103a692c34af",
+      "sourceSHA256": "2b389e666ef6299d91897c4f3eb6a2f0cdd0afaaa3d437cbdc183a83c26309fd",
+      "url": "https://github.com/Dispatcharr/Dispatcharr/blob/main/scripts/wait_for_redis.py"
+    },
+    "v0.31.0": {
+      "blobSHA": "9c2d6eaf5ec442e99189a5a5498cdeeb71d22714",
+      "sourceSHA256": "76553144e5c2f1b47ccfc97ffd0e850ce3761c63d00e0d4995e3446b0f6e384c",
+      "url": "https://github.com/Dispatcharr/Dispatcharr/blob/v0.31.0/scripts/wait_for_redis.py"
+    },
+    "latestRelease": {
+      "tag_name": "v0.32.0",
+      "published_at": "2026-10-07T01:25:40Z",
+      "html_url": "https://github.com/Dispatcharr/Dispatcharr/releases/tag/v0.32.0"
+    }
+  },
+  "latestReleaseSource": {
+    "ref": "v0.32.0",
+    "sourceSHA256": "2b389e666ef6299d91897c4f3eb6a2f0cdd0afaaa3d437cbdc183a83c26309fd",
+    "url": "https://github.com/Dispatcharr/Dispatcharr/blob/v0.32.0/scripts/wait_for_redis.py",
+    "selectedLines": [
+      "_CELERY_KEY_PREFIXES = ('celery', '_kombu', 'unacked')",
+      "if not k.decode('utf-8', errors='replace').startswith(_CELERY_KEY_PREFIXES)"
+    ]
+  }
+}

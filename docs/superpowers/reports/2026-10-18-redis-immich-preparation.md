@@ -85,3 +85,25 @@ separately gated. Final acceptance still needs real queue processing, native PG
 and existing-asset/API checks, Pod recreation, healthy-worker movement, restored
 placement, exact merged-main Healthy/Synced state and a six-minute release watch.
 No full-cluster Terraform destroy/apply rehearsal has been performed here.
+
+
+## Command-packet progress and new decision
+
+Nineteen local process/ownership/recovery tests pass, including native maintenance
+exclusion, lost-reply refusal, original deadlines, metadata-preserving native tar,
+encryption/decryption and bounded transfers that refuse overwrite. Read-only
+SSH/QGA probes accepted a112293-byte program and verified the native integer
+terminal form. All eight proposed bindings/source-guard objects passed actual
+Kubernetes server dry-run; no objects were persisted.
+
+The signed-in browser opened an existing Immich photo and its metadata. The
+user-provided temporary read-only API key then verified an existing4112724-byte
+original against its API checksum over HTTPS. The key remained on this computer,
+outside Git; image bytes were streamed and not saved. This is a baseline check,
+not post-migration acceptance.
+
+Packet assembly now has a [Dispatcharr DVR preservation decision](2026-10-18-dispatcharr-dvr-queue-decision.md):
+its native web startup cleanup deletes pending DVR queue messages. Exact-image
+synthetic RED and minimal-change candidate GREEN are recorded separately from the
+passing protocol suite. Full phase assembly, final review and hosted CI remain
+pending; no complete executable packet or rollout is claimed.

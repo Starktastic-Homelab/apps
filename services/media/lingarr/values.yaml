@@ -47,6 +47,40 @@ controllers:
               failureThreshold: 30
               periodSeconds: 5
 
+    replicas: 1
+    strategy: Recreate
+    pod:
+      automountServiceAccountToken: false
+    initContainers:
+      retained-data:
+        image:
+          repository: python
+          digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+        command:
+          - python3
+          - -I
+          - -B
+          - /retained-startup/guard.py
+          - lingarr
+          - /retained
+        securityContext:
+          runAsNonRoot: false
+          runAsUser: 0
+          runAsGroup: 0
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
 service:
   main:
     controller: main
@@ -64,5 +98,32 @@ persistence:
     accessMode: ReadWriteMany
     globalMounts:
       - path: /app/config
+    enabled: false
   media:
     enabled: true
+    globalMounts: []
+    advancedMounts:
+      main:
+        main:
+          - path: /data
+  retained-startup:
+    type: configMap
+    name: utility-home-retained-startup-guard
+    defaultMode: 292
+    globalMounts: []
+    advancedMounts:
+      main:
+        retained-data:
+          - path: /retained-startup
+            readOnly: true
+  retained-config:
+    enabled: true
+    existingClaim: lingarr-block
+    globalMounts: []
+    advancedMounts:
+      main:
+        main:
+          - path: /app/config
+        retained-data:
+          - path: /retained
+            readOnly: true

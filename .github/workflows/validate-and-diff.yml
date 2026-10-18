@@ -266,11 +266,11 @@ jobs:
       - name: Check inactive PostgreSQL cutover states
         run: |
           kubeconform -strict -summary scripts/postgres-retained-startup/production/cutover/source-hold.yaml
-          APP_VERSION=$(python3 -c 'import yaml; a=yaml.safe_load(open("bootstrap/appsets/cluster-apps.yaml")); print(next(x["defaultChartVersion"] for x in a["spec"]["generators"][0]["matrix"]["generators"][0]["list"]["elements"] if x["category"]=="services"))')
-          AUTH_VERSION=$(python3 -c 'import yaml; print(yaml.safe_load(open("infrastructure/controllers/authentik/app.yaml"))["chart"]["version"])')
+          APP_VERSION=$(python3 -c 'import json,yaml; a=yaml.safe_load(json.load(open("scripts/postgres-retained-startup/production/cutover/released-inputs.json"))["files"]["bootstrap/appsets/cluster-apps.yaml"]); print(next(x["defaultChartVersion"] for x in a["spec"]["generators"][0]["matrix"]["generators"][0]["list"]["elements"] if x["category"]=="services"))')
+          AUTH_VERSION=$(python3 -c 'import json,yaml; print(yaml.safe_load(json.load(open("scripts/postgres-retained-startup/production/cutover/released-inputs.json"))["files"]["infrastructure/controllers/authentik/app.yaml"])["chart"]["version"])')
           helm pull app-template --repo https://bjw-s-labs.github.io/helm-charts --version "$APP_VERSION" --untar --untardir /tmp/pg-cutover-charts
           helm pull authentik --repo https://charts.goauthentik.io --version "$AUTH_VERSION" --untar --untardir /tmp/pg-cutover-charts
-          PG_VERSION=$(python3 -c 'import yaml; print(yaml.safe_load(open("infrastructure/controllers/databases/postgres/app.yaml"))["chart"]["version"])')
+          PG_VERSION=$(python3 -c 'import json,yaml; print(yaml.safe_load(json.load(open("scripts/postgres-retained-startup/production/cutover/released-inputs.json"))["files"]["infrastructure/controllers/databases/postgres/app.yaml"])["chart"]["version"])')
           helm pull oci://registry-1.docker.io/bitnamicharts/postgresql --version "$PG_VERSION" --untar --untardir /tmp/pg-cutover-charts
           PG_CUTOVER_POSTGRES_CHART=/tmp/pg-cutover-charts/postgresql \
             PG_CUTOVER_CHARTS='{"authentik":"/tmp/pg-cutover-charts/authentik","app-template":"/tmp/pg-cutover-charts/app-template"}' python3 scripts/test-pg-cutover.py

@@ -1,0 +1,365 @@
+{
+  "schemaVersion": 1,
+  "observedAtUTC": "2026-10-18T10:30:48.769483+00:00",
+  "readOnly": true,
+  "applicationDataOrCredentialsTransferred": false,
+  "claims": [
+    {
+      "namespace": "media",
+      "name": "immich-model-cache",
+      "uid": "afefe00e-039f-48c7-874a-751b6b8f3863",
+      "pv": "pvc-afefe00e-039f-48c7-874a-751b6b8f3863",
+      "pvUID": "ac427a8d-8047-47e8-9856-992d7f31a303",
+      "class": "nfs-pv",
+      "capacity": {
+        "storage": "5Gi"
+      },
+      "nfs": {
+        "path": "/mnt/apps/pv/media/immich-model-cache",
+        "server": "10.9.8.30"
+      },
+      "accessModes": ["ReadWriteMany"],
+      "reclaimPolicy": "Retain"
+    },
+    {
+      "namespace": "media",
+      "name": "immich-pgdata",
+      "uid": "9dfe4584-47f6-45fd-8f77-bf5f7ea44ee9",
+      "pv": "pvc-9dfe4584-47f6-45fd-8f77-bf5f7ea44ee9",
+      "pvUID": "f9fe51a9-e978-4a2b-b393-b620e589b20c",
+      "class": "nfs-pv",
+      "capacity": {
+        "storage": "10Gi"
+      },
+      "nfs": {
+        "path": "/mnt/apps/pv/media/immich-pgdata",
+        "server": "10.9.8.30"
+      },
+      "accessModes": ["ReadWriteMany"],
+      "reclaimPolicy": "Retain"
+    },
+    {
+      "namespace": "media",
+      "name": "media-library-pvc",
+      "uid": "df08696b-522c-47b7-afed-7253c7c263dc",
+      "pv": "media-library-pv",
+      "pvUID": "70cee5ec-4f71-4374-9d3b-51933244af99",
+      "class": "",
+      "capacity": {
+        "storage": "10Ti"
+      },
+      "nfs": {
+        "path": "/mnt/main/media",
+        "server": "10.9.8.30"
+      },
+      "accessModes": ["ReadWriteMany"],
+      "reclaimPolicy": "Retain"
+    },
+    {
+      "namespace": "media",
+      "name": "calibre-web",
+      "uid": "28ed9b85-ccee-4d11-a099-17a59c643273",
+      "pv": "pvc-28ed9b85-ccee-4d11-a099-17a59c643273",
+      "pvUID": "435a830b-e072-44d4-99b2-922e498524c0",
+      "class": "nfs-pv",
+      "capacity": {
+        "storage": "2Gi"
+      },
+      "nfs": {
+        "path": "/mnt/apps/pv/media/calibre-web",
+        "server": "10.9.8.30"
+      },
+      "accessModes": ["ReadWriteMany"],
+      "reclaimPolicy": "Retain"
+    },
+    {
+      "namespace": "media",
+      "name": "cwa-book-ingest",
+      "uid": "2405e12a-7042-408f-a8c0-d07a29424624",
+      "pv": "pvc-2405e12a-7042-408f-a8c0-d07a29424624",
+      "pvUID": "b0adf42b-e07f-4d1f-8f0f-5516a182125a",
+      "class": "nfs-pv",
+      "capacity": {
+        "storage": "5Gi"
+      },
+      "nfs": {
+        "path": "/mnt/apps/pv/media/cwa-book-ingest",
+        "server": "10.9.8.30"
+      },
+      "accessModes": ["ReadWriteMany"],
+      "reclaimPolicy": "Retain"
+    },
+    {
+      "namespace": "operations",
+      "name": "paperless-ngx",
+      "uid": "df23fcbb-b11d-4d64-8d2d-95fc0fced43e",
+      "pv": "pvc-df23fcbb-b11d-4d64-8d2d-95fc0fced43e",
+      "pvUID": "3721d195-3d70-44b4-992f-8f13bbb054a0",
+      "class": "nfs-pv",
+      "capacity": {
+        "storage": "1Gi"
+      },
+      "nfs": {
+        "path": "/mnt/apps/pv/operations/paperless-ngx",
+        "server": "10.9.8.30"
+      },
+      "accessModes": ["ReadWriteMany"],
+      "reclaimPolicy": "Retain"
+    },
+    {
+      "namespace": "operations",
+      "name": "paperless-ngx-data",
+      "uid": "ad34c68f-5c4f-40d2-9f40-bea092fe0a0c",
+      "pv": "pvc-ad34c68f-5c4f-40d2-9f40-bea092fe0a0c",
+      "pvUID": "48537113-897f-44c6-962f-d1b528ffa954",
+      "class": "nfs-pv",
+      "capacity": {
+        "storage": "5Gi"
+      },
+      "nfs": {
+        "path": "/mnt/apps/pv/operations/paperless-ngx-data",
+        "server": "10.9.8.30"
+      },
+      "accessModes": ["ReadWriteMany"],
+      "reclaimPolicy": "Retain"
+    },
+    {
+      "namespace": "databases",
+      "name": "redis-data-redis-master-0",
+      "uid": "f01a1ce5-f28b-4a02-96e5-654c2f6d1d6f",
+      "pv": "pvc-f01a1ce5-f28b-4a02-96e5-654c2f6d1d6f",
+      "pvUID": "7702a596-12e4-4676-b74d-8af3113ea9fb",
+      "class": "nfs-pv",
+      "capacity": {
+        "storage": "2Gi"
+      },
+      "nfs": {
+        "path": "/mnt/apps/pv/databases/redis-data-redis-master-0",
+        "server": "10.9.8.30"
+      },
+      "accessModes": ["ReadWriteOnce"],
+      "reclaimPolicy": "Retain"
+    }
+  ],
+  "immich": {
+    "version": "17.6 (Debian 17.6-1.pgdg12+1)",
+    "dataDirectory": "/data/pgdata",
+    "systemIdentifier": "7614955115223928876",
+    "databaseBytes": 258133139,
+    "extensions": [
+      {
+        "extname": "cube",
+        "extversion": "1.5"
+      },
+      {
+        "extname": "earthdistance",
+        "extversion": "1.2"
+      },
+      {
+        "extname": "pg_trgm",
+        "extversion": "1.6"
+      },
+      {
+        "extname": "plpgsql",
+        "extversion": "1.0"
+      },
+      {
+        "extname": "unaccent",
+        "extversion": "1.1"
+      },
+      {
+        "extname": "uuid-ossp",
+        "extversion": "1.1"
+      },
+      {
+        "extname": "vchord",
+        "extversion": "0.4.3"
+      },
+      {
+        "extname": "vector",
+        "extversion": "0.8.1"
+      }
+    ],
+    "apparentDataTreeBytes": 365381201,
+    "pod": {
+      "name": "immich-postgres-87994dc77-7w4mj",
+      "uid": "c881d9db-c6ad-45ad-967b-6d79dafc5840",
+      "node": "kube-master-01",
+      "containers": [
+        {
+          "name": "main",
+          "image": "ghcr.io/immich-app/postgres:17-vectorchord0.4.3-pgvector0.8.1@sha256:79b95b795f0911e95ffa4d092a2162c4d81a984d5629bc8f786afe0bc0657671",
+          "mounts": [
+            {
+              "mountPath": "/data",
+              "name": "pgdata"
+            }
+          ]
+        }
+      ],
+      "claims": ["immich-pgdata"],
+      "restarts": {
+        "main": 2
+      }
+    }
+  },
+  "redis": {
+    "images": [
+      {
+        "name": "metrics",
+        "imageID": "registry-1.docker.io/bitnami/redis-exporter@sha256:a7144e7e82d7dc5dc5ce5b78e096fe74d9508379a1b8eef07a197adda6d964ad"
+      },
+      {
+        "name": "redis",
+        "imageID": "registry-1.docker.io/bitnami/redis@sha256:f4797b37502e6db910d3653368fcfadc171ef605586917774de125ddd05b3e62"
+      }
+    ],
+    "podUID": "e04a0254-8c76-48a2-a7d9-150621edea3b",
+    "statefulSetUID": "aa4125d3-7200-45dd-be04-4e911ed61162",
+    "runtimeConfiguration": {
+      "save": "",
+      "appendfsync": "everysec",
+      "appendonly": "no",
+      "dbfilename": "dump.rdb",
+      "dir": "/data",
+      "appenddirname": "appendonlydir"
+    },
+    "runtimePersistence": {
+      "redis_version": "8.10.2",
+      "aof_enabled": "0",
+      "rdb_saves": "0",
+      "aof_rewrites": "6",
+      "aof_last_write_status": "ok",
+      "aof_last_bgrewrite_status": "ok"
+    },
+    "mountedConfigPersistence": {
+      "redis-configuration": {
+        "master.conf": ["dir /data"],
+        "redis.conf": ["appendonly yes", "save \"\""],
+        "replica.conf": ["dir /data"]
+      }
+    },
+    "connectedConsumers": [
+      {
+        "app": "media/dispatcharr",
+        "database": "4",
+        "connections": 22
+      },
+      {
+        "app": "media/immich",
+        "database": "0",
+        "connections": 80
+      },
+      {
+        "app": "operations/paperless-ngx",
+        "database": "0",
+        "connections": 4
+      }
+    ],
+    "disablingActorOrReasonEstablished": false
+  },
+  "calibre": {
+    "networkShareMode": "true",
+    "roots": [
+      {
+        "path": "/config",
+        "files": 22,
+        "bytes": 7247180,
+        "databases": [
+          {
+            "path": "app.db",
+            "bytes": 208896,
+            "journalReadVersion": 1,
+            "journalWriteVersion": 1,
+            "walPresent": false,
+            "shmPresent": false
+          },
+          {
+            "path": "gdrive.db",
+            "bytes": 24576,
+            "journalReadVersion": 1,
+            "journalWriteVersion": 1,
+            "walPresent": false,
+            "shmPresent": false
+          },
+          {
+            "path": "cwa.db",
+            "bytes": 118784,
+            "journalReadVersion": 1,
+            "journalWriteVersion": 1,
+            "walPresent": false,
+            "shmPresent": false
+          }
+        ]
+      },
+      {
+        "path": "/calibre-library",
+        "files": 5,
+        "bytes": 2382350,
+        "databases": [
+          {
+            "path": "metadata.db",
+            "bytes": 409600,
+            "journalReadVersion": 1,
+            "journalWriteVersion": 1,
+            "walPresent": false,
+            "shmPresent": false
+          },
+          {
+            "path": ".calnotes/notes.db",
+            "bytes": 77824,
+            "journalReadVersion": 1,
+            "journalWriteVersion": 1,
+            "walPresent": false,
+            "shmPresent": false
+          }
+        ]
+      },
+      {
+        "path": "/cwa-book-ingest",
+        "files": 0,
+        "bytes": 0,
+        "databases": []
+      }
+    ]
+  },
+  "paperless": {
+    "image": "ghcr.io/paperless-ngx/paperless-ngx:3.1.3@sha256:aa810a36942c63d4ee70d00eda7236cd3d6acfb7eb3f7987fb568ed14df8817a",
+    "apparentDirectoryBytes": {
+      "/usr/src/paperless/data": 35566362,
+      "/usr/src/paperless/media": 2566042,
+      "/usr/src/paperless/consume": 0
+    }
+  },
+  "capacity": {
+    "dataset": {
+      "guid": "13918781591004512447",
+      "quota": "309237645312",
+      "available": "219350814720",
+      "used": "89886830592",
+      "usedbysnapshots": "17111232512",
+      "refreservation": "0",
+      "mountpoint": "/mnt/apps/k3s-block"
+    },
+    "pool": {
+      "name": "apps",
+      "size": "506806140928",
+      "allocated": "232102715392",
+      "free": "274703425536",
+      "health": "ONLINE"
+    },
+    "rawImageCount": 39,
+    "rawLogicalBytes": 229780750336,
+    "rawAllocatedBytes": 44423405056,
+    "remainingFullGrowthBytes": 185357345280,
+    "historicalFiles": [
+      {
+        "name": ".vm-9999-jellyfin.raw.partial-20261005",
+        "logicalBytes": 68719476736,
+        "allocatedBytes": 28351902208
+      }
+    ],
+    "newLogicalAllocationBudgetAfterFullGrowthStagingAndSpareBytes": 24866663936,
+    "proposedRedisAndImmichBytes": 12884901888
+  }
+}

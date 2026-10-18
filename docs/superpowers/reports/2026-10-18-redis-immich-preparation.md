@@ -87,7 +87,7 @@ placement, exact merged-main Healthy/Synced state and a six-minute release watch
 No full-cluster Terraform destroy/apply rehearsal has been performed here.
 
 
-## Command-packet progress and new decision
+## Command-packet progress and accepted decisions
 
 Nineteen local process/ownership/recovery tests pass, including native maintenance
 exclusion, lost-reply refusal, original deadlines, metadata-preserving native tar,
@@ -102,8 +102,13 @@ original against its API checksum over HTTPS. The key remained on this computer,
 outside Git; image bytes were streamed and not saved. This is a baseline check,
 not post-migration acceptance.
 
-Packet assembly now has a [Dispatcharr DVR preservation decision](2026-10-18-dispatcharr-dvr-queue-decision.md):
+Packet assembly recorded a [Dispatcharr DVR preservation decision](2026-10-18-dispatcharr-dvr-queue-decision.md):
 its native web startup cleanup deletes pending DVR queue messages. Exact-image
 synthetic RED and minimal-change candidate GREEN are recorded separately from the
-passing protocol suite. Full phase assembly, final review and hosted CI remain
-pending; no complete executable packet or rollout is claimed.
+passing protocol suite. The user accepted stock DVR resets; no startup override is selected. Full phase
+assembly, final review and hosted CI remain pending; no complete executable packet
+or rollout is claimed. The user selected the [checkpoint-only pause](2026-10-18-immich-checkpoint-writer-scope.md)
+for all21 overlapping media workloads. Unrelated media apps resume after the
+immutable database/photo checkpoint barrier; Filebrowser and the NFS provisioner
+remain paused until database retirement permits their release. Actual downtime
+remains subject to the finished execution proposal.

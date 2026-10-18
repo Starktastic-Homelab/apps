@@ -140,7 +140,16 @@ recursive chown, new initdb, pg_upgrade, pg_resetwal or extension upgrade.
 Hold only verified owning Argo Applications and overlapping parent-volume writers
 as required by the existing workflow. Gracefully stop the Immich server/jobs and
 coordinate a recovery point for database metadata and original assets before
-stopping PostgreSQL. Keep the asset layout and live permissions unchanged. Protect
+stopping PostgreSQL. The user selected a checkpoint-only pause of all21 workloads
+with overlapping writable media mounts, including Jellyfin and both qBittorrent
+instances. Resume unrelated media workloads after the immutable checkpoint
+barrier, before full Immich recovery/testing. Keep Filebrowser and the NFS
+provisioner paused until database-source retirement permits release. Current
+mounts remain unchanged. The asset root is inside the main/media dataset, so its
+snapshot covers the full dataset and can retain unrelated changed/deleted blocks.
+This is an approved preparation strategy, not approval for downtime. See the
+[writer-scope decision](../reports/2026-10-18-immich-checkpoint-writer-scope.md).
+Keep the asset layout and live permissions unchanged. Protect
 the coordinated asset snapshot/backup and encrypted database recovery; do not
 claim that a database-only copy protects original photos/videos.
 

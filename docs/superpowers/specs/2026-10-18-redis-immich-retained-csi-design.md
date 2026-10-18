@@ -3,8 +3,9 @@
 Status: written design approved by the user on18October2026; implementation
 planning is authorized. The user selected preserving Redis queues with AOF on
 retained CSI. Approval does not authorize an outage, runtime repair, secret/data
-transfer, lab creation, allocation or cutover. The implementation plan still
-requires review and an execution-method choice before command-package work.
+transfer, lab creation, allocation or cutover. The implementation plan and Native preparation were approved on 18 October 2026.
+Synthetic local fixtures and command-package preparation are authorized; production
+execution still requires the separate concrete proposal.
 
 ## Intent and scope
 

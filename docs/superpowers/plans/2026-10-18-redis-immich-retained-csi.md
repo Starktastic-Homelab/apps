@@ -1,6 +1,6 @@
 # Redis and Immich retained CSI Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task after the user reviews this plan and selects the execution method. Steps use checkbox (`- [ ]`) syntax for tracking. Native inline execution with one independent final review is recommended; the execution method is not yet selected for this plan.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task after the user reviews this plan and selects the execution method. Steps use checkbox (`- [ ]`) syntax for tracking. Native inline execution with one independent final review is recommended; the user approved Native preparation on 18 October 2026.
 
 **Goal:** Prepare and qualify complete Redis queue preservation with AOF on retained CSI, followed by a physical move of Immich's dedicated PostgreSQL cluster.
 
@@ -63,12 +63,12 @@ The runbooks are `docs/runbooks/redis-storage.md` and
 `docs/runbooks/immich-storage.md`; publish a sanitized preparation/completion report
 at each corresponding evidence boundary.
 
-### Task1: Redis current-memory proof, guard and exact-image fixture
+### Task 1: Redis current-memory proof, guard and exact-image fixture
 
 **Files:** `redis_checkpoint.py`, `redis-guard.sh`, `fixtures.py` and the state/native tests from the File Map.
 **Interfaces:** `capture(client, captured_at_ms: int) -> dict` and `compare(expected: dict, actual: dict, now_ms: int) -> dict` in `redis_checkpoint.py`. Checkpoints have `version`, `captured_at_ms` and `databases` (integer DB index to byte-key/typed-value records); comparison returns `preserved`/`expired` counts or raises `ValueError`. `fixtures.py --app redis --receipt PATH` produces a metadata-only result and exact owned-resource cleanup proof. `redis-guard.sh` consumes read-only `/data` plus `/tmp` scratch and returns0 only for accepted native retained state.
 
-- [ ] **Step1: Write failing checkpoint tests.** Cover binary key/value bytes, duplicate SCAN results, string/list/set/hash/zset/stream values, stream group offsets/pending ownership and absolute expiry. Missing unexpired keys or changed payload/type/expiry fail; only deadline-explained expiry passes. Unknown module types or unsupported hash-field expiry refuse qualification instead of being dropped.
+- [x] **Step1: Write failing checkpoint tests.** Cover binary key/value bytes, duplicate SCAN results, string/list/set/hash/zset/stream values, stream group offsets/pending ownership and absolute expiry. Missing unexpired keys or changed payload/type/expiry fail; only deadline-explained expiry passes. Unknown module types or unsupported hash-field expiry refuse qualification instead of being dropped.
 
 ```python
 def test_only_deadline_explains_absence(self):
@@ -84,13 +84,13 @@ def test_only_deadline_explains_absence(self):
         state.compare(before, changed, now_ms=4999)
 ```
 
-- [ ] **Step2: Run RED**, `python3 scripts/test-redis-immich-state.py`; confirm the new tests fail for missing/unimplemented behavior.
-- [ ] **Step3: Implement the minimal native adapter.** Use the existing `redis`5.2.1 client in the exact pinned Paperless3.1.3 image as an isolated Python-only helper, with byte responses and synthetic fixture credentials; do not run Paperless's entrypoint or invent a RESP parser. Private checkpoint persistence uses lossless base64 for byte values and retains native structure/order/deadlines. Use native source TIME and verified clocks; uncertain deadline ordering fails qualification rather than explaining a disappearance. Public output contains counts/hashes only. A supposedly frozen source changing outside native expiry fails the capture gate.
-- [ ] **Step4: Add native RED fixtures**, including `test_stale_disk_is_not_memory_recovery`, then implement them using the pinned Redis image and `/opt/bitnami/redis/bin/{redis-cli,redis-check-rdb,redis-check-aof}`. Start a synthetic Redis with AOF disabled and intentionally stale disk files; produce a current-memory native RDB, independently restore it, compare full checkpoint, enable source AOF, await successful rewrite, cleanly stop/copy/start/recreate and compare again. Include synthetic Celery/BullMQ pending/in-flight recovery through the corresponding pinned app clients, without production services or notifications.
-- [ ] **Step5: Implement the read-only guard and negative fixtures.** Require the exact marker, native manifest/referenced regular files, no symlink/path escape and successful nonrepair native checks. A valid empty dataset/zero-byte incremental file is accepted; empty/missing/wrong media, corrupt base data or manifest is refused. Qualify abrupt termination and native tail recovery explicitly; never add `--fix`, silent truncation or a lost-job exception. If stock recovery conflicts with the rebuild contract, stop for a decision.
-- [ ] **Step6: Run GREEN**, state tests plus `python3 scripts/test-redis-immich-native.py --app redis`; require byte-identical guard input before/after, complete restored native state, all expected refusals and exact fixture cleanup. Commit the Redis adapter/guard/fixture only after those checks pass.
+- [x] **Step2: Run RED**, `python3 scripts/test-redis-immich-state.py`; confirm the new tests fail for missing/unimplemented behavior.
+- [x] **Step3: Implement the minimal native adapter.** Use the existing `redis`5.2.1 client in the exact pinned Paperless3.1.3 image as an isolated Python-only helper, with byte responses and synthetic fixture credentials; do not run Paperless's entrypoint or invent a RESP parser. Private checkpoint persistence uses lossless base64 for byte values and retains native structure/order/deadlines. Use native source TIME and verified clocks; uncertain deadline ordering fails qualification rather than explaining a disappearance. Public output contains counts/hashes only. A supposedly frozen source changing outside native expiry fails the capture gate.
+- [x] **Step4: Add native RED fixtures**, including `test_stale_disk_is_not_memory_recovery`, then implement them using the pinned Redis image and `/opt/bitnami/redis/bin/{redis-cli,redis-check-rdb,redis-check-aof}`. Start a synthetic Redis with AOF disabled and intentionally stale disk files; produce a current-memory native RDB, independently restore it, compare full checkpoint, enable source AOF, await successful rewrite, cleanly stop/copy/start/recreate and compare again. Include synthetic Celery/BullMQ pending/in-flight recovery through the corresponding pinned app clients, without production services or notifications.
+- [x] **Step5: Implement the read-only guard and negative fixtures.** Require the exact marker, native manifest/referenced regular files, no symlink/path escape and successful nonrepair native checks. A valid empty dataset/zero-byte incremental file is accepted; empty/missing/wrong media, corrupt base data or manifest is refused. Qualify abrupt termination and native tail recovery explicitly; never add `--fix`, silent truncation or a lost-job exception. If stock recovery conflicts with the rebuild contract, stop for a decision.
+- [x] **Step6: Run GREEN**, state tests plus `python3 scripts/test-redis-immich-native.py --app redis`; require byte-identical guard input before/after, complete restored native state, all expected refusals and exact fixture cleanup. Commit the Redis adapter/guard/fixture only after those checks pass.
 
-### Task2: Immich PG17 identity guard and independent recovery proof
+### Task 2: Immich PG17 identity guard and independent recovery proof
 
 **Files:** `postgres_checkpoint.py`, `postgres-guard.sh`, PG scenarios in `fixtures.py` and the state/native tests.
 **Interfaces:** `export(connection_file: Path, destination: Path) -> dict` and `compare(expected: dict, actual: dict) -> dict` in `postgres_checkpoint.py`; `fixtures.py --app immich --receipt PATH` produces the same metadata-only result/cleanup schema as Task1. Its test entry point `run_postgres_case(case: str) -> dict` reports `guard_refused`, `guard_read_only` and `stock_recovery_qualified` for named synthetic cases. `postgres-guard.sh` consumes read-only `/data/pgdata`, `/tmp` scratch and `EXPECTED_SYSTEM_IDENTIFIER`.
@@ -113,7 +113,7 @@ def test_crc_warning_and_stale_pid_contract(self):
 - [ ] **Step4: Implement exact-image fixtures.** Initialize only synthetic PG17 media with the installed extension versions and data checksums matching the recorded fixture. Prove clean cold copy and physical restore retain system identity, data and metadata; independently restore a logical dump to a fresh cluster and compare logical state while expecting a different physical system ID there. Test empty/wrong/linked/unreadable control/version/data, CRC warning with exit0, standby/recovery signals, stale PID and ordinary unclean WAL recovery. The guard leaves PID/signals/data untouched; the stock server handles only qualified recovery under fencing.
 - [ ] **Step5: Run GREEN**, state tests plus `python3 scripts/test-redis-immich-native.py --app immich`; require read-only guard proofs, exact physical/logical preservation, no repair/init during guard startup and exact cleanup. Commit this independent PG deliverable.
 
-### Task3: Inactive bindings, exact chart adapters and durability alerts
+### Task 3: Inactive bindings, exact chart adapters and durability alerts
 
 **Files:** inactive `production/` fragments, `check.sh`, `README.md`, manifest tests and scoped CI steps from the File Map.
 **Interfaces:** Consumes Task1/2 guards/fixtures; produces Redis/Immich rendered candidates plus a baseline-to-candidate change allowlist. `check.sh` requires `REDIS_CHART`, `APP_TEMPLATE_CHART` and `REDIS_IMMICH_RENDERS`; all outputs are private/offline.
@@ -124,7 +124,7 @@ def test_crc_warning_and_stale_pid_contract(self):
 - [ ] **Step4: Qualify exporter metrics and add the inactive PrometheusRule.** Verify metric names/values against the exact exporter with synthetic AOF-enabled, AOF-disabled and failed-write fixtures. Use alerts `RedisAOFDisabled` and `RedisAOFWriteFailure`, `for: 2m`, `severity: warning`, and rule-selection label `release: kube-prometheus-stack`; preserve current notification routing. Do not restart Redis for a durability failure or send a production test notification. Pin metric selectors to the Redis service and test alert/recovery with promtool. A recurring AOF disable under real clients remains an execution blocker, not an automatic CONFIG SET loop.
 - [ ] **Step5: Run GREEN**, `REDIS_CHART=/tmp/redis-immich-charts/redis APP_TEMPLATE_CHART=/tmp/redis-immich-charts/app-template REDIS_IMMICH_RENDERS=/tmp/redis-immich-renders bash scripts/redis-immich-retained/check.sh`, kubeconform on complete renders/fragments, state/native tests, promtool fixtures and relevant pre-commit hooks. Add their CI checks and compare complete rendered main containers/services/configuration against actual baselines. Commit; prove no active deployment path changed.
 
-### Task4: Finite native command package and failure recovery
+### Task 4: Finite native command package and failure recovery
 
 **Files:** private `native/{redis.py,immich.py,lifecycle.py,test_protocol.py}` and established transport/packet adapters; initial runbooks. Public CI tests do not import or depend on ignored private operation files.
 **Interfaces:** Each app exposes `preflight() -> dict` and `run_phase(name: str, expected_input_sha256: str) -> dict`. Dispatch requires a fresh frozen authorization/owner/nonce and recorded original clocks; each result names its receipt and exact child outcome. Lifecycle code consumes those receipts and refuses unknown/completed mutation replay.
@@ -135,7 +135,7 @@ def test_crc_warning_and_stale_pid_contract(self):
 - [ ] **Step4: Qualify assembled commands on disposable synthetic media.** Use the verified local Docker runtime (Linux/x86_64, about31GiB RAM) with operation-labeled owned volumes, `--network none` or an owned internal network and no production path/credential mounts. No new Proxmox VM is needed for synthetic engine fixtures. Reuse the already-qualified NAS/storage/retirement primitives; test this operation's dispatch/gates on synthetic source/target trees. Exercise actual transport limits using read-only SSH/QGA probes; run mutations only against owned synthetic fixtures. Cover JSON/argv limits, native `exited` flag forms, server defaulting, snapshot/archive/POSIX roundtrip, encryption/decryption and partial-stage failures. Do not claim a new remote mutation was qualified by a read-only probe. Original deadlines survive continuation, exact ownership precedes every mutation, and source rollback requires retired target writers. Any additional remote lab, real production-data or credential transfer requires its own concrete approval before use.
 - [ ] **Step5: Run GREEN**, `python3 .superpowers/sdd/2026-10-18-redis-immich-retained-csi/native/test_protocol.py`, for all package scenarios and original assertions; freeze the complete packet and checksums, write runbooks distinguishing pre-authority rollback from post-authority recovery, and commit only sanitized sources/tests/docs. Record any unqualified behavior as a blocker instead of weakening a preservation or rebuild gate.
 
-### Task5: Whole-package review and concrete execution proposal
+### Task 5: Whole-package review and concrete execution proposal
 
 **Files:** final source/test/CI diff, `docs/superpowers/reports/2026-10-18-redis-immich-preparation.md`, private packet/receipts and the two runbooks.
 **Interfaces:** Consumes Tasks1–4's frozen package and native fixture proofs; produces a reviewed exact commit and a production proposal, not live authority.
@@ -145,7 +145,7 @@ def test_crc_warning_and_stale_pid_contract(self):
 - [ ] **Step3: Publish preparation for exact-head CI/Argo diff review.** Keep target candidates inactive; do not claim hosted CI or local lint proves a production rollout. Never merge active changes or sync apps under preparation authority.
 - [ ] **Step4: Present the concrete execution proposal.** Name all affected apps/owners and idle consumers, exact current generations and capacity, lab VM/container resources, sensitive payload/destination/retention and key handling, measured restore timings and explicit original deadline budgets, exact source/asset snapshots, recovery paths, activation PR scope and requested merge authority. Ask only for decisions/permissions not already supplied; an AOF policy decision is not authorization for its live transition.
 
-### Task6: Serial production operations — separate approval required
+### Task 6: Serial production operations — separate approval required
 
 **Files:** approved frozen private packets/receipts, final active paths from the File Map, runbooks and sanitized completion reports.
 **Interfaces:** Requires the explicit Task5 execution approval; produces native accepted Redis, then Immich retained storage and final current-main GitOps state.
@@ -158,8 +158,7 @@ def test_crc_warning_and_stale_pid_contract(self):
 
 ## Handoff
 
-The design is approved; this implementation plan still needs user review and an
-execution-method choice. Recommend **Native**: implement the tightly coupled
+The design and implementation plan are approved. The user selected **Native**: implement the tightly coupled
 native recovery/authority stages inline, then obtain one independent whole-package
 review. No per-task delegation, production action, data transfer, lab creation or
 autonomous merge is authorized merely by saving this plan.

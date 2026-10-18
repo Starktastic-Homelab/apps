@@ -2,7 +2,10 @@
 # Read-only PG17 identity guard. RWOP and verified retirement fence writers.
 set -eu
 export LC_ALL=C
-fail() { echo 'Retained Immich PostgreSQL startup refused: identity check failed.' >&2; exit 1; }
+fail() {
+  echo 'Retained Immich PostgreSQL startup refused: identity check failed.' >&2
+  exit 1
+}
 data=/data/pgdata
 bin=/usr/lib/postgresql/17/bin/pg_controldata
 expected=${EXPECTED_SYSTEM_IDENTIFIER:-}

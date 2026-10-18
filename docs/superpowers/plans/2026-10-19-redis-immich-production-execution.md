@@ -39,7 +39,11 @@ For each serial app, acquire a fresh owner with a **four-hour original limit**.
 Prepare the reviewed activation diff and green exact-head CI before outage.
 Before the first frontend hold, record the original outage clock. Require target
 authority within **90minutes**, and complete the cutover within **three hours**
-of that same outage start. Both monotonic and UTC clocks apply; no continuation,
+of that same outage start. Require at least30minutes of original time before
+removing the protections for the six-minute release watch. Preserve a two-minute
+restoration reserve plus ten minutes for cleanup, checking remaining original
+time around bounded watch checks and stopping early while the original gate
+still permits hold restoration. Both monotonic and UTC clocks apply; no continuation,
 RPC retry, helper or phase renews them. These are stop limits, not outage estimates.
 Synthetic recovery times are listed in the preparation report; they are not a
 measured production outage. A successful Redis release is required before fresh

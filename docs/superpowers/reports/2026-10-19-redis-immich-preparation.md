@@ -12,7 +12,7 @@ infrastructure credential or sealing private key is committed.
 
 ## Qualification and limits
 
-- Full private native suite:89 tests passed in216.784seconds. It includes original
+- Full private native suite after final review fixes:92 tests passed in301.447seconds. It includes original
   owner/clock exclusion, real-child lost replies, full Redis current-memory and
   live/cold AOF recovery, binary keys/TTL/streams/queues, native PG physical and
   independent logical restore, full POSIX population, encryption and cleanup.
@@ -28,6 +28,9 @@ infrastructure credential or sealing private key is committed.
   tests11/11 and chart contract tests7/7 passed. Both materialized active
   candidates were rendered and passed the same preservation contracts; their
   complete renders also match the reviewed candidates before outage.
+- Installed-cluster server dry-run accepted all20 exact helper/admission
+  declarations, with zero persisted objects. This proves schema/admission
+  compatibility, not helper readiness or effective live guard enforcement.
 - Exact chart layers/schema:47/47 resources valid. Native alert-rule tests passed.
   Relevant pre-commit hooks and diff whitespace checks passed.
 - Offline native sealing used the repository's exact`seal.sh` with a newly
@@ -71,8 +74,14 @@ writes are preserved and stale NFS is never reopened automatically.
 
 ## Delivery boundary
 
-The independent final review and hosted exact-head CI are separate gates from
-these local results. Preparation can be merged without activating candidate
+One fresh-context independent whole-package review found two operational issues:
+exact memory-export staging ownership during cleanup, and original-time reserve
+before hold release. Both were reproduced before correction; focused regressions
+and the complete92-case suite passed afterward. A factual PG runbook statement
+was corrected. No review item is deferred. The implementation decisions and their
+trade-offs are recorded in the [decision log](2026-10-19-redis-immich-decisions.md).
+
+Hosted exact-head CI remains a separate gate from these local results. Preparation can be merged without activating candidate
 storage, but active merges, outages, transfers and cutovers still require the
 [production execution proposal](../plans/2026-10-19-redis-immich-production-execution.md).
 The [Redis](../../runbooks/redis-storage.md) and

@@ -14,7 +14,7 @@ Immich server/ML images stay unchanged.
 
 Normal Terraform/Ansible cluster rebuilds reuse the retained image. A read-only
 init guard validates PG17, its control-file CRC, exact physical system identifier,
-required data and marker, and refuses standby/recovery signals and wrong/empty
+required native data, and refuses standby/recovery signals and wrong/empty
 storage. Stock PID/WAL handling is accepted only under the selected RWOP and VM
 retirement fencing. There is no BusyBox PID-deletion init or recursive fsGroup
 ownership rewrite. A missing or invalid image blocks startup.

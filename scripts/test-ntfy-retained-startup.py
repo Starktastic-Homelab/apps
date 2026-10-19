@@ -148,8 +148,10 @@ class SourceTests(unittest.TestCase):
         import yaml
         folder = PACKAGE / 'production'
         guard = yaml.safe_load((folder / 'guard-configmap.yaml').read_text())
+        active = yaml.safe_load((ROOT / 'services/operations/ntfy/manifests/retained-startup-guard.yaml').read_text())
         for name in ('guard.py', 'main.sql'):
             self.assertEqual(guard['data'][name], (PACKAGE / name).read_text())
+            self.assertEqual(active['data'][name], guard['data'][name])
         prepared = json.loads(yaml.safe_load((folder / 'enrollment/enrollment-configmap.yaml').read_text())['data']['config.json'])
         current_folder = ROOT / 'infrastructure/controllers/databases/postgres/manifests'
         current = json.loads(yaml.safe_load((current_folder / 'enrollment-configmap.yaml').read_text())['data']['config.json'])

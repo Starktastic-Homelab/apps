@@ -270,7 +270,7 @@ class RenderTests(unittest.TestCase):
             self.assertFalse(pod['automountServiceAccountToken']);self.assertNotIn('fsGroup',pod.get('securityContext',{}))
             self.assertEqual(pod['serviceAccountName'],instance+'-postgres-completion')
             volumes={v['name']:v for v in pod['volumes']}
-            self.assertEqual([v['persistentVolumeClaim']['claimName'] for v in volumes.values() if 'persistentVolumeClaim' in v],[instance+'-config-block'])
+            self.assertEqual([v['persistentVolumeClaim']['claimName'] for v in volumes.values() if 'persistentVolumeClaim' in v],[instance+'-files'])
             inits=pod['initContainers'];self.assertEqual([c['name'] for c in inits],['retained-state','enrollment','database'])
             self.assertEqual(inits[1]['args'],['--id',instance,'--database',db,'--role',db])
             self.assertEqual(inits[0]['command'][-1],instance)

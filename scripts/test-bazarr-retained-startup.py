@@ -294,7 +294,7 @@ class RenderTests(unittest.TestCase):
         self.assertEqual([v['name'] for v in spec['initContainers']], ['retained-state', 'enrollment', 'database'])
         volumes = {v['name']: v for v in spec['volumes']}
         self.assertEqual(volumes['media']['persistentVolumeClaim']['claimName'], 'media-library-pvc')
-        self.assertEqual(volumes['bazarr-config']['persistentVolumeClaim']['claimName'], 'bazarr-config-block')
+        self.assertEqual(volumes['bazarr-config']['persistentVolumeClaim']['claimName'], 'bazarr-files')
         self.assertEqual(volumes['scripts']['configMap']['name'], 'bazarr-scripts')
         main = spec['containers'][0]
         self.assertEqual(main['image'], 'lscr.io/linuxserver/bazarr:v1.6.1-ls364@sha256:d24bd0048c759a468970989e9df11a6b96a7628d556d00f923e60a35ba59237b')

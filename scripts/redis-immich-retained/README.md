@@ -1,10 +1,12 @@
-# Redis and Immich retained storage preparation
+# Redis and Immich retained storage
 
-This package is inactive. It prepares Redis queue durability on retained CSI,
-then a physical move of Immich’s dedicated PostgreSQL17 cluster. The
-[approved plan](../../docs/superpowers/plans/2026-10-18-redis-immich-retained-csi.md)
-requires a reviewed finite command packet and separate execution approval before
-outages, real-data/key transfers, allocation, activation or merges.
+Redis and Immich PostgreSQL are active on retained CSI. The
+[production acceptance report](../../docs/superpowers/reports/2026-10-19-redis-immich-production.md)
+records their 19 October 2026 completion. This directory retains reference
+fragments and executable qualification; it is not an automatic migration runner.
+A new data move or recovery still requires fresh inspection, reviewed commands
+and separate execution authorization. Historical inputs and approvals cannot
+be replayed.
 
 Redis uses the current chart28.3.1 and deployed Redis/exporter digests. Immich
 keeps its PG17/VectorChord0.4.3/pgvector0.8.1 image and all existing server/ML
@@ -15,8 +17,9 @@ The approved Redis ACL amendment preserves application passwords and data access
 blocks default-account CONFIG SET/ACL, and gives administration a separate sealed
 maintenance credential. Redis alone mounts `redis-server-acl`; neither the guard
 nor the exporter receives it. The actual startup ACL file is tested across native
-recreation with the stock Dispatcharr client. Real Secret generation remains an
-execution step; synthetic credentials never become production declarations.
+recreation with the stock Dispatcharr client. The active Secret was generated
+and sealed during the approved execution; synthetic credentials never become
+production declarations.
 
 ## Local qualification
 
@@ -47,7 +50,7 @@ is available. No production notification is sent.
 Immich’s upstream schema rejects null `fsGroup`. `check.sh` therefore removes
 only the old PG fsGroup, PID-deletion init and its mount from a temporary service
 values copy before applying the inactive overlay through globals/common/service
-layers. Activation must apply those same deletions to the real service file.
+layers. The live service file now contains those same deletions.
 No chart fork or validation bypass is required. The guard uses UID999 without
 pre-guard ownership rewriting; the native process keeps its existing identity.
 
@@ -57,7 +60,10 @@ pre-guard ownership rewriting; the native process keeps its existing identity.
 connection. It uses native TIME, absolute key deadlines and two frozen passes.
 All records stay private in lossless base64 encoding. Unknown module types and
 hash-field expiration refuse qualification. Only expiry already explained by
-the actual capture clock can excuse a missing key.
+the actual capture clock can excuse a missing key. Stream comparison excludes
+only the top-level internal `radix-tree-nodes` count, which can change on native
+restore; it still requires one nonnegative integer counter. Entries, groups,
+pending deliveries, consumer metadata, other fields and deadlines stay exact.
 
 Redis must stay alive while AOF is off until a current-memory RDB is exported,
 encrypted and independently restored/compared. Historical disk AOF is never a
@@ -100,12 +106,13 @@ The finite private packet must record original owner/nonce/clocks, intents,
 known child terminals, exact resource generations and target authority. Unknown
 or completed mutations cannot replay. Source rollback requires retired target
 writers before authority; after authority preserve the newest target writes.
-Real records/keys/lab resources need the later explicit execution scope. Keep
-infrastructure credentials out of restore fixtures and Git.
+New operations involving real records, keys or lab resources need fresh explicit
+scope. Keep infrastructure credentials out of restore fixtures and Git.
 
-After separate approval, Redis completes acceptance and ownership release before
-Immich begins. Real queue work, PostgreSQL/native asset/API checks, clean Pod
-recreation, worker movement, normal placement, exact-head CI and current-main
+The completed execution accepted and released Redis ownership before Immich
+began. Future data moves still need separate approval. Real queue work,
+PostgreSQL/native asset/API checks, clean Pod recreation, worker movement, normal
+placement, exact-head CI and current-main
 Healthy/Synced state remain distinct production gates. Release only owned Argo
 holds while preserving every sync option, then watch for six minutes and release
 maintenance ownership last. Engine tests and lint are not a cluster rollout or

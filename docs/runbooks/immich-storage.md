@@ -1,8 +1,8 @@
 # Immich PostgreSQL retained storage
 
-Status: prepared, inactive. Execute only after Redis has completed acceptance,
-GitOps reconciliation, release watch, cleanup and native owner release, and after
-approval of the complete execution proposal.
+Status: active on retained CSI since 19 October 2026, after Redis completed its
+separate acceptance and ownership release. See the
+[production acceptance report](../superpowers/reports/2026-10-19-redis-immich-production.md).
 
 ## Normal operation and rebuilds
 
@@ -21,15 +21,17 @@ ownership rewrite. A missing or invalid image blocks startup.
 
 ## Coordinated one-time checkpoint
 
-The approved strategy pauses all21 workloads with overlapping writable mounts:
+The approved strategy pauses all 21 workloads with overlapping writable mounts:
 Immich-main, Filebrowser, Audiobookshelf, Bazarr, cross-seed, Jellyfin, Lidarr,
 Lingarr, MeTube, Navidrome, both qbit-manage instances, both qBittorrent instances,
 both Radarr instances, Shelfmark, both Sonarr instances, subgen and Unpackerr.
 The NFS provisioner is an additional source ancestor. Refresh the actual writer,
 client and mount census; an unknown writer blocks the checkpoint.
 
-Use the private packet's `immich.py` entrypoint with fresh read-only preflight,
-reviewed code/input hashes and separately approved frozen inputs. Its sequence is:
+This describes the completed migration, not a command to repeat during rebuilds.
+The private audit retains original sources, qualified operator amendments,
+immutable inputs and native outcomes. Historical approvals and expired clocks
+cannot authorize a new operation. The completed sequence was:
 
 1. Hold Argo and external Immich requests; pause/drain native jobs. Retire
    Immich-main, the other20 writable-mount workloads and source ancestors from
@@ -39,7 +41,7 @@ reviewed code/input hashes and separately approved frozen inputs. Its sequence i
    Gracefully stop PostgreSQL and prove native writer/mount retirement.
 3. Take immutable, identity-bound snapshots of both `apps/pv` and `main/media`
    while all overlapping writers remain stopped. Confirm both generations.
-   **Resume the19 unrelated media workloads immediately after this barrier.**
+   **Resume the 19 unrelated media workloads immediately after this barrier.**
    Immich-main stays stopped. Filebrowser and the NFS provisioner resume after
    the cold database archive and independent recovery are secured.
 4. Archive only the database subtree with complete POSIX metadata. Encrypt and
@@ -50,7 +52,8 @@ reviewed code/input hashes and separately approved frozen inputs. Its sequence i
    complete data/schema/roles/extensions/sequences in both recoveries.
 5. Allocate/populate the exact retained image once. Preserve all bytes, UID/GID,
    modes, timestamps, hardlinks, ACLs and xattrs; marker last. Verify prebinding,
-   raw generation, WWN, ext4 UUID and all-helper retirement before authority.
+   raw generation, attachment-specific WWN, ext4 UUID and all-helper retirement
+   before authority.
 6. Merge only the tested activation head while Argo remains held; start only the
    database. Compare native state before any Immich consumer starts. Prove Pod
    recreation, healthy-worker movement and restored normal placement with the
@@ -67,6 +70,18 @@ It is not a full46TB copy. Snapshots on separate pools form a coordinated barrie
 because writers are stopped until both are confirmed; they are not claimed to be
 one atomic cross-pool transaction.
 
+WWN follows the current VM SCSI slot. Match each attachment to its guest device;
+keep the raw image generation, CSI handle, PV/PVC identities and filesystem UUID
+fixed. The completed worker-movement test required one approved additional
+Lingarr pause because worker02 had reached its 24-volume limit. Lingarr resumed
+with its original replica count and placement policy and the same retained disk.
+The driver limit is unchanged; check attachment capacity before future moves.
+
+The independent logical recovery restored complete native sequence definitions,
+including type and bounds, before requiring the original full schema/data proof.
+It did not lower sequence floors or relax schema equality. Physical recovery
+preserved the original PostgreSQL system identifier.
+
 ## Failure and recovery
 
 Inspect unknown native outcomes instead of retrying mutations. Continue with the
@@ -77,7 +92,7 @@ Before authority, source recovery still requires complete target retirement and 
 validated coordinated database/photo recovery point. Before allowing uploads,
 keep Immich down until database and original-asset consistency is established.
 A snapshot-only restoration must affect only Immich's subtree; **never roll back
-all of `main/media`**, because the19 resumed workloads may have written new data
+all of `main/media`**, because the 19 resumed workloads may have written new data
 after the checkpoint barrier. Keep both snapshot generations and use a separately
 reviewed subtree recovery when needed.
 

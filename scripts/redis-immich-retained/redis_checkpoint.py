@@ -1,5 +1,6 @@
 """Private, binary-safe Redis state. Never print a checkpoint to public logs."""
 import base64
+import copy
 import json
 
 TYPES = {'string', 'list', 'set', 'hash', 'zset', 'stream'}
@@ -19,10 +20,33 @@ def _validate(checkpoint):
                 raise ValueError('Invalid absolute expiration')
 
 
+def _persisted_state(checkpoint):
+    """Ignore only Redis's reconstructed radix-tree node count, on a copy."""
+    result = copy.deepcopy(checkpoint)
+    for rows in result['databases'].values():
+        for record in rows.values():
+            if record['type'] != 'stream':
+                continue
+            values = record['value']
+            if not isinstance(values, list) or len(values) % 2:
+                raise ValueError('Invalid full stream metadata')
+            fields = values[::2]
+            if not all(isinstance(k, bytes) for k in fields) or len(set(fields)) != len(fields):
+                raise ValueError('Duplicate or invalid stream field')
+            if fields.count(b'radix-tree-nodes') != 1:
+                raise ValueError('Missing native layout counter')
+            position = fields.index(b'radix-tree-nodes') * 2
+            if type(values[position + 1]) is not int or values[position + 1] < 0:
+                raise ValueError('Invalid native layout counter')
+            record['value'] = values[:position] + values[position + 2:]
+    return result
+
+
 def compare(expected, actual, now_ms):
     """Compare frozen state; only a known absolute deadline explains absence."""
     _validate(expected)
     _validate(actual)
+    expected, actual = _persisted_state(expected), _persisted_state(actual)
     if type(now_ms) is not int or now_ms < max(expected['captured_at_ms'], actual['captured_at_ms']):
         raise ValueError('Comparison clock precedes checkpoint')
     preserved = expired = 0

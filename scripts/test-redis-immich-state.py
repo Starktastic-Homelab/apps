@@ -71,6 +71,71 @@ class RedisState(unittest.TestCase):
             self.state.compare(changed, changed, now_ms=2000)
 
 
+class RedisStreamState(unittest.TestCase):
+    def setUp(self):
+        import redis_checkpoint
+        self.state = redis_checkpoint
+        self.before = {'version': 1, 'captured_at_ms': 1000, 'databases': {0: {
+            b'jobs': {'type': 'stream', 'expires_at_ms': 5000, 'value': [
+                b'length', 1, b'radix-tree-keys', 1, b'radix-tree-nodes', 2,
+                b'last-generated-id', b'1-0', b'entries-added', 1,
+                b'entries', [[b'1-0', [b'payload', b'\xff\x00']]],
+                b'groups', [[b'name', b'workers', b'last-delivered-id', b'1-0',
+                             b'pending', [[b'1-0', b'consumer', 1000, 1]],
+                             b'consumers', [[b'name', b'consumer', b'seen-time', 1000]]]]
+            ]}}}}
+
+    def test_only_internal_radix_node_count_can_change(self):
+        actual = copy.deepcopy(self.before)
+        actual['databases'][0][b'jobs']['value'][5] = 1
+        self.assertEqual(self.state.compare(self.before, actual, 2000), {'preserved': 1, 'expired': 0})
+        self.assertEqual(self.before['databases'][0][b'jobs']['value'][5], 2)
+        self.assertEqual(actual['databases'][0][b'jobs']['value'][5], 1)
+
+    def test_every_other_stream_field_stays_exact(self):
+        original = self.before['databases'][0][b'jobs']['value']
+        for index in range(1, len(original), 2):
+            if original[index - 1] == b'radix-tree-nodes':
+                continue
+            actual = copy.deepcopy(self.before)
+            actual['databases'][0][b'jobs']['value'][index] = b'changed'
+            with self.subTest(field=original[index - 1]), self.assertRaises(ValueError):
+                self.state.compare(self.before, actual, 2000)
+
+    def test_binary_entry_and_nested_group_metadata_stay_exact(self):
+        for path in ((11, 0, 1, 1), (13, 0, 3), (13, 0, 5, 0, 1),
+                     (13, 0, 5, 0, 2), (13, 0, 5, 0, 3), (13, 0, 7, 0, 3)):
+            actual = copy.deepcopy(self.before)
+            cursor = actual['databases'][0][b'jobs']['value']
+            for index in path[:-1]:
+                cursor = cursor[index]
+            cursor[path[-1]] = b'changed'
+            with self.subTest(path=path), self.assertRaises(ValueError):
+                self.state.compare(self.before, actual, 2000)
+
+    def test_counter_is_required_unique_and_nonnegative_integer(self):
+        source = self.before['databases'][0][b'jobs']['value']
+        candidates = [source[:4] + source[6:], source + [b'radix-tree-nodes', 2],
+                      source[:5] + [-1] + source[6:], source[:5] + [True] + source[6:],
+                      source[:5] + [b'2'] + source[6:], source + [b'odd'],
+                      source + [b'length', 1]]
+        for values in candidates:
+            invalid = copy.deepcopy(self.before)
+            invalid['databases'][0][b'jobs']['value'] = values
+            with self.subTest(values=values), self.assertRaises(ValueError):
+                self.state.compare(invalid, invalid, 2000)
+
+    def test_expiry_and_inventory_stay_exact(self):
+        actual = copy.deepcopy(self.before)
+        actual['databases'][0][b'jobs']['expires_at_ms'] += 1
+        with self.assertRaises(ValueError):
+            self.state.compare(self.before, actual, 2000)
+        actual = copy.deepcopy(self.before)
+        del actual['databases'][0][b'jobs']
+        with self.assertRaises(ValueError):
+            self.state.compare(self.before, actual, 2000)
+
+
 class PostgresState(unittest.TestCase):
     def setUp(self):
         self.assertTrue((ROOT / 'postgres_checkpoint.py').exists(), 'PG17 checkpoint implementation is missing')

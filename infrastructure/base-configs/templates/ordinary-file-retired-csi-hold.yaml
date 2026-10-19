@@ -1,0 +1,38 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: ordinary-file-retired-csi-hold
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE]
+        resources: [pods]
+        scope: Namespaced
+  matchConditions:
+    - name: retired-csi-sources
+      expression: >-
+        has(object.spec.volumes) && object.spec.volumes.exists(v,
+        has(v.persistentVolumeClaim) && (false
+        {{- range $volume := (.Files.Get "files/ordinary-file-volumes.json" | fromJsonArray) }}
+        || (object.metadata.namespace == '{{ $volume.namespace }}' &&
+        v.persistentVolumeClaim.claimName == '{{ $volume.sourceClaim }}')
+        {{- end }}
+        ))
+  validations:
+    - expression: "false"
+      message: Retired ordinary-file CSI sources are held; use the accepted recovery procedure.
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: ordinary-file-retired-csi-hold
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  policyName: ordinary-file-retired-csi-hold
+  validationActions: [Deny]

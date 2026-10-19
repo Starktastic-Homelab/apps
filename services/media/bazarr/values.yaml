@@ -215,7 +215,7 @@ persistence:
   config:
     enabled: false
   bazarr-config:
-    existingClaim: bazarr-config-block
+    existingClaim: bazarr-files
     globalMounts: []
     advancedMounts:
       main:

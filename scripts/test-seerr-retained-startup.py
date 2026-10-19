@@ -206,8 +206,8 @@ class PackageTests(unittest.TestCase):
             for name in ('pv.yaml','pvc.yaml'):
                 self.assertEqual(yaml.safe_load((ROOT/'infrastructure/base-configs/templates'/(instance+'-block-storage')/name).read_text()),yaml.safe_load((folder/name).read_text()))
             self.assertEqual(yaml.safe_load((manifests/'postgres-secret.yaml').read_text()),yaml.safe_load((PACKAGE/'production/enrollment'/(instance+'-application-secret.yaml')).read_text()))
-        self.assertEqual(yaml.safe_load((ROOT/'services/media/seerr/values.yaml').read_text())['persistence']['seerr-config']['existingClaim'],'seerr-config-block')
-        self.assertEqual(yaml.safe_load((ROOT/'services/media/seerr-ru/values.yaml').read_text())['persistence']['seerr-config']['existingClaim'],'seerr-ru-config-block')
+        self.assertEqual(yaml.safe_load((ROOT/'services/media/seerr/values.yaml').read_text())['persistence']['seerr-config']['existingClaim'],'seerr-files')
+        self.assertEqual(yaml.safe_load((ROOT/'services/media/seerr-ru/values.yaml').read_text())['persistence']['seerr-config']['existingClaim'],'seerr-ru-files')
         self.assertEqual(yaml.safe_load((ROOT/'services/media/seerr/manifests/retained-startup-guard.yaml').read_text()),yaml.safe_load((PACKAGE/'production/guard-configmap.yaml').read_text()))
         self.assertTrue(yaml.safe_load((ROOT/'services/media/seerr-ru/app.yaml').read_text())['valuesOverride'])
 

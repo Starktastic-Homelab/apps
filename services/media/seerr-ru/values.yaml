@@ -53,4 +53,4 @@ persistence:
   pg-completion-password:
     name: seerr-ru-postgres-secret
   seerr-config:
-    existingClaim: seerr-ru-config-block
+    existingClaim: seerr-ru-files

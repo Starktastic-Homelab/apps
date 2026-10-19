@@ -10,10 +10,10 @@ controllers:
           DB_PORT: "5432"
           DB_DATABASE_NAME: immich
           DB_USERNAME: immich
-          DB_VECTOR_EXTENSION: "vectorchord"
+          DB_VECTOR_EXTENSION: vectorchord
           REDIS_HOSTNAME: redis-master.databases
           REDIS_PORT: "6379"
-          IMMICH_MACHINE_LEARNING_URL: "http://immich-machine-learning:3003"
+          IMMICH_MACHINE_LEARNING_URL: http://immich-machine-learning:3003
         envFrom:
           - secretRef:
               name: immich-secret
@@ -39,7 +39,6 @@ controllers:
             spec:
               failureThreshold: 30
               periodSeconds: 5
-
   machine-learning:
     containers:
       main:
@@ -68,24 +67,47 @@ controllers:
             spec:
               failureThreshold: 30
               periodSeconds: 5
-
   postgres:
     pod:
-      securityContext:
-        fsGroup: 999
+      securityContext: {}
+      nodeSelector:
+        kubernetes.io/os: linux
+        node-role.kubernetes.io/worker: "true"
+      tolerations:
+        - key: node.kubernetes.io/not-ready
+          operator: Exists
+          effect: NoExecute
+        - key: node.kubernetes.io/unreachable
+          operator: Exists
+          effect: NoExecute
     initContainers:
-      rm-postmaster-lock:
+      verify-retained-data:
         image:
-          repository: busybox
-          tag: latest
+          repository: ghcr.io/immich-app/postgres
+          tag: 17-vectorchord0.4.3-pgvector0.8.1@sha256:79b95b795f0911e95ffa4d092a2162c4d81a984d5629bc8f786afe0bc0657671
         command:
-          - sh
-          - -c
-          - |
-            if [ -f /data/pgdata/postmaster.pid ]; then
-              echo "🧟 Zombie Lock Found: Deleting postmaster.pid"
-              rm -f /data/pgdata/postmaster.pid
-            fi
+          - /bin/bash
+          - /retained-startup/guard.sh
+        env:
+          EXPECTED_SYSTEM_IDENTIFIER: "7614955115223928876"
+        securityContext:
+          runAsUser: 999
+          runAsGroup: 999
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
     containers:
       main:
         image:
@@ -99,8 +121,8 @@ controllers:
               secretKeyRef:
                 name: immich-secret
                 key: DB_PASSWORD
-          POSTGRES_INITDB_ARGS: "--data-checksums"
-          PGDATA: "/data/pgdata"
+          POSTGRES_INITDB_ARGS: --data-checksums
+          PGDATA: /data/pgdata
         probes:
           liveness:
             enabled: true
@@ -117,7 +139,17 @@ controllers:
             spec:
               failureThreshold: 30
               periodSeconds: 5
-
+        securityContext:
+          runAsUser: 999
+          runAsGroup: 999
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+    strategy: Recreate
 service:
   main:
     controller: main
@@ -134,7 +166,6 @@ service:
     ports:
       tcp:
         port: 5432
-
 persistence:
   config:
     enabled: false
@@ -146,16 +177,35 @@ persistence:
           - path: /usr/src/app/upload
             subPath: immich
   pgdata:
-    existingClaim: immich-pgdata
+    existingClaim: immich-postgres-block
     advancedMounts:
       postgres:
-        rm-postmaster-lock:
-          - path: /data
         main:
           - path: /data
+        verify-retained-data:
+          - path: /data
+            readOnly: true
   model-cache:
     existingClaim: immich-model-cache
     advancedMounts:
       machine-learning:
         main:
           - path: /cache
+  retained-startup:
+    type: configMap
+    name: immich-postgres-retained-startup
+    defaultMode: 292
+    globalMounts: []
+    advancedMounts:
+      postgres:
+        verify-retained-data:
+          - path: /retained-startup
+            readOnly: true
+  retained-scratch:
+    type: emptyDir
+    sizeLimit: 16Mi
+    globalMounts: []
+    advancedMounts:
+      postgres:
+        verify-retained-data:
+          - path: /tmp

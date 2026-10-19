@@ -292,6 +292,14 @@ jobs:
             -f infrastructure/system/proxmox-csi/values.yaml > /tmp/proxmox-csi.yaml
           python3 scripts/check-proxmox-csi-render.py /tmp/proxmox-csi.yaml
 
+      - name: Check Proxmox CSI attachment capacity alerts
+        env:
+          # renovate: datasource=docker depName=prom/prometheus
+          PROMETHEUS_VERSION: 'v3.15.0'
+        run: |
+          python3 scripts/test-proxmox-csi-capacity.py \
+            docker run --rm --user "$(id -u):$(id -g)" --network none --tmpfs /var/tmp:rw,mode=1777,size=64m --env TMPDIR=/var/tmp -v /tmp:/tmp:ro --entrypoint promtool "prom/prometheus:${PROMETHEUS_VERSION}"
+
       - name: Check alert policy
         id: alerts
         env:

@@ -24,18 +24,20 @@
 
 **Files:** `scripts/paperless-retained/guard.py`, its meaningful native/negative tests, `scripts/test-paperless-retained.py`, preparation bindings/ConfigMap, `infrastructure/base-configs/templates/paperless-data-block-storage/`, `services/operations/paperless-ngx/{values.yaml,manifests/}` and the validation workflow.
 
-- [ ] Capture fresh source Pod/controller/PVC/PV/Secret proofs, index/database identities, original document hashes, writable-overlap scope and native HTTP/query baseline.
-- [ ] Add rejection tests first; implement a small read-only guard for the retained marker, Tantivy metadata/settings/segments and native schedule state. Run exact-image synthetic index close/copy/reopen/query tests and actual chart-layer checks.
-- [ ] Prepare the static 1GiB target and current guard through a green reviewed PR without switching the app. Preserve the original NFS claim and its media/consume mounts.
-- [ ] Prepare and independently review the finite live command package. Obtain green activation CI before downtime. Under native maintenance ownership, hold reconciliation/frontends, stop Paperless/Filebrowser, verify guest runtime/mount retirement, mark the exact cold source, copy and verify bytes/POSIX metadata into the fresh target.
-- [ ] Require native recovery checks before target application startup, then merge exact green activation. Qualify current native document/index/model and queue behavior, clean recreation and both-worker startup. Restore normal scheduling, frontends, Filebrowser and Git/live equality; remove only owned holds and release maintenance ownership.
+- [x] Capture fresh source Pod/controller/PVC/PV/Secret proofs, index/database identities, original document hashes, writable-overlap scope and native HTTP/query baseline.
+- [x] Add rejection tests first; implement a small read-only guard for the retained marker, Tantivy metadata/settings/segments and native schedule state. Run exact-image synthetic index close/copy/reopen/query tests and actual chart-layer checks.
+- [x] Prepare the static 1GiB target and current guard through a green reviewed PR without switching the app. Preserve the original NFS claim and its media/consume mounts.
+- [x] Prepare and independently review the finite live command package. Obtain green activation CI before downtime. Under native maintenance ownership, hold reconciliation/frontends, stop Paperless/Filebrowser, verify guest runtime/mount retirement, mark the exact cold source, copy and verify bytes/POSIX metadata into the fresh target.
+- [x] Require native recovery checks before target application startup, then merge exact green activation. Qualify current native document/index/model and queue behavior, clean recreation and both-worker startup. Restore normal scheduling, frontends, Filebrowser and Git/live equality; remove only owned holds and release maintenance ownership.
 
 ## Task 2: Calibre stock split-library qualification and delivery
 
 **Files:** `scripts/calibre-retained/` native qualification/guard files, a focused test, prepared bindings and guard manifests, `services/media/calibre-web/values.yaml` and relevant workflow validation.
 
-- [ ] Rehearse the exact image on synthetic isolated volumes with config/SQLite state separated from book files. Inspect all five existing native databases and enabled integrations without exporting credential values.
-- [ ] Prove web reads, book import and conversion, edits, covers, notes, restart and every enabled integration use the intended paths. Report a decision if stock behavior cannot meet the split contract.
+- [x] Rehearse the exact image on synthetic isolated volumes with config/SQLite state separated from book files. Inspect all five existing native databases and enabled integrations without exporting credential values.
+- [x] Prove web reads, book import and conversion, edits, covers, notes, restart and every enabled integration use the intended paths. Report a decision if stock behavior cannot meet the split contract.
 - [ ] After qualification, implement and review minimal static bindings, retained/native guard and split settings. Preserve whole database directories so journals remain on CSI. Obtain green activation CI before downtime.
 - [ ] Perform a separately owned cold checkpoint/copy, read-only integrity and row/account/key proofs, recover and exercise native functionality, then exact green merge and both-worker acceptance. Keep books/ingest on NFS and old sources retained/held.
 - [ ] Finish with current native checks, unchanged unrelated controller proofs, Git/live equality, healthy monitoring, attachment count/capacity checks and exact temporary cleanup. Record completion on the merged PRs and in this plan.
+
+Paperless completed through PRs #1411 and #1412. Both workers and final native acceptance passed; all 78 Argo applications are Healthy/Synced, 95 unrelated controllers are unchanged, 32 CSI attachments leave 26 usable slots, capacity alerts are healthy and the maintenance owner/temporary holds are removed. Original NFS data remains retained and held.

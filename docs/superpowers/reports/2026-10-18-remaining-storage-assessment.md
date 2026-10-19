@@ -1,5 +1,10 @@
 # Remaining storage assessment
 
+Follow-up, 19 October: Redis and Immich PostgreSQL completed their
+[retained-CSI migration](2026-10-19-redis-immich-production.md). The inventory and
+measurements below remain the historical 18 October assessment. Paperless and
+Calibre still require their separate preparation and acceptance decisions.
+
 Read-only assessment on 18 October 2026. This report records running storage,
 native configuration and pinned upstream behavior. It does not claim a migration,
 backup, restore test, live repair or production rollout. The accompanying

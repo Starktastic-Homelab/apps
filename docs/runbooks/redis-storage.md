@@ -1,8 +1,9 @@
 # Redis retained storage
 
-Status: prepared, inactive. Production execution requires approval of the complete
-Redis/Immich execution proposal. The public fragments under
-`scripts/redis-immich-retained/production/` do not activate storage themselves.
+Status: active on retained CSI since 19 October 2026. See the
+[production acceptance report](../superpowers/reports/2026-10-19-redis-immich-production.md).
+Live values and static bindings are committed; the separate `production/`
+fragments remain reference and qualification inputs, not an activation switch.
 
 ## Normal operation and rebuilds
 
@@ -20,14 +21,14 @@ Secret on every startup. AOF uses `appendfsync everysec`. Alerts cover AOF being
 disabled or unhealthy. This does not promise zero loss after an abrupt power
 failure: Redis's normal every-second fsync policy still applies.
 
-## One-time migration order
+## Completed one-time migration
 
-Use the reviewed private packet at
-`.superpowers/sdd/2026-10-18-redis-immich-retained-csi/native/redis.py`.
-The packet checks its exact code/input hashes, scoped native ownership, VM/boot
-identities and original clocks before mutations. `preflight` is read-only;
-`run_phase` requires a separate fresh `approval.json` and frozen input digest.
-Never reuse another operation's approval, nonce, receipt or deadline.
+The following sequence describes the completed migration. Normal rebuilds do not
+repeat it. The private operation audit preserves the original packet, its
+102-file source mirror, qualified amendments and native phase/outcome chain.
+Its approvals, inputs, nonce and deadlines are historical evidence, not a
+reusable execution procedure. A new recovery operation requires fresh inspection,
+reviewed commands and its own authorization.
 
 1. Verify source process, all configured/connected consumers, capacity and
    private recovery destinations. Install scoped Argo holds and admission
@@ -49,8 +50,8 @@ Never reuse another operation's approval, nonce, receipt or deadline.
    prove every old writer absent from all three native runtimes/mount tables.
 5. Snapshot/archive the cold source. Prove encrypted off-NAS recovery again,
    allocate the exact new image once, populate the complete POSIX tree, write its
-   marker last and verify raw generation, binding, WWN and filesystem UUID. Retire
-   all copy helpers before recording target authority.
+   marker last and verify raw generation, binding, filesystem UUID and the current
+   attachment WWN. Retire all copy helpers before recording target authority.
 6. Merge only the tested activation head under the hold. Replace the exact
    stopped old StatefulSet because removing its claim template is immutable.
    Start only Redis, compare the full frozen dataset and healthy AOF, then prove
@@ -63,6 +64,17 @@ Never reuse another operation's approval, nonce, receipt or deadline.
    under a six-minute continuous native watch.
 8. Remove exact owned temporary helpers/plaintext, retain recovery and source
    media, audit final identity and release the original maintenance owner last.
+
+The stock driver derives WWN from the VM SCSI slot. Correlate each current WWN
+with that attachment and its guest device; it is not a persistent disk identity.
+The raw image generation, CSI handle, PV/PVC identities and filesystem UUID must
+stay fixed across movement.
+
+Redis stream recovery compares every persisted field, entry, group, pending
+delivery, consumer and absolute expiration. Only the top-level internal
+`radix-tree-nodes` count is excluded: it must still be present exactly once as a
+nonnegative integer. The native restored dataset passed all 55 keys; altered
+payloads or other metadata remain failures.
 
 ## Failure and recovery
 

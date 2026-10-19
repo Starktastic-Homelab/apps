@@ -1,0 +1,44 @@
+{{- range $volume := (.Files.Get "files/ordinary-file-volumes.json" | fromJsonArray) }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ $volume.claim }}
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  capacity:
+    storage: {{ $volume.capacity }}
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: {{ $volume.claim }}
+    namespace: {{ $volume.namespace }}
+  nfs:
+    server: {{ $.Values.global.network.nfs.server | quote }}
+    path: /mnt/apps/pv/{{ $volume.namespace }}/{{ $volume.claim }}
+  mountOptions:
+    - nfsvers=4.1
+    - hard
+    - noatime
+    - rsize=1048576
+    - wsize=1048576
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $volume.claim }}
+  namespace: {{ $volume.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  volumeName: {{ $volume.claim }}
+  resources:
+    requests:
+      storage: {{ $volume.capacity }}
+{{- end }}

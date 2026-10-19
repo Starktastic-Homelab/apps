@@ -42,9 +42,11 @@ def inventory(root):
     """Exclude only an empty ext4 lost+found. Refuse uncopyable metadata/state."""
     if root.is_symlink() or not root.is_dir():
         raise ValueError('Invalid volume root')
+    def traversal_error(error):
+        raise error
     result = {}
     links = {}
-    for parent, dirs, files in os.walk(root, followlinks=False):
+    for parent, dirs, files in os.walk(root, followlinks=False, onerror=traversal_error):
         for p in [Path(parent), *(Path(parent) / name for name in files),
                   *(Path(parent) / name for name in dirs if (Path(parent) / name).is_symlink())]:
             rel = str(p.relative_to(root))

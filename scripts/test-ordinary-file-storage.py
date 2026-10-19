@@ -66,6 +66,18 @@ class ColdCopyTests(unittest.TestCase):
         self.assertFalse((self.target / 'lost+found').exists())
         self.assertEqual((self.target / 'hardlink').stat().st_ino, (self.target / 'unicode שלום').stat().st_ino)
 
+    @unittest.skipIf(os.geteuid()==0,'root bypasses directory permission denial')
+    def test_unreadable_subdirectory_is_rejected_before_writes(self):
+        private=self.source/'private'
+        private.mkdir()
+        (private/'preserve').write_text('must not disappear')
+        private.chmod(0)
+        try:
+            with self.assertRaises(PermissionError):self.transfer()
+            self.assertEqual(list(self.target.iterdir()),[])
+        finally:
+            private.chmod(0o700)
+
     def test_existing_target_and_wrong_identity_are_rejected_before_writes(self):
         (self.target / 'existing').write_text('preserve')
         with self.assertRaises(ValueError): self.transfer()

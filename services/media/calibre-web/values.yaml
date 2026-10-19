@@ -24,17 +24,17 @@ controllers:
             type: HTTP
             path: /login
             port: 8083
-
 service:
   main:
     controller: main
     ports:
       http:
         port: 8083
-
 persistence:
   config:
     size: 2Gi
+    annotations:
+      argocd.argoproj.io/sync-options: Prune=false,Delete=false
   calibre-library:
     existingClaim: media-library-pvc
     globalMounts:

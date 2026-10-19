@@ -282,6 +282,22 @@ jobs:
           PAPERLESS_BEFORE_RENDER=/tmp/paperless-before.yaml PAPERLESS_RETAINED_RENDER=/tmp/paperless-retained.yaml python3 scripts/test-paperless-retained.py
           python3 scripts/paperless-retained/test_native.py
 
+      - name: Check Calibre retained split-library recovery
+        run: |
+          APP_VERSION=$(python3 -c 'import yaml; a=yaml.safe_load(open("bootstrap/appsets/cluster-apps.yaml")); print(next(v["defaultChartVersion"] for v in a["spec"]["generators"][0]["matrix"]["generators"][0]["list"]["elements"] if v["category"]=="services"))')
+          helm template calibre-web app-template --repo https://bjw-s-labs.github.io/helm-charts --version "$APP_VERSION" \
+            --namespace media --kube-version 1.37.0 -f templates/globals.yaml -f templates/common.yaml \
+            -f services/media/calibre-web/values.yaml > /tmp/calibre-before.yaml
+          helm template calibre-web app-template --repo https://bjw-s-labs.github.io/helm-charts --version "$APP_VERSION" \
+            --namespace media --kube-version 1.37.0 -f templates/globals.yaml -f templates/common.yaml \
+            -f services/media/calibre-web/values.yaml -f scripts/calibre-retained/production/preparation-values.yaml > /tmp/calibre-preparation.yaml
+          helm template calibre-web app-template --repo https://bjw-s-labs.github.io/helm-charts --version "$APP_VERSION" \
+            --namespace media --kube-version 1.37.0 -f templates/globals.yaml -f templates/common.yaml \
+            -f services/media/calibre-web/values.yaml -f scripts/calibre-retained/production/values.yaml > /tmp/calibre-retained.yaml
+          kubeconform -strict -summary /tmp/calibre-retained.yaml scripts/calibre-retained/production/bindings.yaml scripts/calibre-retained/production/source-pvc.yaml scripts/calibre-retained/production/source-hold.yaml
+          CALIBRE_BEFORE_RENDER=/tmp/calibre-before.yaml CALIBRE_PREPARATION_RENDER=/tmp/calibre-preparation.yaml CALIBRE_RETAINED_RENDER=/tmp/calibre-retained.yaml python3 scripts/test-calibre-retained.py
+          python3 scripts/calibre-retained/test_native.py
+
       - name: Check ordinary-file retained NFS preparation
         run: |
           helm template base-configs infrastructure/base-configs -f templates/globals.yaml > /tmp/ordinary-file-nfs.yaml

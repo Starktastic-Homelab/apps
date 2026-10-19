@@ -3,8 +3,11 @@ kind: PersistentVolumeClaim
 metadata:
   name: paperless-ngx-data
   namespace: operations
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
 spec:
-  accessModes: ["ReadWriteMany"]
+  accessModes:
+    - ReadWriteMany
   storageClassName: nfs-pv
   resources:
     requests:

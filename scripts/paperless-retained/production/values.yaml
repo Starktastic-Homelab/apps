@@ -1,0 +1,69 @@
+controllers:
+  main:
+    replicas: 1
+    strategy: Recreate
+    pod:
+      automountServiceAccountToken: false
+      nodeSelector:
+        node-role.kubernetes.io/worker: "true"
+      tolerations:
+        - key: node.kubernetes.io/not-ready
+          operator: Exists
+          effect: NoExecute
+        - key: node.kubernetes.io/unreachable
+          operator: Exists
+          effect: NoExecute
+      securityContext: {}
+    initContainers:
+      retained-data:
+        image:
+          repository: python
+          digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+        command:
+          - python3
+          - -I
+          - -B
+          - /retained-startup/guard.py
+          - /retained
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+persistence:
+  config:
+    globalMounts: []
+    advancedMounts:
+      main:
+        main:
+          - path: /config
+  data:
+    existingClaim: paperless-data-block
+    globalMounts: []
+    advancedMounts:
+      main:
+        main:
+          - path: /usr/src/paperless/data
+        retained-data:
+          - path: /retained
+            readOnly: true
+  shared-files:
+    existingClaim: paperless-ngx-data
+    advancedMounts:
+      main:
+        main:
+          - path: /usr/src/paperless/media
+            subPath: media
+          - path: /usr/src/paperless/consume
+            subPath: consume
+  retained-startup:
+    type: configMap
+    name: paperless-retained-startup-guard
+    defaultMode: 0444
+    advancedMounts:
+      main:
+        retained-data:
+          - path: /retained-startup
+            readOnly: true

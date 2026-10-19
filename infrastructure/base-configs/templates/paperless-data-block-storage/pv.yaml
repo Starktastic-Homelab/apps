@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: paperless-data-block
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+  - ReadWriteOncePod
+  volumeMode: Filesystem
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: proxmox-retained
+  claimRef:
+    name: paperless-data-block
+    namespace: operations
+  csi:
+    driver: csi.proxmox.sinextra.dev
+    fsType: ext4
+    volumeHandle: homelab//k3s-block/9999/vm-9999-paperless-data.raw
+    volumeAttributes:
+      storage: k3s-block
+      cache: none
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: topology.kubernetes.io/region
+          operator: In
+          values:
+          - homelab
+        - key: topology.kubernetes.io/zone
+          operator: In
+          values:
+          - pve

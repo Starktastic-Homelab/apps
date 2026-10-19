@@ -269,6 +269,19 @@ jobs:
           NTFY_RETAINED_RENDER=/tmp/ntfy-retained.yaml python3 scripts/test-ntfy-retained-startup.py
           python3 scripts/ntfy-postgresql/test_sql.py
 
+      - name: Check Paperless retained data and native recovery
+        run: |
+          APP_VERSION=$(python3 -c 'import yaml; a=yaml.safe_load(open("bootstrap/appsets/cluster-apps.yaml")); print(next(v["defaultChartVersion"] for v in a["spec"]["generators"][0]["matrix"]["generators"][0]["list"]["elements"] if v["category"]=="services"))')
+          helm template paperless-ngx app-template --repo https://bjw-s-labs.github.io/helm-charts --version "$APP_VERSION" \
+            --namespace operations --kube-version 1.37.0 -f templates/globals.yaml -f templates/common.yaml \
+            -f services/operations/paperless-ngx/values.yaml > /tmp/paperless-before.yaml
+          helm template paperless-ngx app-template --repo https://bjw-s-labs.github.io/helm-charts --version "$APP_VERSION" \
+            --namespace operations --kube-version 1.37.0 -f templates/globals.yaml -f templates/common.yaml \
+            -f services/operations/paperless-ngx/values.yaml -f scripts/paperless-retained/production/values.yaml > /tmp/paperless-retained.yaml
+          kubeconform -strict -summary /tmp/paperless-retained.yaml scripts/paperless-retained/production/bindings.yaml scripts/paperless-retained/production/source-hold.yaml
+          PAPERLESS_BEFORE_RENDER=/tmp/paperless-before.yaml PAPERLESS_RETAINED_RENDER=/tmp/paperless-retained.yaml python3 scripts/test-paperless-retained.py
+          python3 scripts/paperless-retained/test_native.py
+
       - name: Check ordinary-file retained NFS preparation
         run: |
           helm template base-configs infrastructure/base-configs -f templates/globals.yaml > /tmp/ordinary-file-nfs.yaml

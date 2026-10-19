@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+"""Read retained Paperless identity/layout before stock initialization.
+
+The pinned native engine verifies index/schedule integrity during recovery tests;
+this startup check never opens a writer, repairs files or creates defaults.
+"""
+import json
+import os
+from pathlib import Path
+import re
+import stat
+import sys
+
+MARKER = '.homelab-paperless-data'
+IDENTITY = b'homelab/paperless/data/v1\n'
+
+
+def read_file(path, maximum):
+    with os.fdopen(os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK), 'rb') as source:
+        info = os.fstat(source.fileno())
+        if not stat.S_ISREG(info.st_mode) or not 0 < info.st_size <= maximum:
+            raise ValueError('Invalid retained native file')
+        return source.read(maximum + 1)
+
+
+def validate(root):
+    root = Path(root)
+    if root.absolute() != root.resolve(strict=True) or not root.is_dir():
+        raise ValueError('Redirected retained root')
+    if read_file(root / MARKER, 128) != IDENTITY:
+        raise ValueError('Wrong retained Paperless identity')
+    index = root / 'index'
+    if not stat.S_ISDIR(index.lstat().st_mode):
+        raise ValueError('Missing retained index directory')
+    version = read_file(root / '.index_version', 32).strip()
+    if not version.isdigit() or int(version) <= 0:
+        raise ValueError('Invalid native index version')
+    settings = json.loads(read_file(index / '.index_settings.json', 65536))
+    if (not isinstance(settings, dict) or type(settings.get('schema_version')) is not int
+            or settings['schema_version'] <= 0 or not isinstance(settings.get('language'), str)
+            or not 0 < len(settings['language']) <= 64):
+        raise ValueError('Invalid native index settings')
+    meta = json.loads(read_file(index / 'meta.json', 1024 * 1024))
+    if (not isinstance(meta, dict) or not isinstance(meta.get('schema'), list)
+            or not {'id', 'content'} <= {v.get('name') for v in meta['schema'] if isinstance(v, dict)}
+            or not isinstance(meta.get('segments'), list) or type(meta.get('opstamp')) is not int
+            or meta['opstamp'] < 0):
+        raise ValueError('Invalid native index metadata')
+    for segment in meta['segments']:
+        if (not isinstance(segment, dict) or not isinstance(segment.get('segment_id'), str)
+                or not re.fullmatch(r'[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}', segment['segment_id'])
+                or type(segment.get('max_doc')) is not int or segment['max_doc'] < 0):
+            raise ValueError('Invalid native segment metadata')
+        # Paperless stores document IDs/content. Each current segment has a store.
+        path = index / (segment['segment_id'].replace('-', '') + '.store')
+        with os.fdopen(os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK), 'rb') as source:
+            info = os.fstat(source.fileno())
+            if not stat.S_ISREG(info.st_mode) or info.st_size <= 0:
+                raise ValueError('Missing native segment store')
+    schedule = root / 'celerybeat-schedule.db'
+    with os.fdopen(os.open(schedule, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK), 'rb') as source:
+        info = os.fstat(source.fileno())
+        if not stat.S_ISREG(info.st_mode) or info.st_size < 512 or source.read(4) != bytes.fromhex('cf9a5713'):
+            raise ValueError('Missing preserved native GDBM schedule')
+
+
+if __name__ == '__main__':
+    try:
+        if len(sys.argv) != 2:
+            raise ValueError('Expected retained root')
+        validate(Path(sys.argv[1]))
+    except (OSError, ValueError, RuntimeError, TypeError, KeyError):
+        print('Retained Paperless data refused; recovery acceptance is required.', file=sys.stderr)
+        raise SystemExit(1) from None
+    print('Retained Paperless identity and native layout accepted.')

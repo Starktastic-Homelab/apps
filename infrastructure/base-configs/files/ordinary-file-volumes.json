@@ -1,0 +1,92 @@
+[
+  {
+    "app": "prowlarr",
+    "namespace": "media",
+    "sourceClaim": "prowlarr-config-block",
+    "claim": "prowlarr-files",
+    "capacity": "4Gi",
+    "marker": ".homelab-prowlarr-config",
+    "identity": "homelab/prowlarr/config/v1\n"
+  },
+  {
+    "app": "seerr",
+    "namespace": "media",
+    "sourceClaim": "seerr-config-block",
+    "claim": "seerr-files",
+    "capacity": "4Gi",
+    "marker": ".homelab-seerr-config",
+    "identity": "homelab/seerr/config/v1\n"
+  },
+  {
+    "app": "seerr-ru",
+    "namespace": "media",
+    "sourceClaim": "seerr-ru-config-block",
+    "claim": "seerr-ru-files",
+    "capacity": "4Gi",
+    "marker": ".homelab-seerr-config",
+    "identity": "homelab/seerr-ru/config/v1\n"
+  },
+  {
+    "app": "bazarr",
+    "namespace": "media",
+    "sourceClaim": "bazarr-config-block",
+    "claim": "bazarr-files",
+    "capacity": "4Gi",
+    "marker": ".homelab-bazarr-config",
+    "identity": "homelab/bazarr/config/v1\n"
+  },
+  {
+    "app": "cleanuparr",
+    "namespace": "media",
+    "sourceClaim": "cleanuparr-config-block",
+    "claim": "cleanuparr-files",
+    "capacity": "4Gi",
+    "marker": ".homelab-cleanuparr-data",
+    "identity": "homelab/cleanuparr/data/v1\n"
+  },
+  {
+    "app": "grafana",
+    "namespace": "monitoring",
+    "sourceClaim": "grafana-data-block",
+    "claim": "grafana-files",
+    "capacity": "2Gi",
+    "marker": ".homelab-grafana-data",
+    "identity": "homelab/grafana/data/v1\n"
+  },
+  {
+    "app": "pgadmin",
+    "namespace": "databases",
+    "sourceClaim": "pgadmin-data-block",
+    "claim": "pgadmin-files",
+    "capacity": "1Gi",
+    "marker": ".homelab-pgadmin-data",
+    "identity": "homelab/pgadmin/data/v1\n"
+  },
+  {
+    "app": "ntfy",
+    "namespace": "operations",
+    "sourceClaim": "ntfy-data-block",
+    "claim": "ntfy-files",
+    "capacity": "8Gi",
+    "marker": ".homelab-ntfy-data",
+    "identity": "homelab/ntfy/data/v1\n"
+  },
+  {
+    "app": "cineplete",
+    "namespace": "media",
+    "sourceClaim": "cineplete-config-block",
+    "claim": "cineplete-files",
+    "capacity": "4Gi",
+    "marker": ".homelab-cineplete-data",
+    "identity": "homelab/cineplete/data/v1\n"
+  },
+  {
+    "app": "changedetection",
+    "namespace": "operations",
+    "sourceClaim": "changedetection-data-block",
+    "claim": "changedetection-files",
+    "capacity": "1Gi",
+    "marker": ".homelab-changedetection-data",
+    "identity": "homelab/changedetection/data/v1\n"
+  }
+]

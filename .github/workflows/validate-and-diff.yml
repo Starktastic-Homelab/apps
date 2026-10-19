@@ -269,6 +269,11 @@ jobs:
           NTFY_RETAINED_RENDER=/tmp/ntfy-retained.yaml python3 scripts/test-ntfy-retained-startup.py
           python3 scripts/ntfy-postgresql/test_sql.py
 
+      - name: Check ordinary-file retained NFS preparation
+        run: |
+          helm template base-configs infrastructure/base-configs -f templates/globals.yaml > /tmp/ordinary-file-nfs.yaml
+          ORDINARY_FILE_RENDER=/tmp/ordinary-file-nfs.yaml python3 scripts/test-ordinary-file-storage.py
+
       - name: Check inactive PostgreSQL cutover states
         run: |
           kubeconform -strict -summary scripts/postgres-retained-startup/production/cutover/source-hold.yaml

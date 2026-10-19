@@ -9,32 +9,26 @@ controllers:
           requests:
             memory: 640Mi
         env:
-          # Database
-          PAPERLESS_DBHOST: "postgres-postgresql.databases"
+          PAPERLESS_DBHOST: postgres-postgresql.databases
           PAPERLESS_DBPORT: "5432"
-          PAPERLESS_DBNAME: "paperless"
-          PAPERLESS_DBUSER: "paperless"
-          # PAPERLESS_REDIS is set via paperless-ngx-secret (contains auth password)
-          # Hosting
-          PAPERLESS_URL: "https://paperless.internal.starktastic.net"
+          PAPERLESS_DBNAME: paperless
+          PAPERLESS_DBUSER: paperless
+          PAPERLESS_URL: https://paperless.internal.starktastic.net
           PAPERLESS_USE_X_FORWARD_HOST: "true"
           PAPERLESS_USE_X_FORWARD_PORT: "true"
           PAPERLESS_PROXY_SSL_HEADER: '["HTTP_X_FORWARDED_PROTO","https"]'
-          PAPERLESS_TIME_ZONE: "Asia/Jerusalem"
-          # OCR
-          PAPERLESS_OCR_LANGUAGES: "rus heb"
-          PAPERLESS_OCR_LANGUAGE: "eng+rus+heb"
-          PAPERLESS_DATE_PARSER_LANGUAGES: "en+ru+he"
-          # Consumer
+          PAPERLESS_TIME_ZONE: Asia/Jerusalem
+          PAPERLESS_OCR_LANGUAGES: rus heb
+          PAPERLESS_OCR_LANGUAGE: eng+rus+heb
+          PAPERLESS_DATE_PARSER_LANGUAGES: en+ru+he
           PAPERLESS_CONSUMER_POLLING: "30"
-          # SSO - Authentik OIDC
-          PAPERLESS_APPS: "allauth.socialaccount.providers.openid_connect"
+          PAPERLESS_APPS: allauth.socialaccount.providers.openid_connect
           PAPERLESS_SOCIAL_AUTO_SIGNUP: "true"
           PAPERLESS_SOCIALACCOUNT_ALLOW_SIGNUPS: "true"
           PAPERLESS_SOCIAL_ACCOUNT_SYNC_GROUPS: "true"
           PAPERLESS_REDIRECT_LOGIN_TO_SSO: "true"
           PAPERLESS_DISABLE_REGULAR_LOGIN: "true"
-          PAPERLESS_LOGOUT_REDIRECT_URL: "https://auth.starktastic.net/application/o/paperless-ngx/end-session/"
+          PAPERLESS_LOGOUT_REDIRECT_URL: https://auth.starktastic.net/application/o/paperless-ngx/end-session/
         envFrom:
           - secretRef:
               name: paperless-ngx-secret
@@ -56,21 +50,77 @@ controllers:
             spec:
               failureThreshold: 30
               periodSeconds: 5
-
+    replicas: 1
+    strategy: Recreate
+    pod:
+      automountServiceAccountToken: false
+      nodeSelector:
+        node-role.kubernetes.io/worker: "true"
+      tolerations:
+        - key: node.kubernetes.io/not-ready
+          operator: Exists
+          effect: NoExecute
+        - key: node.kubernetes.io/unreachable
+          operator: Exists
+          effect: NoExecute
+      securityContext: {}
+    initContainers:
+      retained-data:
+        image:
+          repository: python
+          digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+        command:
+          - python3
+          - -I
+          - -B
+          - /retained-startup/guard.py
+          - /retained
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
 service:
   main:
     controller: main
     ports:
       http:
         port: 8000
-
 persistence:
   data:
+    existingClaim: paperless-data-block
+    globalMounts: []
+    advancedMounts:
+      main:
+        main:
+          - path: /usr/src/paperless/data
+        retained-data:
+          - path: /retained
+            readOnly: true
+  config:
+    globalMounts: []
+    advancedMounts:
+      main:
+        main:
+          - path: /config
+  shared-files:
     existingClaim: paperless-ngx-data
-    globalMounts:
-      - path: /usr/src/paperless/data
-        subPath: data
-      - path: /usr/src/paperless/media
-        subPath: media
-      - path: /usr/src/paperless/consume
-        subPath: consume
+    advancedMounts:
+      main:
+        main:
+          - path: /usr/src/paperless/media
+            subPath: media
+          - path: /usr/src/paperless/consume
+            subPath: consume
+  retained-startup:
+    type: configMap
+    name: paperless-retained-startup-guard
+    defaultMode: 292
+    advancedMounts:
+      main:
+        retained-data:
+          - path: /retained-startup
+            readOnly: true

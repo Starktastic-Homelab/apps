@@ -1,0 +1,47 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: paperless-retired-data-source-hold
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - pods
+          - pods/ephemeralcontainers
+        scope: Namespaced
+  matchConditions:
+    - name: old-paperless-private-data
+      expression:
+        object.metadata.namespace == 'operations' && has(object.spec.volumes) && object.spec.volumes.exists(v,
+        has(v.persistentVolumeClaim) && v.persistentVolumeClaim.claimName == 'paperless-ngx-data' &&
+        (object.spec.containers.exists(c, has(c.volumeMounts) && c.volumeMounts.exists(m, m.name == v.name &&
+        (!has(m.subPath) || !(m.subPath in ['media', 'consume']) || has(m.subPathExpr)))) ||
+        (has(object.spec.initContainers) && object.spec.initContainers.exists(c, has(c.volumeMounts) &&
+        c.volumeMounts.exists(m, m.name == v.name && (!has(m.subPath) || !(m.subPath in ['media', 'consume']) ||
+        has(m.subPathExpr))))) || (has(object.spec.ephemeralContainers) && object.spec.ephemeralContainers.exists(c,
+        has(c.volumeMounts) && c.volumeMounts.exists(m, m.name == v.name && (!has(m.subPath) || !(m.subPath in ['media',
+        'consume']) || has(m.subPathExpr)))))))
+  validations:
+    - expression: "false"
+      message: Retired Paperless private data is held; media and consume NFS mounts remain available.
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: paperless-retired-data-source-hold
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  policyName: paperless-retired-data-source-hold
+  validationActions:
+    - Deny

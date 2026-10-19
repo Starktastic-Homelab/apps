@@ -267,6 +267,7 @@ jobs:
             > /tmp/ntfy-retained.yaml
           kubeconform -strict -summary /tmp/ntfy-retained.yaml
           NTFY_RETAINED_RENDER=/tmp/ntfy-retained.yaml python3 scripts/test-ntfy-retained-startup.py
+          python3 scripts/ntfy-postgresql/test_sql.py
 
       - name: Check inactive PostgreSQL cutover states
         run: |

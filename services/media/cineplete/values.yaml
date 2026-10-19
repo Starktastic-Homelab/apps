@@ -76,7 +76,7 @@ persistence:
   config:
     enabled: false
   retained-config:
-    existingClaim: cineplete-config-block
+    existingClaim: cineplete-files
     globalMounts: []
     advancedMounts:
       main:

@@ -140,9 +140,9 @@ class CompositionTests(unittest.TestCase):
         self.assertEqual(patch, {'manifests': True})
         current = yaml.safe_load((ROOT / 'services/media/prowlarr/app.yaml').read_text())
         values = yaml.safe_load((ROOT / 'services/media/prowlarr/values.yaml').read_text())
-        retained = values.get('persistence', {}).get('prowlarr-config', {}).get('existingClaim') == 'prowlarr-config-block'
+        retained = values.get('persistence', {}).get('prowlarr-config', {}).get('existingClaim') in ('prowlarr-config-block', 'prowlarr-files')
         self.assertEqual(current.get('manifests', False), retained,
-                         'Manifest discovery must be activated together with retained CSI')
+                         'Manifest discovery must remain active for retained storage')
         baseline = {k: v for k, v in current.items() if k != 'manifests'}
         final = {**baseline, **patch}
         self.assertTrue(final['manifests'])

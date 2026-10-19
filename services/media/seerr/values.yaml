@@ -221,7 +221,7 @@ persistence:
   media:
     enabled: false
   seerr-config:
-    existingClaim: seerr-config-block
+    existingClaim: seerr-files
     globalMounts: []
     advancedMounts:
       main:

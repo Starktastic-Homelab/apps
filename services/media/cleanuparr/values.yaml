@@ -176,7 +176,7 @@ persistence:
   config:
     enabled: false
   retained-config:
-    existingClaim: cleanuparr-config-block
+    existingClaim: cleanuparr-files
     globalMounts: []
     advancedMounts:
       main:

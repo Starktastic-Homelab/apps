@@ -206,8 +206,8 @@ class PackageTests(unittest.TestCase):
             for name in ('pv.yaml','pvc.yaml'):
                 self.assertEqual(yaml.safe_load((ROOT/'infrastructure/base-configs/templates'/(instance+'-block-storage')/name).read_text()),yaml.safe_load((folder/name).read_text()))
             self.assertEqual(yaml.safe_load((manifests/'postgres-secret.yaml').read_text()),yaml.safe_load((PACKAGE/'production/enrollment'/(instance+'-application-secret.yaml')).read_text()))
-        self.assertEqual(yaml.safe_load((ROOT/'services/media/seerr/values.yaml').read_text())['persistence']['seerr-config']['existingClaim'],'seerr-config-block')
-        self.assertEqual(yaml.safe_load((ROOT/'services/media/seerr-ru/values.yaml').read_text())['persistence']['seerr-config']['existingClaim'],'seerr-ru-config-block')
+        self.assertEqual(yaml.safe_load((ROOT/'services/media/seerr/values.yaml').read_text())['persistence']['seerr-config']['existingClaim'],'seerr-files')
+        self.assertEqual(yaml.safe_load((ROOT/'services/media/seerr-ru/values.yaml').read_text())['persistence']['seerr-config']['existingClaim'],'seerr-ru-files')
         self.assertEqual(yaml.safe_load((ROOT/'services/media/seerr/manifests/retained-startup-guard.yaml').read_text()),yaml.safe_load((PACKAGE/'production/guard-configmap.yaml').read_text()))
         self.assertTrue(yaml.safe_load((ROOT/'services/media/seerr-ru/app.yaml').read_text())['valuesOverride'])
 
@@ -270,7 +270,7 @@ class RenderTests(unittest.TestCase):
             self.assertFalse(pod['automountServiceAccountToken']);self.assertNotIn('fsGroup',pod.get('securityContext',{}))
             self.assertEqual(pod['serviceAccountName'],instance+'-postgres-completion')
             volumes={v['name']:v for v in pod['volumes']}
-            self.assertEqual([v['persistentVolumeClaim']['claimName'] for v in volumes.values() if 'persistentVolumeClaim' in v],[instance+'-config-block'])
+            self.assertEqual([v['persistentVolumeClaim']['claimName'] for v in volumes.values() if 'persistentVolumeClaim' in v],[instance+'-files'])
             inits=pod['initContainers'];self.assertEqual([c['name'] for c in inits],['retained-state','enrollment','database'])
             self.assertEqual(inits[1]['args'],['--id',instance,'--database',db,'--role',db])
             self.assertEqual(inits[0]['command'][-1],instance)

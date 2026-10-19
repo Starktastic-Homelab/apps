@@ -111,7 +111,7 @@ persistence:
             readOnly: true
   retained-config:
     enabled: true
-    existingClaim: changedetection-data-block
+    existingClaim: changedetection-files
     globalMounts: []
     advancedMounts:
       main:

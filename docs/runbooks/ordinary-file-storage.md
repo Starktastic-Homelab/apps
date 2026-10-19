@@ -4,7 +4,7 @@ The [assessment](../superpowers/reports/2026-10-19-ordinary-file-storage-assessm
 selects ten ordinary-file volumes. Their fixed bindings are declared by
 `infrastructure/base-configs/files/ordinary-file-volumes.json` and rendered by
 `templates/ordinary-file-storage.yaml` inside the base-configs chart.
-Preparing these bindings does not switch workload mounts. Do not mount a fresh
+The active workload values select these prepared NFS claims. Preparing bindings alone does not switch workload mounts. Do not mount a fresh
 empty target into an application: retained identity guards must pass first.
 
 For each authorized cutover:
@@ -41,3 +41,8 @@ one Recreate replica and the established verified VM-retirement rebuild procedur
 Capacity requests on NFS do not enforce quotas. Back up private files as well as
 PostgreSQL; a SQL backup does not contain attachments, DataProtection keys or
 private user files. Original pre-PostgreSQL NFS admission holds remain active.
+
+The `ordinary-file-retired-csi-hold` admission policy denies new Pods using the
+ten retired CSI claims. It must be installed only after all transfer helpers
+have retired. An ordinary Git rollback is therefore insufficient to restart an
+old source; deliberate recovery must account for writes made on the NFS target.

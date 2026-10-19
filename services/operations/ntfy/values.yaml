@@ -214,7 +214,7 @@ persistence:
           - path: /credentials
             readOnly: true
   ntfy-data:
-    existingClaim: ntfy-data-block
+    existingClaim: ntfy-files
     globalMounts: []
     advancedMounts:
       main:

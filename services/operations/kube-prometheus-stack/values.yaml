@@ -462,7 +462,7 @@ grafana:
       capture: true
   persistence:
     enabled: true
-    existingClaim: grafana-data-block
+    existingClaim: grafana-files
     storageClassName: nfs-pv
     accessModes: ["ReadWriteMany"]
     size: 2Gi

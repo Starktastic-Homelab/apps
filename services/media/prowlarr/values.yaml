@@ -276,7 +276,7 @@ persistence:
   config:
     enabled: false
   prowlarr-config:
-    existingClaim: prowlarr-config-block
+    existingClaim: prowlarr-files
     globalMounts: []
     advancedMounts:
       main:

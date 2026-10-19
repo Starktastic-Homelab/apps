@@ -1,0 +1,64 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: proxmox-csi-capacity
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: proxmox-csi-capacity
+      rules:
+        # Count pending/deleting attachments too: they may still occupy a slot.
+        # Deduplicate kube-state-metrics replicas before counting each object.
+        - record: homelab:proxmox_csi_attachments:count
+          expr: |
+            count by (node) (
+              max by (node, volumeattachment) (
+                kube_volumeattachment_info{attacher="csi.proxmox.sinextra.dev"}
+              )
+            )
+        # Matches Ansible's worker label. Stock v0.20.0 only uses scsi1..scsi29.
+        # This is the configured budget, not a measurement of CSINode allocatable.
+        # Enable only after every worker's live allocatable count is verified 29.
+        - record: homelab:proxmox_csi_slots_free:count
+          expr: |
+            (
+              29 * max by (node) (kube_node_role{role="worker"})
+              - on (node) (
+                homelab:proxmox_csi_attachments:count
+                or on (node) (0 * max by (node) (kube_node_role{role="worker"}))
+              )
+            )
+            and on (node) (max by (node) (kube_node_status_condition{condition="Ready",status="true"}) == 1)
+            and on (node) (max by (node) (kube_node_spec_unschedulable) == 0)
+        - alert: ProxmoxCSINodeAttachmentHeadroomLow
+          expr: homelab:proxmox_csi_slots_free:count <= 3
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Proxmox CSI attachment headroom is low on {{ $labels.node }}"
+            description:
+              "This worker has at most three free slots against its 29-volume budget. Check placement and plan capacity
+              before adding more CSI volumes. Pending attachments count as occupied."
+        - alert: ProxmoxCSIClusterAttachmentHeadroomLow
+          expr: (sum(clamp_min(homelab:proxmox_csi_slots_free:count, 0)) or vector(0)) < 10
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: Proxmox CSI cluster attachment headroom is low
+            description:
+              Fewer than ten CSI attachment slots remain across Ready, schedulable workers. Plan additional worker
+              capacity before adding more retained volumes.
+        - alert: ProxmoxCSIClusterAttachmentCapacityExhausted
+          expr: (sum(clamp_min(homelab:proxmox_csi_slots_free:count, 0)) or vector(0)) == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: Proxmox CSI has no available attachment capacity
+            description:
+              No Ready, schedulable worker has free CSI attachment slots. Check worker health, monitoring and pending
+              attachments before allocating more volumes. Never force-detach a disk to free capacity.

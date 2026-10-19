@@ -24,6 +24,39 @@ controllers:
             type: HTTP
             path: /login
             port: 8083
+    replicas: 1
+    strategy: Recreate
+    pod:
+      automountServiceAccountToken: false
+      nodeSelector:
+        node-role.kubernetes.io/worker: "true"
+      tolerations:
+        - key: node.kubernetes.io/not-ready
+          operator: Exists
+          effect: NoExecute
+        - key: node.kubernetes.io/unreachable
+          operator: Exists
+          effect: NoExecute
+      securityContext: {}
+    initContainers:
+      retained-state:
+        image:
+          repository: python
+          digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+        command:
+          - python3
+          - -I
+          - -B
+          - /retained-startup/guard.py
+          - /retained
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
 service:
   main:
     controller: main
@@ -35,12 +68,40 @@ persistence:
     size: 2Gi
     annotations:
       argocd.argoproj.io/sync-options: Prune=false,Delete=false
+    enabled: false
   calibre-library:
     existingClaim: media-library-pvc
-    globalMounts:
-      - path: /calibre-library
-        subPath: library/books
+    globalMounts: []
+    advancedMounts:
+      main:
+        main:
+          - path: /calibre-books
+            subPath: library/books
   ingest:
     existingClaim: cwa-book-ingest
-    globalMounts:
-      - path: /cwa-book-ingest
+    globalMounts: []
+    advancedMounts:
+      main:
+        main:
+          - path: /cwa-book-ingest
+  retained-data:
+    existingClaim: calibre-web-block
+    advancedMounts:
+      main:
+        main:
+          - path: /config
+            subPath: config
+          - path: /calibre-library
+            subPath: library
+        retained-state:
+          - path: /retained
+            readOnly: true
+  retained-startup:
+    type: configMap
+    name: calibre-retained-startup-guard
+    defaultMode: 292
+    advancedMounts:
+      main:
+        retained-state:
+          - path: /retained-startup
+            readOnly: true

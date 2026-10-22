@@ -30,7 +30,7 @@ jobs:
       - name: Setup Helm
         uses: azure/setup-helm@v5
         with:
-          version: v4.3.0
+          version: v4.3.1
 
       - name: YAML Lint
         id: yamllint
@@ -489,7 +489,7 @@ jobs:
       - name: Setup Helm
         uses: azure/setup-helm@v5
         with:
-          version: v4.3.0
+          version: v4.3.1
       - name: Setup Kubeconform
         env:
           # renovate: datasource=github-releases depName=yannh/kubeconform

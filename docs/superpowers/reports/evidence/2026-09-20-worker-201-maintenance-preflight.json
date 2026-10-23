@@ -1,0 +1,86 @@
+{
+  "summarizedAt": "2026-09-20T18:55:29.907087+00:00",
+  "node": "kube-worker-01",
+  "nodes": [
+    {
+      "name": "kube-master-01",
+      "unschedulable": false,
+      "conditions": {
+        "EtcdIsVoter": "True",
+        "MemoryPressure": "False",
+        "DiskPressure": "False",
+        "PIDPressure": "False",
+        "Ready": "True"
+      },
+      "capacity_memory": "16383232Ki",
+      "allocatable_memory": "16383232Ki"
+    },
+    {
+      "name": "kube-worker-01",
+      "unschedulable": false,
+      "conditions": {
+        "MemoryPressure": "False",
+        "DiskPressure": "False",
+        "PIDPressure": "False",
+        "Ready": "True"
+      },
+      "capacity_memory": "28744404Ki",
+      "allocatable_memory": "28744404Ki"
+    },
+    {
+      "name": "kube-worker-02",
+      "unschedulable": false,
+      "conditions": {
+        "MemoryPressure": "False",
+        "DiskPressure": "False",
+        "PIDPressure": "False",
+        "Ready": "True"
+      },
+      "capacity_memory": "28744412Ki",
+      "allocatable_memory": "28744412Ki"
+    }
+  ],
+  "podCount": 40,
+  "allPodsReady": true,
+  "owners": {
+    "ReplicaSet": 28,
+    "DaemonSet": 8,
+    "StatefulSet": 4
+  },
+  "nonDaemonSetEmptyDirPods": [
+    "argocd/argocd-applicationset-controller-576689d57-b82m9",
+    "argocd/argocd-dex-server-94fc5d9cf-4vf98",
+    "argocd/argocd-repo-server-5888777c8-7k89w",
+    "databases/postgres-postgresql-0",
+    "databases/redis-master-0",
+    "kube-system/sealed-secrets-controller-67bc74c985-z9c6z",
+    "monitoring/kube-prometheus-stack-grafana-6676f4b87-hbx6t",
+    "monitoring/prometheus-kube-prometheus-stack-prometheus-0",
+    "monitoring/tempo-0",
+    "operations/homepage-d5c567fbc-x4grt"
+  ],
+  "localVolumes": [
+    {
+      "namespace": "operations",
+      "pod": "filebrowser-555569b4c5-46wbb",
+      "claim": "filebrowser-data-pvc",
+      "storageClass": "local-path",
+      "nodeAffinity": {
+        "required": {
+          "nodeSelectorTerms": [
+            {
+              "matchExpressions": [
+                {
+                  "key": "kubernetes.io/hostname",
+                  "operator": "In",
+                  "values": ["kube-worker-01"]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "limitation": "Read-only snapshot; backups, preservation and drain have not been performed."
+}

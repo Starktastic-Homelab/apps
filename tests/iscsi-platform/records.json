@@ -1,0 +1,160 @@
+[
+  {
+    "service": "service-a",
+    "marker": "8a5206cf-4e3f-4d90-a43a-1f65ec886f42",
+    "pv": {
+      "apiVersion": "v1",
+      "kind": "PersistentVolume",
+      "metadata": {
+        "name": "pvc-af488e5a-9df0-462f-9653-6b769391f06a",
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=false,Delete=false"
+        }
+      },
+      "spec": {
+        "capacity": {
+          "storage": "4Gi"
+        },
+        "accessModes": ["ReadWriteOncePod"],
+        "storageClassName": "iscsi-lab-retain",
+        "persistentVolumeReclaimPolicy": "Retain",
+        "csi": {
+          "driver": "org.democratic-csi.iscsi-lab",
+          "fsType": "ext4",
+          "nodeStageSecretRef": {
+            "name": "iscsi-lab-chap",
+            "namespace": "iscsi-lab-system"
+          },
+          "volumeAttributes": {
+            "interface": "",
+            "iqn": "iqn.2026-09.lab.iscsi:lab-pvc-af488e5a-9df0-462f-9653-6b769391f06a",
+            "lun": "0",
+            "node_attach_driver": "iscsi",
+            "portal": "172.30.91.10:3260",
+            "portals": "",
+            "provisioner_driver": "freenas-api-iscsi",
+            "provisioner_driver_instance_id": "iscsi-lab-1d3e8de3",
+            "storage.kubernetes.io/csiProvisionerIdentity": "1789938676381-206-org.democratic-csi.iscsi-lab"
+          },
+          "volumeHandle": "pvc-af488e5a-9df0-462f-9653-6b769391f06a"
+        },
+        "claimRef": {
+          "name": "service-a",
+          "namespace": "iscsi-fixture"
+        },
+        "volumeMode": "Filesystem"
+      }
+    },
+    "pvc": {
+      "apiVersion": "v1",
+      "kind": "PersistentVolumeClaim",
+      "metadata": {
+        "name": "service-a",
+        "namespace": "iscsi-fixture",
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=false,Delete=false"
+        }
+      },
+      "spec": {
+        "volumeName": "pvc-af488e5a-9df0-462f-9653-6b769391f06a",
+        "storageClassName": "iscsi-lab-retain",
+        "accessModes": ["ReadWriteOncePod"],
+        "resources": {
+          "requests": {
+            "storage": "4Gi"
+          }
+        }
+      }
+    },
+    "backend": {
+      "dataset": "iscsi_lab/volumes/pvc-af488e5a-9df0-462f-9653-6b769391f06a",
+      "guid": "7069681847755015095",
+      "bytes": 4294967296,
+      "extent_id": 1,
+      "serial": "daaf74e0d201e0f",
+      "naa": "0x6589cfc0000009b9d9bb1b02087d884c",
+      "target_id": 1,
+      "lun": 0
+    },
+    "filesystem_uuid": "4d46dfb3-d5b2-47ac-ab65-d2167c89b63d"
+  },
+  {
+    "service": "service-b",
+    "marker": "acf2d3d9-d886-4e8e-8a29-c2e2d13ae61a",
+    "pv": {
+      "apiVersion": "v1",
+      "kind": "PersistentVolume",
+      "metadata": {
+        "name": "pvc-ce4af33b-0b9a-462e-8980-f57aa3876603",
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=false,Delete=false"
+        }
+      },
+      "spec": {
+        "capacity": {
+          "storage": "2Gi"
+        },
+        "accessModes": ["ReadWriteOncePod"],
+        "storageClassName": "iscsi-lab-retain",
+        "persistentVolumeReclaimPolicy": "Retain",
+        "csi": {
+          "driver": "org.democratic-csi.iscsi-lab",
+          "fsType": "ext4",
+          "nodeStageSecretRef": {
+            "name": "iscsi-lab-chap",
+            "namespace": "iscsi-lab-system"
+          },
+          "volumeAttributes": {
+            "interface": "",
+            "iqn": "iqn.2026-09.lab.iscsi:lab-pvc-ce4af33b-0b9a-462e-8980-f57aa3876603",
+            "lun": "0",
+            "node_attach_driver": "iscsi",
+            "portal": "172.30.91.10:3260",
+            "portals": "",
+            "provisioner_driver": "freenas-api-iscsi",
+            "provisioner_driver_instance_id": "iscsi-lab-1d3e8de3",
+            "storage.kubernetes.io/csiProvisionerIdentity": "1789938676381-206-org.democratic-csi.iscsi-lab"
+          },
+          "volumeHandle": "pvc-ce4af33b-0b9a-462e-8980-f57aa3876603"
+        },
+        "claimRef": {
+          "name": "service-b",
+          "namespace": "iscsi-fixture"
+        },
+        "volumeMode": "Filesystem"
+      }
+    },
+    "pvc": {
+      "apiVersion": "v1",
+      "kind": "PersistentVolumeClaim",
+      "metadata": {
+        "name": "service-b",
+        "namespace": "iscsi-fixture",
+        "annotations": {
+          "argocd.argoproj.io/sync-options": "Prune=false,Delete=false"
+        }
+      },
+      "spec": {
+        "volumeName": "pvc-ce4af33b-0b9a-462e-8980-f57aa3876603",
+        "storageClassName": "iscsi-lab-retain",
+        "accessModes": ["ReadWriteOncePod"],
+        "resources": {
+          "requests": {
+            "storage": "2Gi"
+          }
+        }
+      }
+    },
+    "backend": {
+      "dataset": "iscsi_lab/volumes/pvc-ce4af33b-0b9a-462e-8980-f57aa3876603",
+      "guid": "4716043096016099582",
+      "bytes": 2147483648,
+      "extent_id": 2,
+      "serial": "ad1ad0436a044b4",
+      "naa": "0x6589cfc000000658dc5414bf9119843e",
+      "target_id": 2,
+      "lun": 0
+    },
+    "filesystem_uuid": "ed094b6f-67f8-4608-b201-4c3dc33990ba"
+  }
+]

@@ -1,0 +1,115 @@
+driver:
+  existingConfigSecret: iscsi-lab-driver-config
+  config:
+    driver: freenas-api-iscsi
+extraCaCerts: "-----BEGIN CERTIFICATE-----
+
+  MIIDMTCCAhmgAwIBAgIUGnHbTGu6Qm99RHpy03A3HexxEYwwDQYJKoZIhvcNAQEL
+
+  BQAwIDEeMBwGA1UEAwwVSXNvbGF0ZWQgaVNDU0kgTGFiIENBMB4XDTI2MDkyMDIx
+
+  MDI1NVoXDTI2MDkyNzIxMDI1NVowIDEeMBwGA1UEAwwVSXNvbGF0ZWQgaVNDU0kg
+
+  TGFiIENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsqoyNNJSKSja
+
+  UOlRbPiKPK17i0R5By3gy+JsHzCgB9NCZYD/g1cbqLSLfjRbuVF1ylhxCj8baX4B
+
+  fgGtIPnTyweIKXNKJkjgzgtUyyH67A6iTyVdiPnmg1//hjgo3VQcDSyhPhOMzKC0
+
+  IWmT9AVrQHVMQZjQPyHqzlvZfhWJoEd4DVrURclq3I+lp2ts14GUYy/jurT6kOQ9
+
+  wKH7YN0iiWTDVqbwpH/GBzDXwJt05pCvO2FKzRvP22f0uH8NNS18z3jZZp6Dk6PU
+
+  KdcK9efJ7r2gfLMtvWqLKLQZBaj1MYvKJpp9buLLvxrE2grMnUVMzQhrHW1wQslg
+
+  ENjK2iftSwIDAQABo2MwYTAdBgNVHQ4EFgQUUYub9oKyJneinye415TMxTDKQaIw
+
+  HwYDVR0jBBgwFoAUUYub9oKyJneinye415TMxTDKQaIwDwYDVR0TAQH/BAUwAwEB
+
+  /zAOBgNVHQ8BAf8EBAMCAQYwDQYJKoZIhvcNAQELBQADggEBAIgVB9Ey38RlDE+k
+
+  ea7C00J+BsZFDgrpVR2W8H1UxFeGz4QhxKJlFmU84h3l/zlPpOliU0S2Q0CaJ3LQ
+
+  mLzesKa4RV0LUSf84vIO6PZgh3lSHiR7KHtKKkoYoXikPP7YnFIvCP3zmjqNj0yW
+
+  PLWHeWlduLWuHeBpHub0SITYCM+bdDTKjYPr7Jy+kk0HCpMWEEB4hKGXc57JzqzJ
+
+  Hcw6nZirgHISob5eAM0+lRfHms3wQ8gO03TJBD5wytkDT4U/C2QAuqkWDqzSJcMa
+
+  IEd6MTfHk9Y8+vNlgFUg7t+ozmWNB4LzHoR+l9aMXwYiSn/MPortKM2cmY9Jv0j5
+
+  o+jg9l0=
+
+  -----END CERTIFICATE-----
+
+  "
+csiDriver:
+  name: org.democratic-csi.iscsi-lab
+controller:
+  externalSnapshotter:
+    enabled: false
+    image:
+      registry: registry.k8s.io/sig-storage/csi-snapshotter
+      tag: v8.2.1@sha256:d78f2c57d4027a8712d43d08031f444e7620293649638e6f2ebfaefe0843fc18
+      pullPolicy: IfNotPresent
+  nodeSelector:
+    node-role.kubernetes.io/control-plane: "true"
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+  driver:
+    image:
+      registry: ghcr.io/democratic-csi/democratic-csi
+      tag: v1.9.5@sha256:746bf6b373ae75f5da8b1e412d13c3e8d0e2e1494654268b9dd6fe1f1e55aade
+      pullPolicy: IfNotPresent
+  externalAttacher:
+    image:
+      registry: registry.k8s.io/sig-storage/csi-attacher
+      tag: v4.4.0@sha256:4ca52e3a4ef2c392f919da80670eee6da6059689d217022729988afd12ad5a82
+      pullPolicy: IfNotPresent
+  externalProvisioner:
+    image:
+      registry: registry.k8s.io/sig-storage/csi-provisioner
+      tag: v3.6.0@sha256:608640c92ee853e657ce663bc955f866910858d0f5c746da088ffb497d44a453
+      pullPolicy: IfNotPresent
+  externalResizer:
+    image:
+      registry: registry.k8s.io/sig-storage/csi-resizer
+      tag: v1.9.0@sha256:fc764369dcb1dd3a031b6a842e265b7a19766e6817acd1b7bcdd5c413275638b
+      pullPolicy: IfNotPresent
+node:
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+  cleanup:
+    image:
+      registry: docker.io/library/busybox
+      tag: 1.37.0@sha256:7a3ebe5bfd1a4a19797d20b0c0bb39d44393e9a03fd852c0865b0f540d868df0
+      pullPolicy: IfNotPresent
+  driver:
+    image:
+      registry: ghcr.io/democratic-csi/democratic-csi
+      tag: v1.9.5@sha256:746bf6b373ae75f5da8b1e412d13c3e8d0e2e1494654268b9dd6fe1f1e55aade
+      pullPolicy: IfNotPresent
+  driverRegistrar:
+    image:
+      registry: registry.k8s.io/sig-storage/csi-node-driver-registrar
+      tag: v2.9.0@sha256:4da2674bae016b1011c2042cb719cffd9a80d34f3cf933c705b425054f86cea9
+      pullPolicy: IfNotPresent
+storageClasses:
+  - name: iscsi-lab-retain
+    defaultClass: false
+    reclaimPolicy: Retain
+    allowVolumeExpansion: true
+    volumeBindingMode: Immediate
+    parameters:
+      fsType: ext4
+      csi.storage.k8s.io/node-stage-secret-name: iscsi-lab-chap
+      csi.storage.k8s.io/node-stage-secret-namespace: iscsi-lab-system
+csiProxy:
+  image:
+    registry: ghcr.io/democratic-csi/csi-grpc-proxy
+    tag: v0.5.7@sha256:78e86badadfe67a9afdbe2c9a3afc02bc50aa43b86203c9ca6fc046ab3519e3f
+    pullPolicy: IfNotPresent

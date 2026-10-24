@@ -22,7 +22,7 @@ controllers:
       tempo:
         image:
           repository: docker.io/grafana/tempo
-          tag: 2.10.8@sha256:f0561deb1c68ec44d6e6e7e4487f30106c4e5e768642077695b37958b105812a
+          tag: 2.10.9@sha256:cb1fb66cd6ac32ae189b88c5b8544d2f425d968671ce7d727fbea856cd103aa9
         args:
           - -config.file=/conf/tempo.yaml
           - -mem-ballast-size-mbs=1024

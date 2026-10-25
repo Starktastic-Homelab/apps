@@ -1,2 +1,3 @@
 __pycache__/
 .superpowers/
+.claude/settings.local.json

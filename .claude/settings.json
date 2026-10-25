@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "deny": [
+      "Bash(terraform apply *)",
+      "Bash(terraform destroy *)",
+      "Bash(terraform -chdir=* apply *)",
+      "Bash(terraform -chdir=* destroy *)",
+      "Bash(packer build *)",
+      "Read(~/Projects/homelab/id_rsa*)",
+      "Read(~/Projects/homelab/pve-creds.txt)",
+      "Read(~/Projects/homelab/runner-ssh.sh)",
+      "Read(~/Projects/homelab/*.key)",
+      "Read(~/Projects/homelab/.recovery/**)",
+      "Read(~/.ssh/**)",
+      "Read(~/.kube/**)",
+      "Read(**/.vault_pass)",
+      "Read(**/.env)",
+      "Read(**/*.tfstate)",
+      "Read(**/*.tfstate.*)",
+      "Read(**/private_key.pem)"
+    ],
+    "ask": [
+      "Bash(ansible-playbook *)",
+      "Bash(ansible *)",
+      "Bash(ansible-vault *)",
+      "Bash(terraform import *)",
+      "Bash(terraform state *)",
+      "Bash(terraform taint *)",
+      "Bash(terraform untaint *)",
+      "Bash(terraform force-unlock *)",
+      "Bash(git push *)",
+      "Bash(gh pr create *)",
+      "Bash(gh pr merge *)",
+      "Bash(gh workflow run *)",
+      "Bash(gh run rerun *)",
+      "Bash(gh secret *)",
+      "Bash(gh release *)",
+      "Bash(kubectl *)",
+      "Bash(helm install *)",
+      "Bash(helm upgrade *)",
+      "Bash(helm uninstall *)",
+      "Bash(helm rollback *)",
+      "Bash(argocd *)",
+      "Bash(ssh *)",
+      "Bash(scp *)"
+    ],
+    "allow": [
+      "Bash(terraform fmt *)",
+      "Bash(terraform validate *)",
+      "Bash(terraform plan *)",
+      "Bash(packer fmt *)",
+      "Bash(packer validate *)",
+      "Bash(ansible-lint *)",
+      "Bash(yamllint *)",
+      "Bash(shellcheck *)",
+      "Bash(shfmt *)",
+      "Bash(pre-commit run *)",
+      "Bash(kubeconform *)",
+      "Bash(helm template *)"
+    ]
+  }
+}

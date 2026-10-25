@@ -54,7 +54,7 @@ Report what ran. The PR's ArgoCD diff preview is the review of record; renders d
 - An app's `name` must equal its directory (refresh scoping). Keep the `argocd-diff-preview/watch-pattern`
   annotations, or the diff preview comes back empty.
 - Set `storageClass` explicitly (ADR 0009): local-path stays default; app-template ignores `global.storageClass`.
-- No `*.svc.cluster.local` names (ndots leak; CI greps): use `service` or `service.namespace`.
+- No `cluster.local` service FQDNs (ndots leak; CI greps for them): use `service` or `service.namespace`.
 - `templates/ingress-chart` picks entrypoints and middlewares from `domainType`. Every ingress host goes on
   homepage-admin, non-internal ones on homepage too (`check-homepage-coverage.py`).
 - Retained storage (`infrastructure/system/proxmox-csi/README.md`, `docs/runbooks/`): prebind PVs; grow the

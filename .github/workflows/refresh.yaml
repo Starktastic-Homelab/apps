@@ -16,6 +16,9 @@ jobs:
     timeout-minutes: 10
     container:
       image: buildpack-deps:scm
+    # Container-local /tmp, unlike ~ (the runner's shared _work/_temp/_github_home), is gone with the job.
+    env:
+      KUBECONFIG: /tmp/kubeconfig
     defaults:
       run:
         shell: bash
@@ -131,10 +134,11 @@ jobs:
 
       - name: Setup Kubeconfig
         if: steps.guard.outputs.scope != 'skip'
+        env:
+          KUBECONFIG_RAW: ${{ secrets.KUBECONFIG_RAW }}
         run: |
-          mkdir -p ~/.kube
-          echo "${{ secrets.KUBECONFIG_RAW }}" > ~/.kube/config
-          chmod 600 ~/.kube/config
+          umask 077
+          printf '%s\n' "$KUBECONFIG_RAW" > "$KUBECONFIG"
 
       - name: Setup Kubectl
         if: steps.guard.outputs.scope != 'skip'

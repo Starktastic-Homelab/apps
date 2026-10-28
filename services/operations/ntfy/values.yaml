@@ -4,7 +4,7 @@ controllers:
       main:
         image:
           repository: binwiederhier/ntfy
-          tag: v2.31.0@sha256:803b2aaeb94df76c8b32ecd91039dc80b0fddb7041dcaf082b33bcdfd4ba39ad
+          tag: v2.34.0@sha256:901e14503d3f605f445be0e68f2ac71f0aa73391897ce6ceb599f8c48d8b3792
         args:
           - serve
         env:

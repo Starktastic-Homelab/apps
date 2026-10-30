@@ -1,0 +1,156 @@
+{
+  "capturedAt": "2026-09-21T07:41:34.784440+00:00",
+  "scope": "Read-only production pilot preparation; no NAS, ACL, VM or workload changes",
+  "nasVersion": "TrueNAS-25.10.7",
+  "appsPool": {
+    "name": "apps",
+    "guid": "9917900421692286909",
+    "status": "ONLINE",
+    "size": 506806140928,
+    "allocated": 96060272640,
+    "free": 410745868288,
+    "healthy": true
+  },
+  "appsDatasetAvailableBytes": 395046473728,
+  "nfsDatasetSync": [
+    {
+      "id": "apps/pv",
+      "mountpoint": "/mnt/apps/pv",
+      "sync": {
+        "parsed": "disabled",
+        "rawvalue": "disabled",
+        "value": "DISABLED",
+        "source": "LOCAL",
+        "source_info": null
+      }
+    }
+  ],
+  "iscsiService": [
+    {
+      "id": 7,
+      "service": "iscsitarget",
+      "enable": false,
+      "state": "STOPPED",
+      "pids": []
+    }
+  ],
+  "existingPortals": [
+    {
+      "id": 1,
+      "listen": [
+        {
+          "ip": "10.9.8.30",
+          "port": 3260
+        }
+      ],
+      "comment": "k3s-portal"
+    }
+  ],
+  "existingTargets": 0,
+  "existingExtents": 0,
+  "snapshotTasks": [
+    {
+      "id": 1,
+      "dataset": "apps/pv",
+      "recursive": true,
+      "enabled": true,
+      "lifetime_value": 1,
+      "lifetime_unit": "WEEK"
+    }
+  ],
+  "jellyfin": {
+    "configAllocatedBytes": 28190802944,
+    "databaseBytes": 189108224,
+    "databaseUid": 1000,
+    "databaseGid": 1000,
+    "cacheAllocatedBytes": 9494528,
+    "cacheNode": "kube-worker-02",
+    "configClaimRequestGiB": 15,
+    "configNfsPath": "10.9.8.30:/mnt/apps/pv/media/jellyfin-config",
+    "cacheClaimGiB": 50,
+    "image": "lscr.io/linuxserver/jellyfin:12.1ubu2604-ls50@sha256:51252e7a416e703cdc3cd91e8a54673a2430cc80409be8a38abe511411577b95"
+  },
+  "proxmoxVersion": {
+    "release": "9.2",
+    "repoid": "49318c671b82f31e",
+    "version": "9.2.20"
+  },
+  "k3sVms": {
+    "200": {
+      "name": "kube-master-01",
+      "smbios1": "uuid=459b5ce3-d527-4edb-9617-206b50476a3f",
+      "memory": "16384",
+      "net0": "virtio=BC:24:11:ED:0D:CA,bridge=vmbr0",
+      "net1": "virtio=BC:24:11:22:5B:55,bridge=vmbr1",
+      "tags": "k3s;master",
+      "status": "running"
+    },
+    "201": {
+      "name": "kube-worker-01",
+      "smbios1": "uuid=8b2aa6c7-b54f-4323-9900-bdbb85098f62",
+      "memory": "28672",
+      "net0": "virtio=BC:24:11:9F:3C:36,bridge=vmbr0",
+      "net1": "virtio=BC:24:11:59:D8:7D,bridge=vmbr1",
+      "tags": "k3s;worker",
+      "status": "running"
+    },
+    "202": {
+      "name": "kube-worker-02",
+      "smbios1": "uuid=d6c40da9-aaa5-4b5c-a9ce-70d3cfdcc4b4",
+      "memory": "28672",
+      "net0": "virtio=BC:24:11:12:45:82,bridge=vmbr0",
+      "net1": "virtio=BC:24:11:7C:08:97,bridge=vmbr1",
+      "tags": "k3s;worker",
+      "status": "running"
+    }
+  },
+  "dedicatedFenceAccountPresent": false,
+  "existingAcl": [
+    {
+      "path": "/",
+      "propagate": 1,
+      "roleid": "PVEAuditor",
+      "type": "group",
+      "ugid": "api-ro-users"
+    },
+    {
+      "path": "/",
+      "propagate": 1,
+      "roleid": "PVEAuditor",
+      "type": "token",
+      "ugid": "api@pam!homepage"
+    },
+    {
+      "path": "/",
+      "propagate": 1,
+      "roleid": "ProvisionerRole",
+      "type": "token",
+      "ugid": "root@pam!provisioner"
+    }
+  ],
+  "installedApiRequirements": {
+    "config": "VM.Audit at /vms/{vmid}; request current=1",
+    "status": "VM.Audit at /vms/{vmid}",
+    "stop": "VM.PowerMgmt at /vms/{vmid}",
+    "ownTaskStatus": "authenticated task owner; no node-wide Sys.Audit required"
+  },
+  "nodePrerequisites": {
+    "open-iscsi": "not installed on any of the three nodes",
+    "e2fsprogs": "1.47.2-3+b12 on all nodes",
+    "storageAddresses": {
+      "200": "10.9.8.50",
+      "201": "10.9.8.51",
+      "202": "10.9.8.52"
+    },
+    "workerDiskAvailableBytes": {
+      "201": 28823879680,
+      "202": 52812480512
+    }
+  },
+  "backupCandidate": {
+    "host": "lenovo-t14s-cachyos",
+    "filesystem": "encrypted local /home filesystem",
+    "availableApproxGiB": 900,
+    "userSelection": "pending; no backup copied"
+  }
+}

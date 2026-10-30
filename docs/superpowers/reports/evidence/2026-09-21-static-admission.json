@@ -1,0 +1,46 @@
+[
+  {
+    "test": "dynamic claim",
+    "denied": true
+  },
+  {
+    "test": "substituted class",
+    "denied": true
+  },
+  {
+    "test": "foreign binding",
+    "denied": true
+  },
+  {
+    "test": "spoofed onboarding label",
+    "denied": true
+  },
+  {
+    "test": "PV alias",
+    "denied": true
+  },
+  {
+    "test": "Retain changed",
+    "denied": true
+  },
+  {
+    "test": "filesystem substituted",
+    "denied": true
+  },
+  {
+    "test": "driver substituted",
+    "denied": true
+  },
+  {
+    "test": "writer without external verification",
+    "denied": true
+  },
+  {
+    "test": "stale previous-cluster verification",
+    "denied": true
+  },
+  {
+    "test": "unlabelled writer bypass",
+    "denied": true
+  }
+]

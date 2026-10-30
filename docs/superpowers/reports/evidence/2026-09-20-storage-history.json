@@ -1,0 +1,709 @@
+{
+  "summary": {
+    "memory_gib": {
+      "kube-master-01": {
+        "min_7d": 5.376,
+        "max_7d": 11.787,
+        "max_24h": 11.75,
+        "total": 15.624,
+        "current": 9.508
+      },
+      "kube-worker-01": {
+        "min_7d": 12.71,
+        "max_7d": 23.276,
+        "max_24h": 20.198,
+        "total": 27.413,
+        "current": 18.463
+      },
+      "kube-worker-02": {
+        "min_7d": 13.177,
+        "max_7d": 21.66,
+        "max_24h": 21.382,
+        "total": 27.413,
+        "current": 15.949
+      }
+    },
+    "pearson_coarse_cluster_aggregate": {
+      "cpu_iowait": -0.061,
+      "io_full_stall": -0.056,
+      "io_some_stall": -0.06
+    },
+    "peak_samples": {
+      "cpu_iowait": {
+        "max": 0.06279590395480228,
+        "at_utc": "2026-09-20T15:13:06+00:00"
+      },
+      "io_full_stall": {
+        "max": 0.19970013615819193,
+        "at_utc": "2026-09-20T15:13:06+00:00"
+      },
+      "io_some_stall": {
+        "max": 0.2568421559322033,
+        "at_utc": "2026-09-20T15:13:06+00:00"
+      },
+      "probe_failures_per_second": {
+        "max": 0.25875706214689265,
+        "at_utc": "2026-09-18T09:43:06+00:00"
+      }
+    },
+    "io_categories": {
+      "generic_io": {
+        "matching_lines": 24,
+        "first_timestamp_ns": "1789689612616129807",
+        "last_timestamp_ns": "1789776036462487100",
+        "database_context_lines": 0,
+        "media_context_lines": 0,
+        "first_utc": "2026-09-18T00:00:12.616130+00:00",
+        "last_utc": "2026-09-19T00:00:36.462487+00:00"
+      }
+    }
+  },
+  "queries": {
+    "loki_sqlite_locks": {
+      "query": "loki_sqlite_locks",
+      "collected_at": "2026-09-20T18:13:48.439004+00:00",
+      "available": true,
+      "result_type": "vector",
+      "series": [
+        {
+          "labels": {
+            "app": "jellyfin"
+          },
+          "value": [1789927986, "370"]
+        },
+        {
+          "labels": {
+            "app": "sonarr"
+          },
+          "value": [1789927986, "2"]
+        },
+        {
+          "labels": {
+            "app": "sonarr-ru"
+          },
+          "value": [1789927986, "8"]
+        }
+      ]
+    },
+    "loki_storage_error_categories": {
+      "query": "loki_storage_error_categories",
+      "collected_at": "2026-09-20T18:15:12.318493+00:00",
+      "available": true,
+      "log_lines_examined": 24,
+      "categories": {
+        "generic_io": {
+          "matching_lines": 24,
+          "first_timestamp_ns": "1789689612616129807",
+          "last_timestamp_ns": "1789776036462487100",
+          "database_context_lines": 0,
+          "media_context_lines": 0,
+          "first_utc": "2026-09-18T00:00:12.616130+00:00",
+          "last_utc": "2026-09-19T00:00:36.462487+00:00"
+        }
+      }
+    },
+    "prom_memory_avail_bounds": {
+      "query": "prom_memory_avail_bounds",
+      "collected_at": "2026-09-20T18:13:57.541656+00:00",
+      "available": true,
+      "result_type": "vector",
+      "series": [
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-master-01",
+            "type": "min_7d"
+          },
+          "value": [1789928037.52, "9227386880"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-master-01",
+            "type": "min_7d"
+          },
+          "value": [1789928037.52, "7180492800"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-master-01",
+            "type": "min_7d"
+          },
+          "value": [1789928037.52, "5772288000"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-master-01",
+            "type": "min_7d"
+          },
+          "value": [1789928037.52, "8142446592"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-master-01",
+            "type": "min_7d"
+          },
+          "value": [1789928037.52, "7297597440"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-01",
+            "type": "min_7d"
+          },
+          "value": [1789928037.52, "19201908736"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-01",
+            "type": "min_7d"
+          },
+          "value": [1789928037.52, "20688760832"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-01",
+            "type": "min_7d"
+          },
+          "value": [1789928037.52, "14183608320"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-01",
+            "type": "min_7d"
+          },
+          "value": [1789928037.52, "17371516928"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-01",
+            "type": "min_7d"
+          },
+          "value": [1789928037.52, "13647060992"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-02",
+            "type": "min_7d"
+          },
+          "value": [1789928037.52, "19196088320"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-02",
+            "type": "min_7d"
+          },
+          "value": [1789928037.52, "20659847168"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-02",
+            "type": "min_7d"
+          },
+          "value": [1789928037.52, "14148313088"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-02",
+            "type": "min_7d"
+          },
+          "value": [1789928037.52, "14757044224"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-02",
+            "type": "min_7d"
+          },
+          "value": [1789928037.52, "18334633984"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-master-01",
+            "type": "max_7d"
+          },
+          "value": [1789928037.52, "11654455296"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-master-01",
+            "type": "max_7d"
+          },
+          "value": [1789928037.52, "8292622336"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-master-01",
+            "type": "max_7d"
+          },
+          "value": [1789928037.52, "11379965952"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-master-01",
+            "type": "max_7d"
+          },
+          "value": [1789928037.52, "12656119808"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-master-01",
+            "type": "max_7d"
+          },
+          "value": [1789928037.52, "9661140992"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-01",
+            "type": "max_7d"
+          },
+          "value": [1789928037.52, "21479821312"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-01",
+            "type": "max_7d"
+          },
+          "value": [1789928037.52, "24991891456"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-01",
+            "type": "max_7d"
+          },
+          "value": [1789928037.52, "23999135744"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-01",
+            "type": "max_7d"
+          },
+          "value": [1789928037.52, "18060161024"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-01",
+            "type": "max_7d"
+          },
+          "value": [1789928037.52, "23455076352"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-02",
+            "type": "max_7d"
+          },
+          "value": [1789928037.52, "20028497920"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-02",
+            "type": "max_7d"
+          },
+          "value": [1789928037.52, "22642843648"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-02",
+            "type": "max_7d"
+          },
+          "value": [1789928037.52, "23257739264"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-02",
+            "type": "max_7d"
+          },
+          "value": [1789928037.52, "19601367040"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-02",
+            "type": "max_7d"
+          },
+          "value": [1789928037.52, "22147047424"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-master-01",
+            "type": "max_24h"
+          },
+          "value": [1789928037.52, "11654455296"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-master-01",
+            "type": "max_24h"
+          },
+          "value": [1789928037.52, "12616151040"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-01",
+            "type": "max_24h"
+          },
+          "value": [1789928037.52, "21479821312"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-01",
+            "type": "max_24h"
+          },
+          "value": [1789928037.52, "21687717888"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-02",
+            "type": "max_24h"
+          },
+          "value": [1789928037.52, "22959181824"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-02",
+            "type": "max_24h"
+          },
+          "value": [1789928037.52, "19601367040"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-master-01",
+            "type": "total"
+          },
+          "value": [1789928037.52, "16776429568"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-01",
+            "type": "total"
+          },
+          "value": [1789928037.52, "29434269696"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-02",
+            "type": "total"
+          },
+          "value": [1789928037.52, "29434277888"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-master-01",
+            "type": "current"
+          },
+          "value": [1789928037.52, "10208817152"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-01",
+            "type": "current"
+          },
+          "value": [1789928037.52, "19824582656"]
+        },
+        {
+          "labels": {
+            "job": "node-exporter",
+            "namespace": "monitoring",
+            "nodename": "kube-worker-02",
+            "type": "current"
+          },
+          "value": [1789928037.52, "17125539840"]
+        }
+      ]
+    },
+    "prom_pressure_conditions_7d": {
+      "query": "prom_pressure_conditions_7d",
+      "collected_at": "2026-09-20T18:13:42.168204+00:00",
+      "available": true,
+      "result_type": "vector",
+      "series": [
+        {
+          "labels": {
+            "condition": "DiskPressure",
+            "node": "kube-master-01"
+          },
+          "value": [1789927986, "0"]
+        },
+        {
+          "labels": {
+            "condition": "DiskPressure",
+            "node": "kube-worker-01"
+          },
+          "value": [1789927986, "0"]
+        },
+        {
+          "labels": {
+            "condition": "DiskPressure",
+            "node": "kube-worker-02"
+          },
+          "value": [1789927986, "0"]
+        },
+        {
+          "labels": {
+            "condition": "MemoryPressure",
+            "node": "kube-master-01"
+          },
+          "value": [1789927986, "0"]
+        },
+        {
+          "labels": {
+            "condition": "MemoryPressure",
+            "node": "kube-worker-01"
+          },
+          "value": [1789927986, "0"]
+        },
+        {
+          "labels": {
+            "condition": "MemoryPressure",
+            "node": "kube-worker-02"
+          },
+          "value": [1789927986, "0"]
+        },
+        {
+          "labels": {
+            "condition": "PIDPressure",
+            "node": "kube-master-01"
+          },
+          "value": [1789927986, "0"]
+        },
+        {
+          "labels": {
+            "condition": "PIDPressure",
+            "node": "kube-worker-01"
+          },
+          "value": [1789927986, "0"]
+        },
+        {
+          "labels": {
+            "condition": "PIDPressure",
+            "node": "kube-worker-02"
+          },
+          "value": [1789927986, "0"]
+        }
+      ]
+    },
+    "prom_nfs_retransmission_history": {
+      "collected_at": "2026-09-20T18:13:55.703662+00:00",
+      "available": true,
+      "series": [
+        {
+          "labels": {},
+          "sample_count": 337,
+          "minimum": 0.0,
+          "maximum": 0.0
+        }
+      ]
+    },
+    "prom_shared_stall_history": {
+      "collected_at": "2026-09-20T18:13:57.751071+00:00",
+      "available": true,
+      "series": [
+        {
+          "labels": {
+            "type": "cpu_iowait"
+          },
+          "sample_count": 337,
+          "minimum": 0.0020579189314406327,
+          "maximum": 0.06279590395480228
+        },
+        {
+          "labels": {
+            "type": "io_full_stall"
+          },
+          "sample_count": 337,
+          "minimum": 0.006866616150892672,
+          "maximum": 0.19970013615819193
+        },
+        {
+          "labels": {
+            "type": "io_some_stall"
+          },
+          "sample_count": 337,
+          "minimum": 0.007514529710350832,
+          "maximum": 0.2568421559322033
+        },
+        {
+          "labels": {
+            "type": "probe_failures_per_second"
+          },
+          "sample_count": 337,
+          "minimum": 0.0,
+          "maximum": 0.25875706214689265
+        }
+      ]
+    }
+  },
+  "limitations": [
+    "Metrics cover K3s guest nodes, not Proxmox or TrueNAS memory.",
+    "History is requested over seven days; vector extrema use all retained sample series and collapse scrape-label churn by node.",
+    "LogQL app filtering may exclude differently labeled streams.",
+    "Loki error counts are matching log lines, not distinct incidents.",
+    "Probe-related Loki query returned no matching application log lines, while Prometheus probe failure counters provide history.",
+    "Thirty-minute cluster aggregates conceal individual workload/node timing and are not causal evidence.",
+    "Guest block-device latency is not NFS operation latency.",
+    "Node exporter NFS counters are available, but per-operation NFS latency metrics were absent from metric-name discovery.",
+    "Raw logs were processed in memory only; only category/count/timestamp summaries persisted."
+  ],
+  "query_definitions": {
+    "loki_sqlite_locks": {
+      "endpoint": "/api/v1/namespaces/monitoring/services/http:loki:3100/proxy/loki/api/v1/query",
+      "parameters": {
+        "query": "sum by (app) (count_over_time({app=~\"jellyfin|sonarr.*|radarr.*|prowlarr|lidarr|seerr.*|navidrome|cleanuparr|home-assistant|grafana|kube-prometheus-stack\"} |~ `(?i)SQLITE_BUSY|SQLITE_LOCKED|database (table )?is locked|SQLite Error [56]` [7d]))",
+        "time": "1789927986000000000",
+        "timeout": "20s"
+      },
+      "window_utc": {
+        "start": "2026-09-13T18:13:06+00:00",
+        "end": "2026-09-20T18:13:06+00:00"
+      }
+    },
+    "loki_storage_errors": {
+      "endpoint": "/api/v1/namespaces/monitoring/services/http:loki:3100/proxy/loki/api/v1/query",
+      "parameters": {
+        "query": "sum by (app) (count_over_time({app=~\"jellyfin|sonarr.*|radarr.*|prowlarr|lidarr|seerr.*|navidrome|cleanuparr|home-assistant|grafana|kube-prometheus-stack\"} |~ `(?i)SQLITE_IOERR|SQLITE_CORRUPT|database disk image is malformed|disk I/O error|Input/output error|Stale file handle|read-only file system|No space left on device` [7d]))",
+        "time": "1789927986000000000",
+        "timeout": "20s"
+      }
+    },
+    "loki_probe_errors": {
+      "endpoint": "/api/v1/namespaces/monitoring/services/http:loki:3100/proxy/loki/api/v1/query",
+      "parameters": {
+        "query": "sum by (app) (count_over_time({app=~\"jellyfin|sonarr.*|radarr.*|prowlarr|lidarr|seerr.*|navidrome|cleanuparr|home-assistant|grafana|kube-prometheus-stack\"} |~ `(?i)(liveness|readiness|startup) probe failed` [7d]))",
+        "time": "1789927986000000000",
+        "timeout": "20s"
+      }
+    },
+    "prom_pressure_conditions_7d": {
+      "endpoint": "/api/v1/namespaces/monitoring/services/http:kube-prometheus-stack-prometheus:9090/proxy/api/v1/query",
+      "parameters": {
+        "query": "max by (node, condition) (max_over_time(kube_node_status_condition{condition=~\"MemoryPressure|DiskPressure|PIDPressure\",status=\"true\"}[7d]))",
+        "time": "1789927986",
+        "timeout": "15s"
+      }
+    },
+    "prom_memory_avail_bounds": {
+      "endpoint": "/api/v1/namespaces/monitoring/services/http:kube-prometheus-stack-prometheus:9090/proxy/api/v1/query",
+      "parameters": {
+        "query": "(label_replace(min_over_time(node_memory_MemAvailable_bytes[7d]),\"type\",\"min_7d\",\"__name__\",\".*\") or label_replace(max_over_time(node_memory_MemAvailable_bytes[7d]),\"type\",\"max_7d\",\"__name__\",\".*\") or label_replace(max_over_time(node_memory_MemAvailable_bytes[24h]),\"type\",\"max_24h\",\"__name__\",\".*\") or label_replace(node_memory_MemTotal_bytes,\"type\",\"total\",\"__name__\",\".*\") or label_replace(node_memory_MemAvailable_bytes,\"type\",\"current\",\"__name__\",\".*\")) * on (instance) group_left (nodename) node_uname_info",
+        "timeout": "15s"
+      },
+      "observed_evaluation_timestamp": 1789928037.52,
+      "observed_evaluation_utc": "2026-09-20T18:13:57.520000+00:00"
+    },
+    "prom_nfs_retransmission_history": {
+      "endpoint": "/api/v1/namespaces/monitoring/services/http:kube-prometheus-stack-prometheus:9090/proxy/api/v1/query_range",
+      "parameters": {
+        "query": "sum(increase(node_nfs_rpc_retransmissions_total[30m]))",
+        "start": "1789323186",
+        "end": "1789927986",
+        "step": "1800",
+        "timeout": "15s"
+      }
+    },
+    "prom_shared_stall_history": {
+      "endpoint": "/api/v1/namespaces/monitoring/services/http:kube-prometheus-stack-prometheus:9090/proxy/api/v1/query_range",
+      "parameters": {
+        "query": "label_replace(sum(rate(node_pressure_io_stalled_seconds_total[30m])),\"type\",\"io_full_stall\",\"__name__\",\".*\") or label_replace(sum(rate(node_pressure_io_waiting_seconds_total[30m])),\"type\",\"io_some_stall\",\"__name__\",\".*\") or label_replace(sum(rate(prober_probe_total{result=\"failed\"}[30m])),\"type\",\"probe_failures_per_second\",\"__name__\",\".*\") or label_replace(avg(rate(node_cpu_seconds_total{mode=\"iowait\"}[30m])),\"type\",\"cpu_iowait\",\"__name__\",\".*\")",
+        "start": "1789323186",
+        "end": "1789927986",
+        "step": "1800",
+        "timeout": "15s"
+      }
+    },
+    "prom_local_disk_latency_history": {
+      "endpoint": "/api/v1/namespaces/monitoring/services/http:kube-prometheus-stack-prometheus:9090/proxy/api/v1/query_range",
+      "parameters": {
+        "query": "sum(rate(node_disk_read_time_seconds_total{device!~\"loop.*|dm-.*\"}[30m])+rate(node_disk_write_time_seconds_total{device!~\"loop.*|dm-.*\"}[30m])) / sum(rate(node_disk_reads_completed_total{device!~\"loop.*|dm-.*\"}[30m])+rate(node_disk_writes_completed_total{device!~\"loop.*|dm-.*\"}[30m]))",
+        "start": "1789323186",
+        "end": "1789927986",
+        "step": "1800",
+        "timeout": "15s"
+      }
+    },
+    "guest_memory_minimum_derivation": {
+      "actual_query_key": "prom_memory_avail_bounds",
+      "minimum_subexpression": "min_over_time(node_memory_MemAvailable_bytes[7d])",
+      "node_join": "* on (instance) group_left (nodename) node_uname_info",
+      "local_reduction": "Filter series whose type label is min_7d; group by nodename; take the minimum across retained historical scrape-series identities.",
+      "equivalent_single_purpose_promql": "min by (nodename) (min_over_time(node_memory_MemAvailable_bytes[7d]) * on (instance) group_left (nodename) node_uname_info)",
+      "sampling": "min_over_time evaluates all retained scrape samples inside the seven-day range for each series. The reported memory minima were NOT computed from the half-hour query_range series."
+    }
+  }
+}

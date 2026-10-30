@@ -1,0 +1,18 @@
+{
+  "nas_powered_off_throughout_restore": true,
+  "restored_outside_nas": true,
+  "services": [
+    {
+      "service": "service-a",
+      "rows": 21,
+      "integrity": "ok",
+      "sha256": "e3ea39dc3d4a74010aa937b304c8cab6d62d5191ce165135f6fce639ce7102af"
+    },
+    {
+      "service": "service-b",
+      "rows": 21,
+      "integrity": "ok",
+      "sha256": "ade2d9308ac57e36a9651d4e38f4fa437e4be22ca521bcdb86fa82512f61d7ff"
+    }
+  ]
+}

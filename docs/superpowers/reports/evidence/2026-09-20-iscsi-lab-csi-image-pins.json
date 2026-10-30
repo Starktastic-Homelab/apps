@@ -1,0 +1,240 @@
+{
+  "chart": "democratic-csi",
+  "chart_version": "0.15.1",
+  "helm_version": "v4.3.0",
+  "render_overrides": {
+    "driver.config.driver": "freenas-api-iscsi",
+    "driver.existingConfigSecret": "iscsi-lab-driver-config",
+    "csiDriver.name": "org.democratic-csi.iscsi-lab",
+    "controller.driver.image.tag": "v1.9.5",
+    "node.driver.image.tag": "v1.9.5"
+  },
+  "platform": "linux/amd64",
+  "images": [
+    {
+      "tagged_reference": "docker.io/busybox:1.37.0",
+      "used_by": [
+        {
+          "kind": "DaemonSet",
+          "workload": "iscsi-lab-democratic-csi-node",
+          "container_type": "containers",
+          "container": "cleanup"
+        }
+      ],
+      "resolved": true,
+      "canonical_repository": "docker.io/library/busybox",
+      "tag_index_digest": "sha256:9db7b59979c38555a39def84a31fb98b5296952f9e3afd4f6f11f05b07adfab0",
+      "linux_amd64_manifest_digest": "sha256:7a3ebe5bfd1a4a19797d20b0c0bb39d44393e9a03fd852c0865b0f540d868df0",
+      "pinned_reference": "docker.io/library/busybox@sha256:7a3ebe5bfd1a4a19797d20b0c0bb39d44393e9a03fd852c0865b0f540d868df0",
+      "index_media_type": "application/vnd.oci.image.index.v1+json",
+      "manifest_media_type": "application/vnd.oci.image.manifest.v1+json",
+      "platform": {
+        "architecture": "amd64",
+        "os": "linux"
+      },
+      "config_digest": "sha256:db287cb6be81219cd18c1d82b70908f5d33eb028568b456f78eedff2ff2930e4",
+      "layer_count": 1,
+      "compressed_layer_bytes": 2211507,
+      "manifest_requests": 3
+    },
+    {
+      "tagged_reference": "ghcr.io/democratic-csi/csi-grpc-proxy:v0.5.7",
+      "used_by": [
+        {
+          "kind": "DaemonSet",
+          "workload": "iscsi-lab-democratic-csi-node",
+          "container_type": "containers",
+          "container": "csi-proxy"
+        },
+        {
+          "kind": "Deployment",
+          "workload": "iscsi-lab-democratic-csi-controller",
+          "container_type": "containers",
+          "container": "csi-proxy"
+        }
+      ],
+      "resolved": true,
+      "canonical_repository": "ghcr.io/democratic-csi/csi-grpc-proxy",
+      "tag_index_digest": "sha256:0240d0fba3cedd598036766b1865e88aa2eac9c16822df03d5d912a81128ebb6",
+      "linux_amd64_manifest_digest": "sha256:78e86badadfe67a9afdbe2c9a3afc02bc50aa43b86203c9ca6fc046ab3519e3f",
+      "pinned_reference": "ghcr.io/democratic-csi/csi-grpc-proxy@sha256:78e86badadfe67a9afdbe2c9a3afc02bc50aa43b86203c9ca6fc046ab3519e3f",
+      "index_media_type": "application/vnd.oci.image.index.v1+json",
+      "manifest_media_type": "application/vnd.docker.distribution.manifest.v2+json",
+      "platform": {
+        "architecture": "amd64",
+        "os": "linux"
+      },
+      "config_digest": "sha256:b4f85268f146c57171b956d0e0349954dbf3cceca1a9641e808e2d8074ff917e",
+      "layer_count": 2,
+      "compressed_layer_bytes": 8721393,
+      "manifest_requests": 3
+    },
+    {
+      "tagged_reference": "ghcr.io/democratic-csi/democratic-csi:v1.9.5",
+      "used_by": [
+        {
+          "kind": "DaemonSet",
+          "workload": "iscsi-lab-democratic-csi-node",
+          "container_type": "containers",
+          "container": "csi-driver"
+        },
+        {
+          "kind": "Deployment",
+          "workload": "iscsi-lab-democratic-csi-controller",
+          "container_type": "containers",
+          "container": "csi-driver"
+        }
+      ],
+      "resolved": true,
+      "canonical_repository": "ghcr.io/democratic-csi/democratic-csi",
+      "tag_index_digest": "sha256:fc3b7d7ed3a616714139525075312758e23a5d425ffb539ad12c9bd20fb6001f",
+      "linux_amd64_manifest_digest": "sha256:746bf6b373ae75f5da8b1e412d13c3e8d0e2e1494654268b9dd6fe1f1e55aade",
+      "pinned_reference": "ghcr.io/democratic-csi/democratic-csi@sha256:746bf6b373ae75f5da8b1e412d13c3e8d0e2e1494654268b9dd6fe1f1e55aade",
+      "index_media_type": "application/vnd.oci.image.index.v1+json",
+      "manifest_media_type": "application/vnd.docker.distribution.manifest.v2+json",
+      "platform": {
+        "architecture": "amd64",
+        "os": "linux"
+      },
+      "config_digest": "sha256:0b207fb4d84e6644f98907bf28dcffff2e98bd0119a3131ec156a6ff9895d9f9",
+      "layer_count": 31,
+      "compressed_layer_bytes": 275635661,
+      "manifest_requests": 3
+    },
+    {
+      "tagged_reference": "registry.k8s.io/sig-storage/csi-attacher:v4.4.0",
+      "used_by": [
+        {
+          "kind": "Deployment",
+          "workload": "iscsi-lab-democratic-csi-controller",
+          "container_type": "containers",
+          "container": "external-attacher"
+        }
+      ],
+      "resolved": true,
+      "canonical_repository": "registry.k8s.io/sig-storage/csi-attacher",
+      "tag_index_digest": "sha256:dbded4ebe299973e31d0ef55815eb07a990fc67872b14900a8e69232acae4f2d",
+      "linux_amd64_manifest_digest": "sha256:4ca52e3a4ef2c392f919da80670eee6da6059689d217022729988afd12ad5a82",
+      "pinned_reference": "registry.k8s.io/sig-storage/csi-attacher@sha256:4ca52e3a4ef2c392f919da80670eee6da6059689d217022729988afd12ad5a82",
+      "index_media_type": "application/vnd.docker.distribution.manifest.list.v2+json",
+      "manifest_media_type": "application/vnd.docker.distribution.manifest.v2+json",
+      "platform": {
+        "architecture": "amd64",
+        "os": "linux"
+      },
+      "config_digest": "sha256:6b13d37f345f2f524ae18a188d57462e34d5cf734ae85ba6ac6c3e6e3d739757",
+      "layer_count": 10,
+      "compressed_layer_bytes": 26678106,
+      "manifest_requests": 2
+    },
+    {
+      "tagged_reference": "registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.9.0",
+      "used_by": [
+        {
+          "kind": "DaemonSet",
+          "workload": "iscsi-lab-democratic-csi-node",
+          "container_type": "containers",
+          "container": "driver-registrar"
+        }
+      ],
+      "resolved": true,
+      "canonical_repository": "registry.k8s.io/sig-storage/csi-node-driver-registrar",
+      "tag_index_digest": "sha256:cd21e19cd8bbd5bc56f1b4f1398a436e7897da2995d6d036c9729be3f4e456e6",
+      "linux_amd64_manifest_digest": "sha256:4da2674bae016b1011c2042cb719cffd9a80d34f3cf933c705b425054f86cea9",
+      "pinned_reference": "registry.k8s.io/sig-storage/csi-node-driver-registrar@sha256:4da2674bae016b1011c2042cb719cffd9a80d34f3cf933c705b425054f86cea9",
+      "index_media_type": "application/vnd.docker.distribution.manifest.list.v2+json",
+      "manifest_media_type": "application/vnd.docker.distribution.manifest.v2+json",
+      "platform": {
+        "architecture": "amd64",
+        "os": "linux"
+      },
+      "config_digest": "sha256:50013f94a28d1d5ce69a9745f7d64a2b5810767faeb270f74f6408ecd0b186ca",
+      "layer_count": 10,
+      "compressed_layer_bytes": 10748200,
+      "manifest_requests": 2
+    },
+    {
+      "tagged_reference": "registry.k8s.io/sig-storage/csi-provisioner:v3.6.0",
+      "used_by": [
+        {
+          "kind": "Deployment",
+          "workload": "iscsi-lab-democratic-csi-controller",
+          "container_type": "containers",
+          "container": "external-provisioner"
+        }
+      ],
+      "resolved": true,
+      "canonical_repository": "registry.k8s.io/sig-storage/csi-provisioner",
+      "tag_index_digest": "sha256:6de50bacfd72627ffe4209e3db8ad7391d04ea6fb741bf51feab6c5dcfd80002",
+      "linux_amd64_manifest_digest": "sha256:608640c92ee853e657ce663bc955f866910858d0f5c746da088ffb497d44a453",
+      "pinned_reference": "registry.k8s.io/sig-storage/csi-provisioner@sha256:608640c92ee853e657ce663bc955f866910858d0f5c746da088ffb497d44a453",
+      "index_media_type": "application/vnd.docker.distribution.manifest.list.v2+json",
+      "manifest_media_type": "application/vnd.docker.distribution.manifest.v2+json",
+      "platform": {
+        "architecture": "amd64",
+        "os": "linux"
+      },
+      "config_digest": "sha256:80533ab25f66f12a48e07debc5b57d470dcf018a1771b6f1f996ba6b2915e6e5",
+      "layer_count": 10,
+      "compressed_layer_bytes": 28650294,
+      "manifest_requests": 2
+    },
+    {
+      "tagged_reference": "registry.k8s.io/sig-storage/csi-resizer:v1.9.0",
+      "used_by": [
+        {
+          "kind": "Deployment",
+          "workload": "iscsi-lab-democratic-csi-controller",
+          "container_type": "containers",
+          "container": "external-resizer"
+        }
+      ],
+      "resolved": true,
+      "canonical_repository": "registry.k8s.io/sig-storage/csi-resizer",
+      "tag_index_digest": "sha256:f1f352df97874442624fcef23eab04aa038f66cb0e361212f6ec09e92998184d",
+      "linux_amd64_manifest_digest": "sha256:fc764369dcb1dd3a031b6a842e265b7a19766e6817acd1b7bcdd5c413275638b",
+      "pinned_reference": "registry.k8s.io/sig-storage/csi-resizer@sha256:fc764369dcb1dd3a031b6a842e265b7a19766e6817acd1b7bcdd5c413275638b",
+      "index_media_type": "application/vnd.docker.distribution.manifest.list.v2+json",
+      "manifest_media_type": "application/vnd.docker.distribution.manifest.v2+json",
+      "platform": {
+        "architecture": "amd64",
+        "os": "linux"
+      },
+      "config_digest": "sha256:78ad609286559ca56673d92f926d1bb9c374129c1aad77e04656a54156937d42",
+      "layer_count": 10,
+      "compressed_layer_bytes": 26951128,
+      "manifest_requests": 2
+    },
+    {
+      "tagged_reference": "registry.k8s.io/sig-storage/csi-snapshotter:v8.2.1",
+      "used_by": [
+        {
+          "kind": "Deployment",
+          "workload": "iscsi-lab-democratic-csi-controller",
+          "container_type": "containers",
+          "container": "external-snapshotter"
+        }
+      ],
+      "resolved": true,
+      "canonical_repository": "registry.k8s.io/sig-storage/csi-snapshotter",
+      "tag_index_digest": "sha256:5f4bb469fec51147ce157329dab598c758da1b018bad6dad26f0ff469326d769",
+      "linux_amd64_manifest_digest": "sha256:d78f2c57d4027a8712d43d08031f444e7620293649638e6f2ebfaefe0843fc18",
+      "pinned_reference": "registry.k8s.io/sig-storage/csi-snapshotter@sha256:d78f2c57d4027a8712d43d08031f444e7620293649638e6f2ebfaefe0843fc18",
+      "index_media_type": "application/vnd.docker.distribution.manifest.list.v2+json",
+      "manifest_media_type": "application/vnd.docker.distribution.manifest.v2+json",
+      "platform": {
+        "architecture": "amd64",
+        "os": "linux"
+      },
+      "config_digest": "sha256:25ef9266a103b216995c3e0221d7a3e3fa5dc5aa56e817f37f06cc634c841f4e",
+      "layer_count": 12,
+      "compressed_layer_bytes": 31998904,
+      "manifest_requests": 2
+    }
+  ],
+  "resolved_at_utc": "2026-09-20T20:14:26.280157+00:00",
+  "resolution_method": "Anonymous HTTPS OCI manifest/index GETs against official registries; SHA-256 verified against response body and descriptor/header where supplied.",
+  "image_layers_downloaded": false,
+  "credentials_persisted": false,
+  "all_linux_amd64_resolved": true
+}

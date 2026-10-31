@@ -8,6 +8,9 @@ controllers:
           tag: 12.1ubu2604-ls50@sha256:51252e7a416e703cdc3cd91e8a54673a2430cc80409be8a38abe511411577b95
         env:
           JELLYFIN_PublishedServerUrl: "https://benplus.app" # source: globals.yaml → global.domains.media
+          # The image ships no Intel OpenCL ICD; without it HDR tone mapping falls back to VPP only.
+          # shortcut: floating mod tag installed at every start, pin a digest if Renovate learns DOCKER_MODS.
+          DOCKER_MODS: linuxserver/mods:jellyfin-opencl-intel
         resources:
           limits:
             gpu.intel.com/i915: "1"

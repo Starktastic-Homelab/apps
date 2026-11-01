@@ -11,6 +11,10 @@ controllers:
           # The image ships no Intel OpenCL ICD; without it HDR tone mapping falls back to VPP only.
           # shortcut: floating mod tag installed at every start, pin a digest if Renovate learns DOCKER_MODS.
           DOCKER_MODS: linuxserver/mods:jellyfin-opencl-intel
+          # Intel OpenCL opens /dev/dri/by-path/*-render, which the GPU plugin bind-mounts with the host's
+          # render gid. The image default (`/dev/dri ... -type c`) skips those mounts, so abc never joins that
+          # group and OpenCL finds no platform. `! -type d` lets init-device-perms add abc to it.
+          ATTACHED_DEVICES_PERMS: "/dev/dri ! -type d"
         resources:
           limits:
             gpu.intel.com/i915: "1"

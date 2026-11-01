@@ -46,6 +46,27 @@ customRules:
               - python
               - dumb-init
               - 1000
+  # Jellyfin's jellyfin-opencl-intel mod runs dpkg and apt-get on every start.
+  # No tag: it is the image config ID here and would change with every Jellyfin update.
+  jellyfin-opencl-mod.yaml: |
+    - rule: Launch Package Management Process in Container
+      override:
+        exceptions: append
+      exceptions:
+        - name: jellyfin_opencl_intel_mod
+          fields:
+            - k8s.ns.name
+            - container.image.repository
+            - proc.exepath
+            - proc.pname
+            - user.uid
+          comps: ["=", "=", "in", "=", "="]
+          values:
+            - - media
+              - lscr.io/linuxserver/jellyfin
+              - [/usr/bin/dpkg, /usr/bin/apt-get]
+              - bash
+              - 0
 
 # Pull default + incubating rulesets (incubating:6 pairs with falco-rules:5 for Falco 0.44.x)
 # NOTE: refs live under falcoctl.config.artifact.* (falcoctl.artifact.* is the init/sidecar

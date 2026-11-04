@@ -28,7 +28,7 @@ controllers:
       backend:
         image:
           repository: zimengxiong/excalidash-backend
-          tag: 0.6.5@sha256:29937c62fbed5f4d417398c21c7ab261965231427bd5ae3c64f8d365fe2c02a3
+          tag: 0.6.7@sha256:b77d43d9f70e414279e0babbbd59803086868e23148f071b8d65fb1e49bce836
         env:
           DATABASE_URL:
             valueFrom:

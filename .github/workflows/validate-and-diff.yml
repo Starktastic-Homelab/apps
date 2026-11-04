@@ -334,7 +334,7 @@ jobs:
       - name: Check Proxmox CSI attachment capacity alerts
         env:
           # renovate: datasource=docker depName=prom/prometheus
-          PROMETHEUS_VERSION: 'v3.15.0'
+          PROMETHEUS_VERSION: 'v3.15.1'
         run: |
           python3 scripts/test-proxmox-csi-capacity.py \
             docker run --rm --user "$(id -u):$(id -g)" --network none --tmpfs /var/tmp:rw,mode=1777,size=64m --env TMPDIR=/var/tmp -v /tmp:/tmp:ro --entrypoint promtool "prom/prometheus:${PROMETHEUS_VERSION}"
@@ -343,7 +343,7 @@ jobs:
         id: alerts
         env:
           # renovate: datasource=docker depName=prom/prometheus
-          PROMETHEUS_VERSION: 'v3.15.0'
+          PROMETHEUS_VERSION: 'v3.15.1'
         run: |
           set +e
           python3 scripts/check-alert-policy.py \

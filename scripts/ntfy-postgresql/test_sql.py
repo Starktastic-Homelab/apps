@@ -46,13 +46,21 @@ class NativeSQLTests(unittest.TestCase):
 
     def fixture(self, version=15):
         cols = json.loads((HERE / 'test-schema15.json').read_text())
-        if version == 16:
+        user, min_version = 9, ''
+        if version >= 16:
             cols['message'].append(['claimed_at', 'bigint', 'NO'])
+        if version == 17:  # stock ntfy v2.37.0
+            user, min_version = 11, ',1'
+            cols['schema_version'].append(['min_version', 'integer', 'NO'])
+            cols['usage'] = [['key', 'text', 'NO']] + [[n, 'bigint', 'NO'] for n in ('period_start', 'messages', 'emails', 'calls', 'updated_at')]
+            cols['topic'] = [[n, 'text', 'NO'] for n in ('topic', 'rate_visitor_user_id', 'rate_visitor_ip')] + [
+                [n, 'bigint', 'NO'] for n in ('first_seen_at', 'subscribed_at', 'updated_at')]
         queries = ['DROP SCHEMA public CASCADE;', 'CREATE SCHEMA public AUTHORIZATION ntfy;', 'SET ROLE ntfy;']
         for table, fields in cols.items():
             declarations = ','.join('"%s" %s%s' % (n, t, ' NOT NULL' if nullable == 'NO' else '') for n,t,nullable in fields)
             queries.append('CREATE TABLE "%s" (%s);' % (table, declarations))
-        queries.append("INSERT INTO schema_version VALUES ('user',9),('message',%d),('webpush',1);" % version)
+        queries.append("INSERT INTO schema_version VALUES ('user',%d%s),('message',%d%s),('webpush',1%s);"
+                       % (user, min_version, version, min_version, min_version))
         for ident, name, role in [('u_everyone','*','anonymous'), ('fixture_admin','fixture','admin')]:
             values = []
             for column, typ, nullable in cols['user']:
@@ -65,8 +73,8 @@ class NativeSQLTests(unittest.TestCase):
     def gate(self, guard=None):
         return self.sql('SET ROLE ntfy;\n' + (self.guard if guard is None else guard), 'ntfy', check=False)
 
-    def test_both_exact_schemas_are_accepted_without_changes(self):
-        for version in (15,16):
+    def test_exact_schemas_are_accepted_without_changes(self):
+        for version in (15,16,17):
             with self.subTest(version=version):
                 self.fixture(version)
                 before = self.sql('TABLE schema_version; TABLE "user"; TABLE message_stats;', 'ntfy').stdout
@@ -83,16 +91,18 @@ class NativeSQLTests(unittest.TestCase):
                  "('u_everyone','*','','anonymous','',false,123);", 'ntfy')
         self.sql("ALTER ROLE ntfy PASSWORD 'fixture-only';")
         root = HERE.parents[1]
-        image = yaml.safe_load((root / 'services/operations/ntfy/values.yaml').read_text())['controllers']['main']['containers']['main']['image']
-        reference = image['repository'] + ':' + image['tag']
+        main = yaml.safe_load((root / 'services/operations/ntfy/values.yaml').read_text())['controllers']['main']['containers']['main']
+        reference = main['image']['repository'] + ':' + main['image']['tag']
+        # Production literal settings: ntfy 2.36+ validates the whole config when base-url is set (ntfy #1969).
+        env = {e['name']: e['value'].replace('{{ .Values.global.domains.public }}', 'example.test')
+               for e in main['env'] if 'value' in e}
+        env.update(NTFY_DATABASE_URL='postgresql://ntfy:fixture-only@127.0.0.1:5432/ntfy', NTFY_LISTEN_HTTP=':8080')
         app = self.name + '-app'
         self.addCleanup(lambda: self.command(['docker', 'rm', '-f', app], check=False))
         # No external network, ports, credentials, subscribers or production data.
         self.command(['docker', 'run', '-d', '--name', app, '--network', 'container:' + self.name,
                       '--memory', '256m', '--cpus', '1', '--pids-limit', '128',
-                      '-e', 'NTFY_DATABASE_URL=postgresql://ntfy:fixture-only@127.0.0.1:5432/ntfy',
-                      '-e', 'NTFY_BASE_URL=http://localhost:8080', '-e', 'NTFY_LISTEN_HTTP=:8080',
-                      reference, 'serve'])
+                      *(a for k, v in env.items() for a in ('-e', k + '=' + v)), reference, 'serve'])
         for _ in range(80):
             health = self.command(['docker', 'exec', self.name, 'wget', '-qO-',
                                    'http://127.0.0.1:8080/v1/health'], check=False)
@@ -128,14 +138,29 @@ class NativeSQLTests(unittest.TestCase):
             "UPDATE message_stats SET value=-1;",
             "CREATE TABLE unexpected (id integer);",
         ]
-        for alteration in alterations:
-            with self.subTest(alteration=alteration):
-                self.fixture()
+        alterations = [(15, a) for a in alterations] + [
+            (16, "UPDATE schema_version SET version=15 WHERE store='message';"),
+            (16, "UPDATE schema_version SET version=11 WHERE store='user';"),
+            # A v2.37.0 start that committed only the message store: mixed old/new versions.
+            (16, "ALTER TABLE schema_version ADD COLUMN min_version integer NOT NULL DEFAULT 1;"
+                 "UPDATE schema_version SET version=17 WHERE store='message';"),
+            (17, "DROP TABLE usage;"),
+            (17, "DROP TABLE topic;"),
+            (17, "ALTER TABLE usage DROP COLUMN calls;"),
+            (17, "ALTER TABLE topic ALTER COLUMN rate_visitor_ip DROP NOT NULL;"),
+            (17, "ALTER TABLE usage OWNER TO postgres;"),
+            (17, "UPDATE schema_version SET min_version=2 WHERE store='message';"),
+            (17, "ALTER TABLE schema_version DROP COLUMN min_version;"),
+            (17, "UPDATE schema_version SET version=16 WHERE store='message';"),
+            (17, "UPDATE schema_version SET version=9 WHERE store='user';"),
+            (17, "UPDATE schema_version SET version=18 WHERE store='message';"),
+            (17, "DELETE FROM \"user\" WHERE role='admin';"),
+        ]
+        for version, alteration in alterations:
+            with self.subTest(version=version, alteration=alteration):
+                self.fixture(version)
                 self.sql(alteration, 'ntfy')
                 self.assertNotEqual(self.gate().returncode,0)
-        self.fixture(16)
-        self.sql("UPDATE schema_version SET version=15 WHERE store='message';", 'ntfy')
-        self.assertNotEqual(self.gate().returncode,0)
         self.fixture(16)
         self.assertNotEqual(self.gate(self.guard.replace("current_user <> 'ntfy'", "current_user <> 'wrong' ")).returncode,0)
         self.assertNotEqual(self.gate(self.guard.replace("system_identifier::text", "(system_identifier + 1)::text")).returncode,0)

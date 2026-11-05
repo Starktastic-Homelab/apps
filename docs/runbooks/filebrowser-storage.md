@@ -1,8 +1,12 @@
 # Filebrowser private-state migration
 
-Status: protection PR #1313 merged; migration remains unperformed. Filebrowser's declared source is the local
-claim `operations/filebrowser-data-pvc`. The desired destination is the 4Gi
-retained ext4 image `homelab//k3s-block/9999/vm-9999-filebrowser.raw`.
+Status: migration complete (#1313, #1314, #1315). Filebrowser runs on the retained
+claim `operations/filebrowser-data-block`, image
+`homelab//k3s-block/9999/vm-9999-filebrowser.raw`. The old local source
+`operations/filebrowser-data-pvc` lived on VM200, which the 2026-11-05 rebuild
+(terraform#236) destroyed, so that claim and its `filebrowser-storage-hold` guard
+were removed from Git. Their live objects keep `Prune=false,Delete=false`: delete
+them once from VM300. The rest of this document is the historical migration record.
 
 The current main image pin is Filebrowser 1.5.8 from PR #1316. Preserve it in both
 migration stages; the October7 preflight used 1.5.6 and must be refreshed.

@@ -8,7 +8,7 @@ A new data move or recovery still requires fresh inspection, reviewed commands
 and separate execution authorization. Historical inputs and approvals cannot
 be replayed.
 
-Redis uses the current chart28.3.1 and deployed Redis/exporter digests. Immich
+Redis uses the current chart28.3.10 and deployed Redis/exporter digests. Immich
 keeps its PG17/VectorChord0.4.3/pgvector0.8.1 image and all existing server/ML
 settings. Photos/videos and model cache stay on NFS. Shared PG18/enrollment,
 Paperless’s own index and Calibre are outside this operation.
@@ -40,7 +40,7 @@ REDIS_IMMICH_RENDERS=/tmp/redis-immich-renders \
 bash scripts/redis-immich-retained/check.sh
 ```
 
-Pull Redis28.3.1 and app-template5.3.0 into those chart directories first.
+Pull Redis28.3.10 and app-template5.3.0 into those chart directories first.
 Use a private0700 output directory. Validation compares complete containers,
 services/configuration and unaffected Immich controllers against actual layered
 baselines, then checks static bindings, guard mounts, schemas and real promtool

@@ -37,6 +37,8 @@ controllers:
     replicas: 1
     pod:
       automountServiceAccountToken: false
+      nodeSelector:
+        node-role.kubernetes.io/worker: "true"
     initContainers:
       retained-data:
         image:

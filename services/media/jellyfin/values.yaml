@@ -49,6 +49,8 @@ controllers:
               periodSeconds: 10
     strategy: Recreate
     pod:
+      nodeSelector:
+        node-role.kubernetes.io/worker: "true"
       tolerations:
         - key: node.kubernetes.io/not-ready
           operator: Exists

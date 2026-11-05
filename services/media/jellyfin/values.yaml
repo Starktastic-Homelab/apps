@@ -91,11 +91,6 @@ persistence:
       - path: /config
   media:
     enabled: true
-  jellyfin-cache:
-    existingClaim: jellyfin-cache
-    globalMounts:
-      - path: /config/cache
-    enabled: false
   disposable:
     enabled: true
     type: emptyDir

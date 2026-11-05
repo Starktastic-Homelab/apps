@@ -5,7 +5,7 @@ Activation is serialized through the approved cutover. The selected design puts 
 | Application | Retained state | Capacity |
 | --- | --- | --- |
 | Karakeep | SQLite application and queue databases, uploads and configuration | 4GiB |
-| Meilisearch | Complete original index and version markers | 4GiB |
+| Meilisearch | Rebuildable search index and engine version marker | 4GiB |
 | ByteStash | Snippets database and all original data files | 2GiB |
 | ConvertX | Fresh database and working state; original encrypted recovery retained | 4GiB |
 | Home Assistant | Recorder database, `.storage`, auth, integrations and custom components | 4GiB |
@@ -21,7 +21,7 @@ Static PV handles refer to images owned by VM9999 on `k3s-block`; their lifetime
 
 The ConvertX reset occurs only in this cutover; it is not repeated on restarts or rebuilds. A fresh cluster recreates bindings, read-only retained-state guards, the existing PostgreSQL enrollment completion gate, and original application identities. File guards refuse missing/wrong markers or native state before the stock image can initialize an empty store. SQL guards require the existing physical PostgreSQL identity, native tables and nonempty identity state. They do not create or repair data.
 
-Meilisearch starts only when the running binary and both retained version markers agree with the qualified 1.55.0 format. Its previous index-wiping wrapper is removed. A Meilisearch image upgrade requires a separate retained-index migration qualification and manual Renovate review.
+The Meilisearch index is rebuildable (ADR 0010). Its guard requires only the volume identity marker. The container wipes only when `.version_marker` differs from the engine version or does not exist: it then logs what it is discarding, deletes only `data.ms` and that marker, writes the new version, and starts with an empty index; a same-version restart keeps the index. It exits without deleting anything when `/meili_data` lacks the identity marker as a regular file (for example a lost volume mount) or when `.version_marker` exists but cannot be read (a directory, a symlink, a read error). Meilisearch image updates stay manual in Renovate. Merge the ADR 0010 change first and wait for `base-configs` to sync the guard ConfigMaps before rebasing and merging an update such as Starktastic-Homelab/apps#1448; the old guard refuses any marker other than 1.55.0. After merging the update, rebuild search: in Karakeep go to `Admin Settings > Background Jobs > Reindex All Bookmarks`, or `POST /api/v1/admin/jobs/trigger/reindex` with body `{}` and an admin user's API key. If the reindex fails with `index_not_found`, restart Karakeep (it keeps its index handle while running), then retry. Until the reindex runs, search returns nothing; bookmarks themselves are unaffected.
 
 Home Assistant keeps its host networking and Matter keeps `PRIMARY_INTERFACE=eth1` and its existing loopback listener. Recovery fixtures have no external route and override only the fixture's Matter interface to loopback; they cannot contact production devices. No deliberate device actions or CrowdSec remediation tests form part of acceptance.
 

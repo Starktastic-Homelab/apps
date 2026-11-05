@@ -63,6 +63,13 @@
       "addLabels": ["major-update"]
     },
     {
+      "description": "postgres:18.6-alpine is the qualified enrollment, backup and cutover client. Its digest is baked into enrollment ConfigMaps (job-template.json, hook names), the reviewed cutover archive and test constants that Renovate cannot rewrite, so every Renovate bump fails CI (#1250). New digests and versions wait on the Dependency Dashboard; bump them by hand with regeneration",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["postgres"],
+      "dependencyDashboardApproval": true,
+      "automerge": false
+    },
+    {
       "description": "Require manual review for Home Assistant pod image updates because Home Assistant and Matter Server are a compatibility pair",
       "matchDatasources": ["docker"],
       "matchFileNames": ["services/home-automation/home-assistant/values.yaml"],

@@ -6,10 +6,11 @@ metadata:
 data:
   config.yaml: |
     server:
-      port: 80
-      database: /home/filebrowser/data/database.db
+      database:
+        path: /home/filebrowser/data/database.sqlite
+        # v2 imports the v1 Bolt file into SQLite on first start and leaves it in place.
+        migrateFrom: /home/filebrowser/data/database.db
       cacheDir: /home/filebrowser/data/cache
-      externalUrl: "https://files.{{ .Values.global.domains.public }}"
       numImageProcessors: 2
       maxArchiveSize: 5
       logging:
@@ -19,16 +20,27 @@ data:
           name: apps
           config:
             defaultEnabled: true
+            defaultPermissions:
+              view: true
+              download: true
+              modify: true
+              create: true
+              delete: true
         - path: /srv/media
           name: media
           config:
             defaultEnabled: true
+            defaultPermissions:
+              view: true
+              download: true
+              modify: true
+              create: true
+              delete: true
     http:
-      trustedHeaders:
-        - X-Forwarded-Proto
-        - X-Forwarded-Host
-        - X-Forwarded-For
-        - X-Real-IP
+      port: 80
+      # Share links use the public host; its route only serves /public/.
+      externalUrl: "https://files.{{ .Values.global.domains.public }}"
+      trustProxyHeaders: true
     auth:
       methods:
         password:
@@ -42,9 +54,5 @@ data:
       account:
         permissions:
           admin: false
-          modify: true
-          create: true
-          delete: true
           share: true
-          download: true
           api: false

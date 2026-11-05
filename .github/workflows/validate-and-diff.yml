@@ -526,7 +526,7 @@ jobs:
           python3 scripts/test-redis-immich-native.py --app immich
       - name: Check inactive bindings, layered renders and alerts
         run: |
-          helm pull oci://registry-1.docker.io/bitnamicharts/redis --version 28.3.1 --untar --untardir /tmp/redis-immich-charts
+          helm pull oci://registry-1.docker.io/bitnamicharts/redis --version 28.3.10 --untar --untardir /tmp/redis-immich-charts
           helm pull app-template --repo https://bjw-s-labs.github.io/helm-charts --version 5.3.0 --untar --untardir /tmp/redis-immich-charts
           REDIS_CHART=/tmp/redis-immich-charts/redis APP_TEMPLATE_CHART=/tmp/redis-immich-charts/app-template REDIS_IMMICH_RENDERS=/tmp/redis-immich-renders bash scripts/redis-immich-retained/check.sh
       - name: Record recovery validation status

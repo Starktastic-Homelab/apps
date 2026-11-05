@@ -12,10 +12,10 @@ from pathlib import Path
 import yaml
 redis,app,out=map(Path,sys.argv[1:])
 assert not out.is_symlink() and out.stat().st_uid==os.getuid() and out.stat().st_mode&0o077==0, 'Use a private 0700 render directory'
-assert yaml.safe_load((redis/'Chart.yaml').read_text())['version']=='28.3.1'
+assert yaml.safe_load((redis/'Chart.yaml').read_text())['version']=='28.3.10'
 assert yaml.safe_load((app/'Chart.yaml').read_text())['version']=='5.3.0'
 redis_app=yaml.safe_load(Path('infrastructure/controllers/databases/redis/app.yaml').read_text())
-assert redis_app['chart']['version']=='28.3.1' and redis_app['namespace']=='databases'
+assert redis_app['chart']['version']=='28.3.10' and redis_app['namespace']=='databases'
 appset=yaml.safe_load(Path('bootstrap/appsets/cluster-apps.yaml').read_text())
 categories=appset['spec']['generators'][0]['matrix']['generators'][0]['list']['elements']
 services=next(x for x in categories if x['category']=='services')

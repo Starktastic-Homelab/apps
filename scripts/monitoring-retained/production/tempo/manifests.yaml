@@ -25,21 +25,20 @@ metadata:
 data:
   overrides.yaml: "overrides:\n  {}\n"
   tempo.yaml: "memberlist:\n  cluster_label: \"tempo.monitoring\"\nmultitenancy_enabled:\
-    \ false\nusage_report:\n  reporting_enabled: false\ncompactor:\n  compaction:\n\
+    \ false\nusage_report:\n  reporting_enabled: false\nbackend_worker:\n  compaction:\n\
     \    block_retention: 72h\ndistributor:\n  receivers:\n        jaeger:\n     \
     \     protocols:\n            grpc:\n              endpoint: 0.0.0.0:14250\n \
     \           thrift_binary:\n              endpoint: 0.0.0.0:6832\n           \
     \ thrift_compact:\n              endpoint: 0.0.0.0:6831\n            thrift_http:\n\
     \              endpoint: 0.0.0.0:14268\n        otlp:\n          protocols:\n\
     \            grpc:\n              endpoint: 0.0.0.0:4317\n            http:\n\
-    \              endpoint: 0.0.0.0:4318\ningester:\n      {}\nserver:\n      http_listen_port:\
+    \              endpoint: 0.0.0.0:4318\nserver:\n      http_listen_port:\
     \ 3200\nstorage:\n      trace:\n        backend: local\n        local:\n     \
     \     path: /var/tempo/traces\n        wal:\n          path: /var/tempo/wal\n\
     querier:\n      {}\nquery_frontend:\n      {}\noverrides:\n      defaults: {}\n\
     \      per_tenant_override_config: /conf/overrides.yaml\nmetrics_generator:\n\
     \  storage:\n    path: \"/tmp/tempo\"\n    remote_write:\n      - url:
-    http://kube-prometheus-stack-prometheus.monitoring:9090/api/v1/write\n\
-    \  traces_storage:\n    path: \"/tmp/traces\"\n"
+    http://kube-prometheus-stack-prometheus.monitoring:9090/api/v1/write\n"
 ---
 apiVersion: v1
 kind: Service

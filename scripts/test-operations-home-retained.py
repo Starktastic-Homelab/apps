@@ -16,7 +16,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 LAYOUTS = {
     'karakeep': ('db.db', 'queue.db'),
-    'karakeep-meilisearch': ('.version_marker', 'data.ms/VERSION'),
+    'karakeep-meilisearch': (),
     'bytestash': ('snippets.db',),
     'convertx': ('mydb.sqlite',),
     'home-assistant': ('home-assistant_v2.db', '.storage/core.uuid', '.storage/core.config_entries', 'configuration.yaml'),
@@ -32,9 +32,6 @@ class RetainedState(unittest.TestCase):
             for name in LAYOUTS[app]:
                 p = root / name; p.parent.mkdir(parents=True, exist_ok=True)
                 p.write_bytes(b'SQLite format 3\0' + b'x' * 100 if p.suffix in ('.db', '.sqlite') else b'preserved identity')
-            if app == 'karakeep-meilisearch':
-                (root / '.version_marker').write_text('meilisearch 1.55.0\n')
-                (root / 'data.ms/VERSION').write_text('1.55.0')
             if alteration: alteration(root, marker)
             def snapshot():
                 return {str(p.relative_to(root)): (p.lstat().st_mode, hashlib.sha256(p.read_bytes()).hexdigest())
@@ -75,15 +72,47 @@ class RetainedState(unittest.TestCase):
             p=r/'mydb.sqlite';p.unlink();os.mkfifo(p)
         self.check('convertx',fifo)
 
-    def test_search_version_mismatch_never_reindexes(self):
-        for name in LAYOUTS['karakeep-meilisearch']:
-            for value in ('', '1.56.0', 'meilisearch 1.56.0\n'):
-                self.check('karakeep-meilisearch',lambda r,m:(r/name).write_text(value))
+    def test_search_index_is_rebuildable_but_identity_is_not(self):
+        def index(r,m):
+            (r/'data.ms').mkdir();(r/'data.ms/VERSION').write_text('1.0.0');(r/'.version_marker').write_text('meilisearch 1.0.0\n')
+        self.check('karakeep-meilisearch',index,accepted=True)
+        self.check('karakeep-meilisearch',lambda r,m:(index(r,m),m.unlink()))
 
 class ManifestContracts(unittest.TestCase):
-    def test_search_engine_updates_require_retained_format_review(self):
+    def test_search_engine_updates_are_merged_manually(self):
         rules=json.loads((ROOT/'renovate.json').read_text())['packageRules']
         self.assertTrue(any(r.get('automerge') is False and 'getmeili/meilisearch' in r.get('matchPackageNames',[]) and 'services/operations/karakeep/values.yaml' in r.get('matchFileNames',[]) for r in rules))
+
+    def test_search_engine_change_discards_only_the_index(self):
+        files=('services/operations/karakeep/values.yaml','scripts/operations-home-retained/production/karakeep-values.yaml')
+        scripts={yaml.safe_load((ROOT/f).read_text())['controllers']['main']['containers']['meilisearch']['args'][0] for f in files}
+        self.assertEqual(len(scripts),1)
+        with tempfile.TemporaryDirectory() as t:
+            root=Path(t);stub=root/'meilisearch';stub.write_text('#!/bin/sh\n[ "$1" != --version ] || echo "meilisearch $V"\n');stub.chmod(0o755)
+            identity=root/'.homelab-karakeep-meilisearch-data';marker=root/'.version_marker';spare=root/'spare'
+            def run(v):
+                return subprocess.run(['sh','-ec',next(iter(scripts)).replace('/meili_data',t)],env={'PATH':t+':/usr/bin:/bin','V':v},capture_output=True,text=True,timeout=5)
+            def start(v):
+                r=run(v);self.assertEqual(r.returncode,0,r.stderr);return r.stderr
+            def snapshot():
+                return {str(p.relative_to(root)):(p.lstat().st_mode,os.readlink(p) if p.is_symlink() else p.read_bytes() if p.is_file() else None) for p in root.rglob('*')}
+            def refused(alteration):
+                alteration();before=snapshot();self.assertNotEqual(run('1.56.1').returncode,0);self.assertEqual(snapshot(),before)
+            (root/'data.ms').mkdir();(root/'data.ms/VERSION').write_text('1.55.0');marker.write_text('meilisearch 1.55.0\n')
+            refused(lambda:None)  # no identity marker: /meili_data is not the retained volume
+            spare.write_text('homelab/karakeep-meilisearch/data/v1\n');refused(lambda:identity.symlink_to(spare))
+            identity.unlink();spare.rename(identity)
+            body=stub.read_text();refused(lambda:stub.write_text('#!/bin/sh\n'));stub.write_text(body)  # empty engine version
+            refused(lambda:(marker.unlink(),marker.mkdir()))  # unreadable marker
+            refused(lambda:(marker.rmdir(),marker.symlink_to(root/'missing')))
+            refused(lambda:(marker.unlink(),spare.write_text('meilisearch 1.56.1\n'),marker.symlink_to(spare)))  # only the wrapper writes the marker, as a file
+            marker.unlink();spare.unlink()
+            self.assertIn('no marker -> meilisearch 1.55.0',start('1.55.0'));self.assertFalse((root/'data.ms').exists())
+            (root/'data.ms').mkdir();(root/'data.ms/VERSION').write_text('1.55.0')
+            self.assertEqual(start('1.55.0'),'');self.assertTrue((root/'data.ms/VERSION').exists())
+            self.assertIn('meilisearch 1.55.0 -> meilisearch 1.56.1',start('1.56.1'));self.assertFalse((root/'data.ms').exists())
+            self.assertEqual((root/'.version_marker').read_text(),'meilisearch 1.56.1\n')
+            self.assertEqual(identity.read_text(),'homelab/karakeep-meilisearch/data/v1\n')
 
     def test_embedded_guards_are_exact_and_prior_guard_is_unchanged(self):
         for ns in ('operations', 'home-automation'):
@@ -117,10 +146,14 @@ class ManifestContracts(unittest.TestCase):
                     if app!='karakeep' or not new['name'].endswith('meilisearch'):
                         self.assertEqual(old.get('command'),new.get('command'));self.assertEqual(old.get('args'),new.get('args'))
                     else:
-                        self.assertNotIn('find ',str(new.get('args')));self.assertIn('exec meilisearch',str(new.get('args')))
-                        self.assertEqual(new['image'].split('@',1)[0].rsplit(':',1)[1],'v1.55.0','Qualify retained search-format migration before changing this pin')
+                        self.assertEqual(old.get('args'),new.get('args'));self.assertNotIn('find ',str(new.get('args')));self.assertIn('exec meilisearch',str(new.get('args')))
                 claims={v['name']:v['persistentVolumeClaim']['claimName'] for v in a['volumes'] if 'persistentVolumeClaim' in v}
                 self.assertEqual(len(claims),len(stores));self.assertTrue(all(c.endswith('-block') for c in claims.values()))
+                if app=='karakeep':
+                    mounts={v['mountPath']:v['name'] for v in next(c for c in a['containers'] if c['name']=='meilisearch')['volumeMounts']}
+                    self.assertEqual(claims[mounts['/meili_data']],'karakeep-meilisearch-block')
+                    guard=next(x for x in a['initContainers'] if x['name']=='retained-meilisearch')  # the guard checks the volume the wrapper writes
+                    self.assertEqual({v['mountPath']:v['name'] for v in guard['volumeMounts']}['/retained'],mounts['/meili_data'])
                 for key,(container,uid,gid) in stores.items():
                     init=next(x for x in a['initContainers'] if x['name']=='retained-'+key)
                     self.assertEqual(init['securityContext']['runAsUser'],uid);self.assertEqual(init['securityContext']['runAsGroup'],gid)

@@ -72,7 +72,23 @@ controllers:
           - -ec
         args:
           - |
-            test "$(meilisearch --version | head -1)" = "$(cat /meili_data/.version_marker)"
+            # The index is rebuildable (ADR 0010): an engine change discards it instead of migrating it.
+            # Refuse unless /meili_data is the identity-marked volume and the version marker is absent or a readable file.
+            test -f /meili_data/.homelab-karakeep-meilisearch-data
+            test ! -L /meili_data/.homelab-karakeep-meilisearch-data
+            test ! -L /meili_data/.version_marker
+            current="$(meilisearch --version | head -1)"
+            test -n "$current"
+            if [ -e /meili_data/.version_marker ]; then
+              stored="$(cat /meili_data/.version_marker)"
+            else
+              stored=
+            fi
+            if [ "$current" != "$stored" ]; then
+              echo "Meilisearch engine changed (${stored:-no marker} -> $current): discarding /meili_data/data.ms; run Reindex All Bookmarks in Karakeep" >&2
+              rm -rf /meili_data/data.ms /meili_data/.version_marker
+              echo "$current" >/meili_data/.version_marker
+            fi
             exec meilisearch
         env:
           MEILI_NO_ANALYTICS: "true"

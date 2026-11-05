@@ -81,7 +81,7 @@
       "groupName": "authentik"
     },
     {
-      "description": "Require retained-index upgrade qualification before changing Karakeep Meilisearch; startup refuses another native data version instead of deleting and rebuilding the index.",
+      "description": "Merge Karakeep Meilisearch engine updates manually: a version change discards the rebuildable index (ADR 0010), so search is empty until an admin runs Reindex All Bookmarks.",
       "matchDatasources": ["docker"],
       "matchFileNames": ["services/operations/karakeep/values.yaml"],
       "matchPackageNames": ["getmeili/meilisearch"],

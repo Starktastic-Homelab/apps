@@ -57,10 +57,14 @@ spec:
     # a sync, on-sync-failed never fires and nothing notifies. This is the only thing
     # that catches that class of rot. `for` outlasts the OutOfSync window of a normal
     # rollout, so ordinary deploys stay quiet.
+    #
+    # ArgoCD 3.6 added a phase label to argocd_app_info; it and operation change on every
+    # sync attempt. Aggregating them away keeps one alert per app, so a failed manual
+    # sync doesn't restart `for` or resolve a firing alert.
     - name: argocd
       rules:
         - alert: ArgoCDAppOutOfSync
-          expr: argocd_app_info{sync_status="OutOfSync"} == 1
+          expr: max by (namespace, name, project) (argocd_app_info{sync_status="OutOfSync"}) == 1
           for: 1h
           labels:
             severity: warning
@@ -69,6 +73,43 @@ spec:
             description:
               "Application {{ $labels.name }} has been OutOfSync for over an hour. Autosync is disabled by RollingSync,
               so this will not heal on its own -- sync it manually or land a commit that changes it."
+        # ArgoCD 3.6 diffs every ServerSideApply=true app server-side, through admission
+        # webhooks (several failurePolicy: Fail). A failed dry-run is a ComparisonError with
+        # sync_status Unknown, which the rule above and the ntfy triggers miss. RollingSync
+        # finishes a step only when its apps are Synced and Healthy, so later steps stall.
+        # Some ComparisonErrors (health, for example) keep the old sync status, hence
+        # argocd_app_condition; it needs controller.metrics.application.conditions in
+        # ansible's roles/bootstrap_cluster/tasks/argocd.yml. The Unknown half works without it.
+        - alert: ArgoCDAppComparisonFailing
+          expr:
+            max by (namespace, name, project) (argocd_app_info{sync_status="Unknown"}) or max by (namespace, name,
+            project) (argocd_app_condition{condition="ComparisonError"})
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "ArgoCD cannot compare application ({{ $labels.name }})"
+            description:
+              "Application {{ $labels.name }} has had sync status Unknown or a ComparisonError for 30 minutes, often a
+              failed server-side diff dry-run in an admission webhook. RollingSync cannot finish its step, so later
+              steps never sync. Check the app's conditions in ArgoCD."
+        # `service` is the notifier (ntfy), which needs honorLabels on the notifications
+        # ServiceMonitor (infrastructure/configs/templates/argocd/servicemonitor-chart-metrics.yaml).
+        # shortcut: a (trigger, service) series appears at 1 on its first failure since the
+        # pod started, and increase() can't see that step, so a lone failure stays silent and
+        # a second one fires. Also count series that are new in the window if that matters.
+        - alert: ArgoCDNotificationDeliveryFailing
+          expr:
+            sum by (namespace, service, trigger)
+            (increase(argocd_notifications_deliveries_total{succeeded="false"}[1h])) > 0
+          labels:
+            severity: warning
+          annotations:
+            summary: "ArgoCD notification delivery failing ({{ $labels.service }}, {{ $labels.trigger }})"
+            description:
+              "The ArgoCD notifications controller failed to deliver {{ $labels.trigger }} through {{ $labels.service }}
+              in the last hour, so sync failures and degraded apps may go unreported. Check the
+              argocd-notifications-controller logs."
     # Nothing watched container memory before, so Postgres sat at 94-98% of its
     # limit for four days and OOMKilled with no warning, which 503'd Authentik's
     # DB-backed liveness probe and restarted every SSO replica at once.

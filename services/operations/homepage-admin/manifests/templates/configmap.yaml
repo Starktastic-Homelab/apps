@@ -66,9 +66,10 @@ data:
       }
     }
 
-    /* A dot that is neither up nor down is still being checked. Fade it
-       gently so first paint reads as "checking", not "broken". */
-    .service-tags div.rounded-full:not(.bg-emerald-500):not(.bg-rose-500) {
+    /* Only a dot still on Homepage's neutral bg-black is being checked;
+       orange and blue are real states. Fade it gently so first paint
+       reads as "checking", not "broken". */
+    .service-tags div.rounded-full.bg-black {
       animation: status-pending 1.4s ease-in-out infinite;
     }
 
@@ -182,7 +183,7 @@ data:
       Coming Up:
         tab: Pulse
         style: row
-        columns: 3
+        columns: 2
         icon: mdi-calendar-month
       Out There:
         tab: Pulse
@@ -234,7 +235,7 @@ data:
       Organise:
         tab: Make
         style: row
-        columns: 4
+        columns: 3
         icon: mdi-clipboard-check
       Send:
         tab: Make
@@ -245,7 +246,7 @@ data:
       Acquire:
         tab: Run
         style: row
-        columns: 3
+        columns: 2
         icon: mdi-download
       Refine:
         tab: Run
@@ -356,13 +357,16 @@ data:
                 - label: Nodes Ready
                   query: 'sum(kube_node_status_condition{condition="Ready",status="true"})'
                 - label: Unhealthy Pods
-                  query: 'sum(kube_pod_status_phase{phase=~"Pending|Failed|Unknown"}) or vector(0)'
+                  # No "or vector(0)": phase series are 0/1 per pod, so empty means kube-state-metrics is missing.
+                  query: 'sum(max by (namespace, pod) (kube_pod_status_phase{phase=~"Pending|Failed|Unknown"} or {__name__=~"kube_pod_(init_)?container_status_waiting_reason",reason=~"CrashLoopBackOff|ImagePullBackOff|ErrImagePull|CreateContainerConfigError|CreateContainerError|InvalidImageName"}))'
                 - label: Firing Alerts
-                  query: 'sum(ALERTS{alertstate="firing"}) or vector(0)'
+                  # Watchdog always fires while rules are evaluated, so it doubles as the liveness check.
+                  query: '(sum(ALERTS{alertstate="firing",alertname!~"Watchdog|InfoInhibitor"}) or vector(0)) and count(ALERTS{alertname="Watchdog",alertstate="firing"})'
                 - label: Fullest Volume
                   query: 'max(kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes)'
                   format:
                     type: percent
+                    scale: 100
         - Edge & Certs:
             icon: traefik.png
             href: https://traefik.internal.starktastic.net
@@ -375,9 +379,10 @@ data:
               refreshInterval: 30000
               metrics:
                 - label: Failed Probes
-                  query: 'count(probe_success == 0) or vector(0)'
+                  query: '(count(probe_success == 0) or vector(0)) and count(probe_success)'
                 - label: Cert Expiry
-                  query: 'min(probe_ssl_earliest_cert_expiry) - time()'
+                  # > 0 drops certs with no issued cert in their Secret (exported as 0)
+                  query: 'min(certmanager_certificate_expiration_timestamp_seconds{issuer_name="letsencrypt-prod"} > 0) - time()'
                   format:
                     type: number
                     scale: "1/86400"
@@ -411,19 +416,20 @@ data:
               refreshInterval: 60000
               metrics:
                 - label: Active Bans
-                  query: 'sum(cs_active_decisions) or vector(0)'
+                  query: '(sum(cs_active_decisions) or vector(0)) and count(up{job="crowdsec-service"} == 1)'
                   format:
                     type: number
                     options:
                       maximumFractionDigits: 0
                 - label: Falco 24h
-                  query: 'sum(increase(falcosecurity_falcosidekick_falco_events_total[24h])) or vector(0)'
+                  # increase() misses the event that creates a series, so sum per pod and pad with 0 while up. floor() trims extrapolation's fractions; counts stay approximate.
+                  query: 'floor(sum(increase((sum by (pod) (falcosecurity_falcosidekick_falco_events_total) or 0 * sum by (pod) (up{job="falco-falcosidekick"} == 1))[24h:1m]))) and count(up{job="falco-falcosidekick"} == 1)'
                   format:
                     type: number
                     options:
                       maximumFractionDigits: 0
                 - label: 4xx/5xx 1h
-                  query: 'sum(increase(traefik_entrypoint_requests_total{code=~"4..|5.."}[1h])) or vector(0)'
+                  query: '(sum(increase(traefik_entrypoint_requests_total{code=~"4..|5.."}[1h])) or vector(0)) and count(traefik_entrypoint_requests_total)'
                   format:
                     type: number
                     options:
@@ -478,13 +484,13 @@ data:
               refreshInterval: 30000
               metrics:
                 - label: Apps
-                  query: 'count(argocd_app_info) or vector(0)'
+                  query: 'count(argocd_app_info)'
                 - label: Synced
-                  query: 'count(argocd_app_info{sync_status="Synced"}) or vector(0)'
+                  query: '(count(argocd_app_info{sync_status="Synced"}) or vector(0)) and count(argocd_app_info)'
                 - label: OutOfSync
-                  query: 'count(argocd_app_info{sync_status="OutOfSync"}) or vector(0)'
+                  query: '(count(argocd_app_info{sync_status="OutOfSync"}) or vector(0)) and count(argocd_app_info)'
                 - label: Unhealthy
-                  query: 'count(argocd_app_info{health_status!~"Healthy|Progressing"}) or vector(0)'
+                  query: '(count(argocd_app_info{health_status!~"Healthy|Progressing"}) or vector(0)) and count(argocd_app_info)'
         - Latest Alert:
             icon: ntfy.png
             href: https://ntfy.starktastic.net
@@ -1003,7 +1009,7 @@ data:
             href: https://falco.internal.starktastic.net
             description: Runtime threat detection
             namespace: falco
-            app: falcosidekick
+            app: falco
             siteMonitor: http://falco-falcosidekick-ui.falco:2802
     - Ship:
         - Argo CD:

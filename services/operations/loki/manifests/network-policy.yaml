@@ -1,0 +1,36 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: loki-ingress
+  namespace: monitoring
+  annotations:
+    comment: Loki runs with auth_enabled false, so only its known clients may reach it (ADR 0011)
+spec:
+  # Selects loki-0 (single-binary) and loki-gateway; loki:3100 would otherwise bypass the gateway.
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/instance: loki
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        # Alloy pushes through loki-gateway.
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: alloy
+              app.kubernetes.io/instance: alloy
+        # The Grafana Loki datasource queries loki-gateway.
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: grafana
+              app.kubernetes.io/instance: kube-prometheus-stack
+        # The Loki ServiceMonitor scrapes loki:3100/metrics.
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+        # The gateway proxies to loki:3100, and Loki talks to itself over gRPC and memberlist.
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: loki
+              app.kubernetes.io/instance: loki

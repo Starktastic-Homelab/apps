@@ -18,7 +18,9 @@ defines them:
 Dashboard coverage is read by rendering each Homepage manifests chart and
 walking the embedded ``services.yaml`` and ``bookmarks.yaml`` for ``href``
 values. Rendering also proves the embedded YAML still parses, which is easy to
-break because it is YAML nested inside a Helm-escaped ConfigMap.
+break because it is YAML nested inside a Helm-escaped ConfigMap. Duplicate keys
+fail too: PyYAML would keep the last one, but Homepage's js-yaml rejects the
+whole file and renders an empty dashboard.
 
 Run with no arguments from the repository root.
 """
@@ -44,6 +46,26 @@ EXCLUDED_HOSTS = {"starktastic.net", "admin.starktastic.net"}
 
 HOST_RE = re.compile(r"Host\(`([^`]+)`\)")
 VAR_RE = re.compile(r"\{\{HOMEPAGE_VAR_[A-Z0-9_]+\}\}")
+
+
+class UniqueKeyLoader(yaml.SafeLoader):
+    """SafeLoader that rejects duplicate mapping keys, as Homepage's js-yaml does."""
+
+    def compose_mapping_node(self, anchor):
+        node = super().compose_mapping_node(anchor)
+        seen = set()
+        # Checked before `<<` merges are expanded, so a key may still override a
+        # merged one, which js-yaml also allows.
+        for key, _ in node.value:
+            if key.tag == "tag:yaml.org,2002:merge":
+                continue
+            if key.value in seen:
+                raise yaml.composer.ComposerError(
+                    "while composing a mapping", node.start_mark,
+                    f"found duplicate key {key.value!r}", key.start_mark,
+                )
+            seen.add(key.value)
+        return node
 
 
 def load_yaml(path: str) -> dict:
@@ -156,8 +178,8 @@ def dashboard_hosts(chart: str) -> tuple[set[str], set[str]]:
     href-derived hosts (used for coverage), and all_url_hosts is the union of
     href, siteMonitor, and widget.url hosts (used for the internal-leak check).
 
-    Also asserts that the embedded YAML parses; a syntax error here fails the
-    check rather than silently shipping a blank dashboard.
+    Also asserts that the embedded YAML parses; a syntax error or duplicate key
+    here fails the check rather than silently shipping a blank dashboard.
     """
     out = subprocess.run(
         ["helm", "template", "homepage", chart],
@@ -173,7 +195,7 @@ def dashboard_hosts(chart: str) -> tuple[set[str], set[str]]:
         for name, body in (doc.get("data") or {}).items():
             if not name.endswith(".yaml") or not body.strip():
                 continue
-            parsed = yaml.safe_load(VAR_RE.sub("x", body))
+            parsed = yaml.load(VAR_RE.sub("x", body), Loader=UniqueKeyLoader)
             if name in ("services.yaml", "bookmarks.yaml"):
                 found_expected_keys = True
                 for href in hrefs(parsed):
@@ -213,6 +235,14 @@ def check_secrets(chart_label: str, chart_path: str) -> list[str]:
 
 
 def main() -> int:
+    # Self-check: fail loudly if a PyYAML change ever bypasses the override above.
+    try:
+        yaml.load("a: 1\na: 2", Loader=UniqueKeyLoader)
+    except yaml.YAMLError:
+        pass
+    else:
+        raise AssertionError("UniqueKeyLoader accepted a duplicate key")
+
     doms = domains()
     internal = doms["internal"]
 

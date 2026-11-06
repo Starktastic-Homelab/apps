@@ -81,6 +81,8 @@ falcoctl:
 
 falcosidekick:
   enabled: true
+  serviceMonitor:
+    enabled: true
   resources:
     requests:
       cpu: 50m

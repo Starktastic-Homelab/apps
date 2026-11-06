@@ -51,9 +51,10 @@ data:
       }
     }
 
-    /* A dot that is neither up nor down is still being checked. Fade it
-       gently so first paint reads as "checking", not "broken". */
-    .service-tags div.rounded-full:not(.bg-emerald-500):not(.bg-rose-500) {
+    /* Only a dot still on Homepage's neutral bg-black is being checked;
+       orange and blue are real states. Fade it gently so first paint
+       reads as "checking", not "broken". */
+    .service-tags div.rounded-full.bg-black {
       animation: status-pending 1.4s ease-in-out infinite;
     }
 
@@ -157,7 +158,7 @@ data:
       Coming Up:
         tab: Pulse
         style: row
-        columns: 2
+        columns: 1
         icon: mdi-calendar-month
       Links:
         tab: Pulse
@@ -209,7 +210,7 @@ data:
       Organise:
         tab: Make
         style: row
-        columns: 2
+        columns: 1
         icon: mdi-clipboard-check
       Send:
         tab: Make
@@ -254,6 +255,7 @@ data:
               enableBlocks: false
               enableNowPlaying: true
               enableUser: false
+              enableMediaControl: false
               showEpisodeNumber: true
         - Music Playing:
             icon: navidrome.png

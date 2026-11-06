@@ -13,3 +13,8 @@ spec:
     - port: metrics
       interval: 60s
       path: /metrics
+      authorization:
+        type: Bearer
+        credentials:
+          name: unpackerr-webserver
+          key: UN_WEBSERVER_API_KEYS_0_KEY

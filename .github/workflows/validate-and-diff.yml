@@ -75,6 +75,9 @@ jobs:
       - name: Check Jellyfin compatibility
         run: python3 scripts/check-jellyfin-compat.py
 
+      - name: Check ArgoCD notification bodies
+        run: python3 scripts/check-argocd-notifications.py
+
       - name: Check NAS transport failure handling
         run: |
           pip install -r scripts/storage/requirements.txt

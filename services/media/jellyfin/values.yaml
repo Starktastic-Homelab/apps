@@ -5,7 +5,7 @@ controllers:
       main:
         image:
           repository: lscr.io/linuxserver/jellyfin
-          tag: 12.1ubu2604-ls50@sha256:51252e7a416e703cdc3cd91e8a54673a2430cc80409be8a38abe511411577b95
+          tag: 12.4ubu2604-ls58@sha256:b7eabe1f098f4e850bfd63d6721369117195410a471db1a41748ab768b81a639
         env:
           JELLYFIN_PublishedServerUrl: "https://benplus.app" # source: globals.yaml → global.domains.media
           # The image ships no Intel OpenCL ICD; without it HDR tone mapping falls back to VPP only.
@@ -62,7 +62,7 @@ controllers:
       disposable-dirs:
         image:
           repository: lscr.io/linuxserver/jellyfin
-          tag: 12.1ubu2604-ls50@sha256:51252e7a416e703cdc3cd91e8a54673a2430cc80409be8a38abe511411577b95
+          tag: 12.4ubu2604-ls58@sha256:b7eabe1f098f4e850bfd63d6721369117195410a471db1a41748ab768b81a639
         command:
           - /bin/sh
           - -ec

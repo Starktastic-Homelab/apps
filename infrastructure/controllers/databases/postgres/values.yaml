@@ -141,7 +141,7 @@ volumePermissions:
   # repository restates the chart default so Renovate can see the pin.
   image:
     repository: bitnami/os-shell
-    tag: "latest@sha256:481601c7f12a169eb8bfedbb6e434b8641abd5422eacf695e0c0823f15a00afc"
+    tag: "latest@sha256:5e77f6a00c416967070a080f6a9092c5cb8cff7ff05a33b1f1bd01e6c79a7236"
 
 metrics:
   enabled: true

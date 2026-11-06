@@ -140,7 +140,7 @@ and fresh-metadata retained-disk rebuild checks passed in the
 [disposable qualification](../../docs/operations/postgresql-enrollment-qualification.md).
 Generated manifests, rather than this source directory, activate consumers.
 
-## Native runtime and qualification
+## Native runtime
 
 Mount `/config/config.json`, the three non-bootstrap scripts under `/scripts`,
 admin key `/credentials/admin/postgres-password` and app keys under
@@ -148,20 +148,6 @@ admin key `/credentials/admin/postgres-password` and app keys under
 as environment. The inactive `job.yaml` is the bounded, nonroot native client
 template; deploy the matching prepared `enrollment-job.yaml`, never the fixed-name
 template, when integrating the completion gate.
-
-```sh
-python3 scripts/test-pg-enrollment.py -v
-python3 scripts/test-pg-backup.py
-```
-
-The suite needs the local Docker socket. It uses synthetic passwords, an internal
-network with no published ports, digest-pinned PG18.6 client/current Bitnami server,
-once-named containers and one owned volume. Server limit1GiB/1CPU; at most two
-clients 128Mi/0.5CPU each; logs two5Mi files. Data usage is observed below 1GiB,
-not a filesystem quota. Cleanup removes only recorded test resources, never prunes
-the daemon. No arbitrary external DSN, existing container or production credential
-is accepted. Pause-only copies of native SQL qualify six interruption boundaries;
-no production fault flag exists. Private verifier assertions never print hashes.
 
 Local SQL qualification is distinct from the completed disposable Argo/Sealed
 Secrets and retained-disk rebuild qualification. Sync hooks do not run during selective sync. Keep

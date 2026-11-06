@@ -18,7 +18,7 @@ ArgoCD with a root app watching `bootstrap/`); the system overview is `../CLAUDE
 
 ## Commands
 
-`validate-and-diff.yml` has the full list (~40 retained-storage steps): copy a step, don't improvise.
+`validate-and-diff.yml` has the full list: copy a step, don't improvise.
 
 ```sh
 pre-commit run --files <changed files>
@@ -37,7 +37,7 @@ Seal secrets offline with `scripts/seal.sh <name> <namespace> [--cluster-wide]`;
 
 ## Safe vs ask first
 
-- Safe: everything under Commands, `helm template`, `kubeconform`, `scripts/test-*.py` (some need Docker).
+- Safe: everything under Commands, `helm template`, `kubeconform`.
 - Ask first: `kubectl`, `argocd`, `helm install/upgrade/uninstall` against the cluster (live ops run from
   VM300, never this workstation), pushing to `main`, merging PRs, `gh workflow run`.
 

@@ -1,4 +1,0 @@
-persistence:
-  config:
-    annotations:
-      argocd.argoproj.io/sync-options: Prune=false,Delete=false

@@ -1,3 +1,0 @@
-# Apply LAST for render verification; activation merges this into actual values.
-primary:
-  replicaCount: 0

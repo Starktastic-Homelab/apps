@@ -55,12 +55,3 @@ Two workers provide 58 total slots, with 41 attachments observed on October19
 accepted policy keeps two workers and uses advance alerts; it does not promise
 full worker failover or automatic scaling. More services eventually require
 additional worker capacity even when disk space remains available.
-
-Validate the shipped rules and alert hold/recovery behavior with:
-
-```sh
-python3 scripts/test-proxmox-csi-capacity.py
-```
-
-The script also accepts a promtool command prefix (for example an isolated
-container with the generated temporary directory mounted at its original path).

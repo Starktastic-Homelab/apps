@@ -46,7 +46,5 @@ Production cutover and recovery/lifecycle acceptance are recorded in the
 
 The SQL guard accepts exactly user/message/webpush 9/15/1 and 9/16/1, including
 only the latter's `message.claimed_at BIGINT NOT NULL` column. Unknown versions
-remain blocked. `scripts/ntfy-postgresql/test_sql.py` starts and restarts the
-configured upstream image against synthetic PostgreSQL in CI; image changes must
-remain guard-compatible before merging. The active and prepared ConfigMaps must
-match the canonical SQL. No production DDL is part of a guard compatibility fix.
+remain blocked. No CI check covers this: before merging an ntfy image change,
+confirm by hand that its schema stays guard-compatible. No production DDL is part of a guard compatibility fix.

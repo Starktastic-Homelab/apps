@@ -25,7 +25,7 @@ master:
       effect: NoExecute
   initContainers:
     - name: verify-retained-data
-      image: registry-1.docker.io/bitnami/redis@sha256:f4797b37502e6db910d3653368fcfadc171ef605586917774de125ddd05b3e62
+      image: registry-1.docker.io/bitnami/redis@sha256:59078af5aec997137eb95f34fed376487b471e05c9a244c2812a13598c434950
       command:
         - /bin/bash
         - /retained-startup/guard.sh

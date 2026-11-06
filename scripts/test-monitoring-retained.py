@@ -125,7 +125,11 @@ class RenderedStateTests(unittest.TestCase):
                     volumes = {v['name']: v for v in pod['volumes']}
                     self.assertIn(app + '-data-block', [v.get('persistentVolumeClaim', {}).get('claimName') for v in volumes.values()])
                 self.assertIsNone((pod.get('securityContext') or {}).get('fsGroup'))
-                self.assertEqual(pod['nodeSelector'], {'node-role.kubernetes.io/worker': 'true'})
+                selector = {'node-role.kubernetes.io/worker': 'true'}
+                if owner != 'StatefulSet':
+                    # kube-prometheus-stack v92 adds the os selector to the Prometheus and Alertmanager specs.
+                    selector['kubernetes.io/os'] = 'linux'
+                self.assertEqual(pod['nodeSelector'], selector)
                 guard = next(i for i in pod.get('initContainers', []) if i['name'] == 'retained-state')
                 self.assertEqual(guard['command'][-2:], [app, '/data'])
                 mount = next(m for m in guard['volumeMounts'] if m['mountPath'] == '/data')

@@ -8,8 +8,6 @@ data:
     server:
       database:
         path: /home/filebrowser/data/database.sqlite
-        # v2 imports the v1 Bolt file into SQLite on first start and leaves it in place.
-        migrateFrom: /home/filebrowser/data/database.db
       cacheDir: /home/filebrowser/data/cache
       numImageProcessors: 2
       maxArchiveSize: 5
@@ -20,6 +18,12 @@ data:
           name: apps
           config:
             defaultEnabled: true
+            # Root-only dirs: still listed, but the indexer skips them instead of logging permission denied.
+            rules:
+              - folderPath: /.homelab-checkpoints
+                viewable: true
+              - folderPath: /databases/pgadmin-pgadmin4/sessions
+                viewable: true
             defaultPermissions:
               view: true
               download: true
@@ -30,6 +34,9 @@ data:
           name: media
           config:
             defaultEnabled: true
+            rules:
+              - folderPath: /.homelab-retired-calibre
+                viewable: true
             defaultPermissions:
               view: true
               download: true

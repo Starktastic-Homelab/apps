@@ -22,8 +22,6 @@ controllers:
           runAsGroup: 1000
         env:
           FILEBROWSER_CONFIG: /config/config.yaml
-          # Blank overrides filebrowser-secret: v2 fails startup when it differs from the key migrated from Bolt.
-          FILEBROWSER_JWT_TOKEN_SECRET: ""
         envFrom:
           - secretRef:
               name: filebrowser-secret

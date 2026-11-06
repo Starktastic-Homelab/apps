@@ -99,15 +99,16 @@ jobs:
             scripts/postgres-retained-startup/production/pvc.yaml \
             scripts/postgres-retained-startup/production/guard-configmap.yaml
           # Preparation previews stay at one; the staged-patch check renders actual holds.
+          PG_VERSION=$(python3 -c 'import yaml; print(yaml.safe_load(open("infrastructure/controllers/databases/postgres/app.yaml"))["chart"]["version"])')
           helm template postgres oci://registry-1.docker.io/bitnamicharts/postgresql \
-            --version 18.12.4 --namespace databases -f templates/globals.yaml \
+            --version "$PG_VERSION" --namespace databases -f templates/globals.yaml \
             -f infrastructure/controllers/databases/postgres/values.yaml --set primary.replicaCount=1 > /tmp/postgres-baseline.yaml
           helm template postgres oci://registry-1.docker.io/bitnamicharts/postgresql \
-            --version 18.12.4 --namespace databases -f templates/globals.yaml \
+            --version "$PG_VERSION" --namespace databases -f templates/globals.yaml \
             -f infrastructure/controllers/databases/postgres/values.yaml \
             -f scripts/postgres-retained-startup/values.yaml --set primary.replicaCount=1 > /tmp/postgres-startup.yaml
           helm template postgres oci://registry-1.docker.io/bitnamicharts/postgresql \
-            --version 18.12.4 --namespace databases -f templates/globals.yaml \
+            --version "$PG_VERSION" --namespace databases -f templates/globals.yaml \
             -f infrastructure/controllers/databases/postgres/values.yaml \
             -f scripts/postgres-retained-startup/production/values.yaml --set primary.replicaCount=1 > /tmp/postgres-csi-preparation.yaml
           PG_BASELINE_RENDER=/tmp/postgres-baseline.yaml \
@@ -141,16 +142,19 @@ jobs:
       - name: Check monitoring retained CSI lifecycle
         run: |
           mkdir -p /tmp/monitoring-retained
+          PROMETHEUS_VERSION=$(python3 -c 'import yaml; print(yaml.safe_load(open("services/operations/kube-prometheus-stack/app.yaml"))["chart"]["version"])')
+          LOKI_VERSION=$(python3 -c 'import yaml; print(yaml.safe_load(open("services/operations/loki/app.yaml"))["chart"]["version"])')
+          TEMPO_VERSION=$(python3 -c 'import yaml; print(yaml.safe_load(open("services/operations/tempo/app.yaml"))["chart"]["version"])')
           helm template kube-prometheus-stack kube-prometheus-stack --repo https://prometheus-community.github.io/helm-charts \
-            --version 91.9.0 --namespace monitoring --kube-version 1.37.0 \
+            --version "$PROMETHEUS_VERSION" --namespace monitoring --kube-version 1.37.0 \
             -f templates/globals.yaml -f templates/common.yaml \
             -f services/operations/kube-prometheus-stack/values.yaml > /tmp/monitoring-retained/prometheus.yaml
           cp /tmp/monitoring-retained/prometheus.yaml /tmp/monitoring-retained/alertmanager.yaml
           helm template loki loki --repo https://grafana.github.io/helm-charts \
-            --version 7.3.0 --namespace monitoring --kube-version 1.37.0 \
+            --version "$LOKI_VERSION" --namespace monitoring --kube-version 1.37.0 \
             -f templates/globals.yaml -f templates/common.yaml -f services/operations/loki/values.yaml > /tmp/monitoring-retained/loki.yaml
           helm template tempo app-template --repo https://bjw-s-labs.github.io/helm-charts \
-            --version 5.2.1 --namespace monitoring --kube-version 1.37.0 \
+            --version "$TEMPO_VERSION" --namespace monitoring --kube-version 1.37.0 \
             -f templates/globals.yaml -f templates/common.yaml \
             -f services/operations/tempo/values.yaml > /tmp/monitoring-retained/tempo.yaml
           kubeconform -strict -summary -ignore-missing-schemas \
@@ -232,7 +236,8 @@ jobs:
             scripts/pgadmin-postgresql/production/consumer-gate.yaml \
             scripts/pgadmin-postgresql/production/source-hold.yaml
           helm repo add runix https://helm.runix.net
-          helm template pgadmin runix/pgadmin4 --version 1.70.4 \
+          PGADMIN_VERSION=$(python3 -c 'import yaml; print(yaml.safe_load(open("infrastructure/controllers/databases/pgadmin/app.yaml"))["chart"]["version"])')
+          helm template pgadmin runix/pgadmin4 --version "$PGADMIN_VERSION" \
             --namespace databases --kube-version 1.37.0 -f templates/globals.yaml \
             -f infrastructure/controllers/databases/pgadmin/values.yaml \
             -f scripts/pgadmin-postgresql/production/values.yaml > /tmp/pgadmin-retained.yaml
@@ -326,8 +331,9 @@ jobs:
 
       - name: Check active Proxmox CSI chart render
         run: |
+          CSI_VERSION=$(python3 -c 'import yaml; print(yaml.safe_load(open("infrastructure/system/proxmox-csi/app.yaml"))["chart"]["version"])')
           helm template proxmox-csi oci://ghcr.io/sergelogvinov/charts/proxmox-csi-plugin \
-            --version 0.5.10 --namespace csi-proxmox -f templates/globals.yaml \
+            --version "$CSI_VERSION" --namespace csi-proxmox -f templates/globals.yaml \
             -f infrastructure/system/proxmox-csi/values.yaml > /tmp/proxmox-csi.yaml
           python3 scripts/check-proxmox-csi-render.py /tmp/proxmox-csi.yaml
 

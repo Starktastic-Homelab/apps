@@ -4,7 +4,7 @@ controllers:
       main:
         image:
           repository: ghcr.io/calibrain/shelfmark
-          tag: v1.3.15@sha256:dae6e16fc40f42b2558d9f47d05e4ba7a7d268d23365a7c3eba266055249a124
+          tag: v1.6.1@sha256:b849621fcfdb6ec222d3aa1aa1050ebb67facfe2580190c044fd2c1c57df712a
         env:
           FLASK_PORT: "8084"
           INGEST_DIR: /books

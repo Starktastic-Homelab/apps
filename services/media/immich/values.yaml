@@ -170,12 +170,11 @@ persistence:
   config:
     enabled: false
   library:
-    existingClaim: media-library-pvc
+    existingClaim: immich-library-pvc
     advancedMounts:
       main:
         main:
           - path: /usr/src/app/upload
-            subPath: immich
   pgdata:
     existingClaim: immich-postgres-block
     advancedMounts:

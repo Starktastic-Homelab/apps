@@ -6,10 +6,28 @@ claim `operations/filebrowser-data-block`, image
 `operations/filebrowser-data-pvc` lived on VM200, which the 2026-11-05 rebuild
 (terraform#236) destroyed, so that claim and its `filebrowser-storage-hold` guard
 were removed from Git. Their live objects keep `Prune=false,Delete=false`: delete
-them once from VM300. The rest of this document is the historical migration record.
+them once from VM300. Everything under "Historical migration record" is the
+storage migration as it was planned and run.
 
-The current main image pin is Filebrowser 1.5.8 from PR #1316. Preserve it in both
-migration stages; the October7 preflight used 1.5.6 and must be refreshed.
+## Filebrowser 2 database
+
+Filebrowser 2 (`gtstef/filebrowser` 2.0.2, #1319) runs on SQLite:
+`/home/filebrowser/data/database.sqlite` on the retained claim. Its first start on
+2026-11-06 imported the v1 Bolt database (signing key, 1 user, 0 shares, 0 access
+rules, 11 groups, 0 API tokens). The config no longer sets
+`server.database.migrateFrom`, so a lost `database.sqlite` starts empty instead of
+silently re-importing stale v1 state; recover from a backup instead.
+
+- The v1 Bolt file `database.db` stays unchanged next to it. Filebrowser 2 doesn't
+  read it.
+- The auth signing key lives only in `database.sqlite`. Don't set
+  `FILEBROWSER_JWT_TOKEN_SECRET` (or `auth.key`): v2 refuses to start when it
+  differs from the stored key.
+- The cold copy of the v1 volume taken before the upgrade is on the Proxmox host
+  at `/var/backups/filebrowser/pre-v2-20261106T010609Z` (root-only). Its image
+  sha256 starts `2e66a653` and its `database.db` sha256 starts `37394a36`.
+
+## Historical migration record
 
 Read the [design](../superpowers/specs/2026-10-07-filebrowser-retained-csi-design.md)
 and [implementation plan](../superpowers/plans/2026-10-07-filebrowser-retained-csi.md)

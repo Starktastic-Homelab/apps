@@ -105,6 +105,16 @@ jobs:
                 if name=$(find_app_name "$file"); then
                   echo "  $file → app:$name"
                   APP_NAMES="$APP_NAMES $name"
+                  # baseApp variants also read their base's values.yaml and app.yaml.
+                  case "$file" in
+                    */values.yaml | */app.yaml)
+                      # shortcut: matches the unquoted `baseApp: <path>` line all six variants use; parse YAML if that changes.
+                      while IFS= read -r variant_yaml; do
+                        variant=$(basename "$(dirname "$variant_yaml")")
+                        echo "  $file → app:$variant (baseApp variant)"
+                        APP_NAMES="$APP_NAMES $variant"
+                      done < <(grep -rlx --include=app.yaml "baseApp: $(dirname "$file")" services infrastructure) ;;
+                  esac
                 else
                   echo "  $file → (no app.yaml ancestor, ignored)"
                 fi ;;

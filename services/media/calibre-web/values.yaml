@@ -4,7 +4,7 @@ controllers:
       main:
         image:
           repository: ghcr.io/crocodilestick/calibre-web-automated
-          tag: v4.0.6@sha256:fbf0c866e77b366f07050a6a12fee4e840b60d364485576a810109851a488eec
+          tag: v4.0.8@sha256:1297be5207318acea7030884a2d283ef3e805c745eaeaa4c5602bc3dc9b7f47a
         env:
           NETWORK_SHARE_MODE: "true"
           TRUSTED_PROXY_COUNT: "1"

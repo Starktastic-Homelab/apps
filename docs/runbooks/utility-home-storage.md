@@ -2,7 +2,7 @@
 
 This is the activation contract for the eight-app cohort; activation is still pending until its reviewed execution receipts and final completion report exist.
 
-Private state moves to static ext4 images under Proxmox owner9999 on`k3s-block`, using the unmodified upstream driver, Retain and ReadWriteOncePod. Sizes are2GiB for qBittorrent and1GiB each for qBittorrent RU, Changedetection, Stirling-PDF, Microbin, Lingarr, Mosquitto and Zigbee2MQTT. PVC names and handles are explicit in`scripts/utility-home-retained/production/*-bindings.yaml`.
+Private state moves to static ext4 images under Proxmox owner9999 on`k3s-block`, using the unmodified upstream driver, Retain and ReadWriteOncePod. Sizes are2GiB for qBittorrent and1GiB each for qBittorrent RU, Changedetection, Stirling-PDF, Microbin, Lingarr, Mosquitto and Zigbee2MQTT. PVC names and handles are explicit in `infrastructure/base-configs/templates/utility-home-block-storage/*-bindings.yaml`.
 
 Ordinary Terraform destroy/apply and worker replacement retain the existing workflow: disk identities/bindings/guard bytes come from Git, physical worker retirement supplies fencing, and the native guard refuses missing/wrong data before the app starts. No Kubernetes-metadata backup acceptance is added to Terraform. Shared media/download paths and Lingarr's existing PostgreSQL enrollment remain unchanged.
 

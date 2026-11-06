@@ -1,6 +1,6 @@
 # Operations and home application storage
 
-Activation is serialized through the approved cutover. The selected design puts Karakeep (including Meilisearch), ByteStash, ConvertX and Home Assistant (including Matter) on six retained ext4 Proxmox CSI volumes. Excalidash and CrowdSec will use the existing PostgreSQL service and recover their original credentials from Sealed Secrets. The preparation definitions in `scripts/operations-home-retained/production/` are inactive until copied into their normal Argo source directories during the approved cutover.
+Activation is serialized through the approved cutover. The selected design puts Karakeep (including Meilisearch), ByteStash, ConvertX and Home Assistant (including Matter) on six retained ext4 Proxmox CSI volumes. Excalidash and CrowdSec will use the existing PostgreSQL service and recover their original credentials from Sealed Secrets. The preparation definitions that lived in `scripts/operations-home-retained/production/` were removed; recover them with `git show 45c7fb8c:<path>`.
 
 | Application | Retained state | Capacity |
 | --- | --- | --- |

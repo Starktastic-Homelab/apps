@@ -1,11 +1,9 @@
 # PostgreSQL retained-CSI preparation and cutover
 
-Status: **inactive preparation**. The production server still uses its retained
-NFS claim. The files in
-[`scripts/postgres-retained-startup/production/`](../../scripts/postgres-retained-startup/production/)
-are outside both ApplicationSet discovery paths. Merging this preparation does
-not allocate an image, apply storage objects, change the server, copy data or
-activate the guard. It is not an execution authorization or a performed restore.
+Status: **cutover complete**. The preparation and cutover inputs that lived in
+`scripts/postgres-retained-startup/` were removed with their CI checks; recover
+them with `git show 45c7fb8c:scripts/postgres-retained-startup/<file>`. The rest of
+this runbook is the historical preparation record.
 
 ## Prepared destination and current source
 
@@ -46,8 +44,8 @@ and preserve historical Jellyfin files.
 
 ## Guard and chart integration
 
-The [qualified guard](../../scripts/postgres-retained-startup/README.md) is copied
-byte-for-byte into `production/guard-configmap.yaml`. The final overlay binds its
+The guard lives in
+[`retained-startup-guard.yaml`](../../infrastructure/controllers/databases/postgres/manifests/retained-startup-guard.yaml). The final overlay binds its
 expected ID to the same canonical physical server as enrollment. It runs the
 guard as1001 with read-only data before the unmodified pinned Bitnami entrypoint,
 replaces the unconditional PID-removal init, and disables volumePermissions and
@@ -67,23 +65,6 @@ Changing a StatefulSet from volumeClaimTemplates to existingClaim changes
 immutable fields. Prepare an explicit controller replacement while replicas
 are held at zero, preserving the source PVC, rather than expecting an ordinary
 Helm/Argo patch to perform the switch. Verify no old Pod remains.
-
-To inspect the prepared render locally:
-
-```sh
-helm template postgres oci://registry-1.docker.io/bitnamicharts/postgresql \
-  --version 18.12.4 --namespace databases -f templates/globals.yaml \
-  -f infrastructure/controllers/databases/postgres/values.yaml \
-  -f scripts/postgres-retained-startup/production/values.yaml > /tmp/postgres-csi-preparation.yaml
-```
-
-CI renders baseline, generic guard and production guard overlays, checks static
-bindings and exact embedded source, and compares the actual production-overlay
-containers to baseline. These checks establish source preparation only.
-
-The [inactive cutover states](../../scripts/postgres-retained-startup/production/cutover/README.md)
-record exact consumer holds, original release counts and the reviewed stage gates.
-Their merge does not activate maintenance or storage.
 
 ## Read-only source transport qualification
 
@@ -176,8 +157,9 @@ releasing the destination. Retain the accepted backup and the original NFS tree.
 
 ## Later maintenance, copy and release sequence
 
-The [concrete sequential Git changes](../../scripts/postgres-retained-startup/production/cutover/README.md#concrete-git-changes-for-the-approved-operation)
-are inactive review inputs. Their checked stages separate client shutdown, server
+The concrete sequential Git changes (the removed
+`scripts/postgres-retained-startup/production/cutover/README.md`, in Git history at `45c7fb8c`)
+were the review inputs. Their checked stages separate client shutdown, server
 shutdown, storage switch, server/hook/pilot startup, Authentik and other consumer
 release, then backup scheduling. Actual stage PRs and execution helpers still need
 review and separate production approval; merging preparation does not start them.

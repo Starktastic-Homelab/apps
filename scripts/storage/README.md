@@ -10,5 +10,4 @@ Previous source and dated qualification reports remain in Git history. Current
 Jellyfin storage guidance is in [the runbook](../../docs/runbooks/jellyfin-storage.md).
 
 Run `python3 -m unittest discover -s scripts/storage/tests -v` after installing
-the requirements. Stock CSI rendering is checked by
-`scripts/check-proxmox-csi-render.py` with the actual chart/value layers.
+the requirements.

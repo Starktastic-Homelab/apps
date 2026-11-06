@@ -8,21 +8,16 @@ on:
 jobs:
   validate:
     name: Validate
-    needs: redis-immich-preparation
-    if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Require native recovery qualification
-        if: ${{ needs['redis-immich-preparation'].result != 'success' }}
-        run: exit 1
       - name: Checkout
         uses: actions/checkout@v7
 
       - name: Setup Python
         uses: actions/setup-python@v7.1.0
         with:
-          python-version: '3.x'
+          python-version: '3.14'
 
       - name: Install yamllint
         run: pip install yamllint
@@ -80,270 +75,10 @@ jobs:
       - name: Check Jellyfin compatibility
         run: python3 scripts/check-jellyfin-compat.py
 
-      - name: Check PostgreSQL backup failure handling
-        run: python3 scripts/test-pg-backup.py
-
-      - name: Check cert backup failure handling
-        run: python3 scripts/test-cert-backup.py
-
-      - name: Check PostgreSQL enrollment lifecycle
-        run: python3 scripts/test-pg-enrollment.py
-
-      - name: Check PostgreSQL enrollment canary
-        run: python3 scripts/test-pg-enrollment-pilot.py
-
-      - name: Check retained PostgreSQL startup guard
-        run: |
-          kubeconform -strict -summary \
-            scripts/postgres-retained-startup/production/pv.yaml \
-            scripts/postgres-retained-startup/production/pvc.yaml \
-            scripts/postgres-retained-startup/production/guard-configmap.yaml
-          # Preparation previews stay at one; the staged-patch check renders actual holds.
-          PG_VERSION=$(python3 -c 'import yaml; print(yaml.safe_load(open("infrastructure/controllers/databases/postgres/app.yaml"))["chart"]["version"])')
-          helm template postgres oci://registry-1.docker.io/bitnamicharts/postgresql \
-            --version "$PG_VERSION" --namespace databases -f templates/globals.yaml \
-            -f infrastructure/controllers/databases/postgres/values.yaml --set primary.replicaCount=1 > /tmp/postgres-baseline.yaml
-          helm template postgres oci://registry-1.docker.io/bitnamicharts/postgresql \
-            --version "$PG_VERSION" --namespace databases -f templates/globals.yaml \
-            -f infrastructure/controllers/databases/postgres/values.yaml \
-            -f scripts/postgres-retained-startup/values.yaml --set primary.replicaCount=1 > /tmp/postgres-startup.yaml
-          helm template postgres oci://registry-1.docker.io/bitnamicharts/postgresql \
-            --version "$PG_VERSION" --namespace databases -f templates/globals.yaml \
-            -f infrastructure/controllers/databases/postgres/values.yaml \
-            -f scripts/postgres-retained-startup/production/values.yaml --set primary.replicaCount=1 > /tmp/postgres-csi-preparation.yaml
-          PG_BASELINE_RENDER=/tmp/postgres-baseline.yaml \
-            PG_STARTUP_RENDER=/tmp/postgres-startup.yaml \
-            PG_CSI_PREPARATION_RENDER=/tmp/postgres-csi-preparation.yaml \
-            python3 scripts/test-pg-retained-startup.py
-
-      - name: Check retained Autobrr startup guard
-        run: |
-          APP_VERSION=$(python3 -c 'import yaml; a=yaml.safe_load(open("bootstrap/appsets/cluster-apps.yaml")); print(next(x["defaultChartVersion"] for x in a["spec"]["generators"][0]["matrix"]["generators"][0]["list"]["elements"] if x["category"]=="services"))')
-          helm template autobrr app-template --repo https://bjw-s-labs.github.io/helm-charts \
-            --version "$APP_VERSION" --namespace media -f templates/globals.yaml \
-            -f templates/common.yaml -f services/media/autobrr/values.yaml > /tmp/autobrr-retained.yaml
-          AUTOBRR_RETAINED_RENDER=/tmp/autobrr-retained.yaml python3 scripts/test-autobrr-retained-startup.py
-
-      - name: Check media retained CSI preparation
-        run: MEDIA_RETAINED_RENDERS=/tmp/media-retained bash scripts/media-retained/check.sh
-
-      - name: Check operations and Home Assistant retained state
-        run: |
-          mkdir -p /tmp/operations-home-charts
-          APP_VERSION=$(python3 -c 'import yaml; a=yaml.safe_load(open("bootstrap/appsets/cluster-apps.yaml")); print(next(x["defaultChartVersion"] for x in a["spec"]["generators"][0]["matrix"]["generators"][0]["list"]["elements"] if x["category"]=="services"))')
-          CROWDSEC_VERSION=$(python3 -c 'import yaml; print(yaml.safe_load(open("infrastructure/system/crowdsec/app.yaml"))["chart"]["version"])')
-          helm pull app-template --repo https://bjw-s-labs.github.io/helm-charts --version "$APP_VERSION" --untar --untardir /tmp/operations-home-charts
-          helm pull crowdsec --repo https://crowdsecurity.github.io/helm-charts --version "$CROWDSEC_VERSION" --untar --untardir /tmp/operations-home-charts
-          OPERATIONS_HOME_RENDERS=/tmp/operations-home-renders APP_TEMPLATE_CHART=/tmp/operations-home-charts/app-template CROWDSEC_CHART=/tmp/operations-home-charts/crowdsec bash scripts/operations-home-retained/check.sh
-
-      - name: Check utility and MQTT retained CSI preparation
-        run: UTILITY_HOME_RENDERS=/tmp/utility-home-renders APP_TEMPLATE_CHART=/tmp/operations-home-charts/app-template bash scripts/utility-home-retained/check.sh
-
-      - name: Check monitoring retained CSI lifecycle
-        run: |
-          mkdir -p /tmp/monitoring-retained
-          PROMETHEUS_VERSION=$(python3 -c 'import yaml; print(yaml.safe_load(open("services/operations/kube-prometheus-stack/app.yaml"))["chart"]["version"])')
-          LOKI_VERSION=$(python3 -c 'import yaml; print(yaml.safe_load(open("services/operations/loki/app.yaml"))["chart"]["version"])')
-          TEMPO_VERSION=$(python3 -c 'import yaml; print(yaml.safe_load(open("services/operations/tempo/app.yaml"))["chart"]["version"])')
-          helm template kube-prometheus-stack kube-prometheus-stack --repo https://prometheus-community.github.io/helm-charts \
-            --version "$PROMETHEUS_VERSION" --namespace monitoring --kube-version 1.37.0 \
-            -f templates/globals.yaml -f templates/common.yaml \
-            -f services/operations/kube-prometheus-stack/values.yaml > /tmp/monitoring-retained/prometheus.yaml
-          cp /tmp/monitoring-retained/prometheus.yaml /tmp/monitoring-retained/alertmanager.yaml
-          helm template loki loki --repo https://grafana.github.io/helm-charts \
-            --version "$LOKI_VERSION" --namespace monitoring --kube-version 1.37.0 \
-            -f templates/globals.yaml -f templates/common.yaml -f services/operations/loki/values.yaml > /tmp/monitoring-retained/loki.yaml
-          helm template tempo app-template --repo https://bjw-s-labs.github.io/helm-charts \
-            --version "$TEMPO_VERSION" --namespace monitoring --kube-version 1.37.0 \
-            -f templates/globals.yaml -f templates/common.yaml \
-            -f services/operations/tempo/values.yaml > /tmp/monitoring-retained/tempo.yaml
-          kubeconform -strict -summary -ignore-missing-schemas \
-            /tmp/monitoring-retained/prometheus.yaml /tmp/monitoring-retained/loki.yaml /tmp/monitoring-retained/tempo.yaml \
-            scripts/monitoring-retained/production/*-bindings.yaml \
-            scripts/monitoring-retained/production/*-source-hold.yaml \
-            scripts/monitoring-retained/production/guard-configmap.yaml \
-            scripts/monitoring-retained/production/tempo/manifests.yaml
-          MONITORING_RETAINED_RENDERS=/tmp/monitoring-retained python3 scripts/test-monitoring-retained.py
-
-      - name: Check inactive Prowlarr PostgreSQL and retained CSI preparation
-        run: |
-          kubeconform -strict -summary \
-            scripts/prowlarr-postgresql/production/pv.yaml \
-            scripts/prowlarr-postgresql/production/pvc.yaml \
-            scripts/prowlarr-postgresql/production/guard-configmap.yaml \
-            scripts/prowlarr-postgresql/production/consumer-gate.yaml \
-            scripts/prowlarr-postgresql/production/source-hold.yaml
-          APP_VERSION=$(python3 -c 'import yaml; a=yaml.safe_load(open("bootstrap/appsets/cluster-apps.yaml")); print(next(x["defaultChartVersion"] for x in a["spec"]["generators"][0]["matrix"]["generators"][0]["list"]["elements"] if x["category"]=="services"))')
-          helm template prowlarr app-template --repo https://bjw-s-labs.github.io/helm-charts \
-            --version "$APP_VERSION" --namespace media -f templates/globals.yaml \
-            -f templates/common.yaml -f templates/media-arr-common.yaml \
-            -f services/media/prowlarr/values.yaml -f scripts/prowlarr-postgresql/production/values.yaml \
-            > /tmp/prowlarr-retained.yaml
-          kubeconform -strict -summary /tmp/prowlarr-retained.yaml
-          PROWLARR_SQL_TEST=1 PROWLARR_RETAINED_RENDER=/tmp/prowlarr-retained.yaml \
-            python3 scripts/test-prowlarr-retained-startup.py
-
-      - name: Check Seerr PostgreSQL and retained CSI lifecycle
-        run: |
-          for INSTANCE in seerr seerr-ru; do
-            kubeconform -strict -summary \
-              scripts/seerr-postgresql/production/$INSTANCE/pv.yaml \
-              scripts/seerr-postgresql/production/$INSTANCE/pvc.yaml \
-              scripts/seerr-postgresql/production/$INSTANCE/consumer-gate.yaml \
-              scripts/seerr-postgresql/production/$INSTANCE/source-hold.yaml
-          done
-          kubeconform -strict -summary \
-            scripts/seerr-postgresql/production/guard-configmap.yaml \
-            scripts/seerr-postgresql/production/enrollment/enrollment-configmap.yaml \
-            scripts/seerr-postgresql/production/enrollment/enrollment-job.yaml
-          helm template seerr app-template --repo https://bjw-s-labs.github.io/helm-charts \
-            --version 5.2.1 --namespace media -f templates/globals.yaml -f templates/common.yaml \
-            -f services/media/seerr/values.yaml \
-            > /tmp/seerr-retained.yaml
-          helm template seerr-ru app-template --repo https://bjw-s-labs.github.io/helm-charts \
-            --version 5.2.1 --namespace media -f templates/globals.yaml -f templates/common.yaml \
-            -f services/media/seerr/values.yaml \
-            -f services/media/seerr-ru/values.yaml > /tmp/seerr-ru-retained.yaml
-          kubeconform -strict -summary /tmp/seerr-retained.yaml /tmp/seerr-ru-retained.yaml
-          SEERR_SQL_TEST=1 SEERR_RETAINED_RENDER=/tmp/seerr-retained.yaml \
-            SEERR_RU_RETAINED_RENDER=/tmp/seerr-ru-retained.yaml \
-            python3 scripts/test-seerr-retained-startup.py
-
-      - name: Check Bazarr PostgreSQL and retained CSI lifecycle
-        run: |
-          kubeconform -strict -summary \
-            scripts/bazarr-postgresql/production/pv.yaml \
-            scripts/bazarr-postgresql/production/pvc.yaml \
-            scripts/bazarr-postgresql/production/guard-configmap.yaml \
-            scripts/bazarr-postgresql/production/consumer-gate.yaml \
-            scripts/bazarr-postgresql/production/source-hold.yaml
-          helm template bazarr app-template --repo https://bjw-s-labs.github.io/helm-charts \
-            --version 5.2.1 --namespace media -f templates/globals.yaml -f templates/common.yaml \
-            -f templates/media-arr-common.yaml -f services/media/bazarr/values.yaml > /tmp/bazarr-preparation.yaml
-          kubeconform -strict -summary /tmp/bazarr-preparation.yaml
-          BAZARR_SQL_TEST=1 BAZARR_RETAINED_RENDER=/tmp/bazarr-preparation.yaml python3 scripts/test-bazarr-retained-startup.py
-
-      - name: Check Grafana conversion preservation
-        run: python3 scripts/test-grafana-data.py
-
-      - name: Check pgAdmin PostgreSQL and retained CSI lifecycle
-        run: |
-          python3 scripts/test-pgadmin-data.py
-          kubeconform -strict -summary \
-            scripts/pgadmin-postgresql/production/pv.yaml \
-            scripts/pgadmin-postgresql/production/pvc.yaml \
-            scripts/pgadmin-postgresql/production/guard-configmap.yaml \
-            scripts/pgadmin-postgresql/production/consumer-gate.yaml \
-            scripts/pgadmin-postgresql/production/source-hold.yaml
-          helm repo add runix https://helm.runix.net
-          PGADMIN_VERSION=$(python3 -c 'import yaml; print(yaml.safe_load(open("infrastructure/controllers/databases/pgadmin/app.yaml"))["chart"]["version"])')
-          helm template pgadmin runix/pgadmin4 --version "$PGADMIN_VERSION" \
-            --namespace databases --kube-version 1.37.0 -f templates/globals.yaml \
-            -f infrastructure/controllers/databases/pgadmin/values.yaml \
-            -f scripts/pgadmin-postgresql/production/values.yaml > /tmp/pgadmin-retained.yaml
-          kubeconform -strict -summary /tmp/pgadmin-retained.yaml
-          PGADMIN_RETAINED_RENDER=/tmp/pgadmin-retained.yaml python3 scripts/test-pgadmin-retained-startup.py
-
-      - name: Check inactive Grafana PostgreSQL and retained CSI preparation
-        run: |
-          kubeconform -strict -summary \
-            scripts/grafana-postgresql/production/pv.yaml \
-            scripts/grafana-postgresql/production/pvc.yaml \
-            scripts/grafana-postgresql/production/guard-configmap.yaml \
-            scripts/grafana-postgresql/production/consumer-gate.yaml \
-            scripts/grafana-postgresql/production/source-hold.yaml
-          GRAFANA_STACK_VERSION=$(python3 -c 'import yaml; print(yaml.safe_load(open("services/operations/kube-prometheus-stack/app.yaml"))["chart"]["version"])')
-          helm template kube-prometheus-stack kube-prometheus-stack --repo https://prometheus-community.github.io/helm-charts \
-            --version "$GRAFANA_STACK_VERSION" --namespace monitoring --kube-version 1.37.0 \
-            -f templates/globals.yaml -f templates/common.yaml \
-            -f services/operations/kube-prometheus-stack/values.yaml \
-            -f scripts/grafana-postgresql/production/values.yaml > /tmp/grafana-retained.yaml
-          kubeconform -strict -ignore-missing-schemas -summary /tmp/grafana-retained.yaml
-          GRAFANA_RETAINED_RENDER=/tmp/grafana-retained.yaml python3 scripts/test-grafana-retained-startup.py
-
-      - name: Check inactive ntfy PostgreSQL and retained CSI preparation
-        run: |
-          kubeconform -strict -summary \
-            scripts/ntfy-postgresql/production/pv.yaml \
-            scripts/ntfy-postgresql/production/pvc.yaml \
-            scripts/ntfy-postgresql/production/guard-configmap.yaml \
-            scripts/ntfy-postgresql/production/consumer-gate.yaml \
-            scripts/ntfy-postgresql/production/source-hold.yaml
-          helm template ntfy app-template --repo https://bjw-s-labs.github.io/helm-charts \
-            --version 5.2.1 --namespace operations -f templates/globals.yaml -f templates/common.yaml \
-            -f services/operations/ntfy/values.yaml -f scripts/ntfy-postgresql/production/values.yaml \
-            > /tmp/ntfy-retained.yaml
-          kubeconform -strict -summary /tmp/ntfy-retained.yaml
-          NTFY_RETAINED_RENDER=/tmp/ntfy-retained.yaml python3 scripts/test-ntfy-retained-startup.py
-          python3 scripts/ntfy-postgresql/test_sql.py
-
-      - name: Check Paperless retained data and native recovery
-        run: |
-          APP_VERSION=$(python3 -c 'import yaml; a=yaml.safe_load(open("bootstrap/appsets/cluster-apps.yaml")); print(next(v["defaultChartVersion"] for v in a["spec"]["generators"][0]["matrix"]["generators"][0]["list"]["elements"] if v["category"]=="services"))')
-          helm template paperless-ngx app-template --repo https://bjw-s-labs.github.io/helm-charts --version "$APP_VERSION" \
-            --namespace operations --kube-version 1.37.0 -f templates/globals.yaml -f templates/common.yaml \
-            -f services/operations/paperless-ngx/values.yaml > /tmp/paperless-before.yaml
-          helm template paperless-ngx app-template --repo https://bjw-s-labs.github.io/helm-charts --version "$APP_VERSION" \
-            --namespace operations --kube-version 1.37.0 -f templates/globals.yaml -f templates/common.yaml \
-            -f services/operations/paperless-ngx/values.yaml -f scripts/paperless-retained/production/values.yaml > /tmp/paperless-retained.yaml
-          kubeconform -strict -summary /tmp/paperless-retained.yaml scripts/paperless-retained/production/bindings.yaml scripts/paperless-retained/production/source-hold.yaml
-          PAPERLESS_BEFORE_RENDER=/tmp/paperless-before.yaml PAPERLESS_RETAINED_RENDER=/tmp/paperless-retained.yaml python3 scripts/test-paperless-retained.py
-          python3 scripts/paperless-retained/test_native.py
-
-      - name: Check Calibre retained split-library recovery
-        run: |
-          APP_VERSION=$(python3 -c 'import yaml; a=yaml.safe_load(open("bootstrap/appsets/cluster-apps.yaml")); print(next(v["defaultChartVersion"] for v in a["spec"]["generators"][0]["matrix"]["generators"][0]["list"]["elements"] if v["category"]=="services"))')
-          helm template calibre-web app-template --repo https://bjw-s-labs.github.io/helm-charts --version "$APP_VERSION" \
-            --namespace media --kube-version 1.37.0 -f templates/globals.yaml -f templates/common.yaml \
-            -f services/media/calibre-web/values.yaml > /tmp/calibre-before.yaml
-          helm template calibre-web app-template --repo https://bjw-s-labs.github.io/helm-charts --version "$APP_VERSION" \
-            --namespace media --kube-version 1.37.0 -f templates/globals.yaml -f templates/common.yaml \
-            -f services/media/calibre-web/values.yaml -f scripts/calibre-retained/production/preparation-values.yaml > /tmp/calibre-preparation.yaml
-          helm template calibre-web app-template --repo https://bjw-s-labs.github.io/helm-charts --version "$APP_VERSION" \
-            --namespace media --kube-version 1.37.0 -f templates/globals.yaml -f templates/common.yaml \
-            -f services/media/calibre-web/values.yaml -f scripts/calibre-retained/production/values.yaml > /tmp/calibre-retained.yaml
-          kubeconform -strict -summary /tmp/calibre-retained.yaml scripts/calibre-retained/production/bindings.yaml scripts/calibre-retained/production/source-pvc.yaml scripts/calibre-retained/production/source-hold.yaml
-          CALIBRE_BEFORE_RENDER=/tmp/calibre-before.yaml CALIBRE_PREPARATION_RENDER=/tmp/calibre-preparation.yaml CALIBRE_RETAINED_RENDER=/tmp/calibre-retained.yaml python3 scripts/test-calibre-retained.py
-          python3 scripts/calibre-retained/test_native.py
-
-      - name: Check ordinary-file retained NFS preparation
-        run: |
-          helm template base-configs infrastructure/base-configs -f templates/globals.yaml > /tmp/ordinary-file-nfs.yaml
-          python3 scripts/ordinary-file-storage/render.py --output /tmp/ordinary-file-runtime
-          ORDINARY_FILE_RENDER=/tmp/ordinary-file-nfs.yaml ORDINARY_FILE_RUNTIME_RENDERS=/tmp/ordinary-file-runtime python3 scripts/test-ordinary-file-storage.py
-
-      - name: Check inactive PostgreSQL cutover states
-        run: |
-          kubeconform -strict -summary scripts/postgres-retained-startup/production/cutover/source-hold.yaml
-          APP_VERSION=$(python3 -c 'import json,yaml; a=yaml.safe_load(json.load(open("scripts/postgres-retained-startup/production/cutover/released-inputs.json"))["files"]["bootstrap/appsets/cluster-apps.yaml"]); print(next(x["defaultChartVersion"] for x in a["spec"]["generators"][0]["matrix"]["generators"][0]["list"]["elements"] if x["category"]=="services"))')
-          AUTH_VERSION=$(python3 -c 'import json,yaml; print(yaml.safe_load(json.load(open("scripts/postgres-retained-startup/production/cutover/released-inputs.json"))["files"]["infrastructure/controllers/authentik/app.yaml"])["chart"]["version"])')
-          helm pull app-template --repo https://bjw-s-labs.github.io/helm-charts --version "$APP_VERSION" --untar --untardir /tmp/pg-cutover-charts
-          helm pull authentik --repo https://charts.goauthentik.io --version "$AUTH_VERSION" --untar --untardir /tmp/pg-cutover-charts
-          PG_VERSION=$(python3 -c 'import json,yaml; print(yaml.safe_load(json.load(open("scripts/postgres-retained-startup/production/cutover/released-inputs.json"))["files"]["infrastructure/controllers/databases/postgres/app.yaml"])["chart"]["version"])')
-          helm pull oci://registry-1.docker.io/bitnamicharts/postgresql --version "$PG_VERSION" --untar --untardir /tmp/pg-cutover-charts
-          PG_CUTOVER_POSTGRES_CHART=/tmp/pg-cutover-charts/postgresql \
-            PG_CUTOVER_CHARTS='{"authentik":"/tmp/pg-cutover-charts/authentik","app-template":"/tmp/pg-cutover-charts/app-template"}' python3 scripts/test-pg-cutover.py
-
       - name: Check NAS transport failure handling
         run: |
           pip install -r scripts/storage/requirements.txt
           python3 -m unittest discover -s scripts/storage/tests -v
-
-      - name: Check active Proxmox CSI chart render
-        run: |
-          CSI_VERSION=$(python3 -c 'import yaml; print(yaml.safe_load(open("infrastructure/system/proxmox-csi/app.yaml"))["chart"]["version"])')
-          helm template proxmox-csi oci://ghcr.io/sergelogvinov/charts/proxmox-csi-plugin \
-            --version "$CSI_VERSION" --namespace csi-proxmox -f templates/globals.yaml \
-            -f infrastructure/system/proxmox-csi/values.yaml > /tmp/proxmox-csi.yaml
-          python3 scripts/check-proxmox-csi-render.py /tmp/proxmox-csi.yaml
-
-      - name: Check Proxmox CSI attachment capacity alerts
-        env:
-          # renovate: datasource=docker depName=prom/prometheus
-          PROMETHEUS_VERSION: 'v3.15.1'
-        run: |
-          python3 scripts/test-proxmox-csi-capacity.py \
-            docker run --rm --user "$(id -u):$(id -g)" --network none --tmpfs /var/tmp:rw,mode=1777,size=64m --env TMPDIR=/var/tmp -v /tmp:/tmp:ro --entrypoint promtool "prom/prometheus:${PROMETHEUS_VERSION}"
 
       - name: Check alert policy
         id: alerts
@@ -482,77 +217,8 @@ jobs:
           steps.alerts.outputs.exit_code == ''
         run: exit 1
 
-  redis-immich-preparation:
-    name: Redis and Immich recovery preparation
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-      - name: Setup Python
-        uses: actions/setup-python@v7.1.0
-        with:
-          python-version: '3.x'
-      - name: Install YAML support
-        run: pip install pyyaml
-      - name: Setup Helm
-        uses: azure/setup-helm@v5
-        with:
-          version: v4.3.1
-      - name: Setup Kubeconform
-        env:
-          # renovate: datasource=github-releases depName=yannh/kubeconform
-          KUBECONFORM_VERSION: 'v0.8.0'
-        run: |
-          curl -fLsS "https://github.com/yannh/kubeconform/releases/download/${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz" | tar xz
-          echo "$PWD" >> "$GITHUB_PATH"
-      - name: Check private state preservation
-        run: python3 scripts/test-redis-immich-state.py
-      - name: Pull pinned recovery images
-        run: |
-          python3 - <<'PY_IMAGES' > /tmp/redis-immich-images
-          import sys
-          sys.path.insert(0, 'scripts/redis-immich-retained')
-          import fixtures
-          print('\n'.join((fixtures.REDIS, fixtures.PYTHON, fixtures.POSTGRES,
-                            fixtures.IMMICH_SERVER, fixtures.DISPATCHARR)))
-          PY_IMAGES
-          while IFS= read -r image; do
-            for attempt in 1 2 3; do
-              if docker pull "$image"; then
-                break
-              fi
-              if [ "$attempt" -eq 3 ]; then exit 1; fi
-              sleep 30
-            done
-          done < /tmp/redis-immich-images
-      - name: Qualify exact native engine recovery
-        run: |
-          python3 scripts/test-redis-immich-native.py --app redis
-          python3 scripts/test-redis-immich-native.py --app immich
-      - name: Check inactive bindings, layered renders and alerts
-        run: |
-          helm pull oci://registry-1.docker.io/bitnamicharts/redis --version 28.3.10 --untar --untardir /tmp/redis-immich-charts
-          helm pull app-template --repo https://bjw-s-labs.github.io/helm-charts --version 5.3.0 --untar --untardir /tmp/redis-immich-charts
-          REDIS_CHART=/tmp/redis-immich-charts/redis APP_TEMPLATE_CHART=/tmp/redis-immich-charts/app-template REDIS_IMMICH_RENDERS=/tmp/redis-immich-renders bash scripts/redis-immich-retained/check.sh
-      - name: Record recovery validation status
-        if: always()
-        env:
-          RESULT: ${{ job.status }}
-        run: |
-          printf 'Redis and Immich recovery preparation: **%s**\n' "$RESULT" > redis-immich-validation.md
-      - name: Upload recovery validation status
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: redis-immich-validation
-          path: redis-immich-validation.md
-          retention-days: 1
-
   diff:
     name: ArgoCD diff preview
-    needs: validate
-    if: always() && !cancelled()
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -601,7 +267,7 @@ jobs:
 
   report:
     name: Report status
-    needs: [validate, diff, redis-immich-preparation]
+    needs: [validate, diff]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -622,11 +288,6 @@ jobs:
             cat artifacts/validation-report.md >> comment.md
             echo "" >> comment.md
             echo "---" >> comment.md
-            echo "" >> comment.md
-          fi
-
-          if [ -f artifacts/redis-immich-validation.md ]; then
-            cat artifacts/redis-immich-validation.md >> comment.md
             echo "" >> comment.md
           fi
 

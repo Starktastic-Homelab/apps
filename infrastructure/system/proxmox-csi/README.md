@@ -86,21 +86,15 @@ The accepted export-withdrawal recovery trade-off is unchanged: some storage I/O
 faults require manual scale-down, verified detach and restaging. Ordinary rebuilds
 must not require a Velero checkpoint or a manual backup verification step.
 
-## Offline validation
+## Offline render
 
-Run from the repository root (Helm and PyYAML required):
+Run from the repository root (Helm required):
 
 ```bash
 helm template proxmox-csi oci://ghcr.io/sergelogvinov/charts/proxmox-csi-plugin \
   --version 0.5.10 --namespace csi-proxmox -f templates/globals.yaml \
   -f infrastructure/system/proxmox-csi/values.yaml > /tmp/proxmox-csi.yaml
-python3 scripts/check-proxmox-csi-render.py /tmp/proxmox-csi.yaml
 ```
-
-CI renders these actual value layers and checks prerequisite phase ordering, external
-Secret reference, worker placement, native attachment/resize components and class
-retention policy. Runtime binding and rebuild validation is still required by the
-[integration plan](../../../docs/superpowers/plans/2026-10-03-proxmox-csi-shared-integration.md).
 
 ## Production preflight evidence
 

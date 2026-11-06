@@ -28,7 +28,7 @@ data:
           {
             "topic": "ops",
             "title": "Sync Failed: {{ "{{" }}.app.metadata.name{{ "}}" }}",
-            "message": "Reason: {{ "{{" }}.app.status.operationState.message{{ "}}" }}",
+            "message": {{ "{{" }} print "Reason: " .app.status.operationState.message | toJson {{ "}}" }},
             "tags": ["skull", "error"],
             "priority": 5,
             "actions": [{

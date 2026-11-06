@@ -74,7 +74,9 @@ spec:
         notifications.argoproj.io/subscribe.on-health-degraded.ntfy: ""
         # Anchored: unanchored 'templates/.*' also matches every app's own
         # manifests/templates/ dir, which selected all 74 apps on any such PR.
-        argocd-diff-preview/watch-pattern: '^{{.path.path}}/.*, ^templates/.*'
+        # baseApp variants also render their base's values.yaml and app.yaml (templatePatch);
+        # a base is an app dir, so the AppSet-level gate at the top already covers it.
+        argocd-diff-preview/watch-pattern: '^{{.path.path}}/.*, {{ with dig "baseApp" "" . }}^{{ . }}/(app|values)\.yaml$, {{ end }}^templates/.*'
     spec:
       project: default
       sources: []

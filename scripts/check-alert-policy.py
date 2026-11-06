@@ -194,6 +194,23 @@ checks.append({
         for name in ["unknown", "health-error", "both"]
     ],
 })
+for trigger, succeeded, values in [
+    ("on-sync-failed", "false", "0+1x80"),
+    ("on-health-degraded", "false", "3+0x80"),  # old failures only
+    ("on-sync-failed", "true", "0+5x80"),
+]:
+    inputs.append({
+        "series": (
+            'argocd_notifications_deliveries_total{namespace="argocd",pod="notifications-0",'
+            f'service="ntfy",trigger="{trigger}",succeeded="{succeeded}"}}'
+        ),
+        "values": values,
+    })
+checks.append({
+    "expr": argocd["ArgoCDNotificationDeliveryFailing"]["expr"],
+    "eval_time": "75m",
+    "exp_samples": [{"labels": '{namespace="argocd",service="ntfy",trigger="on-sync-failed"}', "value": 60}],
+})
 
 subprocess.run(
     [*(sys.argv[1:] or ["promtool"]), "test", "rules", "/dev/stdin"],

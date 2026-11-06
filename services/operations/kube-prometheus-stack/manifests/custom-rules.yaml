@@ -93,6 +93,23 @@ spec:
               "Application {{ $labels.name }} has had sync status Unknown or a ComparisonError for 30 minutes, often a
               failed server-side diff dry-run in an admission webhook. RollingSync cannot finish its step, so later
               steps never sync. Check the app's conditions in ArgoCD."
+        # `service` is the notifier (ntfy), which needs honorLabels on the notifications
+        # ServiceMonitor (infrastructure/configs/templates/argocd/servicemonitor-chart-metrics.yaml).
+        # shortcut: a (trigger, service) series appears at 1 on its first failure since the
+        # pod started, and increase() can't see that step, so a lone failure stays silent and
+        # a second one fires. Also count series that are new in the window if that matters.
+        - alert: ArgoCDNotificationDeliveryFailing
+          expr:
+            sum by (namespace, service, trigger)
+            (increase(argocd_notifications_deliveries_total{succeeded="false"}[1h])) > 0
+          labels:
+            severity: warning
+          annotations:
+            summary: "ArgoCD notification delivery failing ({{ $labels.service }}, {{ $labels.trigger }})"
+            description:
+              "The ArgoCD notifications controller failed to deliver {{ $labels.trigger }} through {{ $labels.service }}
+              in the last hour, so sync failures and degraded apps may go unreported. Check the
+              argocd-notifications-controller logs."
     # Nothing watched container memory before, so Postgres sat at 94-98% of its
     # limit for four days and OOMKilled with no warning, which 503'd Authentik's
     # DB-backed liveness probe and restarted every SSO replica at once.

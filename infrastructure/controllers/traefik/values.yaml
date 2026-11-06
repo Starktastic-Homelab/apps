@@ -36,8 +36,12 @@ accessLog:
   enabled: true
   format: json
   fields:
+    # Headers carry session cookies, Authorization, the forward-auth JWT and API keys, and this
+    # log goes to Loki. Allowlist only: CrowdSec's traefik-logs parser reads request_User-Agent.
     headers:
-      defaultMode: keep
+      defaultMode: drop
+      names:
+        User-Agent: keep
 
 # Allow running on Master/Control Plane nodes
 tolerations:

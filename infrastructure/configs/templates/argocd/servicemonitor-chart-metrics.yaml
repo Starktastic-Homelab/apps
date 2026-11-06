@@ -1,0 +1,27 @@
+# Scrapes the chart's applicationset and notifications metrics Services, which ansible
+# turns on (roles/bootstrap_cluster/tasks/argocd.yml). The ServiceMonitor lives here
+# because the chart skips its own when the Prometheus CRDs are missing, as on a fresh
+# cluster. The application controller keeps its own pair (metrics-service.yaml,
+# servicemonitor.yaml); the component list keeps it from being scraped twice.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: argocd-chart-metrics
+  namespace: argocd
+spec:
+  endpoints:
+    - port: http-metrics
+      path: /metrics
+  namespaceSelector:
+    matchNames:
+      - argocd
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-metrics
+      app.kubernetes.io/instance: argocd
+    matchExpressions:
+      - key: app.kubernetes.io/component
+        operator: In
+        values:
+          - applicationset-controller
+          - notifications-controller

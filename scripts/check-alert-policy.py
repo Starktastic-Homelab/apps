@@ -158,6 +158,43 @@ checks.append({
     ],
 })
 
+argocd = {
+    rule["alert"]: rule
+    for group in load("services/operations/kube-prometheus-stack/manifests/custom-rules.yaml")["spec"]["groups"]
+    for rule in group["rules"]
+}
+app = 'namespace="argocd",project="default"'
+for name, sync_status, phase in [
+    ("drifted", "OutOfSync", "Failed"),
+    ("unknown", "Unknown", "Succeeded"),
+    ("health-error", "Synced", "Succeeded"),
+    ("both", "Unknown", ""),
+    ("fine", "Synced", ""),
+]:
+    inputs.append({
+        "series": f'argocd_app_info{{{app},name="{name}",sync_status="{sync_status}",phase="{phase}"}}',
+        "values": "1+0x20",
+    })
+for name in ["health-error", "both"]:
+    inputs.append({
+        "series": f'argocd_app_condition{{{app},name="{name}",condition="ComparisonError"}}',
+        "values": "1+0x20",
+    })
+# No phase label in the output: a sync attempt must not split or reset an alert.
+checks.append({
+    "expr": argocd["ArgoCDAppOutOfSync"]["expr"],
+    "eval_time": "15m",
+    "exp_samples": [{"labels": f'{{{app},name="drifted"}}', "value": 1}],
+})
+checks.append({
+    "expr": argocd["ArgoCDAppComparisonFailing"]["expr"],
+    "eval_time": "15m",
+    "exp_samples": [
+        {"labels": f'{{{app},name="{name}"}}', "value": 1}
+        for name in ["unknown", "health-error", "both"]
+    ],
+})
+
 subprocess.run(
     [*(sys.argv[1:] or ["promtool"]), "test", "rules", "/dev/stdin"],
     input=yaml.safe_dump({

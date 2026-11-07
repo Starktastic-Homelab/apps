@@ -36,6 +36,13 @@
       "minimumReleaseAge": "7 days"
     },
     {
+      "description": "No soak and no auto-merge for images outside Docker Hub (ghcr.io, lscr.io, quay.io, any other registry host). The docker datasource reads release dates only from Docker Hub, and since Renovate 42 a minimumReleaseAge treats an undated release as pending forever: these updates sat under Pending Status Checks until ticked, renovate/stability-days never passed and none ever auto-merged. Open their PRs at once and merge by hand; to auto-merge one, add a later rule for it with automerge true (it gets no soak).",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["/^[^/]+[.:][^/]*//", "!/^(docker\\.io|registry-1\\.docker\\.io|index\\.docker\\.io)//"],
+      "minimumReleaseAge": null,
+      "automerge": false
+    },
+    {
       "description": "Use native ordering for stable LinuxServer build tags; exclude commit hashes, prereleases, branch/arch aliases and legacy Ubuntu tags",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["/^lscr\\.io/linuxserver//"],
@@ -88,9 +95,11 @@
       "automerge": false
     },
     {
-      "description": "Group the Authentik Helm chart and its outpost docker images into a single PR \u2014 they release in lockstep and must be upgraded together",
+      "description": "Group the Authentik Helm chart and its outpost docker images into a single PR \u2014 they release in lockstep and must be upgraded together. internalChecksFilter none keeps both in one PR while the chart soaks (strict drops whichever member is still pending and splits the group); the soak still shows as the renovate/stability-days check. Never auto-merge: a run that sees only the chart update (outpost image not yet published, or its ghcr lookup failed) would otherwise merge the chart alone and leave the outpost behind the server",
       "matchPackageNames": ["authentik", "/^ghcr\\.io/goauthentik//"],
-      "groupName": "authentik"
+      "groupName": "authentik",
+      "internalChecksFilter": "none",
+      "automerge": false
     },
     {
       "description": "Merge Karakeep Meilisearch engine updates manually: a version change discards the rebuildable index (ADR 0010), so search is empty until an admin runs Reindex All Bookmarks.",

@@ -40,6 +40,9 @@ securityContext:
 replicaCount: 1
 strategy:
   type: Recreate
+# The chart's own policy admits port http from any pod, which would void pgadmin-ingress (ADR 0012).
+networkPolicy:
+  enabled: false
 image:
   tag: 9.18@sha256:c332c5f6dfba995d9ebc4af261d93506d6876085d712eaaa3defc8dd1a3f26de
 VolumePermissions:

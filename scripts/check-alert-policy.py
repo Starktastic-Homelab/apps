@@ -159,6 +159,95 @@ checks.append({
     ],
 })
 
+argocd = {
+    rule["alert"]: rule
+    for group in load("services/operations/kube-prometheus-stack/manifests/custom-rules.yaml")["spec"]["groups"]
+    for rule in group["rules"]
+}
+app = 'namespace="argocd",project="default"'
+for name, sync_status, phase in [
+    ("drifted", "OutOfSync", "Failed"),
+    ("unknown", "Unknown", "Succeeded"),
+    ("health-error", "Synced", "Succeeded"),
+    ("both", "Unknown", ""),
+    ("fine", "Synced", ""),
+]:
+    inputs.append({
+        "series": f'argocd_app_info{{{app},name="{name}",sync_status="{sync_status}",phase="{phase}"}}',
+        "values": "1+0x20",
+    })
+for name in ["health-error", "both"]:
+    inputs.append({
+        "series": f'argocd_app_condition{{{app},name="{name}",condition="ComparisonError"}}',
+        "values": "1+0x20",
+    })
+# No phase label in the output: a sync attempt must not split or reset an alert.
+checks.append({
+    "expr": argocd["ArgoCDAppOutOfSync"]["expr"],
+    "eval_time": "15m",
+    "exp_samples": [{"labels": f'{{{app},name="drifted"}}', "value": 1}],
+})
+checks.append({
+    "expr": argocd["ArgoCDAppComparisonFailing"]["expr"],
+    "eval_time": "15m",
+    "exp_samples": [
+        {"labels": f'{{{app},name="{name}"}}', "value": 1}
+        for name in ["unknown", "health-error", "both"]
+    ],
+})
+for trigger, succeeded, values in [
+    ("on-sync-failed", "false", "0+1x80"),
+    ("on-health-degraded", "false", "3+0x80"),  # old failures only
+    ("on-sync-failed", "true", "0+5x80"),
+]:
+    inputs.append({
+        "series": (
+            'argocd_notifications_deliveries_total{namespace="argocd",pod="notifications-0",'
+            f'service="ntfy",trigger="{trigger}",succeeded="{succeeded}"}}'
+        ),
+        "values": values,
+    })
+checks.append({
+    "expr": argocd["ArgoCDNotificationDeliveryFailing"]["expr"],
+    "eval_time": "75m",
+    "exp_samples": [{"labels": '{namespace="argocd",service="ntfy",trigger="on-sync-failed"}', "value": 60}],
+})
+
+crowdsec = {
+    rule["alert"]: rule["expr"]
+    for group in load("infrastructure/system/crowdsec/manifests/prometheus-rules.yaml")["spec"]["groups"]
+    for rule in group["rules"]
+}
+lapi = 'instance="10.42.1.5:6060",job="crowdsec-service",namespace="crowdsec"'
+lapi_up = f"up{{{lapi}}}"
+lapi_absent = '{job="crowdsec-service",namespace="crowdsec"}'
+crowdsec_tests = []
+# The LAPI drops cs_active_decisions rather than exporting 0, and a vanished target leaves no up
+# series, so each case tells an empty result (no alert) from a 0 sample. Agent up=0 must not count.
+for up, decisions, lapi_down, no_decisions in [
+    ("1x20", "15000x20", [], []),  # healthy, community blocklist loaded
+    ("1x20", "15000x5 stale", [], [(lapi_up, 1)]),  # LAPI up, no decisions left
+    ("1x5 0x15", "15000x5 stale", [(lapi_up, 0)], []),  # scrapes failing
+    ("1x5 stale", "15000x5 stale", [(lapi_absent, 1)], []),  # scrape target gone
+]:
+    crowdsec_tests.append({
+        "interval": "1m",
+        "input_series": [
+            {"series": lapi_up, "values": up},
+            {"series": f'cs_active_decisions{{{lapi},action="ban",origin="CAPI",reason="http:scan"}}',
+             "values": decisions},
+            {"series": 'up{job="crowdsec-agent-service",namespace="crowdsec"}', "values": "0x20"},
+        ],
+        "promql_expr_test": [
+            {
+                "expr": crowdsec[name],
+                "eval_time": "15m",
+                "exp_samples": [{"labels": labels, "value": value} for labels, value in expected],
+            }
+            for name, expected in [("CrowdSecLAPIDown", lapi_down), ("CrowdSecNoActiveDecisions", no_decisions)]
+        ],
+    })
+
 subprocess.run(
     [*(sys.argv[1:] or ["promtool"]), "test", "rules", "/dev/stdin"],
     input=yaml.safe_dump({
@@ -167,7 +256,7 @@ subprocess.run(
             "interval": "1m",
             "input_series": inputs,
             "promql_expr_test": checks,
-        }],
+        }, *crowdsec_tests],
     }),
     text=True,
     check=True,

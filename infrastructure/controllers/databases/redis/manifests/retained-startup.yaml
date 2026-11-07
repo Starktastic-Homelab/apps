@@ -14,7 +14,7 @@ data:
       exit 1
     }
     bin=/opt/bitnami/redis/bin
-    [ "$("$bin/redis-server" --version | cut -d' ' -f3)" = v=8.10.2 ] || fail
+    [ "$("$bin/redis-server" --version | cut -d' ' -f3)" = v=8.10.3 ] || fail
     for directory in /data /data/appendonlydir; do
       [ -d "$directory" ] && [ ! -L "$directory" ] && [ -r "$directory" ] && [ -x "$directory" ] || fail
     done

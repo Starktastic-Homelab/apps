@@ -9,8 +9,14 @@ separate acceptance and ownership release. See the
 Only the dedicated PostgreSQL17 data directory moves to the static10GiB ext4
 RWOP/Retain image owned by9999 through stock Proxmox CSI. Its VectorChord/pgvector
 packaging, physical database identity, credentials and endpoint stay the same.
-Photos/videos remain at the existing `immich` subpath on NFS; the model cache and
-Immich server/ML images stay unchanged.
+Photos/videos remained at the `immich` subpath of `main/media` on NFS; the model
+cache and Immich server/ML images stayed unchanged.
+
+Since November 2026 the library lives in its own TrueNAS dataset, `main/immich`,
+mounted through `media/immich-library-pvc` (PV `immich-library-pv`,
+`10.9.8.30:/mnt/main/immich`) at the same `/usr/src/app/upload` path, so stored
+asset paths are unchanged. The checkpoint below describes the layout at the time,
+when Immich still shared `main/media` with the media workloads.
 
 Normal Terraform/Ansible cluster rebuilds reuse the retained image. A read-only
 init guard validates PG17, its control-file CRC, exact physical system identifier,

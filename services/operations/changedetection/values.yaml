@@ -4,7 +4,7 @@ controllers:
       main:
         image:
           repository: ghcr.io/dgtlmoon/changedetection.io
-          tag: 0.60.7@sha256:096dae27b5d677b89f0e810fff95a70403271aa3ff3b6437952d2db9be7e74c5
+          tag: 0.70.2@sha256:36ebb3586e9a6b14af6fb488c6e29b60eceb79ee414ecdb6ac2b91dd25b1c7ba
         env:
           PLAYWRIGHT_DRIVER_URL: "ws://localhost:3000"
           BASE_URL: "https://changedetection.internal.starktastic.net"

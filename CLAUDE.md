@@ -26,6 +26,7 @@ YAMLLINT_CONFIG_FILE=.github/yamllint.yaml yamllint .
 # kubeconform: copy the "Validate static manifests" step (fetches schemas)
 python3 scripts/check-homepage-coverage.py    # PyYAML + helm
 python3 scripts/check-jellyfin-compat.py      # PyYAML + helm + curl
+python3 scripts/check-argocd-notifications.py # PyYAML + helm: ntfy bodies stay valid JSON
 python3 scripts/check-alert-policy.py docker run --rm -i --network none --entrypoint promtool prom/prometheus:<ver>
 node scripts/check-linuxserver-tags.mjs       # offline assertion on renovate.json
 python3 scripts/check-readme-images.py
@@ -70,6 +71,10 @@ Changing a contract means changing both sides together; see `../CLAUDE.md`.
 
 - ← ansible: root app, ArgoCD settings, org secret `KUBECONFIG_RAW` (used by `refresh.yaml`). apps owns
   `infrastructure/configs/templates/argocd/` (notifications ConfigMap and Secret).
+- ← ansible metrics: `roles/bootstrap_cluster/tasks/argocd.yml` enables the applicationset and
+  notifications metrics Services and sets `controller.metrics.application.conditions: ComparisonError`.
+  `infrastructure/configs/templates/argocd/servicemonitor-chart-metrics.yaml` scrapes them; the argocd
+  group in `services/operations/kube-prometheus-stack/manifests/custom-rules.yaml` alerts on them.
 - ↔ ansible: `scripts/sealed-secrets-cert.pem` (ansible seeds the key and pins this file by SHA), worker
   labels, CSI topology and slots (`infrastructure/system/proxmox-csi/`,
   `services/operations/kube-prometheus-stack/manifests/proxmox-csi-capacity.yaml`), the

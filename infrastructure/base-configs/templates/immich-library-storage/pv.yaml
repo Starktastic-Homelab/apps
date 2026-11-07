@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: immich-library-pv
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  capacity:
+    storage: 1Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: immich-library-pvc
+    namespace: media
+  nfs:
+    server: {{ .Values.global.network.nfs.server }}
+    path: /mnt/main/immich
+  mountOptions:
+    - nfsvers=4.1
+    - noatime
+    - hard
+    - rsize=1048576
+    - wsize=1048576
+    - nconnect=8

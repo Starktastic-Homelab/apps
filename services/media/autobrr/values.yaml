@@ -11,7 +11,7 @@ controllers:
       main:
         image:
           repository: ghcr.io/autobrr/autobrr
-          tag: v1.86.0@sha256:0b8b997c40424557a4bd688a4cb487dd8a765a69b5aa5b003c0d8106f6a895af
+          tag: v1.90.0@sha256:72bb5fe5e8c73f85660f92502d9015b21b07156495f039b55864633b9f8b7a89
         env:
           AUTOBRR__HOST: "0.0.0.0"
           AUTOBRR__PORT: "7474"

@@ -4,13 +4,15 @@ controllers:
       main:
         image:
           repository: ghcr.io/c4illin/convertx
-          tag: v0.18.0@sha256:b515b04bfd25298a5cdc775b2fcd48b9399bab658ce13e2598b65df1b16098c8
+          tag: v0.20.0@sha256:6259e0c1e063120b1ddbc6937372a83be58182b2c9dc82264f58e100907b3e51
         env:
           ALLOW_UNAUTHENTICATED: "true"
           UNAUTHENTICATED_USER_SHARING: "false"
           ACCOUNT_REGISTRATION: "false"
           AUTO_DELETE_EVERY_N_HOURS: "24"
           FFMPEG_ARGS: "-hwaccel vaapi -hwaccel_device /dev/dri/renderD128 -hwaccel_output_format vaapi"
+          # v0.19+ entrypoint gosu-drops to PUID (common.yaml: 1000) without group 0, losing /dev/dri/renderD128; "0" keeps root.
+          PUID: "0"
         resources:
           limits:
             gpu.intel.com/i915: "1"

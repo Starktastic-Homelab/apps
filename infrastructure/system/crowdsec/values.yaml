@@ -113,7 +113,7 @@ lapi:
   replicas: 1
   extraInitContainers:
     - name: postgres-enrollment-acceptance
-      image: python@sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+      image: python@sha256:640956cce7e0dee7998246e103e830404e8677b8c2cdff603fff3962aa9a526d
       command:
         - python3
         - -B
@@ -151,7 +151,7 @@ lapi:
           mountPath: /gate-api
           readOnly: true
     - name: retained-database
-      image: postgres:18.6-alpine@sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd
+      image: postgres:18.6-alpine@sha256:80df0884d0d3b7f0f7b2c37f273b1c12d5fd66e25aaef2e19ebf95908d620f11
       command:
         - /bin/sh
         - -ec

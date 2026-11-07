@@ -26,7 +26,7 @@ auth:
 # tags, and any one of them breaking takes the whole database offline.
 image:
   repository: bitnami/postgresql
-  tag: "latest@sha256:b74b23f091dcc87041bcae557d840c36458af46b955279cb13aedec4c32d7f71"
+  tag: "latest@sha256:b418fd5f001c272aad93ac1febf783f543ee45d8e359d58bd5afc3d2a9b62290"
 primary:
   replicaCount: 1
   resourcesPreset: "none"
@@ -66,7 +66,7 @@ primary:
     failureThreshold: 30
   initContainers:
     - name: verify-retained-data
-      image: registry-1.docker.io/bitnami/postgresql:latest@sha256:b74b23f091dcc87041bcae557d840c36458af46b955279cb13aedec4c32d7f71
+      image: registry-1.docker.io/bitnami/postgresql:latest@sha256:b418fd5f001c272aad93ac1febf783f543ee45d8e359d58bd5afc3d2a9b62290
       imagePullPolicy: IfNotPresent
       command:
         - /bin/bash
@@ -141,7 +141,7 @@ volumePermissions:
   # repository restates the chart default so Renovate can see the pin.
   image:
     repository: bitnami/os-shell
-    tag: "latest@sha256:481601c7f12a169eb8bfedbb6e434b8641abd5422eacf695e0c0823f15a00afc"
+    tag: "latest@sha256:5e77f6a00c416967070a080f6a9092c5cb8cff7ff05a33b1f1bd01e6c79a7236"
 
 metrics:
   enabled: true
@@ -152,6 +152,6 @@ metrics:
   # that reason, not for the metrics themselves.
   image:
     repository: bitnami/postgres-exporter
-    tag: "latest@sha256:c6b5bd91427e5fad89c4995c198c9cf2851555cbc7d8f720d37f0ba201933a3b"
+    tag: "latest@sha256:d196b49967ab556479842900927c87ece1333dfe74b964693c098a25f6d0f1b5"
   serviceMonitor:
     enabled: true

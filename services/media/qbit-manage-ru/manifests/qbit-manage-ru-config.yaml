@@ -7,13 +7,15 @@ metadata:
 data:
   config.yml: |
     commands:
-      dry_run: false
+      # First run after months of config errors: preview only, flip to false once the log is reviewed.
+      dry_run: true
       recheck: true
       cat_update: true
       tag_update: true
       rem_unregistered: true
       tag_tracker_error: true
-      rem_orphaned: true
+      # root_dir is the /data/torrents tree shared with the main client, so every main file looks orphaned here.
+      rem_orphaned: false
       tag_nohardlinks: true
       share_limits: true
       skip_qb_version_check: true
@@ -63,14 +65,14 @@ data:
         include_all_tags:
           - noHL
         max_ratio: -1
-        max_seeding_time: 1
-        min_seeding_time: 1
+        # Minutes from completion; a day lets Sonarr-ru import (hardlink) before an unlinked torrent is removed.
+        # min_seeding_time is only valid with max_ratio > 0, so neither group sets it.
+        max_seeding_time: 1440
         cleanup: true
       default:
         priority: 999
         max_ratio: -1
         max_seeding_time: 10080
-        min_seeding_time: 1
         cleanup: true
 
     recyclebin:

@@ -62,6 +62,10 @@ ports:
     expose:
       default: true
     protocol: TCP
+    http:
+      # Runs before each router's own middlewares; see manifests/templates/strip-authentik-headers.yaml.
+      middlewares:
+        - traefik-system-strip-authentik-headers@kubernetescrd
   web-int:
     port: 8001
     expose:
@@ -71,11 +75,19 @@ ports:
     expose:
       default: false
     protocol: TCP
+    http:
+      middlewares:
+        - traefik-system-strip-authentik-headers@kubernetescrd
   metrics:
     port: 9100
     expose:
       default: false
     exposedPort: 9100
+# The strip middleware and forward auth replace only canonical names (X-Authentik-Email), while
+# WSGI, PHP and nginx backends also read X_authentik_email or X.authentik.email as that header.
+# Drop request headers whose names alias another one, on every entrypoint (Traefik v3.7.17+).
+global:
+  aliasHeadersStrategy: delete
 service:
   enabled: false
 persistence:

@@ -25,3 +25,4 @@ that supersedes the old one (don't rewrite history).
 | 0009 | [Explicit `storageClassName` over a default class](0009-explicit-storageclass-over-default.md) | Accepted |
 | 0010 | [Karakeep search index is rebuildable](0010-karakeep-search-index-rebuildable.md) | Accepted |
 | 0011 | [Restrict Loki ingress with one NetworkPolicy](0011-loki-ingress-networkpolicy.md) | Accepted |
+| 0012 | [Restrict pgAdmin ingress with one NetworkPolicy](0012-pgadmin-ingress-networkpolicy.md) | Accepted |

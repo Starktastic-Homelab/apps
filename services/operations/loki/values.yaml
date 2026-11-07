@@ -46,7 +46,7 @@ singleBinary:
     node-role.kubernetes.io/worker: "true"
   initContainers:
     - name: retained-state
-      image: python@sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+      image: python@sha256:640956cce7e0dee7998246e103e830404e8677b8c2cdff603fff3962aa9a526d
       command:
         - python3
         - -I

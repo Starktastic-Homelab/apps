@@ -62,6 +62,12 @@
       "allowedVersions": "!/^2\\.14\\.3$/"
     },
     {
+      "description": "Never auto-merge the Proxmox CSI chart: it runs the controller and node plugin for every retained block volume, and its slot budget and topology are an ansible/terraform contract. Review each bump by hand.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ghcr.io/sergelogvinov/charts/proxmox-csi-plugin"],
+      "automerge": false
+    },
+    {
       "description": "Never auto-merge any image in the PostgreSQL pod. All four are rolling :latest tags pinned by digest. A postgresql digest bump can silently cross a PostgreSQL major, and Postgres refuses to start on a data directory written by a different major; a glibc change also invalidates collation-dependent indexes. The others are no safer to take blind: a broken os-shell or busybox init container leaves the pod stuck in Init, and postgres-exporter has a readiness probe, so if it fails the pod goes NotReady and the database drops out of its Service endpoints. File-scoped so images added to this chart later are covered too.",
       "matchDatasources": ["docker"],
       "matchFileNames": ["infrastructure/controllers/databases/postgres/values.yaml"],
@@ -112,11 +118,12 @@
       "fileFormat": "yaml"
     },
     {
-      "description": "Update Helm charts in app.yaml via JSONata",
+      "description": "Update Helm charts in app.yaml via JSONata. A repo without a scheme (ghcr.io/...) is an OCI registry, which the helm datasource cannot read, so it goes to docker as <repo>/<name>.",
       "customType": "jsonata",
       "managerFilePatterns": ["/^(infrastructure|services)/.*/app\\.yaml$/"],
-      "matchStrings": ["chart.{ 'depName': name, 'registryUrl': repo, 'currentValue': version }"],
-      "datasourceTemplate": "helm",
+      "matchStrings": [
+        "chart.{ 'depName': $contains(repo, '://') ? name : repo & '/' & name, 'registryUrl': $contains(repo, '://') ? repo, 'currentValue': version, 'datasource': $contains(repo, '://') ? 'helm' : 'docker' }"
+      ],
       "fileFormat": "yaml"
     },
     {

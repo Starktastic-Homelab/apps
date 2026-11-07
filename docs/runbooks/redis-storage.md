@@ -65,10 +65,11 @@ reviewed commands and its own authorization.
 8. Remove exact owned temporary helpers/plaintext, retain recovery and source
    media, audit final identity and release the original maintenance owner last.
 
-The stock driver derives WWN from the VM SCSI slot. Correlate each current WWN
-with that attachment and its guest device; it is not a persistent disk identity.
-The raw image generation, CSI handle, PV/PVC identities and filesystem UUID must
-stay fixed across movement.
+The stock driver hashes a new attachment's WWN from the image name in the CSI
+handle and the VM SCSI slot; an existing attachment keeps the WWN already in the
+VM config. Correlate each current WWN with that attachment and its guest device;
+it is not a persistent disk identity. The raw image generation, CSI handle,
+PV/PVC identities and filesystem UUID must stay fixed across movement.
 
 Redis stream recovery compares every persisted field, entry, group, pending
 delivery, consumer and absolute expiration. Only the top-level internal

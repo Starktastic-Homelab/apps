@@ -1,8 +1,8 @@
 # Proxmox CSI attachment capacity
 
 Each retained volume consumes one virtual SCSI slot on the worker running it.
-The stock v0.20.0 driver defaults to 24 attachments. Its label validation accepts
-30, but its [attachment loop](https://github.com/sergelogvinov/proxmox-csi-plugin/blob/v0.20.0/pkg/csi/utils.go)
+The stock v0.22.0 driver defaults to 24 attachments. Its label validation accepts
+30, but its [attachment loop](https://github.com/sergelogvinov/proxmox-csi-plugin/blob/v0.22.0/pkg/csi/utils.go)
 only searches `scsi1` through `scsi29`. Our supported allowance is therefore **29
 per worker**, with worker OS disks on `virtio0` and cloud-init on `ide2`.
 Growing an existing volume consumes no extra attachment slot.

@@ -64,6 +64,7 @@ ports:
     protocol: TCP
     http:
       # Runs before each router's own middlewares; see manifests/templates/strip-authentik-headers.yaml.
+      # The <namespace>-<name> id assumes kubernetesCRD safeNaming stays off (Traefik's default).
       middlewares:
         - traefik-system-strip-authentik-headers@kubernetescrd
   web-int:

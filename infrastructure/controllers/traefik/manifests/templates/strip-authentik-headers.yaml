@@ -3,12 +3,14 @@
 # /rest/ trusts X-authentik-username) and names outside the list reach apps as the client sent
 # them. values.yaml runs this first on websecure and websec-int; forward auth then sets the real
 # values. If this object is missing, every router on those entrypoints fails (404).
-# No sync wave: the chart ships the Middleware CRD in wave 0, so wave -1 would deadlock a bootstrap.
+# PruneLast: a one-commit revert must not delete this before every Traefik pod drops the reference.
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: strip-authentik-headers
   namespace: traefik-system
+  annotations:
+    argocd.argoproj.io/sync-options: PruneLast=true
 spec:
   headers:
     # Every header the Authentik 2026.8 outpost emits (getHeaders). An empty value deletes it.

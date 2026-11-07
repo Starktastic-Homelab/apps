@@ -15,6 +15,13 @@
   "kubernetes": {
     "managerFilePatterns": ["/\\.yaml$/"]
   },
+  "hostRules": [
+    {
+      "description": "Pace ghcr.io to 1 request/s. GHCR lists tags oldest first, 1000 per page, so the ~222k-tag immich-machine-learning lookup is ~222 back-to-back requests, and a 429 mid-crawl surfaces as a 'no-result' lookup failure. 1/s crawled every page without a 429. No hostType: Renovate's throttle matches rules by URL only.",
+      "matchHost": "ghcr.io",
+      "maxRequestsPerSecond": 1
+    }
+  ],
   "packageRules": [
     {
       "description": "Auto-merge low-risk updates after a soak period for stability",
@@ -36,6 +43,13 @@
       "minimumReleaseAge": "7 days"
     },
     {
+      "description": "No soak and no auto-merge for images outside Docker Hub (ghcr.io, lscr.io, quay.io, any other registry host). The docker datasource reads release dates only from Docker Hub, and since Renovate 42 a minimumReleaseAge treats an undated release as pending forever: these updates sat under Pending Status Checks until ticked, renovate/stability-days never passed and none ever auto-merged. Open their PRs at once and merge by hand; to auto-merge one, add a later rule for it with automerge true (it gets no soak).",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["/^[^/]+[.:][^/]*//", "!/^(docker\\.io|registry-1\\.docker\\.io|index\\.docker\\.io)//"],
+      "minimumReleaseAge": null,
+      "automerge": false
+    },
+    {
       "description": "Use native ordering for stable LinuxServer build tags; exclude commit hashes, prereleases, branch/arch aliases and legacy Ubuntu tags",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["/^lscr\\.io/linuxserver//"],
@@ -44,10 +58,10 @@
       "allowedVersions": "!/^\\d{2}\\.04/"
     },
     {
-      "description": "Stay on libtorrent v2 (qBittorrent 5.x); block the 6.x release which switches to libtorrent v3",
+      "description": "Stay on libtorrent v2 (6.x switches to libtorrent v3) and hold qBittorrent at 5.2.x. 5.3.0 ships libtorrent 2.1.2 (torrents stall at 100%: qbittorrent/qBittorrent#25123, #25130; memory growth: #25202) and WebAPI 2.16, which drops skip_checking, so every cross-seed v6 injection forces a full recheck; its config migration is one-way. Allow 5.3 once a release fixes those and cross-seed supports WebAPI 2.16.",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["lscr.io/linuxserver/qbittorrent"],
-      "allowedVersions": "/^[0-5]\\..*_v2\\./"
+      "allowedVersions": "/^([0-4]|5\\.[0-2])\\..*_v2\\./"
     },
     {
       "description": "Track only FileBrowser Quantum's stable channel; the registry also publishes -beta tags for the same version",
@@ -82,15 +96,27 @@
       "automerge": false
     },
     {
+      "description": "Never bump postgres in the two enrollment Job manifests. They must match job-template.json in enrollment-configmap.yaml (the acceptance generation), which Renovate cannot rewrite, and the consumer values pin the same digest in a repository/digest form Renovate does not parse, so a Renovate bump here only desyncs them (#1531, #1550). Bump all of them together by hand with regeneration.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["postgres"],
+      "matchFileNames": [
+        "infrastructure/controllers/databases/postgres/manifests/enrollment-job.yaml",
+        "scripts/postgres-enrollment/job.yaml"
+      ],
+      "enabled": false
+    },
+    {
       "description": "Require manual review for Home Assistant pod image updates because Home Assistant and Matter Server are a compatibility pair",
       "matchDatasources": ["docker"],
       "matchFileNames": ["services/home-automation/home-assistant/values.yaml"],
       "automerge": false
     },
     {
-      "description": "Group the Authentik Helm chart and its outpost docker images into a single PR \u2014 they release in lockstep and must be upgraded together",
+      "description": "Group the Authentik Helm chart and its outpost docker images into a single PR \u2014 they release in lockstep and must be upgraded together. internalChecksFilter none keeps both in one PR while the chart soaks (strict drops whichever member is still pending and splits the group); the soak still shows as the renovate/stability-days check. Never auto-merge: a run that sees only the chart update (outpost image not yet published, or its ghcr lookup failed) would otherwise merge the chart alone and leave the outpost behind the server",
       "matchPackageNames": ["authentik", "/^ghcr\\.io/goauthentik//"],
-      "groupName": "authentik"
+      "groupName": "authentik",
+      "internalChecksFilter": "none",
+      "automerge": false
     },
     {
       "description": "Merge Karakeep Meilisearch engine updates manually: a version change discards the rebuildable index (ADR 0010), so search is empty until an admin runs Reindex All Bookmarks.",

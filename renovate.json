@@ -58,10 +58,10 @@
       "allowedVersions": "!/^\\d{2}\\.04/"
     },
     {
-      "description": "Stay on libtorrent v2 (qBittorrent 5.x); block the 6.x release which switches to libtorrent v3",
+      "description": "Stay on libtorrent v2 (6.x switches to libtorrent v3) and hold qBittorrent at 5.2.x. 5.3.0 ships libtorrent 2.1.2 (torrents stall at 100%: qbittorrent/qBittorrent#25123, #25130; memory growth: #25202) and WebAPI 2.16, which drops skip_checking, so every cross-seed v6 injection forces a full recheck; its config migration is one-way. Allow 5.3 once a release fixes those and cross-seed supports WebAPI 2.16.",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["lscr.io/linuxserver/qbittorrent"],
-      "allowedVersions": "/^[0-5]\\..*_v2\\./"
+      "allowedVersions": "/^([0-4]|5\\.[0-2])\\..*_v2\\./"
     },
     {
       "description": "Track only FileBrowser Quantum's stable channel; the registry also publishes -beta tags for the same version",

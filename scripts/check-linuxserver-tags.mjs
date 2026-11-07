@@ -22,6 +22,9 @@ assert.doesNotMatch('12.1ubu2604-ls50', legacyUbuntu);
 
 const qbitAllowed = new RegExp(qbittorrent.allowedVersions.slice(1, -1));
 assert.match('5.2.3_v2.0.14-ls1', qbitAllowed);
+assert.match('5.2.4_v2.0.15-ls481', qbitAllowed);
+assert.doesNotMatch('5.3.0_v2.1.2-ls486', qbitAllowed);
+assert.doesNotMatch('5.3.0_v2.0.15-ls482', qbitAllowed);
 assert.doesNotMatch('6.0.0_v2.0.14-ls1', qbitAllowed);
 assert.doesNotMatch('5.2.3_v1.2.20-ls1', qbitAllowed);
 assert.doesNotMatch('5.2.3_v3.0.0-ls1', qbitAllowed);

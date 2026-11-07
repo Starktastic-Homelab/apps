@@ -7,7 +7,9 @@ controllers:
           tag: v3.30.0
         env:
           BASE_URL: "https://mealie.starktastic.net"
-          ALLOW_SIGNUP: "true"
+          # Public host without forward auth: open signup let anyone create a local password account.
+          # Authentik users still get accounts through OIDC_SIGNUP_ENABLED; invite links keep working.
+          ALLOW_SIGNUP: "false"
           DB_ENGINE: "postgres"
           OIDC_AUTH_ENABLED: "true"
           OIDC_SIGNUP_ENABLED: "true"

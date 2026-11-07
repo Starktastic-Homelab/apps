@@ -15,6 +15,13 @@
   "kubernetes": {
     "managerFilePatterns": ["/\\.yaml$/"]
   },
+  "hostRules": [
+    {
+      "description": "Pace ghcr.io to 1 request/s. GHCR lists tags oldest first, 1000 per page, so the ~222k-tag immich-machine-learning lookup is ~222 back-to-back requests, and a 429 mid-crawl surfaces as a 'no-result' lookup failure. 1/s crawled every page without a 429. No hostType: Renovate's throttle matches rules by URL only.",
+      "matchHost": "ghcr.io",
+      "maxRequestsPerSecond": 1
+    }
+  ],
   "packageRules": [
     {
       "description": "Auto-merge low-risk updates after a soak period for stability",

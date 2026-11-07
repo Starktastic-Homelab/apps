@@ -4,4 +4,4 @@ deployPhase: controllers
 chart:
   repo: ghcr.io/sergelogvinov/charts
   name: proxmox-csi-plugin
-  version: 0.5.10
+  version: 0.5.15

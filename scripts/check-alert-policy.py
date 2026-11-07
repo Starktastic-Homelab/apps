@@ -213,6 +213,22 @@ checks.append({
     "exp_samples": [{"labels": '{namespace="argocd",service="ntfy",trigger="on-sync-failed"}', "value": 60}],
 })
 
+# kube-state-metrics exports every reason per pod, 0 unless it applies; only Evicted counts.
+for pod, reason, value in [
+    ("evicted", "Evicted", 1), ("evicted", "NodeLost", 0),
+    ("lost", "Evicted", 0), ("lost", "NodeLost", 1),
+    ("running", "Evicted", 0), ("running", "NodeLost", 0),
+]:
+    inputs.append({
+        "series": f'kube_pod_status_reason{{namespace="media",pod="{pod}",reason="{reason}",uid="u"}}',
+        "values": f"{value}+0x20",
+    })
+checks.append({
+    "expr": argocd["PodEvicted"]["expr"],
+    "eval_time": "15m",
+    "exp_samples": [{"labels": '{namespace="media",pod="evicted"}', "value": 1}],
+})
+
 crowdsec = {
     rule["alert"]: rule["expr"]
     for group in load("infrastructure/system/crowdsec/manifests/prometheus-rules.yaml")["spec"]["groups"]

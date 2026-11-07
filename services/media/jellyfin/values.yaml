@@ -66,7 +66,7 @@ controllers:
         command:
           - /bin/sh
           - -ec
-          - mkdir -p /disposable/cache /disposable/transcodes; chown 1000:1000 /disposable/cache /disposable/transcodes
+          - mkdir -p /disposable/cache; chown 1000:1000 /disposable/cache
         securityContext:
           runAsUser: 0
 service:
@@ -98,9 +98,8 @@ persistence:
     advancedMounts:
       main:
         main:
+          # Jellyfin 12 transcodes into <CachePath>/transcodes, so this also holds them.
           - path: /config/cache
             subPath: cache
-          - path: /config/data/transcodes
-            subPath: transcodes
         disposable-dirs:
           - path: /disposable

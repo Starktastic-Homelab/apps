@@ -1,0 +1,39 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: navidrome-ingress
+  namespace: media
+  annotations:
+    comment: Navidrome trusts X-authentik-username from the pod CIDR, so only its known clients may reach it (ADR 0013)
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: navidrome
+      app.kubernetes.io/instance: navidrome
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        # Traefik serves music.benplus.app and strips client-sent X-authentik-* at the entrypoint.
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik-system
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+              app.kubernetes.io/instance: traefik-traefik-system
+        # Both Homepage instances run the navidrome widget and siteMonitor against http://navidrome.media:4533.
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: operations
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: homepage
+              app.kubernetes.io/instance: homepage
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: operations
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: homepage-admin
+              app.kubernetes.io/instance: homepage-admin

@@ -11,6 +11,8 @@ controllers:
           ACCOUNT_REGISTRATION: "false"
           AUTO_DELETE_EVERY_N_HOURS: "24"
           FFMPEG_ARGS: "-hwaccel vaapi -hwaccel_device /dev/dri/renderD128 -hwaccel_output_format vaapi"
+          # v0.19+ entrypoint gosu-drops to PUID (common.yaml: 1000) without group 0, losing /dev/dri/renderD128; "0" keeps root.
+          PUID: "0"
         resources:
           limits:
             gpu.intel.com/i915: "1"

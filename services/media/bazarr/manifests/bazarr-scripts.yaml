@@ -153,6 +153,9 @@ data:
 
 
     def main():
+        # Bazarr >= 1.6.2 drops empty placeholders, so movies arrive without <series_id>.
+        if len(sys.argv) == 5:
+            sys.argv.insert(4, "")
         if len(sys.argv) < 6:
             print("Usage: postprocess.py <directory> <subtitles> <lang_code2> <series_id> <episode_id>",
                   file=sys.stderr)

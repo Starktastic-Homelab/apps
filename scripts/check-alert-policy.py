@@ -138,16 +138,17 @@ inputs.append({
 })
 
 checks = []
-for name, value in [
-    ("MetalLBAddressPoolExhausted", 2),
-    ("MetalLBAddressPoolUsage75Percent", 100),
-    ("MetalLBAddressPoolUsage85Percent", 100),
-    ("MetalLBAddressPoolUsage95Percent", 100),
+# Chart 0.16.2 dropped on(pool) (metallb#3047): the >= filter keeps the left-hand series name.
+for name, metric, value in [
+    ("MetalLBAddressPoolExhausted", "metallb_allocator_addresses_in_use_total", 2),
+    ("MetalLBAddressPoolUsage75Percent", "", 100),
+    ("MetalLBAddressPoolUsage85Percent", "", 100),
+    ("MetalLBAddressPoolUsage95Percent", "", 100),
 ]:
     checks.append({
         "expr": rules[name]["expr"],
         "eval_time": "15m",
-        "exp_samples": [{"labels": '{pool="dynamic-full"}', "value": value}],
+        "exp_samples": [{"labels": metric + '{pool="dynamic-full"}', "value": value}],
     })
 checks.append({
     "expr": rules["KubeServiceLoadBalancerPending"]["expr"],

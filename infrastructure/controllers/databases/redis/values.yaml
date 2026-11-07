@@ -82,7 +82,7 @@ metrics:
   image:
     digest: sha256:a7144e7e82d7dc5dc5ce5b78e096fe74d9508379a1b8eef07a197adda6d964ad
 image:
-  digest: sha256:f4797b37502e6db910d3653368fcfadc171ef605586917774de125ddd05b3e62
+  digest: sha256:59078af5aec997137eb95f34fed376487b471e05c9a244c2812a13598c434950
 commonConfiguration: '# Enable ReJSON y Redisearch
 
   loadmodule /opt/bitnami/redis/lib/redis/modules/redisearch.so

@@ -100,7 +100,7 @@ prometheus:
               storage: 16Gi
           volumeName: prometheus-data-block
     image:
-      sha: b2a413d5a03ea6a76782a508d1c7947440bba3b973931a25676e278431891b01
+      sha: 9764044e09eb2c9e1abdb12d0f0188d4efb7384b0262d3c080f0fc59045c89ba
       registry: quay.io
       repository: prometheus/prometheus
       tag: v3.16.0-distroless

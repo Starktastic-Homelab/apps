@@ -18,7 +18,7 @@ spec:
                 kube_volumeattachment_info{attacher="csi.proxmox.sinextra.dev"}
               )
             )
-        # Matches Ansible's worker label. Stock v0.20.0 only uses scsi1..scsi29.
+        # Matches Ansible's worker label. Stock v0.22.0 only uses scsi1..scsi29.
         # This is the configured budget, not a measurement of CSINode allocatable.
         # Enable only after every worker's live allocatable count is verified 29.
         - record: homelab:proxmox_csi_slots_free:count

@@ -76,7 +76,7 @@ It is not a full46TB copy. Snapshots on separate pools form a coordinated barrie
 because writers are stopped until both are confirmed; they are not claimed to be
 one atomic cross-pool transaction.
 
-WWN follows the current VM SCSI slot. Match each attachment to its guest device;
+WWN follows the image name and the current VM SCSI slot. Match each attachment to its guest device;
 keep the raw image generation, CSI handle, PV/PVC identities and filesystem UUID
 fixed. The completed worker-movement test required one approved additional
 Lingarr pause because worker02 had reached its 24-volume limit. Lingarr resumed

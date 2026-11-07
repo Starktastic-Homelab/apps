@@ -3,7 +3,7 @@
 `app.yaml` is discovered in the controllers phase, after foundation.
 Its namespace, encrypted configuration and public trust anchor are published by
 the foundation `sealed-secrets` Application before controller activation.
-The stock upstream chart is pinned to **0.5.10 / driver v0.20.0**. The OCI repository
+The stock upstream chart is pinned to **0.5.15 / driver v0.22.0**. The OCI repository
 uses [ArgoCD's Helm source format](https://argo-cd.readthedocs.io/en/stable/user-guide/helm/)
 (without `oci://` in `chart.repo`); Helm CLI rendering uses the prefix.
 
@@ -33,7 +33,7 @@ and required headroom using fresh measurements.
   not generate credentials. The manual Ansible shared setup stores a protected
   external JSON credential record; that record is **not** directly the chart's
   YAML configuration. Publication and recovery must compose the stock
-  [configuration](https://github.com/sergelogvinov/proxmox-csi-plugin/blob/v0.20.0/docs/config.md):
+  [configuration](https://github.com/sergelogvinov/proxmox-csi-plugin/blob/v0.22.0/docs/config.md):
   `features.provider: default`, integer `features.controllerVmID` set to the
   reserved external image owner, and `clusters[]` containing the API URL, TLS
   verification choice, token ID/secret and region matching the node labels.
@@ -92,7 +92,7 @@ Run from the repository root (Helm required):
 
 ```bash
 helm template proxmox-csi oci://ghcr.io/sergelogvinov/charts/proxmox-csi-plugin \
-  --version 0.5.10 --namespace csi-proxmox -f templates/globals.yaml \
+  --version 0.5.15 --namespace csi-proxmox -f templates/globals.yaml \
   -f infrastructure/system/proxmox-csi/values.yaml > /tmp/proxmox-csi.yaml
 ```
 

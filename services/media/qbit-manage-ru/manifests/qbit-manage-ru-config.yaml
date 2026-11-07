@@ -7,8 +7,7 @@ metadata:
 data:
   config.yml: |
     commands:
-      # First run after months of config errors: preview only, flip to false once the log is reviewed.
-      dry_run: true
+      dry_run: false
       recheck: true
       cat_update: true
       tag_update: true
@@ -50,7 +49,8 @@ data:
         tag: Kinozal
       nnmclub|nnm-club:
         tag: NoNaMe Club
-      rutracker:
+      # rutracker announces from bt*.t-ru.org.
+      rutracker|t-ru.org:
         tag: RuTracker
       other:
         tag: other
@@ -65,14 +65,18 @@ data:
         include_all_tags:
           - noHL
         max_ratio: -1
-        # Minutes from completion; a day lets Sonarr-ru import (hardlink) before an unlinked torrent is removed.
-        # min_seeding_time is only valid with max_ratio > 0, so neither group sets it.
+        # Minutes of seeding; a day lets Sonarr-ru import (hardlink) before an unlinked torrent is removed.
+        # min_seeding_time needs max_ratio > 0 (qbm refuses to start otherwise); neither group uses it.
         max_seeding_time: 1440
         cleanup: true
       default:
         priority: 999
-        max_ratio: -1
-        max_seeding_time: 10080
+        # Same goals qbittorrent-ru stops at (ratio 2, 1 day seeding, 1 day idle), but removed instead of left stopped.
+        # max_last_active matters: qbm leaves qBittorrent's global idle stop in place and recheck resumes stopped
+        # torrents, so without it an idle torrent is stopped and resumed forever.
+        max_ratio: 2
+        max_seeding_time: 1440
+        max_last_active: 1440
         cleanup: true
 
     recyclebin:

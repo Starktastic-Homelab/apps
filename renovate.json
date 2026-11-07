@@ -56,6 +56,12 @@
       "allowedVersions": "/-stable$/"
     },
     {
+      "description": "Skip Zigbee2MQTT 2.14.3: Ember adapters over TCP drop every few minutes and ZBDongle-E hits route errors (Koenkk/zigbee2mqtt#33574, #33609); 2.14.2 is stable. Remove once a fixed release ships.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ghcr.io/koenkk/zigbee2mqtt"],
+      "allowedVersions": "!/^2\\.14\\.3$/"
+    },
+    {
       "description": "Never auto-merge any image in the PostgreSQL pod. All four are rolling :latest tags pinned by digest. A postgresql digest bump can silently cross a PostgreSQL major, and Postgres refuses to start on a data directory written by a different major; a glibc change also invalidates collation-dependent indexes. The others are no safer to take blind: a broken os-shell or busybox init container leaves the pod stuck in Init, and postgres-exporter has a readiness probe, so if it fails the pod goes NotReady and the database drops out of its Service endpoints. File-scoped so images added to this chart later are covered too.",
       "matchDatasources": ["docker"],
       "matchFileNames": ["infrastructure/controllers/databases/postgres/values.yaml"],

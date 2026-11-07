@@ -12,6 +12,7 @@ live as scattered TODOs. Significant *decisions* are recorded as ADRs under `doc
   (uptime) monitoring yet.
 - **Diagrams:** Architecture is documented in prose only; no diagrams-as-code.
 - **Contributor docs:** No CONTRIBUTING guide, issue/PR templates, or CODEOWNERS.
-- **Network policies:** No cluster-authored default-deny NetworkPolicies; only chart-shipped
-  policies are in effect (see `docs/adr/0008-networkpolicies-declined.md`).
+- **Network policies:** No cluster-authored default-deny NetworkPolicies (see
+  `docs/adr/0008-networkpolicies-declined.md`); chart-shipped policies plus targeted ingress policies for Loki, pgAdmin
+  and Navidrome (ADRs 0011-0013) are in effect.
 - **CNI:** A Cilium migration is deferred (see `docs/adr/0007-cni-flannel-kube-router.md`).

@@ -40,6 +40,21 @@ spec:
             summary: "PVC space critical ({{ $labels.persistentvolumeclaim }})"
             description:
               "PVC {{ $labels.namespace }}/{{ $labels.persistentvolumeclaim }} has less than 5% space remaining."
+    # A kubelet eviction (emptyDir sizeLimit, ephemeral-storage limit or node pressure) kills
+    # the pod at once and wipes its emptyDirs. The replacement pod only raises
+    # KubePodNotReady-style alerts, which route to null, so nothing announced it before.
+    - name: pod-eviction
+      rules:
+        - alert: PodEvicted
+          expr: max by (namespace, pod) (kube_pod_status_reason{reason="Evicted"}) == 1
+          labels:
+            severity: warning
+          annotations:
+            summary: "Pod evicted ({{ $labels.namespace }}/{{ $labels.pod }})"
+            description:
+              "The kubelet evicted {{ $labels.namespace }}/{{ $labels.pod }}, so its emptyDir data is gone. The pod's
+              status message gives the limit or pressure that tripped. The Failed pod, and this alert, stay until the
+              pod is deleted."
     - name: alert-pipeline
       rules:
         - alert: AlertmanagerDown

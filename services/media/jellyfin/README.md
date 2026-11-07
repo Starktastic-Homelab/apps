@@ -20,6 +20,19 @@ The canonical `Authorization: MediaBrowser Token="..."` headers, Homepage widget
 `version: 2`, and body-aware readiness probe remain in place and work with both
 versions. This runbook retains the upgrade safeguards and rollback checkpoint.
 
+## Cache and transcodes
+
+`/config/cache` is the 10Gi `disposable` emptyDir, so it is wiped on every pod restart.
+Jellyfin writes transcodes to its default `/config/cache/transcodes`, because
+`encoding.xml` sets no `TranscodingTempPath`. 10Gi is enough only because two settings
+are on in the transcoding settings: **Throttle transcodes** (180 s) and **Delete
+segments** (keep 720 s). Each stream then holds about 15 minutes of output,
+roughly 1 GB at 8 Mbps. Both are off by default, and a past Jellyfin migration switched
+throttling off. With them off, the GPU writes a whole film ahead and keeps it until
+playback stops. Going over 10Gi does not return a disk-full error: the kubelet evicts
+the pod, every stream drops, and `PodEvicted` fires. After each upgrade, check that both
+settings are still on. On November 7, 2026, two hardware HEVC transcodes held 0.65 GB.
+
 ## Why this needs a maintenance window
 
 Jellyfin removed the constant `10.` version prefix: 12.0 is what would previously
@@ -51,7 +64,7 @@ These do not prove this installation will fail; they do make a rehearsal importa
 At the September image-upgrade preflight, `jellyfin-config` mounted at `/config`
 on NFS. Its historical provisioner path was
 `/mnt/apps/pv/media/jellyfin-config`; confirm the bound PV before filesystem work.
-The separate node-local `/config/cache` volume does **not** move the database off
+The then-separate node-local `/config/cache` volume did **not** move the database off
 NFS. Jellyfin recommends local database storage; treat the existing NFS placement
 as a migration risk, not something silently changed alongside the image.
 
@@ -139,8 +152,8 @@ The Intro Skipper feed selects its manifest using Jellyfin's server version.
 Check local and LDAP administrator access, ordinary-user library restrictions,
 full-scan results, direct play, forced VA-API transcoding, HDR tone mapping,
 subtitles, seeking, and the clients actually used. Record peak memory, not just
-idle usage; the production cache pins Jellyfin to worker-01, so check that node's
-headroom rather than extrapolating from a rehearsal worker.
+idle usage; Jellyfin can run on either worker, so check both workers' headroom
+rather than extrapolating from a rehearsal worker.
 
 ## Controlled production upgrade
 

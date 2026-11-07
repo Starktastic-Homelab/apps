@@ -96,6 +96,16 @@
       "automerge": false
     },
     {
+      "description": "Never bump postgres in the two enrollment Job manifests. They must match job-template.json in enrollment-configmap.yaml (the acceptance generation), which Renovate cannot rewrite, and the consumer values pin the same digest in a repository/digest form Renovate does not parse, so a Renovate bump here only desyncs them (#1531, #1550). Bump all of them together by hand with regeneration.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["postgres"],
+      "matchFileNames": [
+        "infrastructure/controllers/databases/postgres/manifests/enrollment-job.yaml",
+        "scripts/postgres-enrollment/job.yaml"
+      ],
+      "enabled": false
+    },
+    {
       "description": "Require manual review for Home Assistant pod image updates because Home Assistant and Matter Server are a compatibility pair",
       "matchDatasources": ["docker"],
       "matchFileNames": ["services/home-automation/home-assistant/values.yaml"],

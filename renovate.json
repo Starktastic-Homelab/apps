@@ -119,6 +119,13 @@
       "automerge": false
     },
     {
+      "description": "Keep immich-server and immich-machine-learning in the immich monorepo group by name. The built-in group matches on sourceUrl, which Renovate reads from the image labels; when that label fetch hits a ghcr 429, the image silently leaves the group (as in #509 and #512). Same groupName and update types as the preset, so the branch stays renovate/immich-monorepo. A failed tag lookup can still split the group, so check that both images moved before merging.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ghcr.io/immich-app/immich-server", "ghcr.io/immich-app/immich-machine-learning"],
+      "matchUpdateTypes": ["digest", "patch", "minor", "major"],
+      "groupName": "immich monorepo"
+    },
+    {
       "description": "Merge Karakeep Meilisearch engine updates manually: a version change discards the rebuildable index (ADR 0010), so search is empty until an admin runs Reindex All Bookmarks.",
       "matchDatasources": ["docker"],
       "matchFileNames": ["services/operations/karakeep/values.yaml"],

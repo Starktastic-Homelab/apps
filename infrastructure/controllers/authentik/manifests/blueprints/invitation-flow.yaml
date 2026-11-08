@@ -201,11 +201,17 @@ entries:
         import re
         from django.core.exceptions import ValidationError
 
+        # App-local accounts that aren't Authentik users (ADR 0015): CWA, Navidrome and
+        # Shelfmark link SSO logins to existing accounts by username. Lowercase entries only.
+        reserved = {"admin", "administrator", "akadmin", "guest", "root"}
+
         username = request.context.get("prompt_data", {}).get("username", "")
         if len(username) < 3:
             raise ValidationError("Username must be at least 3 characters.")
-        if not re.match(r"^[a-zA-Z0-9_-]+$", username):
+        if not re.fullmatch(r"[a-zA-Z0-9_-]+", username):
             raise ValidationError("Username can only contain letters, numbers, underscores, and hyphens.")
+        if username.lower() in reserved:
+            raise ValidationError("This username is reserved.")
 
         return True
 

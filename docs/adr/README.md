@@ -27,3 +27,4 @@ that supersedes the old one (don't rewrite history).
 | 0011 | [Restrict Loki ingress with one NetworkPolicy](0011-loki-ingress-networkpolicy.md) | Accepted |
 | 0012 | [Restrict pgAdmin ingress with one NetworkPolicy](0012-pgadmin-ingress-networkpolicy.md) | Accepted |
 | 0013 | [Restrict Navidrome ingress with one NetworkPolicy](0013-navidrome-ingress-networkpolicy.md) | Accepted |
+| 0016 | [Bind admin-only Authentik apps with a blueprint](0016-authentik-app-access-blueprint.md) | Accepted |

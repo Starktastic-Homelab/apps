@@ -35,3 +35,6 @@ configMapGenerator:
   - name: authentik-recovery-blueprint
     files:
       - recovery-flow.yaml=blueprints/recovery-flow.yaml
+  - name: authentik-app-access-blueprint
+    files:
+      - app-access.yaml=blueprints/app-access.yaml

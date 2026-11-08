@@ -19,6 +19,8 @@ controllers:
           SSO_ALLOW_UNKNOWN_EMAIL_VERIFICATION: "false"
           SSO_CLIENT_CACHE_EXPIRATION: "0"
           SSO_SIGNUPS_MATCH_EMAIL: "true"
+          # SSO sign-up is gated by this, not SIGNUPS_ALLOWED; invited users still link through SSO.
+          SSO_SIGNUPS_ALLOWED: "false"
         envFrom:
           - secretRef:
               name: vaultwarden-secret

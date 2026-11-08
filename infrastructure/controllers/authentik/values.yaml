@@ -7,6 +7,7 @@ blueprints:
     - authentik-invitation-blueprint
     - authentik-branding-blueprint
     - authentik-recovery-blueprint
+    - authentik-app-access-blueprint
 global:
   volumes:
     - name: custom-email-templates

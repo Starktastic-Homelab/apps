@@ -9,7 +9,9 @@ controllers:
           DOWNLOAD_DIR: "/data/downloads/metube"
           TEMP_DIR: "/data/downloads/metube/.tmp"
           STATE_DIR: "/data/downloads/metube/.metube"
-          DELETE_FILE_ON_TRASHCAN: "true"
+          # Every Authentik account shares MeTube, so the UI must not delete files from disk or create folders.
+          DELETE_FILE_ON_TRASHCAN: "false"
+          CREATE_CUSTOM_DIRS: "false"
           DEFAULT_THEME: "auto"
           CHOWN_DIRS: "false"
         probes:

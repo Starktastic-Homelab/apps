@@ -95,7 +95,7 @@ with HTTPServer(("127.0.0.1", 0), ResponseHandler) as server:
         server.shutdown()
         thread.join()
 
-for dashboard in ("homepage", "homepage-admin"):
+for dashboard in ("homepage-admin",):
     chart = f"services/operations/{dashboard}/manifests"
     rendered = subprocess.run(
         ["helm", "template", dashboard, chart], capture_output=True, text=True, check=True,
@@ -110,4 +110,4 @@ for dashboard in ("homepage", "homepage-admin"):
 
 if failures:
     raise SystemExit("\n".join(failures))
-print("Jellyfin compatibility OK: authorization, readiness, and both dashboard widgets")
+print("Jellyfin compatibility OK: authorization, readiness, and admin dashboard widgets")

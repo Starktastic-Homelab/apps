@@ -43,6 +43,10 @@ controllers:
               failureThreshold: 30
               periodSeconds: 5
 
+# ADR 0018: no Kubernetes API token; kubernetes.yaml stays mode: disabled.
+defaultPodOptions:
+  automountServiceAccountToken: false
+
 persistence:
   homepage-admin-config:
     enabled: false

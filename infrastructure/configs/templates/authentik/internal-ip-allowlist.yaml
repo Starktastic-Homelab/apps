@@ -9,6 +9,9 @@ spec:
   ipAllowList:
     sourceRange:
       - {{ .Values.global.network.vlans.mgmt | quote }} # MGMT VLAN
+      # MGMT clients reach the external VIP SNATed to OPNsense's MAIN address by its
+      # "MGMT to External VIP (fix asymmetric routing)" rule; no other VLAN is SNATed to it.
+      - "10.9.8.1/32"
       - {{ .Values.global.network.vlans.wireguard | quote }} # WireGuard
       - "10.42.0.0/16" # Internal Service Communication
       - "127.0.0.1/32" # Localhost

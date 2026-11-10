@@ -128,8 +128,8 @@ data:
     # into tall empty boxes when a group mixes widgets with plain links.
     useEqualHeights: false
     hideVersion: true
-    # Surface widget failures instead of silently rendering an empty card.
-    hideErrors: false
+    # ADR 0018: every account sees this page, so widget errors stay hidden; admin shows them.
+    hideErrors: true
     disableCollapse: false
     disableIndexing: true
     iconStyle: theme
@@ -150,11 +150,6 @@ data:
           url: "/#make"
     layout:
       # -- Pulse --
-      Now Playing:
-        tab: Pulse
-        style: row
-        columns: 2
-        icon: mdi-play-circle
       Coming Up:
         tab: Pulse
         style: row
@@ -241,33 +236,6 @@ data:
           hourCycle: h23
   services.yaml: |
     # ==================== PULSE ====================
-    - Now Playing:
-        - On TV:
-            icon: jellyfin.png
-            href: https://benplus.app
-            description: Who is watching what
-            siteMonitor: http://jellyfin-main.media:8096
-            widget:
-              type: jellyfin
-              version: 2
-              url: http://jellyfin-main.media:8096
-              key: {{ "{{" }}HOMEPAGE_VAR_JELLYFIN_KEY{{ "}}" }}
-              enableBlocks: false
-              enableNowPlaying: true
-              enableUser: false
-              enableMediaControl: false
-              showEpisodeNumber: true
-        - Music Playing:
-            icon: navidrome.png
-            href: https://music.benplus.app
-            description: What is on the speakers
-            siteMonitor: http://navidrome.media:4533
-            widget:
-              type: navidrome
-              url: http://navidrome.media:4533
-              user: {{ "{{" }}HOMEPAGE_VAR_NAVIDROME_USER{{ "}}" }}
-              token: {{ "{{" }}HOMEPAGE_VAR_NAVIDROME_TOKEN{{ "}}" }}
-              salt: {{ "{{" }}HOMEPAGE_VAR_NAVIDROME_SALT{{ "}}" }}
     - Coming Up:
         - Calendar:
             description: Blue = TV · Red = Movies
@@ -321,11 +289,6 @@ data:
             href: https://photos.benplus.app
             description: Photos & videos
             siteMonitor: http://immich-main.media:2283
-            widget:
-              type: immich
-              url: http://immich-main.media:2283
-              key: {{ "{{" }}HOMEPAGE_VAR_IMMICH_KEY{{ "}}" }}
-              version: 2
     - Ask For It:
         - Seerr:
             icon: overseerr.png
@@ -394,10 +357,6 @@ data:
             href: https://karakeep.starktastic.net
             description: Bookmarks & read-later
             siteMonitor: http://karakeep.operations:3000
-            widget:
-              type: karakeep
-              url: http://karakeep.operations:3000
-              key: {{ "{{" }}HOMEPAGE_VAR_KARAKEEP_KEY{{ "}}" }}
     - Organise:
         - Mealie:
             icon: mealie.png

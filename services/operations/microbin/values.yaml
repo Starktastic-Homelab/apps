@@ -30,7 +30,7 @@ controllers:
           MICROBIN_DISABLE_TELEMETRY: "true"
           MICROBIN_DISABLE_UPDATE_CHECKING: "true"
         # MICROBIN_ADMIN_USERNAME / MICROBIN_ADMIN_PASSWORD. Unset, MicroBin falls back to admin/m1cr0b1n,
-        # which opens /admin and deletes any paste via /remove; authentik-admin-middleware isn't a boundary.
+        # which opens /admin and deletes any paste via /remove. These credentials are the only admin check (ADR 0014).
         envFrom:
           - secretRef:
               name: microbin-admin

@@ -7,7 +7,7 @@ metadata:
 # Who may sign in to each application. An application with no binding admits every
 # Authentik account, invited media users included, so only the apps that are not for
 # everyone are bound here. Open on purpose: jellyfin (LDAP), navidrome, calibre-web-automated,
-# shelfmark, karakeep, excalidash, metube. Apps bound in the UI (argo-cd, admin-auth,
+# shelfmark, karakeep, excalidash, metube. Apps bound in the UI (argo-cd,
 # audiobookshelf, immich, mealie) are not managed here.
 # home-assistant is left unbound pending a separate decision on its LAN exposure.
 # internal-gate (the *.internal admin gate, ADR 0014) has exactly one binding, the entry below; never add another.

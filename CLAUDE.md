@@ -26,6 +26,7 @@ YAMLLINT_CONFIG_FILE=.github/yamllint.yaml yamllint .
 # kubeconform: copy the "Validate static manifests" step (fetches schemas)
 python3 scripts/check-homepage-coverage.py    # PyYAML + helm
 python3 scripts/check-homepage-household.py   # PyYAML + helm: ADR 0018 rules for household
+python3 scripts/check-admin-gate.py           # PyYAML + helm: ADR 0014 gate
 python3 scripts/check-jellyfin-compat.py      # PyYAML + helm + curl
 python3 scripts/check-argocd-notifications.py # PyYAML + helm: ntfy bodies stay valid JSON
 python3 scripts/check-alert-policy.py docker run --rm -i --network none --entrypoint promtool prom/prometheus:<ver>

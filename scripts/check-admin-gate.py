@@ -53,9 +53,6 @@ GATED: set[str] = {ADMIN_HOST}
 ADMIN_NS, ADMIN_APP = "operations", "homepage-admin"
 ADMIN_NETPOL = "homepage-admin-ingress"
 ALLOWED_VAR = "HOMEPAGE_ALLOWED_HOSTS"
-# Temporary: the old admin middleware keeps ?app=admin-auth until Task 9 (PR 4) deletes it with
-# middleware-admin.yaml; delete this exemption in that same change.
-APP_PARAM_EXEMPT = ("authentik", "authentik-admin-middleware")
 
 GLOBALS = "templates/globals.yaml"
 APPSET = "bootstrap/appsets/cluster-apps.yaml"
@@ -118,8 +115,7 @@ def problems(docs: list[dict], gated: set[str]) -> list[str]:
             middlewares.add((meta.get("namespace"), meta.get("name")))
             address = ((doc.get("spec") or {}).get("forwardAuth") or {}).get("address")
             query = parse_qs(urlsplit(address).query, keep_blank_values=True) if isinstance(address, str) else {}
-            if (address is not None and (meta.get("namespace"), meta.get("name")) != APP_PARAM_EXEMPT
-                    and (not isinstance(address, str) or "app" in query)):
+            if address is not None and (not isinstance(address, str) or "app" in query):
                 found.append(f"rule 2: {_id(doc)} forwardAuth address carries ?app=")
             # Short name, .svc or FQDN: the first DNS label names the outpost Service.
             if isinstance(address, str) and (urlsplit(address).hostname or "").split(".")[0] == GATE_OUTPOST:
@@ -309,8 +305,6 @@ def _bad_cases() -> dict[str, tuple[list[dict], str]]:
         "3 every gate object missing": ([d for d in valid if d["metadata"]["name"] not in (
             GATE_MW, GATE_OUTPOST, "authentik-internal-gate-route")], "rule 3"),
         "2 forwardAuth address with ?app=": (valid + [_mw("x", GATE_ADDR + "?app=admin-auth")], "rule 2"),
-        "2 exempt name in another namespace with ?app=": (valid + [_mw(
-            APP_PARAM_EXEMPT[1], GATE_ADDR + "?app=admin-auth", ns="operations")], "rule 2"),
         "2 forwardAuth address with a blank ?app=": (valid + [_mw("x", GATE_ADDR + "?app=")], "rule 2"),
         "3 outpost with replicas: 2": (_replace(valid, "Deployment", GATE_OUTPOST, _deploy(
             GATE_OUTPOST, f"{PROXY_IMAGE}:2026.8.5", replicas=2)), "rule 3"),
@@ -369,9 +363,6 @@ def self_check() -> None:
     for name, (docs, expected) in _bad_cases().items():
         found = problems(docs, GATED)
         assert any(expected in p for p in found), f"self-check: case {name!r} gave {found}"
-    exempt = _mw(APP_PARAM_EXEMPT[1], "http://authentik-server.authentik/outpost.goauthentik.io/auth/traefik"
-                 "?app=admin-auth", ns=APP_PARAM_EXEMPT[0])
-    assert problems(_valid() + [exempt], GATED) == [], "self-check: the temporary ?app= exemption failed"
     assert values_problems({"global": {"env": [{"name": "X", "value": "1"}]}}) == []
     for bad in ({"server": {"env": [{"name": COOKIE_VAR, "value": "x"}]}},
                 {"authentik": {"cookie_domain": "starktastic.net"}}):

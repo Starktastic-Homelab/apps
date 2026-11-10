@@ -5,6 +5,11 @@ namespace: authentik
 
 resources:
   - authentik-secret.yaml
+  - internal-gate-outpost-deployment.yaml
+  - internal-gate-outpost-secret.yaml
+  - internal-gate-outpost-service.yaml
+  - internal-gate-outpost-servicemonitor.yaml
+  - internal-gate-outpost-networkpolicy.yaml
   - ldap-outpost-deployment.yaml
   - ldap-outpost-secret.yaml
   - ldap-outpost-service.yaml

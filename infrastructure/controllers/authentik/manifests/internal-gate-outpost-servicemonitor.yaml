@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: authentik-internal-gate-outpost
+  namespace: authentik
+  labels:
+    app.kubernetes.io/name: authentik-outpost-proxy
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: authentik-outpost-proxy
+      app.kubernetes.io/instance: ak-outpost-internal-gate
+  endpoints:
+    - port: http-metrics
+      interval: 30s
+      path: /metrics
+      # Drop the per-request host label: any client-sent Host would add a series.
+      metricRelabelings:
+        - action: labeldrop
+          regex: host

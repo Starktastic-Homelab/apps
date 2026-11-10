@@ -75,6 +75,9 @@ jobs:
       - name: Check household Homepage boundary
         run: python3 scripts/check-homepage-household.py
 
+      - name: Check internal admin gate
+        run: python3 scripts/check-admin-gate.py
+
       - name: Check Jellyfin compatibility
         run: python3 scripts/check-jellyfin-compat.py
 

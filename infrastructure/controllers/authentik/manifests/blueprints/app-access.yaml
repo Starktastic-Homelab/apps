@@ -10,6 +10,7 @@ metadata:
 # shelfmark, karakeep, excalidash, metube. Apps bound in the UI (argo-cd, admin-auth,
 # audiobookshelf, immich, mealie) are not managed here.
 # home-assistant is left unbound pending a separate decision on its LAN exposure.
+# internal-gate (the *.internal admin gate, ADR 0014) has exactly one binding, the entry below; never add another.
 #
 # The import is atomic: one unknown slug fails the whole blueprint and changes nothing.
 # Deleting an entry leaves its binding in place; set `state: absent` and let it apply first.
@@ -58,6 +59,16 @@ entries:
   - model: authentik_policies.policybinding
     identifiers:
       target: !Find [authentik_core.application, [slug, grafana]]
+      group: !Find [authentik_core.group, [name, "authentik Admins"]]
+      order: 0
+    state: present
+    attrs:
+      enabled: true
+      negate: false
+
+  - model: authentik_policies.policybinding
+    identifiers:
+      target: !Find [authentik_core.application, [slug, internal-gate]]
       group: !Find [authentik_core.group, [name, "authentik Admins"]]
       order: 0
     state: present

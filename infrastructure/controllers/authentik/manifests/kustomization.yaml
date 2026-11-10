@@ -6,7 +6,7 @@ namespace: authentik
 resources:
   - authentik-secret.yaml
   - internal-gate-outpost-deployment.yaml
-  # internal-gate-outpost-secret.yaml: Ben adds the SealedSecret (key token) before PR 2 opens
+  - internal-gate-outpost-secret.yaml
   - internal-gate-outpost-service.yaml
   - internal-gate-outpost-servicemonitor.yaml
   - internal-gate-outpost-networkpolicy.yaml

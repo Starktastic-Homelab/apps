@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: homepage-admin-ingress
+  namespace: operations
+  annotations:
+    comment: The admin page is only for authentik Admins, so only Traefik, behind the internal gate, may reach it (ADR 0014)
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: homepage-admin
+      app.kubernetes.io/instance: homepage-admin
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        # Traefik serves admin.internal.starktastic.net on websec-int through authentik-internal-gate.
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik-system
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+              app.kubernetes.io/instance: traefik-traefik-system

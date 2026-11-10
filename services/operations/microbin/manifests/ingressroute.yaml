@@ -7,7 +7,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    # Admin panel — Authentik SSO (admin-group only)
+    # Admin panel — Authentik SSO (any account); MicroBin's own sealed admin password is the admin check (#1561)
     - match: Host(`microbin.starktastic.net`) && PathPrefix(`/admin`)
       kind: Rule
       services:
@@ -18,7 +18,7 @@ spec:
           namespace: traefik-system
         - name: rate-limit-strong
           namespace: traefik-system
-        - name: authentik-admin-middleware
+        - name: authentik-middleware
           namespace: authentik
     # Create/manage — Authentik SSO (any authenticated user)
     - match:

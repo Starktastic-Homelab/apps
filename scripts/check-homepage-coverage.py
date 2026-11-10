@@ -42,7 +42,7 @@ DASHBOARDS = {
 }
 
 # Neither dashboard lists itself as a service; auth.internal only serves the admin gate's outpost paths.
-EXCLUDED_HOSTS = {"starktastic.net", "admin.starktastic.net", "auth.internal.starktastic.net"}
+EXCLUDED_HOSTS = {"starktastic.net", "admin.internal.starktastic.net", "auth.internal.starktastic.net"}
 
 HOST_RE = re.compile(r"Host\(`([^`]+)`\)")
 VAR_RE = re.compile(r"\{\{HOMEPAGE_VAR_[A-Z0-9_]+\}\}")

@@ -124,3 +124,69 @@ spec:
       labels:
         service: argocd
         tier: infra
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: admin-gate
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  interval: 60s
+  module: http_admin_gate
+  prober:
+    url: prometheus-blackbox-exporter.monitoring:9115
+    scheme: http
+  targets:
+    staticConfig:
+      static:
+        - https://traefik-internal.traefik-system/
+      labels:
+        service: homepage-admin
+        tier: gate
+        vhost: admin.internal.starktastic.net
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: admin-gate-public-negative-admin
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  interval: 60s
+  module: http_404_admin_public
+  prober:
+    url: prometheus-blackbox-exporter.monitoring:9115
+    scheme: http
+  targets:
+    staticConfig:
+      static:
+        - https://traefik.traefik-system/
+      labels:
+        service: homepage-admin
+        tier: gate-negative
+        vhost: admin.starktastic.net
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: admin-gate-public-negative-auth
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  interval: 60s
+  module: http_404_auth_internal
+  prober:
+    url: prometheus-blackbox-exporter.monitoring:9115
+    scheme: http
+  targets:
+    staticConfig:
+      static:
+        - https://traefik.traefik-system/
+      labels:
+        service: homepage-admin
+        tier: gate-negative
+        vhost: auth.internal.starktastic.net

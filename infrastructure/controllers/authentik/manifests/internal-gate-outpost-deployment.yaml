@@ -1,0 +1,76 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ak-outpost-internal-gate
+  namespace: authentik
+  labels:
+    app.kubernetes.io/name: authentik-outpost-proxy
+    app.kubernetes.io/instance: ak-outpost-internal-gate
+    app.kubernetes.io/managed-by: argocd
+spec:
+  # One replica only: a standalone outpost keeps sessions in its own /dev/shm (ADR 0014).
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: authentik-outpost-proxy
+      app.kubernetes.io/instance: ak-outpost-internal-gate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: authentik-outpost-proxy
+        app.kubernetes.io/instance: ak-outpost-internal-gate
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: proxy
+          image: ghcr.io/goauthentik/proxy:2026.8.5
+          ports:
+            - name: http
+              containerPort: 9000
+              protocol: TCP
+            - name: http-metrics
+              containerPort: 9300
+              protocol: TCP
+          env:
+            - name: AUTHENTIK_HOST
+              value: http://authentik-server.authentik
+            - name: AUTHENTIK_HOST_BROWSER
+              value: https://auth.starktastic.net
+            - name: AUTHENTIK_INSECURE
+              value: "false"
+            - name: AUTHENTIK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: ak-outpost-internal-gate
+                  key: token
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          # No liveness probe: a restart signs everyone out of the gate (ADR 0014).
+          startupProbe:
+            httpGet:
+              path: /outpost.goauthentik.io/ping
+              port: http
+            failureThreshold: 60
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /outpost.goauthentik.io/ping
+              port: http
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi

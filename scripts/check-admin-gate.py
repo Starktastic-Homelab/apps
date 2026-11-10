@@ -15,8 +15,9 @@ ingress-chart app) and fails closed on anything that would open or bypass the ga
   9. more than one route for the gate host
 
 Missing entryPoints count as every entrypoint, and any kind: Ingress fails, since its middlewares hide in
-annotations. Rules 1, 3, 4 and 9 apply once the gate objects render. check-homepage-household.py guards the
-household page; this script doesn't repeat it. Output names objects only: the render holds SealedSecrets.
+annotations. Rules 1, 3, 4 and 9 are mandatory: a render without the gate middleware, outpost or route fails.
+check-homepage-household.py guards the household page; this script doesn't repeat it. Output names objects
+only: the render holds SealedSecrets.
 """
 
 from __future__ import annotations
@@ -149,8 +150,6 @@ def problems(docs: list[dict], gated: set[str]) -> list[str]:
         if uses_gate and entry_points != GATE_EP:
             found.append(f"rule 6: {_id(route)} uses {GATE_MW} on {entry_points or 'every entrypoint'}")
 
-    if gate_mw is None and outpost is None:
-        return found
     fwd = ((gate_mw or {}).get("spec") or {}).get("forwardAuth") or {}
     if (fwd.get("address") != GATE_ADDR or fwd.get("trustForwardHeader") is not True
             or fwd.get("maxResponseBodySize") != 4194304 or "X-authentik-jwt" in (fwd.get("authResponseHeaders") or [])):
@@ -227,6 +226,9 @@ def _bad_cases() -> dict[str, tuple[list[dict], str]]:
         "1 gate middleware with another address": (_replace(valid, "Middleware", GATE_MW, _mw(
             GATE_MW, "http://authentik-server.authentik/outpost.goauthentik.io/auth/traefik",
             trustForwardHeader=True, maxResponseBodySize=4194304)), "rule 1"),
+        "1 gate middleware missing": ([d for d in valid if d["metadata"]["name"] != GATE_MW], "rule 1"),
+        "3 every gate object missing": ([d for d in valid if d["metadata"]["name"] not in (
+            GATE_MW, GATE_OUTPOST, "authentik-internal-gate-route")], "rule 3"),
         "2 forwardAuth address with ?app=": (valid + [_mw("x", GATE_ADDR + "?app=admin-auth")], "rule 2"),
         "2 exempt name in another namespace with ?app=": (valid + [_mw(
             APP_PARAM_EXEMPT[1], GATE_ADDR + "?app=admin-auth", ns="operations")], "rule 2"),

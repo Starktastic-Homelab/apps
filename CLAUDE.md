@@ -60,6 +60,8 @@ Report what ran. The PR's ArgoCD diff preview is the review of record; renders d
 - No `cluster.local` service FQDNs (ndots leak; CI greps for them): use `service` or `service.namespace`.
 - `templates/ingress-chart` picks entrypoints and middlewares from `domainType`. Every ingress host goes on
   homepage-admin, non-internal ones on homepage too (`check-homepage-coverage.py`).
+- `authAdmin` means the ADR 0014 gate (`authentik-internal-gate`); `-ru` variants inherit it. The gate ignores `?app=`.
+  Never rename `authentik Admins`. After the admin-middleware cleanup, fix forward, don't revert.
 - Retained storage (`infrastructure/system/proxmox-csi/README.md`, `docs/runbooks/`): prebind PVs; grow the
   PVC, verify, then update the Git PV; never force-detach, recreate images, drop RWOP or prune protection,
   or fake markers to pass a guard. Each volume takes one of 29 slots per worker; change that with ansible.

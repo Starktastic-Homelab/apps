@@ -243,7 +243,7 @@ Drop an `app.yaml` file anywhere in the repo — the Matrix generator finds it a
 Language variants (e.g., a Russian-language media manager) point to a base service via `baseApp` and only override what differs. A variant is typically 3-5 lines of YAML rather than duplicating an entire service config.
 
 ### 3. Ingress Chart Abstraction
-A custom Helm chart generates Traefik IngressRoutes from declarative `app.yaml` fields. One line (`auth: true`) wires up Authentik ForwardAuth, TLS, and CrowdSec — no per-service IngressRoute YAML to maintain.
+A custom Helm chart generates Traefik IngressRoutes from declarative `app.yaml` fields. One line (`auth: true`) wires up Authentik ForwardAuth, TLS, and CrowdSec — no per-service IngressRoute YAML to maintain. `auth` is household SSO; `authAdmin` is the internal admin gate (ADR 0014).
 
 ### 4. Pre-fetched CrowdSec Bouncer
 Traefik's CrowdSec bouncer plugin is downloaded via init container to emptyDir, not fetched at runtime. This ensures cluster restarts work even if GitHub is down.

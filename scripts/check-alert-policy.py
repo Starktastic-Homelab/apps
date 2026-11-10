@@ -264,6 +264,57 @@ for up, decisions, lapi_down, no_decisions in [
         ],
     })
 
+gate = {
+    rule["alert"]: rule["expr"]
+    for group in load("services/operations/prometheus-blackbox-exporter/manifests/prometheus-rules.yaml")["spec"]["groups"]
+    if group["name"] == "admin-gate"
+    for rule in group["rules"]
+}
+gate_labels = 'service="homepage-admin",tier="gate",vhost="admin.internal.starktastic.net"'
+admin_gate_tests = []
+# Each case is its own test so absent() sees only that case's series. A 200 means the gate is open;
+# the regex failing means a 302 that does not lead to the internal-gate provider.
+for series, expected in [
+    # healthy: 302 to the internal provider
+    (
+        {"probe_success": 1, "probe_http_status_code": 302, "probe_failed_due_to_regex": 0},
+        {},
+    ),
+    (
+        {"probe_success": 0, "probe_http_status_code": 200, "probe_failed_due_to_regex": 1},
+        {
+            "AdminGateOpen": [(f'{{__name__="probe_http_status_code",{gate_labels}}}', 200)],
+            "AdminGateWrongProvider": [(f'{{__name__="probe_failed_due_to_regex",{gate_labels}}}', 1)],
+            "AdminGateDown": [(f'{{__name__="probe_success",{gate_labels}}}', 0)],
+        },
+    ),
+    (
+        {"probe_success": 0, "probe_http_status_code": 302, "probe_failed_due_to_regex": 1},
+        {
+            "AdminGateWrongProvider": [(f'{{__name__="probe_failed_due_to_regex",{gate_labels}}}', 1)],
+            "AdminGateDown": [(f'{{__name__="probe_success",{gate_labels}}}', 0)],
+        },
+    ),
+    ({}, {"AdminGateCanaryMissing": [('{tier="gate"}', 1)]}),
+]:
+    admin_gate_tests.append({
+        "interval": "1m",
+        "input_series": [
+            {"series": f"{metric}{{{gate_labels}}}", "values": f"{value}x20"}
+            for metric, value in series.items()
+        ],
+        "promql_expr_test": [
+            {
+                "expr": gate[name],
+                "eval_time": "15m",
+                "exp_samples": [
+                    {"labels": labels, "value": value} for labels, value in expected.get(name, [])
+                ],
+            }
+            for name in ["AdminGateOpen", "AdminGateWrongProvider", "AdminGateDown", "AdminGateCanaryMissing"]
+        ],
+    })
+
 subprocess.run(
     [*(sys.argv[1:] or ["promtool"]), "test", "rules", "/dev/stdin"],
     input=yaml.safe_dump({
@@ -272,7 +323,7 @@ subprocess.run(
             "interval": "1m",
             "input_series": inputs,
             "promql_expr_test": checks,
-        }, *crowdsec_tests],
+        }, *crowdsec_tests, *admin_gate_tests],
     }),
     text=True,
     check=True,

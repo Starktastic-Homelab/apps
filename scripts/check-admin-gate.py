@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Check the internal admin gate (ADR 0014); run from the repo root.
 
-Renders what ArgoCD applies (the authentik manifests, both config charts, every app's manifests and every
-ingress-chart app) and fails closed on anything that would open or bypass the gate:
+Renders what ArgoCD applies (the authentik manifests, both config charts, every app's manifests, every
+ingress-chart app and homepage-admin's app-template chart) and fails closed on anything that would open or bypass
+the gate:
 
   1. the gate middleware's forwardAuth target and options
   2. a forwardAuth address carrying ?app= (the outpost ignores it, so it only misleads; one temporary exemption)
@@ -13,9 +14,15 @@ ingress-chart app) and fails closed on anything that would open or bypass the ga
   7. a middleware reference that names a Middleware absent from the render
   8. AUTHENTIK_COOKIE_DOMAIN in authentik's values or any rendered workload env
   9. more than one route for the gate host
+ 10. a gated host without exactly one route, on websec-int only, through the gate middleware, with .internal hosts
+ 11. other than one route to the admin page's Service (operations/homepage-admin)
+ 12. the admin page's HOMEPAGE_ALLOWED_HOSTS other than exactly the admin host
+ 13. the admin page's NetworkPolicy missing, or its podSelector not matching the rendered pod labels
+ 14. a non-ClusterIP Service selecting the admin page's pod, or the pod on hostNetwork
 
 Missing entryPoints count as every entrypoint, and any kind: Ingress fails, since its middlewares hide in
-annotations. Rules 1, 3, 4 and 9 are mandatory: a render without the gate middleware, outpost or route fails.
+annotations. Rules 1, 3, 4 and 9-13 are mandatory: a render without the gate middleware, outpost, route or admin page
+objects fails.
 check-homepage-household.py guards the household page; this script doesn't repeat it. Output names objects
 only: the render holds SealedSecrets.
 """
@@ -43,11 +50,16 @@ INTERNAL = "internal.starktastic.net"
 GATE_EP = ["websec-int"]
 COOKIE_VAR = "AUTHENTIK_COOKIE_DOMAIN"
 GATED: set[str] = {ADMIN_HOST}
+ADMIN_NS, ADMIN_APP = "operations", "homepage-admin"
+ADMIN_NETPOL = "homepage-admin-ingress"
+ALLOWED_VAR = "HOMEPAGE_ALLOWED_HOSTS"
 # Temporary: the old admin middleware keeps ?app=admin-auth until Task 9 (PR 4) deletes it with
 # middleware-admin.yaml; delete this exemption in that same change.
 APP_PARAM_EXEMPT = ("authentik", "authentik-admin-middleware")
 
 GLOBALS = "templates/globals.yaml"
+APPSET = "bootstrap/appsets/cluster-apps.yaml"
+ADMIN_PATH = "services/operations/homepage-admin"
 AUTHENTIK_VALUES = "infrastructure/controllers/authentik/values.yaml"
 HOST_RE = re.compile(r"Host(?:Regexp)?\(([^)]*)\)")
 WORKLOADS = {"Deployment", "StatefulSet", "DaemonSet", "Job", "CronJob", "Pod"}
@@ -93,7 +105,7 @@ def _walk(node):
 
 
 def problems(docs: list[dict], gated: set[str]) -> list[str]:
-    # gated: the hosts Task 6's per-host rules check; nothing in rules 1-9 reads it yet.
+    # gated: the hosts rule 10 checks.
     found = []
     by_id = {}
     middlewares = set()
@@ -165,6 +177,53 @@ def problems(docs: list[dict], gated: set[str]) -> list[str]:
         found.append(f"rule 4: {GATE_OUTPOST} image {images} isn't {PROXY_IMAGE} at the ldap outpost's tag")
     if len(gate_routes) != 1:
         found.append(f"rule 9: {len(gate_routes)} IngressRoutes match {AUTH_HOST}, want exactly 1")
+
+    for host in sorted(gated):
+        served = []
+        for route in routes:
+            spec, ns = route.get("spec") or {}, (route.get("metadata") or {}).get("namespace")
+            for rule in spec.get("routes") or []:
+                hosts = _hosts(rule.get("match"))
+                if hosts is None or host in hosts:  # a regexp may serve it: fail closed
+                    refs = {((r.get("namespace") or ns), r.get("name")) for r in rule.get("middlewares") or []
+                            if isinstance(r, dict)}
+                    served.append(spec.get("entryPoints") == GATE_EP and (GATE_NS, GATE_MW) in refs and bool(hosts)
+                                  and all(h.endswith("." + INTERNAL) for h in hosts))
+        if served != [True]:
+            found.append(f"rule 10: {host} needs exactly 1 route, on {GATE_EP} through {GATE_MW} with .internal "
+                         f"hosts only; got {len(served)}, {served.count(False)} not")
+    backends = 0
+    for route in routes:
+        ns = (route.get("metadata") or {}).get("namespace")
+        backends += sum((svc.get("namespace") or ns, svc.get("name")) == (ADMIN_NS, ADMIN_APP)
+                        for rule in (route.get("spec") or {}).get("routes") or [] for svc in rule.get("services") or []
+                        if isinstance(svc, dict))
+    if backends != 1:
+        found.append(f"rule 11: {backends} routes to Service {ADMIN_NS}/{ADMIN_APP}, want exactly 1")
+
+    pod = (((by_id.get(("Deployment", ADMIN_NS, ADMIN_APP)) or {}).get("spec") or {}).get("template") or {})
+    labels = (pod.get("metadata") or {}).get("labels") or {}
+    pod_spec = pod.get("spec") or {}
+    allowed = [e.get("value") for c in pod_spec.get("containers") or [] for e in c.get("env") or []
+               if isinstance(e, dict) and e.get("name") == ALLOWED_VAR]
+    if not labels or allowed != [ADMIN_HOST]:
+        found.append(f"rule 12: Deployment {ADMIN_NS}/{ADMIN_APP} is missing or {ALLOWED_VAR} is {allowed}, "
+                     f"want [{ADMIN_HOST}]")
+    policy = (by_id.get(("NetworkPolicy", ADMIN_NS, ADMIN_NETPOL)) or {}).get("spec") or {}
+    selector = policy.get("podSelector") or {}
+    match = selector.get("matchLabels") or {}
+    if (set(selector) != {"matchLabels"} or not match or "Ingress" not in (policy.get("policyTypes") or [])
+            or any(labels.get(k) != v for k, v in match.items())):
+        found.append(f"rule 13: NetworkPolicy {ADMIN_NS}/{ADMIN_NETPOL} is missing or doesn't select the "
+                     f"{ADMIN_APP} pod")
+    if pod_spec.get("hostNetwork"):
+        found.append(f"rule 14: Deployment {ADMIN_NS}/{ADMIN_APP} uses hostNetwork")
+    for svc in docs:
+        sel = (svc.get("spec") or {}).get("selector") or {}
+        if (svc.get("kind") == "Service" and (svc.get("metadata") or {}).get("namespace") == ADMIN_NS and sel
+                and all(labels.get(k) == v for k, v in sel.items())
+                and (svc.get("spec") or {}).get("type", "ClusterIP") != "ClusterIP"):
+            found.append(f"rule 14: {_id(svc)} exposes {ADMIN_APP} as {svc['spec']['type']}, want ClusterIP")
     return found
 
 
@@ -212,7 +271,27 @@ def _valid() -> list[dict]:
         _route("homepage-admin", f"Host(`{ADMIN_HOST}`)", [gate_ref]),
         # An unqualified ref means the route's own namespace.
         _route("local", "Host(`x.starktastic.net`)", [{"name": "authentik-middleware"}], ["websecure"], GATE_NS),
+        _admin_pod(),
+        {"kind": "Service", "metadata": {"name": ADMIN_APP, "namespace": ADMIN_NS},
+         "spec": {"type": "ClusterIP", "selector": dict(_ADMIN_LABELS)}},
+        _netpol({"app.kubernetes.io/name": ADMIN_APP, "app.kubernetes.io/instance": ADMIN_APP}),
     ]
+
+
+_ADMIN_LABELS = {"app.kubernetes.io/controller": "main", "app.kubernetes.io/instance": ADMIN_APP,
+                 "app.kubernetes.io/name": ADMIN_APP}
+
+
+def _admin_pod(allowed: str = ADMIN_HOST, host_network: bool = False) -> dict:
+    return {"kind": "Deployment", "metadata": {"name": ADMIN_APP, "namespace": ADMIN_NS},
+            "spec": {"template": {"metadata": {"labels": dict(_ADMIN_LABELS)}, "spec": {
+                "hostNetwork": host_network, "containers": [{"name": "main", "image": "homepage:1", "env": [
+                    {"name": ALLOWED_VAR, "value": allowed}]}]}}}}
+
+
+def _netpol(match_labels: dict) -> dict:
+    return {"kind": "NetworkPolicy", "metadata": {"name": ADMIN_NETPOL, "namespace": ADMIN_NS},
+            "spec": {"podSelector": {"matchLabels": match_labels}, "policyTypes": ["Ingress"]}}
 
 
 def _replace(docs: list[dict], kind: str, name: str, new: dict) -> list[dict]:
@@ -259,6 +338,27 @@ def _bad_cases() -> dict[str, tuple[list[dict], str]]:
             "authentik-server", "x:1", env=[{"name": COOKIE_VAR, "value": "starktastic.net"}])], "rule 8"),
         "9 second route for the gate host": (valid + [_route(
             "second", f"Host(`{AUTH_HOST}`)", ns=GATE_NS)], "rule 9"),
+        "10 admin route through authentik-middleware": (_replace(valid, "IngressRoute", ADMIN_APP, _route(
+            ADMIN_APP, f"Host(`{ADMIN_HOST}`)", [{"name": "authentik-middleware", "namespace": GATE_NS}])),
+            "rule 10"),
+        "10 admin route on websecure": (_replace(valid, "IngressRoute", ADMIN_APP, _route(
+            ADMIN_APP, f"Host(`{ADMIN_HOST}`)", [gate_ref], ["websecure"])), "rule 10"),
+        "10 second route for the admin host": (valid + [_route(
+            "second-admin", f"Host(`{ADMIN_HOST}`)", [gate_ref], service="other")], "rule 10"),
+        "11 two routes to operations/homepage-admin": (valid + [_route(
+            "admin-copy", "Host(`x.internal.starktastic.net`)", [gate_ref], service=ADMIN_APP)], "rule 11"),
+        "12 allowed host other than the admin host": (_replace(valid, "Deployment", ADMIN_APP, _admin_pod(
+            "admin.starktastic.net")), "rule 12"),
+        "12 admin Deployment missing": ([d for d in valid if d["kind"] != "Deployment" or d["metadata"]["name"]
+                                         != ADMIN_APP], "rule 12"),
+        "13 policy selector doesn't match the pod": (_replace(valid, "NetworkPolicy", ADMIN_NETPOL, _netpol(
+            {"app.kubernetes.io/name": "homepage"})), "rule 13"),
+        "13 policy missing": ([d for d in valid if d["kind"] != "NetworkPolicy"], "rule 13"),
+        "14 Service not ClusterIP": (valid + [{"kind": "Service", "metadata": {"name": "lb", "namespace": ADMIN_NS},
+                                                "spec": {"type": "LoadBalancer", "selector": {
+                                                    "app.kubernetes.io/name": ADMIN_APP}}}], "rule 14"),
+        "14 admin pod on hostNetwork": (_replace(valid, "Deployment", ADMIN_APP, _admin_pod(host_network=True)),
+                                        "rule 14"),
         "Ingress kind": (valid + [{"kind": "Ingress", "metadata": {"name": "i", "namespace": "x"}}], "Ingress"),
     }
 
@@ -330,7 +430,21 @@ def render() -> list[dict]:
             if app.get("baseApp"):
                 layers += ["-f", f"{app['baseApp']}/app.yaml"]
             docs += _docs(helm(app["name"], "templates/ingress-chart", *layers, "-f", f"{path}/app.yaml"), ns)
-    return docs
+    return docs + _docs(render_app(ADMIN_PATH, apps[ADMIN_PATH]), apps[ADMIN_PATH].get("namespace"))
+
+
+def render_app(path: str, app: dict) -> str:
+    """The app's app-template chart with cluster-apps.yaml's value layers (no baseApp: the admin page has none)."""
+    if app.get("baseApp"):
+        raise SystemExit(f"{path}: baseApp layering isn't implemented here")
+    generators = load_yaml(APPSET)["spec"]["generators"][0]["matrix"]["generators"]
+    defaults = next(e for g in generators if "list" in g for e in g["list"]["elements"] if e["category"] == "services")
+    chart = app.get("chart") or {}
+    layers = [GLOBALS, defaults["commonValues"], *(app.get("commonValuesExtras") or []), f"{path}/values.yaml"]
+    return helm(app["name"], chart.get("name", defaults["defaultChartName"]),
+                "--repo", chart.get("repo", defaults["defaultChartRepo"]),
+                "--version", chart.get("version", defaults["defaultChartVersion"]),
+                "--namespace", app["namespace"], *[a for layer in layers for a in ("-f", layer)])
 
 
 def main() -> int:

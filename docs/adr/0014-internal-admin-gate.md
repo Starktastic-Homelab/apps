@@ -1,6 +1,6 @@
 # ADR 0014: Gate *.internal with a dedicated admin outpost
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-11-10
 
 ## Context
@@ -71,7 +71,7 @@ Add a second, Git-deployed Authentik proxy outpost that admits only `authentik A
   - A blackbox canary requires a logged-out 302 to the authorize URL with the callback on `auth.internal`, and 404s
     for `admin.starktastic.net` and for `auth.internal` on the public LB. The alerts are `AdminGateOpen`,
     `AdminGateWrongProvider`, `AdminGateDown` and `AdminGateCanaryMissing`, all sent to ntfy.
-  - Renovate no longer automerges the authentik group.
+  - Renovate does not automerge the authentik group (`automerge: false` in `renovate.json`), so a gate bump gets a human check.
 - **No IP allowlist.** The boundary is the entrypoint plus the login. Internal routes exist only on `websec-int`
   (10.9.9.90:443 to 8444), and the public LB has no port to it.
 

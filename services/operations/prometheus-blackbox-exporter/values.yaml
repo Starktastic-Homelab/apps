@@ -42,6 +42,49 @@ config:
         method: GET
         follow_redirects: false
         preferred_ip_protocol: "ip4"
+    http_admin_gate:
+      prober: http
+      timeout: 5s
+      http:
+        valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+        valid_status_codes: [302]
+        method: GET
+        follow_redirects: false
+        preferred_ip_protocol: "ip4"
+        headers:
+          Host: admin.internal.starktastic.net
+        fail_if_header_not_matches:
+          - header: Location
+            regexp: '^https://auth\.starktastic\.net/application/o/authorize/\?.*redirect_uri=https%3A%2F%2Fauth\.internal\.starktastic\.net%2F'
+        tls_config:
+          server_name: admin.internal.starktastic.net
+    # A Probe cannot set a Host header per target, so each negative Host gets its own module.
+    http_404_admin_public:
+      prober: http
+      timeout: 5s
+      http:
+        valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+        valid_status_codes: [404]
+        method: GET
+        follow_redirects: false
+        preferred_ip_protocol: "ip4"
+        headers:
+          Host: admin.starktastic.net
+        tls_config:
+          server_name: admin.starktastic.net
+    http_404_auth_internal:
+      prober: http
+      timeout: 5s
+      http:
+        valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+        valid_status_codes: [404]
+        method: GET
+        follow_redirects: false
+        preferred_ip_protocol: "ip4"
+        headers:
+          Host: auth.internal.starktastic.net
+        tls_config:
+          server_name: auth.internal.starktastic.net
     icmp:
       prober: icmp
       timeout: 5s

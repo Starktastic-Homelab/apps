@@ -35,3 +35,45 @@ spec:
           annotations:
             summary: "TLS cert expiring soon ({{ $labels.instance }})"
             description: "The certificate served for {{ $labels.instance }} expires in less than 10 days."
+    - name: admin-gate
+      rules:
+        - alert: AdminGateOpen
+          expr: probe_http_status_code{tier="gate"} == 200
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Admin gate is open ({{ $labels.vhost }})"
+            description: "The internal admin vhost answered 200 instead of redirecting to login."
+        - alert: AdminGateWrongProvider
+          expr: probe_failed_due_to_regex{tier="gate"} == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Admin gate redirects to the wrong provider ({{ $labels.vhost }})"
+            description: "The Location header does not lead to the internal-gate authorize flow."
+        - alert: AdminGateDown
+          expr: probe_success{tier="gate"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Admin gate canary failing ({{ $labels.vhost }})"
+            description: "The admin-gate probe for {{ $labels.vhost }} has been failing for 5 minutes."
+        - alert: AdminGatePublicAnswer
+          expr: probe_success{tier="gate-negative"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Admin vhost answers on the public entrypoint ({{ $labels.vhost }})"
+            description: "Host {{ $labels.vhost }} on the public Traefik did not return 404 for 5 minutes."
+        - alert: AdminGateCanaryMissing
+          expr: absent(probe_success{tier="gate"})
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Admin gate canary missing"
+            description: "No admin-gate probe series for 15 minutes."

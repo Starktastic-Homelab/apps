@@ -100,13 +100,17 @@ spec:
       ignoreDifferences:
         # Charts that generate random secrets (e.g. crowdsec-lapi-secrets) would
         # stay OutOfSync forever, so Secret data is ignored, and with
-        # RespectIgnoreDifferences it is never re-applied either. The exception is
-        # the Alertmanager config, which the chart ships as a Secret: ignoring it
-        # leaves every alerting change merged but never live.
+        # RespectIgnoreDifferences it is never re-applied either. The exceptions
+        # are chart Secrets that carry git-managed config with no generated keys
+        # (Alertmanager config, authentik and falcosidekick env): ignoring them
+        # leaves every change to that config merged but never live.
         - group: ""
           kind: Secret
           jqPathExpressions:
-            - 'select(.metadata.name != "alertmanager-kube-prometheus-stack-alertmanager") | .data'
+            - >-
+              select(.metadata.name != "alertmanager-kube-prometheus-stack-alertmanager"
+              and .metadata.name != "authentik"
+              and .metadata.name != "falco-falcosidekick") | .data
         - group: apps
           kind: Deployment
           jqPathExpressions:

@@ -99,11 +99,9 @@ Add a second, Git-deployed Authentik proxy outpost that admits only `authentik A
 
 ## Consequences
 
-- **Lost binding fails open.** If the gate's binding is deleted or disabled, every account is admitted, and the
-  logged-out canary can't see it. Until every app is bound and "Allow application access with no policies" is
-  switched off (Home Assistant is bound since 2026-11-11; the open-on-purpose apps then need an explicit binding
-  first), Ben runs a non-admin test after every Authentik change. After the
-  switch, a lost binding denies everyone. `/if/admin` stays reachable.
+- **Lost binding.** While `core_default_app_access` is on, a deleted or disabled gate binding admits every account, and
+  the logged-out canary can't see it. Once every application is bound and the flag is off (ADR 0016, from 2026-11-11),
+  a lost binding denies everyone. `/if/admin` stays reachable.
 - **Federation fails open.** Listing the gate provider in another provider's federation lists would let that
   provider's tokens through. Never do it.
 - **Restarts sign everyone out.** A gate restart (a Renovate bump or a pod move) ends all gate sessions. Signing back

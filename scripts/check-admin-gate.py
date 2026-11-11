@@ -49,7 +49,13 @@ ADMIN_HOST = "admin.internal.starktastic.net"
 INTERNAL = "internal.starktastic.net"
 GATE_EP = ["websec-int"]
 COOKIE_VAR = "AUTHENTIK_COOKIE_DOMAIN"
-GATED: set[str] = {ADMIN_HOST}
+GATED: set[str] = {ADMIN_HOST} | {
+    f"{h}.{INTERNAL}" for h in (
+        "pgadmin", "traefik", "falco", "grafana", "changedetection", "zigbee2mqtt",
+        "bazarr", "cineplete", "lidarr", "lingarr", "prowlarr",
+        "qbittorrent", "qbittorrent-ru", "radarr", "radarr-ru", "sonarr", "sonarr-ru",
+    )
+}
 ADMIN_NS, ADMIN_APP = "operations", "homepage-admin"
 ADMIN_NETPOL = "homepage-admin-ingress"
 ALLOWED_VAR = "HOMEPAGE_ALLOWED_HOSTS"
@@ -358,10 +364,11 @@ def _bad_cases() -> dict[str, tuple[list[dict], str]]:
 
 
 def self_check() -> None:
-    found = problems(_valid(), GATED)
+    # The fixtures route only the admin host; the real GATED set is checked against the render.
+    found = problems(_valid(), {ADMIN_HOST})
     assert found == [], f"self-check: valid set failed: {found}"
     for name, (docs, expected) in _bad_cases().items():
-        found = problems(docs, GATED)
+        found = problems(docs, {ADMIN_HOST})
         assert any(expected in p for p in found), f"self-check: case {name!r} gave {found}"
     assert values_problems({"global": {"env": [{"name": "X", "value": "1"}]}}) == []
     for bad in ({"server": {"env": [{"name": COOKIE_VAR, "value": "x"}]}},

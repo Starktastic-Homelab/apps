@@ -10,3 +10,4 @@ commonValuesExtras:
 ingress:
   enabled: true
   host: sonarr-ru
+  authAdmin: true # explicit, though inherited from baseApp (ADR 0014)

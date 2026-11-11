@@ -14,7 +14,7 @@ spec:
       middlewares:
         - name: rate-limit-strong
           namespace: traefik-system
-        - name: authentik-middleware
+        - name: authentik-internal-gate
           namespace: authentik
       services:
         - name: api@internal

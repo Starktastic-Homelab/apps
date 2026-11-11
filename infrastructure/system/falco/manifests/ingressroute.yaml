@@ -13,7 +13,7 @@ spec:
         - name: falco-falcosidekick-ui
           port: 2802
       middlewares:
-        - name: authentik-middleware
+        - name: authentik-internal-gate
           namespace: authentik
   tls:
     store:

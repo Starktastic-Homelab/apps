@@ -11,4 +11,5 @@ ingress:
   port: 8080
   serviceName: qbittorrent-ru-main
   auth: true
+  authAdmin: true # explicit, though inherited from baseApp (ADR 0014)
   rateLimit: true

@@ -38,8 +38,8 @@ spec:
           namespace: authentik
     # Uploaded content — public, sandboxed (see sandbox-headers.yaml)
     - match:
-        Host(`microbin.starktastic.net`) && (PathPrefix(`/file/`) || PathPrefix(`/archive/`) ||
-        PathPrefix(`/raw/`) || PathPrefix(`/secure_file/`))
+        Host(`microbin.starktastic.net`) && (PathPrefix(`/file/`) || PathPrefix(`/archive/`) || PathPrefix(`/raw/`) ||
+        PathPrefix(`/secure_file/`))
       kind: Rule
       services:
         - name: microbin

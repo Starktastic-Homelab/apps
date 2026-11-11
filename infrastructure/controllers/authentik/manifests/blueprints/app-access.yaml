@@ -4,11 +4,12 @@ metadata:
     blueprints.goauthentik.io/instantiate: "true"
   name: Application Access
 
-# Who may sign in to each application. An application with no binding admits every
-# Authentik account, invited media users included, so only the apps that are not for
-# everyone are bound here. Open on purpose: jellyfin (LDAP), navidrome, calibre-web-automated,
-# shelfmark, karakeep, excalidash, metube. Apps bound in the UI (argo-cd,
-# audiobookshelf, immich, mealie) are not managed here.
+# Who may sign in to each application. Every application needs at least one binding: the tenant flag
+# "core_default_app_access" is switched off once these apply, so an unbound application denies everyone
+# (ADR 0016).
+# Open on purpose, bound to the "Any account" policy: jellyfin (LDAP, so ldapservice's lookups too),
+# navidrome, calibre-web-automated, shelfmark, karakeep, excalidash, metube. Apps bound in the UI
+# (argo-cd, audiobookshelf, immich, mealie) are not managed here.
 # home-assistant admits authentik Admins and home-assistant-users. The blueprint only creates that group;
 # membership is managed in the UI. Household members who use Home Assistant's own login are unaffected.
 # internal-gate (the *.internal admin gate, ADR 0014) has exactly one binding, the entry below; never add another.
@@ -17,6 +18,15 @@ metadata:
 # Deleting an entry leaves its binding in place; set `state: absent` and let it apply first.
 
 entries:
+  - model: authentik_policies_expression.expressionpolicy
+    id: any-account
+    identifiers:
+      name: Any account
+    state: present
+    attrs:
+      expression: return True
+      execution_logging: false
+
   - model: authentik_core.group
     identifiers:
       name: home-assistant-users
@@ -127,6 +137,76 @@ entries:
       target: !Find [authentik_core.application, [slug, home-assistant]]
       group: !Find [authentik_core.group, [name, home-assistant-users]]
       order: 1
+    state: present
+    attrs:
+      enabled: true
+      negate: false
+
+  - model: authentik_policies.policybinding
+    identifiers:
+      target: !Find [authentik_core.application, [slug, calibre-web-automated]]
+      policy: !KeyOf any-account
+      order: 0
+    state: present
+    attrs:
+      enabled: true
+      negate: false
+
+  - model: authentik_policies.policybinding
+    identifiers:
+      target: !Find [authentik_core.application, [slug, excalidash]]
+      policy: !KeyOf any-account
+      order: 0
+    state: present
+    attrs:
+      enabled: true
+      negate: false
+
+  - model: authentik_policies.policybinding
+    identifiers:
+      target: !Find [authentik_core.application, [slug, jellyfin]]
+      policy: !KeyOf any-account
+      order: 0
+    state: present
+    attrs:
+      enabled: true
+      negate: false
+
+  - model: authentik_policies.policybinding
+    identifiers:
+      target: !Find [authentik_core.application, [slug, karakeep]]
+      policy: !KeyOf any-account
+      order: 0
+    state: present
+    attrs:
+      enabled: true
+      negate: false
+
+  - model: authentik_policies.policybinding
+    identifiers:
+      target: !Find [authentik_core.application, [slug, metube]]
+      policy: !KeyOf any-account
+      order: 0
+    state: present
+    attrs:
+      enabled: true
+      negate: false
+
+  - model: authentik_policies.policybinding
+    identifiers:
+      target: !Find [authentik_core.application, [slug, navidrome]]
+      policy: !KeyOf any-account
+      order: 0
+    state: present
+    attrs:
+      enabled: true
+      negate: false
+
+  - model: authentik_policies.policybinding
+    identifiers:
+      target: !Find [authentik_core.application, [slug, shelfmark]]
+      policy: !KeyOf any-account
+      order: 0
     state: present
     attrs:
       enabled: true

@@ -15,8 +15,13 @@ included, could sign in. Until now every Authentik application, provider and bin
 Add an instantiated blueprint, `Application Access`, mounted from the `authentik-app-access-blueprint` ConfigMap
 (`infrastructure/controllers/authentik/manifests/blueprints/app-access.yaml`). It binds the applications that are not
 for everyone to the `authentik Admins` group: autobrr, bytestash, cleanuparr, filebrowser, grafana, listmonk,
-paperless-ngx and vaultwarden. Applications meant for every account stay unbound and are listed in the blueprint header.
-Applications and providers stay UI-managed.
+paperless-ngx and vaultwarden. Applications and providers stay UI-managed.
+
+From 2026-11-11 the applications meant for every account (jellyfin, navidrome, calibre-web-automated, shelfmark,
+karakeep, excalidash, metube) are bound to the expression policy `Any account` (`return True`). Once a live read shows
+no application without a binding, the tenant flag `core_default_app_access` ("Applications with no policies bound can
+be accessed by any user") is switched off, and an unbound application denies everyone, LDAP binds included. The flag
+isn't blueprint-managed (Authentik keeps tenants out of blueprints), so it is set by hand in the admin settings.
 
 Two in-app settings go with it:
 
@@ -38,10 +43,12 @@ Two in-app settings go with it:
 - The import is atomic: one unknown slug fails the whole blueprint, shows as an error on the `Application Access`
   blueprint instance, and changes nothing.
 - Authentik applies the file only when it is created or changes, so a binding deleted in the UI stays deleted until the
-  next change to the file.
+  next change to the file. Once the flag is off, a lost binding fails closed: nobody gets in.
 - Removing an entry from the file leaves its binding in place. Set the entry to `state: absent` and let it apply first.
 - Adding the ConfigMap restarts the authentik worker; blueprints are mounted only there.
-- A new application is open to every account until it gets an entry here.
+- Once the flag is off, a new application denies everyone until it gets a binding, here or in the UI. Bind
+  `Any account` to open it.
+- Jellyfin's `ldapservice` lookups go through the Jellyfin application's check, so they depend on its binding too.
 - Only `authentik Admins` can use Vaultwarden's SSO login, and since 2026-11-11 it is the only login
   (`SSO_ONLY: "true"`; the one account was already SSO-linked). An invited user without an Admins account can't
   sign in.

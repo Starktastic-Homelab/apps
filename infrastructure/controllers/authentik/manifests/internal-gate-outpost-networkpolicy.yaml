@@ -21,6 +21,7 @@ spec:
           podSelector:
             matchLabels:
               app.kubernetes.io/name: traefik
+              app.kubernetes.io/instance: traefik-traefik-system
       ports:
         - port: 9000
           protocol: TCP

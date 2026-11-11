@@ -1,0 +1,41 @@
+# /image_proxy relays third-party image bytes from search.starktastic.net. An indexed SVG opened from a copied proxy
+# link would run as this origin and could set a cookie for starktastic.net (ADR 0014 session fixation), so these
+# responses are sandboxed. <img> rendering on the results page is unaffected. Same middlewares as the
+# ingress-chart route otherwise; the longer rule wins in Traefik.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: searxng-image-sandbox
+  namespace: operations
+spec:
+  headers:
+    customResponseHeaders:
+      Content-Security-Policy: "sandbox"
+      X-Content-Type-Options: "nosniff"
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: searxng-image-proxy
+  namespace: operations
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`search.starktastic.net`) && PathPrefix(`/image_proxy`)
+      kind: Rule
+      services:
+        - name: searxng
+          port: 8080
+      middlewares:
+        - name: crowdsec-bouncer
+          namespace: traefik-system
+        - name: rate-limit-strong
+          namespace: traefik-system
+        - name: authentik-middleware
+          namespace: authentik
+        - name: searxng-image-sandbox
+  tls:
+    store:
+      name: default
+      namespace: traefik-system

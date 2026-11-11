@@ -42,6 +42,8 @@ Two in-app settings go with it:
 - Removing an entry from the file leaves its binding in place. Set the entry to `state: absent` and let it apply first.
 - Adding the ConfigMap restarts the authentik worker; blueprints are mounted only there.
 - A new application is open to every account until it gets an entry here.
-- Only `authentik Admins` can use Vaultwarden's SSO login. Other Vaultwarden users sign in with email and master
-  password (`SSO_ONLY` stays `"false"`).
-- home-assistant stays unbound pending a separate decision on its LAN exposure.
+- Only `authentik Admins` can use Vaultwarden's SSO login, and since 2026-11-11 it is the only login
+  (`SSO_ONLY: "true"`; the one account was already SSO-linked). An invited user without an Admins account can't
+  sign in.
+- home-assistant admits `authentik Admins` and `home-assistant-users` (2026-11-11). The blueprint creates the group
+  but leaves its members to the UI; Home Assistant's own local logins don't go through Authentik.

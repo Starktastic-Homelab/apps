@@ -1,0 +1,18 @@
+# HSTS for every route on the TLS entrypoints (ADR 0014 follow-up): a browser that has seen it refuses plain HTTP to
+# that host and its subdomains for a year, so a network attacker can't strip TLS or plant cookies over http://.
+# Every name under starktastic.net and benplus.app must keep valid TLS. No preload: that list is hard to leave.
+# values.yaml runs this on websecure and websec-int. Wave -1 and PruneLast: it must exist before Traefik pods
+# reference it and outlive them on a revert, or every router on those entrypoints fails (404).
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: hsts
+  namespace: traefik-system
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/sync-options: PruneLast=true
+spec:
+  headers:
+    stsSeconds: 31536000
+    stsIncludeSubdomains: true
+    stsPreload: false

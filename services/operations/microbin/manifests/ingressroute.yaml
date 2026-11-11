@@ -20,10 +20,11 @@ spec:
           namespace: traefik-system
         - name: authentik-middleware
           namespace: authentik
-    # Create/manage — Authentik SSO (any authenticated user)
+    # Create/manage — Authentik SSO (any authenticated user). `/upload` is the create POST, with any trailing
+    # slashes because MicroBin trims them; /upload/{id} is the public paste view and password unlock, so stays open.
     - match:
-        Host(`microbin.starktastic.net`) && (Path(`/`) || PathPrefix(`/create`) || PathPrefix(`/edit`) ||
-        PathPrefix(`/remove`) || PathPrefix(`/list`) || PathPrefix(`/pastalist`))
+        Host(`microbin.starktastic.net`) && (Path(`/`) || PathRegexp(`^/upload/*$`) || PathPrefix(`/create`) ||
+        PathPrefix(`/edit`) || PathPrefix(`/remove`) || PathPrefix(`/list`) || PathPrefix(`/pastalist`))
       kind: Rule
       services:
         - name: microbin
@@ -35,7 +36,21 @@ spec:
           namespace: traefik-system
         - name: authentik-middleware
           namespace: authentik
-    # View/share — fully public (paste links, raw, files, QR, guide)
+    # Uploaded content — public, sandboxed (see sandbox-headers.yaml)
+    - match:
+        Host(`microbin.starktastic.net`) && (PathPrefix(`/file/`) || PathPrefix(`/archive/`) || PathPrefix(`/raw/`) ||
+        PathPrefix(`/secure_file/`))
+      kind: Rule
+      services:
+        - name: microbin
+          port: 8080
+      middlewares:
+        - name: crowdsec-bouncer
+          namespace: traefik-system
+        - name: rate-limit-strong
+          namespace: traefik-system
+        - name: microbin-sandbox
+    # View/share — fully public (paste links, QR, guide)
     - match: Host(`microbin.starktastic.net`)
       kind: Rule
       services:

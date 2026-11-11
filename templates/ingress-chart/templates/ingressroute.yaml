@@ -1,4 +1,5 @@
 {{- if .Values.ingress.enabled }}
+{{- if and .Values.ingress.authAdmin (not .Values.ingress.auth) }}{{ fail "ingress.authAdmin needs ingress.auth: true, or the route gets no auth middleware (ADR 0014)" }}{{- end }}
 {{- $domainType := .Values.ingress.domainType | default "internal" }}
 {{- $isInternal := eq $domainType "internal" }}
 {{- $fqdn := include "ingress-chart.fqdn" . }}

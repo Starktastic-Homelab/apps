@@ -62,6 +62,8 @@ Report what ran. The PR's ArgoCD diff preview is the review of record; renders d
   homepage-admin, non-internal ones on homepage too (`check-homepage-coverage.py`).
 - `authAdmin` means the ADR 0014 gate (`authentik-internal-gate`); `-ru` variants inherit it. The gate ignores `?app=`.
   Never rename `authentik Admins`. After the admin-middleware cleanup, fix forward, don't revert.
+- Traefik sends HSTS with includeSubDomains on websecure and websec-int: every name under starktastic.net and
+  benplus.app must keep valid TLS, or browsers refuse it for a year.
 - Retained storage (`infrastructure/system/proxmox-csi/README.md`, `docs/runbooks/`): prebind PVs; grow the
   PVC, verify, then update the Git PV; never force-detach, recreate images, drop RWOP or prune protection,
   or fake markers to pass a guard. Each volume takes one of 29 slots per worker; change that with ansible.

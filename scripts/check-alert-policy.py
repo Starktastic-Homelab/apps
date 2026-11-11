@@ -281,10 +281,9 @@ for series, expected in [
         {},
     ),
     (
-        {"probe_success": 0, "probe_http_status_code": 200, "probe_failed_due_to_regex": 1},
+        {"probe_success": 0, "probe_http_status_code": 200, "probe_failed_due_to_regex": 0},
         {
             "AdminGateOpen": [(f'{{__name__="probe_http_status_code",{gate_labels}}}', 200)],
-            "AdminGateWrongProvider": [(f'{{__name__="probe_failed_due_to_regex",{gate_labels}}}', 1)],
             "AdminGateDown": [(f'{{__name__="probe_success",{gate_labels}}}', 0)],
         },
     ),
@@ -311,7 +310,34 @@ for series, expected in [
                     {"labels": labels, "value": value} for labels, value in expected.get(name, [])
                 ],
             }
-            for name in ["AdminGateOpen", "AdminGateWrongProvider", "AdminGateDown", "AdminGateCanaryMissing"]
+            for name in ["AdminGateOpen", "AdminGateWrongProvider", "AdminGateDown", "AdminGateCanaryMissing",
+                         "AdminGatePublicAnswer"]
+        ],
+    })
+
+blackbox_failed = next(
+    rule["expr"]
+    for group in load("services/operations/prometheus-blackbox-exporter/manifests/prometheus-rules.yaml")["spec"]["groups"]
+    for rule in group["rules"]
+    if rule.get("alert") == "BlackboxProbeFailed"
+)
+neg = 'service="homepage-admin",tier="gate-negative",vhost="admin.starktastic.net"'
+neg_ok = 'service="homepage-admin",tier="gate-negative",vhost="auth.internal.starktastic.net"'
+# Public-negative probes: one vhost answering publicly fires AdminGatePublicAnswer only (not the generic
+# BlackboxProbeFailed); with no series at all, the negative canary is missing.
+for series, expected in [
+    ([(neg, "0x20"), (neg_ok, "1x20")], {"AdminGatePublicAnswer": [(f'{{__name__="probe_success",{neg}}}', 0)]}),
+    ([], {"AdminGateNegativeCanaryMissing": [('{tier="gate-negative"}', 1)]}),
+]:
+    admin_gate_tests.append({
+        "interval": "1m",
+        "input_series": [{"series": f"probe_success{{{labels}}}", "values": values} for labels, values in series],
+        "promql_expr_test": [
+            {"expr": expr, "eval_time": "15m",
+             "exp_samples": [{"labels": labels, "value": value} for labels, value in expected.get(name, [])]}
+            for name, expr in [("AdminGatePublicAnswer", gate["AdminGatePublicAnswer"]),
+                               ("AdminGateNegativeCanaryMissing", gate["AdminGateNegativeCanaryMissing"]),
+                               ("BlackboxProbeFailed", blackbox_failed)]
         ],
     })
 

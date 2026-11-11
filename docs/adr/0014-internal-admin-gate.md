@@ -117,8 +117,12 @@ Add a second, Git-deployed Authentik proxy outpost that admits only `authentik A
 - **Same-node bypass.** The NetworkPolicies are defence in depth. A hostNetwork pod on the same node (Home Assistant)
   bypasses them, as ADR 0013 records. Both policies are exceptions to ADR 0008.
 - **Session fixation.** The outpost keeps the pre-login session id at the callback, so a gate cookie planted from
-  another `*.starktastic.net` origin could share a session. An upstream issue is to be filed. HSTS and an inventory of
-  apps serving user HTML are follow-ups.
+  another `*.starktastic.net` origin could share a session. An upstream issue is to be filed. HSTS is a follow-up.
+  - Inventory of apps serving user HTML (2026-11-11): MicroBin was the one real path. Anyone could `POST /upload` an
+    HTML or SVG file and have `/file/{id}?preview=true` serve it inline. The create POST is now behind Authentik, and
+    uploaded content is served under `Content-Security-Policy: sandbox`. Every other app on `starktastic.net` or
+    `internal.starktastic.net` is low or none: writers are Admins only, or content is served as an attachment or
+    under a sandbox.
 - **Never rename `authentik Admins`.** The gate binding follows the group, but ansible's ArgoCD RBAC matches its name.
 - **Household members lose access** to each internal app as it moves, by design.
 - **Configuration-error mail (checked 2026-11-11).** An email transport exists, but every default notification rule

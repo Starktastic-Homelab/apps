@@ -1,0 +1,15 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: microbin-sandbox
+  namespace: operations
+  annotations:
+    comment: >-
+      MicroBin serves uploads with the uploader's file type, inline with ?preview=true. A sandboxed document has an
+      opaque origin, so an uploaded HTML or SVG file can't run as microbin.starktastic.net or set a cookie for
+      starktastic.net (the gate's session cookie scope, ADR 0014).
+spec:
+  headers:
+    customResponseHeaders:
+      Content-Security-Policy: "sandbox"
+      X-Content-Type-Options: "nosniff"

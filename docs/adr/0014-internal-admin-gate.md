@@ -101,7 +101,8 @@ Add a second, Git-deployed Authentik proxy outpost that admits only `authentik A
 
 - **Lost binding fails open.** If the gate's binding is deleted or disabled, every account is admitted, and the
   logged-out canary can't see it. Until every app is bound and "Allow application access with no policies" is
-  switched off (once Home Assistant is decided), Ben runs a non-admin test after every Authentik change. After the
+  switched off (Home Assistant is bound since 2026-11-11; the open-on-purpose apps then need an explicit binding
+  first), Ben runs a non-admin test after every Authentik change. After the
   switch, a lost binding denies everyone. `/if/admin` stays reachable.
 - **Federation fails open.** Listing the gate provider in another provider's federation lists would let that
   provider's tokens through. Never do it.
@@ -117,7 +118,10 @@ Add a second, Git-deployed Authentik proxy outpost that admits only `authentik A
 - **Same-node bypass.** The NetworkPolicies are defence in depth. A hostNetwork pod on the same node (Home Assistant)
   bypasses them, as ADR 0013 records. Both policies are exceptions to ADR 0008.
 - **Session fixation.** The outpost keeps the pre-login session id at the callback, so a gate cookie planted from
-  another `*.starktastic.net` origin could share a session. An upstream issue is to be filed. HSTS is a follow-up.
+  another `*.starktastic.net` origin could share a session. Ben chose (2026-11-11) not to report it upstream.
+  - HSTS (2026-11-11): Traefik sends `Strict-Transport-Security: max-age=31536000; includeSubDomains` on websecure
+    and websec-int, so a network attacker can't plant cookies over plain HTTP. Every name under these domains must
+    keep valid TLS.
   - Inventory of apps serving user HTML (2026-11-11): MicroBin was the one real path. Anyone could `POST /upload` an
     HTML or SVG file and have `/file/{id}?preview=true` serve it inline. The create POST is now behind Authentik, and
     uploaded content is served under `Content-Security-Policy: sandbox`. Every other app on `starktastic.net` or

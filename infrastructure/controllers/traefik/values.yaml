@@ -67,6 +67,7 @@ ports:
       # The <namespace>-<name> id assumes kubernetesCRD safeNaming stays off (Traefik's default).
       middlewares:
         - traefik-system-strip-authentik-headers@kubernetescrd
+        - traefik-system-hsts@kubernetescrd
   web-int:
     port: 8001
     expose:
@@ -79,6 +80,7 @@ ports:
     http:
       middlewares:
         - traefik-system-strip-authentik-headers@kubernetescrd
+        - traefik-system-hsts@kubernetescrd
   metrics:
     port: 9100
     expose:

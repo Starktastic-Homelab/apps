@@ -178,6 +178,9 @@ alertmanager:
             requests:
               storage: 2Gi
           volumeName: alertmanager-data-block
+    # Mounted at /etc/alertmanager/secrets/alertmanager-healthchecks/ for the Watchdog receiver's url_file.
+    secrets:
+      - alertmanager-healthchecks
     image:
       sha: 39d8bb3966c694a124428a3a88fbcffd40bd069129ecd47c059f8a3f17c55f3b
       registry: quay.io
@@ -193,15 +196,15 @@ alertmanager:
       repeat_interval: 24h
       receiver: "ntfy"
       routes:
-        # Watchdog fires continuously as a dead-man's switch.
-        # TODO: Route to Uptime Kuma push monitor once deployed:
-        #   - receiver: "watchdog"
-        #     matchers: [alertname = "Watchdog"]
-        #     group_interval: 1m
-        #     repeat_interval: 1m
-        - receiver: "null"
+        # Watchdog fires continuously as a dead-man's switch: about every 2 minutes it pings the
+        # healthchecks.io check alertmanager-watchdog (period 5m, grace 5m), which emails
+        # when the pings stop, so alerting has a witness outside the cluster.
+        - receiver: "healthchecks-watchdog"
           matchers:
             - alertname = "Watchdog"
+          group_wait: 0s
+          group_interval: 1m
+          repeat_interval: 1m
         - receiver: "null"
           matchers:
             - alertname = "InfoInhibitor"
@@ -214,6 +217,11 @@ alertmanager:
           continue: true
     receivers:
       - name: "null"
+      - name: "healthchecks-watchdog"
+        webhook_configs:
+          # The ping URL is a secret: read from the sealed Secret, never inlined here.
+          - url_file: /etc/alertmanager/secrets/alertmanager-healthchecks/watchdog-url
+            send_resolved: false
       - name: "ntfy"
         webhook_configs:
           # Routes through alertmanager-ntfy adapter for formatted notifications

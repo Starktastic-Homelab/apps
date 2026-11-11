@@ -10,7 +10,8 @@ spec:
     - name: blackbox
       rules:
         - alert: BlackboxProbeFailed
-          expr: probe_success == 0
+          # gate, gate-negative and external probes have their own, higher-severity alerts.
+          expr: probe_success{tier!~"gate|gate-negative|external"} == 0
           for: 5m
           labels:
             severity: warning
@@ -77,3 +78,11 @@ spec:
           annotations:
             summary: "Admin gate canary missing"
             description: "No admin-gate probe series for 15 minutes."
+        - alert: AdminGateNegativeCanaryMissing
+          expr: absent(probe_success{tier="gate-negative"})
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Admin gate public-negative canary missing"
+            description: "No public-entrypoint 404 probe series for 15 minutes."

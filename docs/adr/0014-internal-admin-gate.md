@@ -121,5 +121,6 @@ Add a second, Git-deployed Authentik proxy outpost that admits only `authentik A
   apps serving user HTML are follow-ups.
 - **Never rename `authentik Admins`.** The gate binding follows the group, but ansible's ArgoCD RBAC matches its name.
 - **Household members lose access** to each internal app as it moves, by design.
-- **Open check, after PR 2:** whether an email transport is configured. If it is, a bad-port Host could flood
-  configuration-error mail.
+- **Configuration-error mail (checked 2026-11-11).** An email transport exists, but every default notification rule
+  has no destination group and doesn't notify the event user, so nobody gets mail and a bad-port Host can't flood
+  anyone. No configuration-error event had been recorded.

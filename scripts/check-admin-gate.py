@@ -59,6 +59,9 @@ GATED: set[str] = {ADMIN_HOST} | {
 ADMIN_NS, ADMIN_APP = "operations", "homepage-admin"
 ADMIN_NETPOL = "homepage-admin-ingress"
 ALLOWED_VAR = "HOMEPAGE_ALLOWED_HOSTS"
+TRAEFIK_PEER = {"namespaceSelector": {"matchLabels": {"kubernetes.io/metadata.name": "traefik-system"}},
+                "podSelector": {"matchLabels": {"app.kubernetes.io/name": "traefik",
+                                                "app.kubernetes.io/instance": "traefik-traefik-system"}}}
 
 GLOBALS = "templates/globals.yaml"
 APPSET = "bootstrap/appsets/cluster-apps.yaml"
@@ -84,7 +87,7 @@ def _hosts(match: object) -> list[str] | None:
         literals = re.findall(r"`([^`]*)`", call.group(1))
         if not literals:
             return None
-        hosts += [h.lower() for h in literals]
+        hosts += [h.lower().rstrip(".") for h in literals]  # a trailing-dot FQDN is the same host
     return hosts
 
 
@@ -149,7 +152,8 @@ def problems(docs: list[dict], gated: set[str]) -> list[str]:
             # length, not by Host, so a host-less match can win; the only ones (the PathPrefix(`/`) catch-alls on
             # web and web-int) redirect to api@internal. Any route to the outpost Service is a gate route.
             if hosts is None or AUTH_HOST in hosts or to_outpost:
-                gate_routes.append(route)
+                if not any(r is route for r in gate_routes):  # one IngressRoute counts once for rule 9
+                    gate_routes.append(route)
                 if entry_points != GATE_EP:
                     found.append(f"rule 5: {_id(route)} may serve {AUTH_HOST} on {entry_points or 'every entrypoint'}")
             for ref in rule.get("middlewares") or []:
@@ -214,10 +218,12 @@ def problems(docs: list[dict], gated: set[str]) -> list[str]:
     policy = (by_id.get(("NetworkPolicy", ADMIN_NS, ADMIN_NETPOL)) or {}).get("spec") or {}
     selector = policy.get("podSelector") or {}
     match = selector.get("matchLabels") or {}
+    rules = policy.get("ingress") or []
     if (set(selector) != {"matchLabels"} or not match or "Ingress" not in (policy.get("policyTypes") or [])
-            or any(labels.get(k) != v for k, v in match.items())):
-        found.append(f"rule 13: NetworkPolicy {ADMIN_NS}/{ADMIN_NETPOL} is missing or doesn't select the "
-                     f"{ADMIN_APP} pod")
+            or any(labels.get(k) != v for k, v in match.items())
+            or not rules or any(r.get("from") != [TRAEFIK_PEER] for r in rules)):  # no `from` admits everyone
+        found.append(f"rule 13: NetworkPolicy {ADMIN_NS}/{ADMIN_NETPOL} is missing, doesn't select the "
+                     f"{ADMIN_APP} pod, or admits more than Traefik")
     if pod_spec.get("hostNetwork"):
         found.append(f"rule 14: Deployment {ADMIN_NS}/{ADMIN_APP} uses hostNetwork")
     for svc in docs:
@@ -291,9 +297,10 @@ def _admin_pod(allowed: str = ADMIN_HOST, host_network: bool = False) -> dict:
                     {"name": ALLOWED_VAR, "value": allowed}]}]}}}}
 
 
-def _netpol(match_labels: dict) -> dict:
+def _netpol(match_labels: dict, ingress=None) -> dict:
     return {"kind": "NetworkPolicy", "metadata": {"name": ADMIN_NETPOL, "namespace": ADMIN_NS},
-            "spec": {"podSelector": {"matchLabels": match_labels}, "policyTypes": ["Ingress"]}}
+            "spec": {"podSelector": {"matchLabels": match_labels}, "policyTypes": ["Ingress"],
+                     "ingress": [{"from": [TRAEFIK_PEER]}] if ingress is None else ingress}}
 
 
 def _replace(docs: list[dict], kind: str, name: str, new: dict) -> list[dict]:
@@ -307,6 +314,15 @@ def _bad_cases() -> dict[str, tuple[list[dict], str]]:
         "1 gate middleware with another address": (_replace(valid, "Middleware", GATE_MW, _mw(
             GATE_MW, "http://authentik-server.authentik/outpost.goauthentik.io/auth/traefik",
             trustForwardHeader=True, maxResponseBodySize=4194304)), "rule 1"),
+        "1 gate middleware without trustForwardHeader": (_replace(valid, "Middleware", GATE_MW, _mw(
+            GATE_MW, GATE_ADDR, trustForwardHeader=False, maxResponseBodySize=4194304,
+            authResponseHeaders=["X-authentik-username"])), "rule 1"),
+        "1 gate middleware with another maxResponseBodySize": (_replace(valid, "Middleware", GATE_MW, _mw(
+            GATE_MW, GATE_ADDR, trustForwardHeader=True, maxResponseBodySize=1048576,
+            authResponseHeaders=["X-authentik-username"])), "rule 1"),
+        "1 gate middleware forwards X-authentik-jwt": (_replace(valid, "Middleware", GATE_MW, _mw(
+            GATE_MW, GATE_ADDR, trustForwardHeader=True, maxResponseBodySize=4194304,
+            authResponseHeaders=["X-authentik-username", "X-authentik-jwt"])), "rule 1"),
         "1 gate middleware missing": ([d for d in valid if d["metadata"]["name"] != GATE_MW], "rule 1"),
         "3 every gate object missing": ([d for d in valid if d["metadata"]["name"] not in (
             GATE_MW, GATE_OUTPOST, "authentik-internal-gate-route")], "rule 3"),
@@ -314,11 +330,15 @@ def _bad_cases() -> dict[str, tuple[list[dict], str]]:
         "2 forwardAuth address with a blank ?app=": (valid + [_mw("x", GATE_ADDR + "?app=")], "rule 2"),
         "3 outpost with replicas: 2": (_replace(valid, "Deployment", GATE_OUTPOST, _deploy(
             GATE_OUTPOST, f"{PROXY_IMAGE}:2026.8.5", replicas=2)), "rule 3"),
+        "3 outpost with RollingUpdate": (_replace(valid, "Deployment", GATE_OUTPOST, _deploy(
+            GATE_OUTPOST, f"{PROXY_IMAGE}:2026.8.5", strategy="RollingUpdate")), "rule 3"),
         "4 outpost tag differs from ldap's": (_replace(valid, "Deployment", GATE_OUTPOST, _deploy(
             GATE_OUTPOST, f"{PROXY_IMAGE}:2026.8.4")), "rule 4"),
         "5 gate route on websecure": (_replace(valid, "IngressRoute", "authentik-internal-gate-route", _route(
             "authentik-internal-gate-route", f"Host(`{AUTH_HOST}`)", entry_points=["websecure"], ns=GATE_NS)),
             "rule 5"),
+        "5 trailing-dot gate host on websecure": (valid + [_route(
+            "dot", f"Host(`{AUTH_HOST}.`)", entry_points=["websecure"], ns=GATE_NS)], "rule 5"),
         "5 websecure route to the outpost Service": (valid + [_route(
             "outpost", "Host(`x.starktastic.net`)", entry_points=["websecure"], service=GATE_OUTPOST,
             ns=GATE_NS)], "rule 5"),
@@ -338,6 +358,8 @@ def _bad_cases() -> dict[str, tuple[list[dict], str]]:
             "authentik-server", "x:1", env=[{"name": COOKIE_VAR, "value": "starktastic.net"}])], "rule 8"),
         "9 second route for the gate host": (valid + [_route(
             "second", f"Host(`{AUTH_HOST}`)", ns=GATE_NS)], "rule 9"),
+        "9 gate route missing": ([d for d in valid if d["metadata"]["name"] != "authentik-internal-gate-route"],
+                                 "rule 9"),
         "10 admin route through authentik-middleware": (_replace(valid, "IngressRoute", ADMIN_APP, _route(
             ADMIN_APP, f"Host(`{ADMIN_HOST}`)", [{"name": "authentik-middleware", "namespace": GATE_NS}])),
             "rule 10"),
@@ -345,6 +367,10 @@ def _bad_cases() -> dict[str, tuple[list[dict], str]]:
             ADMIN_APP, f"Host(`{ADMIN_HOST}`)", [gate_ref], ["websecure"])), "rule 10"),
         "10 second route for the admin host": (valid + [_route(
             "second-admin", f"Host(`{ADMIN_HOST}`)", [gate_ref], service="other")], "rule 10"),
+        "10 admin route with a public host too": (_replace(valid, "IngressRoute", ADMIN_APP, _route(
+            ADMIN_APP, f"Host(`{ADMIN_HOST}`) || Host(`admin.starktastic.net`)", [gate_ref])), "rule 10"),
+        "10 admin route with no entryPoints": (_replace(valid, "IngressRoute", ADMIN_APP, _route(
+            ADMIN_APP, f"Host(`{ADMIN_HOST}`)", [gate_ref], entry_points=None)), "rule 10"),
         "11 two routes to operations/homepage-admin": (valid + [_route(
             "admin-copy", "Host(`x.internal.starktastic.net`)", [gate_ref], service=ADMIN_APP)], "rule 11"),
         "12 allowed host other than the admin host": (_replace(valid, "Deployment", ADMIN_APP, _admin_pod(
@@ -354,6 +380,10 @@ def _bad_cases() -> dict[str, tuple[list[dict], str]]:
         "13 policy selector doesn't match the pod": (_replace(valid, "NetworkPolicy", ADMIN_NETPOL, _netpol(
             {"app.kubernetes.io/name": "homepage"})), "rule 13"),
         "13 policy missing": ([d for d in valid if d["kind"] != "NetworkPolicy"], "rule 13"),
+        "13 policy allows all": (_replace(valid, "NetworkPolicy", ADMIN_NETPOL, _netpol(
+            {"app.kubernetes.io/name": ADMIN_APP, "app.kubernetes.io/instance": ADMIN_APP}, [{}])), "rule 13"),
+        "13 policy with an extra peer": (_replace(valid, "NetworkPolicy", ADMIN_NETPOL, _netpol(
+            {"app.kubernetes.io/name": ADMIN_APP, "app.kubernetes.io/instance": ADMIN_APP}, [{"from": [TRAEFIK_PEER, {"podSelector": {}}]}])), "rule 13"),
         "14 Service not ClusterIP": (valid + [{"kind": "Service", "metadata": {"name": "lb", "namespace": ADMIN_NS},
                                                 "spec": {"type": "LoadBalancer", "selector": {
                                                     "app.kubernetes.io/name": ADMIN_APP}}}], "rule 14"),
@@ -370,6 +400,12 @@ def self_check() -> None:
     for name, (docs, expected) in _bad_cases().items():
         found = problems(docs, {ADMIN_HOST})
         assert any(expected in p for p in found), f"self-check: case {name!r} gave {found}"
+    two_rules = _replace(_valid(), "IngressRoute", "authentik-internal-gate-route", _route(
+        "authentik-internal-gate-route", f"Host(`{AUTH_HOST}`)", ns=GATE_NS, service=GATE_OUTPOST))
+    two_rules[[d["metadata"]["name"] for d in two_rules].index("authentik-internal-gate-route")]["spec"]["routes"] *= 2
+    assert not [p for p in problems(two_rules, {ADMIN_HOST}) if "rule 9" in p], "self-check: one route counted twice"
+    assert _docs("kind: X\nmetadata: {namespace: x}\n", "k", override=True)[0]["metadata"]["namespace"] == "k"
+    assert _docs("kind: X\nmetadata: {namespace: x}\n", "k")[0]["metadata"]["namespace"] == "x"
     assert values_problems({"global": {"env": [{"name": "X", "value": "1"}]}}) == []
     for bad in ({"server": {"env": [{"name": COOKIE_VAR, "value": "x"}]}},
                 {"authentik": {"cookie_domain": "starktastic.net"}}):
@@ -389,12 +425,13 @@ def helm(*args: str) -> str:
     return subprocess.run(["helm", "template", *args], capture_output=True, text=True, check=True).stdout
 
 
-def _docs(text: str, namespace: str | None) -> list[dict]:
+def _docs(text: str, namespace: str | None, override: bool = False) -> list[dict]:
+    # override: a kustomization's namespace replaces the one a resource declares, as kustomize does.
     out = []
     for doc in yaml.safe_load_all(text):
         if isinstance(doc, dict) and doc.get("kind"):
             meta = doc.setdefault("metadata", {})
-            if namespace and not meta.get("namespace"):
+            if namespace and (override or not meta.get("namespace")):
                 meta["namespace"] = namespace  # ArgoCD's destination namespace
             out.append(doc)
     return out
@@ -418,7 +455,7 @@ def render() -> list[dict]:
                 kust = load_yaml(f"{manifests}/kustomization.yaml")
                 for res in kust.get("resources") or []:
                     with open(f"{manifests}/{res}") as handle:  # a directory resource raises: fail closed
-                        docs += _docs(handle.read(), kust.get("namespace") or ns)
+                        docs += _docs(handle.read(), kust.get("namespace") or ns, override=bool(kust.get("namespace")))
             else:
                 for file in sorted(glob.glob(f"{manifests}/*.yaml") + glob.glob(f"{manifests}/*.yml")):
                     with open(file) as handle:

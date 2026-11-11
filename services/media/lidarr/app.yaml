@@ -11,4 +11,5 @@ ingress:
   domainType: "internal"
   port: 8686
   auth: true
+  authAdmin: true
   rateLimit: true

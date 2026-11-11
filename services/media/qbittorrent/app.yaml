@@ -9,5 +9,6 @@ ingress:
   port: 8080
   serviceName: qbittorrent-main
   auth: true
+  authAdmin: true
   rateLimit: true
   probe: true

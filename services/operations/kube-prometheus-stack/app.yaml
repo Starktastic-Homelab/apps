@@ -14,5 +14,6 @@ ingress:
   port: 80
   serviceName: "kube-prometheus-stack-grafana"
   auth: true
+  authAdmin: true
   rateLimit: false
   probe: true

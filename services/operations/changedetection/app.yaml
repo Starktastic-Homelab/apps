@@ -8,5 +8,6 @@ ingress:
   domainType: "internal"
   port: 5000
   auth: true
+  authAdmin: true
   rateLimit: false
   probe: true

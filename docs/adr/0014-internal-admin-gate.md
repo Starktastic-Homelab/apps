@@ -20,7 +20,7 @@ every account:
   only runs at OAuth authorize, where the host is always `auth.starktastic.net`, so it always allows. The
   forward_domain cookie covers all of `starktastic.net`, so one login opens every forward-auth host.
 
-So any account can open the admin page and, from the home network, the 15 forward-auth hosts on `*.internal`. The
+So any account can open the admin page and, from the home network, the 17 forward-auth hosts on `*.internal`. The
 Homepage redesign moves the admin page to `admin.internal.starktastic.net` (home network and WireGuard only) and needs
 a real admin-only gate there.
 
@@ -57,6 +57,10 @@ Add a second, Git-deployed Authentik proxy outpost that admits only `authentik A
 - **Other internal apps** move to the gate in batches, but only after a check that nobody in the household uses them.
   The order is pgAdmin, the Traefik dashboard and Falco; then Grafana; then zigbee2mqtt and changedetection; then the
   media apps. The `-ru` variants set `authAdmin` explicitly.
+  - Done in one PR on 2026-11-11: all 17 forward-auth `.internal` hosts. Over the previous 31 days only `benf` had
+    used them (Authentik authorize events, Traefik access logs). The `helmarr-api` account isn't an Admin, so
+    Helmarr lost bazarr, prowlarr, qBittorrent, Radarr and Sonarr (Ben accepted). Apps with their own sign-in
+    (`auth: false`) and Home Assistant stay as they are.
 - **Guards.**
   - `scripts/check-admin-gate.py` runs in the required Validate job and renders like ArgoCD. It asserts:
     - the middleware target, and that no forwardAuth address carries `?app=`;

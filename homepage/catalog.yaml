@@ -1,0 +1,1180 @@
+tiles:
+  # kps tiles: source derives href and namespace; app is the pod label (prometheus), not the app.yaml
+  # name. Cluster Health and Security carry no siteMonitor today, so null drops the derived one.
+  cluster-health:
+    name: Cluster Health
+    source: services/operations/kube-prometheus-stack
+    icon: kubernetes.png
+    description: Nodes, pods, alerts, volumes
+    siteMonitor: null
+    app: prometheus
+    widgets:
+      - type: prometheusmetric
+        url: http://kube-prometheus-stack-prometheus.monitoring:9090
+        refreshInterval: 30000
+        metrics:
+          - label: Nodes Ready
+            query: sum(kube_node_status_condition{condition="Ready",status="true"})
+          - label: Unhealthy Pods
+            query: sum(max by (namespace, pod) (kube_pod_status_phase{phase=~"Pending|Failed|Unknown"} or {__name__=~"kube_pod_(init_)?container_status_waiting_reason",reason=~"CrashLoopBackOff|ImagePullBackOff|ErrImagePull|CreateContainerConfigError|CreateContainerError|InvalidImageName"}))
+          - label: Firing Alerts
+            query: (sum(ALERTS{alertstate="firing",alertname!~"Watchdog|InfoInhibitor"}) or vector(0)) and count(ALERTS{alertname="Watchdog",alertstate="firing"})
+          - label: Fullest Volume
+            query: max(kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes)
+            format:
+              type: percent
+              scale: 100
+  # Traefik's host comes from infrastructure/configs, not a services app.yaml: nothing derives.
+  edge-certs:
+    name: Edge & Certs
+    icon: traefik.png
+    href: https://traefik.internal.starktastic.net
+    description: Probes, certificates, traffic
+    namespace: monitoring
+    app: prometheus
+    widgets:
+      - type: prometheusmetric
+        url: http://kube-prometheus-stack-prometheus.monitoring:9090
+        refreshInterval: 30000
+        metrics:
+          - label: Failed Probes
+            query: (count(probe_success == 0) or vector(0)) and count(probe_success)
+          - label: Cert Expiry
+            query: min(certmanager_certificate_expiration_timestamp_seconds{issuer_name="letsencrypt-prod"} > 0) - time()
+            format:
+              type: number
+              scale: 1/86400
+              suffix: " days"
+              options:
+                maximumFractionDigits: 0
+          - label: Requests
+            query: sum(rate(traefik_entrypoint_requests_total[5m]))
+            format:
+              type: number
+              suffix: " req/s"
+              options:
+                maximumFractionDigits: 1
+          - label: p95 Latency
+            query: histogram_quantile(0.95, sum by (le) (rate(traefik_entrypoint_request_duration_seconds_bucket[5m])))
+            format:
+              type: number
+              scale: 1000
+              suffix: " ms"
+              options:
+                maximumFractionDigits: 0
+  security:
+    name: Security
+    source: services/operations/kube-prometheus-stack
+    icon: crowdsec.png
+    description: Bans, detections, bad requests
+    siteMonitor: null
+    app: prometheus
+    widgets:
+      - type: prometheusmetric
+        url: http://kube-prometheus-stack-prometheus.monitoring:9090
+        refreshInterval: 60000
+        metrics:
+          - label: Active Bans
+            query: (sum(cs_active_decisions) or vector(0)) and count(up{job="crowdsec-service"} == 1)
+            format:
+              type: number
+              options:
+                maximumFractionDigits: 0
+          - label: Falco 24h
+            query: floor(sum(increase((sum by (pod) (falcosecurity_falcosidekick_falco_events_total) or 0 * sum by (pod) (up{job="falco-falcosidekick"} == 1))[24h:1m]))) and count(up{job="falco-falcosidekick"} == 1)
+            format:
+              type: number
+              options:
+                maximumFractionDigits: 0
+          - label: 4xx/5xx 1h
+            query: (sum(increase(traefik_entrypoint_requests_total{code=~"4..|5.."}[1h])) or vector(0)) and count(traefik_entrypoint_requests_total)
+            format:
+              type: number
+              options:
+                maximumFractionDigits: 0
+  streaming-now:
+    name: Streaming Now
+    source: services/media/jellyfin
+    icon: jellyfin.png
+    description: Who is watching what
+    widgets:
+      - type: jellyfin
+        version: 2
+        url: http://jellyfin-main.media:8096
+        key: "{{HOMEPAGE_VAR_JELLYFIN_KEY}}"
+        enableBlocks: false
+        enableNowPlaying: true
+        enableUser: true
+        showEpisodeNumber: true
+  downloads:
+    name: Downloads
+    source: services/media/qbittorrent
+    icon: qbittorrent.png
+    description: Active transfers
+    widgets:
+      - type: qbittorrent
+        url: http://qbittorrent-main.media:8080
+  downloads-ru:
+    name: Downloads RU
+    source: services/media/qbittorrent-ru
+    icon: qbittorrent.png
+    description: Active transfers — Russian trackers
+    widgets:
+      - type: qbittorrent
+        url: http://qbittorrent-ru-main.media:8080
+  # Argo CD's host is outside services/*/app.yaml; its monitor uses the in-cluster TLS port.
+  deployments:
+    name: Deployments
+    icon: argo-cd.png
+    href: https://argocd.internal.starktastic.net
+    description: Sync and health of every app
+    siteMonitor: https://argocd-server.argocd.svc.cluster.local:443
+    namespace: argocd
+    app: argocd-server
+    widgets:
+      - type: prometheusmetric
+        url: http://kube-prometheus-stack-prometheus.monitoring:9090
+        refreshInterval: 30000
+        metrics:
+          - label: Apps
+            query: count(argocd_app_info)
+          - label: Synced
+            query: (count(argocd_app_info{sync_status="Synced"}) or vector(0)) and count(argocd_app_info)
+          - label: OutOfSync
+            query: (count(argocd_app_info{sync_status="OutOfSync"}) or vector(0)) and count(argocd_app_info)
+          - label: Unhealthy
+            query: (count(argocd_app_info{health_status!~"Healthy|Progressing"}) or vector(0)) and count(argocd_app_info)
+  latest-alert:
+    name: Latest Alert
+    source: services/operations/ntfy
+    icon: ntfy.png
+    description: Most recent notification
+    widgets:
+      - type: ntfy
+        url: http://ntfy.operations:80
+        topic: alerts
+        key: "{{HOMEPAGE_VAR_NTFY_TOKEN}}"
+  # No href. Household reads the iCal feeds (no *arr widgets there); admin uses the *arr tiles by ref.
+  calendar:
+    name: Calendar
+    audience: household
+    description: TV blue · Movies red · Music green · RU lighter
+    override:
+      household:
+        description: Blue = TV · Red = Movies
+    widgets:
+      - audience: household-only
+        type: calendar
+        view: monthly
+        maxEvents: 10
+        showTime: true
+        firstDayInWeek: sunday
+        integrations:
+          - type: ical
+            url: "http://sonarr.media:8989/feed/v3/calendar/Sonarr.ics?apikey={{HOMEPAGE_VAR_SONARR_KEY}}"
+            name: TV
+            color: blue
+          - type: ical
+            url: "http://radarr.media:7878/feed/v3/calendar/Radarr.ics?apikey={{HOMEPAGE_VAR_RADARR_KEY}}"
+            name: Movies
+            color: red
+      - type: calendar
+        view: monthly
+        maxEvents: 15
+        showTime: true
+        firstDayInWeek: sunday
+        integrations:
+          - ref: sonarr
+            color: blue
+          - ref: sonarr-ru
+            color: sky
+          - ref: radarr
+            color: red
+          - ref: radarr-ru
+            color: rose
+          - ref: lidarr
+            color: green
+  recipe-box:
+    name: Recipe Box
+    source: services/operations/mealie
+    icon: mealie.png
+    description: Recipe library
+    widgets:
+      - type: mealie
+        url: http://mealie.operations:9000
+        key: "{{HOMEPAGE_VAR_MEALIE_KEY}}"
+        version: 2
+  # Off-cluster tiles from here (News, GitHub PRs, Proxmox, nodes, OPNsense, AdGuard, TrueNAS) are explicit.
+  news:
+    name: News
+    icon: mdi-newspaper-variant
+    href: https://news.ycombinator.com
+    description: Hacker News front page
+    widgets:
+      - type: customapi
+        url: https://hn.algolia.com/api/v1/search?tags=front_page
+        refreshInterval: 600000
+        display: dynamic-list
+        mappings:
+          items: hits
+          name: title
+          label: points
+          limit: 6
+          format: number
+          target: https://news.ycombinator.com/item?id={objectID}
+  jellyfin:
+    name: Jellyfin
+    audience: household
+    source: services/media/jellyfin
+    icon: jellyfin.png
+    description: Movies, TV & anime
+  dispatcharr:
+    name: Dispatcharr
+    source: services/media/dispatcharr
+    icon: dispatcharr.png
+    description: Live TV & IPTV proxy
+    widgets:
+      - type: dispatcharr
+        url: http://dispatcharr.media:9191
+        username: "{{HOMEPAGE_VAR_DISPATCHARR_USER}}"
+        password: "{{HOMEPAGE_VAR_DISPATCHARR_PASS}}"
+        enableActiveStreams: true
+  cineplete:
+    name: Cineplete
+    source: services/media/cineplete
+    icon: mdi-movie-open-check
+    description: What is left to watch
+  # ingress.enabled is false in its app.yaml, so nothing derives.
+  navidrome:
+    name: Navidrome
+    audience: household
+    icon: navidrome.png
+    href: https://music.benplus.app
+    description: Music streaming
+    siteMonitor: http://navidrome.media:4533
+    namespace: media
+    app: navidrome
+    widgets:
+      - type: navidrome
+        url: http://navidrome.media:4533
+        user: "{{HOMEPAGE_VAR_NAVIDROME_USER}}"
+        token: "{{HOMEPAGE_VAR_NAVIDROME_TOKEN}}"
+        salt: "{{HOMEPAGE_VAR_NAVIDROME_SALT}}"
+  audiobookshelf:
+    name: Audiobookshelf
+    audience: household
+    source: services/media/audiobookshelf
+    icon: audiobookshelf.png
+    description: Audiobooks & podcasts
+    widgets:
+      - type: audiobookshelf
+        url: http://audiobookshelf.media:80
+        key: "{{HOMEPAGE_VAR_AUDIOBOOKSHELF_KEY}}"
+  calibre-web:
+    name: Calibre-Web
+    audience: household
+    source: services/media/calibre-web
+    monitorPath: /opds
+    icon: calibre-web.png
+    description: E-book library
+    widgets:
+      - audience: household
+        type: calibreweb
+        url: http://calibre-web.media:8083
+        username: "{{HOMEPAGE_VAR_CALIBRE_USER}}"
+        password: "{{HOMEPAGE_VAR_CALIBRE_PASS}}"
+  immich:
+    name: Immich
+    audience: household
+    source: services/media/immich
+    icon: immich.png
+    description: Photos & videos
+    widgets:
+      - type: immich
+        url: http://immich-main.media:2283
+        key: "{{HOMEPAGE_VAR_IMMICH_KEY}}"
+        version: 2
+  seerr:
+    name: Seerr
+    audience: household
+    source: services/media/seerr
+    icon: overseerr.png
+    description: Request movies & TV
+    widgets:
+      - audience: household
+        type: seerr
+        url: http://seerr.media:5055
+        key: "{{HOMEPAGE_VAR_SEERR_KEY}}"
+  seerr-ru:
+    name: Seerr RU
+    audience: household
+    source: services/media/seerr-ru
+    icon: overseerr.png
+    description: Requests — Russian trackers
+    override:
+      household:
+        description: Request movies & TV (RU)
+    widgets:
+      - audience: household
+        type: seerr
+        url: http://seerr-ru.media:5055
+        key: "{{HOMEPAGE_VAR_SEERR_RU_KEY}}"
+  shelfmark:
+    name: Shelfmark
+    audience: household
+    source: services/media/shelfmark
+    icon: mdi-bookshelf
+    description: Request books
+  excalidash:
+    name: Excalidash
+    audience: household
+    source: services/operations/excalidash
+    icon: excalidraw.png
+    description: Whiteboard & diagrams
+  bytestash:
+    name: ByteStash
+    source: services/operations/bytestash
+    icon: bytestash.png
+    description: Code snippets
+  # ingress.enabled is false in its app.yaml, so nothing derives.
+  microbin:
+    name: MicroBin
+    audience: household
+    icon: microbin.png
+    href: https://microbin.starktastic.net
+    description: Paste & share
+    siteMonitor: http://microbin.operations:8080
+    namespace: operations
+    app: microbin
+    override:
+      household:
+        description: Paste & share text
+  convertx:
+    name: ConvertX
+    audience: household
+    source: services/operations/convertx
+    icon: convertx.png
+    description: File format converter
+  stirling-pdf:
+    name: Stirling PDF
+    audience: household
+    source: services/operations/stirling-pdf
+    icon: stirling-pdf.png
+    description: PDF toolbox
+  cyberchef:
+    name: CyberChef
+    audience: household
+    source: services/operations/cyberchef
+    icon: cyberchef.png
+    description: Encode, decode, analyse
+  metube:
+    name: MeTube
+    audience: household
+    source: services/media/metube
+    icon: metube.png
+    description: Download video & audio
+  searxng:
+    name: SearXNG
+    audience: household
+    source: services/operations/searxng
+    icon: searxng.png
+    description: Private metasearch
+  karakeep:
+    name: Karakeep
+    audience: household
+    source: services/operations/karakeep
+    icon: karakeep.png
+    description: Bookmarks & read-later
+    widgets:
+      - type: karakeep
+        url: http://karakeep.operations:3000
+        key: "{{HOMEPAGE_VAR_KARAKEEP_KEY}}"
+  changedetection:
+    name: Changedetection
+    source: services/operations/changedetection
+    icon: changedetection.png
+    description: Watch pages for changes
+    widgets:
+      - type: changedetectionio
+        url: http://changedetection.operations:5000
+        key: "{{HOMEPAGE_VAR_CHANGEDETECTION_KEY}}"
+  paperless-ngx:
+    name: Paperless-ngx
+    source: services/operations/paperless-ngx
+    icon: paperless-ngx.png
+    description: Scanned documents
+    widgets:
+      - type: paperlessngx
+        url: http://paperless-ngx.operations:8000
+        key: "{{HOMEPAGE_VAR_PAPERLESS_KEY}}"
+  filebrowser:
+    name: Filebrowser
+    source: services/operations/filebrowser
+    icon: filebrowser.png
+    description: Web file manager
+  mealie:
+    name: Mealie
+    audience: household
+    source: services/operations/mealie
+    icon: mealie.png
+    description: Recipes & shopping lists
+  pairdrop:
+    name: PairDrop
+    audience: household
+    source: services/operations/pairdrop
+    icon: pairdrop.png
+    description: Device-to-device transfer
+  ntfy:
+    name: ntfy
+    audience: household
+    source: services/operations/ntfy
+    icon: ntfy.png
+    description: Push notifications
+  listmonk:
+    name: Listmonk
+    audience: household
+    source: services/operations/listmonk
+    icon: listmonk.png
+    description: Newsletters & mailing lists
+  radarr:
+    name: Radarr
+    source: services/media/radarr
+    monitorPath: /ping
+    icon: radarr.png
+    description: Movies
+    widgets:
+      - type: radarr
+        url: http://radarr.media:7878
+        key: "{{HOMEPAGE_VAR_RADARR_KEY}}"
+        enableQueue: true
+        highlight: &queue_depth
+          queued:
+            numeric:
+              - level: danger
+                when: gte
+                value: 50
+              - level: warn
+                when: gte
+                value: 20
+              - level: good
+                when: eq
+                value: 0
+  radarr-ru:
+    name: Radarr RU
+    source: services/media/radarr-ru
+    monitorPath: /ping
+    icon: radarr.png
+    description: Movies — Russian trackers
+    widgets:
+      - type: radarr
+        url: http://radarr-ru.media:7878
+        key: "{{HOMEPAGE_VAR_RADARR_RU_KEY}}"
+        enableQueue: true
+        highlight: *queue_depth
+  sonarr:
+    name: Sonarr
+    source: services/media/sonarr
+    monitorPath: /ping
+    icon: sonarr.png
+    description: TV series
+    widgets:
+      - type: sonarr
+        url: http://sonarr.media:8989
+        key: "{{HOMEPAGE_VAR_SONARR_KEY}}"
+        enableQueue: true
+        highlight: *queue_depth
+  sonarr-ru:
+    name: Sonarr RU
+    source: services/media/sonarr-ru
+    monitorPath: /ping
+    icon: sonarr.png
+    description: TV series — Russian trackers
+    widgets:
+      - type: sonarr
+        url: http://sonarr-ru.media:8989
+        key: "{{HOMEPAGE_VAR_SONARR_RU_KEY}}"
+        enableQueue: true
+        highlight: *queue_depth
+  lidarr:
+    name: Lidarr
+    source: services/media/lidarr
+    monitorPath: /ping
+    icon: lidarr.png
+    description: Music
+    widgets:
+      - type: lidarr
+        url: http://lidarr.media:8686
+        key: "{{HOMEPAGE_VAR_LIDARR_KEY}}"
+  prowlarr:
+    name: Prowlarr
+    source: services/media/prowlarr
+    monitorPath: /ping
+    icon: prowlarr.png
+    description: Indexer manager
+    widgets:
+      - type: prowlarr
+        url: http://prowlarr.media:9696
+        key: "{{HOMEPAGE_VAR_PROWLARR_KEY}}"
+  autobrr:
+    name: Autobrr
+    source: services/media/autobrr
+    icon: autobrr.png
+    description: Release automation
+    widgets:
+      - type: autobrr
+        url: http://autobrr.media:7474
+        key: "{{HOMEPAGE_VAR_AUTOBRR_KEY}}"
+  cleanuparr:
+    name: Cleanuparr
+    source: services/media/cleanuparr
+    monitorPath: /health
+    icon: cleanuparr.png
+    description: Stuck queue cleanup
+  qbittorrent:
+    name: qBittorrent
+    source: services/media/qbittorrent
+    icon: qbittorrent.png
+    description: Torrent client
+  qbittorrent-ru:
+    name: qBittorrent RU
+    source: services/media/qbittorrent-ru
+    icon: qbittorrent.png
+    description: Torrent client — Russian trackers
+  bazarr:
+    name: Bazarr
+    source: services/media/bazarr
+    icon: bazarr.png
+    description: Subtitle fetching
+    widgets:
+      - type: bazarr
+        url: http://bazarr.media:6767
+        key: "{{HOMEPAGE_VAR_BAZARR_KEY}}"
+  lingarr:
+    name: Lingarr
+    source: services/media/lingarr
+    icon: mdi-translate
+    description: Subtitle translation
+  home-assistant:
+    name: Home Assistant
+    source: services/home-automation/home-assistant
+    icon: home-assistant.png
+    description: Smart home control
+    widgets:
+      - type: homeassistant
+        url: http://home-assistant-main.home-automation:8123
+        key: "{{HOMEPAGE_VAR_HASS_KEY}}"
+  zigbee2mqtt:
+    name: Zigbee2MQTT
+    source: services/home-automation/zigbee2mqtt
+    icon: zigbee2mqtt.png
+    description: Zigbee device bridge
+  # Grafana: everything derives except app (the pod label is grafana).
+  grafana:
+    name: Grafana
+    source: services/operations/kube-prometheus-stack
+    monitorPath: /api/health
+    icon: grafana.png
+    description: Dashboards & alerting
+    app: grafana
+    widgets:
+      - type: grafana
+        alerts: alertmanager
+        url: http://kube-prometheus-stack-grafana.monitoring:80
+        username: "{{HOMEPAGE_VAR_GRAFANA_USER}}"
+        password: "{{HOMEPAGE_VAR_GRAFANA_PASS}}"
+        version: 2
+  # The link opens Grafana Explore and the monitor hits Prometheus directly, so both stay explicit.
+  prometheus:
+    name: Prometheus
+    source: services/operations/kube-prometheus-stack
+    icon: prometheus.png
+    href: https://grafana.internal.starktastic.net/explore
+    description: Metrics store
+    siteMonitor: http://kube-prometheus-stack-prometheus.monitoring:9090/-/healthy
+    app: prometheus
+    widgets:
+      - type: prometheus
+        url: http://kube-prometheus-stack-prometheus.monitoring:9090
+  # Authentik, Falco, Argo CD, Traefik and pgAdmin hosts live outside services/*/app.yaml: explicit.
+  authentik:
+    name: Authentik
+    icon: authentik.png
+    href: https://auth.starktastic.net
+    description: Identity provider & SSO
+    siteMonitor: http://authentik-server.authentik:80
+    namespace: authentik
+    app: authentik
+    widgets:
+      - type: authentik
+        url: http://authentik-server.authentik:80
+        key: "{{HOMEPAGE_VAR_AUTHENTIK_KEY}}"
+        version: 2
+  vaultwarden:
+    name: Vaultwarden
+    source: services/operations/vaultwarden
+    icon: vaultwarden.png
+    description: Password manager
+  falco:
+    name: Falco
+    icon: mdi-shield-search
+    href: https://falco.internal.starktastic.net
+    description: Runtime threat detection
+    siteMonitor: http://falco-falcosidekick-ui.falco:2802
+    namespace: falco
+    app: falco
+  argo-cd:
+    name: Argo CD
+    icon: argo-cd.png
+    href: https://argocd.internal.starktastic.net
+    description: GitOps controller
+    siteMonitor: https://argocd-server.argocd.svc.cluster.local:443
+    namespace: argocd
+    app: argocd-server
+  apps:
+    name: Apps
+    icon: github.png
+    href: https://github.com/Starktastic-Homelab/apps/pulls
+    description: Cluster manifests — open PRs
+    widgets:
+      - &github_prs
+        type: customapi
+        url: https://api.github.com/repos/Starktastic-Homelab/apps/pulls?state=open&per_page=10
+        refreshInterval: 600000
+        display: dynamic-list
+        headers:
+          Authorization: "Bearer {{HOMEPAGE_VAR_GITHUB_TOKEN}}"
+          X-GitHub-Api-Version: "2022-11-28"
+          User-Agent: Homepage-Dashboard
+        mappings:
+          name: title
+          label: user.login
+          limit: 5
+          target: https://github.com/Starktastic-Homelab/apps/pull/{number}
+  ansible:
+    name: Ansible
+    icon: github.png
+    href: https://github.com/Starktastic-Homelab/ansible/pulls
+    description: Host playbooks — open PRs
+    widgets:
+      - <<: *github_prs
+        url: https://api.github.com/repos/Starktastic-Homelab/ansible/pulls?state=open&per_page=10
+        mappings:
+          name: title
+          label: user.login
+          limit: 5
+          target: https://github.com/Starktastic-Homelab/ansible/pull/{number}
+  packer:
+    name: Packer
+    icon: github.png
+    href: https://github.com/Starktastic-Homelab/packer/pulls
+    description: VM images — open PRs
+    widgets:
+      - <<: *github_prs
+        url: https://api.github.com/repos/Starktastic-Homelab/packer/pulls?state=open&per_page=10
+        mappings:
+          name: title
+          label: user.login
+          limit: 5
+          target: https://github.com/Starktastic-Homelab/packer/pull/{number}
+  terraform:
+    name: Terraform
+    icon: github.png
+    href: https://github.com/Starktastic-Homelab/terraform/pulls
+    description: Infrastructure — open PRs
+    widgets:
+      - <<: *github_prs
+        url: https://api.github.com/repos/Starktastic-Homelab/terraform/pulls?state=open&per_page=10
+        mappings:
+          name: title
+          label: user.login
+          limit: 5
+          target: https://github.com/Starktastic-Homelab/terraform/pull/{number}
+  proxmox-ve:
+    name: Proxmox VE
+    icon: proxmox.png
+    href: https://10.9.9.20:8006
+    description: Hypervisor
+    widgets:
+      - type: proxmox
+        url: https://10.9.9.20:8006
+        username: "{{HOMEPAGE_VAR_PROXMOX_USER}}"
+        password: "{{HOMEPAGE_VAR_PROXMOX_PASS}}"
+        node: pve
+  kube-master-01:
+    name: kube-master-01
+    icon: proxmox.png
+    description: Control plane (4c / 16GB)
+    proxmoxNode: pve
+    proxmoxVMID: 200
+  kube-worker-01:
+    name: kube-worker-01
+    icon: proxmox.png
+    description: Worker (6c / 28GB / GPU)
+    proxmoxNode: pve
+    proxmoxVMID: 201
+  kube-worker-02:
+    name: kube-worker-02
+    icon: proxmox.png
+    description: Worker (6c / 28GB / GPU)
+    proxmoxNode: pve
+    proxmoxVMID: 202
+  opnsense:
+    name: OPNsense
+    icon: opnsense.png
+    href: https://10.9.9.1
+    description: Firewall & router
+    siteMonitor: https://10.9.9.1/ui/
+    widgets:
+      - type: opnsense
+        url: https://10.9.9.1
+        username: "{{HOMEPAGE_VAR_OPNSENSE_USER}}"
+        password: "{{HOMEPAGE_VAR_OPNSENSE_PASS}}"
+  adguard-home:
+    name: AdGuard Home
+    icon: adguard-home.png
+    href: http://10.9.9.1:3000
+    description: DNS filtering
+    siteMonitor: http://10.9.9.1:3000/
+    widgets:
+      - type: adguard
+        url: http://10.9.9.1:3000
+        username: "{{HOMEPAGE_VAR_ADGUARD_USER}}"
+        password: "{{HOMEPAGE_VAR_ADGUARD_PASS}}"
+  traefik:
+    name: Traefik
+    icon: traefik.png
+    href: https://traefik.internal.starktastic.net
+    description: Ingress & reverse proxy
+    siteMonitor: http://traefik-api.traefik-system:8080/ping
+    namespace: traefik-system
+    app: traefik
+    widgets:
+      - type: traefik
+        url: http://traefik-api.traefik-system:8080
+  truenas:
+    name: TrueNAS
+    icon: truenas.png
+    href: https://10.9.9.30
+    description: NAS & shared storage
+    siteMonitor: https://10.9.9.30/ui/
+    widgets:
+      - type: truenas
+        url: https://10.9.9.30
+        version: 2
+        key: "{{HOMEPAGE_VAR_TRUENAS_KEY}}"
+        enablePools: true
+  pgadmin:
+    name: pgAdmin
+    icon: pgadmin.png
+    href: https://pgadmin.internal.starktastic.net
+    description: Database administration
+    siteMonitor: http://pgadmin-pgadmin4.databases:80
+    namespace: databases
+    app: pgadmin4
+bookmarks:
+  bm-my-account:
+    name: My Account
+    audience: household-only
+    abbr: AC
+    href: https://auth.starktastic.net
+  bm-github:
+    name: GitHub
+    audience: household-only
+    abbr: GH
+    href: https://github.com/Starktastic-Homelab
+  bm-apps:
+    name: apps
+    abbr: AP
+    href: https://github.com/Starktastic-Homelab/apps
+  bm-ansible:
+    name: ansible
+    abbr: AN
+    href: https://github.com/Starktastic-Homelab/ansible
+  bm-packer:
+    name: packer
+    abbr: PK
+    href: https://github.com/Starktastic-Homelab/packer
+  bm-terraform:
+    name: terraform
+    abbr: TF
+    href: https://github.com/Starktastic-Homelab/terraform
+  bm-homepage:
+    name: Homepage
+    abbr: HP
+    href: https://gethomepage.dev/configs/services/
+  bm-kubernetes:
+    name: Kubernetes
+    abbr: K8
+    href: https://kubernetes.io/docs/home/
+  bm-trash-guides:
+    name: TRaSH Guides
+    abbr: TR
+    href: https://trash-guides.info
+  bm-dashboard-icons:
+    name: Dashboard Icons
+    abbr: IC
+    href: https://github.com/homarr-labs/dashboard-icons/tree/main/png
+  bm-crowdsec-console:
+    name: CrowdSec Console
+    abbr: CS
+    href: https://app.crowdsec.net
+  bm-finnhub:
+    name: Finnhub
+    abbr: FH
+    href: https://finnhub.io/dashboard
+info:
+  - audience: household
+    logo:
+      icon: /icons/favicon.svg
+  - audience: household-only
+    greeting:
+      text_size: xl
+      text: Welcome home
+  - kubernetes:
+      cluster:
+        show: true
+        cpu: true
+        memory: true
+        showLabel: true
+        label: cluster
+      nodes:
+        show: false
+  - audience: household
+    search:
+      provider: custom
+      url: https://search.starktastic.net/search?q=
+      target: _blank
+  - audience: household
+    openmeteo:
+      label: Weather
+      latitude: 32.08
+      longitude: 34.78
+      timezone: Asia/Jerusalem
+      units: metric
+  - stocks:
+      provider: finnhub
+      color: true
+      cache: 5
+      watchlist:
+        - NVDA
+        - AMD
+        - INTC
+        - MSFT
+        - GOOGL
+        - AAPL
+        - TSM
+  - audience: household
+    datetime:
+      text_size: xl
+      format:
+        dateStyle: long
+        timeStyle: short
+        hourCycle: h23
+pages:
+  household:
+    tabs:
+      - name: Pulse
+        groups:
+          - name: Coming Up
+            style: row
+            columns: 1
+            icon: mdi-calendar-month
+            items:
+              - calendar
+          - name: Links
+            style: row
+            columns: 2
+            icon: mdi-bookmark-outline
+            items:
+              - bm-my-account
+              - bm-github
+      - name: Play
+        groups:
+          - name: Watch
+            style: row
+            columns: 1
+            icon: mdi-television-play
+            items:
+              - jellyfin
+          - name: Listen
+            style: row
+            columns: 2
+            icon: mdi-headphones
+            items:
+              - navidrome
+              - audiobookshelf
+          - name: Read
+            style: row
+            columns: 1
+            icon: mdi-book-open-page-variant
+            items:
+              - calibre-web
+          - name: Look Back
+            style: row
+            columns: 1
+            icon: mdi-image-multiple
+            items:
+              - immich
+          - name: Ask For It
+            style: row
+            columns: 3
+            icon: mdi-hand-heart
+            items:
+              - seerr
+              - seerr-ru
+              - shelfmark
+      - name: Make
+        groups:
+          - name: Create
+            style: row
+            columns: 2
+            icon: mdi-draw
+            items:
+              - excalidash
+              - microbin
+          - name: Convert
+            style: row
+            columns: 4
+            icon: mdi-file-swap
+            items:
+              - convertx
+              - stirling-pdf
+              - metube
+              - cyberchef
+          - name: Find
+            style: row
+            columns: 2
+            icon: mdi-magnify
+            items:
+              - searxng
+              - karakeep
+          - name: Organise
+            style: row
+            columns: 1
+            icon: mdi-clipboard-check
+            items:
+              - mealie
+          - name: Send
+            style: row
+            columns: 3
+            icon: mdi-send
+            items:
+              - pairdrop
+              - ntfy
+              - listmonk
+  admin:
+    tabs:
+      - name: Pulse
+        groups:
+          - name: At a Glance
+            style: row
+            columns: 3
+            icon: mdi-heart-pulse
+            items:
+              - cluster-health
+              - edge-certs
+              - security
+          - name: In Flight
+            style: row
+            columns: 5
+            icon: mdi-airplane-takeoff
+            items:
+              - streaming-now
+              - downloads
+              - downloads-ru
+              - deployments
+              - latest-alert
+          - name: Coming Up
+            style: row
+            columns: 2
+            icon: mdi-calendar-month
+            items:
+              - calendar
+              - recipe-box
+          - name: Out There
+            style: row
+            columns: 1
+            icon: mdi-newspaper-variant
+            items:
+              - news
+      - name: Play
+        groups:
+          - name: Watch
+            style: row
+            columns: 3
+            icon: mdi-television-play
+            items:
+              - jellyfin
+              - dispatcharr
+              - cineplete
+          - name: Listen
+            style: row
+            columns: 2
+            icon: mdi-headphones
+            items:
+              - navidrome
+              - audiobookshelf
+          - name: Read
+            style: row
+            columns: 1
+            icon: mdi-book-open-page-variant
+            items:
+              - calibre-web
+          - name: Look Back
+            style: row
+            columns: 1
+            icon: mdi-image-multiple
+            items:
+              - immich
+          - name: Ask For It
+            style: row
+            columns: 3
+            icon: mdi-hand-heart
+            items:
+              - seerr
+              - seerr-ru
+              - shelfmark
+      - name: Make
+        groups:
+          - name: Create
+            style: row
+            columns: 3
+            icon: mdi-draw
+            items:
+              - excalidash
+              - bytestash
+              - microbin
+          - name: Convert
+            style: row
+            columns: 4
+            icon: mdi-file-swap
+            items:
+              - convertx
+              - stirling-pdf
+              - cyberchef
+              - metube
+          - name: Find
+            style: row
+            columns: 3
+            icon: mdi-magnify
+            items:
+              - searxng
+              - karakeep
+              - changedetection
+          - name: Organise
+            style: row
+            columns: 3
+            icon: mdi-clipboard-check
+            items:
+              - paperless-ngx
+              - filebrowser
+              - mealie
+          - name: Send
+            style: row
+            columns: 3
+            icon: mdi-send
+            items:
+              - pairdrop
+              - ntfy
+              - listmonk
+      - name: Run
+        groups:
+          - name: Acquire
+            style: row
+            columns: 2
+            icon: mdi-download
+            items:
+              - radarr
+              - radarr-ru
+              - sonarr
+              - sonarr-ru
+              - lidarr
+              - prowlarr
+              - autobrr
+              - cleanuparr
+              - qbittorrent
+              - qbittorrent-ru
+          - name: Refine
+            style: row
+            columns: 2
+            icon: mdi-auto-fix
+            items:
+              - bazarr
+              - lingarr
+          - name: Home
+            style: row
+            columns: 2
+            icon: mdi-home-automation
+            items:
+              - home-assistant
+              - zigbee2mqtt
+          - name: Observe
+            style: row
+            columns: 2
+            icon: mdi-chart-line
+            items:
+              - grafana
+              - prometheus
+          - name: Guard
+            style: row
+            columns: 3
+            icon: mdi-shield-lock
+            items:
+              - authentik
+              - vaultwarden
+              - falco
+          - name: Ship
+            style: row
+            columns: 5
+            icon: mdi-rocket-launch
+            items:
+              - argo-cd
+              - apps
+              - ansible
+              - packer
+              - terraform
+          - name: Code
+            icon: mdi-source-branch
+            items:
+              - bm-apps
+              - bm-ansible
+              - bm-packer
+              - bm-terraform
+      - name: Iron
+        groups:
+          - name: Compute
+            style: row
+            columns: 4
+            icon: mdi-server
+            items:
+              - proxmox-ve
+              - kube-master-01
+              - kube-worker-01
+              - kube-worker-02
+          - name: Network
+            style: row
+            columns: 3
+            icon: mdi-lan
+            items:
+              - opnsense
+              - adguard-home
+              - traefik
+          - name: Store
+            style: row
+            columns: 2
+            icon: mdi-database
+            items:
+              - truenas
+              - pgadmin
+          - name: Reference
+            icon: mdi-book-open-variant
+            items:
+              - bm-homepage
+              - bm-kubernetes
+              - bm-trash-guides
+              - bm-dashboard-icons
+          - name: Accounts
+            icon: mdi-account-key
+            items:
+              - bm-crowdsec-console
+              - bm-finnhub

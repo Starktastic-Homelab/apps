@@ -204,7 +204,7 @@ tiles:
         url: http://mealie.operations:9000
         key: "{{HOMEPAGE_VAR_MEALIE_KEY}}"
         version: 2
-  # Off-cluster tiles from here (News, GitHub PRs, Proxmox, nodes, OPNsense, AdGuard, TrueNAS) are explicit.
+  # Off-cluster: explicit.
   news:
     name: News
     icon: mdi-newspaper-variant
@@ -595,7 +595,7 @@ tiles:
     widgets:
       - type: prometheus
         url: http://kube-prometheus-stack-prometheus.monitoring:9090
-  # Authentik, Falco, Argo CD, Traefik and pgAdmin hosts live outside services/*/app.yaml: explicit.
+  # Authentik's host comes from infrastructure/configs, not a services app.yaml: explicit.
   authentik:
     name: Authentik
     icon: authentik.png
@@ -614,6 +614,7 @@ tiles:
     source: services/operations/vaultwarden
     icon: vaultwarden.png
     description: Password manager
+  # Falco's host comes from a static IngressRoute, not a services app.yaml: explicit.
   falco:
     name: Falco
     icon: mdi-shield-search
@@ -622,6 +623,7 @@ tiles:
     siteMonitor: http://falco-falcosidekick-ui.falco:2802
     namespace: falco
     app: falco
+  # Argo CD's host comes from infrastructure/configs, not a services app.yaml: explicit.
   argo-cd:
     name: Argo CD
     icon: argo-cd.png
@@ -630,6 +632,7 @@ tiles:
     siteMonitor: https://argocd-server.argocd.svc.cluster.local:443
     namespace: argocd
     app: argocd-server
+  # Off-cluster from here through AdGuard Home (GitHub PRs, Proxmox, nodes, OPNsense): explicit.
   apps:
     name: Apps
     icon: github.png
@@ -740,6 +743,7 @@ tiles:
         url: http://10.9.9.1:3000
         username: "{{HOMEPAGE_VAR_ADGUARD_USER}}"
         password: "{{HOMEPAGE_VAR_ADGUARD_PASS}}"
+  # Traefik's host comes from infrastructure/configs, not a services app.yaml: explicit.
   traefik:
     name: Traefik
     icon: traefik.png
@@ -751,6 +755,7 @@ tiles:
     widgets:
       - type: traefik
         url: http://traefik-api.traefik-system:8080
+  # Off-cluster: explicit.
   truenas:
     name: TrueNAS
     icon: truenas.png
@@ -763,6 +768,7 @@ tiles:
         version: 2
         key: "{{HOMEPAGE_VAR_TRUENAS_KEY}}"
         enablePools: true
+  # pgAdmin's host comes from infrastructure/configs, not a services app.yaml: explicit.
   pgadmin:
     name: pgAdmin
     icon: pgadmin.png

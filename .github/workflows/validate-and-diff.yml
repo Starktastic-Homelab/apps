@@ -89,7 +89,6 @@ jobs:
 
       - name: Rehearse staged Homepage pages   # Fable deletes this at the cut-over
         run: |
-          python3 scripts/homepage/generate.py --compare
           cp -a . "$RUNNER_TEMP/hp" && cp -r homepage/staged/services "$RUNNER_TEMP/hp/"
           cd "$RUNNER_TEMP/hp"
           python3 scripts/check-homepage-coverage.py

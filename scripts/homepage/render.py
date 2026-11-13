@@ -20,6 +20,106 @@ ADMIN_ONLY = {"namespace", "app", "podSelector", "proxmoxNode", "proxmoxVMID"}  
 OWN_KEYS = ("proxmox.yaml", "docker.yaml", "custom.js", "custom.css", "kubernetes.yaml", "settings.yaml",
             "widgets.yaml", "services.yaml", "bookmarks.yaml")
 
+# ADR 0020 hook rule: what custom.css may select. Read in Homepage v2.7.0's source; re-read on a bump.
+HOOK_IDS = {"layout-groups", "myTab", "tabs", "information-widgets", "information-widgets-right", "widgets-wrap",
+            "background", "inner_wrapper", "footer"}
+HOOK_CLASSES = {
+    "service", "service-card", "service-title", "service-title-text", "service-name", "service-description",
+    "service-icon", "service-tag", "service-site-monitor", "site-monitor-status", "service-container",
+    "service-block", "service-block-value", "service-block-label", "services-group", "subgroup",
+    "service-group-name", "service-group-icon",
+    "bookmark", "bookmark-group-name", "bookmark-group-icon", "bookmark-icon", "bookmark-text", "bookmark-name",
+    "bookmark-description",
+}
+HOOK_CLASS_PREFIX = "information-widget-"
+HOOK_ATTRS = {"data-name", "data-highlight-level", "role", "aria-selected"}
+NO_HOOK = re.compile(r"/\*\s*no-hook:start\s*\*/(.*?)/\*\s*no-hook:end\s*\*/", re.S)
+POSITIONAL = re.compile(r":(?:nth-[a-z-]+|(?:first|last|only)-(?:child|of-type))\b")
+
+
+def _blank(match):
+    return " " * len(match.group())
+
+
+def _selectors(css: str):
+    """Yield (offset, selector text) for every style rule, at-rule blocks walked, declarations skipped."""
+    i, n, start = 0, len(css), 0
+    while i < n:
+        ch = css[i]
+        if ch in ";}":
+            start = i + 1
+        elif ch == "{":
+            prelude = css[start:i].strip()
+            if re.match(r"@(media|supports|container|layer)\b", prelude):
+                start = i + 1  # rules nested inside: keep scanning
+            else:
+                if not prelude.startswith("@"):
+                    yield i, " ".join(prelude.split())  # the brace's offset: always inside its no-hook span
+                depth, i = 1, i + 1  # skip the block: declarations, @keyframes steps, @font-face
+                while i < n and depth:
+                    depth += {"{": 1, "}": -1}.get(css[i], 0)
+                    i += 1
+                start = i
+                continue
+        i += 1
+
+
+def check_css(css: str, page: str, ids: set, tabs: list, where: str) -> None:
+    """ADR 0020 rule 3: selectors use Homepage's hooks and tile ids; position only inside the no-hook block."""
+    if len(re.findall(r"no-hook:start", css)) != len(NO_HOOK.findall(css)) or \
+            len(re.findall(r"no-hook:end", css)) != len(NO_HOOK.findall(css)):
+        raise CatalogError(f"{where}: unbalanced /* no-hook:start */ ... /* no-hook:end */ markers")
+    spans = [m.span(1) for m in NO_HOOK.finditer(css)]
+    # Same-length blanks keep offsets: comments, then strings and url() bodies (they may hold braces).
+    text = re.sub(r"/\*.*?\*/", _blank, css, flags=re.S)
+    text = re.sub(r"\"(?:\\.|[^\"\\])*\"|'(?:\\.|[^'\\])*'|url\([^)]*\)", _blank, text)
+    known = HOOK_IDS | {f"{t}-tab" for t in tabs} | ids
+    for offset, sel in _selectors(text):
+        free = any(a <= offset < b for a, b in spans)
+        for found in re.findall(r"#([A-Za-z_][\w-]*)", sel):
+            if found not in known:
+                raise CatalogError(f"{where}: #{found} is not a Homepage id, a tab or a tile on page {page}")
+        for found in re.findall(r"\.([A-Za-z_-][\w-]*)", sel):
+            if found not in HOOK_CLASSES and not found.startswith(HOOK_CLASS_PREFIX):
+                raise CatalogError(f"{where}: .{found} is not a Homepage hook (ADR 0020)")
+        if free:
+            continue
+        for found in re.findall(r"\[\s*([A-Za-z_][\w-]*)", sel):
+            if found not in HOOK_ATTRS:
+                raise CatalogError(f"{where}: [{found}] is not a Homepage hook (ADR 0020)")
+        if POSITIONAL.search(sel) or re.search(r"[+~]", re.sub(r"\[[^\]]*\]", "", sel)):
+            raise CatalogError(f"{where}: {sel!r} selects by position; restructure it or move it into the "
+                               "no-hook block (ADR 0020)")
+
+
+def mount_path(key: str) -> str:
+    """Where the pod mounts a ConfigMap key; the render check places files the same way."""
+    if key in OWN_KEYS:
+        return f"/app/config/{key}"
+    return "/app/public/icons/favicon.svg" if key == "favicon.svg" else f"/app/public/images/{key}"
+
+
+def check_mounts(repo: Path, page: str, data: dict) -> None:
+    """A cut-over page's values.yaml mounts exactly the ConfigMap's keys: a missing key stops the pod."""
+    path = Path(repo) / PAGES[page]["dir"] / "values.yaml"
+    where = f"pages.{page}: {path.relative_to(repo)}"
+    try:
+        values = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError) as err:
+        raise CatalogError(f"{where}: {err}") from err
+    cm = PAGES[page]["configmap"]
+    try:
+        mounts = {m["subPath"]: m["path"] for m in values["persistence"][cm]["globalMounts"]}
+    except (KeyError, TypeError) as err:
+        raise CatalogError(f"{where}: persistence.{cm}.globalMounts needs a path and subPath per entry") from err
+    for key in sorted(set(mounts) - set(data)):
+        raise CatalogError(f"{where}: mounts {key}, which is not a key of {cm}")
+    for key in sorted(set(data) - set(mounts)):
+        raise CatalogError(f"{where}: {key} is a key of {cm} but is not mounted at {mount_path(key)}")
+    for key, got in sorted(mounts.items()):
+        if got != mount_path(key):
+            raise CatalogError(f"{where}: {key} is mounted at {got}, expected {mount_path(key)}")
+
 
 def _widgets(tile, page):
     return [(i, w) for i, w in enumerate(tile.get("widgets") or []) if shown_on(audience(w), page)]
@@ -147,6 +247,13 @@ def build_page(repo: Path, cat: dict, page: str) -> dict[str, Any]:
         raise CatalogError(f"{rel}/settings.yaml: not a mapping")
     css_path = pdir / "custom.css"
     css = css_path.read_text(encoding="utf-8") if css_path.is_file() else ""
+    shared_path = Path(repo) / "homepage/pages/shared.css"
+    shared = shared_path.read_text(encoding="utf-8") if shared_path.is_file() else ""
+    placed = {i for _tab, g, _parents in walk_groups(pdata) for i in g.get("items") or [] if isinstance(i, str)}
+    for text, where in ((shared, "homepage/pages/shared.css"), (css, f"{rel}/custom.css")):
+        check_css(text, page, placed, tabs, where)
+    if shared.strip():
+        css = shared.rstrip("\n") + "\n" + css
     names = {page_tile(t, page)["name"] for tid, t in cat["tiles"].items() if tid in group_of}
     for name in re.findall(r'data-name="([^"]*)"', css):
         if name not in names:

@@ -5,7 +5,7 @@ manifests: true
 chart:
   repo: https://prometheus-community.github.io/helm-charts
   name: kube-prometheus-stack
-  version: 93.1.0
+  version: 93.1.1
 
 ingress:
   enabled: true

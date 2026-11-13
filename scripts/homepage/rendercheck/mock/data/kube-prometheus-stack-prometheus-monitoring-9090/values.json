@@ -32,5 +32,8 @@
  "min(probe_success{tier=~\"gate|gate-negative\"})": 1,
  "max(max by (namespace, pod, container) (container_memory_working_set_bytes{container!=\"\"}) / on (namespace, pod, container) max by (namespace, pod, container) (kube_pod_container_resource_limits{resource=\"memory\"}))": 0.64,
  "count(ALERTS{alertstate=\"firing\",alertname!~\"Watchdog|InfoInhibitor|KubePodNotReady|KubePodCrashLooping|KubeDeploymentReplicasMismatch|KubeContainerWaiting|CPUThrottlingHigh|KubeHpaReplicasMismatch\"}) or vector(0)": 0,
- "sum(clamp_min(homelab:proxmox_csi_slots_free:count, 0)) or vector(0)": 22
+ "sum(clamp_min(homelab:proxmox_csi_slots_free:count, 0)) or vector(0)": 22,
+ "sum(kube_pod_status_phase{namespace=\"home-automation\",phase=\"Running\"})": 3,
+ "floor(sum(increase(kube_pod_container_status_restarts_total{namespace=\"home-automation\"}[24h])))": 0,
+ "sum(container_memory_working_set_bytes{namespace=\"home-automation\",pod=~\"home-assistant-.*\",container=\"main\"})": 734003200
 }

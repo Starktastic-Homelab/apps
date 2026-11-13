@@ -1,0 +1,35 @@
+{
+ "pngx_version": "3.1.3",
+ "install_type": "docker",
+ "database": {
+  "type": "postgresql",
+  "status": "OK",
+  "error": null,
+  "migration_status": {
+   "latest_migration": "documents.1075_alter_paperlesstask_task_name",
+   "unapplied_migrations": []
+  }
+ },
+ "tasks": {
+  "redis_status": "OK",
+  "redis_error": null,
+  "celery_status": "OK",
+  "celery_error": null,
+  "index_status": "OK",
+  "index_last_modified": "{{iso:-6m}}",
+  "index_error": null,
+  "classifier_status": "OK",
+  "classifier_last_trained": "{{iso:-47m}}",
+  "classifier_error": null,
+  "sanity_check_status": "OK",
+  "sanity_check_last_run": "{{iso:-5d}}",
+  "sanity_check_error": null,
+  "summary": {
+   "days": 30,
+   "total_count": 412,
+   "pending_count": 2,
+   "success_count": 409,
+   "failure_count": 1
+  }
+ }
+}

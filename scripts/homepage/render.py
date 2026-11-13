@@ -14,7 +14,8 @@ PAGES = {
     "household": {"configmap": "homepage-config", "dir": "services/operations/homepage"},
     "admin": {"configmap": "homepage-admin-config", "dir": "services/operations/homepage-admin"},
 }
-LAYOUT_KEYS = [k for k in GROUP_KEYS if k not in ("name", "items")]
+LAYOUT_KEYS = ("style", "columns", "icon", "header", "initiallyCollapsed", "useEqualHeights")  # ordered: output order
+assert set(LAYOUT_KEYS) == GROUP_KEYS - {"name", "items"}
 ADMIN_ONLY = {"namespace", "app", "podSelector", "proxmoxNode", "proxmoxVMID"}  # rule 15
 OWN_KEYS = ("proxmox.yaml", "docker.yaml", "custom.js", "custom.css", "kubernetes.yaml", "settings.yaml",
             "widgets.yaml", "services.yaml", "bookmarks.yaml")

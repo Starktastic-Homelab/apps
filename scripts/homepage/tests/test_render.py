@@ -1,4 +1,7 @@
 import copy
+import json
+import os
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -236,6 +239,31 @@ class RenderTests(unittest.TestCase):
         for text in ("pwa:\n", "pwa: x\n", "pwa:\n  - a\n"):
             with self.assertRaisesRegex(CatalogError, r"settings\.yaml\.pwa: not a mapping"):
                 build("admin", pages={"admin": {"settings.yaml": text}})
+
+    def test_layout_order_independent_of_hash_seed(self):
+        script = (
+            "import copy, json, sys, tempfile\n"
+            "from pathlib import Path\n"
+            "sys.path[:0] = [sys.argv[1], sys.argv[1] + '/tests']\n"
+            "from catalog import load_catalog\n"
+            "from fixture import MIN_CATALOG, make_repo\n"
+            "from render import build_page\n"
+            "c = copy.deepcopy(MIN_CATALOG)\n"
+            "c['pages']['admin']['tabs'][0]['groups'][0].update(useEqualHeights=True, initiallyCollapsed=False,"
+            " header=True, icon='mdi-x', columns=2, style='row')\n"
+            "with tempfile.TemporaryDirectory() as d:\n"
+            "    repo = make_repo(Path(d), c)\n"
+            "    print(json.dumps(build_page(repo, load_catalog(repo), 'admin')['settings.yaml']))\n"
+        )
+        here = str(Path(__file__).resolve().parents[1])
+        outs = set()
+        for seed in ("1", "2", "3", "4", "5", "6"):
+            run = subprocess.run([sys.executable, "-c", script, here], capture_output=True, text=True, check=True,
+                                 env={**os.environ, "PYTHONHASHSEED": seed})
+            outs.add(run.stdout)
+        self.assertEqual(len(outs), 1, outs)
+        self.assertEqual(list(json.loads(outs.pop())["layout"]["G"]),
+                         ["tab", "style", "columns", "icon", "header", "initiallyCollapsed", "useEqualHeights"])
 
     def test_missing_settings(self):
         c = copy.deepcopy(CAT)

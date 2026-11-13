@@ -1,0 +1,98 @@
+[
+ {
+  "name": "thumbnailGeneration",
+  "isPaused": false,
+  "statistics": {
+   "active": 1,
+   "completed": 0,
+   "failed": 0,
+   "delayed": 0,
+   "waiting": 18,
+   "paused": 0
+  }
+ },
+ {
+  "name": "metadataExtraction",
+  "isPaused": false,
+  "statistics": {
+   "active": 1,
+   "completed": 0,
+   "failed": 0,
+   "delayed": 0,
+   "waiting": 4,
+   "paused": 0
+  }
+ },
+ {
+  "name": "videoConversion",
+  "isPaused": false,
+  "statistics": {
+   "active": 1,
+   "completed": 0,
+   "failed": 0,
+   "delayed": 0,
+   "waiting": 3,
+   "paused": 0
+  }
+ },
+ {
+  "name": "faceDetection",
+  "isPaused": false,
+  "statistics": {
+   "active": 1,
+   "completed": 0,
+   "failed": 0,
+   "delayed": 0,
+   "waiting": 57,
+   "paused": 0
+  }
+ },
+ {
+  "name": "facialRecognition",
+  "isPaused": false,
+  "statistics": {
+   "active": 1,
+   "completed": 0,
+   "failed": 0,
+   "delayed": 0,
+   "waiting": 12,
+   "paused": 0
+  }
+ },
+ {
+  "name": "smartSearch",
+  "isPaused": false,
+  "statistics": {
+   "active": 1,
+   "completed": 0,
+   "failed": 0,
+   "delayed": 0,
+   "waiting": 412,
+   "paused": 0
+  }
+ },
+ {
+  "name": "duplicateDetection",
+  "isPaused": false,
+  "statistics": {
+   "active": 0,
+   "completed": 0,
+   "failed": 0,
+   "delayed": 0,
+   "waiting": 0,
+   "paused": 0
+  }
+ },
+ {
+  "name": "backgroundTask",
+  "isPaused": false,
+  "statistics": {
+   "active": 0,
+   "completed": 0,
+   "failed": 0,
+   "delayed": 0,
+   "waiting": 0,
+   "paused": 0
+  }
+ }
+]

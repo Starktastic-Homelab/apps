@@ -1,0 +1,14 @@
+[
+ {
+  "source": "IndexerLongTermStatusCheck",
+  "type": "warning",
+  "message": "Indexers unavailable due to failures for more than 6 hours: Kinozal, TorrentLeech",
+  "wikiUrl": "https://wiki.servarr.com/prowlarr/system#indexers-are-unavailable-due-to-failures"
+ },
+ {
+  "source": "IndexerProxyStatusCheck",
+  "type": "warning",
+  "message": "Proxies unavailable due to failures: FlareSolverr",
+  "wikiUrl": "https://wiki.servarr.com/prowlarr/system#proxies-are-unavailable-due-to-failures"
+ }
+]

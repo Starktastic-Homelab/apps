@@ -1,0 +1,14 @@
+[
+ {
+  "source": "IndexerStatusCheck",
+  "type": "warning",
+  "message": "Indexers unavailable due to failures: TorrentLeech (Prowlarr)",
+  "wikiUrl": "https://wiki.servarr.com/sonarr/system#indexers-are-unavailable-due-to-failures"
+ },
+ {
+  "source": "ImportListStatusCheck",
+  "type": "warning",
+  "message": "Lists unavailable due to failures: Trakt Watchlist",
+  "wikiUrl": "https://wiki.servarr.com/sonarr/system#lists-are-unavailable-due-to-failures"
+ }
+]

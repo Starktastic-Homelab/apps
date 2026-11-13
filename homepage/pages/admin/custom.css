@@ -371,12 +371,13 @@ html:root {
 
   #inner_wrapper:has(#Media-tab[aria-selected="true"]) #layout-groups #jellyfin { grid-column: 1 / -1; }
 
-  /* Pipeline: Acquire and Download are two-column panels on top, Index and Subtitles below */
-  #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups { grid-template-rows: auto auto; }
-  #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups > .services-group:has(#sonarr) { grid-column: 1 / span 2; grid-row: 1; }
+  /* Pipeline: two-column panels. Acquire runs beside Download with Health Checks under it; Index and Subtitles below */
+  #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups { grid-template-rows: auto 1fr auto; }
+  #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups > .services-group:has(#sonarr) { grid-column: 1 / span 2; grid-row: 1 / span 2; }
   #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups > .services-group:has(#qbittorrent) { grid-column: 3 / span 2; grid-row: 1; }
-  #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups > .services-group:has(#prowlarr) { grid-column: 1 / span 2; grid-row: 2; }
-  #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups > .services-group:has(#bazarr) { grid-column: 3 / span 2; grid-row: 2; }
+  #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups > .services-group:has(#sonarr-health) { grid-column: 3 / span 2; grid-row: 2; }
+  #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups > .services-group:has(#prowlarr) { grid-column: 1 / span 2; grid-row: 3; }
+  #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups > .services-group:has(#bazarr) { grid-column: 3 / span 2; grid-row: 3; }
 
   #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups ul:has(> .service) {
     display: block;

@@ -1,0 +1,12 @@
+{
+ "connection_status": "firewalled",
+ "dht_nodes": 274,
+ "dl_info_data": 412093348172,
+ "dl_info_speed": 13212057,
+ "dl_rate_limit": 0,
+ "up_info_data": 98004458901,
+ "up_info_speed": 524288,
+ "up_rate_limit": 0,
+ "last_external_address_v4": "198.51.100.38",
+ "last_external_address_v6": ""
+}

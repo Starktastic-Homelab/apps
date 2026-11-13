@@ -41,10 +41,18 @@ def F(**kw):
 
 class TestCompare(unittest.TestCase):
     def test_equal_ignores_ids_quotes_anchors(self):
-        other = SERVICES.replace("x1", "zz").replace("https://a", '"https://a"').replace(
-            "description: d", "description: 'd'  # note")
-        other = "# c\n" + other.replace("- A:", "- A: &a").replace("- B:", "- B:")
-        self.assertEqual(diff(F(), F(services=other), "p"), [])
+        base = SERVICES.replace("          key:", "          highlight: v\n          key:")
+        other = base.replace("x1", "zz").replace("https://a", '"https://a"')
+        other = "# c\n" + other.replace("highlight: v", "highlight: &q v").replace(
+            "            href: https://b", "            href: https://b\n            description: *q")
+        base = base.replace("            href: https://b", "            href: https://b\n            description: v")
+        self.assertEqual(diff(F(services=base), F(services=other), "p"), [])
+
+    def test_info_order_and_duplicate_names(self):
+        swapped = "- search:\n    url: y\n- logo:\n    icon: x\n"
+        self.assertEqual(len(diff(F(), F(info=swapped), "p")), 1)
+        with self.assertRaisesRegex(Exception, "duplicate tile name 'A'"):
+            F(services=SERVICES + "    - A:\n        href: z\n")
 
     def test_detects_each_fact(self):
         self.assertEqual(F()["tiles"]["B"]["group"], "Sub")

@@ -78,18 +78,18 @@ def run_compare(repo: Path) -> int:
     lines = []
     for page in sorted(STAGED):
         paths = [Path(repo) / f"{PAGES[page]['dir']}/manifests/templates/configmap.yaml", output_path(repo, page)]
-        for p in paths:
-            if not p.is_file():
-                lines.append(f"{page}: missing {p.relative_to(repo)}")
-        if len(lines) and lines[-1].startswith(f"{page}: missing"):
+        missing = [p for p in paths if not p.is_file()]
+        if missing:
+            lines += [f"{page}: missing {p.relative_to(repo)}" for p in missing]
             continue
         try:
             f = [compare.facts(compare.parse_configmap(p.read_text(encoding="utf-8"))) for p in paths]
-        except (CatalogError, KeyError, TypeError, AttributeError) as err:
-            lines.append(f"{page}: cannot parse: {err}")
+        except CatalogError as err:
+            lines.append(f"{page}: {err}")
             continue
         lines += compare.diff(f[0], f[1], page)
-    print(*lines, sep="\n") if lines else None
+    if lines:
+        print(*lines, sep="\n")
     return 1 if lines else 0
 
 

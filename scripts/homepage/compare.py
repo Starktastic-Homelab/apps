@@ -4,7 +4,7 @@ from typing import Any
 
 import yaml
 
-from catalog import loads_yaml
+from catalog import CatalogError, loads_yaml
 
 _VAR = re.compile(r"HOMEPAGE_VAR_[A-Z0-9_]+")
 TILE_FIELDS = ("tab", "group", "index", "href", "siteMonitor", "namespace", "app", "description",
@@ -26,6 +26,8 @@ def _tiles(items, group, top, tab, out):
     for index, item in enumerate(items):
         (name, val), = item.items()
         if isinstance(val, dict):
+            if name in out:
+                raise CatalogError(f"duplicate tile name {name!r}")
             ws = [val["widget"]] if "widget" in val else val.get("widgets") or []
             out[name] = {
                 "tab": tab, "group": group, "index": index,

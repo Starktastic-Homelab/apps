@@ -32,16 +32,20 @@ read the Karakeep key owner's stats.
 Household shows aggregates (counts, new arrivals, the calendar), never per-account activity. Its credentials are the
 boundary: each app limits what household's credential can see or do, on every route the proxy serves.
 
+Amended 2026-11-14 (Ben): totals of what accounts do or ask for are activity too. Seerr's request counts cover every
+account's requests and cannot be narrowed to the viewer, so they show on admin only. The two Seerr tiles stay on
+household as links with a status dot, and household no longer holds either Seerr key.
+
 1. **Credentials.** Each household widget runs on a credential minted for household alone, at the narrowest scope its
    app offers (a dedicated non-admin user or a scoped key), with `_HOUSEHOLD` in its name, as in
    `HOMEPAGE_VAR_CALIBRE_HOUSEHOLD_USER`. Apps that offer nothing narrower are the exception and share their one key
-   with admin on purpose: Seerr has a single global key per instance, and the Sonarr and Radarr iCal feeds take only the
-   full API key. Service users made for household get a reserved name (ADR 0015). The table records every household
-   credential, without its value or the `HOMEPAGE_VAR_` prefix:
+   with admin on purpose: the Sonarr and Radarr iCal feeds take only the full API key. (Seerr, which has a single
+   global key per instance, was shared the same way until 2026-11-14.) Service users made for household get a
+   reserved name (ADR 0015). The table records every household credential, without its value or the
+   `HOMEPAGE_VAR_` prefix:
 
    | Credential                                         | Minted as                                     | Household reaches        |
    | -------------------------------------------------- | --------------------------------------------- | ------------------------ |
-   | `SEERR_KEY`, `SEERR_RU_KEY`                        | Each instance's global key, shared with admin | Request and issue counts |
    | `SONARR_KEY`, `RADARR_KEY`                         | Each instance's API key, shared with admin    | The two iCal feeds       |
    | `CALIBRE_HOUSEHOLD_USER`, `CALIBRE_HOUSEHOLD_PASS` | A Calibre-Web local user with no roles        | `/opds/stats`            |
 
@@ -68,7 +72,7 @@ boundary: each app limits what household's credential can see or do, on every ro
 Applied to today's page: On TV and Music Playing go, and with them the Now Playing group. Immich and Karakeep keep their
 link and status dot but lose their widgets. Calibre-Web moves to its household user. Seerr, Seerr RU and the calendar
 stay as they are. `homepage-secrets` drops from 18 names to the six in the table, and `check-jellyfin-compat.py`
-checks admin only.
+checks admin only. (Since the 2026-11-14 amendment the table and the secret hold four names.)
 
 ## Rationale
 
@@ -93,8 +97,8 @@ checks admin only.
 
 - The boundary is only as good as each household credential's scope. Copying an admin-only key onto household still
   passes CI, as in #479. The table and review are the check.
-- Seerr's native widget runs every route Homepage adds to it with the instance's global key, which acts as the original
-  admin. When a Homepage release changes that widget, re-check its routes.
+- Seerr offers only a global key per instance, which acts as the original admin on every route Homepage's widget has.
+  So no Seerr widget runs on household (2026-11-14); a narrower Seerr credential would have to exist first.
 - Jellyfin makes every API key an Administrator, and the native Jellyfin widget keeps V1 routes that put the credential
   in the URL as `api_key`. Any viewer can call one, and on an HTTP error Homepage logs the full URL
   (`src/widgets/jellyfin/proxy.js`), which Alloy ships to Loki. A household Jellyfin widget therefore runs on a

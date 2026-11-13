@@ -633,9 +633,9 @@ tiles:
     source: services/media/seerr
     icon: overseerr.png
     description: Request movies & TV
+    # Request counts cover every account's requests, so only admin shows them (ADR 0018, amended 2026-11-14).
     widgets:
-      - audience: household
-        type: seerr
+      - type: seerr
         url: http://seerr.media:5055
         key: "{{HOMEPAGE_VAR_SEERR_KEY}}"
   seerr-ru:
@@ -648,8 +648,7 @@ tiles:
       household:
         description: Request movies & TV (RU)
     widgets:
-      - audience: household
-        type: seerr
+      - type: seerr
         url: http://seerr-ru.media:5055
         key: "{{HOMEPAGE_VAR_SEERR_RU_KEY}}"
   shelfmark:

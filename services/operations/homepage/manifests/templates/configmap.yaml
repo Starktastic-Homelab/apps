@@ -888,20 +888,12 @@ data:
           description: Request movies & TV
           href: https://request.benplus.app
           siteMonitor: http://seerr.media:5055
-          widget:
-            type: seerr
-            url: http://seerr.media:5055
-            key: '{{ "{{" }}HOMEPAGE_VAR_SEERR_KEY{{ "}}" }}'
       - Seerr RU:
           id: seerr-ru
           icon: overseerr.png
           description: Request movies & TV (RU)
           href: https://request-ru.benplus.app
           siteMonitor: http://seerr-ru.media:5055
-          widget:
-            type: seerr
-            url: http://seerr-ru.media:5055
-            key: '{{ "{{" }}HOMEPAGE_VAR_SEERR_RU_KEY{{ "}}" }}'
     - Listen:
       - Navidrome:
           id: navidrome

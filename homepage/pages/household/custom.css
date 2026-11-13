@@ -1,0 +1,275 @@
+/* ==========================================================================
+   Household layer: brand blue on navy, phone-first ("premium app home screen").
+   No alarm rules here: the household page has no alarm mode (ADR 0020).
+   ========================================================================== */
+:root,
+html:root {
+  --color-50: 248 250 255;
+  --color-100: 232 238 252;
+  --color-200: 226 233 250;
+  --color-300: 192 208 242; /* secondary text and block labels: 4.5:1 over the brightest glass */
+  --color-400: 125 148 200;
+  --color-500: 88 108 160;
+  --color-600: 58 74 122;
+  --color-700: 34 44 84;
+  --color-800: 15 15 26;
+  --color-900: 8 9 20;
+  --color-logo-start: 191 219 254;
+  --color-logo-stop: 59 130 246;
+  --d1-acc: 59 130 246; /* brand blue #3B82F6 */
+  --d1-acc-hi: 147 197 253;
+  --d1-acc-2: 103 232 249;
+  --d1-fill: 13 18 42;
+  --d1-radius: 24px;
+  --d1-label: 210 228 255; /* group labels sit straight on the aurora: an ice blue that keeps 4.5:1 over its glow */
+}
+
+/* the animated aurora only when motion is welcome and the screen is wide; phones keep the still one */
+@media (prefers-reduced-motion: no-preference) and (min-width: 1024px) {
+  #background {
+    background-image: url("/images/aurora-live.svg") !important;
+  }
+}
+
+#Watch-tab { --d1-glyph: url("/images/glyph-watch.svg"); }
+#Library-tab { --d1-glyph: url("/images/glyph-library.svg"); }
+#Tools-tab { --d1-glyph: url("/images/glyph-tools.svg"); }
+
+/* ---------- Header: brand row, date + weather, search ---------- */
+#widgets-wrap,
+#information-widgets-right {
+  display: contents;
+}
+
+#information-widgets {
+  display: grid;
+  grid-template-columns: 40px auto minmax(0, 1fr) auto; /* the wordmark spans two tracks, so the weather pill never squeezes it */
+  grid-template-areas:
+    "logo brand brand status"
+    "date date date date"
+    "weather weather weather weather"; /* phone: no search pill, the glass disc at the thumb is the search */
+  align-items: center;
+  gap: 16px 10px;
+  margin: 20px 16px 0;
+}
+
+.information-widget-logo { grid-area: logo; }
+.information-widget-greeting { grid-area: brand; }
+.information-widget-customapi { grid-area: status; }
+.information-widget-datetime { grid-area: date; }
+.information-widget-openmeteo { grid-area: weather; }
+.information-widget-search { grid-area: search; }
+
+.information-widget-logo,
+.information-widget-greeting,
+.information-widget-datetime {
+  margin: 0;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.information-widget-logo img {
+  width: 40px !important; /* Next/Image sets 48 px inline */
+  height: 40px !important;
+}
+
+.information-widget-logo div {
+  margin: 0;
+}
+
+.information-widget-greeting span {
+  font-size: 24px;
+  line-height: 1.1;
+}
+
+.information-widget-customapi {
+  padding: 7px 14px 7px 10px;
+  border-radius: 999px;
+}
+
+.information-widget-openmeteo {
+  height: 48px;
+  padding: 0 16px 0 8px;
+  border-radius: 999px;
+}
+
+.information-widget-openmeteo svg {
+  width: 32px;
+  height: 32px;
+}
+
+.information-widget-datetime div {
+  justify-content: flex-start;
+}
+
+.information-widget-datetime span {
+  color: rgb(var(--d1-ink));
+  font-size: 25px;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+  text-shadow: 0 2px 18px rgb(0 0 0 / 0.45);
+}
+
+/* ---------- Cards ---------- */
+.service-card {
+  --text-sm: 0.9375rem;
+  --text-xs: 0.8125rem;
+}
+
+/* app-sized icons: 40 px (Next/Image and the mdi mask both size themselves inline) */
+.service-icon > :is(img, div) {
+  width: 40px !important;
+  height: 40px !important;
+}
+
+/* Watch hero: the Jellyfin card glows blue */
+#jellyfin > .service-card {
+  --d1-fill: 20 32 82;
+  --d1-fill-a: 0.5;
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.2),
+    0 30px 70px -34px rgb(var(--d1-acc) / 0.85),
+    var(--d1-depth);
+}
+
+/* ---------- Phone: floating glass tab bar at the thumb, 2-up launcher tiles ---------- */
+@media (max-width: 639px) {
+  /* one search on the first screen: the disc (quicklaunch, which falls back to this widget's web provider) */
+  #information-widgets .information-widget-search {
+    display: none;
+  }
+
+  .information-widget-openmeteo {
+    justify-self: start;
+  }
+
+  #tabs {
+    position: fixed;
+    z-index: 30;
+    left: 14px;
+    right: 86px; /* the 60 px glass search disc sits to the right of the bar */
+    bottom: 16px;
+    margin: 0;
+  }
+
+  /* scroll-edge scrim behind the bar and the disc, so rows never show through the gap between them
+     (on #tabs, not #inner_wrapper: the page container is a stacking context and would paint over the bar) */
+  #tabs::before {
+    content: "";
+    position: fixed;
+    z-index: -1;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 112px;
+    pointer-events: none;
+    background: linear-gradient(to top, rgb(var(--d1-fill) / 0.92) 45%, rgb(var(--d1-fill) / 0));
+  }
+
+  #myTab {
+    padding: 4px;
+    background: var(--d1-sheen), rgb(var(--d1-fill) / 0.72); /* denser glass: labels stay legible over scrolling cards */
+    backdrop-filter: blur(28px) saturate(190%);
+    -webkit-backdrop-filter: blur(28px) saturate(190%);
+  }
+
+  #myTab [role="tab"] {
+    flex-direction: column;
+    gap: 3px;
+    min-height: 52px;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+  }
+
+  #myTab [role="tab"]::before {
+    width: 20px;
+    height: 20px;
+  }
+
+  #layout-groups {
+    margin: 22px 12px 0;
+  }
+
+  #footer {
+    padding-bottom: 104px; /* clear the floating bar */
+  }
+
+  /* Tools: launcher tiles two to a row, icon over name */
+  #inner_wrapper:has(#Tools-tab[aria-selected="true"]) #layout-groups ul:has(> .service) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 12px;
+  }
+
+  #inner_wrapper:has(#Tools-tab[aria-selected="true"]) #layout-groups .service {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #inner_wrapper:has(#Tools-tab[aria-selected="true"]) #layout-groups .service > .service-card {
+    flex: 1 1 auto;
+  }
+
+  #inner_wrapper:has(#Tools-tab[aria-selected="true"]) #layout-groups .service-title {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 8px 2px 2px;
+  }
+
+  #inner_wrapper:has(#Tools-tab[aria-selected="true"]) #layout-groups .service-icon {
+    min-height: 44px; /* the tile's icon link */
+  }
+
+  #calendar > .service-card {
+    --spacing: 0.3rem; /* agenda rows (h-5) grow from 20 to 24 px */
+  }
+}
+
+/* ---------- Laptop and up: Watch as two columns ---------- */
+@media (min-width: 1024px) {
+  #inner_wrapper:has(#Watch-tab[aria-selected="true"]) #layout-groups {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    align-items: start;
+    column-gap: 20px;
+  }
+
+  /* what is coming takes the right column, beside Watch and Requests */
+  #inner_wrapper:has(#Watch-tab[aria-selected="true"]) #layout-groups > .services-group:has(#calendar) {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+}
+
+/* ---------- Wider screens: header on one line, tabs centred on top ---------- */
+@media (min-width: 640px) {
+  #information-widgets {
+    grid-template-columns: auto auto minmax(0, 1fr) minmax(240px, 420px) auto auto auto;
+    grid-template-areas: "logo brand . search status weather date";
+    gap: 12px;
+    margin: 28px 36px 0;
+  }
+
+  .information-widget-datetime span {
+    font-size: 18px;
+  }
+
+  #tabs {
+    max-width: 560px;
+    margin: 26px auto 0;
+    width: calc(100% - 72px);
+  }
+}
+
+/* no-hook:start */
+@media (max-width: 639px) {
+  #inner_wrapper button:has(+ #information-widgets) {
+    z-index: 31; /* the search disc sits above the tab bar's scrim */
+  }
+}
+/* no-hook:end */

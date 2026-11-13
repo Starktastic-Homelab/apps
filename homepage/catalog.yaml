@@ -168,26 +168,33 @@ tiles:
   calendar:
     name: Calendar
     audience: household
+    icon: mdi-calendar-star
     description: TV blue · Movies red · Music green · RU lighter
     override:
       household:
-        description: Blue = TV · Red = Movies
+        description: New episodes and movie releases
     widgets:
+      # Household: iCal only, so the browser gets ICS text and never *arr JSON (ADR 0018). The padded windows
+      # keep a feed from ever going empty, which Homepage shows as an error. No red: it means an alarm (ADR 0020).
       - audience: household-only
         type: calendar
-        view: monthly
-        maxEvents: 10
+        view: agenda
+        maxEvents: 12
+        previousDays: 0
         showTime: true
-        firstDayInWeek: sunday
         integrations:
           - type: ical
-            url: "http://sonarr.media:8989/feed/v3/calendar/Sonarr.ics?apikey={{HOMEPAGE_VAR_SONARR_KEY}}"
+            url: "http://sonarr.media:8989/feed/v3/calendar/Sonarr.ics?apikey={{HOMEPAGE_VAR_SONARR_KEY}}&pastDays=30&futureDays=14"
             name: TV
             color: blue
+            params:
+              showName: true
           - type: ical
-            url: "http://radarr.media:7878/feed/v3/calendar/Radarr.ics?apikey={{HOMEPAGE_VAR_RADARR_KEY}}"
+            url: "http://radarr.media:7878/feed/v3/calendar/Radarr.ics?apikey={{HOMEPAGE_VAR_RADARR_KEY}}&releaseTypes=digitalRelease&pastDays=60&futureDays=90"
             name: Movies
-            color: red
+            color: fuchsia
+            params:
+              showName: true
       - type: calendar
         view: monthly
         maxEvents: 15
@@ -842,10 +849,28 @@ info:
   - audience: household
     logo:
       icon: /icons/favicon.svg
+  # The wordmark beside the mark.
   - audience: household-only
     greeting:
-      text_size: xl
-      text: Welcome home
+      text_size: 2xl
+      text: Starktastic
+  # "Is it us or the internet?" One fixed query on the server, no credential (ADR 0018 rule 2). Braces are
+  # percent-encoded: Homepage strips {...} from URLs. Proof: probe-external.yaml labels 1.1.1.1 tier=external.
+  - audience: household
+    customapi:
+      url: http://kube-prometheus-stack-prometheus.monitoring:9090/api/v1/query?query=min(probe_success%7Btier%3D%22external%22%7D)
+      icon: mdi-earth
+      refreshInterval: 60000
+      mappings:
+        - field: data.result.0.value.1
+          label: Internet
+          remap:
+            - value: "1"
+              to: Online
+            - value: "0"
+              to: Down ⚠
+            - any: true
+              to: Unknown
   - kubernetes:
       cluster:
         show: true
@@ -862,7 +887,7 @@ info:
       target: _blank
   - audience: household
     openmeteo:
-      label: Weather
+      label: Home
       latitude: 32.08
       longitude: 34.78
       timezone: Asia/Jerusalem
@@ -882,102 +907,86 @@ info:
   - audience: household
     datetime:
       text_size: xl
+      locale: en-GB
       format:
-        dateStyle: long
-        timeStyle: short
+        weekday: short
+        day: numeric
+        month: short
+        hour: 2-digit
+        minute: 2-digit
         hourCycle: h23
 pages:
   household:
     tabs:
-      - name: Pulse
-        groups:
-          - name: Coming Up
-            style: row
-            columns: 1
-            icon: mdi-calendar-month
-            items:
-              - calendar
-          - name: Links
-            style: row
-            columns: 2
-            icon: mdi-bookmark-outline
-            items:
-              - bm-my-account
-              - bm-github
-      - name: Play
+      - name: Watch
         groups:
           - name: Watch
-            style: row
-            columns: 1
-            icon: mdi-television-play
             items:
               - jellyfin
+          - name: Coming Up
+            items:
+              - calendar
+          - name: Requests
+            style: row
+            columns: 2
+            items:
+              - seerr
+              - seerr-ru
+      - name: Library
+        groups:
           - name: Listen
             style: row
             columns: 2
-            icon: mdi-headphones
             items:
               - navidrome
               - audiobookshelf
           - name: Read
             style: row
-            columns: 1
-            icon: mdi-book-open-page-variant
+            columns: 2
             items:
               - calibre-web
-          - name: Look Back
+              - shelfmark
+          - name: Photos
             style: row
-            columns: 1
-            icon: mdi-image-multiple
+            columns: 2
             items:
               - immich
-          - name: Ask For It
-            style: row
-            columns: 3
-            icon: mdi-hand-heart
-            items:
-              - seerr
-              - seerr-ru
-              - shelfmark
-      - name: Make
+      - name: Tools
         groups:
           - name: Create
             style: row
             columns: 2
-            icon: mdi-draw
             items:
               - excalidash
               - microbin
           - name: Convert
             style: row
             columns: 4
-            icon: mdi-file-swap
             items:
               - convertx
               - stirling-pdf
               - metube
               - cyberchef
-          - name: Find
+          - name: Find & Keep
             style: row
-            columns: 2
-            icon: mdi-magnify
+            columns: 3
             items:
               - searxng
               - karakeep
-          - name: Organise
-            style: row
-            columns: 1
-            icon: mdi-clipboard-check
-            items:
               - mealie
           - name: Send
             style: row
             columns: 3
-            icon: mdi-send
             items:
               - pairdrop
               - ntfy
               - listmonk
+          - name: Links
+            style: row
+            columns: 2
+            items:
+              - bm-my-account
+              - bm-github
   admin:
     tabs:
       - name: Pulse

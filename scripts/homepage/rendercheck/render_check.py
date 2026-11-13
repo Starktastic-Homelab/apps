@@ -294,6 +294,10 @@ def snapshot(browser, page: str, inv: dict, scenario: str, out: Path | None) -> 
                 tab_page.wait_for_function(SETTLED_JS, timeout=20000)
             except PlaywrightTimeout:
                 pass  # the snapshot below reports what is missing
+            try:  # icons come from a CDN: give them a moment for the screenshots, but never fail on them
+                tab_page.wait_for_function("() => [...document.images].every((i) => i.complete)", timeout=6000)
+            except PlaywrightTimeout:
+                pass
             tab_page.wait_for_timeout(1500)
             snap = tab_page.evaluate(SNAPSHOT_JS)
             runs.append({"tab": tab["name"], "viewport": vp, "scenario": scenario, "missing": sorted(set(missing)),

@@ -1,0 +1,11 @@
+{
+ "result": {
+  "data": {
+   "json": {
+    "crawlStats": {"queued": 4, "pending": 7, "failed": 23},
+    "inferenceStats": {"queued": 2, "pending": 5, "failed": 1},
+    "indexingStats": {"queued": 0}
+   }
+  }
+ }
+}

@@ -1,0 +1,11 @@
+{
+ "done": [
+  {"id": "yt000000001", "title": "Sourdough for beginners", "url": "https://www.youtube.com/watch?v=yt000000001", "status": "finished"},
+  {"id": "yt000000002", "title": "Bike maintenance basics", "url": "https://www.youtube.com/watch?v=yt000000002", "status": "finished"},
+  {"id": "yt000000003", "title": "Lo-fi mix, two hours", "url": "https://www.youtube.com/watch?v=yt000000003", "status": "finished"}
+ ],
+ "queue": [
+  {"id": "yt000000100", "title": "Full-length concert recording", "url": "https://www.youtube.com/watch?v=yt000000100", "percent": 63.4, "status": "downloading"}
+ ],
+ "pending": []
+}

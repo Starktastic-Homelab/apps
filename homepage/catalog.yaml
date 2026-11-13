@@ -687,12 +687,29 @@ tiles:
     source: services/operations/convertx
     icon: convertx.png
     description: File format converter
+  # ---- Apps extras (spec §8 step 2) ---------------------------------------------------------------------------
+  # Widgets on keys admin already holds, or on endpoints that take none. As with Media and Pipeline, only the
+  # live page proves them, and no alert rule covers these apps, so nothing here turns red. Admin only: a widget
+  # without an audience never reaches the household page.
+  #
+  # The Info API takes no key while SECURITY_ENABLELOGIN is "false" (stirling-pdf/values.yaml).
   stirling-pdf:
     name: Stirling PDF
     audience: household
     source: services/operations/stirling-pdf
     icon: stirling-pdf.png
     description: PDF toolbox
+    widgets:
+      - type: customapi
+        url: http://stirling-pdf.operations:8080/api/v1/info/wau
+        refreshInterval: 3600000
+        mappings:
+          - field: weeklyActiveUsers
+            label: Weekly Users
+            format: number
+          - field: totalUniqueBrowsers
+            label: Browsers
+            format: number
   cyberchef:
     name: CyberChef
     audience: household
@@ -705,6 +722,30 @@ tiles:
     source: services/media/metube
     icon: metube.png
     description: Download video & audio
+    widgets:
+      # Keyless. MeTube logs a line for every /history call, hence five minutes. The three lists hold every
+      # download's URL and title; the blocks only count them.
+      - type: customapi
+        url: http://metube.media:8081/history
+        refreshInterval: 300000
+        mappings:
+          - field: queue
+            label: Downloading
+            format: size
+          - field: pending
+            label: Pending
+            format: size
+          - field: done
+            label: Done
+            format: size
+      - type: customapi
+        url: http://metube.media:8081/version
+        refreshInterval: 3600000
+        mappings:
+          - field: yt-dlp
+            label: yt-dlp
+          - field: version
+            label: MeTube
   searxng:
     name: SearXNG
     audience: household
@@ -721,6 +762,25 @@ tiles:
       - type: karakeep
         url: http://karakeep.operations:3000
         key: "{{HOMEPAGE_VAR_KARAKEEP_KEY}}"
+      # Background job queues from the admin tRPC route, which answers only an admin's key that may read jobs.
+      - type: customapi
+        url: http://karakeep.operations:3000/api/trpc/admin.backgroundJobsStats
+        headers:
+          Authorization: Bearer {{HOMEPAGE_VAR_KARAKEEP_KEY}}
+        refreshInterval: 300000
+        mappings:
+          - field: result.data.json.crawlStats.queued
+            label: Crawl Queue
+            format: number
+          - field: result.data.json.crawlStats.pending
+            label: Not Crawled
+            format: number
+          - field: result.data.json.crawlStats.failed
+            label: Failed Crawls
+            format: number
+          - field: result.data.json.indexingStats.queued
+            label: Index Queue
+            format: number
   changedetection:
     name: Changedetection
     source: services/operations/changedetection
@@ -730,6 +790,20 @@ tiles:
       - type: changedetectionio
         url: http://changedetection.operations:5000
         key: "{{HOMEPAGE_VAR_CHANGEDETECTION_KEY}}"
+      - type: customapi
+        url: http://changedetection.operations:5000/api/v1/systeminfo
+        headers:
+          x-api-key: "{{HOMEPAGE_VAR_CHANGEDETECTION_KEY}}"
+        refreshInterval: 120000
+        mappings:
+          - field: queue_size
+            label: Queue
+            format: number
+          - field: overdue_watches
+            label: Overdue
+            format: size
+          - field: version
+            label: Version
   paperless-ngx:
     name: Paperless-ngx
     source: services/operations/paperless-ngx
@@ -739,6 +813,50 @@ tiles:
       - type: paperlessngx
         url: http://paperless-ngx.operations:8000
         key: "{{HOMEPAGE_VAR_PAPERLESS_KEY}}"
+      # /api/status/ answers a superuser or a user with the system-monitoring permission; whose key this is
+      # is not recorded. Storage is left out: it reports the shared NFS export.
+      - type: customapi
+        url: http://paperless-ngx.operations:8000/api/status/
+        headers: &paperless_auth
+          Authorization: Token {{HOMEPAGE_VAR_PAPERLESS_KEY}}
+        refreshInterval: 300000
+        display: list
+        mappings:
+          - field: tasks.celery_status
+            label: Workers
+          - field: tasks.redis_status
+            label: Redis
+          - field: tasks.index_status
+            label: Index
+          - field: tasks.classifier_last_trained
+            label: Classifier trained
+            format: relativeDate
+          - field: tasks.sanity_check_status
+            label: Sanity check
+          - field: database.migration_status.unapplied_migrations
+            label: Pending migrations
+            format: size
+          - field: tasks.summary.failure_count
+            label: Failed tasks, 30 days
+            format: number
+      # Tasks nobody has acknowledged yet: a failed consume stays here until it is dismissed in Paperless.
+      - type: customapi
+        url: http://paperless-ngx.operations:8000/api/tasks/status_counts/?acknowledged=false
+        headers: *paperless_auth
+        refreshInterval: 300000
+        mappings:
+          - field: needs_attention
+            label: Needs Attention
+            format: number
+          - field: in_progress
+            label: In Progress
+            format: number
+        highlight:
+          Needs Attention:
+            numeric:
+              - level: warn
+                when: gt
+                value: 0
   filebrowser:
     name: Filebrowser
     source: services/operations/filebrowser
@@ -755,6 +873,26 @@ tiles:
         url: http://mealie.operations:9000
         key: "{{HOMEPAGE_VAR_MEALIE_KEY}}"
         version: 2
+      # Keyless. ALLOW_SIGNUP is "false" in mealie/values.yaml and the host is public: amber means that changed.
+      - type: customapi
+        url: http://mealie.operations:9000/api/app/about
+        refreshInterval: 3600000
+        mappings:
+          - field: allowSignup
+            label: Sign-up
+            remap:
+              - value: true
+                to: Open
+              - value: false
+                to: Closed
+          - field: version
+            label: Version
+        highlight:
+          Sign-up:
+            string:
+              - level: warn
+                when: equals
+                value: Open
   pairdrop:
     name: PairDrop
     audience: household
@@ -1068,6 +1206,28 @@ tiles:
       - type: homeassistant
         url: http://home-assistant-main.home-automation:8123
         key: "{{HOMEPAGE_VAR_HASS_KEY}}"
+      # The home-automation namespace (Home Assistant, Zigbee2MQTT, Mosquitto) on metrics the Pulse board
+      # already reads. No probe covers Home Assistant, so there is no uptime figure.
+      - type: prometheusmetric
+        url: http://kube-prometheus-stack-prometheus.monitoring:9090
+        refreshInterval: 60000
+        metrics:
+          # Proof: kube_pod_status_phase is in the Cluster tile's Unhealthy Pods query.
+          - label: Home Pods
+            query: sum(kube_pod_status_phase{namespace="home-automation",phase="Running"})
+          # Proof: kube_pod_container_status_restarts_total is the Cluster tile's Restarts 1h.
+          - label: Restarts 24h
+            query: floor(sum(increase(kube_pod_container_status_restarts_total{namespace="home-automation"}[24h])))
+            format:
+              type: number
+              options:
+                maximumFractionDigits: 0
+          # Proof: container_memory_working_set_bytes, by namespace, pod and container, is the Memory tile's
+          # Top Container. The container is named main in home-assistant/values.yaml.
+          - label: HA Memory
+            query: sum(container_memory_working_set_bytes{namespace="home-automation",pod=~"home-assistant-.*",container="main"})
+            format:
+              type: bytes
   zigbee2mqtt:
     name: Zigbee2MQTT
     source: services/home-automation/zigbee2mqtt

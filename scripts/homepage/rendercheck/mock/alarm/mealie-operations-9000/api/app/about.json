@@ -1,0 +1,8 @@
+{
+ "production": true,
+ "version": "v3.31.0",
+ "demoStatus": false,
+ "allowSignup": true,
+ "allowPasswordLogin": false,
+ "enableOidc": true
+}

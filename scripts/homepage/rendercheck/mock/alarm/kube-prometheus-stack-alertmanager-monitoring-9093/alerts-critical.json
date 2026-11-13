@@ -1,0 +1,25 @@
+[
+  {
+    "annotations": {
+      "summary": "Probe failed: https://request-ru.benplus.app",
+      "description": "Blackbox probe of https://request-ru.benplus.app (tier ingress) has failed for more than 5 minutes. Last status: HTTP 503."
+    },
+    "endsAt": "{{iso:+4m}}",
+    "fingerprint": "3f9c1d2e7a4b8c05",
+    "receivers": [{"name": "ntfy"}],
+    "startsAt": "{{iso:-34m}}",
+    "status": {"inhibitedBy": [], "mutedBy": [], "silencedBy": [], "state": "active"},
+    "updatedAt": "{{iso:-40s}}",
+    "generatorURL": "https://grafana.internal.starktastic.net/explore?query=probe_success%3D%3D0",
+    "labels": {
+      "alertname": "BlackboxProbeFailed",
+      "instance": "https://request-ru.benplus.app",
+      "job": "blackbox",
+      "namespace": "monitoring",
+      "prometheus": "monitoring/kube-prometheus-stack-prometheus",
+      "service": "seerr-ru",
+      "severity": "critical",
+      "tier": "ingress"
+    }
+  }
+]

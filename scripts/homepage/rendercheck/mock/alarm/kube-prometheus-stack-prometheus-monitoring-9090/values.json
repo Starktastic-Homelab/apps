@@ -1,6 +1,4 @@
 {
- "count(ALERTS{alertstate=\"firing\",severity=\"critical\"}) or vector(0)": 1,
- "count(ALERTS{alertstate=\"firing\",alertname!~\"Watchdog|InfoInhibitor\"}) or vector(0)": 4,
  "min(probe_success{tier=~\"gate|gate-negative\"})": 0,
  "max(max by (namespace, pod, container) (container_memory_working_set_bytes{container!=\"\"}) / on (namespace, pod, container) max by (namespace, pod, container) (kube_pod_container_resource_limits{resource=\"memory\"}))": 0.97,
  "sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"})": 2,
@@ -11,7 +9,6 @@
  "(count(probe_success == 0) or vector(0)) and count(probe_success)": 2,
  "count(ALERTS{alertname=\"ContainerMemoryNearLimit\",alertstate=\"firing\"}) or vector(0)": 2,
  "count(ALERTS{alertname=\"ContainerOOMKilled\",alertstate=\"firing\"}) or vector(0)": 1,
- "sum(clamp_min(homelab:proxmox_csi_slots_free:count, 0))": 6,
  "min(homelab:proxmox_csi_slots_free:count)": 1,
  "max(kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes)": 0.96,
  "(time() - max(kube_cronjob_status_last_successful_time{namespace=\"databases\",cronjob=\"pg-backup\"})) / 3600": 31.4,
@@ -19,5 +16,7 @@
  "min(certmanager_certificate_expiration_timestamp_seconds{issuer_name=\"letsencrypt-prod\"} > 0) - time()": 172800,
  "(count(argocd_app_info{sync_status=\"OutOfSync\"}) or vector(0)) and count(argocd_app_info)": 3,
  "(count(argocd_app_info{health_status!~\"Healthy|Progressing\"}) or vector(0)) and count(argocd_app_info)": 1,
- "sum(increase(alertmanager_notifications_failed_total{integration=\"webhook\"}[24h])) or vector(0)": 2
+ "sum(increase(alertmanager_notifications_failed_total{integration=\"webhook\"}[24h])) or vector(0)": 2,
+ "count(ALERTS{alertstate=\"firing\",alertname!~\"Watchdog|InfoInhibitor|KubePodNotReady|KubePodCrashLooping|KubeDeploymentReplicasMismatch|KubeContainerWaiting|CPUThrottlingHigh|KubeHpaReplicasMismatch\"}) or vector(0)": 4,
+ "sum(clamp_min(homelab:proxmox_csi_slots_free:count, 0)) or vector(0)": 6
 }

@@ -13,7 +13,9 @@
 // times relative to now, so calendars and "ago" fields always look current.
 //
 // MOCK_SCENARIO=<name>: look in /mock/<name>/ before /mock/data/; values.json files merge, the scenario wins.
-// MOCK_STRICT=1: a PromQL query with no value answers 500, so a missing value shows as a widget error.
+// MOCK_STRICT=1: a PromQL query needs its own exact key; without one it answers 500, so a missing value
+//   shows as a widget error instead of "-" or a neighbour's number.
+// MOCK_PORTS=8080,9090: plain-HTTP ports to listen on (default 80 and 8080).
 // Every request is logged to /mock/requests.log as one JSON line.
 const http = require("http");
 const https = require("https");
@@ -87,7 +89,7 @@ function promTable(slug) {
 function promVector(table, query) {
   let hit, matched = null;
   if (Object.prototype.hasOwnProperty.call(table, query)) { hit = table[query]; matched = "prom:exact"; }
-  else {
+  else if (!STRICT) {
     // Longest matching substring key wins, so specific keys beat generic ones.
     const keys = Object.keys(table).filter((k) => k && query.includes(k)).sort((a, b) => b.length - a.length);
     if (keys.length) { hit = table[keys[0]]; matched = "prom:substring:" + keys[0]; }
@@ -182,7 +184,8 @@ function handler(proto) {
   };
 }
 
-for (const port of [80, 8080]) http.createServer(handler("http")).listen(port, () => console.log("mock http", port));
+const PORTS = (process.env.MOCK_PORTS || "80,8080").split(",").map(Number);
+for (const port of PORTS) http.createServer(handler("http")).listen(port, () => console.log("mock http", port));
 let key, cert;
 try { key = fs.readFileSync(path.join(ROOT, "certs", "key.pem")); cert = fs.readFileSync(path.join(ROOT, "certs", "cert.pem")); } catch {}
 if (key && cert) https.createServer({ key, cert }, handler("https")).listen(443, () => console.log("mock https 443"));

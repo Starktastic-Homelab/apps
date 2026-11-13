@@ -25,14 +25,12 @@
  "min(probe_success{tier=\"alert-pipeline\"})": 1,
  "min(probe_success{tier=\"external\"})": 1,
  "sum(alertmanager_silences{state=\"active\"}) or vector(0)": 2,
- "sum(clamp_min(homelab:proxmox_csi_slots_free:count, 0))": 22,
  "sum(increase(alertmanager_notifications_failed_total{integration=\"webhook\"}[24h])) or vector(0)": 0,
- "sum(increase(alertmanager_notifications_total{integration=\"webhook\"}[24h]))": 23.6,
  "sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"})": 3,
  "sum(max by (namespace, pod) (kube_pod_status_phase{phase=~\"Pending|Failed|Unknown\"} or {__name__=~\"kube_pod_(init_)?container_status_waiting_reason\",reason=~\"CrashLoopBackOff|ImagePullBackOff|ErrImagePull|CreateContainerConfigError|CreateContainerError|InvalidImageName\"}))": 0,
  "sum(rate(traefik_entrypoint_requests_total[5m]))": 3.42,
- "count(ALERTS{alertstate=\"firing\",severity=\"critical\"}) or vector(0)": 0,
- "count(ALERTS{alertstate=\"firing\",alertname!~\"Watchdog|InfoInhibitor\"}) or vector(0)": 0,
  "min(probe_success{tier=~\"gate|gate-negative\"})": 1,
- "max(max by (namespace, pod, container) (container_memory_working_set_bytes{container!=\"\"}) / on (namespace, pod, container) max by (namespace, pod, container) (kube_pod_container_resource_limits{resource=\"memory\"}))": 0.64
+ "max(max by (namespace, pod, container) (container_memory_working_set_bytes{container!=\"\"}) / on (namespace, pod, container) max by (namespace, pod, container) (kube_pod_container_resource_limits{resource=\"memory\"}))": 0.64,
+ "count(ALERTS{alertstate=\"firing\",alertname!~\"Watchdog|InfoInhibitor|KubePodNotReady|KubePodCrashLooping|KubeDeploymentReplicasMismatch|KubeContainerWaiting|CPUThrottlingHigh|KubeHpaReplicasMismatch\"}) or vector(0)": 0,
+ "sum(clamp_min(homelab:proxmox_csi_slots_free:count, 0)) or vector(0)": 22
 }

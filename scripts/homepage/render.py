@@ -41,22 +41,32 @@ def _blank(match):
     return " " * len(match.group())
 
 
-def _selectors(css: str):
-    """Yield (offset, selector text) for every style rule, at-rule blocks walked, declarations skipped."""
+WALKED_AT = {"media", "supports", "container", "layer"}  # at-rules that hold style rules: walked
+OPAQUE_AT = {"keyframes", "font-face", "property"}  # at-rules that hold no selectors: skipped
+
+
+def _selectors(css: str, where: str):
+    """Yield (offset, selector text) for every style rule. Anything the walk cannot see into is an error."""
     i, n, start = 0, len(css), 0
     while i < n:
         ch = css[i]
         if ch in ";}":
             start = i + 1
         elif ch == "{":
-            prelude = css[start:i].strip()
-            if re.match(r"@(media|supports|container|layer)\b", prelude):
+            prelude = " ".join(css[start:i].split())
+            at = re.match(r"@(?:-[a-z]+-)?([a-z-]+)", prelude)
+            if at and at.group(1) in WALKED_AT:
                 start = i + 1  # rules nested inside: keep scanning
             else:
-                if not prelude.startswith("@"):
-                    yield i, " ".join(prelude.split())  # the brace's offset: always inside its no-hook span
+                if at and at.group(1) not in OPAQUE_AT:
+                    raise CatalogError(f"{where}: @{at.group(1)} is not checked by the hook lint; remove it (ADR 0020)")
+                if not at:
+                    yield i, prelude  # the brace's offset: always inside its no-hook span
                 depth, i = 1, i + 1  # skip the block: declarations, @keyframes steps, @font-face
                 while i < n and depth:
+                    if css[i] == "{" and not at:
+                        raise CatalogError(f"{where}: a rule nested in {prelude!r} is not checked by the hook lint; "
+                                           "write it flat (ADR 0020)")
                     depth += {"{": 1, "}": -1}.get(css[i], 0)
                     i += 1
                 start = i
@@ -74,7 +84,7 @@ def check_css(css: str, page: str, ids: set, tabs: list, where: str) -> None:
     text = re.sub(r"/\*.*?\*/", _blank, css, flags=re.S)
     text = re.sub(r"\"(?:\\.|[^\"\\])*\"|'(?:\\.|[^'\\])*'|url\([^)]*\)", _blank, text)
     known = HOOK_IDS | {f"{t}-tab" for t in tabs} | ids
-    for offset, sel in _selectors(text):
+    for offset, sel in _selectors(text, where):
         free = any(a <= offset < b for a, b in spans)
         for found in re.findall(r"#([A-Za-z_][\w-]*)", sel):
             if found not in known:

@@ -121,7 +121,7 @@ today's Navidrome now-playing widget; the Navidrome launcher stays in Media > Li
 
 | Card | Shows | Source |
 |---|---|---|
-| Alerts | The firing, unsilenced alerts routed to ntfy (name and age, up to 6); counts of notifying and critical; rules alive, sent and failed in 24 h, silences | Alertmanager `/api/v2/alerts?active=true&silenced=false&inhibited=false&receiver=ntfy` (`customapi`, keyless, in-cluster) and Prometheus |
+| Alerts | The firing, unsilenced alerts routed to ntfy (name and age, up to 6) and how many are critical; then firing alerts, rules alive, failed notifications in 24 h and silences | Alertmanager `/api/v2/alerts?active=true&silenced=false&inhibited=false&receiver=ntfy` for the list and the critical count (`customapi`, keyless, in-cluster), so a silence ends alarm mode; Prometheus for the rest |
 | Notifications | Latest push on the `alerts` topic | today's `ntfy` widget and token |
 | Cluster | Nodes ready, unhealthy pods, restarts in 1 h | today's queries plus `kube_pod_container_status_restarts_total` |
 | Edge & WAN | Internet, admin gate, alert path, failed probes | `probe_success` by `tier` |
@@ -153,9 +153,9 @@ units.
 | Card | Metric | Amber | Red | Mirrors |
 |---|---|---|---|---|
 | Alerts | Critical | | > 0 | severity `critical` |
-| Alerts | Notifying | > 0 | | every other routed alert |
+| Alerts | Firing | > 0 | | every alert the routes send to ntfy |
 | Alerts | Rules alive | | = 0 | Watchdog missing |
-| Alerts | Failed 24 h | > 0 | | |
+| Alerts | Notify fails 24 h | > 0 | | ntfy or the Watchdog heartbeat could not be reached |
 | Cluster | Nodes ready | | < 3 | Ben, 2026-11-13 |
 | Cluster | Unhealthy pods | > 0 | | Ben; leftover Failed pods keep it amber until cleaned |
 | Cluster | Restarts 1 h | ≥ 3 | | |
@@ -213,8 +213,9 @@ admin; its `NOTES.md` records palette, type and contrast measurements):
    select through a common ancestor (`#inner_wrapper:has(#<Tab>-tab[aria-selected="true"]) #layout-groups …`),
    so the `+` and `~` combinators are banned too.
 4. Where Homepage offers no hook (rows inside list widgets, the calendar agenda, the phone search button,
-   icon sizing under inline styles), structural selectors are allowed inside one block marked
-   `/* no-hook */`. If one breaks, the damage is cosmetic and the render check fails.
+   icon sizing under inline styles), structural selectors are allowed between `/* no-hook:start */` and
+   `/* no-hook:end */`, one such block per file. If one breaks, the damage is cosmetic and the render check
+   fails. Nested rules and at-rules the lint cannot see into (`@scope`, `@starting-style`) are rejected.
 
 ## 6 Render check
 
@@ -232,8 +233,11 @@ second image), its data files trimmed to the routes the catalog's widgets call, 
    the runner's Chrome).
 4. Fail when:
    - a tile id, tab or group from `--inventory` is missing from the DOM, or a tile is on the wrong tab;
-   - a widget shows Homepage's error box, or a page shows the config error panel;
-   - a `custom.css` selector matches nothing in every run (an allowlist names the states the mock can't make);
+   - a widget shows Homepage's error box, a block never gets a value, the mock is asked for something it has
+     no answer for, or a page shows the config error panel;
+   - a block is red in the calm scenario;
+   - `custom.css` is not found as a stylesheet, or one of its selectors matches nothing in every run (an
+     allowlist names the states the mock can't make);
    - an image or icon the page serves returns an error;
    - a link or button on the household phone page is smaller than 44×44 px (the kit's tap audit).
 

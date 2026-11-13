@@ -119,6 +119,8 @@ def failures(inv: dict, runs: list, page: str) -> list:
         if not r["ok"]:
             out.append(f"{where}: the dashboard did not render (config error panel, or no tabs)")
             continue
+        if not r["sheet"]:
+            out.append(f"{where}: custom.css was not loaded as a stylesheet, so no selector was checked")
         ids = set(r["ids"])
         for eid, tab in home.items():
             if tab == r["tab"] and eid not in ids:
@@ -130,12 +132,18 @@ def failures(inv: dict, runs: list, page: str) -> list:
                 out.append(f"{where}: group {group} is missing")
         if r["errors"]:
             out.append(f"{where}: {r['errors']} widget error box(es)")
+        if r["pending"]:
+            out.append(f"{where}: {r['pending']} block(s) never got a value (still loading after the wait)")
+        if r["scenario"] == "calm" and r["danger"]:
+            out.append(f"{where}: {r['danger']} danger block(s) in the calm scenario (red is for alarms only)")
         out += [f"{where}: {url} failed to load" for url in r["missing"]]
         if page == "household" and r["viewport"].startswith("390x"):
             out += [f"{where}: under 44x44 px: {s}" for s in r["small"] if not any(k in s for k in SMALL_ALLOW)]
         for sel, hit in r["selectors"].items():
             matched[sel] = matched.get(sel, False) or hit
     out += [f"{page}: tab {t['name']} was never rendered" for t in inv["tabs"] if t["name"] not in seen]
+    if not matched and any(r["ok"] for r in runs):
+        out.append(f"{page}: no custom.css selector was checked")
     out += [f"{page}: custom.css selector matches nothing: {sel}"
             for sel, hit in matched.items() if not hit and sel not in SELECTOR_ALLOW]
     return out
@@ -186,6 +194,9 @@ SNAPSHOT_JS = r"""
   }
   return {
     ok: !!document.querySelector("#information-widgets") && !!document.querySelector("#myTab"),
+    sheet: !!sheet,
+    pending: q(".animate-pulse").length,
+    danger: q('.service-block[data-highlight-level="danger"]').length,
     ids: q(".service[id], .bookmark[id]").map((e) => e.id),
     groups: q(".service-group-name, .bookmark-group-name").map((e) => e.textContent.trim()),
     errors: q(".service details, .information-widget-error").length,
@@ -195,9 +206,12 @@ SNAPSHOT_JS = r"""
 """
 
 
-def sh(*args, check=True, quiet=True):
-    return subprocess.run([str(a) for a in args], check=check, text=True,
-                          stdout=subprocess.PIPE if quiet else None, stderr=subprocess.STDOUT if quiet else None)
+def sh(*args, check=True):
+    cmd = [str(a) for a in args]
+    done = subprocess.run(cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    if check and done.returncode:
+        raise SystemExit(f"{' '.join(cmd)} failed ({done.returncode}):\n{done.stdout}")
+    return done
 
 
 def image(repo: Path) -> str:
@@ -361,9 +375,10 @@ def main(argv=None, repo: Path = ROOT) -> int:
                 else:
                     shutil.rmtree(work, ignore_errors=True)
         browser.close()
-    problems = [line for page in pages for line in failures(inv[page], runs[page], page)]
+    # A request the mock could not answer is a failure of its own: the widget may show "-" and no error box.
+    problems = [line for page in pages for line in failures(inv[page], runs[page], page)] + misses
     if problems:
-        print(*problems, *misses, sep="\n")
+        print(*problems, sep="\n")
         print(f"\nHomepage render check FAILED ({len(problems)} problems)")
         return 1
     tabs = sum(len(inv[p]["tabs"]) for p in pages)

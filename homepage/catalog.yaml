@@ -3,9 +3,13 @@ tiles:
   # Highlights on this page mirror the alert rules in Git (ADR 0020): red where a critical rule would fire,
   # amber where a warning rule would. Every query added with the Pulse board names what proves its metric.
   #
-  # The list is what Alertmanager is notifying about now (receiver=ntfy leaves out Watchdog and InfoInhibitor;
-  # keyless, in-cluster, as Falco already calls it). The counts read Prometheus' ALERTS series, as the old
-  # Firing Alerts metric did; alertmanager_* are Alertmanager's own metrics, scraped by kube-prometheus-stack.
+  # The list and the Critical count are what Alertmanager is notifying about now: receiver=ntfy leaves out
+  # Watchdog and the alerts routed to "null", and silenced or inhibited alerts are left out, so a silence ends
+  # alarm mode. Keyless, in-cluster, as Falco already calls it.
+  # Firing reads Prometheus' ALERTS series (as the old Firing Alerts metric did) minus the alert names that
+  # kube-prometheus-stack/values.yaml routes away from ntfy: keep the two lists in step. It still counts a
+  # silenced alert, which is why Silences sits beside it. alertmanager_* are Alertmanager's own metrics;
+  # the failure count covers both webhook receivers, ntfy and the Watchdog heartbeat.
   alerts:
     name: Alerts
     source: services/operations/kube-prometheus-stack
@@ -25,38 +29,29 @@ tiles:
           format: relativeDate
           limit: 6
           target: https://grafana.internal.starktastic.net/alerting/groups?alertmanager=alertmanager
-      - type: prometheusmetric
-        url: http://kube-prometheus-stack-prometheus.monitoring:9090
+      - type: customapi
+        url: http://kube-prometheus-stack-alertmanager.monitoring:9093/api/v2/alerts?active=true&silenced=false&inhibited=false&receiver=ntfy&filter=severity%3D%22critical%22
         refreshInterval: 30000
-        metrics:
+        mappings:
           - label: Critical
-            query: count(ALERTS{alertstate="firing",severity="critical"}) or vector(0)
-          - label: Firing
-            query: count(ALERTS{alertstate="firing",alertname!~"Watchdog|InfoInhibitor"}) or vector(0)
+            format: size
         highlight:
           Critical:
             numeric:
               - level: danger
                 when: gt
                 value: 0
-          Firing:
-            numeric:
-              - level: warn
-                when: gt
-                value: 0
       - type: prometheusmetric
         url: http://kube-prometheus-stack-prometheus.monitoring:9090
-        refreshInterval: 300000
+        refreshInterval: 60000
         metrics:
+          - label: Firing
+            query:
+              count(ALERTS{alertstate="firing",alertname!~"Watchdog|InfoInhibitor|KubePodNotReady|KubePodCrashLooping|KubeDeploymentReplicasMismatch|KubeContainerWaiting|CPUThrottlingHigh|KubeHpaReplicasMismatch"})
+              or vector(0)
           - label: Rules Alive
             query: count(ALERTS{alertname="Watchdog",alertstate="firing"}) or vector(0)
-          - label: Sent 24h
-            query: sum(increase(alertmanager_notifications_total{integration="webhook"}[24h]))
-            format:
-              type: number
-              options:
-                maximumFractionDigits: 0
-          - label: Failed 24h
+          - label: Notify Fails 24h
             query: sum(increase(alertmanager_notifications_failed_total{integration="webhook"}[24h])) or vector(0)
             format:
               type: number
@@ -65,12 +60,17 @@ tiles:
           - label: Silences
             query: sum(alertmanager_silences{state="active"}) or vector(0)
         highlight:
+          Firing:
+            numeric:
+              - level: warn
+                when: gt
+                value: 0
           Rules Alive:
             numeric:
               - level: danger
                 when: eq
                 value: 0
-          Failed 24h:
+          Notify Fails 24h:
             numeric:
               - level: warn
                 when: gt
@@ -285,7 +285,7 @@ tiles:
         refreshInterval: 300000
         metrics:
           - label: CSI Slots Free
-            query: sum(clamp_min(homelab:proxmox_csi_slots_free:count, 0))
+            query: sum(clamp_min(homelab:proxmox_csi_slots_free:count, 0)) or vector(0)
           - label: Tightest Worker
             query: min(homelab:proxmox_csi_slots_free:count)
           - label: Fullest Volume

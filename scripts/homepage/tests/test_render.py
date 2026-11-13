@@ -177,6 +177,21 @@ class RenderTests(unittest.TestCase):
         with self.assertRaisesRegex(CatalogError, "not a Homepage hook"):
             css("/* no-hook:start */\n.bg-rose-500 > div:first-child{}\n/* no-hook:end */\n")
 
+    def test_css_nested_rules_rejected(self):
+        # A rule nested in a style rule would escape both this lint and the render check's walker.
+        for bad in (".service-card { .bg-rose-500 { color: red } }", ".service-card { & > div:nth-child(2) { top: 0 } }"):
+            with self.subTest(bad=bad), self.assertRaisesRegex(CatalogError, "nested"):
+                css(bad)
+
+    def test_css_unknown_at_rule_rejected(self):
+        for bad, name in (("@scope (.service-card) { .bg-rose-500 { color: red } }", "@scope"),
+                          ("@starting-style { .service-card { opacity: 0 } }", "@starting-style")):
+            with self.subTest(bad=bad), self.assertRaisesRegex(CatalogError, f"{name} is not checked"):
+                css(bad)
+        css("@keyframes x { 50% { opacity: 0 } }\n@font-face { font-family: x }\n"
+            '@property --x { syntax: "*"; inherits: false }\n'
+            "@supports (display: grid) { @media (min-width: 9px) { .service-card { top: 0 } } }")
+
     def test_css_ids(self):
         with self.assertRaisesRegex(CatalogError, "#nope is not a Homepage id, a tab or a tile on page household"):
             css("#nope{}")

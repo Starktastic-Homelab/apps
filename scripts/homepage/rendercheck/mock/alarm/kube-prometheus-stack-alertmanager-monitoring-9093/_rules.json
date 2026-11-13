@@ -1,0 +1,7 @@
+[
+  {
+    "path": "/kube-prometheus-stack-alertmanager-monitoring-9093/api/v2/alerts",
+    "query": "filter=severity",
+    "file": "kube-prometheus-stack-alertmanager-monitoring-9093/alerts-critical.json"
+  }
+]

@@ -39,7 +39,12 @@ SCENARIOS = ("calm", "alarm")
 DOWN = {"calm": set(), "alarm": {"seerr-ru"}}  # tiles whose status dot is down in that scenario
 NETWORK, MOCK_NAME = "hpcheck", "hpcheck-mock"
 # custom.css selectors the mock cannot make match, and small tap targets that are Homepage's own. One reason each.
-SELECTOR_ALLOW: dict[str, str] = {}
+_ERROR_BOX = "a widget's error box exists only while that widget fails, and the mock answers every widget"
+SELECTOR_ALLOW: dict[str, str] = {
+    ".service-card details > summary": _ERROR_BOX,
+    ".service-card details > div": _ERROR_BOX,
+    ".service-card details span": _ERROR_BOX,
+}
 SMALL_ALLOW: dict[str, str] = {}
 
 

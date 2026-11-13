@@ -10,25 +10,26 @@ data:
       url: https://10.9.9.20:8006
       token: '{{ "{{" }}HOMEPAGE_VAR_PROXMOX_USER{{ "}}" }}'
       secret: '{{ "{{" }}HOMEPAGE_VAR_PROXMOX_PASS{{ "}}" }}'
+  aurora-live.svg: |
+    <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><defs><radialGradient id="ga"><stop offset="0" stop-color="#3B4F8F" stop-opacity="0.620"/><stop offset="0.22" stop-color="#3B4F8F" stop-opacity="0.446"/><stop offset="0.45" stop-color="#3B4F8F" stop-opacity="0.223"/><stop offset="0.7" stop-color="#3B4F8F" stop-opacity="0.068"/><stop offset="1" stop-color="#3B4F8F" stop-opacity="0.000"/></radialGradient><radialGradient id="gf"><stop offset="0" stop-color="#7C3AED" stop-opacity="0.200"/><stop offset="0.22" stop-color="#7C3AED" stop-opacity="0.144"/><stop offset="0.45" stop-color="#7C3AED" stop-opacity="0.072"/><stop offset="0.7" stop-color="#7C3AED" stop-opacity="0.022"/><stop offset="1" stop-color="#7C3AED" stop-opacity="0.000"/></radialGradient><radialGradient id="gb"><stop offset="0" stop-color="#6D28D9" stop-opacity="0.420"/><stop offset="0.22" stop-color="#6D28D9" stop-opacity="0.302"/><stop offset="0.45" stop-color="#6D28D9" stop-opacity="0.151"/><stop offset="0.7" stop-color="#6D28D9" stop-opacity="0.046"/><stop offset="1" stop-color="#6D28D9" stop-opacity="0.000"/></radialGradient><radialGradient id="gc"><stop offset="0" stop-color="#A855F7" stop-opacity="0.140"/><stop offset="0.22" stop-color="#A855F7" stop-opacity="0.101"/><stop offset="0.45" stop-color="#A855F7" stop-opacity="0.050"/><stop offset="0.7" stop-color="#A855F7" stop-opacity="0.015"/><stop offset="1" stop-color="#A855F7" stop-opacity="0.000"/></radialGradient><radialGradient id="gd"><stop offset="0" stop-color="#1E3A8A" stop-opacity="0.480"/><stop offset="0.22" stop-color="#1E3A8A" stop-opacity="0.346"/><stop offset="0.45" stop-color="#1E3A8A" stop-opacity="0.173"/><stop offset="0.7" stop-color="#1E3A8A" stop-opacity="0.053"/><stop offset="1" stop-color="#1E3A8A" stop-opacity="0.000"/></radialGradient><radialGradient id="ge"><stop offset="0" stop-color="#4C1D95" stop-opacity="0.340"/><stop offset="0.22" stop-color="#4C1D95" stop-opacity="0.245"/><stop offset="0.45" stop-color="#4C1D95" stop-opacity="0.122"/><stop offset="0.7" stop-color="#4C1D95" stop-opacity="0.037"/><stop offset="1" stop-color="#4C1D95" stop-opacity="0.000"/></radialGradient><linearGradient id="rib" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#C4B5FD" stop-opacity="0"/><stop offset=".22" stop-color="#C4B5FD"/><stop offset=".55" stop-color="#7C3AED"/><stop offset=".85" stop-color="#6366F1"/><stop offset="1" stop-color="#6366F1" stop-opacity="0"/></linearGradient><filter id="soft" x="-10%" y="-60%" width="120%" height="220%"><feGaussianBlur stdDeviation="9"/></filter><pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#C7CBE0" fill-opacity=".22"/></pattern><radialGradient id="fade" cx=".5" cy=".3" r=".7"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient><mask id="m"><rect width="100%" height="100%" fill="url(#fade)"/></mask><radialGradient id="vig" cx=".5" cy=".42" r=".75"><stop offset=".45" stop-color="#0F0F1A" stop-opacity="0"/><stop offset="1" stop-color="#05050B" stop-opacity="0.55"/></radialGradient></defs><rect width="100%" height="100%" fill="#0F0F1A"/><circle cx="0%" cy="0%" r="66%" fill="url(#ga)"><animate attributeName="cx" values="0%;10%;-2%;0%" dur="90s" repeatCount="indefinite" calcMode="spline" keyTimes="0.000;0.333;0.667;1.000" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/><animate attributeName="cy" values="0%;6%;10%;0%" dur="90s" repeatCount="indefinite" calcMode="spline" keyTimes="0.000;0.333;0.667;1.000" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/></circle><circle cx="82%" cy="34%" r="38%" fill="url(#gf)"><animate attributeName="cx" values="82%;72%;86%;82%" dur="75s" repeatCount="indefinite" calcMode="spline" keyTimes="0.000;0.333;0.667;1.000" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/><animate attributeName="cy" values="34%;40%;46%;34%" dur="75s" repeatCount="indefinite" calcMode="spline" keyTimes="0.000;0.333;0.667;1.000" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/></circle><circle cx="100%" cy="106%" r="66%" fill="url(#gb)"><animate attributeName="cx" values="100%;90%;102%;100%" dur="80s" repeatCount="indefinite" calcMode="spline" keyTimes="0.000;0.333;0.667;1.000" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/><animate attributeName="cy" values="106%;98%;94%;106%" dur="80s" repeatCount="indefinite" calcMode="spline" keyTimes="0.000;0.333;0.667;1.000" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/></circle><circle cx="58%" cy="84%" r="30%" fill="url(#gc)"><animate attributeName="cx" values="58%;48%;64%;58%" dur="70s" repeatCount="indefinite" calcMode="spline" keyTimes="0.000;0.333;0.667;1.000" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/><animate attributeName="cy" values="84%;78%;74%;84%" dur="70s" repeatCount="indefinite" calcMode="spline" keyTimes="0.000;0.333;0.667;1.000" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/></circle><circle cx="98%" cy="4%" r="42%" fill="url(#gd)"><animate attributeName="cx" values="98%;88%;100%;98%" dur="110s" repeatCount="indefinite" calcMode="spline" keyTimes="0.000;0.333;0.667;1.000" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/><animate attributeName="cy" values="4%;12%;18%;4%" dur="110s" repeatCount="indefinite" calcMode="spline" keyTimes="0.000;0.333;0.667;1.000" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/></circle><circle cx="0%" cy="100%" r="52%" fill="url(#ge)"><animate attributeName="cx" values="0%;10%;2%;0%" dur="100s" repeatCount="indefinite" calcMode="spline" keyTimes="0.000;0.333;0.667;1.000" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/><animate attributeName="cy" values="100%;92%;88%;100%" dur="100s" repeatCount="indefinite" calcMode="spline" keyTimes="0.000;0.333;0.667;1.000" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/></circle><svg x="-8%" y="40%" width="116%" height="42%" viewBox="0 0 1000 400" preserveAspectRatio="none" overflow="visible"><animate attributeName="x" values="-8%;-14%;-8%" dur="120s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/><g fill="none" stroke="url(#rib)" stroke-linecap="round" filter="url(#soft)" opacity="0.7"><path d="M -60 250 C 140 110, 330 340, 520 205 S 860 70, 1060 170" stroke-width="260" opacity="0.035"/><path d="M -60 250 C 140 110, 330 340, 520 205 S 860 70, 1060 170" stroke-width="170" opacity="0.05"/><path d="M -60 250 C 140 110, 330 340, 520 205 S 860 70, 1060 170" stroke-width="105" opacity="0.07"/><path d="M -60 250 C 140 110, 330 340, 520 205 S 860 70, 1060 170" stroke-width="58" opacity="0.09"/><path d="M -60 250 C 140 110, 330 340, 520 205 S 860 70, 1060 170" stroke-width="26" opacity="0.12"/><path d="M -60 250 C 140 110, 330 340, 520 205 S 860 70, 1060 170" stroke-width="8" opacity="0.22"/></g></svg><rect width="100%" height="100%" fill="url(#dots)" mask="url(#m)"/><rect width="100%" height="100%" fill="url(#vig)"/></svg>
+  aurora-still.svg: |
+    <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><defs><radialGradient id="ga"><stop offset="0" stop-color="#3B4F8F" stop-opacity="0.620"/><stop offset="0.22" stop-color="#3B4F8F" stop-opacity="0.446"/><stop offset="0.45" stop-color="#3B4F8F" stop-opacity="0.223"/><stop offset="0.7" stop-color="#3B4F8F" stop-opacity="0.068"/><stop offset="1" stop-color="#3B4F8F" stop-opacity="0.000"/></radialGradient><radialGradient id="gf"><stop offset="0" stop-color="#7C3AED" stop-opacity="0.200"/><stop offset="0.22" stop-color="#7C3AED" stop-opacity="0.144"/><stop offset="0.45" stop-color="#7C3AED" stop-opacity="0.072"/><stop offset="0.7" stop-color="#7C3AED" stop-opacity="0.022"/><stop offset="1" stop-color="#7C3AED" stop-opacity="0.000"/></radialGradient><radialGradient id="gb"><stop offset="0" stop-color="#6D28D9" stop-opacity="0.420"/><stop offset="0.22" stop-color="#6D28D9" stop-opacity="0.302"/><stop offset="0.45" stop-color="#6D28D9" stop-opacity="0.151"/><stop offset="0.7" stop-color="#6D28D9" stop-opacity="0.046"/><stop offset="1" stop-color="#6D28D9" stop-opacity="0.000"/></radialGradient><radialGradient id="gc"><stop offset="0" stop-color="#A855F7" stop-opacity="0.140"/><stop offset="0.22" stop-color="#A855F7" stop-opacity="0.101"/><stop offset="0.45" stop-color="#A855F7" stop-opacity="0.050"/><stop offset="0.7" stop-color="#A855F7" stop-opacity="0.015"/><stop offset="1" stop-color="#A855F7" stop-opacity="0.000"/></radialGradient><radialGradient id="gd"><stop offset="0" stop-color="#1E3A8A" stop-opacity="0.480"/><stop offset="0.22" stop-color="#1E3A8A" stop-opacity="0.346"/><stop offset="0.45" stop-color="#1E3A8A" stop-opacity="0.173"/><stop offset="0.7" stop-color="#1E3A8A" stop-opacity="0.053"/><stop offset="1" stop-color="#1E3A8A" stop-opacity="0.000"/></radialGradient><radialGradient id="ge"><stop offset="0" stop-color="#4C1D95" stop-opacity="0.340"/><stop offset="0.22" stop-color="#4C1D95" stop-opacity="0.245"/><stop offset="0.45" stop-color="#4C1D95" stop-opacity="0.122"/><stop offset="0.7" stop-color="#4C1D95" stop-opacity="0.037"/><stop offset="1" stop-color="#4C1D95" stop-opacity="0.000"/></radialGradient><linearGradient id="rib" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#C4B5FD" stop-opacity="0"/><stop offset=".22" stop-color="#C4B5FD"/><stop offset=".55" stop-color="#7C3AED"/><stop offset=".85" stop-color="#6366F1"/><stop offset="1" stop-color="#6366F1" stop-opacity="0"/></linearGradient><filter id="soft" x="-10%" y="-60%" width="120%" height="220%"><feGaussianBlur stdDeviation="9"/></filter><pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#C7CBE0" fill-opacity=".22"/></pattern><radialGradient id="fade" cx=".5" cy=".3" r=".7"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient><mask id="m"><rect width="100%" height="100%" fill="url(#fade)"/></mask><radialGradient id="vig" cx=".5" cy=".42" r=".75"><stop offset=".45" stop-color="#0F0F1A" stop-opacity="0"/><stop offset="1" stop-color="#05050B" stop-opacity="0.55"/></radialGradient></defs><rect width="100%" height="100%" fill="#0F0F1A"/><circle cx="0%" cy="0%" r="66%" fill="url(#ga)"></circle><circle cx="82%" cy="34%" r="38%" fill="url(#gf)"></circle><circle cx="100%" cy="106%" r="66%" fill="url(#gb)"></circle><circle cx="58%" cy="84%" r="30%" fill="url(#gc)"></circle><circle cx="98%" cy="4%" r="42%" fill="url(#gd)"></circle><circle cx="0%" cy="100%" r="52%" fill="url(#ge)"></circle><svg x="-8%" y="40%" width="116%" height="42%" viewBox="0 0 1000 400" preserveAspectRatio="none" overflow="visible"><g fill="none" stroke="url(#rib)" stroke-linecap="round" filter="url(#soft)" opacity="0.7"><path d="M -60 250 C 140 110, 330 340, 520 205 S 860 70, 1060 170" stroke-width="260" opacity="0.035"/><path d="M -60 250 C 140 110, 330 340, 520 205 S 860 70, 1060 170" stroke-width="170" opacity="0.05"/><path d="M -60 250 C 140 110, 330 340, 520 205 S 860 70, 1060 170" stroke-width="105" opacity="0.07"/><path d="M -60 250 C 140 110, 330 340, 520 205 S 860 70, 1060 170" stroke-width="58" opacity="0.09"/><path d="M -60 250 C 140 110, 330 340, 520 205 S 860 70, 1060 170" stroke-width="26" opacity="0.12"/><path d="M -60 250 C 140 110, 330 340, 520 205 S 860 70, 1060 170" stroke-width="8" opacity="0.22"/></g></svg><rect width="100%" height="100%" fill="url(#dots)" mask="url(#m)"/><rect width="100%" height="100%" fill="url(#vig)"/></svg>
   favicon.svg: |
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-      <defs>
-        <filter id="glow">
-          <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur"/>
-          <feFlood flood-color="#DC2626" flood-opacity="0.5" result="color"/>
-          <feComposite in="color" in2="blur" operator="in" result="shadow"/>
-          <feMerge>
-            <feMergeNode in="shadow"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-      </defs>
-      <rect width="48" height="48" rx="10" fill="#0F0F1A"/>
-      <text x="50%" y="34" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
-            font-size="26" font-weight="800" letter-spacing="1">
-        <tspan fill="#F1F5F9">S</tspan><tspan fill="#DC2626" filter="url(#glow)">T</tspan>
-      </text>
-    </svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><defs><linearGradient id="sq" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B1D33"/><stop offset="1" stop-color="#0F0F1A"/></linearGradient><radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#7C3AED" stop-opacity=".7"/><stop offset="1" stop-color="#7C3AED" stop-opacity="0"/></radialGradient><linearGradient id="st" x1=".2" y1="0" x2=".8" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".35" stop-color="#C4B5FD"/><stop offset=".75" stop-color="#7C3AED"/><stop offset="1" stop-color="#A78BFA"/></linearGradient><linearGradient id="rim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".55"/><stop offset=".5" stop-color="#FFFFFF" stop-opacity=".08"/><stop offset="1" stop-color="#C4B5FD" stop-opacity=".35"/></linearGradient></defs><rect x="1" y="1" width="46" height="46" rx="14" fill="url(#sq)"/><circle cx="24" cy="24" r="20" fill="url(#glow)"/><path d="M24 7 C25.6 17.2 30.8 22.4 41 24 C30.8 25.6 25.6 30.8 24 41 C22.4 30.8 17.2 25.6 7 24 C17.2 22.4 22.4 17.2 24 7 Z" fill="url(#st)"/><rect x="1.5" y="1.5" width="45" height="45" rx="13.5" fill="none" stroke="url(#rim)"/></svg>
+  glyph-iron.svg: |
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect x='3.5' y='4' width='17' height='6.5' rx='2' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/><rect x='3.5' y='13.5' width='17' height='6.5' rx='2' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/><path d='M7.5 7.25h.01M7.5 16.75h.01M11 7.25h6M11 16.75h6' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>
+  glyph-media.svg: |
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='9' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/><path d='M10 8.4v7.2l6-3.6z' fill='#000'/></svg>
+  glyph-pipeline.svg: |
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='5' cy='12' r='2.3' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/><circle cx='19' cy='5.5' r='2.3' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/><circle cx='19' cy='18.5' r='2.3' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/><path d='M7.3 12h3.2c2.6 0 3-6.5 6.2-6.5M10.5 12c2.6 0 3 6.5 6.2 6.5' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>
+  glyph-platform.svg: |
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 3.5 3 8.3l9 4.8 9-4.8z' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/><path d='M3 12.4l9 4.8 9-4.8M3 16.4l9 4.8 9-4.8' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>
+  glyph-pulse.svg: |
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M2.5 12.5h4.2l2.4-6 4.4 11 2.4-5h5.6' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>
+  glyph-tools.svg: |
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect x='3.5' y='3.5' width='7' height='7' rx='2.2' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/><rect x='3.5' y='13.5' width='7' height='7' rx='2.2' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/><rect x='13.5' y='3.5' width='7' height='7' rx='2.2' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/><rect x='13.5' y='13.5' width='7' height='7' rx='2.2' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>
+  grain.svg: |
+    <svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180"><filter id="n" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .55 0"/></filter><rect width="180" height="180" filter="url(#n)"/></svg>
   docker.yaml: ""
   custom.js: ""
   custom.css: |
@@ -481,168 +482,570 @@ data:
       }
     }
     /* no-hook:end */
+    /* ==========================================================================
+       Admin layer: violet on navy, desktop-first ("calm, glassy control room").
+       Violet is identity only: the mark, the wordmark and the selected tab. On the board red means trouble and
+       nothing else (ADR 0020), so icons are silver, group dashes and card rims steel, and no calendar dot is red.
+       ========================================================================== */
+    :root,
+    html:root {
+      --color-50: 250 250 252;
+      --color-100: 238 239 245;
+      --color-200: 230 232 241;
+      --color-300: 178 183 203;
+      --color-400: 160 166 190; /* secondary text (list ages, theme-400) clears 4.5:1 on glass */
+      --color-500: 90 95 120;
+      --color-600: 60 64 86;
+      --color-700: 38 40 58;
+      --color-800: 15 15 26;
+      --color-900: 9 9 16;
+      --color-logo-start: 241 241 247; /* mdi and si glyphs: silver to steel, so no icon reads as an alarm */
+      --color-logo-stop: 150 156 182;
+      --d1-acc: 124 58 237; /* violet, Tailwind violet-600 */
+      --d1-acc-hi: 196 181 253;
+      --d1-acc-2: 167 139 250;
+      --d1-rim: 178 183 203; /* card rims end in steel, not the accent */
+      --d1-label: 178 183 203; /* group labels: calm silver */
+      --d1-fill: 17 17 30;
+      --d1-radius: 18px;
+      --d1-gap: 12px;
+      --d1-value-size: 15px;
+    }
+
+    /* the animated aurora only when motion is welcome and the screen is wide */
+    @media (prefers-reduced-motion: no-preference) and (min-width: 1024px) {
+      #background {
+        background-image: url("/images/aurora-live.svg") !important;
+      }
+    }
+
+    #Pulse-tab { --d1-glyph: url("/images/glyph-pulse.svg"); }
+    #Media-tab { --d1-glyph: url("/images/glyph-media.svg"); }
+    #Pipeline-tab { --d1-glyph: url("/images/glyph-pipeline.svg"); }
+    #Apps-tab { --d1-glyph: url("/images/glyph-tools.svg"); }
+    #Platform-tab { --d1-glyph: url("/images/glyph-platform.svg"); }
+    #Iron-tab { --d1-glyph: url("/images/glyph-iron.svg"); }
+
+    /* group labels: a short steel dash before them (a round dot would read as a status light) */
+    .service-group-name,
+    .bookmark-group-name {
+      text-shadow: none;
+    }
+
+    .service-group-name::before,
+    .bookmark-group-name::before {
+      content: "";
+      width: 12px;
+      height: 2px;
+      flex: none;
+      border-radius: 1px;
+      background: rgb(var(--color-400));
+    }
+
+    .service-group-name::after,
+    .bookmark-group-name::after {
+      background: linear-gradient(90deg, rgb(var(--color-300) / 0.35), rgb(var(--color-300) / 0));
+    }
+
+    /* equal-height tiles (the board's rows end level): a tile stretches to its grid row and the card fills it */
+    #layout-groups .service {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #layout-groups .service > .service-card {
+      flex: 1 1 auto;
+    }
+
+    /* ---------- Header: one command line of glass instruments ---------- */
+    #widgets-wrap,
+    #information-widgets-right {
+      display: contents;
+    }
+
+    #information-widgets {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin: 22px 28px 0;
+    }
+
+    .information-widget-logo,
+    .information-widget-greeting {
+      margin: 0;
+      padding: 0;
+      background: none;
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    .information-widget-logo div {
+      margin: 0;
+    }
+
+    .information-widget-logo img {
+      width: 44px !important; /* Next/Image sets 48 px inline */
+      height: 44px !important;
+    }
+
+    .information-widget-greeting {
+      margin-right: 8px;
+    }
+
+    .information-widget-greeting span {
+      font-size: 20px;
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+
+    .information-widget-customapi,
+    .information-widget-openmeteo,
+    .information-widget-datetime {
+      height: 50px;
+      padding: 0 16px 0 12px;
+      border-radius: 16px;
+    }
+
+    .information-widget-datetime {
+      padding: 0 18px;
+    }
+
+    .information-widget-openmeteo svg {
+      width: 30px;
+      height: 30px;
+    }
+
+    .information-widget-search {
+      flex: 1 1 200px;
+      max-width: 520px;
+      margin-left: auto;
+    }
+
+    .information-widget-search div:has(> input) {
+      height: 50px;
+    }
+
+    .information-widget-datetime span {
+      color: rgb(var(--d1-ink));
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    #tabs {
+      position: relative; /* anchors the alarm annunciator */
+      margin: 18px 28px 0;
+    }
+
+    #layout-groups {
+      margin: 24px 24px 0;
+    }
+
+    /* ---------- Highlights: good, warn and danger blocks ---------- */
+    .service-block[data-highlight-level="good"] {
+      background: rgb(var(--d1-good) / 0.12);
+      box-shadow: inset 0 0 0 1px rgb(var(--d1-good) / 0.75);
+    }
+
+    .service-block[data-highlight-level="warn"] {
+      background: rgb(var(--d1-warn) / 0.13);
+      box-shadow: inset 0 0 0 1px rgb(var(--d1-warn) / 0.75);
+    }
+
+    .service-block[data-highlight-level="danger"] {
+      background: linear-gradient(180deg, rgb(239 68 68 / 0.3), rgb(220 38 38 / 0.16));
+      box-shadow:
+        inset 0 0 0 1px rgb(var(--d1-danger) / 0.9),
+        0 0 22px -6px rgb(239 68 68 / 0.7);
+    }
+
+    .service-block[data-highlight-level="good"] .service-block-value { color: rgb(110 231 183); }
+    .service-block[data-highlight-level="warn"] .service-block-value { color: rgb(253 224 71); }
+    .service-block[data-highlight-level="danger"] .service-block-value { color: rgb(254 202 202); }
+    .service-block[data-highlight-level] .service-block-label { color: rgb(var(--d1-ink) / 0.85); }
+
+    /* ---------- Alarm mode: only while a danger block is on screen ---------- */
+    /* the card in danger: a red rim and glow, and first in its group */
+    .service-card:has(.service-block[data-highlight-level="danger"]) {
+      box-shadow:
+        inset 0 1px 0 0 rgb(255 255 255 / 0.16),
+        0 0 0 1px rgb(var(--d1-danger) / 0.45),
+        0 0 36px -10px rgb(239 68 68 / 0.65),
+        var(--d1-depth);
+    }
+
+    #layout-groups .service:has(.service-block[data-highlight-level="danger"]) {
+      order: -1;
+    }
+
+    /* the page edge: a red tint that pulses for about ten seconds, then holds (a standing alarm must not become wallpaper) */
+    #inner_wrapper:has(.service-block[data-highlight-level="danger"])::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      pointer-events: none;
+      box-shadow:
+        inset 0 0 0 1px rgb(var(--d1-danger) / 0.55),
+        inset 0 0 70px rgb(239 68 68 / 0.2),
+        inset 0 0 220px rgb(239 68 68 / 0.09);
+      animation: d1-alarm 2.6s ease-in-out 4;
+    }
+
+    #inner_wrapper:has(.service-block[data-highlight-level="danger"])::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      z-index: 61;
+      pointer-events: none;
+      background: linear-gradient(90deg, transparent, rgb(var(--d1-danger)) 20%, rgb(var(--d1-danger)) 80%, transparent);
+    }
+
+    /* the annunciator says it in words, for the tab in view only (Homepage unmounts the other tabs) */
+    #inner_wrapper:has(.service-block[data-highlight-level="danger"]) #tabs::after {
+      content: "\25B2  Alarm on this tab";
+      position: absolute;
+      right: 22px;
+      top: -11px;
+      padding: 3px 11px;
+      border-radius: 999px;
+      color: rgb(255 228 230);
+      background: rgb(127 29 29 / 0.94);
+      box-shadow:
+        0 0 0 1px rgb(var(--d1-danger) / 0.9),
+        0 0 18px rgb(239 68 68 / 0.55);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    @keyframes d1-alarm {
+      50% {
+        opacity: 0.35;
+      }
+    }
+
+    /* widget errors stay legible on glass (upstream paints theme-900 text on rose-900): crimson glass summary, dark log */
+    .service-card details > summary {
+      color: rgb(var(--d1-ink));
+      background: rgb(239 68 68 / 0.24);
+      box-shadow: inset 0 0 0 1px rgb(var(--d1-danger) / 0.5);
+      border-radius: calc(var(--d1-radius) - 10px);
+    }
+
+    .service-card details > div {
+      color: rgb(254 202 202);
+      background: rgb(0 0 0 / 0.45);
+      border-radius: calc(var(--d1-radius) - 10px);
+    }
+
+    .service-card details span {
+      color: rgb(var(--d1-ink));
+    }
+
+    /* ---------- Content fixes ---------- */
+    /* Markets: one notch more spacing fits "-2.00%" in Plex Mono. The stock widget draws falls in rose and the
+       closed-market badge in red; here red means trouble, so both turn neutral and the minus sign carries the fall. */
+    #markets > .service-card {
+      --spacing: 0.3rem;
+      --color-red-400: #fff;
+      --color-rose-300: rgb(178 183 203);
+    }
+
+    /* ---------- Phone (not the target, kept tidy): a 4-column header grid and a 3 x 2 tab control ---------- */
+    @media (max-width: 639px) {
+      #information-widgets {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        margin: 18px 14px 0;
+      }
+
+      .information-widget-logo { grid-column: 1; }
+      .information-widget-greeting { grid-column: 2 / -1; justify-self: start; margin: 0; }
+      .information-widget-customapi { grid-column: span 2; }
+      .information-widget-search { grid-column: 1 / -1; max-width: none; margin: 0; }
+      .information-widget-openmeteo { grid-column: 1 / span 2; }
+      .information-widget-datetime { grid-column: 3 / -1; padding: 0 12px; }
+
+      .information-widget-datetime span {
+        font-size: 13px;
+        white-space: normal; /* date over time when the chip is narrow */
+      }
+
+      #tabs {
+        margin: 16px 14px 0;
+      }
+
+      #myTab {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        border-radius: 26px;
+      }
+
+      #layout-groups {
+        margin: 20px 10px 0;
+      }
+    }
+
+    /* ---------- Boards (desktop): every tab is a grid; a group is placed by a tile it holds ---------- */
+    @media (min-width: 1280px) {
+      #layout-groups {
+        display: grid;
+        grid-template-columns: repeat(var(--d1-cols, 4), minmax(0, 1fr));
+        grid-template-rows: auto 1fr;
+        grid-auto-flow: row dense;
+        align-items: start;
+        column-gap: 20px;
+      }
+
+      /* Pulse: alerts beside health, what is playing and the outside world below, the calendar as a rail beside them */
+      #inner_wrapper:has(#Pulse-tab[aria-selected="true"]) #layout-groups {
+        --d1-cols: 12;
+        grid-template-rows: auto auto 1fr;
+      }
+
+      #inner_wrapper:has(#Pulse-tab[aria-selected="true"]) #layout-groups > .services-group:has(#alerts) { grid-column: 1 / span 6; grid-row: 1; }
+      #inner_wrapper:has(#Pulse-tab[aria-selected="true"]) #layout-groups > .services-group:has(#cluster) { grid-column: 7 / span 6; grid-row: 1; }
+      #inner_wrapper:has(#Pulse-tab[aria-selected="true"]) #layout-groups > .services-group:has(#streaming-now) { grid-column: 1 / span 8; grid-row: 2; }
+      #inner_wrapper:has(#Pulse-tab[aria-selected="true"]) #layout-groups > .services-group:has(#calendar) { grid-column: 9 / span 4; grid-row: 2 / span 2; }
+      #inner_wrapper:has(#Pulse-tab[aria-selected="true"]) #layout-groups > .services-group:has(#markets) { grid-column: 1 / span 8; grid-row: 3; }
+
+      /* Needs Attention and Now Playing stack their tiles, so every alert name and every "title (viewer)" line fits */
+      #inner_wrapper:has(#Pulse-tab[aria-selected="true"]) #layout-groups > .services-group:is(:has(#alerts), :has(#streaming-now)) ul:has(> .service) {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      /* Media: Watch is a two-column panel with Jellyfin across its top; Listen over Requests, Photos over Read */
+      #inner_wrapper:has(#Media-tab[aria-selected="true"]) #layout-groups > .services-group:has(#jellyfin) { grid-column: 1 / span 2; grid-row: 1 / span 2; }
+      #inner_wrapper:has(#Media-tab[aria-selected="true"]) #layout-groups > .services-group:has(#navidrome) { grid-column: 3; grid-row: 1; }
+      #inner_wrapper:has(#Media-tab[aria-selected="true"]) #layout-groups > .services-group:has(#seerr) { grid-column: 3; grid-row: 2; }
+      #inner_wrapper:has(#Media-tab[aria-selected="true"]) #layout-groups > .services-group:has(#immich) { grid-column: 4; grid-row: 1; }
+      #inner_wrapper:has(#Media-tab[aria-selected="true"]) #layout-groups > .services-group:has(#calibre-web) { grid-column: 4; grid-row: 2; }
+
+      #inner_wrapper:has(#Media-tab[aria-selected="true"]) #layout-groups > .services-group:has(#jellyfin) ul:has(> .service) {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: 12px;
+        align-items: start;
+      }
+
+      #inner_wrapper:has(#Media-tab[aria-selected="true"]) #layout-groups #jellyfin { grid-column: 1 / -1; }
+
+      /* Pipeline: Acquire and Download are two-column panels on top, Index and Subtitles below */
+      #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups { grid-template-rows: auto auto; }
+      #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups > .services-group:has(#sonarr) { grid-column: 1 / span 2; grid-row: 1; }
+      #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups > .services-group:has(#qbittorrent) { grid-column: 3 / span 2; grid-row: 1; }
+      #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups > .services-group:has(#prowlarr) { grid-column: 1 / span 2; grid-row: 2; }
+      #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups > .services-group:has(#bazarr) { grid-column: 3 / span 2; grid-row: 2; }
+
+      #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups ul:has(> .service) {
+        display: block;
+        columns: 2;
+        column-gap: 12px;
+      }
+
+      #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups .service { break-inside: avoid; }
+
+      /* Platform: Ship runs both rows; Core sits under Edge, the Code bookmarks under Guard and Observe */
+      #inner_wrapper:has(#Platform-tab[aria-selected="true"]) #layout-groups { grid-template-rows: auto auto; }
+      #inner_wrapper:has(#Platform-tab[aria-selected="true"]) #layout-groups > .services-group:has(#argo-cd) { grid-column: 1; grid-row: 1 / span 2; }
+      #inner_wrapper:has(#Platform-tab[aria-selected="true"]) #layout-groups > .services-group:has(#traefik) { grid-column: 2; grid-row: 1; }
+      #inner_wrapper:has(#Platform-tab[aria-selected="true"]) #layout-groups > .services-group:has(#authentik) { grid-column: 3; grid-row: 1; }
+      #inner_wrapper:has(#Platform-tab[aria-selected="true"]) #layout-groups > .services-group:has(#grafana) { grid-column: 4; grid-row: 1; }
+      #inner_wrapper:has(#Platform-tab[aria-selected="true"]) #layout-groups > .services-group:has(#pgadmin) { grid-column: 2; grid-row: 2; }
+      #inner_wrapper:has(#Platform-tab[aria-selected="true"]) #layout-groups > :not(.services-group) { grid-column: 3 / span 2; grid-row: 2; }
+
+      /* Apps: Find & Keep takes the last column for both rows; Home spans two columns under Convert and Documents */
+      #inner_wrapper:has(#Apps-tab[aria-selected="true"]) #layout-groups > .services-group:has(#excalidash) { grid-column: 1; grid-row: 1; }
+      #inner_wrapper:has(#Apps-tab[aria-selected="true"]) #layout-groups > .services-group:has(#convertx) { grid-column: 2; grid-row: 1; }
+      #inner_wrapper:has(#Apps-tab[aria-selected="true"]) #layout-groups > .services-group:has(#paperless-ngx) { grid-column: 3; grid-row: 1; }
+      #inner_wrapper:has(#Apps-tab[aria-selected="true"]) #layout-groups > .services-group:has(#searxng) { grid-column: 4; grid-row: 1 / span 2; }
+      #inner_wrapper:has(#Apps-tab[aria-selected="true"]) #layout-groups > .services-group:has(#pairdrop) { grid-column: 1; grid-row: 2; }
+      #inner_wrapper:has(#Apps-tab[aria-selected="true"]) #layout-groups > .services-group:has(#home-assistant) { grid-column: 2 / span 2; grid-row: 2; }
+
+      /* Iron: Compute is a two-column panel; Network and Storage run full height */
+      #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups > .services-group:has(#proxmox-ve) { grid-column: 1 / span 2; grid-row: 1; }
+      #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups > .services-group:has(#opnsense) { grid-column: 3; grid-row: 1 / span 2; }
+      #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups > .services-group:has(#truenas) { grid-column: 4; grid-row: 1 / span 2; }
+
+      #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups > .services-group:has(#proxmox-ve) ul:has(> .service) {
+        display: block;
+        columns: 2;
+        column-gap: 12px;
+      }
+
+      #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups > .services-group:has(#proxmox-ve) .service { break-inside: avoid; }
+    }
+
+    @media (min-width: 1280px) and (max-width: 1799px) {
+      /* Iron: the two bookmark groups sit side by side under Compute */
+      #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups > :not(.services-group) { grid-row: 2; }
+    }
+
+    @media (min-width: 1800px) {
+      /* Iron: a fifth column takes the bookmarks, so Compute runs both rows */
+      #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups { --d1-cols: 5; }
+      #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups > .services-group:has(#proxmox-ve) { grid-row: 1 / span 2; }
+      #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups > :not(.services-group) { grid-column: 5; }
+
+      /* header: the search pill takes the width a wide screen leaves */
+      .information-widget-search {
+        max-width: 760px;
+      }
+    }
+
+    /* no-hook:start */
+    /* List rows (a name and one value) have no class of their own. A gutter between the name and its value; the
+       value stays on one line and the name wraps. :not() skips the wrappers that hold rows. */
+    .service-card :is(a, div):has(> div:first-child + div:last-child > div:only-child) {
+      column-gap: 12px;
+    }
+
+    .service-card :is(a, div):has(> div:first-child + div:last-child > div:only-child):not(:has(div div div)) > div:first-child {
+      min-width: 0;
+    }
+
+    .service-card :is(a, div):has(> div:first-child + div:last-child > div:only-child):not(:has(div div div)) > div:last-child {
+      flex: none;
+      white-space: nowrap;
+    }
+    /* no-hook:end */
   kubernetes.yaml: |
     mode: cluster
   settings.yaml: |
-    title: Starktastic Services
+    title: Starktastic Admin
+    description: Pulse, media, pipeline, apps, platform and iron
     language: en
-    headerStyle: boxedWidgets
-    statusStyle: dot
-    useEqualHeights: false
+    theme: dark
+    color: violet
     hideVersion: true
-    disableCollapse: false
     disableIndexing: true
-    iconStyle: theme
     favicon: /icons/favicon.svg
+    background: /images/aurora-still.svg
+    cardBlur: xl
+    headerStyle: boxedWidgets
+    cardStyle: hairline
+    blockStyle: refined
+    font: plexData
+    statusStyle: dot
+    disableCollapse: true
+    fullWidth: true
+    target: _blank
     providers:
       finnhub: '{{ "{{" }}HOMEPAGE_VAR_FINNHUB_KEY{{ "}}" }}'
     quicklaunch:
       searchDescriptions: true
-      hideInternetSearch: false
       showSearchSuggestions: false
       provider: custom
       url: https://search.starktastic.net/search?q=
+      mobileButtonPosition: bottom-right
     hideErrors: false
     pwa:
       shortcuts:
       - name: Pulse
         url: /#pulse
-      - name: Play
-        url: /#play
-      - name: Make
-        url: /#make
-      - name: Run
-        url: /#run
+      - name: Media
+        url: /#media
+      - name: Pipeline
+        url: /#pipeline
+      - name: Apps
+        url: /#apps
+      - name: Platform
+        url: /#platform
       - name: Iron
         url: /#iron
     layout:
-      At a Glance:
-        tab: Pulse
-        style: row
-        columns: 3
-        icon: mdi-heart-pulse
-      In Flight:
-        tab: Pulse
-        style: row
-        columns: 5
-        icon: mdi-airplane-takeoff
-      Coming Up:
+      Needs Attention:
         tab: Pulse
         style: row
         columns: 2
-        icon: mdi-calendar-month
+      Health:
+        tab: Pulse
+        style: row
+        columns: 2
+      Now Playing:
+        tab: Pulse
+        style: row
+        columns: 2
+      Coming Up:
+        tab: Pulse
       Out There:
         tab: Pulse
         style: row
-        columns: 1
-        icon: mdi-newspaper-variant
+        columns: 2
       Watch:
-        tab: Play
-        style: row
-        columns: 3
-        icon: mdi-television-play
+        tab: Media
       Listen:
-        tab: Play
-        style: row
-        columns: 2
-        icon: mdi-headphones
+        tab: Media
       Read:
-        tab: Play
-        style: row
-        columns: 1
-        icon: mdi-book-open-page-variant
-      Look Back:
-        tab: Play
-        style: row
-        columns: 1
-        icon: mdi-image-multiple
-      Ask For It:
-        tab: Play
-        style: row
-        columns: 3
-        icon: mdi-hand-heart
-      Create:
-        tab: Make
-        style: row
-        columns: 3
-        icon: mdi-draw
-      Convert:
-        tab: Make
-        style: row
-        columns: 4
-        icon: mdi-file-swap
-      Find:
-        tab: Make
-        style: row
-        columns: 3
-        icon: mdi-magnify
-      Organise:
-        tab: Make
-        style: row
-        columns: 3
-        icon: mdi-clipboard-check
-      Send:
-        tab: Make
-        style: row
-        columns: 3
-        icon: mdi-send
+        tab: Media
+      Photos:
+        tab: Media
+      Requests:
+        tab: Media
       Acquire:
-        tab: Run
-        style: row
-        columns: 2
-        icon: mdi-download
-      Refine:
-        tab: Run
-        style: row
-        columns: 2
-        icon: mdi-auto-fix
+        tab: Pipeline
+      Index:
+        tab: Pipeline
+      Download:
+        tab: Pipeline
+      Subtitles:
+        tab: Pipeline
+      Create:
+        tab: Apps
+      Convert:
+        tab: Apps
+      Find & Keep:
+        tab: Apps
+      Documents:
+        tab: Apps
+      Send:
+        tab: Apps
       Home:
-        tab: Run
-        style: row
-        columns: 2
-        icon: mdi-home-automation
-      Observe:
-        tab: Run
-        style: row
-        columns: 2
-        icon: mdi-chart-line
-      Guard:
-        tab: Run
-        style: row
-        columns: 3
-        icon: mdi-shield-lock
+        tab: Apps
       Ship:
-        tab: Run
-        style: row
-        columns: 5
-        icon: mdi-rocket-launch
+        tab: Platform
+      Edge:
+        tab: Platform
+      Guard:
+        tab: Platform
+      Observe:
+        tab: Platform
+      Core:
+        tab: Platform
       Code:
-        tab: Run
-        icon: mdi-source-branch
+        tab: Platform
       Compute:
         tab: Iron
-        style: row
-        columns: 4
-        icon: mdi-server
       Network:
         tab: Iron
-        style: row
-        columns: 3
-        icon: mdi-lan
-      Store:
+      Storage:
         tab: Iron
-        style: row
-        columns: 2
-        icon: mdi-database
       Reference:
         tab: Iron
-        icon: mdi-book-open-variant
       Accounts:
         tab: Iron
-        icon: mdi-account-key
   widgets.yaml: |
     - logo:
         icon: /icons/favicon.svg
+    - greeting:
+        text_size: 2xl
+        text: Starktastic Admin
+    - customapi:
+        url: http://kube-prometheus-stack-alertmanager.monitoring:9093/api/v2/alerts?active=true&silenced=false&inhibited=false&receiver=ntfy
+        icon: mdi-bell-alert
+        refreshInterval: 30000
+        mappings:
+        - label: Alerts
+          format: size
     - customapi:
         url: http://kube-prometheus-stack-prometheus.monitoring:9090/api/v1/query?query=min(probe_success%7Btier%3D%22external%22%7D)
         icon: mdi-earth
@@ -657,15 +1060,24 @@ data:
             to: Down ⚠
           - any: true
             to: Unknown
-    - kubernetes:
-        cluster:
-          show: true
-          cpu: true
-          memory: true
-          showLabel: true
-          label: cluster
-        nodes:
-          show: false
+    - customapi:
+        url: http://kube-prometheus-stack-prometheus.monitoring:9090/api/v1/query?query=1%20-%20avg(rate(node_cpu_seconds_total%7Bmode%3D%22idle%22%7D[5m]))
+        icon: mdi-cpu-64-bit
+        refreshInterval: 30000
+        mappings:
+        - field: data.result.0.value.1
+          label: CPU
+          scale: 100
+          format: percent
+    - customapi:
+        url: http://kube-prometheus-stack-prometheus.monitoring:9090/api/v1/query?query=1%20-%20sum(node_memory_MemAvailable_bytes)%20%2F%20sum(node_memory_MemTotal_bytes)
+        icon: mdi-memory
+        refreshInterval: 30000
+        mappings:
+        - field: data.result.0.value.1
+          label: Memory
+          scale: 100
+          format: percent
     - search:
         provider: custom
         url: https://search.starktastic.net/search?q=
@@ -676,18 +1088,6 @@ data:
         longitude: 34.78
         timezone: Asia/Jerusalem
         units: metric
-    - stocks:
-        provider: finnhub
-        color: true
-        cache: 5
-        watchlist:
-        - NVDA
-        - AMD
-        - INTC
-        - MSFT
-        - GOOGL
-        - AAPL
-        - TSM
     - datetime:
         text_size: xl
         locale: en-GB
@@ -699,11 +1099,93 @@ data:
           minute: 2-digit
           hourCycle: h23
   services.yaml: |
-    - At a Glance:
-      - Cluster Health:
-          id: cluster-health
+    - Needs Attention:
+      - Alerts:
+          id: alerts
+          icon: mdi-bell-alert
+          href: https://grafana.internal.starktastic.net/alerting/list
+          description: Firing and unsilenced, routed to ntfy
+          app: prometheus
+          namespace: monitoring
+          widgets:
+          - type: customapi
+            url: http://kube-prometheus-stack-alertmanager.monitoring:9093/api/v2/alerts?active=true&silenced=false&inhibited=false&receiver=ntfy
+            refreshInterval: 30000
+            display: dynamic-list
+            mappings:
+              name: labels.alertname
+              label: startsAt
+              format: relativeDate
+              limit: 6
+              target: https://grafana.internal.starktastic.net/alerting/groups?alertmanager=alertmanager
+          - type: prometheusmetric
+            url: http://kube-prometheus-stack-prometheus.monitoring:9090
+            refreshInterval: 30000
+            metrics:
+            - label: Critical
+              query: count(ALERTS{alertstate="firing",severity="critical"}) or vector(0)
+            - label: Firing
+              query: count(ALERTS{alertstate="firing",alertname!~"Watchdog|InfoInhibitor"}) or vector(0)
+            highlight:
+              Critical:
+                numeric:
+                - level: danger
+                  when: gt
+                  value: 0
+              Firing:
+                numeric:
+                - level: warn
+                  when: gt
+                  value: 0
+          - type: prometheusmetric
+            url: http://kube-prometheus-stack-prometheus.monitoring:9090
+            refreshInterval: 300000
+            metrics:
+            - label: Rules Alive
+              query: count(ALERTS{alertname="Watchdog",alertstate="firing"}) or vector(0)
+            - label: Sent 24h
+              query: sum(increase(alertmanager_notifications_total{integration="webhook"}[24h]))
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+            - label: Failed 24h
+              query: sum(increase(alertmanager_notifications_failed_total{integration="webhook"}[24h])) or vector(0)
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+            - label: Silences
+              query: sum(alertmanager_silences{state="active"}) or vector(0)
+            highlight:
+              Rules Alive:
+                numeric:
+                - level: danger
+                  when: eq
+                  value: 0
+              Failed 24h:
+                numeric:
+                - level: warn
+                  when: gt
+                  value: 0
+      - Notifications:
+          id: notifications
+          icon: ntfy.png
+          description: Latest push on the alerts topic
+          href: https://ntfy.starktastic.net
+          siteMonitor: http://ntfy.operations:80
+          namespace: operations
+          app: ntfy
+          widget:
+            type: ntfy
+            url: http://ntfy.operations:80
+            topic: alerts
+            key: '{{ "{{" }}HOMEPAGE_VAR_NTFY_TOKEN{{ "}}" }}'
+    - Health:
+      - Cluster:
+          id: cluster
           icon: kubernetes.png
-          description: Nodes, pods, alerts, volumes
+          description: Nodes, pods and restarts
           app: prometheus
           href: https://grafana.internal.starktastic.net
           namespace: monitoring
@@ -716,18 +1198,33 @@ data:
               query: sum(kube_node_status_condition{condition="Ready",status="true"})
             - label: Unhealthy Pods
               query: sum(max by (namespace, pod) (kube_pod_status_phase{phase=~"Pending|Failed|Unknown"} or {__name__=~"kube_pod_(init_)?container_status_waiting_reason",reason=~"CrashLoopBackOff|ImagePullBackOff|ErrImagePull|CreateContainerConfigError|CreateContainerError|InvalidImageName"}))
-            - label: Firing Alerts
-              query: (sum(ALERTS{alertstate="firing",alertname!~"Watchdog|InfoInhibitor"}) or vector(0)) and count(ALERTS{alertname="Watchdog",alertstate="firing"})
-            - label: Fullest Volume
-              query: max(kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes)
+            - label: Restarts 1h
+              query: floor(sum(increase(kube_pod_container_status_restarts_total[1h])))
               format:
-                type: percent
-                scale: 100
-      - Edge & Certs:
-          id: edge-certs
-          icon: traefik.png
+                type: number
+                options:
+                  maximumFractionDigits: 0
+            highlight:
+              Nodes Ready:
+                numeric:
+                - level: danger
+                  when: lt
+                  value: 3
+              Unhealthy Pods:
+                numeric:
+                - level: warn
+                  when: gt
+                  value: 0
+              Restarts 1h:
+                numeric:
+                - level: warn
+                  when: gte
+                  value: 3
+      - Edge & WAN:
+          id: edge-wan
+          icon: mdi-earth
           href: https://traefik.internal.starktastic.net
-          description: Probes, certificates, traffic
+          description: Internet, the admin gate and probes
           namespace: monitoring
           app: prometheus
           widget:
@@ -735,31 +1232,50 @@ data:
             url: http://kube-prometheus-stack-prometheus.monitoring:9090
             refreshInterval: 30000
             metrics:
+            - label: Internet
+              query: min(probe_success{tier="external"})
+              format:
+                type: percent
+                scale: 100
+                options:
+                  maximumFractionDigits: 0
+            - label: Admin Gate
+              query: min(probe_success{tier=~"gate|gate-negative"})
+              format:
+                type: percent
+                scale: 100
+                options:
+                  maximumFractionDigits: 0
+            - label: Alert Path
+              query: min(probe_success{tier="alert-pipeline"})
+              format:
+                type: percent
+                scale: 100
+                options:
+                  maximumFractionDigits: 0
             - label: Failed Probes
               query: (count(probe_success == 0) or vector(0)) and count(probe_success)
-            - label: Cert Expiry
-              query: min(certmanager_certificate_expiration_timestamp_seconds{issuer_name="letsencrypt-prod"} > 0) - time()
-              format:
-                type: number
-                scale: 1/86400
-                suffix: ' days'
-                options:
-                  maximumFractionDigits: 0
-            - label: Requests
-              query: sum(rate(traefik_entrypoint_requests_total[5m]))
-              format:
-                type: number
-                suffix: ' req/s'
-                options:
-                  maximumFractionDigits: 1
-            - label: p95 Latency
-              query: histogram_quantile(0.95, sum by (le) (rate(traefik_entrypoint_request_duration_seconds_bucket[5m])))
-              format:
-                type: number
-                scale: 1000
-                suffix: ' ms'
-                options:
-                  maximumFractionDigits: 0
+            highlight:
+              Internet:
+                numeric:
+                - level: danger
+                  when: lt
+                  value: 100
+              Admin Gate:
+                numeric:
+                - level: danger
+                  when: lt
+                  value: 100
+              Alert Path:
+                numeric:
+                - level: warn
+                  when: lt
+                  value: 100
+              Failed Probes:
+                numeric:
+                - level: warn
+                  when: gt
+                  value: 0
       - Security:
           id: security
           icon: crowdsec.png
@@ -790,7 +1306,146 @@ data:
                 type: number
                 options:
                   maximumFractionDigits: 0
-    - In Flight:
+      - Memory:
+          id: memory
+          icon: mdi-memory
+          description: Limits, OOM kills, node headroom
+          app: prometheus
+          href: https://grafana.internal.starktastic.net
+          namespace: monitoring
+          widget:
+            type: prometheusmetric
+            url: http://kube-prometheus-stack-prometheus.monitoring:9090
+            refreshInterval: 60000
+            metrics:
+            - label: Near Limit
+              query: count(ALERTS{alertname="ContainerMemoryNearLimit",alertstate="firing"}) or vector(0)
+            - label: OOM Killed
+              query: count(ALERTS{alertname="ContainerOOMKilled",alertstate="firing"}) or vector(0)
+            - label: Top Container
+              query: max(max by (namespace, pod, container) (container_memory_working_set_bytes{container!=""}) / on (namespace, pod, container) max by (namespace, pod, container) (kube_pod_container_resource_limits{resource="memory"}))
+              format:
+                type: percent
+                scale: 100
+                options:
+                  maximumFractionDigits: 0
+            - label: Node Free
+              query: min(node_memory_MemAvailable_bytes)
+              format:
+                type: bytes
+            highlight:
+              Near Limit:
+                numeric:
+                - level: warn
+                  when: gt
+                  value: 0
+              OOM Killed:
+                numeric:
+                - level: danger
+                  when: gt
+                  value: 0
+              Top Container:
+                numeric:
+                - level: warn
+                  when: gte
+                  value: 90
+      - Capacity:
+          id: capacity
+          icon: mdi-harddisk
+          description: CSI slots, fullest volume, TSDB
+          app: prometheus
+          href: https://grafana.internal.starktastic.net
+          namespace: monitoring
+          widget:
+            type: prometheusmetric
+            url: http://kube-prometheus-stack-prometheus.monitoring:9090
+            refreshInterval: 300000
+            metrics:
+            - label: CSI Slots Free
+              query: sum(clamp_min(homelab:proxmox_csi_slots_free:count, 0))
+            - label: Tightest Worker
+              query: min(homelab:proxmox_csi_slots_free:count)
+            - label: Fullest Volume
+              query: max(kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes)
+              format:
+                type: percent
+                scale: 100
+                options:
+                  maximumFractionDigits: 0
+            - label: TSDB Use
+              query: (sum(prometheus_tsdb_storage_blocks_bytes) + sum(prometheus_tsdb_wal_storage_size_bytes) + sum(prometheus_tsdb_head_chunks_storage_size_bytes)) / sum(prometheus_tsdb_retention_limit_bytes)
+              format:
+                type: percent
+                scale: 100
+                options:
+                  maximumFractionDigits: 0
+            highlight:
+              CSI Slots Free:
+                numeric:
+                - level: danger
+                  when: eq
+                  value: 0
+                - level: warn
+                  when: lt
+                  value: 10
+              Tightest Worker:
+                numeric:
+                - level: warn
+                  when: lte
+                  value: 3
+              Fullest Volume:
+                numeric:
+                - level: danger
+                  when: gte
+                  value: 95
+                - level: warn
+                  when: gte
+                  value: 90
+      - Backups:
+          id: backups
+          icon: mdi-backup-restore
+          description: Database and certificate dumps
+          app: prometheus
+          href: https://grafana.internal.starktastic.net
+          namespace: monitoring
+          widget:
+            type: prometheusmetric
+            url: http://kube-prometheus-stack-prometheus.monitoring:9090
+            refreshInterval: 300000
+            metrics:
+            - label: Postgres Dump
+              query: (time() - max(kube_cronjob_status_last_successful_time{namespace="databases",cronjob="pg-backup"})) / 3600
+              format:
+                type: number
+                suffix: ' h'
+                options:
+                  maximumFractionDigits: 1
+            - label: Cert Backup
+              query: (time() - max(kube_cronjob_status_last_successful_time{namespace="cert-backup",cronjob="cert-backup"})) / 3600
+              format:
+                type: number
+                suffix: ' h'
+                options:
+                  maximumFractionDigits: 1
+            - label: Stale Jobs
+              query: count(ALERTS{alertname="CronJobNotSucceededRecently",alertstate="firing"}) or vector(0)
+            highlight:
+              Postgres Dump:
+                numeric:
+                - level: warn
+                  when: gt
+                  value: 26
+              Cert Backup:
+                numeric:
+                - level: warn
+                  when: gt
+                  value: 26
+              Stale Jobs:
+                numeric:
+                - level: warn
+                  when: gt
+                  value: 0
+    - Now Playing:
       - Streaming Now:
           id: streaming-now
           icon: jellyfin.png
@@ -808,73 +1463,28 @@ data:
             enableNowPlaying: true
             enableUser: true
             showEpisodeNumber: true
-      - Downloads:
-          id: downloads
-          icon: qbittorrent.png
-          description: Active transfers
-          href: https://qbittorrent.internal.starktastic.net
-          siteMonitor: http://qbittorrent-main.media:8080
-          namespace: media
-          app: qbittorrent
+      - Listening Now:
+          id: listening-now
+          icon: navidrome.png
+          href: https://music.benplus.app
+          description: Who is listening to what
           widget:
-            type: qbittorrent
-            url: http://qbittorrent-main.media:8080
-      - Downloads RU:
-          id: downloads-ru
-          icon: qbittorrent.png
-          description: Active transfers — Russian trackers
-          href: https://qbittorrent-ru.internal.starktastic.net
-          siteMonitor: http://qbittorrent-ru-main.media:8080
-          namespace: media
-          app: qbittorrent-ru
-          widget:
-            type: qbittorrent
-            url: http://qbittorrent-ru-main.media:8080
-      - Deployments:
-          id: deployments
-          icon: argo-cd.png
-          href: https://argocd.internal.starktastic.net
-          description: Sync and health of every app
-          siteMonitor: https://argocd-server.argocd.svc.cluster.local:443
-          namespace: argocd
-          app: argocd-server
-          widget:
-            type: prometheusmetric
-            url: http://kube-prometheus-stack-prometheus.monitoring:9090
-            refreshInterval: 30000
-            metrics:
-            - label: Apps
-              query: count(argocd_app_info)
-            - label: Synced
-              query: (count(argocd_app_info{sync_status="Synced"}) or vector(0)) and count(argocd_app_info)
-            - label: OutOfSync
-              query: (count(argocd_app_info{sync_status="OutOfSync"}) or vector(0)) and count(argocd_app_info)
-            - label: Unhealthy
-              query: (count(argocd_app_info{health_status!~"Healthy|Progressing"}) or vector(0)) and count(argocd_app_info)
-      - Latest Alert:
-          id: latest-alert
-          icon: ntfy.png
-          description: Most recent notification
-          href: https://ntfy.starktastic.net
-          siteMonitor: http://ntfy.operations:80
-          namespace: operations
-          app: ntfy
-          widget:
-            type: ntfy
-            url: http://ntfy.operations:80
-            topic: alerts
-            key: '{{ "{{" }}HOMEPAGE_VAR_NTFY_TOKEN{{ "}}" }}'
+            type: navidrome
+            url: http://navidrome.media:4533
+            user: '{{ "{{" }}HOMEPAGE_VAR_NAVIDROME_USER{{ "}}" }}'
+            token: '{{ "{{" }}HOMEPAGE_VAR_NAVIDROME_TOKEN{{ "}}" }}'
+            salt: '{{ "{{" }}HOMEPAGE_VAR_NAVIDROME_SALT{{ "}}" }}'
     - Coming Up:
       - Calendar:
           id: calendar
           icon: mdi-calendar-star
-          description: TV blue · Movies red · Music green · RU lighter
+          description: TV blue and cyan · Movies fuchsia and purple · Music teal
           widget:
             type: calendar
-            view: monthly
-            maxEvents: 15
+            view: agenda
+            maxEvents: 14
+            previousDays: 0
             showTime: true
-            firstDayInWeek: sunday
             integrations:
             - type: sonarr
               service_group: Acquire
@@ -883,35 +1493,38 @@ data:
             - type: sonarr
               service_group: Acquire
               service_name: Sonarr RU
-              color: sky
+              color: cyan
             - type: radarr
               service_group: Acquire
               service_name: Radarr
-              color: red
+              color: fuchsia
             - type: radarr
               service_group: Acquire
               service_name: Radarr RU
-              color: rose
+              color: purple
             - type: lidarr
               service_group: Acquire
               service_name: Lidarr
-              color: green
-      - Recipe Box:
-          id: recipe-box
-          icon: mealie.png
-          description: Recipe library
-          href: https://mealie.starktastic.net
-          siteMonitor: http://mealie.operations:9000
-          namespace: operations
-          app: mealie
-          widget:
-            type: mealie
-            url: http://mealie.operations:9000
-            key: '{{ "{{" }}HOMEPAGE_VAR_MEALIE_KEY{{ "}}" }}'
-            version: 2
+              color: teal
     - Out There:
-      - News:
-          id: news
+      - Markets:
+          id: markets
+          icon: mdi-chart-line
+          description: Watchlist and US market status
+          widget:
+            type: stocks
+            provider: finnhub
+            showUSMarketStatus: true
+            watchlist:
+            - NVDA
+            - AMD
+            - INTC
+            - MSFT
+            - GOOGL
+            - AAPL
+            - TSM
+      - Hacker News:
+          id: hacker-news
           icon: mdi-newspaper-variant
           href: https://news.ycombinator.com
           description: Hacker News front page
@@ -967,12 +1580,6 @@ data:
           siteMonitor: http://navidrome.media:4533
           namespace: media
           app: navidrome
-          widget:
-            type: navidrome
-            url: http://navidrome.media:4533
-            user: '{{ "{{" }}HOMEPAGE_VAR_NAVIDROME_USER{{ "}}" }}'
-            token: '{{ "{{" }}HOMEPAGE_VAR_NAVIDROME_TOKEN{{ "}}" }}'
-            salt: '{{ "{{" }}HOMEPAGE_VAR_NAVIDROME_SALT{{ "}}" }}'
       - Audiobookshelf:
           id: audiobookshelf
           icon: audiobookshelf.png
@@ -999,7 +1606,15 @@ data:
             url: http://calibre-web.media:8083
             username: '{{ "{{" }}HOMEPAGE_VAR_CALIBRE_USER{{ "}}" }}'
             password: '{{ "{{" }}HOMEPAGE_VAR_CALIBRE_PASS{{ "}}" }}'
-    - Look Back:
+      - Shelfmark:
+          id: shelfmark
+          icon: mdi-bookshelf
+          description: Request books
+          href: https://request-books.benplus.app
+          siteMonitor: http://shelfmark.media:8084
+          namespace: media
+          app: shelfmark
+    - Photos:
       - Immich:
           id: immich
           icon: immich.png
@@ -1013,7 +1628,7 @@ data:
             url: http://immich-main.media:2283
             key: '{{ "{{" }}HOMEPAGE_VAR_IMMICH_KEY{{ "}}" }}'
             version: 2
-    - Ask For It:
+    - Requests:
       - Seerr:
           id: seerr
           icon: overseerr.png
@@ -1038,210 +1653,7 @@ data:
             type: seerr
             url: http://seerr-ru.media:5055
             key: '{{ "{{" }}HOMEPAGE_VAR_SEERR_RU_KEY{{ "}}" }}'
-      - Shelfmark:
-          id: shelfmark
-          icon: mdi-bookshelf
-          description: Request books
-          href: https://request-books.benplus.app
-          siteMonitor: http://shelfmark.media:8084
-          namespace: media
-          app: shelfmark
-    - Create:
-      - Excalidash:
-          id: excalidash
-          icon: excalidraw.png
-          description: Whiteboard & diagrams
-          href: https://excalidash.starktastic.net
-          siteMonitor: http://excalidash.operations:80
-          namespace: operations
-          app: excalidash
-      - ByteStash:
-          id: bytestash
-          icon: bytestash.png
-          description: Code snippets
-          href: https://bytestash.internal.starktastic.net
-          siteMonitor: http://bytestash.operations:5000
-          namespace: operations
-          app: bytestash
-      - MicroBin:
-          id: microbin
-          icon: microbin.png
-          href: https://microbin.starktastic.net
-          description: Paste & share
-          siteMonitor: http://microbin.operations:8080
-          namespace: operations
-          app: microbin
-    - Convert:
-      - ConvertX:
-          id: convertx
-          icon: convertx.png
-          description: File format converter
-          href: https://convertx.starktastic.net
-          siteMonitor: http://convertx.operations:3000
-          namespace: operations
-          app: convertx
-      - Stirling PDF:
-          id: stirling-pdf
-          icon: stirling-pdf.png
-          description: PDF toolbox
-          href: https://pdf.starktastic.net
-          siteMonitor: http://stirling-pdf.operations:8080
-          namespace: operations
-          app: stirling-pdf
-      - CyberChef:
-          id: cyberchef
-          icon: cyberchef.png
-          description: Encode, decode, analyse
-          href: https://cyberchef.starktastic.net
-          siteMonitor: http://cyberchef.operations:8000
-          namespace: operations
-          app: cyberchef
-      - MeTube:
-          id: metube
-          icon: metube.png
-          description: Download video & audio
-          href: https://metube.benplus.app
-          siteMonitor: http://metube.media:8081
-          namespace: media
-          app: metube
-    - Find:
-      - SearXNG:
-          id: searxng
-          icon: searxng.png
-          description: Private metasearch
-          href: https://search.starktastic.net
-          siteMonitor: http://searxng.operations:8080
-          namespace: operations
-          app: searxng
-      - Karakeep:
-          id: karakeep
-          icon: karakeep.png
-          description: Bookmarks & read-later
-          href: https://karakeep.starktastic.net
-          siteMonitor: http://karakeep.operations:3000
-          namespace: operations
-          app: karakeep
-          widget:
-            type: karakeep
-            url: http://karakeep.operations:3000
-            key: '{{ "{{" }}HOMEPAGE_VAR_KARAKEEP_KEY{{ "}}" }}'
-      - Changedetection:
-          id: changedetection
-          icon: changedetection.png
-          description: Watch pages for changes
-          href: https://changedetection.internal.starktastic.net
-          siteMonitor: http://changedetection.operations:5000
-          namespace: operations
-          app: changedetection
-          widget:
-            type: changedetectionio
-            url: http://changedetection.operations:5000
-            key: '{{ "{{" }}HOMEPAGE_VAR_CHANGEDETECTION_KEY{{ "}}" }}'
-    - Organise:
-      - Paperless-ngx:
-          id: paperless-ngx
-          icon: paperless-ngx.png
-          description: Scanned documents
-          href: https://paperless.internal.starktastic.net
-          siteMonitor: http://paperless-ngx.operations:8000
-          namespace: operations
-          app: paperless-ngx
-          widget:
-            type: paperlessngx
-            url: http://paperless-ngx.operations:8000
-            key: '{{ "{{" }}HOMEPAGE_VAR_PAPERLESS_KEY{{ "}}" }}'
-      - Filebrowser:
-          id: filebrowser
-          icon: filebrowser.png
-          description: Web file manager
-          href: https://files.internal.starktastic.net
-          siteMonitor: http://filebrowser.operations:80
-          namespace: operations
-          app: filebrowser
-      - Mealie:
-          id: mealie
-          icon: mealie.png
-          description: Recipes & shopping lists
-          href: https://mealie.starktastic.net
-          siteMonitor: http://mealie.operations:9000
-          namespace: operations
-          app: mealie
-    - Send:
-      - PairDrop:
-          id: pairdrop
-          icon: pairdrop.png
-          description: Device-to-device transfer
-          href: https://pairdrop.starktastic.net
-          siteMonitor: http://pairdrop.operations:3000
-          namespace: operations
-          app: pairdrop
-      - ntfy:
-          id: ntfy
-          icon: ntfy.png
-          description: Push notifications
-          href: https://ntfy.starktastic.net
-          siteMonitor: http://ntfy.operations:80
-          namespace: operations
-          app: ntfy
-      - Listmonk:
-          id: listmonk
-          icon: listmonk.png
-          description: Newsletters & mailing lists
-          href: https://listmonk.starktastic.net
-          siteMonitor: http://listmonk.operations:9000
-          namespace: operations
-          app: listmonk
     - Acquire:
-      - Radarr:
-          id: radarr
-          icon: radarr.png
-          description: Movies
-          href: https://radarr.internal.starktastic.net
-          siteMonitor: http://radarr.media:7878/ping
-          namespace: media
-          app: radarr
-          widget:
-            type: radarr
-            url: http://radarr.media:7878
-            key: '{{ "{{" }}HOMEPAGE_VAR_RADARR_KEY{{ "}}" }}'
-            enableQueue: true
-            highlight:
-              queued:
-                numeric:
-                - level: danger
-                  when: gte
-                  value: 50
-                - level: warn
-                  when: gte
-                  value: 20
-                - level: good
-                  when: eq
-                  value: 0
-      - Radarr RU:
-          id: radarr-ru
-          icon: radarr.png
-          description: Movies — Russian trackers
-          href: https://radarr-ru.internal.starktastic.net
-          siteMonitor: http://radarr-ru.media:7878/ping
-          namespace: media
-          app: radarr-ru
-          widget:
-            type: radarr
-            url: http://radarr-ru.media:7878
-            key: '{{ "{{" }}HOMEPAGE_VAR_RADARR_RU_KEY{{ "}}" }}'
-            enableQueue: true
-            highlight:
-              queued:
-                numeric:
-                - level: danger
-                  when: gte
-                  value: 50
-                - level: warn
-                  when: gte
-                  value: 20
-                - level: good
-                  when: eq
-                  value: 0
       - Sonarr:
           id: sonarr
           icon: sonarr.png
@@ -1292,6 +1704,56 @@ data:
                 - level: good
                   when: eq
                   value: 0
+      - Radarr:
+          id: radarr
+          icon: radarr.png
+          description: Movies
+          href: https://radarr.internal.starktastic.net
+          siteMonitor: http://radarr.media:7878/ping
+          namespace: media
+          app: radarr
+          widget:
+            type: radarr
+            url: http://radarr.media:7878
+            key: '{{ "{{" }}HOMEPAGE_VAR_RADARR_KEY{{ "}}" }}'
+            enableQueue: true
+            highlight:
+              queued:
+                numeric:
+                - level: danger
+                  when: gte
+                  value: 50
+                - level: warn
+                  when: gte
+                  value: 20
+                - level: good
+                  when: eq
+                  value: 0
+      - Radarr RU:
+          id: radarr-ru
+          icon: radarr.png
+          description: Movies — Russian trackers
+          href: https://radarr-ru.internal.starktastic.net
+          siteMonitor: http://radarr-ru.media:7878/ping
+          namespace: media
+          app: radarr-ru
+          widget:
+            type: radarr
+            url: http://radarr-ru.media:7878
+            key: '{{ "{{" }}HOMEPAGE_VAR_RADARR_RU_KEY{{ "}}" }}'
+            enableQueue: true
+            highlight:
+              queued:
+                numeric:
+                - level: danger
+                  when: gte
+                  value: 50
+                - level: warn
+                  when: gte
+                  value: 20
+                - level: good
+                  when: eq
+                  value: 0
       - Lidarr:
           id: lidarr
           icon: lidarr.png
@@ -1304,6 +1766,7 @@ data:
             type: lidarr
             url: http://lidarr.media:8686
             key: '{{ "{{" }}HOMEPAGE_VAR_LIDARR_KEY{{ "}}" }}'
+    - Index:
       - Prowlarr:
           id: prowlarr
           icon: prowlarr.png
@@ -1328,14 +1791,7 @@ data:
             type: autobrr
             url: http://autobrr.media:7474
             key: '{{ "{{" }}HOMEPAGE_VAR_AUTOBRR_KEY{{ "}}" }}'
-      - Cleanuparr:
-          id: cleanuparr
-          icon: cleanuparr.png
-          description: Stuck queue cleanup
-          href: https://cleanuparr.internal.starktastic.net
-          siteMonitor: http://cleanuparr.media:11011/health
-          namespace: media
-          app: cleanuparr
+    - Download:
       - qBittorrent:
           id: qbittorrent
           icon: qbittorrent.png
@@ -1344,6 +1800,9 @@ data:
           siteMonitor: http://qbittorrent-main.media:8080
           namespace: media
           app: qbittorrent
+          widget:
+            type: qbittorrent
+            url: http://qbittorrent-main.media:8080
       - qBittorrent RU:
           id: qbittorrent-ru
           icon: qbittorrent.png
@@ -1352,7 +1811,18 @@ data:
           siteMonitor: http://qbittorrent-ru-main.media:8080
           namespace: media
           app: qbittorrent-ru
-    - Refine:
+          widget:
+            type: qbittorrent
+            url: http://qbittorrent-ru-main.media:8080
+      - Cleanuparr:
+          id: cleanuparr
+          icon: cleanuparr.png
+          description: Stuck queue cleanup
+          href: https://cleanuparr.internal.starktastic.net
+          siteMonitor: http://cleanuparr.media:11011/health
+          namespace: media
+          app: cleanuparr
+    - Subtitles:
       - Bazarr:
           id: bazarr
           icon: bazarr.png
@@ -1373,6 +1843,156 @@ data:
           siteMonitor: http://lingarr.media:8080
           namespace: media
           app: lingarr
+    - Create:
+      - Excalidash:
+          id: excalidash
+          icon: excalidraw.png
+          description: Whiteboard & diagrams
+          href: https://excalidash.starktastic.net
+          siteMonitor: http://excalidash.operations:80
+          namespace: operations
+          app: excalidash
+      - MicroBin:
+          id: microbin
+          icon: microbin.png
+          href: https://microbin.starktastic.net
+          description: Paste & share
+          siteMonitor: http://microbin.operations:8080
+          namespace: operations
+          app: microbin
+      - ByteStash:
+          id: bytestash
+          icon: bytestash.png
+          description: Code snippets
+          href: https://bytestash.internal.starktastic.net
+          siteMonitor: http://bytestash.operations:5000
+          namespace: operations
+          app: bytestash
+    - Convert:
+      - ConvertX:
+          id: convertx
+          icon: convertx.png
+          description: File format converter
+          href: https://convertx.starktastic.net
+          siteMonitor: http://convertx.operations:3000
+          namespace: operations
+          app: convertx
+      - Stirling PDF:
+          id: stirling-pdf
+          icon: stirling-pdf.png
+          description: PDF toolbox
+          href: https://pdf.starktastic.net
+          siteMonitor: http://stirling-pdf.operations:8080
+          namespace: operations
+          app: stirling-pdf
+      - MeTube:
+          id: metube
+          icon: metube.png
+          description: Download video & audio
+          href: https://metube.benplus.app
+          siteMonitor: http://metube.media:8081
+          namespace: media
+          app: metube
+      - CyberChef:
+          id: cyberchef
+          icon: cyberchef.png
+          description: Encode, decode, analyse
+          href: https://cyberchef.starktastic.net
+          siteMonitor: http://cyberchef.operations:8000
+          namespace: operations
+          app: cyberchef
+    - Find & Keep:
+      - SearXNG:
+          id: searxng
+          icon: searxng.png
+          description: Private metasearch
+          href: https://search.starktastic.net
+          siteMonitor: http://searxng.operations:8080
+          namespace: operations
+          app: searxng
+      - Karakeep:
+          id: karakeep
+          icon: karakeep.png
+          description: Bookmarks & read-later
+          href: https://karakeep.starktastic.net
+          siteMonitor: http://karakeep.operations:3000
+          namespace: operations
+          app: karakeep
+          widget:
+            type: karakeep
+            url: http://karakeep.operations:3000
+            key: '{{ "{{" }}HOMEPAGE_VAR_KARAKEEP_KEY{{ "}}" }}'
+      - Mealie:
+          id: mealie
+          icon: mealie.png
+          description: Recipes & shopping lists
+          href: https://mealie.starktastic.net
+          siteMonitor: http://mealie.operations:9000
+          namespace: operations
+          app: mealie
+          widget:
+            type: mealie
+            url: http://mealie.operations:9000
+            key: '{{ "{{" }}HOMEPAGE_VAR_MEALIE_KEY{{ "}}" }}'
+            version: 2
+      - Changedetection:
+          id: changedetection
+          icon: changedetection.png
+          description: Watch pages for changes
+          href: https://changedetection.internal.starktastic.net
+          siteMonitor: http://changedetection.operations:5000
+          namespace: operations
+          app: changedetection
+          widget:
+            type: changedetectionio
+            url: http://changedetection.operations:5000
+            key: '{{ "{{" }}HOMEPAGE_VAR_CHANGEDETECTION_KEY{{ "}}" }}'
+    - Documents:
+      - Paperless-ngx:
+          id: paperless-ngx
+          icon: paperless-ngx.png
+          description: Scanned documents
+          href: https://paperless.internal.starktastic.net
+          siteMonitor: http://paperless-ngx.operations:8000
+          namespace: operations
+          app: paperless-ngx
+          widget:
+            type: paperlessngx
+            url: http://paperless-ngx.operations:8000
+            key: '{{ "{{" }}HOMEPAGE_VAR_PAPERLESS_KEY{{ "}}" }}'
+      - Filebrowser:
+          id: filebrowser
+          icon: filebrowser.png
+          description: Web file manager
+          href: https://files.internal.starktastic.net
+          siteMonitor: http://filebrowser.operations:80
+          namespace: operations
+          app: filebrowser
+    - Send:
+      - PairDrop:
+          id: pairdrop
+          icon: pairdrop.png
+          description: Device-to-device transfer
+          href: https://pairdrop.starktastic.net
+          siteMonitor: http://pairdrop.operations:3000
+          namespace: operations
+          app: pairdrop
+      - ntfy:
+          id: ntfy
+          icon: ntfy.png
+          description: Push notifications
+          href: https://ntfy.starktastic.net
+          siteMonitor: http://ntfy.operations:80
+          namespace: operations
+          app: ntfy
+      - Listmonk:
+          id: listmonk
+          icon: listmonk.png
+          description: Newsletters & mailing lists
+          href: https://listmonk.starktastic.net
+          siteMonitor: http://listmonk.operations:9000
+          namespace: operations
+          app: listmonk
     - Home:
       - Home Assistant:
           id: home-assistant
@@ -1394,33 +2014,163 @@ data:
           siteMonitor: http://zigbee2mqtt.home-automation:8080
           namespace: home-automation
           app: zigbee2mqtt
-    - Observe:
-      - Grafana:
-          id: grafana
-          icon: grafana.png
-          description: Dashboards & alerting
-          app: grafana
-          href: https://grafana.internal.starktastic.net
-          siteMonitor: http://kube-prometheus-stack-grafana.monitoring:80/api/health
-          namespace: monitoring
+    - Ship:
+      - Argo CD:
+          id: argo-cd
+          icon: argo-cd.png
+          href: https://argocd.internal.starktastic.net
+          description: GitOps controller
+          siteMonitor: https://argocd-server.argocd.svc.cluster.local:443
+          namespace: argocd
+          app: argocd-server
           widget:
-            type: grafana
-            alerts: alertmanager
-            url: http://kube-prometheus-stack-grafana.monitoring:80
-            username: '{{ "{{" }}HOMEPAGE_VAR_GRAFANA_USER{{ "}}" }}'
-            password: '{{ "{{" }}HOMEPAGE_VAR_GRAFANA_PASS{{ "}}" }}'
-            version: 2
-      - Prometheus:
-          id: prometheus
-          icon: prometheus.png
-          href: https://grafana.internal.starktastic.net/explore
-          description: Metrics store
-          siteMonitor: http://kube-prometheus-stack-prometheus.monitoring:9090/-/healthy
-          app: prometheus
-          namespace: monitoring
-          widget:
-            type: prometheus
+            type: prometheusmetric
             url: http://kube-prometheus-stack-prometheus.monitoring:9090
+            refreshInterval: 30000
+            metrics:
+            - label: Apps
+              query: count(argocd_app_info)
+            - label: Synced
+              query: (count(argocd_app_info{sync_status="Synced"}) or vector(0)) and count(argocd_app_info)
+            - label: OutOfSync
+              query: (count(argocd_app_info{sync_status="OutOfSync"}) or vector(0)) and count(argocd_app_info)
+            - label: Unhealthy
+              query: (count(argocd_app_info{health_status!~"Healthy|Progressing"}) or vector(0)) and count(argocd_app_info)
+            highlight:
+              OutOfSync:
+                numeric:
+                - level: warn
+                  when: gt
+                  value: 0
+              Unhealthy:
+                numeric:
+                - level: danger
+                  when: gt
+                  value: 0
+      - Apps:
+          id: apps
+          icon: si-github
+          href: https://github.com/Starktastic-Homelab/apps/pulls
+          description: Cluster manifests — open PRs
+          widget:
+            type: customapi
+            url: https://api.github.com/repos/Starktastic-Homelab/apps/pulls?state=open&per_page=10
+            refreshInterval: 600000
+            display: dynamic-list
+            headers:
+              Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
+              X-GitHub-Api-Version: '2022-11-28'
+              User-Agent: Homepage-Dashboard
+            mappings:
+              name: title
+              label: user.login
+              limit: 5
+              target: https://github.com/Starktastic-Homelab/apps/pull/{number}
+      - Ansible:
+          id: ansible
+          icon: si-github
+          href: https://github.com/Starktastic-Homelab/ansible/pulls
+          description: Host playbooks — open PRs
+          widget:
+            type: customapi
+            url: https://api.github.com/repos/Starktastic-Homelab/ansible/pulls?state=open&per_page=10
+            refreshInterval: 600000
+            display: dynamic-list
+            headers:
+              Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
+              X-GitHub-Api-Version: '2022-11-28'
+              User-Agent: Homepage-Dashboard
+            mappings:
+              name: title
+              label: user.login
+              limit: 5
+              target: https://github.com/Starktastic-Homelab/ansible/pull/{number}
+      - Packer:
+          id: packer
+          icon: si-github
+          href: https://github.com/Starktastic-Homelab/packer/pulls
+          description: VM images — open PRs
+          widget:
+            type: customapi
+            url: https://api.github.com/repos/Starktastic-Homelab/packer/pulls?state=open&per_page=10
+            refreshInterval: 600000
+            display: dynamic-list
+            headers:
+              Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
+              X-GitHub-Api-Version: '2022-11-28'
+              User-Agent: Homepage-Dashboard
+            mappings:
+              name: title
+              label: user.login
+              limit: 5
+              target: https://github.com/Starktastic-Homelab/packer/pull/{number}
+      - Terraform:
+          id: terraform
+          icon: si-github
+          href: https://github.com/Starktastic-Homelab/terraform/pulls
+          description: Infrastructure — open PRs
+          widget:
+            type: customapi
+            url: https://api.github.com/repos/Starktastic-Homelab/terraform/pulls?state=open&per_page=10
+            refreshInterval: 600000
+            display: dynamic-list
+            headers:
+              Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
+              X-GitHub-Api-Version: '2022-11-28'
+              User-Agent: Homepage-Dashboard
+            mappings:
+              name: title
+              label: user.login
+              limit: 5
+              target: https://github.com/Starktastic-Homelab/terraform/pull/{number}
+    - Edge:
+      - Traefik:
+          id: traefik
+          icon: traefik.png
+          href: https://traefik.internal.starktastic.net
+          description: Ingress & reverse proxy
+          siteMonitor: http://traefik-api.traefik-system:8080/ping
+          namespace: traefik-system
+          app: traefik
+          widgets:
+          - type: traefik
+            url: http://traefik-api.traefik-system:8080
+          - type: prometheusmetric
+            url: http://kube-prometheus-stack-prometheus.monitoring:9090
+            refreshInterval: 30000
+            metrics:
+            - label: Cert Expiry
+              query: min(certmanager_certificate_expiration_timestamp_seconds{issuer_name="letsencrypt-prod"} > 0) - time()
+              format:
+                type: number
+                scale: 1/86400
+                suffix: ' days'
+                options:
+                  maximumFractionDigits: 0
+            - label: Requests
+              query: sum(rate(traefik_entrypoint_requests_total[5m]))
+              format:
+                type: number
+                suffix: ' req/s'
+                options:
+                  maximumFractionDigits: 1
+            - label: p95 Latency
+              query: histogram_quantile(0.95, sum by (le) (rate(traefik_entrypoint_request_duration_seconds_bucket[5m])))
+              format:
+                type: number
+                scale: 1000
+                suffix: ' ms'
+                options:
+                  maximumFractionDigits: 0
+            highlight:
+              Cert Expiry:
+                numeric:
+                - level: danger
+                  when: lt
+                  value: 3
+                - level: warn
+                  when: lt
+                  value: 10
     - Guard:
       - Authentik:
           id: authentik
@@ -1451,91 +2201,42 @@ data:
           siteMonitor: http://falco-falcosidekick-ui.falco:2802
           namespace: falco
           app: falco
-    - Ship:
-      - Argo CD:
-          id: argo-cd
-          icon: argo-cd.png
-          href: https://argocd.internal.starktastic.net
-          description: GitOps controller
-          siteMonitor: https://argocd-server.argocd.svc.cluster.local:443
-          namespace: argocd
-          app: argocd-server
-      - Apps:
-          id: apps
-          icon: github.png
-          href: https://github.com/Starktastic-Homelab/apps/pulls
-          description: Cluster manifests — open PRs
+    - Observe:
+      - Grafana:
+          id: grafana
+          icon: grafana.png
+          description: Dashboards & alerting
+          app: grafana
+          href: https://grafana.internal.starktastic.net
+          siteMonitor: http://kube-prometheus-stack-grafana.monitoring:80/api/health
+          namespace: monitoring
           widget:
-            type: customapi
-            url: https://api.github.com/repos/Starktastic-Homelab/apps/pulls?state=open&per_page=10
-            refreshInterval: 600000
-            display: dynamic-list
-            headers:
-              Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
-              X-GitHub-Api-Version: '2022-11-28'
-              User-Agent: Homepage-Dashboard
-            mappings:
-              name: title
-              label: user.login
-              limit: 5
-              target: https://github.com/Starktastic-Homelab/apps/pull/{number}
-      - Ansible:
-          id: ansible
-          icon: github.png
-          href: https://github.com/Starktastic-Homelab/ansible/pulls
-          description: Host playbooks — open PRs
+            type: grafana
+            alerts: alertmanager
+            url: http://kube-prometheus-stack-grafana.monitoring:80
+            username: '{{ "{{" }}HOMEPAGE_VAR_GRAFANA_USER{{ "}}" }}'
+            password: '{{ "{{" }}HOMEPAGE_VAR_GRAFANA_PASS{{ "}}" }}'
+            version: 2
+      - Prometheus:
+          id: prometheus
+          icon: prometheus.png
+          href: https://grafana.internal.starktastic.net/explore
+          description: Metrics store
+          siteMonitor: http://kube-prometheus-stack-prometheus.monitoring:9090/-/healthy
+          app: prometheus
+          namespace: monitoring
           widget:
-            type: customapi
-            url: https://api.github.com/repos/Starktastic-Homelab/ansible/pulls?state=open&per_page=10
-            refreshInterval: 600000
-            display: dynamic-list
-            headers:
-              Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
-              X-GitHub-Api-Version: '2022-11-28'
-              User-Agent: Homepage-Dashboard
-            mappings:
-              name: title
-              label: user.login
-              limit: 5
-              target: https://github.com/Starktastic-Homelab/ansible/pull/{number}
-      - Packer:
-          id: packer
-          icon: github.png
-          href: https://github.com/Starktastic-Homelab/packer/pulls
-          description: VM images — open PRs
-          widget:
-            type: customapi
-            url: https://api.github.com/repos/Starktastic-Homelab/packer/pulls?state=open&per_page=10
-            refreshInterval: 600000
-            display: dynamic-list
-            headers:
-              Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
-              X-GitHub-Api-Version: '2022-11-28'
-              User-Agent: Homepage-Dashboard
-            mappings:
-              name: title
-              label: user.login
-              limit: 5
-              target: https://github.com/Starktastic-Homelab/packer/pull/{number}
-      - Terraform:
-          id: terraform
-          icon: github.png
-          href: https://github.com/Starktastic-Homelab/terraform/pulls
-          description: Infrastructure — open PRs
-          widget:
-            type: customapi
-            url: https://api.github.com/repos/Starktastic-Homelab/terraform/pulls?state=open&per_page=10
-            refreshInterval: 600000
-            display: dynamic-list
-            headers:
-              Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
-              X-GitHub-Api-Version: '2022-11-28'
-              User-Agent: Homepage-Dashboard
-            mappings:
-              name: title
-              label: user.login
-              limit: 5
-              target: https://github.com/Starktastic-Homelab/terraform/pull/{number}
+            type: prometheus
+            url: http://kube-prometheus-stack-prometheus.monitoring:9090
+    - Core:
+      - pgAdmin:
+          id: pgadmin
+          icon: pgadmin.png
+          href: https://pgadmin.internal.starktastic.net
+          description: Database administration
+          siteMonitor: http://pgadmin-pgadmin4.databases:80
+          namespace: databases
+          app: pgadmin4
     - Compute:
       - Proxmox VE:
           id: proxmox-ve
@@ -1589,18 +2290,7 @@ data:
             url: http://10.9.9.1:3000
             username: '{{ "{{" }}HOMEPAGE_VAR_ADGUARD_USER{{ "}}" }}'
             password: '{{ "{{" }}HOMEPAGE_VAR_ADGUARD_PASS{{ "}}" }}'
-      - Traefik:
-          id: traefik
-          icon: traefik.png
-          href: https://traefik.internal.starktastic.net
-          description: Ingress & reverse proxy
-          siteMonitor: http://traefik-api.traefik-system:8080/ping
-          namespace: traefik-system
-          app: traefik
-          widget:
-            type: traefik
-            url: http://traefik-api.traefik-system:8080
-    - Store:
+    - Storage:
       - TrueNAS:
           id: truenas
           icon: truenas.png
@@ -1613,14 +2303,6 @@ data:
             version: 2
             key: '{{ "{{" }}HOMEPAGE_VAR_TRUENAS_KEY{{ "}}" }}'
             enablePools: true
-      - pgAdmin:
-          id: pgadmin
-          icon: pgadmin.png
-          href: https://pgadmin.internal.starktastic.net
-          description: Database administration
-          siteMonitor: http://pgadmin-pgadmin4.databases:80
-          namespace: databases
-          app: pgadmin4
   bookmarks.yaml: |
     - Code:
       - apps:

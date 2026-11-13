@@ -1,172 +1,38 @@
 {
- "min(probe_success{tier=\"external\"})": 1,
- "count(ALERTS{alertname=\"Watchdog\",alertstate=\"firing\"}) or vector(0)": 1,
- "sum(increase(alertmanager_notifications_total{integration=\"webhook\"}[24h]))": 23.6,
- "sum(increase(alertmanager_notifications_failed_total{integration=\"webhook\"}[24h])) or vector(0)": 0,
- "sum(alertmanager_silences{state=\"active\"}) or vector(0)": 2,
- "sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"})": 3,
- "sum(max by (namespace, pod) (kube_pod_status_phase{phase=~\"Pending|Failed|Unknown\"} or {__name__=~\"kube_pod_(init_)?container_status_waiting_reason\",reason=~\"CrashLoopBackOff|ImagePullBackOff|ErrImagePull|CreateContainerConfigError|CreateContainerError|InvalidImageName\"}))": 1,
- "floor(sum(increase(kube_pod_container_status_restarts_total[1h])))": 1,
- "max(probe_duration_seconds{probe_kind=\"https\"}) * 1000": 287.4,
- "min(probe_success{tier=\"alert-pipeline\"})": 1,
- "min(probe_success{tier=\"infra\"})": 1,
- "(sum(cs_active_decisions{action=\"ban\",origin=~\"crowdsec|cscli|cscli-import|console\"}) or vector(0)) and count(up{job=\"crowdsec-service\"} == 1)": 23,
- "floor(sum(increase((sum by (pod) (falcosecurity_falcosidekick_falco_events_total{priority_raw=~\"warning|error|critical|alert|emergency\"}) or 0 * sum by (pod) (up{job=\"falco-falcosidekick\"} == 1))[24h:5m]))) and count(up{job=\"falco-falcosidekick\"} == 1)": 14,
+ "(count(argocd_app_info{health_status!~\"Healthy|Progressing\"}) or vector(0)) and count(argocd_app_info)": 0,
+ "(count(argocd_app_info{sync_status=\"OutOfSync\"}) or vector(0)) and count(argocd_app_info)": 0,
+ "(count(argocd_app_info{sync_status=\"Synced\"}) or vector(0)) and count(argocd_app_info)": 150,
+ "(count(probe_success == 0) or vector(0)) and count(probe_success)": 0,
+ "(sum(cs_active_decisions) or vector(0)) and count(up{job=\"crowdsec-service\"} == 1)": 23,
  "(sum(increase(traefik_entrypoint_requests_total{code=~\"4..|5..\"}[1h])) or vector(0)) and count(traefik_entrypoint_requests_total)": 1184,
- "count(ALERTS{alertname=\"ContainerMemoryNearLimit\",alertstate=\"firing\"}) or vector(0)": 1,
- "count(ALERTS{alertname=\"ContainerOOMKilled\",alertstate=\"firing\"}) or vector(0)": 0,
- "max(max by (namespace, pod, container) (container_memory_working_set_bytes{container!=\"\"}) / max by (namespace, pod, container) (kube_pod_container_resource_limits{resource=\"memory\"}))": 0.864,
- "min(node_memory_MemAvailable_bytes)": 3650722202,
- "sum(homelab:proxmox_csi_slots_free:count)": 22,
- "min(homelab:proxmox_csi_slots_free:count)": 9,
- "max(kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes)": 0.921,
  "(sum(prometheus_tsdb_storage_blocks_bytes) + sum(prometheus_tsdb_wal_storage_size_bytes) + sum(prometheus_tsdb_head_chunks_storage_size_bytes)) / sum(prometheus_tsdb_retention_limit_bytes)": 0.623,
- "(time() - max(kube_cronjob_status_last_successful_time{namespace=\"databases\",cronjob=\"pg-backup\"})) / 3600": 7.8,
  "(time() - max(kube_cronjob_status_last_successful_time{namespace=\"cert-backup\",cronjob=\"cert-backup\"})) / 3600": 19.3,
- "count(ALERTS{alertname=\"CronJobNotSucceededRecently\",alertstate=\"firing\"}) or vector(0)": 0,
- "(count(kube_deployment_status_replicas_available{namespace=\"media\",deployment=~\"cross-seed|unpackerr|recyclarr|flaresolverr|qbit-manage|qbit-manage-ru|subgen|libretranslate\"} == 0) or vector(0)) and count(kube_deployment_status_replicas_available{namespace=\"media\",deployment=~\"cross-seed|unpackerr|recyclarr|flaresolverr|qbit-manage|qbit-manage-ru|subgen|libretranslate\"})": 0,
- "round(sum(increase(kube_pod_container_status_restarts_total{namespace=\"media\",pod=~\"(cross-seed|unpackerr|recyclarr|flaresolverr|qbit-manage|qbit-manage-ru|subgen|libretranslate)-.+\"}[24h])))": 2,
- "(sum(unpackerr_gauges{name=~\"waiting|queued|extracting\"}) or vector(0)) and count(unpackerr_gauges)": 2,
- "(sum(unpackerr_gauges{name=\"failed\"}) or vector(0)) and count(unpackerr_gauges)": 0,
- "avg_over_time(probe_success{service=\"home-assistant\"}[7d])": 0.99874,
- "sum(kube_deployment_status_replicas_available{namespace=\"home-automation\"})": 4,
- "sum(increase(kube_pod_container_status_restarts_total{namespace=\"home-automation\"}[24h]))": 0,
- "sum(container_memory_working_set_bytes{namespace=\"home-automation\",pod=~\"home-assistant.*\",container=\"main\"})": 742391808,
- "(count(max by (name) (argocd_app_info{sync_status=\"OutOfSync\"})) or vector(0)) and count(argocd_app_info)": 2,
- "(count(max by (name) (argocd_app_info{health_status!~\"Healthy|Progressing\"})) or vector(0)) and count(argocd_app_info)": 1,
- "(count(max by (name) (argocd_app_condition{condition=\"ComparisonError\"} or argocd_app_info{sync_status=\"Unknown\"})) or vector(0)) and count(argocd_app_info)": 0,
- "(sum(increase(argocd_app_sync_total{phase=~\"Error|Failed\"}[24h])) or vector(0)) and count(argocd_app_info)": 0,
- "label_join(max by (name, health_status, sync_status) (argocd_app_info{health_status!~\"Healthy|Progressing\"} or argocd_app_info{sync_status!=\"Synced\"}), \"state\", \" / \", \"health_status\", \"sync_status\")": [
-  {
-   "metric": {
-    "name": "seerr-ru",
-    "health_status": "Degraded",
-    "sync_status": "Synced",
-    "state": "Degraded / Synced"
-   },
-   "value": 1
-  },
-  {
-   "metric": {
-    "name": "homepage-admin",
-    "health_status": "Progressing",
-    "sync_status": "OutOfSync",
-    "state": "Progressing / OutOfSync"
-   },
-   "value": 1
-  },
-  {
-   "metric": {
-    "name": "kube-prometheus-stack",
-    "health_status": "Healthy",
-    "sync_status": "OutOfSync",
-    "state": "Healthy / OutOfSync"
-   },
-   "value": 1
-  }
- ],
- "sum(rate(traefik_entrypoint_requests_total{entrypoint=\"websecure\"}[5m]))": 14.2,
- "sum(rate(traefik_entrypoint_requests_total{entrypoint=\"websec-int\"}[5m]))": 6.7,
- "(sum(rate(traefik_entrypoint_requests_total{entrypoint=~\"websecure|websec-int\",code=~\"5..\"}[5m])) / (sum(rate(traefik_entrypoint_requests_total{entrypoint=~\"websecure|websec-int\"}[5m])) > 0)) or vector(0)": 0.0031,
- "sum(traefik_open_connections{entrypoint=~\"websecure|websec-int\"})": 186,
- "min(certmanager_certificate_not_after_timestamp_seconds{issuer_name=\"letsencrypt-prod\"} > 0) - time()": 3317760,
- "(count(certmanager_certificate_ready_status{condition!=\"True\"} == 1) or vector(0)) and count(certmanager_certificate_ready_status)": 0,
- "(count((certmanager_certificate_renewal_timestamp_seconds > 0) < time() - 3600) or vector(0)) and count(certmanager_certificate_renewal_timestamp_seconds)": 0,
- "min(certmanager_clusterissuer_ready_status{name=\"letsencrypt-prod\",condition=\"True\"})": 1,
- "(count(probe_success == 0) or vector(0)) and count(probe_success)": 1,
- "sum(probe_success{tier=\"external\"})": 3,
- "max(probe_duration_seconds{tier=\"ingress\"})": 0.643,
- "probe_success == 0": [
-  {
-   "metric": {
-    "__name__": "probe_success",
-    "instance": "https://request-ru.benplus.app",
-    "job": "blackbox",
-    "probe_kind": "https",
-    "tier": "ingress",
-    "service": "seerr-ru"
-   },
-   "value": 0
-  }
- ],
- "(sum(cs_active_decisions{origin=~\"CAPI|lists\"}) or vector(0)) and count(up{job=\"crowdsec-service\"} == 1)": 24817,
- "sum(rate(cs_lapi_bouncer_requests_total[5m])) * 60 or vector(0)": 12,
- "time() - max(cs_capi_last_pull_timestamp)": 5040,
- "floor(sum(increase((sum by (pod) (falcosecurity_falcosidekick_falco_events_total{priority_raw=~\"critical|alert|emergency\"}) or 0 * sum by (pod) (up{job=\"falco-falcosidekick\"} == 1))[24h:5m]))) and count(up{job=\"falco-falcosidekick\"} == 1)": 0,
- "sum(increase(falcosecurity_falcosidekick_outputs_total{status=\"error\"}[24h])) or vector(0)": 0,
- "sum(grafana_stat_totals_dashboard)": 47,
- "sum(grafana_stat_totals_datasource)": 4,
- "sum(grafana_stat_active_users)": 2,
- "count(up == 0) or vector(0)": 0,
- "sum(increase(prometheus_rule_evaluation_failures_total[1h])) or vector(0)": 0,
- "sum(prometheus_tsdb_head_series)": 412836,
- "sum(prometheus_tsdb_storage_blocks_bytes)": 27400000000,
- "sum(rate(loki_distributor_bytes_received_total[5m]))": 148300,
- "sum(increase(loki_write_dropped_entries_total[24h])) or vector(0)": 0,
- "sum(rate(tempo_distributor_spans_received_total[5m]))": 23.4,
- "sum(alloy_component_controller_running_components{health_type=~\"unhealthy|exited\"}) or vector(0)": 0,
- "(count(sealed_secrets_controller_condition_info{condition=\"Synced\"} == -1) or vector(0)) and count(sealed_secrets_controller_build_info)": 0,
- "(sum(increase(reloader_reload_executed_total{success=\"false\"}[24h])) or vector(0)) and count(reloader_reload_executed_total)": 0,
- "(count(max by (namespace, service) (kube_service_spec_type{type=\"LoadBalancer\"} == 1) unless on (namespace, service) kube_service_status_load_balancer_ingress) or vector(0)) and count(kube_service_spec_type)": 0,
- "count(kube_node_status_allocatable{resource=\"gpu_intel_com_i915\"} > 0) or vector(0)": 2,
- "min(pg_up)": 1,
- "sum(pg_stat_database_numbackends)": 46,
- "sum(pg_database_size_bytes)": 3862000000,
- "sum(redis_memory_used_bytes)": 41200000,
- "max(probe_duration_seconds{probe_kind=\"icmp\"}) * 1000": 11.6,
- "max(probe_duration_seconds{probe_kind=\"dns\"}) * 1000": 17.9,
- "avg_over_time(probe_success{probe_kind=\"https\"}[24h]) * 100": 99.97,
- "sum(clamp_min(homelab:proxmox_csi_slots_free:count, 0))": 22,
- "sum(max by (persistentvolume) (kube_persistentvolume_capacity_bytes) * on (persistentvolume) group_left () max by (persistentvolume) (kube_persistentvolume_info{storageclass=\"proxmox-retained\"}))": 158913789952,
- "max(max by (namespace, persistentvolumeclaim) (kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes) * on (namespace, persistentvolumeclaim) group_left () max by (namespace, persistentvolumeclaim) (kube_persistentvolumeclaim_info{storageclass=\"proxmox-retained\"}))": 0.921,
- "max(max by (namespace, persistentvolumeclaim) (kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes) * on (namespace, persistentvolumeclaim) group_left () max by (namespace, persistentvolumeclaim) (kube_persistentvolumeclaim_info{storageclass=\"nfs-pv\"}))": 0.731,
- "sort_desc(topk(5, max by (namespace, persistentvolumeclaim) (kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes) * on (namespace, persistentvolumeclaim) group_left () max by (namespace, persistentvolumeclaim) (kube_persistentvolumeclaim_info{storageclass=\"proxmox-retained\"})))": [
-  {
-   "metric": {
-    "namespace": "media",
-    "persistentvolumeclaim": "jellyfin-config"
-   },
-   "value": 0.921
-  },
-  {
-   "metric": {
-    "namespace": "databases",
-    "persistentvolumeclaim": "data-postgres-0"
-   },
-   "value": 0.781
-  },
-  {
-   "metric": {
-    "namespace": "media",
-    "persistentvolumeclaim": "sonarr-config"
-   },
-   "value": 0.642
-  },
-  {
-   "metric": {
-    "namespace": "monitoring",
-    "persistentvolumeclaim": "storage-loki-0"
-   },
-   "value": 0.588
-  },
-  {
-   "metric": {
-    "namespace": "immich",
-    "persistentvolumeclaim": "immich-ml-cache"
-   },
-   "value": 0.471
-  }
- ],
+ "(time() - max(kube_cronjob_status_last_successful_time{namespace=\"databases\",cronjob=\"pg-backup\"})) / 3600": 7.8,
  "1 - avg(rate(node_cpu_seconds_total{mode=\"idle\"}[5m]))": 0.216,
  "1 - sum(node_memory_MemAvailable_bytes) / sum(node_memory_MemTotal_bytes)": 0.633,
- "(sum(ALERTS{alertstate=\"firing\",alertname!~\"Watchdog|InfoInhibitor\"}) or vector(0)) and count(ALERTS{alertname=\"Watchdog\",alertstate=\"firing\"})": 4,
- "min(certmanager_certificate_expiration_timestamp_seconds{issuer_name=\"letsencrypt-prod\"} > 0) - time()": 4838400,
- "sum(rate(traefik_entrypoint_requests_total[5m]))": 3.42,
- "histogram_quantile(0.95, sum by (le) (rate(traefik_entrypoint_request_duration_seconds_bucket[5m])))": 0.184,
- "(sum(cs_active_decisions) or vector(0)) and count(up{job=\"crowdsec-service\"} == 1)": 23,
- "floor(sum(increase((sum by (pod) (falcosecurity_falcosidekick_falco_events_total) or 0 * sum by (pod) (up{job=\"falco-falcosidekick\"} == 1))[24h:1m]))) and count(up{job=\"falco-falcosidekick\"} == 1)": 148210,
+ "count(ALERTS{alertname=\"ContainerMemoryNearLimit\",alertstate=\"firing\"}) or vector(0)": 0,
+ "count(ALERTS{alertname=\"ContainerOOMKilled\",alertstate=\"firing\"}) or vector(0)": 0,
+ "count(ALERTS{alertname=\"CronJobNotSucceededRecently\",alertstate=\"firing\"}) or vector(0)": 0,
+ "count(ALERTS{alertname=\"Watchdog\",alertstate=\"firing\"}) or vector(0)": 1,
  "count(argocd_app_info)": 152,
- "(count(argocd_app_info{sync_status=\"Synced\"}) or vector(0)) and count(argocd_app_info)": 150,
- "(count(argocd_app_info{sync_status=\"OutOfSync\"}) or vector(0)) and count(argocd_app_info)": 2,
- "(count(argocd_app_info{health_status!~\"Healthy|Progressing\"}) or vector(0)) and count(argocd_app_info)": 1
+ "floor(sum(increase((sum by (pod) (falcosecurity_falcosidekick_falco_events_total) or 0 * sum by (pod) (up{job=\"falco-falcosidekick\"} == 1))[24h:1m]))) and count(up{job=\"falco-falcosidekick\"} == 1)": 148210,
+ "floor(sum(increase(kube_pod_container_status_restarts_total[1h])))": 1,
+ "histogram_quantile(0.95, sum by (le) (rate(traefik_entrypoint_request_duration_seconds_bucket[5m])))": 0.184,
+ "max(kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes)": 0.71,
+ "min(certmanager_certificate_expiration_timestamp_seconds{issuer_name=\"letsencrypt-prod\"} > 0) - time()": 4838400,
+ "min(homelab:proxmox_csi_slots_free:count)": 9,
+ "min(node_memory_MemAvailable_bytes)": 3650722202,
+ "min(probe_success{tier=\"alert-pipeline\"})": 1,
+ "min(probe_success{tier=\"external\"})": 1,
+ "sum(alertmanager_silences{state=\"active\"}) or vector(0)": 2,
+ "sum(clamp_min(homelab:proxmox_csi_slots_free:count, 0))": 22,
+ "sum(increase(alertmanager_notifications_failed_total{integration=\"webhook\"}[24h])) or vector(0)": 0,
+ "sum(increase(alertmanager_notifications_total{integration=\"webhook\"}[24h]))": 23.6,
+ "sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"})": 3,
+ "sum(max by (namespace, pod) (kube_pod_status_phase{phase=~\"Pending|Failed|Unknown\"} or {__name__=~\"kube_pod_(init_)?container_status_waiting_reason\",reason=~\"CrashLoopBackOff|ImagePullBackOff|ErrImagePull|CreateContainerConfigError|CreateContainerError|InvalidImageName\"}))": 0,
+ "sum(rate(traefik_entrypoint_requests_total[5m]))": 3.42,
+ "count(ALERTS{alertstate=\"firing\",severity=\"critical\"}) or vector(0)": 0,
+ "count(ALERTS{alertstate=\"firing\",alertname!~\"Watchdog|InfoInhibitor\"}) or vector(0)": 0,
+ "min(probe_success{tier=~\"gate|gate-negative\"})": 1,
+ "max(max by (namespace, pod, container) (container_memory_working_set_bytes{container!=\"\"}) / on (namespace, pod, container) max by (namespace, pod, container) (kube_pod_container_resource_limits{resource=\"memory\"}))": 0.64
 }

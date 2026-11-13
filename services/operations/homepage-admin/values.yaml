@@ -97,6 +97,34 @@ persistence:
       - path: /app/public/icons/favicon.svg
         subPath: favicon.svg
         readOnly: true
+      # The page design's images (ADR 0020). generate.py checks these mounts against the ConfigMap's keys.
+      - path: /app/public/images/aurora-live.svg
+        subPath: aurora-live.svg
+        readOnly: true
+      - path: /app/public/images/aurora-still.svg
+        subPath: aurora-still.svg
+        readOnly: true
+      - path: /app/public/images/glyph-iron.svg
+        subPath: glyph-iron.svg
+        readOnly: true
+      - path: /app/public/images/glyph-media.svg
+        subPath: glyph-media.svg
+        readOnly: true
+      - path: /app/public/images/glyph-pipeline.svg
+        subPath: glyph-pipeline.svg
+        readOnly: true
+      - path: /app/public/images/glyph-platform.svg
+        subPath: glyph-platform.svg
+        readOnly: true
+      - path: /app/public/images/glyph-pulse.svg
+        subPath: glyph-pulse.svg
+        readOnly: true
+      - path: /app/public/images/glyph-tools.svg
+        subPath: glyph-tools.svg
+        readOnly: true
+      - path: /app/public/images/grain.svg
+        subPath: grain.svg
+        readOnly: true
   logs:
     enabled: true
     type: emptyDir

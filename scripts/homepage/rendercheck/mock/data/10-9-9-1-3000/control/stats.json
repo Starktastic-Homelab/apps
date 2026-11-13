@@ -1,0 +1,11 @@
+{"time_units": "hours",
+ "num_dns_queries": 91284, "num_blocked_filtering": 13207, "num_replaced_safebrowsing": 4,
+ "num_replaced_safesearch": 61, "num_replaced_parental": 0, "avg_processing_time": 0.0213,
+ "dns_queries": [1840, 1322, 1105, 980, 912, 1033, 1987, 3412, 4508, 4890, 4612, 4498, 4705, 4388, 4521, 4793, 5012, 5320, 5611, 5880, 5402, 4766, 3871, 2916],
+ "blocked_filtering": [251, 188, 160, 141, 133, 150, 287, 495, 652, 707, 668, 650, 682, 634, 655, 694, 726, 771, 812, 851, 782, 690, 561, 422],
+ "replaced_safebrowsing": [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0],
+ "replaced_parental": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+ "top_queried_domains": [{"connectivitycheck.gstatic.com": 6120}, {"api.github.com": 4012}, {"benplus.app": 3388}],
+ "top_blocked_domains": [{"app-measurement.com": 2214}, {"browser.events.data.microsoft.com": 1530}, {"googleads.g.doubleclick.net": 988}],
+ "top_upstreams_responses": [{"https://dns.cloudflare.com:443/dns-query": 61203}, {"https://dns.quad9.net:443/dns-query": 16874}],
+ "top_upstreams_avg_time": [{"https://dns.cloudflare.com:443/dns-query": 0.0179}, {"https://dns.quad9.net:443/dns-query": 0.0244}]}

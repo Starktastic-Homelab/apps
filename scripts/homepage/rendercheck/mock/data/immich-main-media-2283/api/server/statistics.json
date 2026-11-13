@@ -1,0 +1,59 @@
+{
+ "photos": 84213,
+ "videos": 6128,
+ "usage": 1613700000000,
+ "usagePhotos": 1100000000000,
+ "usageVideos": 513700000000,
+ "usageByUser": [
+  {
+   "userId": "0b5c0000-7d1e-4a2f-9c3b-000000000000",
+   "userName": "Admin",
+   "photos": 31402,
+   "videos": 2215,
+   "usage": 612400000000,
+   "usagePhotos": 402100000000,
+   "usageVideos": 210300000000,
+   "quotaSizeInBytes": null
+  },
+  {
+   "userId": "0b5c0001-7d1e-4a2f-9c3b-000000000001",
+   "userName": "Alex",
+   "photos": 24118,
+   "videos": 1904,
+   "usage": 498700000000,
+   "usagePhotos": 331400000000,
+   "usageVideos": 167300000000,
+   "quotaSizeInBytes": null
+  },
+  {
+   "userId": "0b5c0002-7d1e-4a2f-9c3b-000000000002",
+   "userName": "Sam",
+   "photos": 16530,
+   "videos": 1277,
+   "usage": 301200000000,
+   "usagePhotos": 214800000000,
+   "usageVideos": 86400000000,
+   "quotaSizeInBytes": null
+  },
+  {
+   "userId": "0b5c0003-7d1e-4a2f-9c3b-000000000003",
+   "userName": "Jordan",
+   "photos": 9876,
+   "videos": 584,
+   "usage": 162900000000,
+   "usagePhotos": 121500000000,
+   "usageVideos": 41400000000,
+   "quotaSizeInBytes": null
+  },
+  {
+   "userId": "0b5c0004-7d1e-4a2f-9c3b-000000000004",
+   "userName": "Robin",
+   "photos": 2287,
+   "videos": 148,
+   "usage": 38500000000,
+   "usagePhotos": 30200000000,
+   "usageVideos": 8300000000,
+   "quotaSizeInBytes": null
+  }
+ ]
+}

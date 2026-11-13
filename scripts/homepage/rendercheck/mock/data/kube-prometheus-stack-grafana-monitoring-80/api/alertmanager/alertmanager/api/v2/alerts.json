@@ -1,0 +1,12 @@
+[
+  {
+    "labels": {
+      "alertname": "KubePodNotReady",
+      "severity": "warning"
+    },
+    "status": {
+      "state": "active"
+    },
+    "startsAt": "{{iso:-21m}}"
+  }
+]

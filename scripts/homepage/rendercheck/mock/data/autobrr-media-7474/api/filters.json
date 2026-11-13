@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "name": "filter-1",
+    "enabled": true
+  },
+  {
+    "id": 2,
+    "name": "filter-2",
+    "enabled": true
+  },
+  {
+    "id": 3,
+    "name": "filter-3",
+    "enabled": true
+  },
+  {
+    "id": 4,
+    "name": "filter-4",
+    "enabled": true
+  },
+  {
+    "id": 5,
+    "name": "filter-5",
+    "enabled": true
+  },
+  {
+    "id": 6,
+    "name": "filter-6",
+    "enabled": true
+  },
+  {
+    "id": 7,
+    "name": "filter-7",
+    "enabled": true
+  }
+]

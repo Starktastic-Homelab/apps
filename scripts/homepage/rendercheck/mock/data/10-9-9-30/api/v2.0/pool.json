@@ -1,0 +1,8 @@
+[
+  {"id": 1, "name": "apps", "guid": "11836149830139847201", "path": "/mnt/apps", "status": "ONLINE", "healthy": true, "warning": false,
+   "is_upgraded": true, "size": 996432412672, "allocated": 442381631488, "free": 554050781184},
+  {"id": 2, "name": "main", "guid": "4401928374651928374", "path": "/mnt/main", "status": "ONLINE", "healthy": true, "warning": false,
+   "is_upgraded": true, "size": 39582418599936, "allocated": 30887260487680, "free": 8695158112256},
+  {"id": 3, "name": "usbbk", "guid": "9028374651029384756", "path": "/mnt/usbbk", "status": "ONLINE", "healthy": true, "warning": false,
+   "is_upgraded": true, "size": 7975367671808, "allocated": 4288072052736, "free": 3687295619072}
+]

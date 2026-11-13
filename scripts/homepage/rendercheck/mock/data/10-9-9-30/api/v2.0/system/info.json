@@ -1,0 +1,5 @@
+{"version": "25.10.7", "buildtime": {"$date": 1789401600000}, "hostname": "truenas", "physmem": 33285996544,
+ "model": "QEMU Virtual CPU version 2.5+", "cores": 4, "physical_cores": 4, "loadavg": [0.62, 0.71, 0.68],
+ "uptime": "18 days, 4:39:00.120000", "uptime_seconds": 1571940.12, "system_serial": "", "system_product": "Standard PC (Q35 + ICH9, 2009)",
+ "system_product_version": "pc-q35-10.1", "license": null, "boottime": {"$date": {{epochms:-18.19d}}}, "datetime": {"$date": {{epochms}}},
+ "timezone": "UTC", "system_manufacturer": "QEMU", "ecc_memory": false}

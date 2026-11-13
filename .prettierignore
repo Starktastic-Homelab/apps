@@ -3,3 +3,6 @@
 # Go templating syntax (ArgoCD ApplicationSets, Helm templates)
 bootstrap/appsets/
 templates/
+
+# Mock upstream answers for the Homepage render check: some are templates, not valid JSON
+scripts/homepage/rendercheck/mock/

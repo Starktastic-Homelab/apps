@@ -1,0 +1,50 @@
+[
+ {
+  "name": "Слово пацана. Кровь на асфальте (2023) WEB-DL 1080p",
+  "progress": 0.623,
+  "dlspeed": 7235174,
+  "upspeed": 289406,
+  "size": 26843545600,
+  "total_size": 26843545600,
+  "amount_left": 10120016691,
+  "eta": 1398,
+  "state": "downloading",
+  "category": "sonarr-ru",
+  "num_seeds": 38,
+  "num_leechs": 6,
+  "ratio": 0.02,
+  "added_on": {{epoch:-3h}}
+ },
+ {
+  "name": "Мастер и Маргарита (2024) WEB-DL 2160p HDR",
+  "progress": 0.271,
+  "dlspeed": 4404019,
+  "upspeed": 176160,
+  "size": 32212254720,
+  "total_size": 32212254720,
+  "amount_left": 23482733690,
+  "eta": 5332,
+  "state": "downloading",
+  "category": "radarr-ru",
+  "num_seeds": 38,
+  "num_leechs": 6,
+  "ratio": 0.02,
+  "added_on": {{epoch:-3h}}
+ },
+ {
+  "name": "Чебурашка (2023) BDRip 1080p",
+  "progress": 0.884,
+  "dlspeed": 1572864,
+  "upspeed": 62914,
+  "size": 10737418240,
+  "total_size": 10737418240,
+  "amount_left": 1245540515,
+  "eta": 791,
+  "state": "downloading",
+  "category": "radarr-ru",
+  "num_seeds": 38,
+  "num_leechs": 6,
+  "ratio": 0.02,
+  "added_on": {{epoch:-3h}}
+ }
+]

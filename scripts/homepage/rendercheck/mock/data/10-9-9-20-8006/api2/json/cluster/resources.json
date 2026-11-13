@@ -1,0 +1,22 @@
+{"data": [
+  {"id": "node/pve", "type": "node", "node": "pve", "status": "online", "level": "", "cgroup-mode": 2,
+   "cpu": 0.231, "maxcpu": 20, "mem": 104213282816, "maxmem": 134850514944,
+   "disk": 38654705664, "maxdisk": 100861726720, "uptime": 1572480},
+  {"id": "qemu/100", "type": "qemu", "vmid": 100, "name": "truenas", "node": "pve", "status": "running", "template": 0,
+   "cpu": 0.042, "maxcpu": 4, "mem": 33285996544, "maxmem": 34359738368, "disk": 0, "maxdisk": 34359738368,
+   "netin": 9183920382711, "netout": 11290129847201, "diskread": 412839201024, "diskwrite": 98123874304, "uptime": 1571940, "tags": "storage"},
+  {"id": "qemu/200", "type": "qemu", "vmid": 200, "name": "kube-master-01", "node": "pve", "status": "running", "template": 0,
+   "cpu": 0.1204, "maxcpu": 4, "mem": 4681234432, "maxmem": 8589934592, "disk": 0, "maxdisk": 42949672960,
+   "netin": 3812938102, "netout": 4410293812, "diskread": 2190381056, "diskwrite": 9812374528, "uptime": 27660, "tags": "control-plane;k3s"},
+  {"id": "qemu/201", "type": "qemu", "vmid": 201, "name": "kube-worker-01", "node": "pve", "status": "running", "template": 0,
+   "cpu": 0.2713, "maxcpu": 8, "mem": 23085449216, "maxmem": 34359738368, "disk": 0, "maxdisk": 107374182400,
+   "netin": 48129381024, "netout": 61203948123, "diskread": 18203948032, "diskwrite": 30129384448, "uptime": 25320, "tags": "gpu;k3s;worker"},
+  {"id": "qemu/202", "type": "qemu", "vmid": 202, "name": "kube-worker-02", "node": "pve", "status": "running", "template": 0,
+   "cpu": 0.2087, "maxcpu": 8, "mem": 20078878720, "maxmem": 34359738368, "disk": 0, "maxdisk": 107374182400,
+   "netin": 39120394811, "netout": 52019384712, "diskread": 15039482880, "diskwrite": 26012938240, "uptime": 22980, "tags": "gpu;k3s;worker"},
+  {"id": "qemu/300", "type": "qemu", "vmid": 300, "name": "runner", "node": "pve", "status": "running", "template": 0,
+   "cpu": 0.031, "maxcpu": 4, "mem": 2576980378, "maxmem": 4294967296, "disk": 0, "maxdisk": 68719476736,
+   "netin": 20193847102, "netout": 3019283746, "diskread": 40192837632, "diskwrite": 61029384192, "uptime": 262800, "tags": "ci;runner"},
+  {"id": "qemu/900", "type": "qemu", "vmid": 900, "name": "debian-13-template", "node": "pve", "status": "stopped", "template": 1,
+   "cpu": 0, "maxcpu": 2, "mem": 0, "maxmem": 2147483648, "disk": 0, "maxdisk": 10737418240, "uptime": 0, "tags": "packer;template"}
+]}

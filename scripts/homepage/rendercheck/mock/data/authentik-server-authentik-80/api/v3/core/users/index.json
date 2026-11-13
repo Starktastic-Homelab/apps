@@ -1,0 +1,4 @@
+{"pagination": {"next": 2, "previous": 0, "count": 17, "current": 1, "total_pages": 17, "start_index": 1, "end_index": 1},
+ "results": [{"pk": 4, "username": "akadmin", "name": "authentik Default Admin", "is_active": true, "type": "internal",
+              "last_login": "{{iso:-3d}}", "groups": [], "attributes": {}}],
+ "autocomplete": {}}

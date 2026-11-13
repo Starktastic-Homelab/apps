@@ -1,0 +1,15 @@
+{"headers": [
+  "last pid: 81234;  load averages:  0.31,  0.27,  0.24  up 12+03:24:51    09:41:07",
+  "214 processes: 2 running, 211 sleeping, 1 waiting",
+  "CPU:  2.6% user,  0.0% nice,  1.4% system,  0.6% interrupt, 95.4% idle",
+  "Mem: 1188M Active, 2214M Inact, 1602M Wired, 56K Buf, 2876M Free",
+  "ARC: 812M Total, 241M MFU, 488M MRU, 1312K Anon, 9412K Header, 72M Other",
+  "     514M Compressed, 1301M Uncompressed, 2.53:1 Ratio",
+  "Swap: 8192M Total, 8192M Free",
+  ""
+ ],
+ "details": [
+  {"PID": "11", "USERNAME": "root", "THR": "4", "PRI": "155", "NICE": "ki31", "SIZE": "0B", "RES": "64K", "STATE": "CPU0", "C": "0", "TIME": "1144.2H", "WCPU": "95.41%", "COMMAND": "[idle]"},
+  {"PID": "5521", "USERNAME": "root", "THR": "9", "PRI": "20", "NICE": "0", "SIZE": "1310M", "RES": "212M", "STATE": "kqread", "C": "2", "TIME": "31:18", "WCPU": "1.61%", "COMMAND": "/usr/local/AdGuardHome/AdGuardHome"},
+  {"PID": "40211", "USERNAME": "root", "THR": "1", "PRI": "20", "NICE": "0", "SIZE": "61M", "RES": "33M", "STATE": "select", "C": "1", "TIME": "12:04", "WCPU": "0.42%", "COMMAND": "/usr/local/sbin/wireguard-go"}
+ ]}

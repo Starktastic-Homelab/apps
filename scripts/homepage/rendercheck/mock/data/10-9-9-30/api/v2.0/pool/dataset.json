@@ -1,0 +1,107 @@
+[
+ {
+  "id": "apps",
+  "type": "FILESYSTEM",
+  "name": "apps",
+  "pool": "apps",
+  "encrypted": false,
+  "mountpoint": "/mnt/apps",
+  "used": {
+   "parsed": 442381631488,
+   "rawvalue": "442381631488",
+   "value": "412G",
+   "source": "NONE"
+  },
+  "available": {
+   "parsed": 521838526464,
+   "rawvalue": "521838526464",
+   "value": "486G",
+   "source": "NONE"
+  },
+  "children": []
+ },
+ {
+  "id": "main",
+  "type": "FILESYSTEM",
+  "name": "main",
+  "pool": "main",
+  "encrypted": false,
+  "mountpoint": "/mnt/main",
+  "used": {
+   "parsed": 23529548834406,
+   "rawvalue": "23529548834406",
+   "value": "21.4T",
+   "source": "NONE"
+  },
+  "available": {
+   "parsed": 8686141859430,
+   "rawvalue": "8686141859430",
+   "value": "7.90T",
+   "source": "NONE"
+  },
+  "children": []
+ },
+ {
+  "id": "main/immich",
+  "type": "FILESYSTEM",
+  "name": "main/immich",
+  "pool": "main",
+  "encrypted": false,
+  "mountpoint": "/mnt/main/immich",
+  "used": {
+   "parsed": 2012106278830,
+   "rawvalue": "2012106278830",
+   "value": "1.83T",
+   "source": "NONE"
+  },
+  "available": {
+   "parsed": 8686141859430,
+   "rawvalue": "8686141859430",
+   "value": "7.90T",
+   "source": "NONE"
+  },
+  "children": []
+ },
+ {
+  "id": "main/media",
+  "type": "FILESYSTEM",
+  "name": "main/media",
+  "pool": "main",
+  "encrypted": false,
+  "mountpoint": "/mnt/main/media",
+  "used": {
+   "parsed": 19351404648858,
+   "rawvalue": "19351404648858",
+   "value": "17.6T",
+   "source": "NONE"
+  },
+  "available": {
+   "parsed": 8686141859430,
+   "rawvalue": "8686141859430",
+   "value": "7.90T",
+   "source": "NONE"
+  },
+  "children": []
+ },
+ {
+  "id": "usbbk",
+  "type": "FILESYSTEM",
+  "name": "usbbk",
+  "pool": "usbbk",
+  "encrypted": false,
+  "mountpoint": "/mnt/usbbk",
+  "used": {
+   "parsed": 4288095348326,
+   "rawvalue": "4288095348326",
+   "value": "3.90T",
+   "source": "NONE"
+  },
+  "available": {
+   "parsed": 3518437208883,
+   "rawvalue": "3518437208883",
+   "value": "3.20T",
+   "source": "NONE"
+  },
+  "children": []
+ }
+]

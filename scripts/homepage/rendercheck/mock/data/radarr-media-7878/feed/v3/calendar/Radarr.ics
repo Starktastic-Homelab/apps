@@ -1,0 +1,59 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//mock//prototype//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:Radarr_movie_3000_digital
+DTSTAMP:{{ics}}
+DTSTART;VALUE=DATE:{{icsdate:-2d}}
+DTEND;VALUE=DATE:{{icsdate:-1d}}
+SUMMARY:The Odyssey (Digital Release)
+STATUS:CONFIRMED
+CATEGORIES:Film
+END:VEVENT
+BEGIN:VEVENT
+UID:Radarr_movie_3001_digital
+DTSTAMP:{{ics}}
+DTSTART;VALUE=DATE:{{icsdate}}
+DTEND;VALUE=DATE:{{icsdate:+1d}}
+SUMMARY:Toy Story 5 (Digital Release)
+STATUS:CONFIRMED
+CATEGORIES:Film
+END:VEVENT
+BEGIN:VEVENT
+UID:Radarr_movie_3003_digital
+DTSTAMP:{{ics}}
+DTSTART;VALUE=DATE:{{icsdate:-30d}}
+DTEND;VALUE=DATE:{{icsdate:-29d}}
+SUMMARY:Supergirl (Digital Release)
+STATUS:CONFIRMED
+CATEGORIES:Film
+END:VEVENT
+BEGIN:VEVENT
+UID:Radarr_movie_3004_digital
+DTSTAMP:{{ics}}
+DTSTART;VALUE=DATE:{{icsdate:+5d}}
+DTEND;VALUE=DATE:{{icsdate:+6d}}
+SUMMARY:Spider-Man: Brand New Day (Digital Release)
+STATUS:CONFIRMED
+CATEGORIES:Film
+END:VEVENT
+BEGIN:VEVENT
+UID:Radarr_movie_3005_digital
+DTSTAMP:{{ics}}
+DTSTART;VALUE=DATE:{{icsdate:+12d}}
+DTEND;VALUE=DATE:{{icsdate:+13d}}
+SUMMARY:Moana (Digital Release)
+STATUS:CONFIRMED
+CATEGORIES:Film
+END:VEVENT
+BEGIN:VEVENT
+UID:Radarr_movie_3007_digital
+DTSTAMP:{{ics}}
+DTSTART;VALUE=DATE:{{icsdate:+19d}}
+DTEND;VALUE=DATE:{{icsdate:+20d}}
+SUMMARY:Clayface (Digital Release)
+STATUS:CONFIRMED
+CATEGORIES:Film
+END:VEVENT
+END:VCALENDAR

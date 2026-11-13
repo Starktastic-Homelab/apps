@@ -1,0 +1,89 @@
+{
+ "page": 1,
+ "pageSize": 10,
+ "sortKey": "timeleft",
+ "sortDirection": "ascending",
+ "totalRecords": 6,
+ "records": [
+  {
+   "title": "Slow.Horses.S06E03.1080p.ATVP.WEB-DL.DDP5.1.H.264-NTb",
+   "size": 2400000000,
+   "sizeleft": 900000000,
+   "status": "downloading",
+   "trackedDownloadState": "downloading",
+   "trackedDownloadStatus": "ok",
+   "protocol": "torrent",
+   "downloadClient": "qBittorrent",
+   "id": 1,
+   "timeleft": "00:06:41",
+   "seriesId": 7,
+   "episodeId": 70006
+  },
+  {
+   "title": "Only.Murders.in.the.Building.S06E09.1080p.DSNP.WEB-DL.DDP5.1.H.264-FLUX",
+   "size": 1600000000,
+   "sizeleft": 1200000000,
+   "status": "downloading",
+   "trackedDownloadState": "downloading",
+   "trackedDownloadStatus": "ok",
+   "protocol": "torrent",
+   "downloadClient": "qBittorrent",
+   "id": 2,
+   "timeleft": "00:18:05",
+   "seriesId": 2,
+   "episodeId": 70007
+  },
+  {
+   "title": "[SubsPlease] One Piece - 1153 (1080p) [8E2F1A9C].mkv",
+   "size": 1400000000,
+   "sizeleft": 0,
+   "status": "completed",
+   "trackedDownloadState": "importPending",
+   "trackedDownloadStatus": "ok",
+   "protocol": "torrent",
+   "downloadClient": "qBittorrent",
+   "id": 3,
+   "seriesId": 6,
+   "episodeId": 70008
+  },
+  {
+   "title": "Ghosts.2021.S06E05.720p.HDTV.x264-SYNCOPY",
+   "size": 700000000,
+   "sizeleft": 0,
+   "status": "completed",
+   "trackedDownloadState": "importBlocked",
+   "trackedDownloadStatus": "warning",
+   "protocol": "torrent",
+   "downloadClient": "qBittorrent",
+   "id": 4,
+   "seriesId": 4,
+   "episodeId": 70005
+  },
+  {
+   "title": "Landman.S03E01.2160p.PMTP.WEB-DL.DDP5.1.DV.HDR.H.265-FLUX",
+   "size": 9800000000,
+   "sizeleft": 9800000000,
+   "status": "queued",
+   "trackedDownloadState": "downloading",
+   "trackedDownloadStatus": "ok",
+   "protocol": "torrent",
+   "downloadClient": "qBittorrent",
+   "id": 5,
+   "seriesId": 8,
+   "episodeId": 70004
+  },
+  {
+   "title": "Abbott.Elementary.S06E07.1080p.HULU.WEB-DL.DDP5.1.H.264-NTb",
+   "size": 1100000000,
+   "sizeleft": 1100000000,
+   "status": "paused",
+   "trackedDownloadState": "downloading",
+   "trackedDownloadStatus": "ok",
+   "protocol": "torrent",
+   "downloadClient": "qBittorrent",
+   "id": 6,
+   "seriesId": 3,
+   "episodeId": 70009
+  }
+ ]
+}

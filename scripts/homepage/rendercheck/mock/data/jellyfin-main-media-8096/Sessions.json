@@ -1,0 +1,187 @@
+[
+ {
+  "PlayState": {
+   "PositionTicks": 18720000000,
+   "CanSeek": true,
+   "IsPaused": false,
+   "IsMuted": false,
+   "VolumeLevel": 100,
+   "PlayMethod": "DirectPlay",
+   "RepeatMode": "RepeatNone"
+  },
+  "Id": "c3f1a9d2e8b7",
+  "UserId": "u-alex",
+  "UserName": "alex",
+  "Client": "Android TV",
+  "DeviceName": "Living Room TV",
+  "DeviceId": "dev-c3f1a9d2",
+  "ApplicationVersion": "12.4.0",
+  "IsActive": true,
+  "LastActivityDate": "{{iso:-4s}}",
+  "ServerId": "4f1a2b3c4d5e6f708192a3b4c5d6e7f8",
+  "SupportsMediaControl": true,
+  "SupportsRemoteControl": true,
+  "NowPlayingItem": {
+   "Name": "Cold Harbor",
+   "SeriesName": "Severance",
+   "Type": "Episode",
+   "ParentIndexNumber": 2,
+   "IndexNumber": 10,
+   "RunTimeTicks": 45600000000,
+   "Id": "ep-sev-0210"
+  }
+ },
+ {
+  "PlayState": {
+   "PositionTicks": 43230000000,
+   "CanSeek": true,
+   "IsPaused": false,
+   "IsMuted": false,
+   "VolumeLevel": 100,
+   "PlayMethod": "Transcode",
+   "RepeatMode": "RepeatNone"
+  },
+  "Id": "a7d4e2c9b1f0",
+  "UserId": "u-sam",
+  "UserName": "sam",
+  "Client": "Jellyfin Mobile (iOS)",
+  "DeviceName": "iPhone",
+  "DeviceId": "dev-a7d4e2c9",
+  "ApplicationVersion": "12.4.0",
+  "IsActive": true,
+  "LastActivityDate": "{{iso:-4s}}",
+  "ServerId": "4f1a2b3c4d5e6f708192a3b4c5d6e7f8",
+  "SupportsMediaControl": true,
+  "SupportsRemoteControl": true,
+  "NowPlayingItem": {
+   "Name": "Dune: Part Two",
+   "Type": "Movie",
+   "ProductionYear": 2024,
+   "RunTimeTicks": 99600000000,
+   "Id": "mv-dune2"
+  },
+  "TranscodingInfo": {
+   "AudioCodec": "aac",
+   "VideoCodec": "h264",
+   "Container": "ts",
+   "IsVideoDirect": false,
+   "IsAudioDirect": false,
+   "Bitrate": 8000000,
+   "Width": 1920,
+   "Height": 804,
+   "AudioChannels": 2,
+   "HardwareAccelerationType": "qsv",
+   "TranscodeReasons": [
+    "ContainerBitrateExceedsLimit"
+   ]
+  }
+ },
+ {
+  "PlayState": {
+   "PositionTicks": 29000000000,
+   "CanSeek": true,
+   "IsPaused": true,
+   "IsMuted": false,
+   "VolumeLevel": 100,
+   "PlayMethod": "DirectPlay",
+   "RepeatMode": "RepeatNone"
+  },
+  "Id": "e9b2c7a4d1f3",
+  "UserId": "u-jordan",
+  "UserName": "jordan",
+  "Client": "Jellyfin Web",
+  "DeviceName": "Firefox",
+  "DeviceId": "dev-e9b2c7a4",
+  "ApplicationVersion": "12.4.0",
+  "IsActive": true,
+  "LastActivityDate": "{{iso:-4s}}",
+  "ServerId": "4f1a2b3c4d5e6f708192a3b4c5d6e7f8",
+  "SupportsMediaControl": true,
+  "SupportsRemoteControl": true,
+  "NowPlayingItem": {
+   "Name": "Москва слезам не верит",
+   "Type": "Movie",
+   "ProductionYear": 1979,
+   "RunTimeTicks": 90000000000,
+   "Id": "mv-moscow"
+  }
+ },
+ {
+  "PlayState": {
+   "PositionTicks": 5810000000,
+   "CanSeek": true,
+   "IsPaused": false,
+   "IsMuted": true,
+   "VolumeLevel": 0,
+   "PlayMethod": "DirectPlay",
+   "RepeatMode": "RepeatNone"
+  },
+  "Id": "f2a8c1e7b4d9",
+  "UserId": "u-guest",
+  "UserName": "guest",
+  "Client": "Chromecast",
+  "DeviceName": "Bedroom Chromecast",
+  "DeviceId": "dev-f2a8c1e7",
+  "ApplicationVersion": "12.4.0",
+  "IsActive": true,
+  "LastActivityDate": "{{iso:-4s}}",
+  "ServerId": "4f1a2b3c4d5e6f708192a3b4c5d6e7f8",
+  "SupportsMediaControl": true,
+  "SupportsRemoteControl": true,
+  "NowPlayingItem": {
+   "Name": "The Journey's End",
+   "SeriesName": "Frieren: Beyond Journey's End",
+   "Type": "Episode",
+   "ParentIndexNumber": 1,
+   "IndexNumber": 1,
+   "RunTimeTicks": 14400000000,
+   "Id": "ep-frieren-0101"
+  }
+ },
+ {
+  "PlayState": {
+   "PositionTicks": 0,
+   "CanSeek": true,
+   "IsPaused": false,
+   "IsMuted": false,
+   "VolumeLevel": 100,
+   "PlayMethod": "DirectPlay",
+   "RepeatMode": "RepeatNone"
+  },
+  "Id": "b5e3d8a2c6f1",
+  "UserId": "u-alex",
+  "UserName": "alex",
+  "Client": "Jellyfin Media Player",
+  "DeviceName": "Study PC",
+  "DeviceId": "dev-b5e3d8a2",
+  "ApplicationVersion": "12.4.0",
+  "IsActive": true,
+  "LastActivityDate": "{{iso:-4s}}",
+  "ServerId": "4f1a2b3c4d5e6f708192a3b4c5d6e7f8",
+  "SupportsMediaControl": true,
+  "SupportsRemoteControl": true
+ },
+ {
+  "PlayState": {
+   "PositionTicks": 0,
+   "CanSeek": true,
+   "IsPaused": false,
+   "IsMuted": false,
+   "VolumeLevel": 100,
+   "PlayMethod": "DirectPlay",
+   "RepeatMode": "RepeatNone"
+  },
+  "Id": "d1c9f4b7a3e2",
+  "UserId": "u-morgan",
+  "UserName": "morgan",
+  "Client": "Jellyfin Web",
+  "DeviceName": "Chrome",
+  "DeviceId": "dev-d1c9f4b7",
+  "ApplicationVersion": "12.4.0",
+  "IsActive": true,
+  "LastActivityDate": "{{iso:-4s}}",
+  "ServerId": "4f1a2b3c4d5e6f708192a3b4c5d6e7f8",
+  "SupportsMediaControl": true,
+  "SupportsRemoteControl": true
+ }
+]

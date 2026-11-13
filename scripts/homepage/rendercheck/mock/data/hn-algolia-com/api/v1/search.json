@@ -1,0 +1,111 @@
+{
+ "hits": [
+  {
+   "title": "Why we moved our CI back to bare metal",
+   "url": "https://example.com/blog/ci-bare-metal",
+   "points": 1127,
+   "num_comments": 642,
+   "objectID": "47120391",
+   "story_id": 47120391,
+   "created_at": "{{iso:-2h}}",
+   "created_at_i": {{epoch:-2h}},
+   "_tags": [
+    "story",
+    "front_page"
+   ]
+  },
+  {
+   "title": "Show HN: A homelab dashboard that renders from a single YAML file",
+   "url": "https://example.com/show/yaml-dashboard",
+   "points": 412,
+   "num_comments": 188,
+   "objectID": "47120908",
+   "story_id": 47120908,
+   "created_at": "{{iso:-4h}}",
+   "created_at_i": {{epoch:-4h}},
+   "_tags": [
+    "story",
+    "front_page"
+   ]
+  },
+  {
+   "title": "SQLite is faster than the filesystem for small blobs, revisited",
+   "url": "https://example.com/sqlite-blobs",
+   "points": 688,
+   "num_comments": 301,
+   "objectID": "47121425",
+   "story_id": 47121425,
+   "created_at": "{{iso:-6h}}",
+   "created_at_i": {{epoch:-6h}},
+   "_tags": [
+    "story",
+    "front_page"
+   ]
+  },
+  {
+   "title": "Ask HN: What are you self-hosting in 2026?",
+   "url": null,
+   "points": 534,
+   "num_comments": 917,
+   "objectID": "47121942",
+   "story_id": 47121942,
+   "created_at": "{{iso:-8h}}",
+   "created_at_i": {{epoch:-8h}},
+   "_tags": [
+    "story",
+    "front_page",
+    "ask_hn"
+   ]
+  },
+  {
+   "title": "A visual guide to how GPUs schedule work",
+   "url": "https://example.com/gpu-scheduling",
+   "points": 297,
+   "num_comments": 64,
+   "objectID": "47122459",
+   "story_id": 47122459,
+   "created_at": "{{iso:-10h}}",
+   "created_at_i": {{epoch:-10h}},
+   "_tags": [
+    "story",
+    "front_page"
+   ]
+  },
+  {
+   "title": "Debian 13.2 released",
+   "url": "https://www.debian.org/News/",
+   "points": 243,
+   "num_comments": 120,
+   "objectID": "47122976",
+   "story_id": 47122976,
+   "created_at": "{{iso:-12h}}",
+   "created_at_i": {{epoch:-12h}},
+   "_tags": [
+    "story",
+    "front_page"
+   ]
+  },
+  {
+   "title": "The quiet comeback of the RSS reader",
+   "url": "https://example.com/rss-comeback",
+   "points": 181,
+   "num_comments": 97,
+   "objectID": "47123493",
+   "story_id": 47123493,
+   "created_at": "{{iso:-14h}}",
+   "created_at_i": {{epoch:-14h}},
+   "_tags": [
+    "story",
+    "front_page"
+   ]
+  }
+ ],
+ "nbHits": 30,
+ "page": 0,
+ "nbPages": 1,
+ "hitsPerPage": 30,
+ "exhaustiveNbHits": true,
+ "query": "",
+ "params": "tags=front_page",
+ "processingTimeMS": 1
+}

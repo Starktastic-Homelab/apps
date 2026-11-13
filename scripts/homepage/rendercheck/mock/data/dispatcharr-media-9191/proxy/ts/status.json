@@ -1,0 +1,43 @@
+{
+ "count": 2,
+ "channels": [
+  {
+   "channel_id": "c1a2b3",
+   "state": "active",
+   "channel_name": "Red Bull TV",
+   "stream_name": "Red Bull TV HD",
+   "stream_profile": "ffmpeg",
+   "avg_bitrate": "5.12 Mbps",
+   "uptime": 1832.4,
+   "total_bytes": 1172000000,
+   "client_count": 2,
+   "clients": [
+    {
+     "client_id": "cl-01",
+     "user_agent": "VLC/3.0.21"
+    },
+    {
+     "client_id": "cl-02",
+     "user_agent": "Jellyfin/12.4.0"
+    }
+   ]
+  },
+  {
+   "channel_id": "d4e5f6",
+   "state": "active",
+   "channel_name": "MotorTrend FAST TV",
+   "stream_name": "MotorTrend FAST TV",
+   "stream_profile": "proxy",
+   "avg_bitrate": "3.86 Mbps",
+   "uptime": 611.0,
+   "total_bytes": 294800000,
+   "client_count": 1,
+   "clients": [
+    {
+     "client_id": "cl-03",
+     "user_agent": "TiviMate/5.1.6"
+    }
+   ]
+  }
+ ]
+}

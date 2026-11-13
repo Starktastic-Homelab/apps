@@ -4,7 +4,7 @@ controllers:
       main:
         image:
           repository: ghcr.io/mealie-recipes/mealie
-          tag: v3.30.0
+          tag: v3.31.0
         env:
           BASE_URL: "https://mealie.starktastic.net"
           # Public host without forward auth: open signup let anyone create a local password account.

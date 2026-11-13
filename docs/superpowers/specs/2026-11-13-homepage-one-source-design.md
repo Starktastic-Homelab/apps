@@ -153,8 +153,11 @@ admin superset by `source`/`href` instead of by tile id.
 
 **Derive from `source`**
 
-3. Host logic matches coverage (`check-homepage-coverage.py:85-109`) but is reimplemented,
-   not imported, so coverage stays an independent check. A variant app with `baseApp`
+3. Host logic mirrors the ingress chart (`cluster-apps.yaml:177-188`,
+   `templates/ingress-chart/values.yaml:6-14`: `domainType` defaults to `internal`, `port` to
+   80, `serviceName` to `name`). It is reimplemented, not imported from coverage
+   (`check-homepage-coverage.py:85-109`, which raises where the chart defaults), so coverage
+   stays an independent check. A variant app with `baseApp`
    (the `-ru` apps) deep-merges the base `ingress` under its own, as the ingress chart
    does; `serviceName|name` comes from the merged result and `name` from the variant.
    - `href = https://<fqdn>`, with the domain from `templates/globals.yaml`.
@@ -170,19 +173,25 @@ admin superset by `source`/`href` instead of by tile id.
    Every `household` or `household-only` entry is placed exactly once on household. An
    `admin` entry on household fails, and a `household-only` entry on admin fails.
 6. Names (after `override`) and tab slugs are unique per page, and every referenced id
-   exists. A tab slug is Homepage's own slug of the tab name, pinned by a test once §7.1 is
-   read; today's tabs give `pulse`, `play`, `make`, `run` and `iron`.
+   exists. A tab slug is Homepage v2.7.0's `encodeURIComponent(name.replace(/\s+/g, "-")
+   .toLowerCase())` (`src/components/tab.jsx:6-12`); today's tabs give `pulse`, `play`,
+   `make`, `run` and `iron`. Tab names must match `[A-Za-z0-9 ]+`, because the page compares
+   the raw hash. Group names are unique per page, since calendar lookups search all levels.
 7. Per page, the matching widgets decide the key: one gives `widget:`, several give
    `widgets:`, none gives no key, never both.
 8. A calendar `ref` becomes `type`, `service_group` (the tile's immediate group) and
    `service_name` on that page. `type` is the type of the target tile's single widget on
-   that page; zero or several fail. The target must be placed on that page, on any tab.
+   that page; zero or several fail (Homepage returns `widgets[<calendar index>]` for a list,
+   `service-helpers.js:806`). The target must be placed on that page, on any tab.
    `integrations` must be a list.
 9. Every group goes into `settings.layout` in order, with its `tab`, so no group can render
-   on every tab. Subgroups nest under their parent and carry no `tab`.
+   on every tab. Subgroups nest under their parent and carry no `tab`. No layout value is
+   ever `null` (Homepage treats any object, `null` included, as a subgroup). No tile key
+   `weight` exists, so YAML order is display order (`api-response.js:18-24`).
    `pwa.shortcuts` is generated as one `{name, url: "/#<slug>"}` per tab and merged into
    the pass-through `pwa` block.
-10. Each `data-name="X"` in a page's CSS must name a tile on that page (H:32,37,86).
+10. Each `data-name="X"` in a page's CSS must name a tile on that page (H:32,37,86 and
+    A:37,42,101, all `Calendar`).
 
 **Generator-owned** (setting them in pass-through fails):
 
@@ -198,9 +207,9 @@ admin superset by `source`/`href` instead of by tile id.
 
 16. Checked on the unescaped render, before rule 19: every `{{`...`}}` must be exactly
     `{{HOMEPAGE_VAR_[A-Z0-9_]+}}`, and a lone `{{` or `}}` fails. Single braces (CSS, the
-    customapi `{number}` at A:1075) are not checked.
+    customapi `{number}` at A:1039,1051,1063,1075) are not checked.
 17. The referenced names equal the page's `secrets.yaml` `encryptedData` key names, in both
-    directions (today 6 and 38; coverage at `:225-235` checks one direction). Names only.
+    directions (today 6 and 38; coverage's `check_secrets` at `:218-234` checks one direction). Names only.
     `FINNHUB_KEY` appears only in admin `settings.yaml`; `PROXMOX_USER` and `PROXMOX_PASS`
     appear in `proxmox.yaml` and in the Proxmox VE tile (A:10-11, A:1085-1086).
 
@@ -306,15 +315,19 @@ changes.
 - The `&github_prs` and `&queue_depth` anchors become catalog anchors.
 - Today's CSS, settings, `proxmox.yaml` and favicons go into the pass-through files.
 - Explicit values only where derivation cannot reach:
-  - Prometheus, Grafana, Cluster Health and Security (kube-prometheus-stack);
+  - the kube-prometheus-stack tiles take `source` and an explicit `app`: Grafana
+    `app: grafana` (href, siteMonitor and namespace derive), Prometheus `app: prometheus`, and
+    Cluster Health and Security `app: prometheus` with `siteMonitor: null`;
   - Navidrome and MicroBin (`ingress.enabled: false`);
   - Authentik, Falco, Argo CD, Deployments, Edge & Certs, Traefik and pgAdmin (hosts outside
     `services/*/app.yaml`);
   - Calendar (no href);
   - off-cluster tiles: TrueNAS, Proxmox VE and the three node tiles, OPNsense, AdGuard Home,
     the four GitHub PR tiles, News.
-- Nine tiles carry a `monitorPath`: Calibre-Web `/opds`, the six *arr/Cleanuparr `/ping` or
-  `/health` tiles, and Grafana `/api/health`.
+- Nine tiles carry a `monitorPath`: Calibre-Web `/opds`; Radarr, Radarr RU, Sonarr, Sonarr RU,
+  Lidarr and Prowlarr `/ping`; Cleanuparr `/health`; Grafana `/api/health`.
+- Each page keeps its own `items` order (Convert lists MeTube first on household, CyberChef
+  first on admin).
 
 **`--compare`** fails CI while it exists. It parses the live hand-written ConfigMaps
 (Helm-unescape, then strip the placeholder braces, as `check-homepage-household.py:138`
@@ -372,10 +385,11 @@ content, the pass-through and staged files, the rehearsal step, and the open fac
 
 ## 7 Risks and open questions
 
-1. **Homepage v2.7 behaviour is from research, not the source:** the service `id` field,
-   the tab slug rule behind PWA hashes, nested-group layout, `service_group` for nested
-   groups, and `widgets:` lists. Read the source before building and pin the findings in
-   tests. If `id` is unused upstream, it stays catalog-only.
+1. **Homepage v2.7.0 behaviour was read in the source** (tag commit `2e5f1013`, notes in
+   `~/.cache/claude-homelab-live/onesource/upstream-facts.md`) but not run: `id` is the DOM
+   id of the service `<li>`; the slug rule above; nested layout entries ignore `tab`;
+   `service_group` is the immediate group; `widget` and `widgets` together break the widget
+   proxy. A Homepage upgrade re-reads these.
 2. **Calibre credentials:** ADR 0018:46,69 names `CALIBRE_HOUSEHOLD_*`; H:284-285 still uses
    `CALIBRE_USER/PASS`. The generator does not lint credential names (ADR 0018 leaves that to
    review). The proof uses what is sealed; household PR 2 changes the catalog in the same PR,

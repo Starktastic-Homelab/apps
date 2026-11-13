@@ -47,6 +47,11 @@ bumps are merged by hand since #1552, and nothing in CI rendered either page. De
    header from 1024 px up and a glass disc in the corner below that; with a keyboard, just typing opens it too.
    The bar is the same button, laid over an empty header slot with CSS anchor positioning; a browser without
    it keeps the disc. The header search widget, which only searched the web, is gone.
+8. **Support links (added 2026-11-14).** The household page ends its first tab with a "Support the server"
+   bookmark group: a Buy Me a Coffee page and a PayBox group. They are links out only. The page handles no money,
+   keys or webhooks, and the pod fetches nothing for them. The links are as public as this repo, so nothing
+   personal goes on the page; Bit is left out because a private Bit account has no shareable link, only a phone
+   number. Admin does not show the group.
 
 ## Rationale
 

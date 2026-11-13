@@ -1630,6 +1630,18 @@ bookmarks:
     audience: household-only
     abbr: GH
     href: https://github.com/Starktastic-Homelab
+  bm-buy-me-a-coffee:
+    name: Buy Me a Coffee
+    audience: household-only
+    abbr: BC
+    href: https://buymeacoffee.com/benfaingold
+    description: By card
+  bm-paybox:
+    name: PayBox
+    audience: household-only
+    abbr: PB
+    href: https://links.payboxapp.com/MgzMt5tR27b
+    description: Server fund group
   bm-apps:
     name: apps
     abbr: AP
@@ -1761,6 +1773,13 @@ pages:
             items:
               - seerr
               - seerr-ru
+          # Links out only: the page handles no money, keys or webhooks (ADR 0020, decision 8).
+          - name: Support the server
+            style: row
+            columns: 2
+            items:
+              - bm-buy-me-a-coffee
+              - bm-paybox
       - name: Library
         groups:
           - name: Listen

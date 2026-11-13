@@ -50,8 +50,8 @@ INV = {
 
 
 def run(tab, ids, groups, **kw):
-    return {"tab": tab, "viewport": "390x844", "scenario": "calm", "ok": True, "sheet": True, "ids": ids,
-            "groups": groups, "errors": 0, "pending": 0, "danger": 0, "missing": [], "small": [],
+    return {"tab": tab, "viewport": "390x844", "scenario": "calm", "ok": True, "sheet": True, "search": True,
+            "ids": ids, "groups": groups, "errors": 0, "pending": 0, "danger": 0, "missing": [], "small": [],
             "selectors": {".service-card": True}, **kw}
 
 
@@ -169,6 +169,11 @@ class FailureTests(unittest.TestCase):
         runs[0]["viewport"] = "390x844"
         with mock.patch.dict(render_check.SMALL_ALLOW, {"a 30x30": "Homepage's own control"}):
             self.assertEqual(failures(INV, runs, "household"), [])
+
+    def test_failures_search_button_hidden(self):
+        runs = good()
+        runs[1].update(search=False, viewport="1440x900")
+        self.assertEqual(failures(INV, runs, "admin"), ["admin B 1440x900 calm: the search button is not on screen"])
 
     def test_failures_stylesheet_not_found(self):
         runs = good()

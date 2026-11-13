@@ -25,5 +25,6 @@ quicklaunch:
   searchDescriptions: true
   showSearchSuggestions: false
   provider: custom
+  name: Web # the result row reads "Web Search", not "Custom Search"
   url: https://search.starktastic.net/search?q=
   mobileButtonPosition: bottom-right

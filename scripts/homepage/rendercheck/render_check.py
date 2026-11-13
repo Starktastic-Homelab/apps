@@ -121,6 +121,8 @@ def failures(inv: dict, runs: list, page: str) -> list:
             continue
         if not r["sheet"]:
             out.append(f"{where}: custom.css was not loaded as a stylesheet, so no selector was checked")
+        if not r["search"]:
+            out.append(f"{where}: the search button is not on screen")
         ids = set(r["ids"])
         for eid, tab in home.items():
             if tab == r["tab"] and eid not in ids:
@@ -192,9 +194,13 @@ SNAPSHOT_JS = r"""
       small.push(`${el.tagName.toLowerCase()}${el.id ? "#" + el.id : ""} ${Math.round(r.width)}x${Math.round(r.height)} "${text}" in ${home}`);
     }
   }
+  // Quick launch is the only search on both pages. Homepage hides its button from 640 px up; custom.css shows it.
+  const button = document.querySelector("#information-widgets")?.previousElementSibling;
+  const box = button?.tagName === "BUTTON" ? button.getBoundingClientRect() : null;
   return {
     ok: !!document.querySelector("#information-widgets") && !!document.querySelector("#myTab"),
     sheet: !!sheet,
+    search: !!box && box.width >= 44 && box.left >= 0 && box.right <= innerWidth && box.bottom <= innerHeight,
     pending: q(".animate-pulse").length,
     danger: q('.service-block[data-highlight-level="danger"]').length,
     ids: q(".service[id], .bookmark[id]").map((e) => e.id),

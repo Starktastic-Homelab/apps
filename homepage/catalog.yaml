@@ -1216,11 +1216,6 @@ info:
           scale: 100
           format: percent
   - audience: household
-    search:
-      provider: custom
-      url: https://search.starktastic.net/search?q=
-      target: _blank
-  - audience: household
     openmeteo:
       label: Home
       latitude: 32.08

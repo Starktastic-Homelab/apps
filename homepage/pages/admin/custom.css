@@ -128,19 +128,13 @@ html:root {
   padding: 0 18px;
 }
 
+.information-widget-openmeteo {
+  margin-left: auto; /* weather and date keep the right edge */
+}
+
 .information-widget-openmeteo svg {
   width: 30px;
   height: 30px;
-}
-
-.information-widget-search {
-  flex: 1 1 200px;
-  max-width: 520px;
-  margin-left: auto;
-}
-
-.information-widget-search div:has(> input) {
-  height: 50px;
 }
 
 .information-widget-datetime span {
@@ -287,8 +281,7 @@ html:root {
   .information-widget-logo { grid-column: 1; }
   .information-widget-greeting { grid-column: 2 / -1; justify-self: start; margin: 0; }
   .information-widget-customapi { grid-column: span 2; }
-  .information-widget-search { grid-column: 1 / -1; max-width: none; margin: 0; }
-  .information-widget-openmeteo { grid-column: 1 / span 2; }
+  .information-widget-openmeteo { grid-column: 1 / span 2; margin: 0; }
   .information-widget-datetime { grid-column: 3 / -1; padding: 0 12px; }
 
   .information-widget-datetime span {
@@ -411,11 +404,6 @@ html:root {
   #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups { --d1-cols: 5; }
   #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups > .services-group:has(#proxmox-ve) { grid-row: 1 / span 2; }
   #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups > :not(.services-group) { grid-column: 5; }
-
-  /* header: the search pill takes the width a wide screen leaves */
-  .information-widget-search {
-    max-width: 760px;
-  }
 }
 
 /* no-hook:start */

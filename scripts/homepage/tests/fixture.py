@@ -28,7 +28,7 @@ def _write(path: Path, text: str) -> None:
 def make_repo(root: Path, catalog, apps=None, sealed=None, pages=None) -> Path:
     apps, sealed, pages = apps or {}, sealed or {}, pages or {}
     _write(root / "templates/globals.yaml", _dump(
-        {"domains": {"public": "starktastic.net", "internal": "internal.starktastic.net", "media": "benplus.app"}}))
+        {"global": {"domains": {"public": "starktastic.net", "internal": "internal.starktastic.net", "media": "benplus.app"}}}))
     for rel, app in apps.items():
         _write(root / rel / "app.yaml", _dump(app))
     for page, appdir in PAGES.items():

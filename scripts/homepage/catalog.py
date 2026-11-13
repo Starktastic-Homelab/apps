@@ -54,3 +54,54 @@ def load_yaml(path: Path) -> Any:
         raise CatalogError(f"{path}: {err}") from err
     data = loads_yaml(text, str(path))
     return {} if data is None else data
+
+
+def _merge(base: dict, over: dict) -> dict:
+    out = dict(base)
+    for k, v in over.items():
+        out[k] = _merge(out[k], v) if isinstance(v, dict) and isinstance(out.get(k), dict) else v
+    return out
+
+
+def derive(repo: Path, source: str) -> dict:
+    """Mirror cluster-apps.yaml + ingress-chart: href, siteMonitor (no monitorPath), namespace, app."""
+    path = Path(repo) / source / "app.yaml"
+    if not path.is_file():
+        raise CatalogError(f"{source}: no app.yaml")
+    app = load_yaml(path)
+    if app.get("baseApp"):
+        app = _merge(load_yaml(Path(repo) / app["baseApp"] / "app.yaml"), app)
+    ing = app.get("ingress") or {}
+    if not ing.get("enabled"):
+        raise CatalogError(f"{source}: ingress is not enabled")
+    domains = load_yaml(Path(repo) / "templates/globals.yaml")["global"]["domains"]
+    domain = domains[ing.get("domainType") or "internal"]
+    host = ing.get("host") or ""
+    svc = ing.get("serviceName") or app["name"]
+    return {
+        "href": f"https://{domain if not host else f'{host}.{domain}'}",
+        "siteMonitor": f"http://{svc}.{app['namespace']}:{ing.get('port', 80)}",
+        "namespace": app["namespace"],
+        "app": app["name"],
+    }
+
+
+def resolve_tile(repo: Path, tid: str, tile: dict) -> dict:
+    """Apply derived keys: explicit wins, an explicit value equal to the derived one is an error, null drops."""
+    out = dict(tile)
+    if "source" not in tile:
+        return out
+    try:
+        derived = derive(repo, tile["source"])
+    except CatalogError as err:
+        raise CatalogError(f"tiles.{tid}.source: {err}") from err
+    for key, val in derived.items():
+        if key not in tile:
+            out[key] = val
+        elif tile[key] is None:
+            del out[key]
+        elif tile[key] == val:
+            raise CatalogError(f"tiles.{tid}.{key}: equals the value derived from source; remove it")
+    if "monitorPath" in tile and "siteMonitor" in out and "siteMonitor" not in tile:
+        out["siteMonitor"] += tile["monitorPath"]
+    return out

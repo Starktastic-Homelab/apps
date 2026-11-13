@@ -1,0 +1,13 @@
+{"interfaces": {
+  "wan": {"device": "igc0", "driver": "igc", "index": "1", "flags": "8843", "promiscuous listeners": "0", "send queue length": "0",
+          "send queue max length": "1000", "send queue drops": "0", "type": "Ethernet", "address length": "6", "header length": "18",
+          "link state": "2", "vhid": "0", "datalen": "152", "mtu": "1500", "metric": "0", "line rate": "1000000000 bit/s",
+          "packets received": "3184920113", "input errors": "0", "packets transmitted": "1987345120", "output errors": "0",
+          "collisions": "0", "bytes received": "4183920382711", "bytes transmitted": "2290129847201", "multicasts received": "18233",
+          "multicasts transmitted": "4122", "input queue drops": "0", "packets for unknown protocol": "0", "HW offload capabilities": "0x0",
+          "uptime at attach or stat reset": "1", "name": "WAN"},
+  "lan": {"device": "igc1", "driver": "igc", "index": "2", "mtu": "1500", "line rate": "2500000000 bit/s",
+          "packets received": "2011938471", "packets transmitted": "3302918475", "bytes received": "2388102938475",
+          "bytes transmitted": "4302918374652", "input errors": "0", "output errors": "0", "name": "LAN"}
+ },
+ "time": {{epoch}}.412}

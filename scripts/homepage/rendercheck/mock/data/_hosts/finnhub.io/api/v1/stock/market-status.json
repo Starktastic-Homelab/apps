@@ -1,0 +1,8 @@
+{
+ "exchange": "US",
+ "holiday": null,
+ "isOpen": false,
+ "session": "closed",
+ "t": {{epoch}},
+ "timezone": "America/New_York"
+}

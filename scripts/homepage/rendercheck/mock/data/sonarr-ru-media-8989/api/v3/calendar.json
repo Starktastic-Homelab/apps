@@ -1,0 +1,117 @@
+[
+ {
+  "seriesId": 1,
+  "tvdbId": 300001,
+  "episodeFileId": 50000,
+  "seasonNumber": 3,
+  "episodeNumber": 7,
+  "title": "Серия 7",
+  "airDate": "{{date:-1d}}",
+  "airDateUtc": "{{date:-1d}}T18:00:00Z",
+  "runtime": 52,
+  "hasFile": true,
+  "monitored": true,
+  "unverifiedSceneNumbering": false,
+  "series": {
+   "title": "Метод",
+   "titleSlug": "metod",
+   "network": "Первый канал",
+   "runtime": 52,
+   "monitored": true,
+   "id": 1
+  },
+  "id": 90000
+ },
+ {
+  "seriesId": 2,
+  "tvdbId": 300002,
+  "episodeFileId": 0,
+  "seasonNumber": 4,
+  "episodeNumber": 3,
+  "title": "Серия 3",
+  "airDate": "{{date:+1d}}",
+  "airDateUtc": "{{date:+1d}}T18:00:00Z",
+  "runtime": 50,
+  "hasFile": false,
+  "monitored": true,
+  "unverifiedSceneNumbering": false,
+  "series": {
+   "title": "Триггер",
+   "titleSlug": "trigger",
+   "network": "Первый канал",
+   "runtime": 50,
+   "monitored": true,
+   "id": 2
+  },
+  "id": 90001
+ },
+ {
+  "seriesId": 3,
+  "tvdbId": 300003,
+  "episodeFileId": 0,
+  "seasonNumber": 4,
+  "episodeNumber": 2,
+  "title": "Серия 2",
+  "airDate": "{{date:+3d}}",
+  "airDateUtc": "{{date:+3d}}T17:00:00Z",
+  "runtime": 45,
+  "hasFile": false,
+  "monitored": true,
+  "unverifiedSceneNumbering": false,
+  "series": {
+   "title": "Мир! Дружба! Жвачка!",
+   "titleSlug": "mir-druzhba-zhvachka",
+   "network": "Premier",
+   "runtime": 45,
+   "monitored": true,
+   "id": 3
+  },
+  "id": 90002
+ },
+ {
+  "seriesId": 1,
+  "tvdbId": 300001,
+  "episodeFileId": 0,
+  "seasonNumber": 3,
+  "episodeNumber": 8,
+  "title": "Серия 8",
+  "airDate": "{{date:+6d}}",
+  "airDateUtc": "{{date:+6d}}T18:00:00Z",
+  "runtime": 52,
+  "hasFile": false,
+  "monitored": true,
+  "unverifiedSceneNumbering": false,
+  "series": {
+   "title": "Метод",
+   "titleSlug": "metod",
+   "network": "Первый канал",
+   "runtime": 52,
+   "monitored": true,
+   "id": 1
+  },
+  "id": 90003
+ },
+ {
+  "seriesId": 2,
+  "tvdbId": 300002,
+  "episodeFileId": 0,
+  "seasonNumber": 4,
+  "episodeNumber": 4,
+  "title": "Серия 4",
+  "airDate": "{{date:+8d}}",
+  "airDateUtc": "{{date:+8d}}T18:00:00Z",
+  "runtime": 50,
+  "hasFile": false,
+  "monitored": true,
+  "unverifiedSceneNumbering": false,
+  "series": {
+   "title": "Триггер",
+   "titleSlug": "trigger",
+   "network": "Первый канал",
+   "runtime": 50,
+   "monitored": true,
+   "id": 2
+  },
+  "id": 90004
+ }
+]

@@ -1,0 +1,39 @@
+{
+ "subsonic-response": {
+  "status": "ok",
+  "version": "1.16.1",
+  "type": "navidrome",
+  "serverVersion": "0.64.2 (5e4b1c1)",
+  "openSubsonic": true,
+  "nowPlaying": {
+   "entry": [
+    {
+     "id": "tr7f3a01",
+     "parent": "al0002a9c3",
+     "title": "Berghain",
+     "album": "Lux",
+     "artist": "Rosalía",
+     "year": 2025,
+     "duration": 178,
+     "username": "robin",
+     "minutesAgo": 0,
+     "playerId": 3,
+     "playerName": "Feishin"
+    },
+    {
+     "id": "tr2c9b44",
+     "parent": "al0004a9c3",
+     "title": "Dracula",
+     "album": "Deadbeat",
+     "artist": "Tame Impala",
+     "year": 2025,
+     "duration": 251,
+     "username": "casey",
+     "minutesAgo": 1,
+     "playerId": 7,
+     "playerName": "Symfonium"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,19 @@
+{
+  "http": {
+    "routers": {"total": 97, "warnings": 0, "errors": 0},
+    "services": {"total": 102, "warnings": 0, "errors": 0},
+    "middlewares": {"total": 31, "warnings": 0, "errors": 0}
+  },
+  "tcp": {
+    "routers": {"total": 1, "warnings": 0, "errors": 0},
+    "services": {"total": 1, "warnings": 0, "errors": 0},
+    "middlewares": {"total": 0, "warnings": 0, "errors": 0}
+  },
+  "udp": {
+    "routers": {"total": 0, "warnings": 0, "errors": 0},
+    "services": {"total": 0, "warnings": 0, "errors": 0}
+  },
+  "certificates": {"total": 3, "warnings": 0, "errors": 0},
+  "features": {"tracing": "OpenTelemetry", "metrics": "Prometheus", "accessLog": true},
+  "providers": ["KubernetesIngress", "KubernetesCRD", "File"]
+}

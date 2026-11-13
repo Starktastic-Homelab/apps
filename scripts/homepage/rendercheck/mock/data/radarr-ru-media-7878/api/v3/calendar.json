@@ -1,0 +1,29 @@
+[
+ {
+  "title": "Буратино",
+  "originalTitle": "Буратино",
+  "titleSlug": "buratino-2025",
+  "year": 2025,
+  "hasFile": false,
+  "monitored": true,
+  "isAvailable": true,
+  "status": "released",
+  "id": 6000,
+  "inCinemas": "{{date:-310d}}T00:00:00Z",
+  "digitalRelease": "{{date}}T00:00:00Z"
+ },
+ {
+  "title": "Мастер и Маргарита",
+  "originalTitle": "Мастер и Маргарита",
+  "titleSlug": "master-i-margarita-2024",
+  "year": 2024,
+  "hasFile": true,
+  "monitored": true,
+  "isAvailable": true,
+  "status": "released",
+  "id": 6001,
+  "inCinemas": "{{date:-675d}}T00:00:00Z",
+  "digitalRelease": "{{date:-560d}}T00:00:00Z",
+  "physicalRelease": "{{date:+8d}}T00:00:00Z"
+ }
+]

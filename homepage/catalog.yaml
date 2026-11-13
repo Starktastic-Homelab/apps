@@ -1,11 +1,99 @@
 tiles:
+  # ---- Pulse: Needs Attention -------------------------------------------------------------------------------
+  # Highlights on this page mirror the alert rules in Git (ADR 0020): red where a critical rule would fire,
+  # amber where a warning rule would. Every query added with the Pulse board names what proves its metric.
+  #
+  # The list and the Critical count are what Alertmanager is notifying about now: receiver=ntfy leaves out
+  # Watchdog and the alerts routed to "null", and silenced or inhibited alerts are left out, so a silence ends
+  # alarm mode. Keyless, in-cluster, as Falco already calls it.
+  # Firing reads Prometheus' ALERTS series (as the old Firing Alerts metric did) minus the alert names that
+  # kube-prometheus-stack/values.yaml routes away from ntfy: keep the two lists in step. It still counts a
+  # silenced alert, which is why Silences sits beside it. alertmanager_* are Alertmanager's own metrics;
+  # the failure count covers both webhook receivers, ntfy and the Watchdog heartbeat.
+  alerts:
+    name: Alerts
+    source: services/operations/kube-prometheus-stack
+    icon: mdi-bell-alert
+    href: https://grafana.internal.starktastic.net/alerting/list
+    description: Firing and unsilenced, routed to ntfy
+    siteMonitor: null
+    app: prometheus
+    widgets:
+      - type: customapi
+        url: http://kube-prometheus-stack-alertmanager.monitoring:9093/api/v2/alerts?active=true&silenced=false&inhibited=false&receiver=ntfy
+        refreshInterval: 30000
+        display: dynamic-list
+        mappings:
+          name: labels.alertname
+          label: startsAt
+          format: relativeDate
+          limit: 6
+          target: https://grafana.internal.starktastic.net/alerting/groups?alertmanager=alertmanager
+      - type: customapi
+        url: http://kube-prometheus-stack-alertmanager.monitoring:9093/api/v2/alerts?active=true&silenced=false&inhibited=false&receiver=ntfy&filter=severity%3D%22critical%22
+        refreshInterval: 30000
+        mappings:
+          - label: Critical
+            format: size
+        highlight:
+          Critical:
+            numeric:
+              - level: danger
+                when: gt
+                value: 0
+      - type: prometheusmetric
+        url: http://kube-prometheus-stack-prometheus.monitoring:9090
+        refreshInterval: 60000
+        metrics:
+          - label: Firing
+            query:
+              count(ALERTS{alertstate="firing",alertname!~"Watchdog|InfoInhibitor|KubePodNotReady|KubePodCrashLooping|KubeDeploymentReplicasMismatch|KubeContainerWaiting|CPUThrottlingHigh|KubeHpaReplicasMismatch"})
+              or vector(0)
+          - label: Rules Alive
+            query: count(ALERTS{alertname="Watchdog",alertstate="firing"}) or vector(0)
+          - label: Notify Fails 24h
+            query: sum(increase(alertmanager_notifications_failed_total{integration="webhook"}[24h])) or vector(0)
+            format:
+              type: number
+              options:
+                maximumFractionDigits: 0
+          - label: Silences
+            query: sum(alertmanager_silences{state="active"}) or vector(0)
+        highlight:
+          Firing:
+            numeric:
+              - level: warn
+                when: gt
+                value: 0
+          Rules Alive:
+            numeric:
+              - level: danger
+                when: eq
+                value: 0
+          Notify Fails 24h:
+            numeric:
+              - level: warn
+                when: gt
+                value: 0
+  notifications:
+    name: Notifications
+    source: services/operations/ntfy
+    icon: ntfy.png
+    description: Latest push on the alerts topic
+    widgets:
+      - type: ntfy
+        url: http://ntfy.operations:80
+        topic: alerts
+        key: "{{HOMEPAGE_VAR_NTFY_TOKEN}}"
+  # ---- Pulse: Health ----------------------------------------------------------------------------------------
   # kps tiles: source derives href and namespace; app is the pod label (prometheus), not the app.yaml
-  # name. Cluster Health and Security carry no siteMonitor today, so null drops the derived one.
-  cluster-health:
-    name: Cluster Health
+  # name. They carry no siteMonitor, so null drops the derived one.
+  # Restarts: kube_pod_container_status_restarts_total is what ContainerOOMKilled (custom-rules.yaml) reads.
+  cluster:
+    name: Cluster
     source: services/operations/kube-prometheus-stack
     icon: kubernetes.png
-    description: Nodes, pods, alerts, volumes
+    description: Nodes, pods and restarts
     siteMonitor: null
     app: prometheus
     widgets:
@@ -19,21 +107,36 @@ tiles:
             query:
               sum(max by (namespace, pod) (kube_pod_status_phase{phase=~"Pending|Failed|Unknown"} or
               {__name__=~"kube_pod_(init_)?container_status_waiting_reason",reason=~"CrashLoopBackOff|ImagePullBackOff|ErrImagePull|CreateContainerConfigError|CreateContainerError|InvalidImageName"}))
-          - label: Firing Alerts
-            query:
-              (sum(ALERTS{alertstate="firing",alertname!~"Watchdog|InfoInhibitor"}) or vector(0)) and
-              count(ALERTS{alertname="Watchdog",alertstate="firing"})
-          - label: Fullest Volume
-            query: max(kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes)
+          - label: Restarts 1h
+            query: floor(sum(increase(kube_pod_container_status_restarts_total[1h])))
             format:
-              type: percent
-              scale: 100
+              type: number
+              options:
+                maximumFractionDigits: 0
+        highlight:
+          Nodes Ready:
+            numeric:
+              - level: danger
+                when: lt
+                value: 3
+          Unhealthy Pods:
+            numeric:
+              - level: warn
+                when: gt
+                value: 0
+          Restarts 1h:
+            numeric:
+              - level: warn
+                when: gte
+                value: 3
+  # Blackbox probes by tier (prometheus-blackbox-exporter/manifests/probe-external.yaml). Red mirrors the critical
+  # rules, BlackboxExternalDepDown and the AdminGate* set; everything else is BlackboxProbeFailed, a warning.
   # Traefik's host comes from infrastructure/configs, not a services app.yaml: nothing derives.
-  edge-certs:
-    name: Edge & Certs
-    icon: traefik.png
+  edge-wan:
+    name: Edge & WAN
+    icon: mdi-earth
     href: https://traefik.internal.starktastic.net
-    description: Probes, certificates, traffic
+    description: Internet, the admin gate and probes
     namespace: monitoring
     app: prometheus
     widgets:
@@ -41,32 +144,50 @@ tiles:
         url: http://kube-prometheus-stack-prometheus.monitoring:9090
         refreshInterval: 30000
         metrics:
+          - label: Internet
+            query: min(probe_success{tier="external"})
+            format:
+              type: percent
+              scale: 100
+              options:
+                maximumFractionDigits: 0
+          - label: Admin Gate
+            query: min(probe_success{tier=~"gate|gate-negative"})
+            format:
+              type: percent
+              scale: 100
+              options:
+                maximumFractionDigits: 0
+          - label: Alert Path
+            query: min(probe_success{tier="alert-pipeline"})
+            format:
+              type: percent
+              scale: 100
+              options:
+                maximumFractionDigits: 0
           - label: Failed Probes
             query: (count(probe_success == 0) or vector(0)) and count(probe_success)
-          - label: Cert Expiry
-            query:
-              min(certmanager_certificate_expiration_timestamp_seconds{issuer_name="letsencrypt-prod"} > 0) - time()
-            format:
-              type: number
-              scale: 1/86400
-              suffix: " days"
-              options:
-                maximumFractionDigits: 0
-          - label: Requests
-            query: sum(rate(traefik_entrypoint_requests_total[5m]))
-            format:
-              type: number
-              suffix: " req/s"
-              options:
-                maximumFractionDigits: 1
-          - label: p95 Latency
-            query: histogram_quantile(0.95, sum by (le) (rate(traefik_entrypoint_request_duration_seconds_bucket[5m])))
-            format:
-              type: number
-              scale: 1000
-              suffix: " ms"
-              options:
-                maximumFractionDigits: 0
+        highlight:
+          Internet:
+            numeric:
+              - level: danger
+                when: lt
+                value: 100
+          Admin Gate:
+            numeric:
+              - level: danger
+                when: lt
+                value: 100
+          Alert Path:
+            numeric:
+              - level: warn
+                when: lt
+                value: 100
+          Failed Probes:
+            numeric:
+              - level: warn
+                when: gt
+                value: 0
   security:
     name: Security
     source: services/operations/kube-prometheus-stack
@@ -101,6 +222,159 @@ tiles:
               type: number
               options:
                 maximumFractionDigits: 0
+  # The two memory rules in custom-rules.yaml, and the ratio ContainerMemoryNearLimit itself computes.
+  # node_memory_MemAvailable_bytes is node-exporter, which kube-prometheus-stack scrapes.
+  memory:
+    name: Memory
+    source: services/operations/kube-prometheus-stack
+    icon: mdi-memory
+    description: Limits, OOM kills, node headroom
+    siteMonitor: null
+    app: prometheus
+    widgets:
+      - type: prometheusmetric
+        url: http://kube-prometheus-stack-prometheus.monitoring:9090
+        refreshInterval: 60000
+        metrics:
+          - label: Near Limit
+            query: count(ALERTS{alertname="ContainerMemoryNearLimit",alertstate="firing"}) or vector(0)
+          - label: OOM Killed
+            query: count(ALERTS{alertname="ContainerOOMKilled",alertstate="firing"}) or vector(0)
+          - label: Top Container
+            query:
+              max(max by (namespace, pod, container) (container_memory_working_set_bytes{container!=""}) / on
+              (namespace, pod, container) max by (namespace, pod, container)
+              (kube_pod_container_resource_limits{resource="memory"}))
+            format:
+              type: percent
+              scale: 100
+              options:
+                maximumFractionDigits: 0
+          - label: Node Free
+            query: min(node_memory_MemAvailable_bytes)
+            format:
+              type: bytes
+        highlight:
+          Near Limit:
+            numeric:
+              - level: warn
+                when: gt
+                value: 0
+          OOM Killed:
+            numeric:
+              - level: danger
+                when: gt
+                value: 0
+          Top Container:
+            numeric:
+              - level: warn
+                when: gte
+                value: 90
+  # Slots: the recording rule and thresholds of proxmox-csi-capacity.yaml. Volume: PVCSpaceLow and
+  # PVCSpaceCritical (10% and 5% free). TSDB: Prometheus' own metrics against its 8GB retentionSize.
+  capacity:
+    name: Capacity
+    source: services/operations/kube-prometheus-stack
+    icon: mdi-harddisk
+    description: CSI slots, fullest volume, TSDB
+    siteMonitor: null
+    app: prometheus
+    widgets:
+      - type: prometheusmetric
+        url: http://kube-prometheus-stack-prometheus.monitoring:9090
+        refreshInterval: 300000
+        metrics:
+          - label: CSI Slots Free
+            query: sum(clamp_min(homelab:proxmox_csi_slots_free:count, 0)) or vector(0)
+          - label: Tightest Worker
+            query: min(homelab:proxmox_csi_slots_free:count)
+          - label: Fullest Volume
+            query: max(kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes)
+            format:
+              type: percent
+              scale: 100
+              options:
+                maximumFractionDigits: 0
+          - label: TSDB Use
+            query:
+              (sum(prometheus_tsdb_storage_blocks_bytes) + sum(prometheus_tsdb_wal_storage_size_bytes) +
+              sum(prometheus_tsdb_head_chunks_storage_size_bytes)) / sum(prometheus_tsdb_retention_limit_bytes)
+            format:
+              type: percent
+              scale: 100
+              options:
+                maximumFractionDigits: 0
+        highlight:
+          CSI Slots Free:
+            numeric:
+              - level: danger
+                when: eq
+                value: 0
+              - level: warn
+                when: lt
+                value: 10
+          Tightest Worker:
+            numeric:
+              - level: warn
+                when: lte
+                value: 3
+          Fullest Volume:
+            numeric:
+              - level: danger
+                when: gte
+                value: 95
+              - level: warn
+                when: gte
+                value: 90
+  # The two backup CronJobs in infrastructure/base-configs (pg-backup in databases, cert-backup in cert-backup),
+  # on the metric and the 26 h threshold of CronJobNotSucceededRecently (custom-rules.yaml).
+  backups:
+    name: Backups
+    source: services/operations/kube-prometheus-stack
+    icon: mdi-backup-restore
+    description: Database and certificate dumps
+    siteMonitor: null
+    app: prometheus
+    widgets:
+      - type: prometheusmetric
+        url: http://kube-prometheus-stack-prometheus.monitoring:9090
+        refreshInterval: 300000
+        metrics:
+          - label: Postgres Dump
+            query:
+              (time() - max(kube_cronjob_status_last_successful_time{namespace="databases",cronjob="pg-backup"})) / 3600
+            format:
+              type: number
+              suffix: " h"
+              options:
+                maximumFractionDigits: 1
+          - label: Cert Backup
+            query:
+              (time() - max(kube_cronjob_status_last_successful_time{namespace="cert-backup",cronjob="cert-backup"})) /
+              3600
+            format:
+              type: number
+              suffix: " h"
+              options:
+                maximumFractionDigits: 1
+          - label: Stale Jobs
+            query: count(ALERTS{alertname="CronJobNotSucceededRecently",alertstate="firing"}) or vector(0)
+        highlight:
+          Postgres Dump:
+            numeric:
+              - level: warn
+                when: gt
+                value: 26
+          Cert Backup:
+            numeric:
+              - level: warn
+                when: gt
+                value: 26
+          Stale Jobs:
+            numeric:
+              - level: warn
+                when: gt
+                value: 0
   streaming-now:
     name: Streaming Now
     source: services/media/jellyfin
@@ -115,108 +389,85 @@ tiles:
         enableNowPlaying: true
         enableUser: true
         showEpisodeNumber: true
-  downloads:
-    name: Downloads
-    source: services/media/qbittorrent
-    icon: qbittorrent.png
-    description: Active transfers
+  # Navidrome's now-playing readout, apart from its launcher. Admin only: it shows who is listening (ADR 0018).
+  listening-now:
+    name: Listening Now
+    icon: navidrome.png
+    href: https://music.benplus.app
+    description: Who is listening to what
     widgets:
-      - type: qbittorrent
-        url: http://qbittorrent-main.media:8080
-  downloads-ru:
-    name: Downloads RU
-    source: services/media/qbittorrent-ru
-    icon: qbittorrent.png
-    description: Active transfers — Russian trackers
-    widgets:
-      - type: qbittorrent
-        url: http://qbittorrent-ru-main.media:8080
-  # Argo CD's host is outside services/*/app.yaml; its monitor uses the in-cluster TLS port.
-  deployments:
-    name: Deployments
-    icon: argo-cd.png
-    href: https://argocd.internal.starktastic.net
-    description: Sync and health of every app
-    siteMonitor: https://argocd-server.argocd.svc.cluster.local:443
-    namespace: argocd
-    app: argocd-server
-    widgets:
-      - type: prometheusmetric
-        url: http://kube-prometheus-stack-prometheus.monitoring:9090
-        refreshInterval: 30000
-        metrics:
-          - label: Apps
-            query: count(argocd_app_info)
-          - label: Synced
-            query: (count(argocd_app_info{sync_status="Synced"}) or vector(0)) and count(argocd_app_info)
-          - label: OutOfSync
-            query: (count(argocd_app_info{sync_status="OutOfSync"}) or vector(0)) and count(argocd_app_info)
-          - label: Unhealthy
-            query:
-              (count(argocd_app_info{health_status!~"Healthy|Progressing"}) or vector(0)) and count(argocd_app_info)
-  latest-alert:
-    name: Latest Alert
-    source: services/operations/ntfy
-    icon: ntfy.png
-    description: Most recent notification
-    widgets:
-      - type: ntfy
-        url: http://ntfy.operations:80
-        topic: alerts
-        key: "{{HOMEPAGE_VAR_NTFY_TOKEN}}"
+      - type: navidrome
+        url: http://navidrome.media:4533
+        user: "{{HOMEPAGE_VAR_NAVIDROME_USER}}"
+        token: "{{HOMEPAGE_VAR_NAVIDROME_TOKEN}}"
+        salt: "{{HOMEPAGE_VAR_NAVIDROME_SALT}}"
   # No href. Household reads the iCal feeds (no *arr widgets there); admin uses the *arr tiles by ref.
   calendar:
     name: Calendar
     audience: household
-    description: TV blue · Movies red · Music green · RU lighter
+    icon: mdi-calendar-star
+    description: TV blue and cyan · Movies fuchsia and purple · Music teal
     override:
       household:
-        description: Blue = TV · Red = Movies
+        description: New episodes and movie releases
     widgets:
+      # Household: iCal only, so the browser gets ICS text and never *arr JSON (ADR 0018). The padded windows
+      # keep a feed from ever going empty, which Homepage shows as an error. No red: it means an alarm (ADR 0020).
       - audience: household-only
         type: calendar
-        view: monthly
-        maxEvents: 10
+        view: agenda
+        maxEvents: 12
+        previousDays: 0
         showTime: true
-        firstDayInWeek: sunday
         integrations:
           - type: ical
-            url: "http://sonarr.media:8989/feed/v3/calendar/Sonarr.ics?apikey={{HOMEPAGE_VAR_SONARR_KEY}}"
+            url: "http://sonarr.media:8989/feed/v3/calendar/Sonarr.ics?apikey={{HOMEPAGE_VAR_SONARR_KEY}}&pastDays=30&futureDays=14"
             name: TV
             color: blue
+            params:
+              showName: true
           - type: ical
-            url: "http://radarr.media:7878/feed/v3/calendar/Radarr.ics?apikey={{HOMEPAGE_VAR_RADARR_KEY}}"
+            url: "http://radarr.media:7878/feed/v3/calendar/Radarr.ics?apikey={{HOMEPAGE_VAR_RADARR_KEY}}&releaseTypes=digitalRelease&pastDays=60&futureDays=90"
             name: Movies
-            color: red
+            color: fuchsia
+            params:
+              showName: true
       - type: calendar
-        view: monthly
-        maxEvents: 15
+        view: agenda
+        maxEvents: 14
+        previousDays: 0
         showTime: true
-        firstDayInWeek: sunday
         integrations:
           - ref: sonarr
             color: blue
           - ref: sonarr-ru
-            color: sky
+            color: cyan
           - ref: radarr
-            color: red
+            color: fuchsia
           - ref: radarr-ru
-            color: rose
+            color: purple
           - ref: lidarr
-            color: green
-  recipe-box:
-    name: Recipe Box
-    source: services/operations/mealie
-    icon: mealie.png
-    description: Recipe library
+            color: teal
+  # Stocks left the header for a tile. The provider key stays in admin's settings.yaml.
+  markets:
+    name: Markets
+    icon: mdi-chart-line
+    description: Watchlist and US market status
     widgets:
-      - type: mealie
-        url: http://mealie.operations:9000
-        key: "{{HOMEPAGE_VAR_MEALIE_KEY}}"
-        version: 2
+      - type: stocks
+        provider: finnhub
+        showUSMarketStatus: true
+        watchlist:
+          - NVDA
+          - AMD
+          - INTC
+          - MSFT
+          - GOOGL
+          - AAPL
+          - TSM
   # Off-cluster: explicit.
-  news:
-    name: News
+  hacker-news:
+    name: Hacker News
     icon: mdi-newspaper-variant
     href: https://news.ycombinator.com
     description: Hacker News front page
@@ -264,12 +515,6 @@ tiles:
     siteMonitor: http://navidrome.media:4533
     namespace: media
     app: navidrome
-    widgets:
-      - type: navidrome
-        url: http://navidrome.media:4533
-        user: "{{HOMEPAGE_VAR_NAVIDROME_USER}}"
-        token: "{{HOMEPAGE_VAR_NAVIDROME_TOKEN}}"
-        salt: "{{HOMEPAGE_VAR_NAVIDROME_SALT}}"
   audiobookshelf:
     name: Audiobookshelf
     audience: household
@@ -428,6 +673,11 @@ tiles:
     source: services/operations/mealie
     icon: mealie.png
     description: Recipes & shopping lists
+    widgets:
+      - type: mealie
+        url: http://mealie.operations:9000
+        key: "{{HOMEPAGE_VAR_MEALIE_KEY}}"
+        version: 2
   pairdrop:
     name: PairDrop
     audience: household
@@ -545,11 +795,17 @@ tiles:
     source: services/media/qbittorrent
     icon: qbittorrent.png
     description: Torrent client
+    widgets:
+      - type: qbittorrent
+        url: http://qbittorrent-main.media:8080
   qbittorrent-ru:
     name: qBittorrent RU
     source: services/media/qbittorrent-ru
     icon: qbittorrent.png
     description: Torrent client — Russian trackers
+    widgets:
+      - type: qbittorrent
+        url: http://qbittorrent-ru-main.media:8080
   bazarr:
     name: Bazarr
     source: services/media/bazarr
@@ -642,10 +898,36 @@ tiles:
     siteMonitor: https://argocd-server.argocd.svc.cluster.local:443
     namespace: argocd
     app: argocd-server
+    # OutOfSync mirrors ArgoCDAppOutOfSync (a warning); Unhealthy is red (Ben, 2026-11-13).
+    widgets:
+      - type: prometheusmetric
+        url: http://kube-prometheus-stack-prometheus.monitoring:9090
+        refreshInterval: 30000
+        metrics:
+          - label: Apps
+            query: count(argocd_app_info)
+          - label: Synced
+            query: (count(argocd_app_info{sync_status="Synced"}) or vector(0)) and count(argocd_app_info)
+          - label: OutOfSync
+            query: (count(argocd_app_info{sync_status="OutOfSync"}) or vector(0)) and count(argocd_app_info)
+          - label: Unhealthy
+            query:
+              (count(argocd_app_info{health_status!~"Healthy|Progressing"}) or vector(0)) and count(argocd_app_info)
+        highlight:
+          OutOfSync:
+            numeric:
+              - level: warn
+                when: gt
+                value: 0
+          Unhealthy:
+            numeric:
+              - level: danger
+                when: gt
+                value: 0
   # Off-cluster from here through AdGuard Home (GitHub PRs, Proxmox, nodes, OPNsense): explicit.
   apps:
     name: Apps
-    icon: github.png
+    icon: si-github
     href: https://github.com/Starktastic-Homelab/apps/pulls
     description: Cluster manifests — open PRs
     widgets:
@@ -665,7 +947,7 @@ tiles:
           target: https://github.com/Starktastic-Homelab/apps/pull/{number}
   ansible:
     name: Ansible
-    icon: github.png
+    icon: si-github
     href: https://github.com/Starktastic-Homelab/ansible/pulls
     description: Host playbooks — open PRs
     widgets:
@@ -678,7 +960,7 @@ tiles:
           target: https://github.com/Starktastic-Homelab/ansible/pull/{number}
   packer:
     name: Packer
-    icon: github.png
+    icon: si-github
     href: https://github.com/Starktastic-Homelab/packer/pulls
     description: VM images — open PRs
     widgets:
@@ -691,7 +973,7 @@ tiles:
           target: https://github.com/Starktastic-Homelab/packer/pull/{number}
   terraform:
     name: Terraform
-    icon: github.png
+    icon: si-github
     href: https://github.com/Starktastic-Homelab/terraform/pulls
     description: Infrastructure — open PRs
     widgets:
@@ -765,6 +1047,45 @@ tiles:
     widgets:
       - type: traefik
         url: http://traefik-api.traefik-system:8080
+      # Certificates and traffic, from the old Edge & Certs tile. Both cert rules warn at 10 days; red at 3 is an
+      # addition, because HSTS turns an expired certificate into an outage (ADR 0020).
+      - type: prometheusmetric
+        url: http://kube-prometheus-stack-prometheus.monitoring:9090
+        refreshInterval: 30000
+        metrics:
+          - label: Cert Expiry
+            query:
+              min(certmanager_certificate_expiration_timestamp_seconds{issuer_name="letsencrypt-prod"} > 0) - time()
+            format:
+              type: number
+              scale: 1/86400
+              suffix: " days"
+              options:
+                maximumFractionDigits: 0
+          - label: Requests
+            query: sum(rate(traefik_entrypoint_requests_total[5m]))
+            format:
+              type: number
+              suffix: " req/s"
+              options:
+                maximumFractionDigits: 1
+          - label: p95 Latency
+            query: histogram_quantile(0.95, sum by (le) (rate(traefik_entrypoint_request_duration_seconds_bucket[5m])))
+            format:
+              type: number
+              scale: 1000
+              suffix: " ms"
+              options:
+                maximumFractionDigits: 0
+        highlight:
+          Cert Expiry:
+            numeric:
+              - level: danger
+                when: lt
+                value: 3
+              - level: warn
+                when: lt
+                value: 10
   # Off-cluster: explicit.
   truenas:
     name: TrueNAS
@@ -842,19 +1163,58 @@ info:
   - audience: household
     logo:
       icon: /icons/favicon.svg
+  # The wordmark beside the mark.
   - audience: household-only
     greeting:
-      text_size: xl
-      text: Welcome home
-  - kubernetes:
-      cluster:
-        show: true
-        cpu: true
-        memory: true
-        showLabel: true
-        label: cluster
-      nodes:
-        show: false
+      text_size: 2xl
+      text: Starktastic
+  - greeting:
+      text_size: 2xl
+      text: Starktastic Admin
+  # Admin header chips: fixed-URL customapi on Alertmanager and Prometheus, 30 s. They replace the kubernetes
+  # info widget, which polled the API server every 1.5 s. node_* metrics are node-exporter's.
+  - customapi:
+      url: http://kube-prometheus-stack-alertmanager.monitoring:9093/api/v2/alerts?active=true&silenced=false&inhibited=false&receiver=ntfy
+      icon: mdi-bell-alert
+      refreshInterval: 30000
+      mappings:
+        - label: Alerts
+          format: size
+  # "Is it us or the internet?" One fixed query on the server, no credential (ADR 0018 rule 2). Braces are
+  # percent-encoded: Homepage strips {...} from URLs. Proof: probe-external.yaml labels 1.1.1.1 tier=external.
+  - audience: household
+    customapi:
+      url: http://kube-prometheus-stack-prometheus.monitoring:9090/api/v1/query?query=min(probe_success%7Btier%3D%22external%22%7D)
+      icon: mdi-earth
+      refreshInterval: 60000
+      mappings:
+        - field: data.result.0.value.1
+          label: Internet
+          remap:
+            - value: "1"
+              to: Online
+            - value: "0"
+              to: Down ⚠
+            - any: true
+              to: Unknown
+  - customapi:
+      url: http://kube-prometheus-stack-prometheus.monitoring:9090/api/v1/query?query=1%20-%20avg(rate(node_cpu_seconds_total%7Bmode%3D%22idle%22%7D[5m]))
+      icon: mdi-cpu-64-bit
+      refreshInterval: 30000
+      mappings:
+        - field: data.result.0.value.1
+          label: CPU
+          scale: 100
+          format: percent
+  - customapi:
+      url: http://kube-prometheus-stack-prometheus.monitoring:9090/api/v1/query?query=1%20-%20sum(node_memory_MemAvailable_bytes)%20%2F%20sum(node_memory_MemTotal_bytes)
+      icon: mdi-memory
+      refreshInterval: 30000
+      mappings:
+        - field: data.result.0.value.1
+          label: Memory
+          scale: 100
+          format: percent
   - audience: household
     search:
       provider: custom
@@ -862,295 +1222,230 @@ info:
       target: _blank
   - audience: household
     openmeteo:
-      label: Weather
+      label: Home
       latitude: 32.08
       longitude: 34.78
       timezone: Asia/Jerusalem
       units: metric
-  - stocks:
-      provider: finnhub
-      color: true
-      cache: 5
-      watchlist:
-        - NVDA
-        - AMD
-        - INTC
-        - MSFT
-        - GOOGL
-        - AAPL
-        - TSM
   - audience: household
     datetime:
       text_size: xl
+      locale: en-GB
       format:
-        dateStyle: long
-        timeStyle: short
+        weekday: short
+        day: numeric
+        month: short
+        hour: 2-digit
+        minute: 2-digit
         hourCycle: h23
 pages:
   household:
     tabs:
-      - name: Pulse
-        groups:
-          - name: Coming Up
-            style: row
-            columns: 1
-            icon: mdi-calendar-month
-            items:
-              - calendar
-          - name: Links
-            style: row
-            columns: 2
-            icon: mdi-bookmark-outline
-            items:
-              - bm-my-account
-              - bm-github
-      - name: Play
+      - name: Watch
         groups:
           - name: Watch
-            style: row
-            columns: 1
-            icon: mdi-television-play
             items:
               - jellyfin
+          - name: Coming Up
+            items:
+              - calendar
+          - name: Requests
+            style: row
+            columns: 2
+            items:
+              - seerr
+              - seerr-ru
+      - name: Library
+        groups:
           - name: Listen
             style: row
             columns: 2
-            icon: mdi-headphones
             items:
               - navidrome
               - audiobookshelf
           - name: Read
             style: row
-            columns: 1
-            icon: mdi-book-open-page-variant
+            columns: 2
             items:
               - calibre-web
-          - name: Look Back
+              - shelfmark
+          - name: Photos
             style: row
-            columns: 1
-            icon: mdi-image-multiple
+            columns: 2
             items:
               - immich
-          - name: Ask For It
-            style: row
-            columns: 3
-            icon: mdi-hand-heart
-            items:
-              - seerr
-              - seerr-ru
-              - shelfmark
-      - name: Make
+      - name: Tools
         groups:
           - name: Create
             style: row
             columns: 2
-            icon: mdi-draw
             items:
               - excalidash
               - microbin
           - name: Convert
             style: row
             columns: 4
-            icon: mdi-file-swap
             items:
               - convertx
               - stirling-pdf
               - metube
               - cyberchef
-          - name: Find
+          - name: Find & Keep
             style: row
-            columns: 2
-            icon: mdi-magnify
+            columns: 3
             items:
               - searxng
               - karakeep
-          - name: Organise
-            style: row
-            columns: 1
-            icon: mdi-clipboard-check
-            items:
               - mealie
           - name: Send
             style: row
             columns: 3
-            icon: mdi-send
             items:
               - pairdrop
               - ntfy
               - listmonk
+          - name: Links
+            style: row
+            columns: 2
+            items:
+              - bm-my-account
+              - bm-github
   admin:
     tabs:
       - name: Pulse
         groups:
-          - name: At a Glance
-            style: row
-            columns: 3
-            icon: mdi-heart-pulse
-            items:
-              - cluster-health
-              - edge-certs
-              - security
-          - name: In Flight
-            style: row
-            columns: 5
-            icon: mdi-airplane-takeoff
-            items:
-              - streaming-now
-              - downloads
-              - downloads-ru
-              - deployments
-              - latest-alert
-          - name: Coming Up
+          - name: Needs Attention
             style: row
             columns: 2
-            icon: mdi-calendar-month
+            items:
+              - alerts
+              - notifications
+          - name: Health
+            style: row
+            columns: 2
+            items:
+              - cluster
+              - edge-wan
+              - security
+              - memory
+              - capacity
+              - backups
+          - name: Now Playing
+            style: row
+            columns: 2
+            items:
+              - streaming-now
+              - listening-now
+          - name: Coming Up
             items:
               - calendar
-              - recipe-box
           - name: Out There
             style: row
-            columns: 1
-            icon: mdi-newspaper-variant
+            columns: 2
             items:
-              - news
-      - name: Play
+              - markets
+              - hacker-news
+      - name: Media
         groups:
           - name: Watch
-            style: row
-            columns: 3
-            icon: mdi-television-play
             items:
               - jellyfin
               - dispatcharr
               - cineplete
           - name: Listen
-            style: row
-            columns: 2
-            icon: mdi-headphones
             items:
               - navidrome
               - audiobookshelf
           - name: Read
-            style: row
-            columns: 1
-            icon: mdi-book-open-page-variant
             items:
               - calibre-web
-          - name: Look Back
-            style: row
-            columns: 1
-            icon: mdi-image-multiple
+              - shelfmark
+          - name: Photos
             items:
               - immich
-          - name: Ask For It
-            style: row
-            columns: 3
-            icon: mdi-hand-heart
+          - name: Requests
             items:
               - seerr
               - seerr-ru
-              - shelfmark
-      - name: Make
+      - name: Pipeline
+        groups:
+          - name: Acquire
+            items:
+              - sonarr
+              - sonarr-ru
+              - radarr
+              - radarr-ru
+              - lidarr
+          - name: Index
+            items:
+              - prowlarr
+              - autobrr
+          - name: Download
+            items:
+              - qbittorrent
+              - qbittorrent-ru
+              - cleanuparr
+          - name: Subtitles
+            items:
+              - bazarr
+              - lingarr
+      - name: Apps
         groups:
           - name: Create
-            style: row
-            columns: 3
-            icon: mdi-draw
             items:
               - excalidash
-              - bytestash
               - microbin
+              - bytestash
           - name: Convert
-            style: row
-            columns: 4
-            icon: mdi-file-swap
             items:
               - convertx
               - stirling-pdf
-              - cyberchef
               - metube
-          - name: Find
-            style: row
-            columns: 3
-            icon: mdi-magnify
+              - cyberchef
+          - name: Find & Keep
             items:
               - searxng
               - karakeep
+              - mealie
               - changedetection
-          - name: Organise
-            style: row
-            columns: 3
-            icon: mdi-clipboard-check
+          - name: Documents
             items:
               - paperless-ngx
               - filebrowser
-              - mealie
           - name: Send
-            style: row
-            columns: 3
-            icon: mdi-send
             items:
               - pairdrop
               - ntfy
               - listmonk
-      - name: Run
-        groups:
-          - name: Acquire
-            style: row
-            columns: 2
-            icon: mdi-download
-            items:
-              - radarr
-              - radarr-ru
-              - sonarr
-              - sonarr-ru
-              - lidarr
-              - prowlarr
-              - autobrr
-              - cleanuparr
-              - qbittorrent
-              - qbittorrent-ru
-          - name: Refine
-            style: row
-            columns: 2
-            icon: mdi-auto-fix
-            items:
-              - bazarr
-              - lingarr
           - name: Home
-            style: row
-            columns: 2
-            icon: mdi-home-automation
             items:
               - home-assistant
               - zigbee2mqtt
-          - name: Observe
-            style: row
-            columns: 2
-            icon: mdi-chart-line
-            items:
-              - grafana
-              - prometheus
-          - name: Guard
-            style: row
-            columns: 3
-            icon: mdi-shield-lock
-            items:
-              - authentik
-              - vaultwarden
-              - falco
+      - name: Platform
+        groups:
           - name: Ship
-            style: row
-            columns: 5
-            icon: mdi-rocket-launch
             items:
               - argo-cd
               - apps
               - ansible
               - packer
               - terraform
+          - name: Edge
+            items:
+              - traefik
+          - name: Guard
+            items:
+              - authentik
+              - vaultwarden
+              - falco
+          - name: Observe
+            items:
+              - grafana
+              - prometheus
+          - name: Core
+            items:
+              - pgadmin
           - name: Code
-            icon: mdi-source-branch
             items:
               - bm-apps
               - bm-ansible
@@ -1159,38 +1454,25 @@ pages:
       - name: Iron
         groups:
           - name: Compute
-            style: row
-            columns: 4
-            icon: mdi-server
             items:
               - proxmox-ve
               - kube-master-01
               - kube-worker-01
               - kube-worker-02
           - name: Network
-            style: row
-            columns: 3
-            icon: mdi-lan
             items:
               - opnsense
               - adguard-home
-              - traefik
-          - name: Store
-            style: row
-            columns: 2
-            icon: mdi-database
+          - name: Storage
             items:
               - truenas
-              - pgadmin
           - name: Reference
-            icon: mdi-book-open-variant
             items:
               - bm-homepage
               - bm-kubernetes
               - bm-trash-guides
               - bm-dashboard-icons
           - name: Accounts
-            icon: mdi-account-key
             items:
               - bm-crowdsec-console
               - bm-finnhub

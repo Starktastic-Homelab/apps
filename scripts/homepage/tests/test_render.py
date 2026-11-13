@@ -54,13 +54,17 @@ CAT = {
 }
 
 
-def build(page, cat=CAT, pages=None, edit=None):
+def build(page, cat=CAT, pages=None, edit=None, **kw):
     c = copy.deepcopy(cat)
     if edit:
         edit(c)
     with tempfile.TemporaryDirectory() as d:
-        repo = make_repo(Path(d), c, pages=pages)
+        repo = make_repo(Path(d), c, pages=pages, **kw)
         return build_page(repo, load_catalog(repo), page)
+
+
+def css(text, page="household", **kw):
+    return build(page, pages={page: {"custom.css": text}}, **kw)
 
 
 def tiles(data):
@@ -145,6 +149,58 @@ class RenderTests(unittest.TestCase):
             build("household", pages={"household": {"custom.css": 'li[data-name="Sonarr"] {}\n'}})
         css = 'li[data-name="Calendar"] {}\n'
         self.assertEqual(build("household", pages={"household": {"custom.css": css}})["custom.css"], css)
+
+    def test_shared_css_prepended(self):
+        for shared in (".service-card{}", ".service-card{}\n"):
+            with self.subTest(shared=shared):
+                self.assertEqual(css(".service-block{}", shared=shared)["custom.css"],
+                                 ".service-card{}\n.service-block{}")
+        self.assertEqual(css(".service-block{}")["custom.css"], ".service-block{}")
+        with self.assertRaisesRegex(CatalogError, r"shared\.css.*not a Homepage hook"):
+            css("", shared=".bg-rose-500{}")
+
+    def test_css_unknown_class(self):
+        for bad in (".bg-rose-500{}", ".service-card .w-full{}", 'li[data-foo="x"]{}', '[class*="information-"]{}'):
+            with self.subTest(bad=bad), self.assertRaisesRegex(CatalogError, "not a Homepage hook"):
+                css(bad)
+        css('.service-card .service-block-value, li.service[data-name="Calendar"] .information-widget-search{}\n'
+            '@media (min-width: 1024.5px) { .bookmark:hover::before { color: #fff; margin: .5rem } }\n'
+            '.service-block[data-highlight-level="danger"], #myTab [role="tab"][aria-selected="true"]{}')
+
+    def test_css_positional(self):
+        for bad in (".service-card > div:first-child{}", "#tabs ~ #layout-groups{}", ".service-block:nth-child(2){}",
+                    ".service-name + .service-description{}", "@media (min-width: 9px) { li:last-child{} }"):
+            with self.subTest(bad=bad), self.assertRaisesRegex(CatalogError, "position"):
+                css(bad)
+        css("/* no-hook:start */\n.service-card > div:first-child + div[title]{}\n/* no-hook:end */\n"
+            ".service-card{ width: calc(1px + 2px) }")
+        with self.assertRaisesRegex(CatalogError, "not a Homepage hook"):
+            css("/* no-hook:start */\n.bg-rose-500 > div:first-child{}\n/* no-hook:end */\n")
+
+    def test_css_nested_rules_rejected(self):
+        # A rule nested in a style rule would escape both this lint and the render check's walker.
+        for bad in (".service-card { .bg-rose-500 { color: red } }", ".service-card { & > div:nth-child(2) { top: 0 } }"):
+            with self.subTest(bad=bad), self.assertRaisesRegex(CatalogError, "nested"):
+                css(bad)
+
+    def test_css_unknown_at_rule_rejected(self):
+        for bad, name in (("@scope (.service-card) { .bg-rose-500 { color: red } }", "@scope"),
+                          ("@starting-style { .service-card { opacity: 0 } }", "@starting-style")):
+            with self.subTest(bad=bad), self.assertRaisesRegex(CatalogError, f"{name} is not checked"):
+                css(bad)
+        css("@keyframes x { 50% { opacity: 0 } }\n@font-face { font-family: x }\n"
+            '@property --x { syntax: "*"; inherits: false }\n'
+            "@supports (display: grid) { @media (min-width: 9px) { .service-card { top: 0 } } }")
+
+    def test_css_ids(self):
+        with self.assertRaisesRegex(CatalogError, "#nope is not a Homepage id, a tab or a tile on page household"):
+            css("#nope{}")
+        with self.assertRaisesRegex(CatalogError, "#sonarr is not a Homepage id"):
+            css("#sonarr{}")  # an admin-only tile
+        with self.assertRaisesRegex(CatalogError, "#Run-tab is not a Homepage id"):
+            css("#Run-tab{}")  # an admin tab
+        css("#cal{}\n#gh{}\n#Pulse-tab{}\n#layout-groups .service-card{ color: #abcdef }")
+        css("#sonarr{}\n#Run-tab{}", page="admin")
 
     def test_rule11_to_14_generator_owned(self):
         h, a = build("household"), build("admin")

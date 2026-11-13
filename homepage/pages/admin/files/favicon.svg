@@ -1,18 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-  <defs>
-    <filter id="glow">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur"/>
-      <feFlood flood-color="#DC2626" flood-opacity="0.5" result="color"/>
-      <feComposite in="color" in2="blur" operator="in" result="shadow"/>
-      <feMerge>
-        <feMergeNode in="shadow"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-  </defs>
-  <rect width="48" height="48" rx="10" fill="#0F0F1A"/>
-  <text x="50%" y="34" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
-        font-size="26" font-weight="800" letter-spacing="1">
-    <tspan fill="#F1F5F9">S</tspan><tspan fill="#DC2626" filter="url(#glow)">T</tspan>
-  </text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><defs><linearGradient id="sq" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B1D33"/><stop offset="1" stop-color="#0F0F1A"/></linearGradient><radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#7C3AED" stop-opacity=".7"/><stop offset="1" stop-color="#7C3AED" stop-opacity="0"/></radialGradient><linearGradient id="st" x1=".2" y1="0" x2=".8" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".35" stop-color="#C4B5FD"/><stop offset=".75" stop-color="#7C3AED"/><stop offset="1" stop-color="#A78BFA"/></linearGradient><linearGradient id="rim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".55"/><stop offset=".5" stop-color="#FFFFFF" stop-opacity=".08"/><stop offset="1" stop-color="#C4B5FD" stop-opacity=".35"/></linearGradient></defs><rect x="1" y="1" width="46" height="46" rx="14" fill="url(#sq)"/><circle cx="24" cy="24" r="20" fill="url(#glow)"/><path d="M24 7 C25.6 17.2 30.8 22.4 41 24 C30.8 25.6 25.6 30.8 24 41 C22.4 30.8 17.2 25.6 7 24 C17.2 22.4 22.4 17.2 24 7 Z" fill="url(#st)"/><rect x="1.5" y="1.5" width="45" height="45" rx="13.5" fill="none" stroke="url(#rim)"/></svg>

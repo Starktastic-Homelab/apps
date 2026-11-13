@@ -1,0 +1,52 @@
+[
+ {
+  "title": "The.Odyssey.2026.2160p.WEB-DL.DDP5.1.Atmos.DV.HDR.H.265-FLUX",
+  "size": 38600000000,
+  "sizeleft": 22800000000,
+  "status": "downloading",
+  "trackedDownloadState": "downloading",
+  "trackedDownloadStatus": "ok",
+  "protocol": "torrent",
+  "downloadClient": "qBittorrent",
+  "id": 1,
+  "timeleft": "00:41:12",
+  "movieId": 3000
+ },
+ {
+  "title": "Jurassic.World.Rebirth.2025.1080p.BluRay.x264-SPARKS",
+  "size": 14200000000,
+  "sizeleft": 3100000000,
+  "status": "downloading",
+  "trackedDownloadState": "downloading",
+  "trackedDownloadStatus": "ok",
+  "protocol": "torrent",
+  "downloadClient": "qBittorrent",
+  "id": 2,
+  "timeleft": "00:09:48",
+  "movieId": 3508
+ },
+ {
+  "title": "Superman.2025.1080p.WEB-DL.DDP5.1.Atmos.H.264-FLUX",
+  "size": 9400000000,
+  "sizeleft": 0,
+  "status": "completed",
+  "trackedDownloadState": "importing",
+  "trackedDownloadStatus": "ok",
+  "protocol": "torrent",
+  "downloadClient": "qBittorrent",
+  "id": 3,
+  "movieId": 3507
+ },
+ {
+  "title": "Toy.Story.5.2026.1080p.WEB-DL.DDP5.1.H.264-NTb",
+  "size": 7800000000,
+  "sizeleft": 7800000000,
+  "status": "queued",
+  "trackedDownloadState": "downloading",
+  "trackedDownloadStatus": "ok",
+  "protocol": "torrent",
+  "downloadClient": "qBittorrent",
+  "id": 4,
+  "movieId": 3001
+ }
+]

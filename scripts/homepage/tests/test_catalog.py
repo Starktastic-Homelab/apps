@@ -36,6 +36,12 @@ class CatalogTests(unittest.TestCase):
         for name in ("header", "tab", "columns"):
             self.bad(cat_with(lambda c: items(c, "household", [{"name": name, "items": ["a"]}])), "collides")
 
+    def test_subgroup_name_not_a_string(self):
+        for name in (["x"], {"k": 1}, 7):
+            with self.subTest(name=name):
+                self.bad(cat_with(lambda c: items(c, "household", [{"name": name, "items": ["a"]}])),
+                         "group has no name")
+
     def test_rule05_tile_placement(self):
         self.bad(cat_with(lambda c: items(c, "household", [])), r"tiles\.a")
         self.bad(cat_with(lambda c: items(c, "admin", ["a", "a"])), r"tiles\.a")

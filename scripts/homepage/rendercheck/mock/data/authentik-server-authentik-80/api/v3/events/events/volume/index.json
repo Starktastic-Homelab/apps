@@ -1,0 +1,207 @@
+[
+ {
+  "action": "login",
+  "time": "{{iso:-21h}}",
+  "count": 1
+ },
+ {
+  "action": "login",
+  "time": "{{iso:-17h}}",
+  "count": 2
+ },
+ {
+  "action": "login",
+  "time": "{{iso:-16h}}",
+  "count": 4
+ },
+ {
+  "action": "login",
+  "time": "{{iso:-15h}}",
+  "count": 3
+ },
+ {
+  "action": "login",
+  "time": "{{iso:-14h}}",
+  "count": 2
+ },
+ {
+  "action": "login",
+  "time": "{{iso:-13h}}",
+  "count": 1
+ },
+ {
+  "action": "login",
+  "time": "{{iso:-12h}}",
+  "count": 2
+ },
+ {
+  "action": "login",
+  "time": "{{iso:-11h}}",
+  "count": 3
+ },
+ {
+  "action": "login",
+  "time": "{{iso:-10h}}",
+  "count": 1
+ },
+ {
+  "action": "login",
+  "time": "{{iso:-9h}}",
+  "count": 2
+ },
+ {
+  "action": "login",
+  "time": "{{iso:-8h}}",
+  "count": 4
+ },
+ {
+  "action": "login",
+  "time": "{{iso:-7h}}",
+  "count": 3
+ },
+ {
+  "action": "login",
+  "time": "{{iso:-6h}}",
+  "count": 2
+ },
+ {
+  "action": "login",
+  "time": "{{iso:-5h}}",
+  "count": 3
+ },
+ {
+  "action": "login",
+  "time": "{{iso:-4h}}",
+  "count": 2
+ },
+ {
+  "action": "login",
+  "time": "{{iso:-3h}}",
+  "count": 1
+ },
+ {
+  "action": "login",
+  "time": "{{iso:-2h}}",
+  "count": 1
+ },
+ {
+  "action": "login",
+  "time": "{{iso:-0h}}",
+  "count": 1
+ },
+ {
+  "action": "login_failed",
+  "time": "{{iso:-17h}}",
+  "count": 1
+ },
+ {
+  "action": "login_failed",
+  "time": "{{iso:-8h}}",
+  "count": 2
+ },
+ {
+  "action": "authorize_application",
+  "time": "{{iso:-23h}}",
+  "count": 1
+ },
+ {
+  "action": "authorize_application",
+  "time": "{{iso:-21h}}",
+  "count": 2
+ },
+ {
+  "action": "authorize_application",
+  "time": "{{iso:-18h}}",
+  "count": 1
+ },
+ {
+  "action": "authorize_application",
+  "time": "{{iso:-17h}}",
+  "count": 5
+ },
+ {
+  "action": "authorize_application",
+  "time": "{{iso:-16h}}",
+  "count": 9
+ },
+ {
+  "action": "authorize_application",
+  "time": "{{iso:-15h}}",
+  "count": 8
+ },
+ {
+  "action": "authorize_application",
+  "time": "{{iso:-14h}}",
+  "count": 7
+ },
+ {
+  "action": "authorize_application",
+  "time": "{{iso:-13h}}",
+  "count": 4
+ },
+ {
+  "action": "authorize_application",
+  "time": "{{iso:-12h}}",
+  "count": 6
+ },
+ {
+  "action": "authorize_application",
+  "time": "{{iso:-11h}}",
+  "count": 7
+ },
+ {
+  "action": "authorize_application",
+  "time": "{{iso:-10h}}",
+  "count": 5
+ },
+ {
+  "action": "authorize_application",
+  "time": "{{iso:-9h}}",
+  "count": 6
+ },
+ {
+  "action": "authorize_application",
+  "time": "{{iso:-8h}}",
+  "count": 9
+ },
+ {
+  "action": "authorize_application",
+  "time": "{{iso:-7h}}",
+  "count": 8
+ },
+ {
+  "action": "authorize_application",
+  "time": "{{iso:-6h}}",
+  "count": 7
+ },
+ {
+  "action": "authorize_application",
+  "time": "{{iso:-5h}}",
+  "count": 8
+ },
+ {
+  "action": "authorize_application",
+  "time": "{{iso:-4h}}",
+  "count": 6
+ },
+ {
+  "action": "authorize_application",
+  "time": "{{iso:-3h}}",
+  "count": 5
+ },
+ {
+  "action": "authorize_application",
+  "time": "{{iso:-2h}}",
+  "count": 4
+ },
+ {
+  "action": "authorize_application",
+  "time": "{{iso:-1h}}",
+  "count": 2
+ },
+ {
+  "action": "authorize_application",
+  "time": "{{iso:-0h}}",
+  "count": 2
+ }
+]

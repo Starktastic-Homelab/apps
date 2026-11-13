@@ -1,0 +1,28 @@
+[
+  {
+    "path": "^/api-github-com/repos/[^/]+/[^/]+/pulls$",
+    "json": [
+      {
+        "number": 1601,
+        "title": "chore(deps): update ghcr.io/immich-app/immich-server docker tag to v3.4.2",
+        "user": {
+          "login": "renovate[bot]"
+        }
+      },
+      {
+        "number": 1598,
+        "title": "feat(homepage): new dashboards",
+        "user": {
+          "login": "ben"
+        }
+      },
+      {
+        "number": 1594,
+        "title": "chore(deps): update helm release traefik to v40",
+        "user": {
+          "login": "renovate[bot]"
+        }
+      }
+    ]
+  }
+]

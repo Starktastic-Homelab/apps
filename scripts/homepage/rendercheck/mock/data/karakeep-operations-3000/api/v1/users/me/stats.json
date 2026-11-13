@@ -1,0 +1,55 @@
+{
+ "numBookmarks": 1482,
+ "numFavorites": 96,
+ "numArchived": 611,
+ "numTags": 208,
+ "numLists": 12,
+ "numHighlights": 143,
+ "bookmarksByType": {
+  "link": 1311,
+  "text": 97,
+  "asset": 74
+ },
+ "topDomains": [
+  {
+   "domain": "github.com",
+   "count": 214
+  },
+  {
+   "domain": "news.ycombinator.com",
+   "count": 97
+  },
+  {
+   "domain": "youtube.com",
+   "count": 88
+  },
+  {
+   "domain": "arstechnica.com",
+   "count": 41
+  },
+  {
+   "domain": "lwn.net",
+   "count": 37
+  }
+ ],
+ "totalAssetSize": 2873321472,
+ "assetsByType": [
+  {
+   "type": "screenshot",
+   "count": 1188,
+   "totalSize": 1610612736
+  },
+  {
+   "type": "pdf",
+   "count": 61,
+   "totalSize": 905969664
+  }
+ ],
+ "bookmarkingActivity": {
+  "thisWeek": 19,
+  "thisMonth": 64,
+  "thisYear": 602,
+  "byHour": [],
+  "byDayOfWeek": []
+ }
+}

@@ -1,0 +1,37 @@
+[
+ {
+  "path": "/api/v1/quote",
+  "query": "symbol=NVDA",
+  "file": "_hosts/finnhub.io/api/v1/quote/NVDA.json"
+ },
+ {
+  "path": "/api/v1/quote",
+  "query": "symbol=AMD",
+  "file": "_hosts/finnhub.io/api/v1/quote/AMD.json"
+ },
+ {
+  "path": "/api/v1/quote",
+  "query": "symbol=INTC",
+  "file": "_hosts/finnhub.io/api/v1/quote/INTC.json"
+ },
+ {
+  "path": "/api/v1/quote",
+  "query": "symbol=MSFT",
+  "file": "_hosts/finnhub.io/api/v1/quote/MSFT.json"
+ },
+ {
+  "path": "/api/v1/quote",
+  "query": "symbol=GOOGL",
+  "file": "_hosts/finnhub.io/api/v1/quote/GOOGL.json"
+ },
+ {
+  "path": "/api/v1/quote",
+  "query": "symbol=AAPL",
+  "file": "_hosts/finnhub.io/api/v1/quote/AAPL.json"
+ },
+ {
+  "path": "/api/v1/quote",
+  "query": "symbol=TSM",
+  "file": "_hosts/finnhub.io/api/v1/quote/TSM.json"
+ }
+]

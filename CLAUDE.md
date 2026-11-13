@@ -26,7 +26,7 @@ YAMLLINT_CONFIG_FILE=.github/yamllint.yaml yamllint .
 # kubeconform: copy the "Validate static manifests" step (fetches schemas)
 python3 scripts/check-homepage-coverage.py    # PyYAML + helm
 python3 scripts/check-homepage-household.py   # PyYAML + helm: ADR 0018 rules for household
-python3 scripts/homepage/generate.py [--check|--compare|--inventory]   # PyYAML: pages from homepage/catalog.yaml (ADR 0019)
+python3 scripts/homepage/generate.py [--check|--inventory]   # PyYAML: pages from homepage/catalog.yaml (ADR 0019)
 python3 scripts/check-admin-gate.py           # PyYAML + helm: ADR 0014 gate
 python3 scripts/check-jellyfin-compat.py      # PyYAML + helm + curl
 python3 scripts/check-argocd-notifications.py # PyYAML + helm: ntfy bodies stay valid JSON
@@ -61,8 +61,8 @@ Report what ran. The PR's ArgoCD diff preview is the review of record; renders d
 - No `cluster.local` service FQDNs (ndots leak; CI greps for them): use `service` or `service.namespace`.
 - `templates/ingress-chart` picks entrypoints and middlewares from `domainType`. Every ingress host goes on
   homepage-admin, non-internal ones on homepage too (`check-homepage-coverage.py`).
-- Homepage pages come from homepage/catalog.yaml (ADR 0019). Until a page is cut over, change its live ConfigMap
-  and the catalog together: --compare fails CI otherwise.
+- Homepage pages come from homepage/catalog.yaml (ADR 0019, 0020). A staged page's live ConfigMap is frozen: change
+  the catalog. Only a new app's tile goes in both. After cut-over, never edit the ConfigMap by hand.
 - `authAdmin` means the ADR 0014 gate (`authentik-internal-gate`); `-ru` variants inherit it. The gate ignores `?app=`.
   Never rename `authentik Admins`. After the admin-middleware cleanup, fix forward, don't revert.
 - Every Authentik application needs a binding: with `core_default_app_access` off (ADR 0016) an unbound app denies

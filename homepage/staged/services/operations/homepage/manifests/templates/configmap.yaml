@@ -5,250 +5,863 @@ metadata:
   name: homepage-config
   namespace: operations
 data:
+  aurora-live.svg: |
+    <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><defs><radialGradient id="ga"><stop offset="0" stop-color="#3B82F6" stop-opacity="0.720"/><stop offset="0.22" stop-color="#3B82F6" stop-opacity="0.518"/><stop offset="0.45" stop-color="#3B82F6" stop-opacity="0.259"/><stop offset="0.7" stop-color="#3B82F6" stop-opacity="0.079"/><stop offset="1" stop-color="#3B82F6" stop-opacity="0.000"/></radialGradient><radialGradient id="gb"><stop offset="0" stop-color="#6366F1" stop-opacity="0.560"/><stop offset="0.22" stop-color="#6366F1" stop-opacity="0.403"/><stop offset="0.45" stop-color="#6366F1" stop-opacity="0.202"/><stop offset="0.7" stop-color="#6366F1" stop-opacity="0.062"/><stop offset="1" stop-color="#6366F1" stop-opacity="0.000"/></radialGradient><radialGradient id="gc"><stop offset="0" stop-color="#0891B2" stop-opacity="0.300"/><stop offset="0.22" stop-color="#0891B2" stop-opacity="0.216"/><stop offset="0.45" stop-color="#0891B2" stop-opacity="0.108"/><stop offset="0.7" stop-color="#0891B2" stop-opacity="0.033"/><stop offset="1" stop-color="#0891B2" stop-opacity="0.000"/></radialGradient><radialGradient id="gd"><stop offset="0" stop-color="#7C3AED" stop-opacity="0.460"/><stop offset="0.22" stop-color="#7C3AED" stop-opacity="0.331"/><stop offset="0.45" stop-color="#7C3AED" stop-opacity="0.166"/><stop offset="0.7" stop-color="#7C3AED" stop-opacity="0.051"/><stop offset="1" stop-color="#7C3AED" stop-opacity="0.000"/></radialGradient><radialGradient id="ge"><stop offset="0" stop-color="#1D4ED8" stop-opacity="0.520"/><stop offset="0.22" stop-color="#1D4ED8" stop-opacity="0.374"/><stop offset="0.45" stop-color="#1D4ED8" stop-opacity="0.187"/><stop offset="0.7" stop-color="#1D4ED8" stop-opacity="0.057"/><stop offset="1" stop-color="#1D4ED8" stop-opacity="0.000"/></radialGradient><linearGradient id="rib" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#22D3EE" stop-opacity="0"/><stop offset=".22" stop-color="#22D3EE"/><stop offset=".55" stop-color="#3B82F6"/><stop offset=".85" stop-color="#A78BFA"/><stop offset="1" stop-color="#A78BFA" stop-opacity="0"/></linearGradient><filter id="soft" x="-10%" y="-60%" width="120%" height="220%"><feGaussianBlur stdDeviation="9"/></filter><radialGradient id="vig" cx=".5" cy=".42" r=".75"><stop offset=".45" stop-color="#0F0F1A" stop-opacity="0"/><stop offset="1" stop-color="#05050B" stop-opacity="0.5"/></radialGradient></defs><rect width="100%" height="100%" fill="#0F0F1A"/><circle cx="8%" cy="0%" r="72%" fill="url(#ga)"><animate attributeName="cx" values="8%;18%;4%;8%" dur="70s" repeatCount="indefinite" calcMode="spline" keyTimes="0.000;0.333;0.667;1.000" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/><animate attributeName="cy" values="0%;8%;12%;0%" dur="70s" repeatCount="indefinite" calcMode="spline" keyTimes="0.000;0.333;0.667;1.000" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/></circle><circle cx="100%" cy="30%" r="56%" fill="url(#gb)"><animate attributeName="cx" values="100%;88%;102%;100%" dur="90s" repeatCount="indefinite" calcMode="spline" keyTimes="0.000;0.333;0.667;1.000" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/><animate attributeName="cy" values="30%;40%;46%;30%" dur="90s" repeatCount="indefinite" calcMode="spline" keyTimes="0.000;0.333;0.667;1.000" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/></circle><circle cx="52%" cy="60%" r="42%" fill="url(#gc)"><animate attributeName="cx" values="52%;40%;60%;52%" dur="80s" repeatCount="indefinite" calcMode="spline" keyTimes="0.000;0.333;0.667;1.000" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/><animate attributeName="cy" values="60%;52%;68%;60%" dur="80s" repeatCount="indefinite" calcMode="spline" keyTimes="0.000;0.333;0.667;1.000" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/></circle><circle cx="0%" cy="86%" r="56%" fill="url(#gd)"><animate attributeName="cx" values="0%;12%;-4%;0%" dur="100s" repeatCount="indefinite" calcMode="spline" keyTimes="0.000;0.333;0.667;1.000" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/><animate attributeName="cy" values="86%;78%;72%;86%" dur="100s" repeatCount="indefinite" calcMode="spline" keyTimes="0.000;0.333;0.667;1.000" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/></circle><circle cx="100%" cy="100%" r="56%" fill="url(#ge)"><animate attributeName="cx" values="100%;90%;102%;100%" dur="110s" repeatCount="indefinite" calcMode="spline" keyTimes="0.000;0.333;0.667;1.000" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/><animate attributeName="cy" values="100%;92%;86%;100%" dur="110s" repeatCount="indefinite" calcMode="spline" keyTimes="0.000;0.333;0.667;1.000" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"/></circle><svg x="-8%" y="8%" width="116%" height="46%" viewBox="0 0 1000 400" preserveAspectRatio="none" overflow="visible"><animate attributeName="x" values="-8%;-14%;-8%" dur="120s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/><g fill="none" stroke="url(#rib)" stroke-linecap="round" filter="url(#soft)"><path d="M -60 250 C 140 110, 330 340, 520 205 S 860 70, 1060 170" stroke-width="260" opacity="0.035"/><path d="M -60 250 C 140 110, 330 340, 520 205 S 860 70, 1060 170" stroke-width="170" opacity="0.05"/><path d="M -60 250 C 140 110, 330 340, 520 205 S 860 70, 1060 170" stroke-width="105" opacity="0.07"/><path d="M -60 250 C 140 110, 330 340, 520 205 S 860 70, 1060 170" stroke-width="58" opacity="0.09"/><path d="M -60 250 C 140 110, 330 340, 520 205 S 860 70, 1060 170" stroke-width="26" opacity="0.12"/><path d="M -60 250 C 140 110, 330 340, 520 205 S 860 70, 1060 170" stroke-width="8" opacity="0.22"/></g></svg><rect width="100%" height="100%" fill="url(#vig)"/></svg>
+  aurora-still.svg: |
+    <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><defs><radialGradient id="ga"><stop offset="0" stop-color="#3B82F6" stop-opacity="0.720"/><stop offset="0.22" stop-color="#3B82F6" stop-opacity="0.518"/><stop offset="0.45" stop-color="#3B82F6" stop-opacity="0.259"/><stop offset="0.7" stop-color="#3B82F6" stop-opacity="0.079"/><stop offset="1" stop-color="#3B82F6" stop-opacity="0.000"/></radialGradient><radialGradient id="gb"><stop offset="0" stop-color="#6366F1" stop-opacity="0.560"/><stop offset="0.22" stop-color="#6366F1" stop-opacity="0.403"/><stop offset="0.45" stop-color="#6366F1" stop-opacity="0.202"/><stop offset="0.7" stop-color="#6366F1" stop-opacity="0.062"/><stop offset="1" stop-color="#6366F1" stop-opacity="0.000"/></radialGradient><radialGradient id="gc"><stop offset="0" stop-color="#0891B2" stop-opacity="0.300"/><stop offset="0.22" stop-color="#0891B2" stop-opacity="0.216"/><stop offset="0.45" stop-color="#0891B2" stop-opacity="0.108"/><stop offset="0.7" stop-color="#0891B2" stop-opacity="0.033"/><stop offset="1" stop-color="#0891B2" stop-opacity="0.000"/></radialGradient><radialGradient id="gd"><stop offset="0" stop-color="#7C3AED" stop-opacity="0.460"/><stop offset="0.22" stop-color="#7C3AED" stop-opacity="0.331"/><stop offset="0.45" stop-color="#7C3AED" stop-opacity="0.166"/><stop offset="0.7" stop-color="#7C3AED" stop-opacity="0.051"/><stop offset="1" stop-color="#7C3AED" stop-opacity="0.000"/></radialGradient><radialGradient id="ge"><stop offset="0" stop-color="#1D4ED8" stop-opacity="0.520"/><stop offset="0.22" stop-color="#1D4ED8" stop-opacity="0.374"/><stop offset="0.45" stop-color="#1D4ED8" stop-opacity="0.187"/><stop offset="0.7" stop-color="#1D4ED8" stop-opacity="0.057"/><stop offset="1" stop-color="#1D4ED8" stop-opacity="0.000"/></radialGradient><linearGradient id="rib" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#22D3EE" stop-opacity="0"/><stop offset=".22" stop-color="#22D3EE"/><stop offset=".55" stop-color="#3B82F6"/><stop offset=".85" stop-color="#A78BFA"/><stop offset="1" stop-color="#A78BFA" stop-opacity="0"/></linearGradient><filter id="soft" x="-10%" y="-60%" width="120%" height="220%"><feGaussianBlur stdDeviation="9"/></filter><radialGradient id="vig" cx=".5" cy=".42" r=".75"><stop offset=".45" stop-color="#0F0F1A" stop-opacity="0"/><stop offset="1" stop-color="#05050B" stop-opacity="0.5"/></radialGradient></defs><rect width="100%" height="100%" fill="#0F0F1A"/><circle cx="8%" cy="0%" r="72%" fill="url(#ga)"></circle><circle cx="100%" cy="30%" r="56%" fill="url(#gb)"></circle><circle cx="52%" cy="60%" r="42%" fill="url(#gc)"></circle><circle cx="0%" cy="86%" r="56%" fill="url(#gd)"></circle><circle cx="100%" cy="100%" r="56%" fill="url(#ge)"></circle><svg x="-8%" y="8%" width="116%" height="46%" viewBox="0 0 1000 400" preserveAspectRatio="none" overflow="visible"><g fill="none" stroke="url(#rib)" stroke-linecap="round" filter="url(#soft)"><path d="M -60 250 C 140 110, 330 340, 520 205 S 860 70, 1060 170" stroke-width="260" opacity="0.035"/><path d="M -60 250 C 140 110, 330 340, 520 205 S 860 70, 1060 170" stroke-width="170" opacity="0.05"/><path d="M -60 250 C 140 110, 330 340, 520 205 S 860 70, 1060 170" stroke-width="105" opacity="0.07"/><path d="M -60 250 C 140 110, 330 340, 520 205 S 860 70, 1060 170" stroke-width="58" opacity="0.09"/><path d="M -60 250 C 140 110, 330 340, 520 205 S 860 70, 1060 170" stroke-width="26" opacity="0.12"/><path d="M -60 250 C 140 110, 330 340, 520 205 S 860 70, 1060 170" stroke-width="8" opacity="0.22"/></g></svg><rect width="100%" height="100%" fill="url(#vig)"/></svg>
   favicon.svg: |
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-      <defs>
-        <filter id="glow">
-          <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur"/>
-          <feFlood flood-color="#DC2626" flood-opacity="0.5" result="color"/>
-          <feComposite in="color" in2="blur" operator="in" result="shadow"/>
-          <feMerge>
-            <feMergeNode in="shadow"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-      </defs>
-      <rect width="48" height="48" rx="10" fill="#0F0F1A"/>
-      <text x="50%" y="34" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
-            font-size="26" font-weight="800" letter-spacing="1">
-        <tspan fill="#F1F5F9">S</tspan><tspan fill="#DC2626" filter="url(#glow)">T</tspan>
-      </text>
-    </svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><defs><linearGradient id="sq" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B1D33"/><stop offset="1" stop-color="#0F0F1A"/></linearGradient><radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#3B82F6" stop-opacity=".7"/><stop offset="1" stop-color="#3B82F6" stop-opacity="0"/></radialGradient><linearGradient id="st" x1=".2" y1="0" x2=".8" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".35" stop-color="#93C5FD"/><stop offset=".75" stop-color="#3B82F6"/><stop offset="1" stop-color="#22D3EE"/></linearGradient><linearGradient id="rim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".55"/><stop offset=".5" stop-color="#FFFFFF" stop-opacity=".08"/><stop offset="1" stop-color="#93C5FD" stop-opacity=".35"/></linearGradient></defs><rect x="1" y="1" width="46" height="46" rx="14" fill="url(#sq)"/><circle cx="24" cy="24" r="20" fill="url(#glow)"/><path d="M24 7 C25.6 17.2 30.8 22.4 41 24 C30.8 25.6 25.6 30.8 24 41 C22.4 30.8 17.2 25.6 7 24 C17.2 22.4 22.4 17.2 24 7 Z" fill="url(#st)"/><rect x="1.5" y="1.5" width="45" height="45" rx="13.5" fill="none" stroke="url(#rim)"/></svg>
+  glyph-library.svg: |
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M5 4.5h3.2v15H5zM10.4 4.5h3.2v15h-3.2z' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/><path d='M16 5.6l3-.8 3 14.4-3 .8z' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>
+  glyph-tools.svg: |
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect x='3.5' y='3.5' width='7' height='7' rx='2.2' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/><rect x='3.5' y='13.5' width='7' height='7' rx='2.2' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/><rect x='13.5' y='3.5' width='7' height='7' rx='2.2' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/><rect x='13.5' y='13.5' width='7' height='7' rx='2.2' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>
+  glyph-watch.svg: |
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect x='3' y='4.5' width='18' height='12.5' rx='3' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/><path d='M8.5 20.5h7' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/><path d='M10.2 8.3v5.4l4.6-2.7z' fill='#000'/></svg>
+  grain.svg: |
+    <svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180"><filter id="n" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .55 0"/></filter><rect width="180" height="180" filter="url(#n)"/></svg>
   docker.yaml: ""
   custom.js: ""
   custom.css: |
-    /* The "Calendar" card title just repeats the widget below it, but the
-       description carries the colour legend and Homepage nests it inside
-       .service-title — so drop the name only, not the whole row. */
-    li.service[data-name="Calendar"] .service-name {
-      font-size: 0;
-      padding-top: 0;
+    /* ==========================================================================
+       "Liquid glass": the part both pages share. The generator prepends this file to each page's custom.css,
+       which sets the --d1-* identity tokens used below.
+       Hook rule (ADR 0020): Homepage's ids, its named classes, its data and ARIA attributes, tile ids, and
+       elements under those. Selectors that need page structure live in the no-hook block at the end.
+       ========================================================================== */
+
+    /* ---------- Tokens: first paint (:root) and after hydration (html:root beats .theme-* and .dark) ---------- */
+    :root,
+    html:root {
+      --bg-color: 15 15 26; /* brand navy #0F0F1A */
+      --d1-ink: 244 246 255;
+      --d1-good: 52 211 153;
+      --d1-warn: 251 191 36;
+      --d1-danger: 248 113 113;
+      --d1-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+      --d1-sheen: linear-gradient(180deg, rgb(255 255 255 / 0.1) 0%, rgb(255 255 255 / 0.035) 38%, rgb(255 255 255 / 0.02) 100%);
+      --d1-depth: 0 1px 1px rgb(0 0 0 / 0.25), 0 22px 44px -22px rgb(0 0 0 / 0.75);
+      /* Manrope weights inside widgets: font-thin/light text is unreadable on glass */
+      --font-weight-thin: 500;
+      --font-weight-light: 500;
     }
 
-    li.service[data-name="Calendar"] .service-description {
-      font-size: 0.75rem;
+    html,
+    body {
+      background-color: rgb(15 15 26);
     }
 
-    /* A failing service must not be signalled by colour alone: give it a
-       square outline and a slow pulse so it reads without colour vision. */
-    .service-tags div.bg-rose-500 {
-      border-radius: 2px;
-      animation: status-down 1.6s ease-in-out infinite;
+    /* ---------- Backdrop: grain over the aurora (kills gradient banding) ---------- */
+    #background::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: url("/images/grain.svg");
+      opacity: 0.07;
+      mix-blend-mode: overlay;
     }
 
-    @keyframes status-down {
-      50% {
-        opacity: 0.35;
-      }
+    /* ---------- Glass card ---------- */
+    .service-card {
+      --radius-sm: 11px; /* list rows, calendar events */
+      --color-900: 96 110 168; /* in-card strips (bg-theme-900/20) turn into faint glass instead of black */
+      color: rgb(var(--color-200));
+      font-weight: 600;
+      overflow-wrap: break-word; /* long tokens break only when they would overflow; never shrinks short words */
+      padding: 7px;
+      margin-bottom: var(--d1-gap, 14px);
+      border-radius: var(--d1-radius);
+      background: var(--d1-sheen), rgb(var(--d1-fill) / var(--d1-fill-a, 0.42));
+      backdrop-filter: blur(var(--d1-blur, 22px)) saturate(var(--d1-sat, 165%));
+      -webkit-backdrop-filter: blur(var(--d1-blur, 22px)) saturate(var(--d1-sat, 165%));
+      box-shadow:
+        inset 0 1px 0 0 rgb(255 255 255 / 0.16),
+        var(--d1-depth);
+      transition:
+        background-color 0.25s var(--d1-ease),
+        box-shadow 0.25s var(--d1-ease);
     }
 
-    /* Only a dot still on Homepage's neutral bg-black is being checked;
-       orange and blue are real states. Fade it gently so first paint
-       reads as "checking", not "broken". */
-    .service-tags div.rounded-full.bg-black {
-      animation: status-pending 1.4s ease-in-out infinite;
+    /* breathing room between groups */
+    #layout-groups > * {
+      min-width: 0; /* a 50-character release name wraps inside its group instead of widening it past the screen */
+      padding-bottom: var(--d1-group-gap, 16px);
     }
 
-    @keyframes status-pending {
-      50% {
-        opacity: 0.4;
-      }
+    /* 1 px light-catching rim: bright top edge fading down, a tint at the foot (the page accent unless --d1-rim is set) */
+    .service-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      padding: 1px;
+      border-radius: inherit;
+      background: linear-gradient(
+        168deg,
+        rgb(255 255 255 / 0.5) 0%,
+        rgb(255 255 255 / 0.12) 22%,
+        rgb(255 255 255 / 0.05) 55%,
+        rgb(var(--d1-rim, var(--d1-acc-hi)) / 0.28) 100%
+      );
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask:
+        linear-gradient(#000 0 0) content-box exclude,
+        linear-gradient(#000 0 0);
+      pointer-events: none;
     }
 
-    /* Group headers collapse on click, but the chevron only appears on
-       hover, which never happens on touch. Keep it permanently visible. */
-    button.w-full.select-none.items-center.group svg {
-      opacity: 0.45;
+    .service-card:hover {
+      background: var(--d1-sheen), var(--d1-sheen), rgb(var(--d1-fill) / var(--d1-fill-a, 0.42));
     }
 
-    button.w-full.select-none.items-center.group:hover svg {
+    .service-icon img {
+      filter: drop-shadow(0 3px 8px rgb(0 0 0 / 0.45));
+    }
+
+    .service-description {
+      color: rgb(var(--color-300));
+      line-height: 1.4;
+      margin-top: 1px;
+    }
+
+    .service-card a:focus-visible,
+    #myTab [role="tab"]:focus-visible,
+    .information-widget-search input:focus-visible {
+      outline: 2px solid rgb(var(--d1-acc-hi));
+      outline-offset: 2px;
+      border-radius: 12px;
+    }
+
+    /* ---------- Blocks: value / label chips ---------- */
+    /* a block row wraps only when its values cannot fit (an IP address on a phone), instead of widening the card */
+    .service-container {
+      flex-wrap: wrap;
+    }
+
+    .service-block {
+      margin: 3px;
+      padding: 10px 4px 9px;
+      border-radius: calc(var(--d1-radius) - 10px);
+      background: rgb(255 255 255 / 0.05);
+      box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+    }
+
+    .service-block-value {
+      color: rgb(var(--d1-ink));
+      font-size: var(--d1-value-size, 16px);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.25;
+    }
+
+    .service-block-label {
+      margin-top: 3px;
+      font-family: Manrope, "Manrope-Fallback", Arial, sans-serif; /* plexData keeps numbers mono, labels stay sans */
+      font-size-adjust: none;
+      color: rgb(var(--color-300));
       opacity: 1;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
     }
 
-    /* WCAG 2.5.8: interactive controls need a 44px target. Tabs, group
-       headers, the search button and the calendar arrows all ship shorter. */
-    li:has(> button.w-full.rounded-md.m-1) {
+    /* ---------- Group headers: small caps label with a light rule ---------- */
+    .service-group-name,
+    .bookmark-group-name {
+      display: flex; /* bookmark group headings are not flex upstream */
+      flex: 1 1 auto;
+      align-items: center;
+      text-align: left;
+      gap: 12px;
+      color: rgb(var(--d1-label, var(--d1-acc-hi)));
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      text-shadow: 0 0 18px rgb(var(--d1-acc) / 0.55);
+    }
+
+    .service-group-name::after,
+    .bookmark-group-name::after {
+      content: "";
+      flex: 1 1 auto;
+      height: 1px;
+      background: linear-gradient(90deg, rgb(var(--d1-acc-hi) / 0.45), rgb(var(--d1-acc-hi) / 0));
+    }
+
+    /* ---------- Tabs: a glass segmented control ---------- */
+    #myTab {
+      display: flex;
+      gap: 4px;
+      padding: 5px;
+      border-radius: 999px;
+      background: var(--d1-sheen), rgb(var(--d1-fill) / 0.5);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      box-shadow:
+        inset 0 1px 0 0 rgb(255 255 255 / 0.16),
+        inset 0 0 0 1px rgb(255 255 255 / 0.08),
+        var(--d1-depth);
+    }
+
+    #myTab [role="presentation"] {
+      flex: 1 1 0;
       height: auto;
     }
 
-    li > button.w-full.rounded-md.m-1,
-    button.w-full.select-none.items-center.group,
-    button.rounded-r-md.px-4.py-2,
-    li.service[data-name="Calendar"] button {
-      min-height: 2.75rem;
+    #myTab [role="tab"] {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 44px;
+      margin: 0;
+      border-radius: 999px;
+      color: rgb(var(--color-300));
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      transition:
+        color 0.2s var(--d1-ease),
+        background-color 0.2s var(--d1-ease),
+        box-shadow 0.2s var(--d1-ease);
     }
 
-    /* Homepage 1.13.2 renders the quicklaunch button's label as the raw
-       i18n key "search.search"; substitute a real label until it is fixed. */
-    button.rounded-r-md.px-4.py-2 {
-      font-size: 0;
+    #myTab [role="tab"]:hover {
+      color: rgb(var(--d1-ink));
+      background: rgb(255 255 255 / 0.06);
     }
 
-    button.rounded-r-md.px-4.py-2::after {
-      content: "Search";
-      font-size: 0.875rem;
+    #myTab [role="tab"][aria-selected="true"] {
+      color: #fff;
+      background:
+        linear-gradient(180deg, rgb(255 255 255 / 0.22), rgb(255 255 255 / 0.05)),
+        rgb(var(--d1-acc) / 0.5);
+      box-shadow:
+        inset 0 1px 0 0 rgb(255 255 255 / 0.4),
+        inset 0 0 0 1px rgb(255 255 255 / 0.5), /* a light rim marks the selected tab at 3:1 or more */
+        0 8px 22px -8px rgb(var(--d1-acc) / 0.9);
+      text-shadow: 0 1px 2px rgb(0 0 0 / 0.35);
     }
 
-    @media (max-width: 640px) {
-      /* Below the sm breakpoint the tab list stacks one row per tab, which
-         pushes every service below the fold. Scroll them sideways instead. */
-      ul:has(> li > button.w-full.rounded-md.m-1) {
+    /* tab glyphs: a drawn mask per tab id (each page sets --d1-glyph), painted in the tab's text colour */
+    #myTab [role="tab"]::before {
+      content: "";
+      width: 18px;
+      height: 18px;
+      flex: none;
+      background: currentColor;
+      -webkit-mask: var(--d1-glyph) center / contain no-repeat;
+      mask: var(--d1-glyph) center / contain no-repeat;
+    }
+
+    /* ---------- Header widgets: glass chips ---------- */
+    #information-widgets :is(.information-widget-logo, .information-widget-greeting, .information-widget-customapi, .information-widget-search, .information-widget-openmeteo, .information-widget-datetime) {
+      color: rgb(var(--color-200));
+    }
+
+    .information-widget-customapi,
+    .information-widget-openmeteo,
+    .information-widget-datetime {
+      margin: 0;
+      border-radius: 18px;
+      background: var(--d1-sheen), rgb(var(--d1-fill) / 0.45);
+      backdrop-filter: blur(20px) saturate(170%);
+      -webkit-backdrop-filter: blur(20px) saturate(170%);
+      box-shadow:
+        inset 0 1px 0 0 rgb(255 255 255 / 0.16),
+        inset 0 0 0 1px rgb(255 255 255 / 0.08),
+        var(--d1-depth);
+    }
+
+    .information-widget-customapi span {
+      color: rgb(var(--color-300));
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .information-widget-greeting span {
+      margin: 0;
+      background: linear-gradient(100deg, #fff 0%, rgb(var(--d1-acc-hi)) 55%, rgb(var(--d1-acc-2)) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .information-widget-logo img {
+      filter: drop-shadow(0 6px 16px rgb(var(--d1-acc) / 0.55));
+    }
+
+    /* search: a 48 px glass pill with a drawn magnifier */
+    .information-widget-search {
+      margin: 0;
+      padding: 0;
+      background: none;
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    .information-widget-search div:has(> div > button) {
+      position: static; /* the provider badge then sits inside the pill, not under it */
+    }
+
+    .information-widget-search div:has(> input) {
+      height: 48px;
+      margin: 0;
+    }
+
+    .information-widget-search div:has(> input)::before {
+      content: "";
+      position: absolute;
+      z-index: 1;
+      left: 17px;
+      top: 15px;
+      width: 18px;
+      height: 18px;
+      background: rgb(var(--color-300));
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5 20 20'/%3E%3C/svg%3E") center / contain no-repeat;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5 20 20'/%3E%3C/svg%3E") center / contain no-repeat;
+      pointer-events: none;
+    }
+
+    .information-widget-search input {
+      padding-left: 46px;
+      border: 0;
+      border-radius: 999px;
+      color: rgb(var(--d1-ink));
+      background: var(--d1-sheen), rgb(var(--d1-fill) / 0.5);
+      backdrop-filter: blur(20px) saturate(170%);
+      -webkit-backdrop-filter: blur(20px) saturate(170%);
+      box-shadow:
+        inset 0 1px 0 0 rgb(255 255 255 / 0.16),
+        inset 0 0 0 1px rgb(255 255 255 / 0.1),
+        var(--d1-depth);
+      font-size: 15px;
+    }
+
+    .information-widget-search input::placeholder {
+      color: rgb(var(--color-300));
+      opacity: 1;
+    }
+
+    .information-widget-search input:focus {
+      box-shadow:
+        inset 0 1px 0 0 rgb(255 255 255 / 0.2),
+        inset 0 0 0 1px rgb(var(--d1-acc-hi) / 0.6),
+        0 0 0 4px rgb(var(--d1-acc) / 0.25),
+        var(--d1-depth);
+    }
+
+    .information-widget-search button {
+      top: 2px;
+      right: 2px;
+      bottom: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 44px; /* provider picker: a 44 px target inside the pill */
+      padding: 0 14px;
+      border-radius: 999px;
+      background: rgb(255 255 255 / 0.08);
+    }
+
+    /* ---------- Bookmarks: glass rows, 48 px tall ---------- */
+    .bookmark > a {
+      --radius-md: 14px;
+      --color-900: 96 110 168; /* the abbreviation tile (bg-theme-900/50) becomes tinted glass */
+      --text-xs: 0.8125rem;
+      overflow: hidden;
+      background: var(--d1-sheen), rgb(var(--d1-fill) / 0.42);
+      backdrop-filter: blur(18px) saturate(160%);
+      -webkit-backdrop-filter: blur(18px) saturate(160%);
+      box-shadow:
+        inset 0 1px 0 0 rgb(255 255 255 / 0.14),
+        inset 0 0 0 1px rgb(255 255 255 / 0.07),
+        var(--d1-depth);
+    }
+
+    .bookmark-icon,
+    .bookmark-text {
+      min-height: 48px;
+    }
+
+    .bookmark > a:hover {
+      background: var(--d1-sheen), var(--d1-sheen), rgb(var(--d1-fill) / 0.42);
+    }
+
+    /* ---------- Footer: the refresh control as a 44 px glass button ---------- */
+    #footer svg {
+      box-sizing: content-box;
+      padding: 10px;
+      border-radius: 999px;
+      color: rgb(var(--color-300));
+      background: rgb(var(--d1-fill) / 0.45);
+      box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+    }
+
+    /* ---------- Motion: nothing moves when motion is unwelcome ---------- */
+    @media (prefers-reduced-motion: reduce) {
+      #layout-groups *,
+      #information-widgets *,
+      #myTab * {
+        transition: none !important;
+        animation: none !important;
+      }
+    }
+
+    /* no-hook:start */
+    /* Homepage v2.7.0 has no class, id or attribute for what these rules style. If an upgrade changes the markup
+       they stop matching, the damage is cosmetic, and the render check fails on them. */
+
+    /* group panels stop clipping card shadows and glows (safe: both pages set disableCollapse, so no height animation) */
+    .services-group div:has(> ul > li) {
+      overflow: visible;
+    }
+
+    /* header chip: the value under its label */
+    .information-widget-customapi span + span {
+      color: rgb(var(--d1-ink));
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    /* calendar agenda: a title fills its row up to the done mark and ends in an ellipsis (upstream clips it at 70 %) */
+    #calendar .service-card span + div {
+      flex: 1 1 0;
+      min-width: 0;
+      width: 0 !important; /* overrides the inline width: 70%; zero basis + grow, so long titles never widen the card */
+      padding-right: 6px;
+    }
+
+    #calendar .service-card span + div > div {
+      position: static;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* phone: the quicklaunch button (the element right before #information-widgets) as a glass disc at the thumb */
+    @media (max-width: 639px) {
+      #inner_wrapper button:has(+ #information-widgets) {
+        right: 14px;
+        bottom: 16px;
+        display: grid;
+        place-items: center;
+        width: 60px;
+        height: 60px;
+        color: rgb(var(--d1-ink));
+        background: var(--d1-sheen), rgb(var(--d1-fill) / 0.72);
+        backdrop-filter: blur(28px) saturate(190%);
+        -webkit-backdrop-filter: blur(28px) saturate(190%);
+        box-shadow:
+          inset 0 1px 0 0 rgb(255 255 255 / 0.2),
+          inset 0 0 0 1px rgb(255 255 255 / 0.1),
+          var(--d1-depth);
+      }
+
+      #inner_wrapper button:has(+ #information-widgets) svg {
+        width: 22px;
+        height: 22px;
+      }
+    }
+    /* no-hook:end */
+    /* ==========================================================================
+       Household layer: brand blue on navy, phone-first ("premium app home screen").
+       No alarm rules here: the household page has no alarm mode (ADR 0020).
+       ========================================================================== */
+    :root,
+    html:root {
+      --color-50: 248 250 255;
+      --color-100: 232 238 252;
+      --color-200: 226 233 250;
+      --color-300: 192 208 242; /* secondary text and block labels: 4.5:1 over the brightest glass */
+      --color-400: 125 148 200;
+      --color-500: 88 108 160;
+      --color-600: 58 74 122;
+      --color-700: 34 44 84;
+      --color-800: 15 15 26;
+      --color-900: 8 9 20;
+      --color-logo-start: 191 219 254;
+      --color-logo-stop: 59 130 246;
+      --d1-acc: 59 130 246; /* brand blue #3B82F6 */
+      --d1-acc-hi: 147 197 253;
+      --d1-acc-2: 103 232 249;
+      --d1-fill: 13 18 42;
+      --d1-radius: 24px;
+      --d1-label: 210 228 255; /* group labels sit straight on the aurora: an ice blue that keeps 4.5:1 over its glow */
+    }
+
+    /* the animated aurora only when motion is welcome and the screen is wide; phones keep the still one */
+    @media (prefers-reduced-motion: no-preference) and (min-width: 1024px) {
+      #background {
+        background-image: url("/images/aurora-live.svg") !important;
+      }
+    }
+
+    #Watch-tab { --d1-glyph: url("/images/glyph-watch.svg"); }
+    #Library-tab { --d1-glyph: url("/images/glyph-library.svg"); }
+    #Tools-tab { --d1-glyph: url("/images/glyph-tools.svg"); }
+
+    /* ---------- Header: brand row, date + weather, search ---------- */
+    #widgets-wrap,
+    #information-widgets-right {
+      display: contents;
+    }
+
+    #information-widgets {
+      display: grid;
+      grid-template-columns: 40px auto minmax(0, 1fr) auto; /* the wordmark spans two tracks, so the weather pill never squeezes it */
+      grid-template-areas:
+        "logo brand brand status"
+        "date date date date"
+        "weather weather weather weather"; /* phone: no search pill, the glass disc at the thumb is the search */
+      align-items: center;
+      gap: 16px 10px;
+      margin: 20px 16px 0;
+    }
+
+    .information-widget-logo { grid-area: logo; }
+    .information-widget-greeting { grid-area: brand; }
+    .information-widget-customapi { grid-area: status; }
+    .information-widget-datetime { grid-area: date; }
+    .information-widget-openmeteo { grid-area: weather; }
+    .information-widget-search { grid-area: search; }
+
+    .information-widget-logo,
+    .information-widget-greeting,
+    .information-widget-datetime {
+      margin: 0;
+      padding: 0;
+      background: none;
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    .information-widget-logo img {
+      width: 40px !important; /* Next/Image sets 48 px inline */
+      height: 40px !important;
+    }
+
+    .information-widget-logo div {
+      margin: 0;
+    }
+
+    .information-widget-greeting span {
+      font-size: 24px;
+      line-height: 1.1;
+    }
+
+    .information-widget-customapi {
+      padding: 7px 14px 7px 10px;
+      border-radius: 999px;
+    }
+
+    .information-widget-openmeteo {
+      height: 48px;
+      padding: 0 16px 0 8px;
+      border-radius: 999px;
+    }
+
+    .information-widget-openmeteo svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    .information-widget-datetime div {
+      justify-content: flex-start;
+    }
+
+    .information-widget-datetime span {
+      color: rgb(var(--d1-ink));
+      font-size: 25px;
+      font-weight: 650;
+      letter-spacing: -0.015em;
+      white-space: nowrap;
+      text-shadow: 0 2px 18px rgb(0 0 0 / 0.45);
+    }
+
+    /* ---------- Cards ---------- */
+    .service-card {
+      --text-sm: 0.9375rem;
+      --text-xs: 0.8125rem;
+    }
+
+    /* app-sized icons: 40 px (Next/Image and the mdi mask both size themselves inline) */
+    .service-icon > :is(img, div) {
+      width: 40px !important;
+      height: 40px !important;
+    }
+
+    /* Watch hero: the Jellyfin card glows blue */
+    #jellyfin > .service-card {
+      --d1-fill: 20 32 82;
+      --d1-fill-a: 0.5;
+      box-shadow:
+        inset 0 1px 0 0 rgb(255 255 255 / 0.2),
+        0 30px 70px -34px rgb(var(--d1-acc) / 0.85),
+        var(--d1-depth);
+    }
+
+    /* ---------- Phone: floating glass tab bar at the thumb, 2-up launcher tiles ---------- */
+    @media (max-width: 639px) {
+      /* one search on the first screen: the disc (quicklaunch, which falls back to this widget's web provider) */
+      #information-widgets .information-widget-search {
+        display: none;
+      }
+
+      .information-widget-openmeteo {
+        justify-self: start;
+      }
+
+      #tabs {
+        position: fixed;
+        z-index: 30;
+        left: 14px;
+        right: 86px; /* the 60 px glass search disc sits to the right of the bar */
+        bottom: 16px;
+        margin: 0;
+      }
+
+      /* scroll-edge scrim behind the bar and the disc, so rows never show through the gap between them
+         (on #tabs, not #inner_wrapper: the page container is a stacking context and would paint over the bar) */
+      #tabs::before {
+        content: "";
+        position: fixed;
+        z-index: -1;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 112px;
+        pointer-events: none;
+        background: linear-gradient(to top, rgb(var(--d1-fill) / 0.92) 45%, rgb(var(--d1-fill) / 0));
+      }
+
+      #myTab {
+        padding: 4px;
+        background: var(--d1-sheen), rgb(var(--d1-fill) / 0.72); /* denser glass: labels stay legible over scrolling cards */
+        backdrop-filter: blur(28px) saturate(190%);
+        -webkit-backdrop-filter: blur(28px) saturate(190%);
+      }
+
+      #myTab [role="tab"] {
+        flex-direction: column;
+        gap: 3px;
+        min-height: 52px;
+        font-size: 11px;
+        letter-spacing: 0.02em;
+      }
+
+      #myTab [role="tab"]::before {
+        width: 20px;
+        height: 20px;
+      }
+
+      #layout-groups {
+        margin: 22px 12px 0;
+      }
+
+      #footer {
+        padding-bottom: 104px; /* clear the floating bar */
+      }
+
+      /* Tools: launcher tiles two to a row, icon over name */
+      #inner_wrapper:has(#Tools-tab[aria-selected="true"]) #layout-groups ul:has(> .service) {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: 12px;
+      }
+
+      #inner_wrapper:has(#Tools-tab[aria-selected="true"]) #layout-groups .service {
         display: flex;
-        overflow-x: auto;
-        scrollbar-width: none;
+        flex-direction: column;
       }
 
-      ul:has(> li > button.w-full.rounded-md.m-1) > li {
-        width: auto;
-        flex: 1 0 auto;
+      #inner_wrapper:has(#Tools-tab[aria-selected="true"]) #layout-groups .service > .service-card {
+        flex: 1 1 auto;
       }
 
-      li > button.w-full.rounded-md.m-1 {
-        padding-left: 0.75rem;
-        padding-right: 0.75rem;
+      #inner_wrapper:has(#Tools-tab[aria-selected="true"]) #layout-groups .service-title {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 8px 2px 2px;
+      }
+
+      #inner_wrapper:has(#Tools-tab[aria-selected="true"]) #layout-groups .service-icon {
+        min-height: 44px; /* the tile's icon link */
+      }
+
+      #calendar > .service-card {
+        --spacing: 0.3rem; /* agenda rows (h-5) grow from 20 to 24 px */
       }
     }
+
+    /* ---------- Laptop and up: Watch as two columns ---------- */
+    @media (min-width: 1024px) {
+      #inner_wrapper:has(#Watch-tab[aria-selected="true"]) #layout-groups {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-rows: auto 1fr;
+        align-items: start;
+        column-gap: 20px;
+      }
+
+      /* what is coming takes the right column, beside Watch and Requests */
+      #inner_wrapper:has(#Watch-tab[aria-selected="true"]) #layout-groups > .services-group:has(#calendar) {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+      }
+    }
+
+    /* ---------- Wider screens: header on one line, tabs centred on top ---------- */
+    @media (min-width: 640px) {
+      #information-widgets {
+        grid-template-columns: auto auto minmax(0, 1fr) minmax(240px, 420px) auto auto auto;
+        grid-template-areas: "logo brand . search status weather date";
+        gap: 12px;
+        margin: 28px 36px 0;
+      }
+
+      .information-widget-datetime span {
+        font-size: 18px;
+      }
+
+      #tabs {
+        max-width: 560px;
+        margin: 26px auto 0;
+        width: calc(100% - 72px);
+      }
+    }
+
+    /* no-hook:start */
+    @media (max-width: 639px) {
+      #inner_wrapper button:has(+ #information-widgets) {
+        z-index: 31; /* the search disc sits above the tab bar's scrim */
+      }
+    }
+    /* no-hook:end */
   kubernetes.yaml: |
     mode: disabled
   settings.yaml: |
     title: Starktastic
+    description: Watch, listen, read and the household tools
     language: en
-    headerStyle: boxedWidgets
-    statusStyle: dot
-    useEqualHeights: false
+    theme: dark
+    color: slate
     hideVersion: true
-    disableCollapse: false
     disableIndexing: true
-    iconStyle: theme
     favicon: /icons/favicon.svg
+    background: /images/aurora-still.svg
+    cardBlur: xl
+    headerStyle: boxedWidgets
+    cardStyle: hairline
+    blockStyle: refined
+    statusStyle: dot
+    disableCollapse: true
+    target: _blank
     quicklaunch:
       searchDescriptions: true
-      hideInternetSearch: false
       showSearchSuggestions: false
       provider: custom
       url: https://search.starktastic.net/search?q=
+      mobileButtonPosition: bottom-right
     hideErrors: true
     pwa:
       shortcuts:
-      - name: Pulse
-        url: /#pulse
-      - name: Play
-        url: /#play
-      - name: Make
-        url: /#make
+      - name: Watch
+        url: /#watch
+      - name: Library
+        url: /#library
+      - name: Tools
+        url: /#tools
     layout:
-      Coming Up:
-        tab: Pulse
-        style: row
-        columns: 1
-        icon: mdi-calendar-month
-      Links:
-        tab: Pulse
-        style: row
-        columns: 2
-        icon: mdi-bookmark-outline
       Watch:
-        tab: Play
+        tab: Watch
+      Coming Up:
+        tab: Watch
+      Requests:
+        tab: Watch
         style: row
-        columns: 1
-        icon: mdi-television-play
+        columns: 2
       Listen:
-        tab: Play
+        tab: Library
         style: row
         columns: 2
-        icon: mdi-headphones
       Read:
-        tab: Play
-        style: row
-        columns: 1
-        icon: mdi-book-open-page-variant
-      Look Back:
-        tab: Play
-        style: row
-        columns: 1
-        icon: mdi-image-multiple
-      Ask For It:
-        tab: Play
-        style: row
-        columns: 3
-        icon: mdi-hand-heart
-      Create:
-        tab: Make
+        tab: Library
         style: row
         columns: 2
-        icon: mdi-draw
+      Photos:
+        tab: Library
+        style: row
+        columns: 2
+      Create:
+        tab: Tools
+        style: row
+        columns: 2
       Convert:
-        tab: Make
+        tab: Tools
         style: row
         columns: 4
-        icon: mdi-file-swap
-      Find:
-        tab: Make
-        style: row
-        columns: 2
-        icon: mdi-magnify
-      Organise:
-        tab: Make
-        style: row
-        columns: 1
-        icon: mdi-clipboard-check
-      Send:
-        tab: Make
+      Find & Keep:
+        tab: Tools
         style: row
         columns: 3
-        icon: mdi-send
+      Send:
+        tab: Tools
+        style: row
+        columns: 3
+      Links:
+        tab: Tools
+        style: row
+        columns: 2
   widgets.yaml: |
     - logo:
         icon: /icons/favicon.svg
     - greeting:
-        text_size: xl
-        text: Welcome home
+        text_size: 2xl
+        text: Starktastic
+    - customapi:
+        url: http://kube-prometheus-stack-prometheus.monitoring:9090/api/v1/query?query=min(probe_success%7Btier%3D%22external%22%7D)
+        icon: mdi-earth
+        refreshInterval: 60000
+        mappings:
+        - field: data.result.0.value.1
+          label: Internet
+          remap:
+          - value: '1'
+            to: Online
+          - value: '0'
+            to: Down ⚠
+          - any: true
+            to: Unknown
     - search:
         provider: custom
         url: https://search.starktastic.net/search?q=
         target: _blank
     - openmeteo:
-        label: Weather
+        label: Home
         latitude: 32.08
         longitude: 34.78
         timezone: Asia/Jerusalem
         units: metric
     - datetime:
         text_size: xl
+        locale: en-GB
         format:
-          dateStyle: long
-          timeStyle: short
+          weekday: short
+          day: numeric
+          month: short
+          hour: 2-digit
+          minute: 2-digit
           hourCycle: h23
   services.yaml: |
-    - Coming Up:
-      - Calendar:
-          id: calendar
-          description: Blue = TV · Red = Movies
-          widget:
-            type: calendar
-            view: monthly
-            maxEvents: 10
-            showTime: true
-            firstDayInWeek: sunday
-            integrations:
-            - type: ical
-              url: http://sonarr.media:8989/feed/v3/calendar/Sonarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_SONARR_KEY{{ "}}" }}
-              name: TV
-              color: blue
-            - type: ical
-              url: http://radarr.media:7878/feed/v3/calendar/Radarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_RADARR_KEY{{ "}}" }}
-              name: Movies
-              color: red
     - Watch:
       - Jellyfin:
           id: jellyfin
@@ -256,6 +869,51 @@ data:
           description: Movies, TV & anime
           href: https://benplus.app
           siteMonitor: http://jellyfin-main.media:8096
+    - Coming Up:
+      - Calendar:
+          id: calendar
+          icon: mdi-calendar-star
+          description: New episodes and movie releases
+          widget:
+            type: calendar
+            view: agenda
+            maxEvents: 12
+            previousDays: 0
+            showTime: true
+            integrations:
+            - type: ical
+              url: http://sonarr.media:8989/feed/v3/calendar/Sonarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_SONARR_KEY{{ "}}" }}&pastDays=30&futureDays=14
+              name: TV
+              color: blue
+              params:
+                showName: true
+            - type: ical
+              url: http://radarr.media:7878/feed/v3/calendar/Radarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_RADARR_KEY{{ "}}" }}&releaseTypes=digitalRelease&pastDays=60&futureDays=90
+              name: Movies
+              color: fuchsia
+              params:
+                showName: true
+    - Requests:
+      - Seerr:
+          id: seerr
+          icon: overseerr.png
+          description: Request movies & TV
+          href: https://request.benplus.app
+          siteMonitor: http://seerr.media:5055
+          widget:
+            type: seerr
+            url: http://seerr.media:5055
+            key: '{{ "{{" }}HOMEPAGE_VAR_SEERR_KEY{{ "}}" }}'
+      - Seerr RU:
+          id: seerr-ru
+          icon: overseerr.png
+          description: Request movies & TV (RU)
+          href: https://request-ru.benplus.app
+          siteMonitor: http://seerr-ru.media:5055
+          widget:
+            type: seerr
+            url: http://seerr-ru.media:5055
+            key: '{{ "{{" }}HOMEPAGE_VAR_SEERR_RU_KEY{{ "}}" }}'
     - Listen:
       - Navidrome:
           id: navidrome
@@ -281,40 +939,19 @@ data:
             url: http://calibre-web.media:8083
             username: '{{ "{{" }}HOMEPAGE_VAR_CALIBRE_USER{{ "}}" }}'
             password: '{{ "{{" }}HOMEPAGE_VAR_CALIBRE_PASS{{ "}}" }}'
-    - Look Back:
-      - Immich:
-          id: immich
-          icon: immich.png
-          description: Photos & videos
-          href: https://photos.benplus.app
-          siteMonitor: http://immich-main.media:2283
-    - Ask For It:
-      - Seerr:
-          id: seerr
-          icon: overseerr.png
-          description: Request movies & TV
-          href: https://request.benplus.app
-          siteMonitor: http://seerr.media:5055
-          widget:
-            type: seerr
-            url: http://seerr.media:5055
-            key: '{{ "{{" }}HOMEPAGE_VAR_SEERR_KEY{{ "}}" }}'
-      - Seerr RU:
-          id: seerr-ru
-          icon: overseerr.png
-          description: Request movies & TV (RU)
-          href: https://request-ru.benplus.app
-          siteMonitor: http://seerr-ru.media:5055
-          widget:
-            type: seerr
-            url: http://seerr-ru.media:5055
-            key: '{{ "{{" }}HOMEPAGE_VAR_SEERR_RU_KEY{{ "}}" }}'
       - Shelfmark:
           id: shelfmark
           icon: mdi-bookshelf
           description: Request books
           href: https://request-books.benplus.app
           siteMonitor: http://shelfmark.media:8084
+    - Photos:
+      - Immich:
+          id: immich
+          icon: immich.png
+          description: Photos & videos
+          href: https://photos.benplus.app
+          siteMonitor: http://immich-main.media:2283
     - Create:
       - Excalidash:
           id: excalidash
@@ -353,7 +990,7 @@ data:
           description: Encode, decode, analyse
           href: https://cyberchef.starktastic.net
           siteMonitor: http://cyberchef.operations:8000
-    - Find:
+    - Find & Keep:
       - SearXNG:
           id: searxng
           icon: searxng.png
@@ -366,7 +1003,6 @@ data:
           description: Bookmarks & read-later
           href: https://karakeep.starktastic.net
           siteMonitor: http://karakeep.operations:3000
-    - Organise:
       - Mealie:
           id: mealie
           icon: mealie.png

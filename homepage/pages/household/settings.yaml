@@ -1,18 +1,25 @@
 title: Starktastic
+description: Watch, listen, read and the household tools
 language: en
-headerStyle: boxedWidgets
-statusStyle: dot
-# Cards size to their content; equal heights inflate widget-less services
-# into tall empty boxes when a group mixes widgets with plain links.
-useEqualHeights: false
+theme: dark
+# The nearest built-in palette to the brand navy: the phone toolbar (theme-color) blends into the page.
+color: slate
 hideVersion: true
-disableCollapse: false
 disableIndexing: true
-iconStyle: theme
 favicon: /icons/favicon.svg
+# custom.css swaps in the animated aurora only on wide screens that welcome motion.
+background: /images/aurora-still.svg
+cardBlur: xl
+headerStyle: boxedWidgets
+cardStyle: hairline
+blockStyle: refined
+statusStyle: dot
+# Group headers are labels, not 20 px toggles, on a phone; open panels also never clip a card's glow.
+disableCollapse: true
+target: _blank
 quicklaunch:
   searchDescriptions: true
-  hideInternetSearch: false
   showSearchSuggestions: false
   provider: custom
   url: https://search.starktastic.net/search?q=
+  mobileButtonPosition: bottom-right

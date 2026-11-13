@@ -1,101 +1,436 @@
-/* The "Calendar" card title just repeats the widget below it, but the
-   description carries the colour legend and Homepage nests it inside
-   .service-title — so drop the name only, not the whole row. */
-li.service[data-name="Calendar"] .service-name {
-  font-size: 0;
-  padding-top: 0;
+/* ==========================================================================
+   Admin layer: violet on navy, desktop-first ("calm, glassy control room").
+   Violet is identity only: the mark, the wordmark and the selected tab. On the board red means trouble and
+   nothing else (ADR 0020), so icons are silver, group dashes and card rims steel, and no calendar dot is red.
+   ========================================================================== */
+:root,
+html:root {
+  --color-50: 250 250 252;
+  --color-100: 238 239 245;
+  --color-200: 230 232 241;
+  --color-300: 178 183 203;
+  --color-400: 160 166 190; /* secondary text (list ages, theme-400) clears 4.5:1 on glass */
+  --color-500: 90 95 120;
+  --color-600: 60 64 86;
+  --color-700: 38 40 58;
+  --color-800: 15 15 26;
+  --color-900: 9 9 16;
+  --color-logo-start: 241 241 247; /* mdi and si glyphs: silver to steel, so no icon reads as an alarm */
+  --color-logo-stop: 150 156 182;
+  --d1-acc: 124 58 237; /* violet, Tailwind violet-600 */
+  --d1-acc-hi: 196 181 253;
+  --d1-acc-2: 167 139 250;
+  --d1-rim: 178 183 203; /* card rims end in steel, not the accent */
+  --d1-label: 178 183 203; /* group labels: calm silver */
+  --d1-fill: 17 17 30;
+  --d1-radius: 18px;
+  --d1-gap: 12px;
+  --d1-value-size: 15px;
 }
 
-li.service[data-name="Calendar"] .service-description {
-  font-size: 0.75rem;
+/* the animated aurora only when motion is welcome and the screen is wide */
+@media (prefers-reduced-motion: no-preference) and (min-width: 1024px) {
+  #background {
+    background-image: url("/images/aurora-live.svg") !important;
+  }
 }
 
-/* Merge the site-monitor and Kubernetes dots into a single indicator.
-   The site-monitor dot is hidden but stays mounted and polling, so its
-   result is folded into the clickable Kubernetes dot below. */
-.service-tags:has(.k8s-status) .service-site-monitor {
-  display: none;
+#Pulse-tab { --d1-glyph: url("/images/glyph-pulse.svg"); }
+#Media-tab { --d1-glyph: url("/images/glyph-media.svg"); }
+#Pipeline-tab { --d1-glyph: url("/images/glyph-pipeline.svg"); }
+#Apps-tab { --d1-glyph: url("/images/glyph-tools.svg"); }
+#Platform-tab { --d1-glyph: url("/images/glyph-platform.svg"); }
+#Iron-tab { --d1-glyph: url("/images/glyph-iron.svg"); }
+
+/* group labels: a short steel dash before them (a round dot would read as a status light) */
+.service-group-name,
+.bookmark-group-name {
+  text-shadow: none;
 }
 
-/* A failing HTTP check turns the surviving dot red (Tailwind rose-500),
-   overriding the green/orange pod status. Colour alone is not an
-   accessible cue, so a down dot also goes square and pulses. */
-.service-tags:has(.site-monitor-status .bg-rose-500) .k8s-status > div,
-.service-tags div.bg-rose-500 {
-  background-color: rgb(244 63 94);
-  border-radius: 2px;
-  animation: status-down 1.6s ease-in-out infinite;
+.service-group-name::before,
+.bookmark-group-name::before {
+  content: "";
+  width: 12px;
+  height: 2px;
+  flex: none;
+  border-radius: 1px;
+  background: rgb(var(--color-400));
 }
 
-@keyframes status-down {
+.service-group-name::after,
+.bookmark-group-name::after {
+  background: linear-gradient(90deg, rgb(var(--color-300) / 0.35), rgb(var(--color-300) / 0));
+}
+
+/* equal-height tiles (the board's rows end level): a tile stretches to its grid row and the card fills it */
+#layout-groups .service {
+  display: flex;
+  flex-direction: column;
+}
+
+#layout-groups .service > .service-card {
+  flex: 1 1 auto;
+}
+
+/* ---------- Header: one command line of glass instruments ---------- */
+#widgets-wrap,
+#information-widgets-right {
+  display: contents;
+}
+
+#information-widgets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 22px 28px 0;
+}
+
+.information-widget-logo,
+.information-widget-greeting {
+  margin: 0;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.information-widget-logo div {
+  margin: 0;
+}
+
+.information-widget-logo img {
+  width: 44px !important; /* Next/Image sets 48 px inline */
+  height: 44px !important;
+}
+
+.information-widget-greeting {
+  margin-right: 8px;
+}
+
+.information-widget-greeting span {
+  font-size: 20px;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.information-widget-customapi,
+.information-widget-openmeteo,
+.information-widget-datetime {
+  height: 50px;
+  padding: 0 16px 0 12px;
+  border-radius: 16px;
+}
+
+.information-widget-datetime {
+  padding: 0 18px;
+}
+
+.information-widget-openmeteo svg {
+  width: 30px;
+  height: 30px;
+}
+
+.information-widget-search {
+  flex: 1 1 200px;
+  max-width: 520px;
+  margin-left: auto;
+}
+
+.information-widget-search div:has(> input) {
+  height: 50px;
+}
+
+.information-widget-datetime span {
+  color: rgb(var(--d1-ink));
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+#tabs {
+  position: relative; /* anchors the alarm annunciator */
+  margin: 18px 28px 0;
+}
+
+#layout-groups {
+  margin: 24px 24px 0;
+}
+
+/* ---------- Highlights: good, warn and danger blocks ---------- */
+.service-block[data-highlight-level="good"] {
+  background: rgb(var(--d1-good) / 0.12);
+  box-shadow: inset 0 0 0 1px rgb(var(--d1-good) / 0.75);
+}
+
+.service-block[data-highlight-level="warn"] {
+  background: rgb(var(--d1-warn) / 0.13);
+  box-shadow: inset 0 0 0 1px rgb(var(--d1-warn) / 0.75);
+}
+
+.service-block[data-highlight-level="danger"] {
+  background: linear-gradient(180deg, rgb(239 68 68 / 0.3), rgb(220 38 38 / 0.16));
+  box-shadow:
+    inset 0 0 0 1px rgb(var(--d1-danger) / 0.9),
+    0 0 22px -6px rgb(239 68 68 / 0.7);
+}
+
+.service-block[data-highlight-level="good"] .service-block-value { color: rgb(110 231 183); }
+.service-block[data-highlight-level="warn"] .service-block-value { color: rgb(253 224 71); }
+.service-block[data-highlight-level="danger"] .service-block-value { color: rgb(254 202 202); }
+.service-block[data-highlight-level] .service-block-label { color: rgb(var(--d1-ink) / 0.85); }
+
+/* ---------- Alarm mode: only while a danger block is on screen ---------- */
+/* the card in danger: a red rim and glow, and first in its group */
+.service-card:has(.service-block[data-highlight-level="danger"]) {
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.16),
+    0 0 0 1px rgb(var(--d1-danger) / 0.45),
+    0 0 36px -10px rgb(239 68 68 / 0.65),
+    var(--d1-depth);
+}
+
+#layout-groups .service:has(.service-block[data-highlight-level="danger"]) {
+  order: -1;
+}
+
+/* the page edge: a red tint that pulses for about ten seconds, then holds (a standing alarm must not become wallpaper) */
+#inner_wrapper:has(.service-block[data-highlight-level="danger"])::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 1px rgb(var(--d1-danger) / 0.55),
+    inset 0 0 70px rgb(239 68 68 / 0.2),
+    inset 0 0 220px rgb(239 68 68 / 0.09);
+  animation: d1-alarm 2.6s ease-in-out 4;
+}
+
+#inner_wrapper:has(.service-block[data-highlight-level="danger"])::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 61;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgb(var(--d1-danger)) 20%, rgb(var(--d1-danger)) 80%, transparent);
+}
+
+/* the annunciator says it in words, for the tab in view only (Homepage unmounts the other tabs) */
+#inner_wrapper:has(.service-block[data-highlight-level="danger"]) #tabs::after {
+  content: "\25B2  Alarm on this tab";
+  position: absolute;
+  right: 22px;
+  top: -11px;
+  padding: 3px 11px;
+  border-radius: 999px;
+  color: rgb(255 228 230);
+  background: rgb(127 29 29 / 0.94);
+  box-shadow:
+    0 0 0 1px rgb(var(--d1-danger) / 0.9),
+    0 0 18px rgb(239 68 68 / 0.55);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+@keyframes d1-alarm {
   50% {
     opacity: 0.35;
   }
 }
 
-/* Only a dot still on Homepage's neutral bg-black is being checked;
-   orange and blue are real states. Fade it gently so first paint
-   reads as "checking", not "broken". */
-.service-tags div.rounded-full.bg-black {
-  animation: status-pending 1.4s ease-in-out infinite;
+/* widget errors stay legible on glass (upstream paints theme-900 text on rose-900): crimson glass summary, dark log */
+.service-card details > summary {
+  color: rgb(var(--d1-ink));
+  background: rgb(239 68 68 / 0.24);
+  box-shadow: inset 0 0 0 1px rgb(var(--d1-danger) / 0.5);
+  border-radius: calc(var(--d1-radius) - 10px);
 }
 
-@keyframes status-pending {
-  50% {
-    opacity: 0.4;
+.service-card details > div {
+  color: rgb(254 202 202);
+  background: rgb(0 0 0 / 0.45);
+  border-radius: calc(var(--d1-radius) - 10px);
+}
+
+.service-card details span {
+  color: rgb(var(--d1-ink));
+}
+
+/* ---------- Content fixes ---------- */
+/* Markets: one notch more spacing fits "-2.00%" in Plex Mono. The stock widget draws falls in rose and the
+   closed-market badge in red; here red means trouble, so both turn neutral and the minus sign carries the fall. */
+#markets > .service-card {
+  --spacing: 0.3rem;
+  --color-red-400: #fff;
+  --color-rose-300: rgb(178 183 203);
+}
+
+/* ---------- Phone (not the target, kept tidy): a 4-column header grid and a 3 x 2 tab control ---------- */
+@media (max-width: 639px) {
+  #information-widgets {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin: 18px 14px 0;
+  }
+
+  .information-widget-logo { grid-column: 1; }
+  .information-widget-greeting { grid-column: 2 / -1; justify-self: start; margin: 0; }
+  .information-widget-customapi { grid-column: span 2; }
+  .information-widget-search { grid-column: 1 / -1; max-width: none; margin: 0; }
+  .information-widget-openmeteo { grid-column: 1 / span 2; }
+  .information-widget-datetime { grid-column: 3 / -1; padding: 0 12px; }
+
+  .information-widget-datetime span {
+    font-size: 13px;
+    white-space: normal; /* date over time when the chip is narrow */
+  }
+
+  #tabs {
+    margin: 16px 14px 0;
+  }
+
+  #myTab {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-radius: 26px;
+  }
+
+  #layout-groups {
+    margin: 20px 10px 0;
   }
 }
 
-/* Group headers collapse on click, but the chevron only appears on
-   hover, which never happens on touch. Keep it permanently visible. */
-button.w-full.select-none.items-center.group svg {
-  opacity: 0.45;
-}
-
-button.w-full.select-none.items-center.group:hover svg {
-  opacity: 1;
-}
-
-/* WCAG 2.5.8: interactive controls need a 44px target. Tabs, group
-   headers, the search button and the calendar arrows all ship shorter. */
-li:has(> button.w-full.rounded-md.m-1) {
-  height: auto;
-}
-
-li > button.w-full.rounded-md.m-1,
-button.w-full.select-none.items-center.group,
-button.rounded-r-md.px-4.py-2,
-li.service[data-name="Calendar"] button {
-  min-height: 2.75rem;
-}
-
-/* Homepage 1.13.2 renders the quicklaunch button's label as the raw
-   i18n key "search.search"; substitute a real label until it is fixed. */
-button.rounded-r-md.px-4.py-2 {
-  font-size: 0;
-}
-
-button.rounded-r-md.px-4.py-2::after {
-  content: "Search";
-  font-size: 0.875rem;
-}
-
-@media (max-width: 640px) {
-  /* Below the sm breakpoint the tab list stacks one row per tab, which
-     pushes every service below the fold. Scroll them sideways instead. */
-  ul:has(> li > button.w-full.rounded-md.m-1) {
-    display: flex;
-    overflow-x: auto;
-    scrollbar-width: none;
+/* ---------- Boards (desktop): every tab is a grid; a group is placed by a tile it holds ---------- */
+@media (min-width: 1280px) {
+  #layout-groups {
+    display: grid;
+    grid-template-columns: repeat(var(--d1-cols, 4), minmax(0, 1fr));
+    grid-template-rows: auto 1fr;
+    grid-auto-flow: row dense;
+    align-items: start;
+    column-gap: 20px;
   }
 
-  ul:has(> li > button.w-full.rounded-md.m-1) > li {
-    width: auto;
-    flex: 1 0 auto;
+  /* Pulse: alerts beside health, what is playing and the outside world below, the calendar as a rail beside them */
+  #inner_wrapper:has(#Pulse-tab[aria-selected="true"]) #layout-groups {
+    --d1-cols: 12;
+    grid-template-rows: auto auto 1fr;
   }
 
-  li > button.w-full.rounded-md.m-1 {
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
+  #inner_wrapper:has(#Pulse-tab[aria-selected="true"]) #layout-groups > .services-group:has(#alerts) { grid-column: 1 / span 6; grid-row: 1; }
+  #inner_wrapper:has(#Pulse-tab[aria-selected="true"]) #layout-groups > .services-group:has(#cluster) { grid-column: 7 / span 6; grid-row: 1; }
+  #inner_wrapper:has(#Pulse-tab[aria-selected="true"]) #layout-groups > .services-group:has(#streaming-now) { grid-column: 1 / span 8; grid-row: 2; }
+  #inner_wrapper:has(#Pulse-tab[aria-selected="true"]) #layout-groups > .services-group:has(#calendar) { grid-column: 9 / span 4; grid-row: 2 / span 2; }
+  #inner_wrapper:has(#Pulse-tab[aria-selected="true"]) #layout-groups > .services-group:has(#markets) { grid-column: 1 / span 8; grid-row: 3; }
+
+  /* Needs Attention and Now Playing stack their tiles, so every alert name and every "title (viewer)" line fits */
+  #inner_wrapper:has(#Pulse-tab[aria-selected="true"]) #layout-groups > .services-group:is(:has(#alerts), :has(#streaming-now)) ul:has(> .service) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Media: Watch is a two-column panel with Jellyfin across its top; Listen over Requests, Photos over Read */
+  #inner_wrapper:has(#Media-tab[aria-selected="true"]) #layout-groups > .services-group:has(#jellyfin) { grid-column: 1 / span 2; grid-row: 1 / span 2; }
+  #inner_wrapper:has(#Media-tab[aria-selected="true"]) #layout-groups > .services-group:has(#navidrome) { grid-column: 3; grid-row: 1; }
+  #inner_wrapper:has(#Media-tab[aria-selected="true"]) #layout-groups > .services-group:has(#seerr) { grid-column: 3; grid-row: 2; }
+  #inner_wrapper:has(#Media-tab[aria-selected="true"]) #layout-groups > .services-group:has(#immich) { grid-column: 4; grid-row: 1; }
+  #inner_wrapper:has(#Media-tab[aria-selected="true"]) #layout-groups > .services-group:has(#calibre-web) { grid-column: 4; grid-row: 2; }
+
+  #inner_wrapper:has(#Media-tab[aria-selected="true"]) #layout-groups > .services-group:has(#jellyfin) ul:has(> .service) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 12px;
+    align-items: start;
+  }
+
+  #inner_wrapper:has(#Media-tab[aria-selected="true"]) #layout-groups #jellyfin { grid-column: 1 / -1; }
+
+  /* Pipeline: Acquire and Download are two-column panels on top, Index and Subtitles below */
+  #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups { grid-template-rows: auto auto; }
+  #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups > .services-group:has(#sonarr) { grid-column: 1 / span 2; grid-row: 1; }
+  #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups > .services-group:has(#qbittorrent) { grid-column: 3 / span 2; grid-row: 1; }
+  #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups > .services-group:has(#prowlarr) { grid-column: 1 / span 2; grid-row: 2; }
+  #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups > .services-group:has(#bazarr) { grid-column: 3 / span 2; grid-row: 2; }
+
+  #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups ul:has(> .service) {
+    display: block;
+    columns: 2;
+    column-gap: 12px;
+  }
+
+  #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups .service { break-inside: avoid; }
+
+  /* Platform: Ship runs both rows; Core sits under Edge, the Code bookmarks under Guard and Observe */
+  #inner_wrapper:has(#Platform-tab[aria-selected="true"]) #layout-groups { grid-template-rows: auto auto; }
+  #inner_wrapper:has(#Platform-tab[aria-selected="true"]) #layout-groups > .services-group:has(#argo-cd) { grid-column: 1; grid-row: 1 / span 2; }
+  #inner_wrapper:has(#Platform-tab[aria-selected="true"]) #layout-groups > .services-group:has(#traefik) { grid-column: 2; grid-row: 1; }
+  #inner_wrapper:has(#Platform-tab[aria-selected="true"]) #layout-groups > .services-group:has(#authentik) { grid-column: 3; grid-row: 1; }
+  #inner_wrapper:has(#Platform-tab[aria-selected="true"]) #layout-groups > .services-group:has(#grafana) { grid-column: 4; grid-row: 1; }
+  #inner_wrapper:has(#Platform-tab[aria-selected="true"]) #layout-groups > .services-group:has(#pgadmin) { grid-column: 2; grid-row: 2; }
+  #inner_wrapper:has(#Platform-tab[aria-selected="true"]) #layout-groups > :not(.services-group) { grid-column: 3 / span 2; grid-row: 2; }
+
+  /* Apps: Find & Keep takes the last column for both rows; Home spans two columns under Convert and Documents */
+  #inner_wrapper:has(#Apps-tab[aria-selected="true"]) #layout-groups > .services-group:has(#excalidash) { grid-column: 1; grid-row: 1; }
+  #inner_wrapper:has(#Apps-tab[aria-selected="true"]) #layout-groups > .services-group:has(#convertx) { grid-column: 2; grid-row: 1; }
+  #inner_wrapper:has(#Apps-tab[aria-selected="true"]) #layout-groups > .services-group:has(#paperless-ngx) { grid-column: 3; grid-row: 1; }
+  #inner_wrapper:has(#Apps-tab[aria-selected="true"]) #layout-groups > .services-group:has(#searxng) { grid-column: 4; grid-row: 1 / span 2; }
+  #inner_wrapper:has(#Apps-tab[aria-selected="true"]) #layout-groups > .services-group:has(#pairdrop) { grid-column: 1; grid-row: 2; }
+  #inner_wrapper:has(#Apps-tab[aria-selected="true"]) #layout-groups > .services-group:has(#home-assistant) { grid-column: 2 / span 2; grid-row: 2; }
+
+  /* Iron: Compute is a two-column panel; Network and Storage run full height */
+  #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups > .services-group:has(#proxmox-ve) { grid-column: 1 / span 2; grid-row: 1; }
+  #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups > .services-group:has(#opnsense) { grid-column: 3; grid-row: 1 / span 2; }
+  #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups > .services-group:has(#truenas) { grid-column: 4; grid-row: 1 / span 2; }
+
+  #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups > .services-group:has(#proxmox-ve) ul:has(> .service) {
+    display: block;
+    columns: 2;
+    column-gap: 12px;
+  }
+
+  #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups > .services-group:has(#proxmox-ve) .service { break-inside: avoid; }
+}
+
+@media (min-width: 1280px) and (max-width: 1799px) {
+  /* Iron: the two bookmark groups sit side by side under Compute */
+  #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups > :not(.services-group) { grid-row: 2; }
+}
+
+@media (min-width: 1800px) {
+  /* Iron: a fifth column takes the bookmarks, so Compute runs both rows */
+  #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups { --d1-cols: 5; }
+  #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups > .services-group:has(#proxmox-ve) { grid-row: 1 / span 2; }
+  #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups > :not(.services-group) { grid-column: 5; }
+
+  /* header: the search pill takes the width a wide screen leaves */
+  .information-widget-search {
+    max-width: 760px;
   }
 }
+
+/* no-hook:start */
+/* List rows (a name and one value) have no class of their own. A gutter between the name and its value; the
+   value stays on one line and the name wraps. :not() skips the wrappers that hold rows. */
+.service-card :is(a, div):has(> div:first-child + div:last-child > div:only-child) {
+  column-gap: 12px;
+}
+
+.service-card :is(a, div):has(> div:first-child + div:last-child > div:only-child):not(:has(div div div)) > div:first-child {
+  min-width: 0;
+}
+
+.service-card :is(a, div):has(> div:first-child + div:last-child > div:only-child):not(:has(div div div)) > div:last-child {
+  flex: none;
+  white-space: nowrap;
+}
+/* no-hook:end */

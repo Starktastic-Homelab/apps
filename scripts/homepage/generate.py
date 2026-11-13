@@ -6,9 +6,8 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import compare  # noqa: E402
 from catalog import CatalogError, load_catalog, slug, walk_groups  # noqa: E402
-from render import PAGES, build_page, check_placeholders, dump_page, helm_escape  # noqa: E402
+from render import PAGES, build_page, check_mounts, check_placeholders, dump_page, helm_escape  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 STAGED = {"household", "admin"}
@@ -24,7 +23,10 @@ def render_all(repo: Path) -> dict[Path, str]:
     cat = load_catalog(repo)
     out = {}
     for page in PAGES:
-        text = dump_page(page, build_page(repo, cat, page))
+        data = build_page(repo, cat, page)
+        if page not in STAGED:
+            check_mounts(repo, page, data)
+        text = dump_page(page, data)
         check_placeholders(repo, page, text)
         out[output_path(repo, page)] = helm_escape(text)
     return out
@@ -71,39 +73,12 @@ def inventory(repo: Path) -> dict:
     return out
 
 
-def run_compare(repo: Path) -> int:
-    if not STAGED:
-        print("nothing staged")
-        return 0
-    lines = []
-    for page in sorted(STAGED):
-        paths = [Path(repo) / f"{PAGES[page]['dir']}/manifests/templates/configmap.yaml", output_path(repo, page)]
-        missing = [p for p in paths if not p.is_file()]
-        if missing:
-            lines += [f"{page}: missing {p.relative_to(repo)}" for p in missing]
-            continue
-        try:
-            texts = [p.read_text(encoding="utf-8") for p in paths]
-            parsed = [compare.parse_configmap(t) for t in texts]
-            f = [compare.facts(d) for d in parsed]
-            lines += compare.diff(f[0], f[1], page)
-            lines += compare.strict_diff(*parsed, *[compare.raw_keys(t) for t in texts], page)
-        except CatalogError as err:
-            lines.append(f"{page}: {err}")
-    if lines:
-        print(*lines, sep="\n")
-    return 1 if lines else 0
-
-
 def main(argv: list[str] | None = None, repo: Path = ROOT) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--check", action="store_true", help="fail if the committed output is stale")
     mode.add_argument("--inventory", action="store_true", help="print the pages' contents as JSON")
-    mode.add_argument("--compare", action="store_true", help="compare staged pages with the live ones")
     args = parser.parse_args(argv)
-    if args.compare:
-        return run_compare(repo)
     try:
         if args.inventory:
             print(json.dumps(inventory(repo), indent=2, ensure_ascii=False))

@@ -1,0 +1,134 @@
+{
+  "status": "success",
+  "data": {
+    "activeTargets": [
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "up"
+      },
+      {
+        "health": "down"
+      }
+    ],
+    "droppedTargets": []
+  }
+}

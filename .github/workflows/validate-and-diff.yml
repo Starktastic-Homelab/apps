@@ -89,7 +89,6 @@ jobs:
 
       - name: Rehearse staged Homepage pages   # Fable deletes this at the cut-over
         run: |
-          python3 scripts/homepage/generate.py --compare
           cp -a . "$RUNNER_TEMP/hp" && cp -r homepage/staged/services "$RUNNER_TEMP/hp/"
           cd "$RUNNER_TEMP/hp"
           python3 scripts/check-homepage-coverage.py
@@ -240,6 +239,50 @@ jobs:
           steps.alerts.outputs.exit_code != 0 ||
           steps.alerts.outputs.exit_code == ''
         run: exit 1
+
+  homepage-render:
+    name: Homepage render
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+
+      # A required check, so it always runs: it passes at once when the PR touches nothing it renders.
+      # HEAD is the PR's merge commit, so its first parent is the base branch.
+      - name: Changed files
+        id: changed
+        run: |
+          paths='^(homepage/|scripts/homepage/|services/operations/homepage(-admin)?/|\.github/workflows/validate-and-diff\.yml$)'
+          # If the diff itself fails, render anyway: this gate must never pass by accident.
+          if ! files=$(git diff --name-only HEAD^1 HEAD) || grep -qE "$paths" <<<"$files"; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Python
+        if: steps.changed.outputs.run == 'true'
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.15'
+
+      # Runs the deployed Homepage image on the generated pages against a mock upstream (ADR 0020).
+      - name: Render both Homepage pages
+        if: steps.changed.outputs.run == 'true'
+        run: |
+          pip install -r scripts/homepage/requirements.txt -r scripts/homepage/rendercheck/requirements.txt
+          python3 scripts/homepage/rendercheck/render_check.py --out "$RUNNER_TEMP/shots"
+
+      - name: Upload screenshots
+        if: always() && steps.changed.outputs.run == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: homepage-render
+          path: ${{ runner.temp }}/shots
+          retention-days: 7
 
   diff:
     name: ArgoCD diff preview

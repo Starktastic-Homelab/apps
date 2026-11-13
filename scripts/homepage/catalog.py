@@ -1,4 +1,6 @@
 """Homepage catalog loader and generator helpers."""
+import re
+import urllib.parse
 from pathlib import Path
 from typing import Any
 
@@ -123,3 +125,158 @@ def resolve_tile(repo: Path, tid: str, tile: dict) -> dict:
     if "monitorPath" in tile and "siteMonitor" in out and "siteMonitor" not in tile:
         out["siteMonitor"] += tile["monitorPath"]
     return out
+
+
+PAGE_NAMES = ("household", "admin")
+TILE_EMIT = ("name", "href", "icon", "description", "siteMonitor", "namespace", "app", "podSelector",
+             "proxmoxNode", "proxmoxVMID")
+TILE_KEYS = set(TILE_EMIT) | {"audience", "source", "monitorPath", "override", "widgets"}
+BOOKMARK_KEYS = {"name", "abbr", "href", "icon", "description", "target", "audience"}
+GROUP_KEYS = {"name", "items", "style", "columns", "icon", "header", "initiallyCollapsed", "useEqualHeights"}
+AUDIENCES = ("household", "admin", "household-only")
+
+
+def audience(entry: dict) -> str:
+    return entry.get("audience", "admin")
+
+
+def shown_on(aud: str, page: str) -> bool:
+    return aud == "household" or aud == page or (aud == "household-only" and page == "household")
+
+
+def slug(tab: str) -> str:
+    return urllib.parse.quote(re.sub(r"\s+", "-", tab).lower(), safe="")
+
+
+def page_tile(tile: dict, page: str) -> dict:
+    out = dict(tile)
+    for key, val in (tile.get("override") or {}).get(page, {}).items():
+        if val is None:
+            out.pop(key, None)
+        else:
+            out[key] = val
+    return out
+
+
+def walk_groups(page: dict):
+    def rec(tab, group, parents):
+        yield tab, group, parents
+        for item in group.get("items", []):
+            if isinstance(item, dict):
+                yield from rec(tab, item, parents + [group.get("name")])
+    for tab in page.get("tabs", []):
+        for group in tab.get("groups", []):
+            yield from rec(tab.get("name"), group, [])
+
+
+def _check_keys(path, entry, allowed):
+    if not isinstance(entry, dict):
+        raise CatalogError(f"{path}: not a mapping")
+    for key in entry:
+        if key not in allowed:
+            raise CatalogError(f"{path}.{key}: unknown key")
+
+
+def _check_aud(path, entry, allowed):
+    if "audience" in entry and entry["audience"] not in allowed:
+        raise CatalogError(f"{path}.audience: {entry['audience']!r} is not one of {', '.join(allowed)}")
+
+
+def _check_tile(tid, tile):
+    path = f"tiles.{tid}"
+    _check_keys(path, tile, TILE_KEYS)
+    _check_aud(path, tile, AUDIENCES[:2])
+    over = tile.get("override") or {}
+    _check_keys(f"{path}.override", over, PAGE_NAMES)
+    for page, ov in over.items():
+        _check_keys(f"{path}.override.{page}", ov, TILE_EMIT)
+    widgets = tile.get("widgets") or []
+    if not isinstance(widgets, list):
+        raise CatalogError(f"{path}.widgets: not a list")
+    for i, w in enumerate(widgets):
+        _check_keys(f"{path}.widgets[{i}]", w, set(w))  # shape only; widget keys are Task 4's
+        _check_aud(f"{path}.widgets[{i}]", w, AUDIENCES)
+
+
+def load_catalog(repo: Path) -> dict:
+    cpath = Path(repo) / "homepage/catalog.yaml"
+    raw = _mapping(load_yaml(cpath), cpath)
+    tiles = {tid: _mapping(t, f"tiles.{tid}") for tid, t in (raw.get("tiles") or {}).items()}
+    for tid, t in tiles.items():
+        _check_tile(tid, t)
+    tiles = {tid: resolve_tile(repo, tid, t) for tid, t in tiles.items()}
+    bookmarks = raw.get("bookmarks") or {}
+    for bid, b in bookmarks.items():
+        _check_keys(f"bookmarks.{bid}", b, BOOKMARK_KEYS)
+        _check_aud(f"bookmarks.{bid}", b, AUDIENCES)
+        if bid in tiles:
+            raise CatalogError(f"bookmarks.{bid}: id is also a tile id")
+    info = raw.get("info") or []
+    for i, e in enumerate(info):
+        _check_keys(f"info[{i}]", e, set(e))
+        _check_aud(f"info[{i}]", e, AUDIENCES)
+    pages = raw.get("pages") or {}
+    _check_keys("pages", pages, PAGE_NAMES)
+    cat = {"tiles": tiles, "bookmarks": bookmarks, "info": info, "pages": pages}
+    for page in PAGE_NAMES:
+        _check_page(cat, page)
+    return cat
+
+
+def _check_page(cat, page):
+    base = f"pages.{page}"
+    tiles, bookmarks = cat["tiles"], cat["bookmarks"]
+    data = _mapping(cat["pages"].get(page), base)
+    placed = {"tiles": {}, "bookmarks": {}}
+    group_names, tab_slugs = set(), set()
+
+    def group(path, g, parents):
+        _check_keys(path, g, GROUP_KEYS)
+        name = g.get("name")
+        if not name:
+            raise CatalogError(f"{path}: group has no name")
+        if name in group_names:
+            raise CatalogError(f"{path}.name: duplicate group name {name!r} on page {page}")
+        group_names.add(name)
+        kinds = set()
+        for i, item in enumerate(g.get("items") or []):
+            ipath = f"{path}.items[{i}]"
+            if isinstance(item, dict):
+                group(ipath, item, parents + [name])
+            elif item in tiles:
+                kinds.add("tiles")
+                placed["tiles"][item] = placed["tiles"].get(item, 0) + 1
+            elif item in bookmarks:
+                kinds.add("bookmarks")
+                placed["bookmarks"][item] = placed["bookmarks"].get(item, 0) + 1
+            else:
+                raise CatalogError(f"{ipath}: {item!r} is neither a tile nor a bookmark id")
+        if len(kinds) > 1:
+            raise CatalogError(f"{path}: group mixes tiles and bookmarks")
+
+    for t, tab in enumerate(data.get("tabs") or []):
+        tpath = f"{base}.tabs[{t}]"
+        _check_keys(tpath, tab, {"name", "groups"})
+        if not isinstance(tab.get("name"), str) or not re.fullmatch(r"[A-Za-z0-9 ]+", tab["name"]):
+            raise CatalogError(f"{tpath}.name: must match [A-Za-z0-9 ]+")
+        s = slug(tab["name"])
+        if s in tab_slugs:
+            raise CatalogError(f"{tpath}.name: duplicate tab slug {s!r} on page {page}")
+        tab_slugs.add(s)
+        for g, grp in enumerate(tab.get("groups") or []):
+            group(f"{tpath}.groups[{g}]", grp, [])
+
+    for kind, entries in (("tiles", tiles), ("bookmarks", bookmarks)):
+        names = {}
+        for eid, entry in entries.items():
+            want = shown_on(audience(entry), page)
+            n = placed[kind].get(eid, 0)
+            if n != int(want):
+                raise CatalogError(f"{kind}.{eid}: audience {audience(entry)!r} needs {int(want)} placement(s) on page {page}, found {n}")
+            if want:
+                name = (page_tile(entry, page) if kind == "tiles" else entry).get("name")
+                if not name:
+                    raise CatalogError(f"{kind}.{eid}: no name on page {page}")
+                if name in names:
+                    raise CatalogError(f"{kind}.{eid}.name: {name!r} duplicates {names[name]} on page {page}")
+                names[name] = eid

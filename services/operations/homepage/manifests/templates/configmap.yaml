@@ -781,6 +781,10 @@ data:
         tab: Watch
         style: row
         columns: 2
+      Support the server:
+        tab: Watch
+        style: row
+        columns: 2
       Listen:
         tab: Library
         style: row
@@ -1009,6 +1013,17 @@ data:
           href: https://listmonk.starktastic.net
           siteMonitor: http://listmonk.operations:9000
   bookmarks.yaml: |
+    - Support the server:
+      - Buy Me a Coffee:
+        - id: bm-buy-me-a-coffee
+          abbr: BC
+          href: https://buymeacoffee.com/benfaingold
+          description: By card
+      - PayBox:
+        - id: bm-paybox
+          abbr: PB
+          href: https://links.payboxapp.com/MgzMt5tR27b
+          description: Server fund group
     - Links:
       - My Account:
         - id: bm-my-account

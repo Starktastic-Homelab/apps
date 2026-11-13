@@ -35,5 +35,8 @@
  "sum(clamp_min(homelab:proxmox_csi_slots_free:count, 0)) or vector(0)": 22,
  "sum(kube_pod_status_phase{namespace=\"home-automation\",phase=\"Running\"})": 3,
  "floor(sum(increase(kube_pod_container_status_restarts_total{namespace=\"home-automation\"}[24h])))": 0,
- "sum(container_memory_working_set_bytes{namespace=\"home-automation\",pod=~\"home-assistant-.*\",container=\"main\"})": 734003200
+ "sum(container_memory_working_set_bytes{namespace=\"home-automation\",pod=~\"home-assistant-.*\",container=\"main\"})": 734003200,
+ "max(probe_duration_seconds{probe_kind=\"icmp\"}) * 1000": 11.8,
+ "max(probe_duration_seconds{probe_kind=\"dns\"}) * 1000": 23.4,
+ "avg(avg_over_time(probe_success{tier=\"external\"}[24h])) * 100": 99.97
 }

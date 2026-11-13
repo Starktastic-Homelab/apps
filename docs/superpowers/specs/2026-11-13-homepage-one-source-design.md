@@ -316,7 +316,8 @@ changes.
 - Today's CSS, settings, `proxmox.yaml` and favicons go into the pass-through files.
 - Explicit values only where derivation cannot reach:
   - the kube-prometheus-stack tiles take `source` and an explicit `app`: Grafana
-    `app: grafana` (href, siteMonitor and namespace derive), Prometheus `app: prometheus`, and
+    `app: grafana` (href, siteMonitor and namespace derive), Prometheus `app: prometheus` plus
+    explicit `href` (Grafana `/explore`) and `siteMonitor` (Prometheus `:9090/-/healthy`), and
     Cluster Health and Security `app: prometheus` with `siteMonitor: null`;
   - Navidrome and MicroBin (`ingress.enabled: false`);
   - Authentik, Falco, Argo CD, Deployments, Edge & Certs, Traefik and pgAdmin (hosts outside

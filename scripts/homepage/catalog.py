@@ -29,7 +29,7 @@ class UniqueLoader(yaml.SafeLoader):
         seen = set()
         # Checked before `<<` merges are expanded, so a key may still override a merged one.
         for key, _ in node.value:
-            if key.tag == "tag:yaml.org,2002:merge":
+            if not isinstance(key, yaml.ScalarNode) or key.tag == "tag:yaml.org,2002:merge":
                 continue
             if key.value in seen:
                 raise yaml.composer.ComposerError(
@@ -48,5 +48,9 @@ def loads_yaml(text: str, where: str) -> Any:
 
 
 def load_yaml(path: Path) -> Any:
-    data = loads_yaml(Path(path).read_text(encoding="utf-8"), str(path))
+    try:
+        text = Path(path).read_text(encoding="utf-8")
+    except OSError as err:
+        raise CatalogError(f"{path}: {err}") from err
+    data = loads_yaml(text, str(path))
     return {} if data is None else data

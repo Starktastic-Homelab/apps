@@ -1,9 +1,10 @@
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from catalog import CatalogError, loads_yaml
+from catalog import CatalogError, load_yaml, loads_yaml
 
 
 class LoadTests(unittest.TestCase):
@@ -26,6 +27,18 @@ class LoadTests(unittest.TestCase):
         single = "a: 'x'\nl:\n  - 'p'\n  - q: 'r'\n"
         double = 'a: "x"\nl:\n    - "p"\n    - q: "r"\n'
         self.assertEqual(loads_yaml(single, "x"), loads_yaml(double, "x"))
+
+    def test_empty_file_is_empty_dict(self):
+        with tempfile.TemporaryDirectory() as d:
+            f = Path(d) / "e.yaml"
+            f.write_text("")
+            self.assertEqual(load_yaml(f), {})
+            with self.assertRaises(CatalogError):
+                load_yaml(Path(d) / "missing.yaml")
+
+    def test_complex_key_no_typeerror(self):
+        with self.assertRaises(CatalogError):  # unhashable key: a CatalogError, never a TypeError
+            loads_yaml("? [a]\n: 1\n", "x")
 
 
 if __name__ == "__main__":

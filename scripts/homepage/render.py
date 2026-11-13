@@ -25,7 +25,8 @@ HOOK_IDS = {"layout-groups", "myTab", "tabs", "information-widgets", "informatio
             "background", "inner_wrapper", "footer"}
 HOOK_CLASSES = {
     "service", "service-card", "service-title", "service-title-text", "service-name", "service-description",
-    "service-icon", "service-tag", "service-site-monitor", "site-monitor-status", "service-container",
+    "service-icon", "service-tags", "service-tag", "service-site-monitor", "site-monitor-status", "service-app",
+    "k8s-status", "service-container",
     "service-block", "service-block-value", "service-block-label", "services-group", "subgroup",
     "service-group-name", "service-group-icon",
     "bookmark", "bookmark-group-name", "bookmark-group-icon", "bookmark-icon", "bookmark-text", "bookmark-name",

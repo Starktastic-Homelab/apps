@@ -200,7 +200,8 @@ admin; its `NOTES.md` records palette, type and contrast measurements):
 1. Selectors use Homepage's ids (`#layout-groups`, `#myTab`, `#<Tab>-tab`, `#tabs`, `#information-widgets`,
    `#information-widgets-right`, `#widgets-wrap`, `#background`, `#inner_wrapper`, `#footer`), its named classes
    (`service`, `service-card`, `service-title`, `service-title-text`, `service-name`, `service-description`,
-   `service-icon`, `service-tag`, `service-site-monitor`, `site-monitor-status`, `service-container`,
+   `service-icon`, `service-tags`, `service-tag`, `service-site-monitor`, `site-monitor-status`, `service-app`,
+   `k8s-status` (these three added 2026-11-13 for the paired status dots), `service-container`,
    `service-block`, `service-block-value`, `service-block-label`, `services-group`, `subgroup`,
    `service-group-name`, `service-group-icon`, `information-widget-<type>`, and for bookmarks `bookmark`,
    `bookmark-group-name`, `bookmark-group-icon`, `bookmark-icon`, `bookmark-text`, `bookmark-name`,

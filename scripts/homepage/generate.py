@@ -29,26 +29,21 @@ def render_all(repo: Path) -> dict[Path, str]:
     return out
 
 
-def _widget_list(entry):
-    return [entry["widget"]] if "widget" in entry else entry.get("widgets", [])
+def _widget(w):
+    urls = [w.get("url")] + [i.get("url") for i in w.get("integrations", [])]
+    return {"type": w["type"], "urls": [u for u in urls if u],
+            "highlight": w.get("highlight"), "refreshInterval": w.get("refreshInterval")}
 
 
-def _walk(items, group, tiles, bookmarks):
+def _tiles(items, group, out):
     for item in items:
         (name, val), = item.items()
         if isinstance(val, dict):
-            ws = _widget_list(val)
-            tiles.append({
-                "id": val["id"], "name": name, "group": group, "href": val.get("href"),
-                "widgets": [w["type"] for w in ws],
-                "urls": [u for w in ws for u in [w.get("url")] + [i.get("url") for i in w.get("integrations", [])] if u],
-                "highlight": [w.get("highlight") for w in ws],
-                "refreshInterval": [w.get("refreshInterval") for w in ws],
-            })
-        elif val and isinstance(val[0], dict) and "id" in val[0]:
-            bookmarks.append({"id": val[0]["id"], "name": name, "group": group, "href": val[0].get("href")})
+            ws = [val["widget"]] if "widget" in val else val.get("widgets", [])
+            out.append({"id": val["id"], "name": name, "group": group, "href": val.get("href"),
+                        "widgets": [_widget(w) for w in ws]})
         else:
-            _walk(val, name, tiles, bookmarks)
+            _tiles(val, name, out)
 
 
 def inventory(repo: Path) -> dict:
@@ -57,10 +52,14 @@ def inventory(repo: Path) -> dict:
     for page in PAGES:
         data = build_page(repo, cat, page)
         pdata = cat["pages"][page]
-        tiles, bookmarks = [], []
-        for group in data["services.yaml"] + data["bookmarks.yaml"]:
+        tiles = []
+        for group in data["services.yaml"]:
             (name, items), = group.items()
-            _walk(items, name, tiles, bookmarks)
+            _tiles(items, name, tiles)
+        # Bookmark groups are flat (nested ones are rejected by build_page).
+        bookmarks = [{"id": b[0]["id"], "name": bname, "group": gname, "href": b[0].get("href")}
+                     for group in data["bookmarks.yaml"] for gname, items in group.items()
+                     for item in items for bname, b in item.items()]
         out[page] = {
             "tabs": [{"name": t["name"], "slug": slug(t["name"])} for t in pdata.get("tabs") or []],
             "groups": [{"name": g["name"], "tab": tab, "parents": parents} for tab, g, parents in walk_groups(pdata)],
@@ -94,7 +93,7 @@ def main(argv: list[str] | None = None, repo: Path = ROOT) -> int:
         rel = path.relative_to(repo)
         if args.check:
             old = path.read_text(encoding="utf-8") if path.is_file() else ""
-            if old.encode() == text.encode() and path.is_file():
+            if path.is_file() and old.encode() == text.encode():
                 continue
             stale = True
             diff = list(difflib.unified_diff(old.splitlines(), text.splitlines(), f"a/{rel}", f"b/{rel}", lineterm=""))

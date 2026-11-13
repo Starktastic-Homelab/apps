@@ -72,6 +72,18 @@ class TestDump(Base):
         self.assertIn("  custom.css: |\n    a { b }\n  kubernetes.yaml: |\n", text2)
         self.assertEqual(render_all(repo2), render_all(repo2))
 
+    def test_whitespace_lines_roundtrip(self):
+        css = "a {\n\t\n      \n  b: c;\n}\n"
+        repo = self.repo(pages={"household": {"custom.css": css}})
+        text = dump_page("household", build_page(repo, load_catalog(repo), "household"))
+        self.assertEqual(yaml.safe_load(text)["data"]["custom.css"], css)
+
+    def test_leading_whitespace_raises(self):
+        for css in ("  a {}\n", "\n\n  a {}\n", "\ta {}\n"):
+            repo = self.repo(pages={"household": {"custom.css": css}})
+            with self.subTest(css=css), self.assertRaisesRegex(CatalogError, r"^pages\.household: .*custom\.css"):
+                dump_page("household", build_page(repo, load_catalog(repo), "household"))
+
     def test_rule19_escape_roundtrip(self):
         self.assertEqual(helm_escape("k: {{HOMEPAGE_VAR_X}}"), 'k: {{ "{{" }}HOMEPAGE_VAR_X{{ "}}" }}')
         widget = {"audience": "household", "type": "x", "key": "{{HOMEPAGE_VAR_K}}", "url": "http://h/?k={{HOMEPAGE_VAR_K}}&a=1"}
@@ -149,8 +161,9 @@ class TestInventory(Base):
                                          {"name": "Links", "tab": "Play Time", "parents": []}])
         self.assertEqual(inv["tiles"], [{
             "id": "a", "name": "A", "group": "G", "href": "https://a.example",
-            "widgets": ["calendar", "sonarr"], "urls": ["http://ics", "http://so"],
-            "highlight": [None, {"q": 1}], "refreshInterval": [600, None]}])
+            "widgets": [
+                {"type": "calendar", "urls": ["http://ics"], "highlight": None, "refreshInterval": 600},
+                {"type": "sonarr", "urls": ["http://so"], "highlight": {"q": 1}, "refreshInterval": None}]}])
         self.assertEqual(inv["bookmarks"], [{"id": "gh", "name": "GitHub", "group": "Links", "href": "https://gh"}])
         self.assertEqual(inv["info"], ["datetime"])
         code, out = TestCli.run_main(self, ["--inventory"], self.repo(edit))

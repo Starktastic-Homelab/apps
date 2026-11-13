@@ -199,10 +199,10 @@ def dump_page(page: str, data: dict) -> str:
         if not body:
             out.append(f'  {key}: ""\n')
             continue
-        if body[0] in " \t":
+        if body.lstrip("\n")[:1] in (" ", "\t"):
             # `|` without an indentation indicator would take the first line's indent as the block's.
             raise CatalogError(f"pages.{page}: data key {key} starts with whitespace")
-        out.append(f"  {key}: |\n" + textwrap.indent(body, "    "))
+        out.append(f"  {key}: |\n" + textwrap.indent(body, "    ", lambda ln: ln.strip("\n") != ""))
     return "".join(out)
 
 

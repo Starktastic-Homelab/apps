@@ -53,6 +53,35 @@ class DeriveTests(unittest.TestCase):
         with self.assertRaisesRegex(CatalogError, r"tiles\.s\.source:"):
             resolve_tile(self.repo({SRC: app}), "s", {"name": "S", "source": SRC})
 
+    def test_variant_without_own_enabled_fails(self):
+        ru = {"name": "sonarr-ru", "baseApp": SRC, "namespace": "media", "ingress": {"host": "sonarr-ru"}}
+        repo = self.repo({SRC: SONARR, "services/media/sonarr-ru": ru})
+        with self.assertRaisesRegex(CatalogError, "own app.yaml"):
+            derive(repo, "services/media/sonarr-ru")
+
+    def test_malformed_app_raises_catalog_error(self):
+        bad = {"unk": dict(SONARR, ingress={"enabled": True, "domainType": "nope"}),
+               "noname": {"namespace": "m", "ingress": {"enabled": True}},
+               "nons": {"name": "n", "ingress": {"enabled": True}}}
+        repo = self.repo({f"services/x/{k}": v for k, v in bad.items()})
+        for k in bad:
+            with self.subTest(k), self.assertRaises(CatalogError):
+                derive(repo, f"services/x/{k}")
+        (repo / "services/x/list").mkdir()
+        (repo / "services/x/list/app.yaml").write_text("- a\n")
+        with self.assertRaisesRegex(CatalogError, "not a mapping"):
+            derive(repo, "services/x/list")
+
+    def test_null_port_defaults(self):
+        app = dict(SONARR, ingress={"enabled": True, "host": "s", "port": None})
+        self.assertEqual(derive(self.repo({SRC: app}), SRC)["siteMonitor"], "http://sonarr.media:80")
+
+    def test_missing_globals_domains(self):
+        repo = self.repo({SRC: SONARR})
+        (repo / "templates/globals.yaml").write_text("global: {}\n")
+        with self.assertRaisesRegex(CatalogError, "global.domains"):
+            derive(repo, SRC)
+
     def test_missing_source_fails(self):
         with self.assertRaisesRegex(CatalogError, r"tiles\.s\.source:"):
             resolve_tile(self.repo({}), "s", {"name": "S", "source": SRC})

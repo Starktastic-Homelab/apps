@@ -63,24 +63,42 @@ def _merge(base: dict, over: dict) -> dict:
     return out
 
 
+def _mapping(data, path) -> dict:
+    if not isinstance(data, dict):
+        raise CatalogError(f"{path}: not a mapping")
+    return data
+
+
 def derive(repo: Path, source: str) -> dict:
     """Mirror cluster-apps.yaml + ingress-chart: href, siteMonitor (no monitorPath), namespace, app."""
     path = Path(repo) / source / "app.yaml"
     if not path.is_file():
         raise CatalogError(f"{source}: no app.yaml")
-    app = load_yaml(path)
-    if app.get("baseApp"):
-        app = _merge(load_yaml(Path(repo) / app["baseApp"] / "app.yaml"), app)
-    ing = app.get("ingress") or {}
-    if not ing.get("enabled"):
-        raise CatalogError(f"{source}: ingress is not enabled")
-    domains = load_yaml(Path(repo) / "templates/globals.yaml")["global"]["domains"]
-    domain = domains[ing.get("domainType") or "internal"]
+    own = _mapping(load_yaml(path), path)
+    # The AppSet gates the ingress chart on the variant's own app.yaml, before any baseApp merge.
+    if not (isinstance(own.get("ingress"), dict) and own["ingress"].get("enabled")):
+        raise CatalogError(f"{source}: ingress is not enabled in its own app.yaml")
+    app = own
+    if own.get("baseApp"):
+        base = Path(repo) / own["baseApp"] / "app.yaml"
+        app = _merge(_mapping(load_yaml(base), base), own)
+    ing = app["ingress"]
+    for key in ("name", "namespace"):
+        if not app.get(key):
+            raise CatalogError(f"{source}: app.yaml has no {key}")
+    gpath = Path(repo) / "templates/globals.yaml"
+    domains = (_mapping(load_yaml(gpath), gpath).get("global") or {}).get("domains")
+    if not isinstance(domains, dict):
+        raise CatalogError(f"{gpath}: no global.domains")
+    dtype = ing.get("domainType") or "internal"
+    if dtype not in domains:
+        raise CatalogError(f"{source}: unknown ingress.domainType {dtype!r}")
+    domain = domains[dtype]
     host = ing.get("host") or ""
     svc = ing.get("serviceName") or app["name"]
     return {
         "href": f"https://{domain if not host else f'{host}.{domain}'}",
-        "siteMonitor": f"http://{svc}.{app['namespace']}:{ing.get('port', 80)}",
+        "siteMonitor": f"http://{svc}.{app['namespace']}:{ing.get('port') or 80}",
         "namespace": app["namespace"],
         "app": app["name"],
     }

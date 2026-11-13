@@ -10,7 +10,7 @@ from catalog import CatalogError, load_catalog, slug, walk_groups  # noqa: E402
 from render import PAGES, build_page, check_mounts, check_placeholders, dump_page, helm_escape  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
-STAGED = {"household", "admin"}
+STAGED = {"admin"}
 COMMAND = "python3 scripts/homepage/generate.py"
 
 

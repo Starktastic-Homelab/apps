@@ -1383,35 +1383,88 @@ tiles:
           label: user.login
           limit: 5
           target: https://github.com/Starktastic-Homelab/terraform/pull/{number}
+  # ---- Iron extras (spec §8 step 2) ---------------------------------------------------------------------------
+  # Widgets on logins admin already holds, or on Prometheus. Nothing here was tried against the LAN: Git, the
+  # research and each product's API reference are the proof, and the live page decides. No alert rule covers
+  # these devices, so nothing here turns red.
+  #
+  # Two more read-only GETs on the token this tile and the VM dots already use (proxmox.yaml).
   proxmox-ve:
     name: Proxmox VE
     icon: proxmox.png
     href: https://10.9.9.20:8006
-    description: Hypervisor
+    description: Hypervisor and its storage
     widgets:
+      # No LXC block: every guest Git knows of on this host is a VM.
       - type: proxmox
         url: https://10.9.9.20:8006
         username: "{{HOMEPAGE_VAR_PROXMOX_USER}}"
         password: "{{HOMEPAGE_VAR_PROXMOX_PASS}}"
         node: pve
+        fields:
+          - vms
+          - resources.cpu
+          - resources.mem
+      # How full each enabled storage is. Proxmox leaves out a storage the token may not audit.
+      - type: customapi
+        url: https://10.9.9.20:8006/api2/json/nodes/pve/storage?enabled=1
+        headers: &pve_auth
+          Authorization: PVEAPIToken={{HOMEPAGE_VAR_PROXMOX_USER}}={{HOMEPAGE_VAR_PROXMOX_PASS}}
+        refreshInterval: 300000
+        display: dynamic-list
+        mappings:
+          items: data
+          name: storage
+          label: used_fraction
+          format: percent
+          scale: 100
   kube-master-01:
     name: kube-master-01
     icon: proxmox.png
     description: Control plane (4c / 16GB)
     proxmoxNode: pve
     proxmoxVMID: 200
+    widgets:
+      # The route and fields Homepage itself reads for this tile's status dot, shown all the time.
+      - type: customapi
+        url: https://10.9.9.20:8006/api2/json/nodes/pve/qemu/200/status/current
+        headers: *pve_auth
+        refreshInterval: 60000
+        mappings: &vm_blocks
+          - field: data.cpu
+            label: CPU
+            scale: 100
+            format: percent
+          - field: data.mem
+            label: Memory
+            format: bytes
+          - field: data.uptime
+            label: Uptime
+            format: duration
   kube-worker-01:
     name: kube-worker-01
     icon: proxmox.png
     description: Worker (6c / 28GB / GPU)
     proxmoxNode: pve
     proxmoxVMID: 201
+    widgets:
+      - type: customapi
+        url: https://10.9.9.20:8006/api2/json/nodes/pve/qemu/201/status/current
+        headers: *pve_auth
+        refreshInterval: 60000
+        mappings: *vm_blocks
   kube-worker-02:
     name: kube-worker-02
     icon: proxmox.png
     description: Worker (6c / 28GB / GPU)
     proxmoxNode: pve
     proxmoxVMID: 202
+    widgets:
+      - type: customapi
+        url: https://10.9.9.20:8006/api2/json/nodes/pve/qemu/202/status/current
+        headers: *pve_auth
+        refreshInterval: 60000
+        mappings: *vm_blocks
   opnsense:
     name: OPNsense
     icon: opnsense.png
@@ -1434,6 +1487,58 @@ tiles:
         url: http://10.9.9.1:3000
         username: "{{HOMEPAGE_VAR_ADGUARD_USER}}"
         password: "{{HOMEPAGE_VAR_ADGUARD_PASS}}"
+      # /control/status on the same login (AdGuard Home has no narrower one). Amber while filtering is paused.
+      - type: customapi
+        url: http://10.9.9.1:3000/control/status
+        username: "{{HOMEPAGE_VAR_ADGUARD_USER}}"
+        password: "{{HOMEPAGE_VAR_ADGUARD_PASS}}"
+        refreshInterval: 60000
+        mappings:
+          - field: protection_enabled
+            label: Protection
+            remap:
+              - value: true
+                to: "On"
+              - value: false
+                to: Paused
+          - field: version
+            label: Version
+        highlight:
+          Protection:
+            string:
+              - level: warn
+                when: equals
+                value: Paused
+  # The three external probes of probe-external.yaml (1.1.1.1 by ICMP, DNS and HTTPS), by their tier and
+  # probe_kind labels. An outage is coloured on Pulse (Edge & WAN), where red mirrors BlackboxExternalDepDown.
+  internet:
+    name: Internet
+    icon: mdi-web
+    description: The outside world, seen from the cluster
+    widgets:
+      - type: prometheusmetric
+        url: http://kube-prometheus-stack-prometheus.monitoring:9090
+        refreshInterval: 60000
+        metrics:
+          # Proof: every Probe scrape that gives probe_success (Edge & WAN tile) gives probe_duration_seconds.
+          - label: Ping
+            query: max(probe_duration_seconds{probe_kind="icmp"}) * 1000
+            format: &milliseconds
+              type: number
+              suffix: " ms"
+              options:
+                maximumFractionDigits: 0
+          # Proof: as Ping, on the DNS probe.
+          - label: DNS
+            query: max(probe_duration_seconds{probe_kind="dns"}) * 1000
+            format: *milliseconds
+          # Proof: probe_success by tier is the Edge & WAN tile's Internet block.
+          - label: Up 24h
+            query: avg(avg_over_time(probe_success{tier="external"}[24h])) * 100
+            format:
+              type: percent
+              options:
+                maximumFractionDigits: 2
   # Traefik's host comes from infrastructure/configs, not a services app.yaml: explicit.
   traefik:
     name: Traefik
@@ -1498,6 +1603,13 @@ tiles:
         version: 2
         key: "{{HOMEPAGE_VAR_TRUENAS_KEY}}"
         enablePools: true
+        # Alerts nobody has dismissed in TrueNAS. Its alert levels are not Prometheus rules, so amber at most.
+        highlight:
+          alerts:
+            numeric:
+              - level: warn
+                when: gte
+                value: 1
   # pgAdmin's host comes from infrastructure/configs, not a services app.yaml: explicit.
   pgadmin:
     name: pgAdmin
@@ -1866,6 +1978,7 @@ pages:
             items:
               - opnsense
               - adguard-home
+              - internet
           - name: Storage
             items:
               - truenas

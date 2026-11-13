@@ -2670,31 +2670,98 @@ data:
           id: proxmox-ve
           icon: proxmox.png
           href: https://10.9.9.20:8006
-          description: Hypervisor
-          widget:
-            type: proxmox
+          description: Hypervisor and its storage
+          widgets:
+          - type: proxmox
             url: https://10.9.9.20:8006
             username: '{{ "{{" }}HOMEPAGE_VAR_PROXMOX_USER{{ "}}" }}'
             password: '{{ "{{" }}HOMEPAGE_VAR_PROXMOX_PASS{{ "}}" }}'
             node: pve
+            fields:
+            - vms
+            - resources.cpu
+            - resources.mem
+          - type: customapi
+            url: https://10.9.9.20:8006/api2/json/nodes/pve/storage?enabled=1
+            headers:
+              Authorization: PVEAPIToken={{ "{{" }}HOMEPAGE_VAR_PROXMOX_USER{{ "}}" }}={{ "{{" }}HOMEPAGE_VAR_PROXMOX_PASS{{ "}}" }}
+            refreshInterval: 300000
+            display: dynamic-list
+            mappings:
+              items: data
+              name: storage
+              label: used_fraction
+              format: percent
+              scale: 100
       - kube-master-01:
           id: kube-master-01
           icon: proxmox.png
           description: Control plane (4c / 16GB)
           proxmoxNode: pve
           proxmoxVMID: 200
+          widget:
+            type: customapi
+            url: https://10.9.9.20:8006/api2/json/nodes/pve/qemu/200/status/current
+            headers:
+              Authorization: PVEAPIToken={{ "{{" }}HOMEPAGE_VAR_PROXMOX_USER{{ "}}" }}={{ "{{" }}HOMEPAGE_VAR_PROXMOX_PASS{{ "}}" }}
+            refreshInterval: 60000
+            mappings:
+            - field: data.cpu
+              label: CPU
+              scale: 100
+              format: percent
+            - field: data.mem
+              label: Memory
+              format: bytes
+            - field: data.uptime
+              label: Uptime
+              format: duration
       - kube-worker-01:
           id: kube-worker-01
           icon: proxmox.png
           description: Worker (6c / 28GB / GPU)
           proxmoxNode: pve
           proxmoxVMID: 201
+          widget:
+            type: customapi
+            url: https://10.9.9.20:8006/api2/json/nodes/pve/qemu/201/status/current
+            headers:
+              Authorization: PVEAPIToken={{ "{{" }}HOMEPAGE_VAR_PROXMOX_USER{{ "}}" }}={{ "{{" }}HOMEPAGE_VAR_PROXMOX_PASS{{ "}}" }}
+            refreshInterval: 60000
+            mappings:
+            - field: data.cpu
+              label: CPU
+              scale: 100
+              format: percent
+            - field: data.mem
+              label: Memory
+              format: bytes
+            - field: data.uptime
+              label: Uptime
+              format: duration
       - kube-worker-02:
           id: kube-worker-02
           icon: proxmox.png
           description: Worker (6c / 28GB / GPU)
           proxmoxNode: pve
           proxmoxVMID: 202
+          widget:
+            type: customapi
+            url: https://10.9.9.20:8006/api2/json/nodes/pve/qemu/202/status/current
+            headers:
+              Authorization: PVEAPIToken={{ "{{" }}HOMEPAGE_VAR_PROXMOX_USER{{ "}}" }}={{ "{{" }}HOMEPAGE_VAR_PROXMOX_PASS{{ "}}" }}
+            refreshInterval: 60000
+            mappings:
+            - field: data.cpu
+              label: CPU
+              scale: 100
+              format: percent
+            - field: data.mem
+              label: Memory
+              format: bytes
+            - field: data.uptime
+              label: Uptime
+              format: duration
     - Network:
       - OPNsense:
           id: opnsense
@@ -2713,11 +2780,61 @@ data:
           href: http://10.9.9.1:3000
           description: DNS filtering
           siteMonitor: http://10.9.9.1:3000/
-          widget:
-            type: adguard
+          widgets:
+          - type: adguard
             url: http://10.9.9.1:3000
             username: '{{ "{{" }}HOMEPAGE_VAR_ADGUARD_USER{{ "}}" }}'
             password: '{{ "{{" }}HOMEPAGE_VAR_ADGUARD_PASS{{ "}}" }}'
+          - type: customapi
+            url: http://10.9.9.1:3000/control/status
+            username: '{{ "{{" }}HOMEPAGE_VAR_ADGUARD_USER{{ "}}" }}'
+            password: '{{ "{{" }}HOMEPAGE_VAR_ADGUARD_PASS{{ "}}" }}'
+            refreshInterval: 60000
+            mappings:
+            - field: protection_enabled
+              label: Protection
+              remap:
+              - value: true
+                to: 'On'
+              - value: false
+                to: Paused
+            - field: version
+              label: Version
+            highlight:
+              Protection:
+                string:
+                - level: warn
+                  when: equals
+                  value: Paused
+      - Internet:
+          id: internet
+          icon: mdi-web
+          description: The outside world, seen from the cluster
+          widget:
+            type: prometheusmetric
+            url: http://kube-prometheus-stack-prometheus.monitoring:9090
+            refreshInterval: 60000
+            metrics:
+            - label: Ping
+              query: max(probe_duration_seconds{probe_kind="icmp"}) * 1000
+              format:
+                type: number
+                suffix: ' ms'
+                options:
+                  maximumFractionDigits: 0
+            - label: DNS
+              query: max(probe_duration_seconds{probe_kind="dns"}) * 1000
+              format:
+                type: number
+                suffix: ' ms'
+                options:
+                  maximumFractionDigits: 0
+            - label: Up 24h
+              query: avg(avg_over_time(probe_success{tier="external"}[24h])) * 100
+              format:
+                type: percent
+                options:
+                  maximumFractionDigits: 2
     - Storage:
       - TrueNAS:
           id: truenas
@@ -2731,6 +2848,12 @@ data:
             version: 2
             key: '{{ "{{" }}HOMEPAGE_VAR_TRUENAS_KEY{{ "}}" }}'
             enablePools: true
+            highlight:
+              alerts:
+                numeric:
+                - level: warn
+                  when: gte
+                  value: 1
   bookmarks.yaml: |
     - Code:
       - apps:

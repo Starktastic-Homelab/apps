@@ -108,7 +108,7 @@ class RenderTests(unittest.TestCase):
         with self.assertRaisesRegex(CatalogError, r"tiles\.cal\.widgets\[1\]\.integrations\[0\]\.ref"):
             build("admin", edit=ref_to("plain"))  # no widget
         with self.assertRaisesRegex(CatalogError, r"tiles\.cal\.widgets\[0\]\.integrations\[0\]\.ref"):
-            build("household", edit=lambda c: c["tiles"]["cal"]["widgets"][0]["integrations"][0].update(ref="sonarr"))
+            build("household", edit=lambda c: c["tiles"]["cal"]["widgets"][0].update(integrations=[{"ref": "sonarr"}]))
         with self.assertRaisesRegex(CatalogError, r"tiles\.cal\.widgets\[1\]\.integrations: not a list"):
             build("admin", edit=lambda c: c["tiles"]["cal"]["widgets"][1].update(integrations={"ref": "sonarr"}))
 
@@ -194,11 +194,48 @@ class RenderTests(unittest.TestCase):
         self.assertEqual([list(g) for g in a["services.yaml"]], [["Coming Up"], ["Media"]])
         media = a["services.yaml"][1]["Media"]
         self.assertEqual([list(e)[0] for e in media], ["Jellyfin", "Seerr", "Arr"])
-        self.assertEqual(media[2]["Arr"][0], {"Sonarr TV": {"id": "sonarr", "name": "Sonarr TV", "icon": "sonarr.png",
+        self.assertEqual(media[2]["Arr"][0], {"Sonarr TV": {"id": "sonarr", "icon": "sonarr.png",
                                                             "widget": {"type": "sonarr", "url": "http://so"}}})
         jelly = media[0]["Jellyfin"]
         self.assertEqual(list(jelly)[0], "id")
         self.assertEqual(list(jelly)[-1], "widgets")
+
+    def test_tile_has_no_inner_name(self):
+        for page in ("household", "admin"):
+            for name, t in tiles(build(page)).items():
+                self.assertNotIn("name", t, name)
+
+    def test_ref_integration_checks(self):
+        def bad(integ, rx):
+            with self.assertRaisesRegex(CatalogError, rx):
+                build("admin", edit=lambda c: c["tiles"]["cal"]["widgets"][1].update(integrations=[integ]))
+        for key in ("type", "service_group", "service_name"):
+            bad({"ref": "sonarr", key: "x"}, rf"tiles\.cal\.widgets\[1\]\.integrations\[0\]: {key}")
+        bad("sonarr", r"tiles\.cal\.widgets\[1\]\.integrations\[0\]: not a mapping")
+
+    def test_page_dir_allowlist(self):
+        for page, name in (("admin", "custom.js"), ("admin", "extra.yaml"), ("household", "docker.yaml"),
+                           ("admin", "files/sub/x.svg")):
+            with self.assertRaisesRegex(CatalogError, rf"homepage/pages/{page}/{name.split('/sub')[0]}"):
+                build(page, pages={page: {name: ""}})
+        with tempfile.TemporaryDirectory() as d:
+            repo = make_repo(Path(d), copy.deepcopy(CAT))
+            (repo / "homepage/pages/admin/files").write_text("x")  # files must be a directory
+            with self.assertRaisesRegex(CatalogError, r"homepage/pages/admin/files: not an allowed"):
+                build_page(repo, load_catalog(repo), "admin")
+            (repo / "homepage/pages/admin/files").unlink()
+            (repo / "homepage/pages/admin/custom.css").unlink()
+            (repo / "homepage/pages/admin/custom.css").mkdir()  # custom.css must be a file
+            with self.assertRaisesRegex(CatalogError, r"homepage/pages/admin/custom\.css: not an allowed"):
+                build_page(repo, load_catalog(repo), "admin")
+
+    def test_empty_proxmox_and_bad_pwa(self):
+        for text in ("", "# only a comment\n", "- a\n"):
+            with self.assertRaisesRegex(CatalogError, r"proxmox\.yaml: empty or not a mapping"):
+                build("admin", pages={"admin": {"proxmox.yaml": text}})
+        for text in ("pwa:\n", "pwa: x\n", "pwa:\n  - a\n"):
+            with self.assertRaisesRegex(CatalogError, r"settings\.yaml\.pwa: not a mapping"):
+                build("admin", pages={"admin": {"settings.yaml": text}})
 
     def test_missing_settings(self):
         c = copy.deepcopy(CAT)

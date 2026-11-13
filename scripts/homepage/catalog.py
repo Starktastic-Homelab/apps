@@ -250,11 +250,12 @@ def _check_page(cat, page):
         if name in group_names:
             raise CatalogError(f"{path}.name: duplicate group name {name!r} on page {page}")
         group_names.add(name)
-        kinds = set()
+        kinds, has_sub = set(), False
         for i, item in enumerate(_list(g.get("items"), f"{path}.items")):
             ipath = f"{path}.items[{i}]"
             if isinstance(item, dict):
-                group(ipath, item, parents + [name])
+                has_sub = True
+                kinds |= group(ipath, item, parents + [name])
             elif not isinstance(item, str):
                 raise CatalogError(f"{ipath}: not a tile/bookmark id or a subgroup mapping")
             elif item in tiles:
@@ -267,6 +268,9 @@ def _check_page(cat, page):
                 raise CatalogError(f"{ipath}: {item!r} is neither a tile nor a bookmark id")
         if len(kinds) > 1:
             raise CatalogError(f"{path}: group mixes tiles and bookmarks")
+        if has_sub and "bookmarks" in kinds:
+            raise CatalogError(f"{path}: a bookmark group cannot hold subgroups (Homepage bookmarks are flat)")
+        return kinds
 
     for t, tab in enumerate(_list(data.get("tabs"), f"{base}.tabs")):
         tpath = f"{base}.tabs[{t}]"

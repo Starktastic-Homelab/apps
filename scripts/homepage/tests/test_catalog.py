@@ -127,6 +127,20 @@ class CatalogTests(unittest.TestCase):
             items(c, "admin", ["a", "b"])
         self.bad(cat_with(mixed), "mixes")
 
+    def test_bookmark_groups_flat_and_unmixed_across_levels(self):
+        def mk(top, sub):
+            def fn(c):
+                c["bookmarks"] = {"b": {"name": "B", "href": "https://b", "audience": "admin"}}
+                items(c, "admin", top + [{"name": "S", "items": sub}])
+            return cat_with(fn)
+        self.bad(mk(["a"], ["b"]), r"pages\.admin\.tabs\[0\]\.groups\[0\]: group mixes")
+        self.bad(mk(["b"], ["a"]), r"pages\.admin\.tabs\[0\]\.groups\[0\]: group mixes")
+        self.bad(mk(["a"], [{"name": "S2", "items": ["b"]}]), r"groups\[0\]\.items\[1\]: a bookmark group cannot hold")
+        self.bad(mk([], ["b", "a"]), r"groups\[0\]\.items\[0\]: group mixes")
+        self.bad(mk([], ["b"]), r"pages\.admin\.tabs\[0\]\.groups\[0\]: a bookmark group cannot hold subgroups")
+        self.bad(mk(["b"], []), r"pages\.admin\.tabs\[0\]\.groups\[0\]: a bookmark group cannot hold subgroups")
+        load(cat_with(lambda c: items(c, "admin", [{"name": "S", "items": ["a"]}])))  # tile subgroups are fine
+
     def test_page_tile_and_walk(self):
         t = {"name": "N", "icon": "i", "override": {"admin": {"name": "M", "icon": None}}}
         self.assertEqual(page_tile(t, "admin")["name"], "M")

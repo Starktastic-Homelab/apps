@@ -30,9 +30,14 @@ def _emit_widget(cat, page, tid, i, w, group_of):
         raise CatalogError(f"{path}: not a list")
     ints = []
     for j, integ in enumerate(out["integrations"]):
-        if not isinstance(integ, dict) or "ref" not in integ:
+        if not isinstance(integ, dict):
+            raise CatalogError(f"{path}[{j}]: not a mapping")
+        if "ref" not in integ:
             ints.append(integ)
             continue
+        filled = {"type", "service_group", "service_name"} & set(integ)
+        if filled:
+            raise CatalogError(f"{path}[{j}]: {', '.join(sorted(filled))} filled from ref; remove")
         ref, rest = integ["ref"], {k: v for k, v in integ.items() if k != "ref"}
         target = cat["tiles"].get(ref)
         if target is None or ref not in group_of:
@@ -51,7 +56,7 @@ def _emit_tile(cat, page, tid, group_of):
     pt = page_tile(tile, page)
     out = {"id": tid}
     out.update((k, v) for k, v in pt.items()
-               if k in TILE_EMIT and not (page == "household" and k in ADMIN_ONLY))
+               if k in TILE_EMIT and k != "name" and not (page == "household" and k in ADMIN_ONLY))
     ws = [_emit_widget(cat, page, tid, i, w, group_of) for i, w in _widgets(tile, page)]
     if len(ws) == 1:
         out["widget"] = ws[0]
@@ -90,7 +95,7 @@ def _settings(path, data, page, tabs, layout):
     for key in ("hideErrors", "layout"):
         if key in data:
             raise CatalogError(f"{path}.{key}: generator-owned; remove it")
-    pwa = data.get("pwa") or {}
+    pwa = data.get("pwa", {})
     if not isinstance(pwa, dict):
         raise CatalogError(f"{path}.pwa: not a mapping")
     if "shortcuts" in pwa:
@@ -124,8 +129,13 @@ def build_page(repo: Path, cat: dict, page: str) -> dict[str, Any]:
 
     widgets = [{k: v for k, v in e.items() if k != "audience"} for e in cat["info"] if shown_on(audience(e), page)]
 
-    if (pdir / "custom.js").exists():
-        raise CatalogError(f"{rel}/custom.js: generator-owned (always empty); remove it")
+    allowed = {"settings.yaml", "custom.css", "files"} | ({"proxmox.yaml"} if page == "admin" else set())
+    for f in sorted(pdir.iterdir()) if pdir.is_dir() else []:
+        if f.name == "proxmox.yaml" and page != "admin":
+            raise CatalogError(f"{rel}/proxmox.yaml: only the admin page has Proxmox access")
+        if f.name not in allowed or (f.is_dir() != (f.name == "files")):
+            raise CatalogError(f"{rel}/{f.name}: not an allowed page input "
+                               "(settings.yaml, custom.css, files/, admin proxmox.yaml)")
     if not (pdir / "settings.yaml").is_file():
         raise CatalogError(f"{rel}/settings.yaml: missing")
     sdata = load_yaml(pdir / "settings.yaml")
@@ -140,15 +150,17 @@ def build_page(repo: Path, cat: dict, page: str) -> dict[str, Any]:
 
     data = {}
     if (pdir / "proxmox.yaml").exists():
-        if page != "admin":
-            raise CatalogError(f"{rel}/proxmox.yaml: only the admin page has Proxmox access")
-        data["proxmox.yaml"] = load_yaml(pdir / "proxmox.yaml")
+        prox = load_yaml(pdir / "proxmox.yaml")
+        if not prox or not isinstance(prox, dict):
+            raise CatalogError(f"{rel}/proxmox.yaml: empty or not a mapping")
+        data["proxmox.yaml"] = prox
     fdir = pdir / "files"
     for f in sorted(fdir.iterdir()) if fdir.is_dir() else []:
         if f.name in OWN_KEYS:
             raise CatalogError(f"{rel}/files/{f.name}: clashes with a generated data key")
-        if f.is_file():
-            data[f.name] = f.read_text(encoding="utf-8")
+        if not f.is_file() or f.is_symlink():
+            raise CatalogError(f"{rel}/files/{f.name}: not a regular file")
+        data[f.name] = f.read_text(encoding="utf-8")
     data.update({
         "docker.yaml": "",
         "custom.js": "",

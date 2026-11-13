@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import compare  # noqa: E402
 from catalog import CatalogError, load_catalog, slug, walk_groups  # noqa: E402
 from render import PAGES, build_page, check_placeholders, dump_page, helm_escape  # noqa: E402
 
@@ -70,6 +71,28 @@ def inventory(repo: Path) -> dict:
     return out
 
 
+def run_compare(repo: Path) -> int:
+    if not STAGED:
+        print("nothing staged")
+        return 0
+    lines = []
+    for page in sorted(STAGED):
+        paths = [Path(repo) / f"{PAGES[page]['dir']}/manifests/templates/configmap.yaml", output_path(repo, page)]
+        for p in paths:
+            if not p.is_file():
+                lines.append(f"{page}: missing {p.relative_to(repo)}")
+        if len(lines) and lines[-1].startswith(f"{page}: missing"):
+            continue
+        try:
+            f = [compare.facts(compare.parse_configmap(p.read_text(encoding="utf-8"))) for p in paths]
+        except (CatalogError, KeyError, TypeError, AttributeError) as err:
+            lines.append(f"{page}: cannot parse: {err}")
+            continue
+        lines += compare.diff(f[0], f[1], page)
+    print(*lines, sep="\n") if lines else None
+    return 1 if lines else 0
+
+
 def main(argv: list[str] | None = None, repo: Path = ROOT) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group()
@@ -78,8 +101,7 @@ def main(argv: list[str] | None = None, repo: Path = ROOT) -> int:
     mode.add_argument("--compare", action="store_true", help="compare staged pages with the live ones")
     args = parser.parse_args(argv)
     if args.compare:
-        print("--compare: not implemented", file=sys.stderr)
-        return 2
+        return run_compare(repo)
     try:
         if args.inventory:
             print(json.dumps(inventory(repo), indent=2, ensure_ascii=False))

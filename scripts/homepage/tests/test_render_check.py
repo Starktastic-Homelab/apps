@@ -170,6 +170,12 @@ class FailureTests(unittest.TestCase):
         with mock.patch.dict(render_check.SMALL_ALLOW, {"a 30x30": "Homepage's own control"}):
             self.assertEqual(failures(INV, runs, "household"), [])
 
+    def test_pod_status_keys_stay_when_the_browser_answers_them(self):
+        tile = yaml.safe_load(build_config(DATA, set(), pods=True)["services.yaml"])[0]["G"][0]["T"]
+        self.assertEqual((tile["namespace"], tile["app"], tile["podSelector"]), ("media", "t", "x"))
+        self.assertNotIn("proxmoxNode", tile)
+        self.assertNotIn("proxmoxVMID", tile)
+
     def test_failures_search_button_hidden(self):
         runs = good()
         runs[1].update(search=False, viewport="1440x900")

@@ -82,13 +82,19 @@ def _tiles(entries):
             yield from _tiles(val)
 
 
-def build_config(data: dict, down: set) -> dict:
-    """One page's files for the check, from render.build_page()'s data: no cluster, no secrets, no real host."""
+POD_KEYS = {"namespace", "app", "podSelector"}
+
+
+def build_config(data: dict, down: set, pods: bool = False) -> dict:
+    """One page's files for the check, from render.build_page()'s data: no cluster, no secrets, no real host.
+
+    `pods` keeps the pod-status keys, for a browser that answers /api/kubernetes/status itself (snapshot()).
+    """
     data = copy.deepcopy(data)
     for tile in _tiles(data["services.yaml"]):
         if "siteMonitor" in tile:
             tile["siteMonitor"] = f"{MOCK}/{'down' if tile['id'] in down else 'up'}/{tile['id']}"
-        for key in ADMIN_ONLY:
+        for key in ADMIN_ONLY - (POD_KEYS if pods else set()):
             tile.pop(key, None)  # no cluster and no Proxmox behind the status dots here
         _rewrite(tile.get("widget"))
         _rewrite(tile.get("widgets"))
@@ -233,7 +239,7 @@ def down() -> None:
     sh("docker", "network", "rm", NETWORK, check=False)
 
 
-def up(repo: Path, work: Path, scenario: str, pages: list) -> None:
+def up(repo: Path, work: Path, scenario: str, pages: list, pods: bool = False) -> None:
     """Start the mock and one Homepage container per page. Everything is copied under `work` first."""
     down()
     img = image(repo)
@@ -255,7 +261,7 @@ def up(repo: Path, work: Path, scenario: str, pages: list) -> None:
         cfg.mkdir(parents=True)
         pub.mkdir()
         mounts = ["-v", f"{cfg}:/app/config"]
-        for key, text in build_config(build_page(repo, cat, page), DOWN[scenario]).items():
+        for key, text in build_config(build_page(repo, cat, page), DOWN[scenario], pods).items():
             target = mount_path(key)
             if target.startswith("/app/config/"):
                 (cfg / key).write_text(text, encoding="utf-8")
@@ -298,6 +304,11 @@ def snapshot(browser, page: str, inv: dict, scenario: str, out: Path | None) -> 
     runs, origin = [], f"http://127.0.0.1:{PORTS[page]}"
     for vp, (width, height) in VIEWPORTS.items():
         ctx = browser.new_context(viewport={"width": width, "height": height})
+        # The live admin page shows a pod-status dot beside the site-monitor dot. No cluster here, so the browser
+        # answers for it. shortcut: --serve has no such browser and shows no pod dots; a mock Kubernetes API in
+        # mock/server.js would lift that.
+        ctx.route("**/api/kubernetes/status/**", lambda route: route.fulfill(json={"status": "running",
+                                                                                 "health": "healthy"}))
         tab_page = ctx.new_page()
         missing = []
 
@@ -370,7 +381,7 @@ def main(argv=None, repo: Path = ROOT) -> int:
         for scenario in SCENARIOS:
             work = Path(tempfile.mkdtemp(prefix="hpcheck-"))
             try:
-                up(repo, work, scenario, pages)
+                up(repo, work, scenario, pages, pods=True)
                 for page in pages:
                     runs[page] += snapshot(browser, page, inv[page], scenario, args.out)
                 misses += [f"{scenario}: {m}" for m in mock_misses(work)]

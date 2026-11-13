@@ -132,6 +132,26 @@ html:root {
   margin-left: auto; /* weather and date keep the right edge */
 }
 
+/* ---------- Status dots: a site check and a pod on one card read as one tight pair ---------- */
+/* Homepage draws them as two identical dots 44 px apart. Here the site check keeps the filled dot in the corner,
+   where every card has one, and the pod's dot becomes a ring just left of it (still the button for pod stats). */
+.service-tags:has(.service-site-monitor) .service-app {
+  order: -1;
+}
+
+.service-tags:has(.service-site-monitor) .k8s-status {
+  padding-right: 4px;
+}
+
+.service-tags:has(.service-app) .site-monitor-status {
+  padding-left: 4px;
+}
+
+.service-tags:has(.service-site-monitor) .k8s-status > div {
+  -webkit-mask: radial-gradient(circle closest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2px));
+  mask: radial-gradient(circle closest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2px));
+}
+
 /* the search bar's slot, between the chips and the weather */
 @media (min-width: 1024px) {
   @supports (anchor-name: --hp-search) {

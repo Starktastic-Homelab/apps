@@ -81,6 +81,21 @@ jobs:
       - name: Check Jellyfin compatibility
         run: python3 scripts/check-jellyfin-compat.py
 
+      - name: Check generated Homepage pages
+        run: |
+          pip install -r scripts/homepage/requirements.txt
+          python3 -m unittest discover -s scripts/homepage/tests -v
+          python3 scripts/homepage/generate.py --check
+
+      - name: Rehearse staged Homepage pages   # Fable deletes this at the cut-over
+        run: |
+          python3 scripts/homepage/generate.py --compare
+          cp -a . "$RUNNER_TEMP/hp" && cp -r homepage/staged/services "$RUNNER_TEMP/hp/"
+          cd "$RUNNER_TEMP/hp"
+          python3 scripts/check-homepage-coverage.py
+          python3 scripts/check-homepage-household.py
+          python3 scripts/check-jellyfin-compat.py
+
       - name: Check ArgoCD notification bodies
         run: python3 scripts/check-argocd-notifications.py
 

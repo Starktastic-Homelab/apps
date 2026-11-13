@@ -43,8 +43,10 @@ bumps are merged by hand since #1552, and nothing in CI rendered either page. De
    until their cut-over), then household, then admin. During the freeze a PR that adds an app edits the live
    page and the catalog, because the coverage check reads the live pages.
 7. **One search (added 2026-11-13, after the cut-over).** Both pages search through Homepage's quick launch at
-   every width: the glass button in the corner or, with a keyboard, just typing. It lists matching apps first,
-   then a web search on SearXNG. The header search widget, which only searched the web, is gone.
+   every width. It lists matching apps first, then a web search on SearXNG. Its button is a search bar in the
+   header from 1024 px up and a glass disc in the corner below that; with a keyboard, just typing opens it too.
+   The bar is the same button, laid over an empty header slot with CSS anchor positioning; a browser without
+   it keeps the disc. The header search widget, which only searched the web, is gone.
 
 ## Rationale
 

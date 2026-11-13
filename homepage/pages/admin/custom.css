@@ -132,6 +132,29 @@ html:root {
   margin-left: auto; /* weather and date keep the right edge */
 }
 
+/* the search bar's slot, between the chips and the weather */
+@media (min-width: 1024px) {
+  @supports (anchor-name: --hp-search) {
+    #information-widgets::before {
+      order: 1;
+      flex: 1 1 200px;
+      min-width: 180px;
+      max-width: 520px;
+      height: 50px;
+      margin-left: auto;
+    }
+
+    .information-widget-openmeteo {
+      order: 2;
+      margin-left: 0;
+    }
+
+    .information-widget-datetime {
+      order: 2;
+    }
+  }
+}
+
 .information-widget-openmeteo svg {
   width: 30px;
   height: 30px;
@@ -404,6 +427,11 @@ html:root {
   #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups { --d1-cols: 5; }
   #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups > .services-group:has(#proxmox-ve) { grid-row: 1 / span 2; }
   #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups > :not(.services-group) { grid-column: 5; }
+
+  /* header: the search bar takes the width a wide screen leaves */
+  #information-widgets::before {
+    max-width: 760px;
+  }
 }
 
 /* no-hook:start */

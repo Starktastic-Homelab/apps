@@ -305,6 +305,19 @@ data:
       filter: drop-shadow(0 6px 16px rgb(var(--d1-acc) / 0.55));
     }
 
+    /* search, desktop: an empty slot in the header, placed by each page. The quicklaunch button is laid over it as a
+       search bar (no-hook block below). Narrower screens and browsers without anchor positioning get no slot and
+       keep the disc. */
+    @media (min-width: 1024px) {
+      @supports (anchor-name: --hp-search) {
+        #information-widgets::before {
+          content: "";
+          height: 48px;
+          anchor-name: --hp-search;
+        }
+      }
+    }
+
     /* ---------- Bookmarks: glass rows, 48 px tall ---------- */
     .bookmark > a {
       --radius-md: 14px;
@@ -382,8 +395,8 @@ data:
       white-space: nowrap;
     }
 
-    /* the one search, at every width: the quicklaunch button (the element right before #information-widgets,
-       which Homepage shows on phones only) as a glass disc in the corner. It finds apps first, then the web. */
+    /* the one search: the quicklaunch button (the element right before #information-widgets, which Homepage shows
+       on phones only). It finds apps first, then the web. Below 1024 px: a glass disc in the corner. */
     #inner_wrapper button:has(+ #information-widgets) {
       right: 14px;
       bottom: 16px;
@@ -410,6 +423,46 @@ data:
     #inner_wrapper button:has(+ #information-widgets) svg {
       width: 22px;
       height: 22px;
+    }
+
+    /* desktop: the same button laid over the header slot, as a search bar that opens the same search */
+    @media (min-width: 1024px) {
+      @supports (anchor-name: --hp-search) {
+        #inner_wrapper button:has(+ #information-widgets) {
+          position: absolute; /* in the page container, so it scrolls away with the header */
+          position-anchor: --hp-search;
+          inset: anchor(top) anchor(right) anchor(bottom) anchor(left);
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          width: auto;
+          height: auto;
+          padding: 0 17px;
+          border-radius: 999px;
+          color: rgb(var(--color-300));
+          background: var(--d1-sheen), rgb(var(--d1-fill) / 0.5);
+          backdrop-filter: blur(20px) saturate(170%);
+          -webkit-backdrop-filter: blur(20px) saturate(170%);
+          box-shadow:
+            inset 0 1px 0 0 rgb(255 255 255 / 0.16),
+            inset 0 0 0 1px rgb(255 255 255 / 0.1),
+            var(--d1-depth);
+          font-size: 15px;
+        }
+
+        #inner_wrapper button:has(+ #information-widgets)::after {
+          content: "Search apps and the web"; /* also the button's accessible name */
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        #inner_wrapper button:has(+ #information-widgets) svg {
+          flex: none;
+          width: 18px;
+          height: 18px;
+        }
+      }
     }
     /* no-hook:end */
     /* ==========================================================================
@@ -544,6 +597,29 @@ data:
 
     .information-widget-openmeteo {
       margin-left: auto; /* weather and date keep the right edge */
+    }
+
+    /* the search bar's slot, between the chips and the weather */
+    @media (min-width: 1024px) {
+      @supports (anchor-name: --hp-search) {
+        #information-widgets::before {
+          order: 1;
+          flex: 1 1 200px;
+          min-width: 180px;
+          max-width: 520px;
+          height: 50px;
+          margin-left: auto;
+        }
+
+        .information-widget-openmeteo {
+          order: 2;
+          margin-left: 0;
+        }
+
+        .information-widget-datetime {
+          order: 2;
+        }
+      }
     }
 
     .information-widget-openmeteo svg {
@@ -818,6 +894,11 @@ data:
       #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups { --d1-cols: 5; }
       #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups > .services-group:has(#proxmox-ve) { grid-row: 1 / span 2; }
       #inner_wrapper:has(#Iron-tab[aria-selected="true"]) #layout-groups > :not(.services-group) { grid-column: 5; }
+
+      /* header: the search bar takes the width a wide screen leaves */
+      #information-widgets::before {
+        max-width: 760px;
+      }
     }
 
     /* no-hook:start */

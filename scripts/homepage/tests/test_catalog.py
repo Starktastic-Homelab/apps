@@ -68,7 +68,33 @@ class CatalogTests(unittest.TestCase):
     def test_rule06_ids_disjoint(self):
         def f(c):
             c["bookmarks"] = {"a": {"name": "x", "href": "https://x", "audience": "admin"}}
-        self.bad(cat_with(f), r"bookmarks\.a")
+        self.bad(cat_with(f), "also a tile id")
+
+    def test_audience_values_on_info_and_widgets(self):
+        self.bad(cat_with(lambda c: c.update(info=[{"audience": "nope"}])), r"info\[0\]\.audience")
+        self.bad(cat_with(lambda c: c["tiles"]["a"].update(widgets=[{"type": "x", "audience": "nope"}])),
+                 r"widgets\[0\]\.audience")
+        load(cat_with(lambda c: c["tiles"]["a"].update(widgets=[{"type": "x", "audience": "household-only"}])))
+
+    def test_unknown_override_page_and_pages_key(self):
+        self.bad(cat_with(lambda c: c["tiles"]["a"].update(override={"guest": {"name": "x"}})),
+                 r"override\.guest")
+        self.bad(cat_with(lambda c: c["pages"].update(guest={})), r"pages\.guest")
+
+    def test_group_without_name(self):
+        self.bad(cat_with(lambda c: c["pages"]["admin"]["tabs"][0]["groups"][0].pop("name")), "no name")
+        self.bad(cat_with(lambda c: c["pages"]["admin"]["tabs"][0]["groups"][0].update(name=5)), "no name")
+
+    def test_malformed_shapes(self):
+        for rx, fn in (
+            (r"items\[0\]", lambda c: items(c, "admin", [["a"]])),
+            (r"admin\.tabs\[0\]\.groups\[0\]\.items: not a list", lambda c: items(c, "admin", "a")),
+            ("^bookmarks: not a mapping", lambda c: c.update(bookmarks=[])),
+            ("^tiles: not a mapping", lambda c: c.update(tiles=[])),
+            ("^info: not a list", lambda c: c.update(info={})),
+        ):
+            with self.subTest(rx):
+                self.bad(cat_with(fn), rx)
 
     def test_case_sensitive_names(self):
         def f(c):

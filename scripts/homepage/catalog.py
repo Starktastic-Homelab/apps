@@ -169,6 +169,14 @@ def walk_groups(page: dict):
             yield from rec(tab.get("name"), group, [])
 
 
+def _list(val, path) -> list:
+    if val is None:
+        return []
+    if not isinstance(val, list):
+        raise CatalogError(f"{path}: not a list")
+    return val
+
+
 def _check_keys(path, entry, allowed):
     if not isinstance(entry, dict):
         raise CatalogError(f"{path}: not a mapping")
@@ -201,17 +209,17 @@ def _check_tile(tid, tile):
 def load_catalog(repo: Path) -> dict:
     cpath = Path(repo) / "homepage/catalog.yaml"
     raw = _mapping(load_yaml(cpath), cpath)
-    tiles = {tid: _mapping(t, f"tiles.{tid}") for tid, t in (raw.get("tiles") or {}).items()}
+    tiles = {tid: _mapping(t, f"tiles.{tid}") for tid, t in _mapping({} if raw.get("tiles") is None else raw["tiles"], "tiles").items()}
     for tid, t in tiles.items():
         _check_tile(tid, t)
     tiles = {tid: resolve_tile(repo, tid, t) for tid, t in tiles.items()}
-    bookmarks = raw.get("bookmarks") or {}
+    bookmarks = _mapping({} if raw.get("bookmarks") is None else raw["bookmarks"], "bookmarks")
     for bid, b in bookmarks.items():
         _check_keys(f"bookmarks.{bid}", b, BOOKMARK_KEYS)
         _check_aud(f"bookmarks.{bid}", b, AUDIENCES)
         if bid in tiles:
             raise CatalogError(f"bookmarks.{bid}: id is also a tile id")
-    info = raw.get("info") or []
+    info = _list(raw.get("info"), "info")
     for i, e in enumerate(info):
         _check_keys(f"info[{i}]", e, set(e))
         _check_aud(f"info[{i}]", e, AUDIENCES)
@@ -233,16 +241,18 @@ def _check_page(cat, page):
     def group(path, g, parents):
         _check_keys(path, g, GROUP_KEYS)
         name = g.get("name")
-        if not name:
+        if not isinstance(name, str) or not name:
             raise CatalogError(f"{path}: group has no name")
         if name in group_names:
             raise CatalogError(f"{path}.name: duplicate group name {name!r} on page {page}")
         group_names.add(name)
         kinds = set()
-        for i, item in enumerate(g.get("items") or []):
+        for i, item in enumerate(_list(g.get("items"), f"{path}.items")):
             ipath = f"{path}.items[{i}]"
             if isinstance(item, dict):
                 group(ipath, item, parents + [name])
+            elif not isinstance(item, str):
+                raise CatalogError(f"{ipath}: not a tile/bookmark id or a subgroup mapping")
             elif item in tiles:
                 kinds.add("tiles")
                 placed["tiles"][item] = placed["tiles"].get(item, 0) + 1
@@ -254,7 +264,7 @@ def _check_page(cat, page):
         if len(kinds) > 1:
             raise CatalogError(f"{path}: group mixes tiles and bookmarks")
 
-    for t, tab in enumerate(data.get("tabs") or []):
+    for t, tab in enumerate(_list(data.get("tabs"), f"{base}.tabs")):
         tpath = f"{base}.tabs[{t}]"
         _check_keys(tpath, tab, {"name", "groups"})
         if not isinstance(tab.get("name"), str) or not re.fullmatch(r"[A-Za-z0-9 ]+", tab["name"]):
@@ -263,7 +273,7 @@ def _check_page(cat, page):
         if s in tab_slugs:
             raise CatalogError(f"{tpath}.name: duplicate tab slug {s!r} on page {page}")
         tab_slugs.add(s)
-        for g, grp in enumerate(tab.get("groups") or []):
+        for g, grp in enumerate(_list(tab.get("groups"), f"{tpath}.groups")):
             group(f"{tpath}.groups[{g}]", grp, [])
 
     for kind, entries in (("tiles", tiles), ("bookmarks", bookmarks)):

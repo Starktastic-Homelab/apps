@@ -16,9 +16,13 @@ tiles:
           - label: Nodes Ready
             query: sum(kube_node_status_condition{condition="Ready",status="true"})
           - label: Unhealthy Pods
-            query: sum(max by (namespace, pod) (kube_pod_status_phase{phase=~"Pending|Failed|Unknown"} or {__name__=~"kube_pod_(init_)?container_status_waiting_reason",reason=~"CrashLoopBackOff|ImagePullBackOff|ErrImagePull|CreateContainerConfigError|CreateContainerError|InvalidImageName"}))
+            query:
+              sum(max by (namespace, pod) (kube_pod_status_phase{phase=~"Pending|Failed|Unknown"} or
+              {__name__=~"kube_pod_(init_)?container_status_waiting_reason",reason=~"CrashLoopBackOff|ImagePullBackOff|ErrImagePull|CreateContainerConfigError|CreateContainerError|InvalidImageName"}))
           - label: Firing Alerts
-            query: (sum(ALERTS{alertstate="firing",alertname!~"Watchdog|InfoInhibitor"}) or vector(0)) and count(ALERTS{alertname="Watchdog",alertstate="firing"})
+            query:
+              (sum(ALERTS{alertstate="firing",alertname!~"Watchdog|InfoInhibitor"}) or vector(0)) and
+              count(ALERTS{alertname="Watchdog",alertstate="firing"})
           - label: Fullest Volume
             query: max(kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes)
             format:
@@ -40,7 +44,8 @@ tiles:
           - label: Failed Probes
             query: (count(probe_success == 0) or vector(0)) and count(probe_success)
           - label: Cert Expiry
-            query: min(certmanager_certificate_expiration_timestamp_seconds{issuer_name="letsencrypt-prod"} > 0) - time()
+            query:
+              min(certmanager_certificate_expiration_timestamp_seconds{issuer_name="letsencrypt-prod"} > 0) - time()
             format:
               type: number
               scale: 1/86400
@@ -81,13 +86,17 @@ tiles:
               options:
                 maximumFractionDigits: 0
           - label: Falco 24h
-            query: floor(sum(increase((sum by (pod) (falcosecurity_falcosidekick_falco_events_total) or 0 * sum by (pod) (up{job="falco-falcosidekick"} == 1))[24h:1m]))) and count(up{job="falco-falcosidekick"} == 1)
+            query:
+              floor(sum(increase((sum by (pod) (falcosecurity_falcosidekick_falco_events_total) or 0 * sum by (pod)
+              (up{job="falco-falcosidekick"} == 1))[24h:1m]))) and count(up{job="falco-falcosidekick"} == 1)
             format:
               type: number
               options:
                 maximumFractionDigits: 0
           - label: 4xx/5xx 1h
-            query: (sum(increase(traefik_entrypoint_requests_total{code=~"4..|5.."}[1h])) or vector(0)) and count(traefik_entrypoint_requests_total)
+            query:
+              (sum(increase(traefik_entrypoint_requests_total{code=~"4..|5.."}[1h])) or vector(0)) and
+              count(traefik_entrypoint_requests_total)
             format:
               type: number
               options:
@@ -143,7 +152,8 @@ tiles:
           - label: OutOfSync
             query: (count(argocd_app_info{sync_status="OutOfSync"}) or vector(0)) and count(argocd_app_info)
           - label: Unhealthy
-            query: (count(argocd_app_info{health_status!~"Healthy|Progressing"}) or vector(0)) and count(argocd_app_info)
+            query:
+              (count(argocd_app_info{health_status!~"Healthy|Progressing"}) or vector(0)) and count(argocd_app_info)
   latest-alert:
     name: Latest Alert
     source: services/operations/ntfy

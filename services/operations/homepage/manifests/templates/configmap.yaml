@@ -124,8 +124,7 @@ data:
     }
 
     .service-card a:focus-visible,
-    #myTab [role="tab"]:focus-visible,
-    .information-widget-search input:focus-visible {
+    #myTab [role="tab"]:focus-visible {
       outline: 2px solid rgb(var(--d1-acc-hi));
       outline-offset: 2px;
       border-radius: 12px;
@@ -255,7 +254,7 @@ data:
     }
 
     /* ---------- Header widgets: glass chips ---------- */
-    #information-widgets :is(.information-widget-logo, .information-widget-greeting, .information-widget-customapi, .information-widget-search, .information-widget-openmeteo, .information-widget-datetime) {
+    #information-widgets :is(.information-widget-logo, .information-widget-greeting, .information-widget-customapi, .information-widget-openmeteo, .information-widget-datetime) {
       color: rgb(var(--color-200));
     }
 
@@ -293,80 +292,6 @@ data:
 
     .information-widget-logo img {
       filter: drop-shadow(0 6px 16px rgb(var(--d1-acc) / 0.55));
-    }
-
-    /* search: a 48 px glass pill with a drawn magnifier */
-    .information-widget-search {
-      margin: 0;
-      padding: 0;
-      background: none;
-      box-shadow: none;
-      backdrop-filter: none;
-      -webkit-backdrop-filter: none;
-    }
-
-    .information-widget-search div:has(> div > button) {
-      position: static; /* the provider badge then sits inside the pill, not under it */
-    }
-
-    .information-widget-search div:has(> input) {
-      height: 48px;
-      margin: 0;
-    }
-
-    .information-widget-search div:has(> input)::before {
-      content: "";
-      position: absolute;
-      z-index: 1;
-      left: 17px;
-      top: 15px;
-      width: 18px;
-      height: 18px;
-      background: rgb(var(--color-300));
-      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5 20 20'/%3E%3C/svg%3E") center / contain no-repeat;
-      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5 20 20'/%3E%3C/svg%3E") center / contain no-repeat;
-      pointer-events: none;
-    }
-
-    .information-widget-search input {
-      padding-left: 46px;
-      border: 0;
-      border-radius: 999px;
-      color: rgb(var(--d1-ink));
-      background: var(--d1-sheen), rgb(var(--d1-fill) / 0.5);
-      backdrop-filter: blur(20px) saturate(170%);
-      -webkit-backdrop-filter: blur(20px) saturate(170%);
-      box-shadow:
-        inset 0 1px 0 0 rgb(255 255 255 / 0.16),
-        inset 0 0 0 1px rgb(255 255 255 / 0.1),
-        var(--d1-depth);
-      font-size: 15px;
-    }
-
-    .information-widget-search input::placeholder {
-      color: rgb(var(--color-300));
-      opacity: 1;
-    }
-
-    .information-widget-search input:focus {
-      box-shadow:
-        inset 0 1px 0 0 rgb(255 255 255 / 0.2),
-        inset 0 0 0 1px rgb(var(--d1-acc-hi) / 0.6),
-        0 0 0 4px rgb(var(--d1-acc) / 0.25),
-        var(--d1-depth);
-    }
-
-    .information-widget-search button {
-      top: 2px;
-      right: 2px;
-      bottom: 2px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 44px; /* provider picker: a 44 px target inside the pill */
-      padding: 0 14px;
-      border-radius: 999px;
-      background: rgb(255 255 255 / 0.08);
     }
 
     /* ---------- Bookmarks: glass rows, 48 px tall ---------- */
@@ -446,29 +371,34 @@ data:
       white-space: nowrap;
     }
 
-    /* phone: the quicklaunch button (the element right before #information-widgets) as a glass disc at the thumb */
-    @media (max-width: 639px) {
-      #inner_wrapper button:has(+ #information-widgets) {
-        right: 14px;
-        bottom: 16px;
-        display: grid;
-        place-items: center;
-        width: 60px;
-        height: 60px;
-        color: rgb(var(--d1-ink));
-        background: var(--d1-sheen), rgb(var(--d1-fill) / 0.72);
-        backdrop-filter: blur(28px) saturate(190%);
-        -webkit-backdrop-filter: blur(28px) saturate(190%);
-        box-shadow:
-          inset 0 1px 0 0 rgb(255 255 255 / 0.2),
-          inset 0 0 0 1px rgb(255 255 255 / 0.1),
-          var(--d1-depth);
-      }
+    /* the one search, at every width: the quicklaunch button (the element right before #information-widgets,
+       which Homepage shows on phones only) as a glass disc in the corner. It finds apps first, then the web. */
+    #inner_wrapper button:has(+ #information-widgets) {
+      right: 14px;
+      bottom: 16px;
+      display: grid;
+      place-items: center;
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
+      color: rgb(var(--d1-ink));
+      background: var(--d1-sheen), rgb(var(--d1-fill) / 0.72);
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
+      box-shadow:
+        inset 0 1px 0 0 rgb(255 255 255 / 0.2),
+        inset 0 0 0 1px rgb(255 255 255 / 0.1),
+        var(--d1-depth);
+    }
 
-      #inner_wrapper button:has(+ #information-widgets) svg {
-        width: 22px;
-        height: 22px;
-      }
+    #inner_wrapper button:has(+ #information-widgets):focus-visible {
+      outline: 2px solid rgb(var(--d1-acc-hi));
+      outline-offset: 2px;
+    }
+
+    #inner_wrapper button:has(+ #information-widgets) svg {
+      width: 22px;
+      height: 22px;
     }
     /* no-hook:end */
     /* ==========================================================================
@@ -520,7 +450,7 @@ data:
       grid-template-areas:
         "logo brand brand status"
         "date date date date"
-        "weather weather weather weather"; /* phone: no search pill, the glass disc at the thumb is the search */
+        "weather weather weather weather"; /* no search pill: the glass disc in the corner is the search */
       align-items: center;
       gap: 16px 10px;
       margin: 20px 16px 0;
@@ -531,7 +461,6 @@ data:
     .information-widget-customapi { grid-area: status; }
     .information-widget-datetime { grid-area: date; }
     .information-widget-openmeteo { grid-area: weather; }
-    .information-widget-search { grid-area: search; }
 
     .information-widget-logo,
     .information-widget-greeting,
@@ -611,11 +540,6 @@ data:
 
     /* ---------- Phone: floating glass tab bar at the thumb, 2-up launcher tiles ---------- */
     @media (max-width: 639px) {
-      /* one search on the first screen: the disc (quicklaunch, which falls back to this widget's web provider) */
-      #information-widgets .information-widget-search {
-        display: none;
-      }
-
       .information-widget-openmeteo {
         justify-self: start;
       }
@@ -722,8 +646,8 @@ data:
     /* ---------- Wider screens: header on one line, tabs centred on top ---------- */
     @media (min-width: 640px) {
       #information-widgets {
-        grid-template-columns: auto auto minmax(0, 1fr) minmax(240px, 420px) auto auto auto;
-        grid-template-areas: "logo brand . search status weather date";
+        grid-template-columns: auto auto minmax(0, 1fr) auto auto auto;
+        grid-template-areas: "logo brand . status weather date";
         gap: 12px;
         margin: 28px 36px 0;
       }
@@ -769,6 +693,7 @@ data:
       searchDescriptions: true
       showSearchSuggestions: false
       provider: custom
+      name: Web
       url: https://search.starktastic.net/search?q=
       mobileButtonPosition: bottom-right
     hideErrors: true
@@ -841,10 +766,6 @@ data:
             to: Down ⚠
           - any: true
             to: Unknown
-    - search:
-        provider: custom
-        url: https://search.starktastic.net/search?q=
-        target: _blank
     - openmeteo:
         label: Home
         latitude: 32.08

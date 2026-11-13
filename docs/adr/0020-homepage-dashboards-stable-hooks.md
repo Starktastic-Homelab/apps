@@ -26,14 +26,15 @@ bumps are merged by hand since #1552, and nothing in CI rendered either page. De
 3. **Hook rule.** `custom.css` selects Homepage's ids, its named classes (`service-card`, `service-block`,
    `services-group`, `information-widget-<type>`, ...), its data and ARIA attributes, and catalog tile ids. No
    Tailwind utility class. No selector carries meaning by position. Where Homepage offers no hook (rows inside
-   list widgets, the calendar agenda, the phone search button), structural selectors live between
+   list widgets, the calendar agenda, the search button), structural selectors live between
    `/* no-hook:start */` and `/* no-hook:end */`. Per-tab rules select through a common ancestor, not a sibling combinator. The generator
    enforces the static half of this rule. No `custom.js`.
 4. **Render check.** `scripts/homepage/rendercheck/`, as the `homepage-render` job in `validate-and-diff.yml`, runs
    the deployed Homepage image digest on the generated pages against a mock upstream, calm and alarm, phone and
    desktop. It fails when an `--inventory` tile, tab or group is missing from the DOM, a widget or page shows an
    error or never loads, the mock is asked for something it cannot answer, a CSS selector matches nothing, a
-   block is red in the calm scenario, an image fails to load, or a household phone target is under 44 px.
+   block is red in the calm scenario, an image fails to load, the search button is off screen, or a household
+   phone target is under 44 px.
    It is a required status check and passes without running when its paths are untouched.
 5. **Alarm colours.** On admin a block is red exactly where a critical alert rule in Git would fire and amber
    where a warning rule would; the spec lists the few thresholds no rule covers. Red appears nowhere else.
@@ -41,6 +42,9 @@ bumps are merged by hand since #1552, and nothing in CI rendered either page. De
 6. **Cut-over.** Three PRs: content and the render check (removing `--compare`, which freezes both live pages
    until their cut-over), then household, then admin. During the freeze a PR that adds an app edits the live
    page and the catalog, because the coverage check reads the live pages.
+7. **One search (added 2026-11-13, after the cut-over).** Both pages search through Homepage's quick launch at
+   every width: the glass button in the corner or, with a keyboard, just typing. It lists matching apps first,
+   then a web search on SearXNG. The header search widget, which only searched the web, is gone.
 
 ## Rationale
 

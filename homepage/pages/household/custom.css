@@ -47,7 +47,7 @@ html:root {
   grid-template-areas:
     "logo brand brand status"
     "date date date date"
-    "weather weather weather weather"; /* phone: no search pill, the glass disc at the thumb is the search */
+    "weather weather weather weather"; /* no search pill: the glass disc in the corner is the search */
   align-items: center;
   gap: 16px 10px;
   margin: 20px 16px 0;
@@ -58,7 +58,6 @@ html:root {
 .information-widget-customapi { grid-area: status; }
 .information-widget-datetime { grid-area: date; }
 .information-widget-openmeteo { grid-area: weather; }
-.information-widget-search { grid-area: search; }
 
 .information-widget-logo,
 .information-widget-greeting,
@@ -138,11 +137,6 @@ html:root {
 
 /* ---------- Phone: floating glass tab bar at the thumb, 2-up launcher tiles ---------- */
 @media (max-width: 639px) {
-  /* one search on the first screen: the disc (quicklaunch, which falls back to this widget's web provider) */
-  #information-widgets .information-widget-search {
-    display: none;
-  }
-
   .information-widget-openmeteo {
     justify-self: start;
   }
@@ -249,8 +243,8 @@ html:root {
 /* ---------- Wider screens: header on one line, tabs centred on top ---------- */
 @media (min-width: 640px) {
   #information-widgets {
-    grid-template-columns: auto auto minmax(0, 1fr) minmax(240px, 420px) auto auto auto;
-    grid-template-areas: "logo brand . search status weather date";
+    grid-template-columns: auto auto minmax(0, 1fr) auto auto auto;
+    grid-template-areas: "logo brand . status weather date";
     gap: 12px;
     margin: 28px 36px 0;
   }

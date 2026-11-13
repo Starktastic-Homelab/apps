@@ -242,8 +242,9 @@ tiles:
             query: count(ALERTS{alertname="ContainerOOMKilled",alertstate="firing"}) or vector(0)
           - label: Top Container
             query:
-              max(max by (namespace, pod, container) (container_memory_working_set_bytes{container!=""}) / on (namespace, pod,
-              container) max by (namespace, pod, container) (kube_pod_container_resource_limits{resource="memory"}))
+              max(max by (namespace, pod, container) (container_memory_working_set_bytes{container!=""}) / on
+              (namespace, pod, container) max by (namespace, pod, container)
+              (kube_pod_container_resource_limits{resource="memory"}))
             format:
               type: percent
               scale: 100
@@ -340,7 +341,8 @@ tiles:
         refreshInterval: 300000
         metrics:
           - label: Postgres Dump
-            query: (time() - max(kube_cronjob_status_last_successful_time{namespace="databases",cronjob="pg-backup"})) / 3600
+            query:
+              (time() - max(kube_cronjob_status_last_successful_time{namespace="databases",cronjob="pg-backup"})) / 3600
             format:
               type: number
               suffix: " h"
@@ -348,7 +350,8 @@ tiles:
                 maximumFractionDigits: 1
           - label: Cert Backup
             query:
-              (time() - max(kube_cronjob_status_last_successful_time{namespace="cert-backup",cronjob="cert-backup"})) / 3600
+              (time() - max(kube_cronjob_status_last_successful_time{namespace="cert-backup",cronjob="cert-backup"})) /
+              3600
             format:
               type: number
               suffix: " h"

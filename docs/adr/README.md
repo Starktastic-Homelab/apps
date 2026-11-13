@@ -32,4 +32,4 @@ that supersedes the old one (don't rewrite history).
 | 0016 | [Bind admin-only Authentik apps with a blueprint](0016-authentik-app-access-blueprint.md) | Accepted |
 | 0018 | [Household Homepage boundary](0018-household-homepage-boundary.md) | Accepted |
 | 0019 | [Homepage catalog generator](0019-homepage-catalog-generator.md) | Accepted |
-| 0020 | [Homepage dashboards on stable hooks with a render check](0020-homepage-dashboards-stable-hooks.md) | Proposed |
+| 0020 | [Homepage dashboards on stable hooks with a render check](0020-homepage-dashboards-stable-hooks.md) | Accepted |

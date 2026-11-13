@@ -1,6 +1,6 @@
 # ADR 0020: Homepage dashboards on stable hooks with a render check
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-11-13
 
 ## Context

@@ -202,7 +202,9 @@ def _check_tile(tid, tile):
     if not isinstance(widgets, list):
         raise CatalogError(f"{path}.widgets: not a list")
     for i, w in enumerate(widgets):
-        _check_keys(f"{path}.widgets[{i}]", w, set(w))  # shape only; widget keys are Task 4's
+        _mapping(w, f"{path}.widgets[{i}]")
+        if not w.get("type"):
+            raise CatalogError(f"{path}.widgets[{i}]: widget has no type")
         _check_aud(f"{path}.widgets[{i}]", w, AUDIENCES)
 
 
@@ -221,8 +223,10 @@ def load_catalog(repo: Path) -> dict:
             raise CatalogError(f"bookmarks.{bid}: id is also a tile id")
     info = _list(raw.get("info"), "info")
     for i, e in enumerate(info):
-        _check_keys(f"info[{i}]", e, set(e))
+        _mapping(e, f"info[{i}]")
         _check_aud(f"info[{i}]", e, AUDIENCES)
+        if len(set(e) - {"audience"}) != 1:
+            raise CatalogError(f"info[{i}]: needs exactly one widget key besides audience")
     pages = raw.get("pages") or {}
     _check_keys("pages", pages, PAGE_NAMES)
     cat = {"tiles": tiles, "bookmarks": bookmarks, "info": info, "pages": pages}

@@ -1,0 +1,38 @@
+{
+ "Items": [
+  {
+   "Id": 9312,
+   "Name": "guest is playing Frieren: Beyond Journey's End - The Journey's End on Bedroom Chromecast",
+   "Type": "VideoPlayback",
+   "Date": "{{iso:-12m}}",
+   "UserId": "u-guest",
+   "Severity": "Information"
+  },
+  {
+   "Id": 9311,
+   "Name": "alex is playing Severance - Cold Harbor on Living Room TV",
+   "Type": "VideoPlayback",
+   "Date": "{{iso:-34m}}",
+   "UserId": "u-alex",
+   "Severity": "Information"
+  },
+  {
+   "Id": 9309,
+   "Name": "jordan is playing Москва слезам не верит on Firefox",
+   "Type": "VideoPlayback",
+   "Date": "{{iso:-55m}}",
+   "UserId": "u-jordan",
+   "Severity": "Information"
+  },
+  {
+   "Id": 9306,
+   "Name": "sam is playing Dune: Part Two on iPhone",
+   "Type": "VideoPlayback",
+   "Date": "{{iso:-73m}}",
+   "UserId": "u-sam",
+   "Severity": "Information"
+  }
+ ],
+ "TotalRecordCount": 2841,
+ "StartIndex": 0
+}

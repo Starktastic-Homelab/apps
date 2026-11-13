@@ -1,0 +1,34 @@
+{
+ "sessions": [
+  {
+   "id": "play_8c1f",
+   "userId": "usr_morgan",
+   "libraryId": "audiobooks",
+   "libraryItemId": "li_01b7f2c9e4a1",
+   "mediaType": "book",
+   "displayTitle": "Dungeon Crawler Carl",
+   "displayAuthor": "Matt Dinniman",
+   "currentTime": 18342.6,
+   "duration": 49380,
+   "user": {
+    "id": "usr_morgan",
+    "username": "morgan"
+   }
+  },
+  {
+   "id": "play_2e7d",
+   "userId": "usr_riley",
+   "libraryId": "audiobooks",
+   "libraryItemId": "li_03b7f2c9e4a1",
+   "mediaType": "book",
+   "displayTitle": "Мастер и Маргарита",
+   "displayAuthor": "Михаил Булгаков",
+   "currentTime": 30211.0,
+   "duration": 61200,
+   "user": {
+    "id": "usr_riley",
+    "username": "riley"
+   }
+  }
+ ]
+}

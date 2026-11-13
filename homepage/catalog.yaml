@@ -483,12 +483,56 @@ tiles:
           limit: 6
           format: number
           target: https://news.ycombinator.com/item?id={objectID}
+  # ---- Media and Pipeline extras (spec §8 step 1) -------------------------------------------------------------
+  # Widgets on keys admin already holds. None is proven by Git or the mock: each is checked on the live page
+  # after merge and fixed or removed there. No alert rule covers these apps, so nothing here turns red.
+  # An empty dynamic-list reads "No items found", so a list that is often empty gets a tile whose name says
+  # what is missing.
+  #
+  # Admin only (widgets default to admin): the API key is always Administrator and the log names who watched
+  # what. Household gets its own counts on the household token (ADR 0018).
   jellyfin:
     name: Jellyfin
     audience: household
     source: services/media/jellyfin
     icon: jellyfin.png
     description: Movies, TV & anime
+    override:
+      admin:
+        description: Movies, TV & anime · recent playback
+    widgets:
+      - type: customapi
+        url: http://jellyfin-main.media:8096/System/Info
+        headers: &jellyfin_auth
+          Authorization: MediaBrowser Token="{{HOMEPAGE_VAR_JELLYFIN_KEY}}"
+        refreshInterval: 300000
+        mappings:
+          - field: Version
+            label: Version
+          - field: HasPendingRestart
+            label: Restart
+            remap:
+              - value: true
+                to: Pending
+              - value: false
+                to: Not needed
+        highlight:
+          Restart:
+            string:
+              - level: warn
+                when: equals
+                value: Pending
+      - type: customapi
+        url: http://jellyfin-main.media:8096/System/ActivityLog/Entries?limit=6&type=VideoPlayback
+        headers: *jellyfin_auth
+        refreshInterval: 60000
+        display: dynamic-list
+        mappings:
+          items: Items
+          name: Name
+          label: Date
+          format: relativeDate
+          limit: 6
   dispatcharr:
     name: Dispatcharr
     source: services/media/dispatcharr
@@ -525,6 +569,25 @@ tiles:
       - type: audiobookshelf
         url: http://audiobookshelf.media:80
         key: "{{HOMEPAGE_VAR_AUDIOBOOKSHELF_KEY}}"
+  # Who is listening now. /api/sessions/open answers only an admin-type user's key, and carries client IPs.
+  audiobookshelf-sessions:
+    name: Audiobook Sessions
+    icon: audiobookshelf.png
+    href: https://audiobooks.benplus.app/config/sessions
+    description: Open listening sessions
+    widgets:
+      - type: customapi
+        url: http://audiobookshelf.media:80/api/sessions/open
+        headers:
+          Authorization: Bearer {{HOMEPAGE_VAR_AUDIOBOOKSHELF_KEY}}
+        refreshInterval: 30000
+        display: dynamic-list
+        mappings:
+          items: sessions
+          name: displayTitle
+          label: user.username
+          limit: 5
+          target: https://audiobooks.benplus.app/item/{libraryItemId}
   calibre-web:
     name: Calibre-Web
     audience: household
@@ -544,11 +607,26 @@ tiles:
     source: services/media/immich
     icon: immich.png
     description: Photos & videos
+    override:
+      admin:
+        description: Photos & videos · jobs waiting
     widgets:
       - type: immich
         url: http://immich-main.media:2283
         key: "{{HOMEPAGE_VAR_IMMICH_KEY}}"
         version: 2
+      # The first six job queues in Immich's own order (a list cannot sort or filter). Needs queue.read on the key.
+      - type: customapi
+        url: http://immich-main.media:2283/api/queues
+        headers:
+          x-api-key: "{{HOMEPAGE_VAR_IMMICH_KEY}}"
+        refreshInterval: 60000
+        display: dynamic-list
+        mappings:
+          name: name
+          label: statistics.waiting
+          format: number
+          limit: 6
   seerr:
     name: Seerr
     audience: household
@@ -775,6 +853,92 @@ tiles:
       - type: prowlarr
         url: http://prowlarr.media:9696
         key: "{{HOMEPAGE_VAR_PROWLARR_KEY}}"
+  # What each *arr lists under System > Status: the message, its level, and a link to the wiki page.
+  # Tiles of their own: the calendar finds an *arr through its tile's single widget, so a list cannot sit
+  # under the native one (the generator rejects a second widget on a calendar ref).
+  sonarr-health:
+    name: Sonarr Health
+    icon: sonarr.png
+    href: https://sonarr.internal.starktastic.net/system/status
+    description: Open health warnings
+    widgets:
+      - type: customapi
+        url: http://sonarr.media:8989/api/v3/health
+        headers:
+          X-Api-Key: "{{HOMEPAGE_VAR_SONARR_KEY}}"
+        refreshInterval: 300000
+        display: dynamic-list
+        mappings: &health_list
+          name: message
+          label: type
+          limit: 5
+          target: "{wikiUrl}"
+  sonarr-ru-health:
+    name: Sonarr RU Health
+    icon: sonarr.png
+    href: https://sonarr-ru.internal.starktastic.net/system/status
+    description: Open health warnings
+    widgets:
+      - type: customapi
+        url: http://sonarr-ru.media:8989/api/v3/health
+        headers:
+          X-Api-Key: "{{HOMEPAGE_VAR_SONARR_RU_KEY}}"
+        refreshInterval: 300000
+        display: dynamic-list
+        mappings: *health_list
+  radarr-health:
+    name: Radarr Health
+    icon: radarr.png
+    href: https://radarr.internal.starktastic.net/system/status
+    description: Open health warnings
+    widgets:
+      - type: customapi
+        url: http://radarr.media:7878/api/v3/health
+        headers:
+          X-Api-Key: "{{HOMEPAGE_VAR_RADARR_KEY}}"
+        refreshInterval: 300000
+        display: dynamic-list
+        mappings: *health_list
+  radarr-ru-health:
+    name: Radarr RU Health
+    icon: radarr.png
+    href: https://radarr-ru.internal.starktastic.net/system/status
+    description: Open health warnings
+    widgets:
+      - type: customapi
+        url: http://radarr-ru.media:7878/api/v3/health
+        headers:
+          X-Api-Key: "{{HOMEPAGE_VAR_RADARR_RU_KEY}}"
+        refreshInterval: 300000
+        display: dynamic-list
+        mappings: *health_list
+  lidarr-health:
+    name: Lidarr Health
+    icon: lidarr.png
+    href: https://lidarr.internal.starktastic.net/system/status
+    description: Open health warnings
+    widgets:
+      - type: customapi
+        url: http://lidarr.media:8686/api/v1/health
+        headers:
+          X-Api-Key: "{{HOMEPAGE_VAR_LIDARR_KEY}}"
+        refreshInterval: 300000
+        display: dynamic-list
+        mappings: *health_list
+  # Not a calendar ref, but kept with the other five so every *arr's health is in one group.
+  prowlarr-health:
+    name: Prowlarr Health
+    icon: prowlarr.png
+    href: https://prowlarr.internal.starktastic.net/system/status
+    description: Open health warnings
+    widgets:
+      - type: customapi
+        url: http://prowlarr.media:9696/api/v1/health
+        headers:
+          X-Api-Key: "{{HOMEPAGE_VAR_PROWLARR_KEY}}"
+        refreshInterval: 300000
+        display: dynamic-list
+        mappings: *health_list
   autobrr:
     name: Autobrr
     source: services/media/autobrr
@@ -796,16 +960,55 @@ tiles:
     icon: qbittorrent.png
     description: Torrent client
     widgets:
+      # Live speeds every 5 s; the native widget loads once per page view, so it keeps only its two counts.
+      # Keyless like the native one: both depend on qBittorrent's subnet bypass, which is set in its config
+      # volume, not in Git. "Firewalled" is normal until the first incoming connection, so only Offline is amber.
+      - type: customapi
+        url: http://qbittorrent-main.media:8080/api/v2/transfer/info
+        refreshInterval: 5000
+        mappings: &transfer_blocks
+          - field: dl_info_speed
+            label: Down
+            format: bitrate
+            scale: 8
+          - field: up_info_speed
+            label: Up
+            format: bitrate
+            scale: 8
+          - field: connection_status
+            label: Port
+            remap:
+              - value: connected
+                to: Open
+              - value: firewalled
+                to: Firewalled
+              - value: disconnected
+                to: Offline
+        highlight: &transfer_highlight
+          Port:
+            string:
+              - level: warn
+                when: equals
+                value: Offline
       - type: qbittorrent
         url: http://qbittorrent-main.media:8080
+        fields: &torrent_counts
+          - leech
+          - seed
   qbittorrent-ru:
     name: qBittorrent RU
     source: services/media/qbittorrent-ru
     icon: qbittorrent.png
     description: Torrent client — Russian trackers
     widgets:
+      - type: customapi
+        url: http://qbittorrent-ru-main.media:8080/api/v2/transfer/info
+        refreshInterval: 5000
+        mappings: *transfer_blocks
+        highlight: *transfer_highlight
       - type: qbittorrent
         url: http://qbittorrent-ru-main.media:8080
+        fields: *torrent_counts
   bazarr:
     name: Bazarr
     source: services/media/bazarr
@@ -815,6 +1018,43 @@ tiles:
       - type: bazarr
         url: http://bazarr.media:6767
         key: "{{HOMEPAGE_VAR_BAZARR_KEY}}"
+      # /api/badges: how many providers are throttled, how many health issues Bazarr lists, and whether it
+      # still hears Sonarr and Radarr (DOWN when a SignalR feed is lost).
+      - type: customapi
+        url: http://bazarr.media:6767/api/badges
+        headers:
+          X-API-KEY: "{{HOMEPAGE_VAR_BAZARR_KEY}}"
+        refreshInterval: 120000
+        mappings:
+          - field: providers
+            label: Throttled
+            format: number
+          - field: status
+            label: Health Issues
+            format: number
+          - field: sonarr_signalr
+            label: Sonarr Link
+            remap: &link_state
+              - value: DOWN
+                to: Down
+              - any: true
+                to: OK
+          - field: radarr_signalr
+            label: Radarr Link
+            remap: *link_state
+        highlight:
+          Throttled: &above_zero
+            numeric:
+              - level: warn
+                when: gt
+                value: 0
+          Health Issues: *above_zero
+          Sonarr Link: &link_down
+            string:
+              - level: warn
+                when: equals
+                value: Down
+          Radarr Link: *link_down
   lingarr:
     name: Lingarr
     source: services/media/lingarr
@@ -1351,6 +1591,7 @@ pages:
             items:
               - navidrome
               - audiobookshelf
+              - audiobookshelf-sessions
           - name: Read
             items:
               - calibre-web
@@ -1375,6 +1616,14 @@ pages:
             items:
               - prowlarr
               - autobrr
+          - name: Health Checks
+            items:
+              - sonarr-health
+              - sonarr-ru-health
+              - radarr-health
+              - radarr-ru-health
+              - lidarr-health
+              - prowlarr-health
           - name: Download
             items:
               - qbittorrent

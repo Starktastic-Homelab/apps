@@ -838,12 +838,13 @@ data:
 
       #inner_wrapper:has(#Media-tab[aria-selected="true"]) #layout-groups #jellyfin { grid-column: 1 / -1; }
 
-      /* Pipeline: Acquire and Download are two-column panels on top, Index and Subtitles below */
-      #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups { grid-template-rows: auto auto; }
-      #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups > .services-group:has(#sonarr) { grid-column: 1 / span 2; grid-row: 1; }
+      /* Pipeline: two-column panels. Acquire runs beside Download with Health Checks under it; Index and Subtitles below */
+      #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups { grid-template-rows: auto 1fr auto; }
+      #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups > .services-group:has(#sonarr) { grid-column: 1 / span 2; grid-row: 1 / span 2; }
       #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups > .services-group:has(#qbittorrent) { grid-column: 3 / span 2; grid-row: 1; }
-      #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups > .services-group:has(#prowlarr) { grid-column: 1 / span 2; grid-row: 2; }
-      #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups > .services-group:has(#bazarr) { grid-column: 3 / span 2; grid-row: 2; }
+      #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups > .services-group:has(#sonarr-health) { grid-column: 3 / span 2; grid-row: 2; }
+      #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups > .services-group:has(#prowlarr) { grid-column: 1 / span 2; grid-row: 3; }
+      #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups > .services-group:has(#bazarr) { grid-column: 3 / span 2; grid-row: 3; }
 
       #inner_wrapper:has(#Pipeline-tab[aria-selected="true"]) #layout-groups ul:has(> .service) {
         display: block;
@@ -994,6 +995,8 @@ data:
       Acquire:
         tab: Pipeline
       Index:
+        tab: Pipeline
+      Health Checks:
         tab: Pipeline
       Download:
         tab: Pipeline
@@ -1534,11 +1537,45 @@ data:
       - Jellyfin:
           id: jellyfin
           icon: jellyfin.png
-          description: Movies, TV & anime
+          description: Movies, TV & anime · recent playback
           href: https://benplus.app
           siteMonitor: http://jellyfin-main.media:8096
           namespace: media
           app: jellyfin
+          widgets:
+          - type: customapi
+            url: http://jellyfin-main.media:8096/System/Info
+            headers:
+              Authorization: MediaBrowser Token="{{ "{{" }}HOMEPAGE_VAR_JELLYFIN_KEY{{ "}}" }}"
+            refreshInterval: 300000
+            mappings:
+            - field: Version
+              label: Version
+            - field: HasPendingRestart
+              label: Restart
+              remap:
+              - value: true
+                to: Pending
+              - value: false
+                to: Not needed
+            highlight:
+              Restart:
+                string:
+                - level: warn
+                  when: equals
+                  value: Pending
+          - type: customapi
+            url: http://jellyfin-main.media:8096/System/ActivityLog/Entries?limit=6&type=VideoPlayback
+            headers:
+              Authorization: MediaBrowser Token="{{ "{{" }}HOMEPAGE_VAR_JELLYFIN_KEY{{ "}}" }}"
+            refreshInterval: 60000
+            display: dynamic-list
+            mappings:
+              items: Items
+              name: Name
+              label: Date
+              format: relativeDate
+              limit: 6
       - Dispatcharr:
           id: dispatcharr
           icon: dispatcharr.png
@@ -1582,6 +1619,24 @@ data:
             type: audiobookshelf
             url: http://audiobookshelf.media:80
             key: '{{ "{{" }}HOMEPAGE_VAR_AUDIOBOOKSHELF_KEY{{ "}}" }}'
+      - Audiobook Sessions:
+          id: audiobookshelf-sessions
+          icon: audiobookshelf.png
+          href: https://audiobooks.benplus.app/config/sessions
+          description: Open listening sessions
+          widget:
+            type: customapi
+            url: http://audiobookshelf.media:80/api/sessions/open
+            headers:
+              Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_AUDIOBOOKSHELF_KEY{{ "}}" }}
+            refreshInterval: 30000
+            display: dynamic-list
+            mappings:
+              items: sessions
+              name: displayTitle
+              label: user.username
+              limit: 5
+              target: https://audiobooks.benplus.app/item/{libraryItemId}
     - Read:
       - Calibre-Web:
           id: calibre-web
@@ -1608,16 +1663,27 @@ data:
       - Immich:
           id: immich
           icon: immich.png
-          description: Photos & videos
+          description: Photos & videos · jobs waiting
           href: https://photos.benplus.app
           siteMonitor: http://immich-main.media:2283
           namespace: media
           app: immich
-          widget:
-            type: immich
+          widgets:
+          - type: immich
             url: http://immich-main.media:2283
             key: '{{ "{{" }}HOMEPAGE_VAR_IMMICH_KEY{{ "}}" }}'
             version: 2
+          - type: customapi
+            url: http://immich-main.media:2283/api/queues
+            headers:
+              x-api-key: '{{ "{{" }}HOMEPAGE_VAR_IMMICH_KEY{{ "}}" }}'
+            refreshInterval: 60000
+            display: dynamic-list
+            mappings:
+              name: name
+              label: statistics.waiting
+              format: number
+              limit: 6
     - Requests:
       - Seerr:
           id: seerr
@@ -1781,6 +1847,109 @@ data:
             type: autobrr
             url: http://autobrr.media:7474
             key: '{{ "{{" }}HOMEPAGE_VAR_AUTOBRR_KEY{{ "}}" }}'
+    - Health Checks:
+      - Sonarr Health:
+          id: sonarr-health
+          icon: sonarr.png
+          href: https://sonarr.internal.starktastic.net/system/status
+          description: Open health warnings
+          widget:
+            type: customapi
+            url: http://sonarr.media:8989/api/v3/health
+            headers:
+              X-Api-Key: '{{ "{{" }}HOMEPAGE_VAR_SONARR_KEY{{ "}}" }}'
+            refreshInterval: 300000
+            display: dynamic-list
+            mappings:
+              name: message
+              label: type
+              limit: 5
+              target: '{wikiUrl}'
+      - Sonarr RU Health:
+          id: sonarr-ru-health
+          icon: sonarr.png
+          href: https://sonarr-ru.internal.starktastic.net/system/status
+          description: Open health warnings
+          widget:
+            type: customapi
+            url: http://sonarr-ru.media:8989/api/v3/health
+            headers:
+              X-Api-Key: '{{ "{{" }}HOMEPAGE_VAR_SONARR_RU_KEY{{ "}}" }}'
+            refreshInterval: 300000
+            display: dynamic-list
+            mappings:
+              name: message
+              label: type
+              limit: 5
+              target: '{wikiUrl}'
+      - Radarr Health:
+          id: radarr-health
+          icon: radarr.png
+          href: https://radarr.internal.starktastic.net/system/status
+          description: Open health warnings
+          widget:
+            type: customapi
+            url: http://radarr.media:7878/api/v3/health
+            headers:
+              X-Api-Key: '{{ "{{" }}HOMEPAGE_VAR_RADARR_KEY{{ "}}" }}'
+            refreshInterval: 300000
+            display: dynamic-list
+            mappings:
+              name: message
+              label: type
+              limit: 5
+              target: '{wikiUrl}'
+      - Radarr RU Health:
+          id: radarr-ru-health
+          icon: radarr.png
+          href: https://radarr-ru.internal.starktastic.net/system/status
+          description: Open health warnings
+          widget:
+            type: customapi
+            url: http://radarr-ru.media:7878/api/v3/health
+            headers:
+              X-Api-Key: '{{ "{{" }}HOMEPAGE_VAR_RADARR_RU_KEY{{ "}}" }}'
+            refreshInterval: 300000
+            display: dynamic-list
+            mappings:
+              name: message
+              label: type
+              limit: 5
+              target: '{wikiUrl}'
+      - Lidarr Health:
+          id: lidarr-health
+          icon: lidarr.png
+          href: https://lidarr.internal.starktastic.net/system/status
+          description: Open health warnings
+          widget:
+            type: customapi
+            url: http://lidarr.media:8686/api/v1/health
+            headers:
+              X-Api-Key: '{{ "{{" }}HOMEPAGE_VAR_LIDARR_KEY{{ "}}" }}'
+            refreshInterval: 300000
+            display: dynamic-list
+            mappings:
+              name: message
+              label: type
+              limit: 5
+              target: '{wikiUrl}'
+      - Prowlarr Health:
+          id: prowlarr-health
+          icon: prowlarr.png
+          href: https://prowlarr.internal.starktastic.net/system/status
+          description: Open health warnings
+          widget:
+            type: customapi
+            url: http://prowlarr.media:9696/api/v1/health
+            headers:
+              X-Api-Key: '{{ "{{" }}HOMEPAGE_VAR_PROWLARR_KEY{{ "}}" }}'
+            refreshInterval: 300000
+            display: dynamic-list
+            mappings:
+              name: message
+              label: type
+              limit: 5
+              target: '{wikiUrl}'
     - Download:
       - qBittorrent:
           id: qbittorrent
@@ -1790,9 +1959,39 @@ data:
           siteMonitor: http://qbittorrent-main.media:8080
           namespace: media
           app: qbittorrent
-          widget:
-            type: qbittorrent
+          widgets:
+          - type: customapi
+            url: http://qbittorrent-main.media:8080/api/v2/transfer/info
+            refreshInterval: 5000
+            mappings:
+            - field: dl_info_speed
+              label: Down
+              format: bitrate
+              scale: 8
+            - field: up_info_speed
+              label: Up
+              format: bitrate
+              scale: 8
+            - field: connection_status
+              label: Port
+              remap:
+              - value: connected
+                to: Open
+              - value: firewalled
+                to: Firewalled
+              - value: disconnected
+                to: Offline
+            highlight:
+              Port:
+                string:
+                - level: warn
+                  when: equals
+                  value: Offline
+          - type: qbittorrent
             url: http://qbittorrent-main.media:8080
+            fields:
+            - leech
+            - seed
       - qBittorrent RU:
           id: qbittorrent-ru
           icon: qbittorrent.png
@@ -1801,9 +2000,39 @@ data:
           siteMonitor: http://qbittorrent-ru-main.media:8080
           namespace: media
           app: qbittorrent-ru
-          widget:
-            type: qbittorrent
+          widgets:
+          - type: customapi
+            url: http://qbittorrent-ru-main.media:8080/api/v2/transfer/info
+            refreshInterval: 5000
+            mappings:
+            - field: dl_info_speed
+              label: Down
+              format: bitrate
+              scale: 8
+            - field: up_info_speed
+              label: Up
+              format: bitrate
+              scale: 8
+            - field: connection_status
+              label: Port
+              remap:
+              - value: connected
+                to: Open
+              - value: firewalled
+                to: Firewalled
+              - value: disconnected
+                to: Offline
+            highlight:
+              Port:
+                string:
+                - level: warn
+                  when: equals
+                  value: Offline
+          - type: qbittorrent
             url: http://qbittorrent-ru-main.media:8080
+            fields:
+            - leech
+            - seed
       - Cleanuparr:
           id: cleanuparr
           icon: cleanuparr.png
@@ -1821,10 +2050,57 @@ data:
           siteMonitor: http://bazarr.media:6767
           namespace: media
           app: bazarr
-          widget:
-            type: bazarr
+          widgets:
+          - type: bazarr
             url: http://bazarr.media:6767
             key: '{{ "{{" }}HOMEPAGE_VAR_BAZARR_KEY{{ "}}" }}'
+          - type: customapi
+            url: http://bazarr.media:6767/api/badges
+            headers:
+              X-API-KEY: '{{ "{{" }}HOMEPAGE_VAR_BAZARR_KEY{{ "}}" }}'
+            refreshInterval: 120000
+            mappings:
+            - field: providers
+              label: Throttled
+              format: number
+            - field: status
+              label: Health Issues
+              format: number
+            - field: sonarr_signalr
+              label: Sonarr Link
+              remap:
+              - value: DOWN
+                to: Down
+              - any: true
+                to: OK
+            - field: radarr_signalr
+              label: Radarr Link
+              remap:
+              - value: DOWN
+                to: Down
+              - any: true
+                to: OK
+            highlight:
+              Throttled:
+                numeric:
+                - level: warn
+                  when: gt
+                  value: 0
+              Health Issues:
+                numeric:
+                - level: warn
+                  when: gt
+                  value: 0
+              Sonarr Link:
+                string:
+                - level: warn
+                  when: equals
+                  value: Down
+              Radarr Link:
+                string:
+                - level: warn
+                  when: equals
+                  value: Down
       - Lingarr:
           id: lingarr
           icon: mdi-translate

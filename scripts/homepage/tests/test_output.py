@@ -122,6 +122,16 @@ class TestCli(Base):
         self.assertIn("+          description: new", out)
         self.assertIn("run: python3 scripts/homepage/generate.py", out)
 
+    def test_check_fails_on_orphan_staged_file(self):
+        repo = self.repo()
+        self.run_main([], repo)
+        orphan = repo / "homepage/staged/services/other/configmap.yaml"
+        orphan.parent.mkdir(parents=True)
+        orphan.write_text("x: 1\n")
+        code, out = self.run_main(["--check"], repo)
+        self.assertEqual(code, 1)
+        self.assertIn("orphan staged file", out)
+
     def test_catalog_error_exits_1(self):
         repo = self.repo(desc("{{ x }}"))
         code, out = self.run_main([], repo)

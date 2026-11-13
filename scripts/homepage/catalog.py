@@ -254,6 +254,8 @@ def _check_page(cat, page):
         for i, item in enumerate(_list(g.get("items"), f"{path}.items")):
             ipath = f"{path}.items[{i}]"
             if isinstance(item, dict):
+                if item.get("name") in GROUP_KEYS - {"name", "items"} | {"tab"}:
+                    raise CatalogError(f"{ipath}.name: subgroup name {item['name']!r} collides with a layout key")
                 has_sub = True
                 kinds |= group(ipath, item, parents + [name])
             elif not isinstance(item, str):

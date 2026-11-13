@@ -26,9 +26,10 @@ cluster), and the generated ConfigMaps are committed.
 4. **Generator-owned keys.** `hideErrors`, `layout`, `pwa.shortcuts`, `kubernetes.yaml`, `docker.yaml` and an empty
    `custom.js`; household never gets `namespace`, `app`, `podSelector` or `proxmox*`. Every placeholder must be a
    `{{HOMEPAGE_VAR_*}}` name, and the page's names must equal its sealed key names in both directions.
-5. **Staged until cut-over.** Output goes to `homepage/staged/`, outside the AppSet globs, the diff gate and the watch
-   pattern, so nothing deploys. Sub-project 4 cuts over one page per PR by removing it from `STAGED` and regenerating
-   over today's ConfigMap.
+5. **Staged until cut-over.** Output goes to `homepage/staged/`, outside the AppSet globs and the diff-preview watch
+   patterns (`bootstrap/appsets/cluster-apps.yaml:11` and `:79`), so nothing deploys. Sub-project 4 cuts over one page
+   per PR by removing it from `STAGED`, deleting its staged copy and regenerating over today's ConfigMap. Once
+   `--compare` is removed (first content PR), the live pages are frozen until cut-over: fixes go into the catalog.
 6. **CI.** The Validate job runs the unit tests and `--check` (committed output is current), then a rehearsal that
    runs `--compare` (staged pages match the live ones) and the coverage, household and Jellyfin guards unmodified on
    a scratch tree with the staged pages copied in.

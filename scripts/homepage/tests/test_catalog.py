@@ -32,6 +32,10 @@ class CatalogTests(unittest.TestCase):
     def test_min_loads(self):
         self.assertEqual(list(load(MIN_CATALOG)["tiles"]), ["a"])
 
+    def test_subgroup_named_like_layout_key(self):
+        for name in ("header", "tab", "columns"):
+            self.bad(cat_with(lambda c: items(c, "household", [{"name": name, "items": ["a"]}])), "collides")
+
     def test_rule05_tile_placement(self):
         self.bad(cat_with(lambda c: items(c, "household", [])), r"tiles\.a")
         self.bad(cat_with(lambda c: items(c, "admin", ["a", "a"])), r"tiles\.a")

@@ -79,6 +79,13 @@ class TestCompare(unittest.TestCase):
                          ["p: bookmark GH: href: live=https://gh staged=https://x"])
         self.assertEqual(len(diff(F(), F(info=INFO.replace("search", "greeting")), "p")), 1)
 
+    def test_duplicate_bookmark_and_missing_data(self):
+        two = BOOKMARKS + "- M:\n    - GH:\n        - href: https://x\n"
+        with self.assertRaisesRegex(Exception, "duplicate bookmark name 'GH'"):
+            F(bookmarks=two)
+        with self.assertRaisesRegex(Exception, "no data"):
+            parse_configmap("apiVersion: v1\nkind: ConfigMap\n")
+
     def test_bad_yaml_names_key(self):
         with self.assertRaisesRegex(Exception, "services.yaml"):
             parse_configmap(cm(services="- a: [\n"))
@@ -100,6 +107,21 @@ class TestCli(Base):
         with contextlib.redirect_stdout(err):
             self.assertEqual(main(["--compare"], repo), 1)
         self.assertIn("household: tile A: href", err.getvalue())
+        # strict: live-only edits beyond the facts, in data and in raw keys, fail
+        live = Path(repo) / f"{generate.PAGES['admin']['dir']}/manifests/templates/configmap.yaml"
+        good = live.read_text()
+        for old, new, rx in (("      - A:\n          id: a\n", "      - A:\n          id: a\n          icon: x.png\n",
+                              r"admin: services.yaml: differs"),
+                             ("      G:\n", "      G:\n        columns: 9\n", r"admin: settings.yaml: differs"),
+                             ('custom.css: ""', 'custom.css: "a{}"', r"admin: custom.css: live and staged differ")):
+            with self.subTest(new=new):
+                self.assertIn(old, good)
+                live.write_text(good.replace(old, new, 1))
+                out = io.StringIO()
+                with contextlib.redirect_stdout(out):
+                    self.assertEqual(main(["--compare"], repo), 1)
+                self.assertRegex(out.getvalue(), rx)
+        live.write_text(good)
         output_path(repo, "household").unlink()
         with contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(main(["--compare"], repo), 1)

@@ -83,11 +83,13 @@ def run_compare(repo: Path) -> int:
             lines += [f"{page}: missing {p.relative_to(repo)}" for p in missing]
             continue
         try:
-            f = [compare.facts(compare.parse_configmap(p.read_text(encoding="utf-8"))) for p in paths]
+            texts = [p.read_text(encoding="utf-8") for p in paths]
+            parsed = [compare.parse_configmap(t) for t in texts]
+            f = [compare.facts(d) for d in parsed]
+            lines += compare.diff(f[0], f[1], page)
+            lines += compare.strict_diff(*parsed, *[compare.raw_keys(t) for t in texts], page)
         except CatalogError as err:
             lines.append(f"{page}: {err}")
-            continue
-        lines += compare.diff(f[0], f[1], page)
     if lines:
         print(*lines, sep="\n")
     return 1 if lines else 0
@@ -111,6 +113,12 @@ def main(argv: list[str] | None = None, repo: Path = ROOT) -> int:
         print(err, file=sys.stderr)
         return 1
     stale = False
+    if args.check:
+        staged_dir = Path(repo) / "homepage/staged"
+        wanted = {p for p in rendered if p.is_relative_to(staged_dir)}
+        for orphan in sorted(set(staged_dir.rglob("*.yaml")) - wanted) if staged_dir.is_dir() else []:
+            stale = True
+            print(f"{orphan.relative_to(repo)}: orphan staged file (page not in STAGED); delete it")
     for path, text in rendered.items():
         rel = path.relative_to(repo)
         if args.check:

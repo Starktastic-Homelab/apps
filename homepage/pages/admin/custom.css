@@ -152,7 +152,7 @@ html:root {
   @supports (anchor-name: --hp-search) {
     #information-widgets::before {
       order: 1;
-      flex: 1 1 200px;
+      flex: 1 1 180px; /* the row wraps on this basis: 180 keeps the header on one line at 1366 px */
       min-width: 180px;
       max-width: 520px;
       height: 50px;

@@ -644,7 +644,7 @@ data:
       @supports (anchor-name: --hp-search) {
         #information-widgets::before {
           order: 1;
-          flex: 1 1 200px;
+          flex: 1 1 180px; /* the row wraps on this basis: 180 keeps the header on one line at 1366 px */
           min-width: 180px;
           max-width: 520px;
           height: 50px;
@@ -1105,9 +1105,9 @@ data:
           scale: 100
           format: percent
     - openmeteo:
-        label: Home
+        label: Ramat Gan
         latitude: 32.08
-        longitude: 34.78
+        longitude: 34.83
         timezone: Asia/Jerusalem
         units: metric
     - datetime:
@@ -2722,11 +2722,12 @@ data:
                 type: number
                 options:
                   maximumFractionDigits: 0
-            - label: Config OK
-              query: min(traefik_config_last_reload_success)
+            - label: Last Reload
+              query: time() - max(traefik_config_last_reload_success)
               format:
-                type: percent
-                scale: 100
+                type: number
+                scale: 1/60
+                suffix: ' min'
                 options:
                   maximumFractionDigits: 0
       - Failing Probes:

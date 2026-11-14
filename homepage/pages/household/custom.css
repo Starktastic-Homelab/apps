@@ -317,7 +317,7 @@ html:root {
   }
 
   /* no room for the word on a small phone, or in the one-line header below 1280 px */
-  @media (max-width: 379px), (min-width: 1024px) and (max-width: 1279px) {
+  @media (max-width: 387px), (min-width: 1024px) and (max-width: 1279px) {
     #information-widgets::after {
       content: "";
       padding: 0 94px 0 2px;
@@ -377,13 +377,22 @@ html:root {
         "weather weather support support";
     }
 
+    /* "Ramat Gan, 14.2°C" needs 178 px at this padding and icon size, which fits from 388 px up; below that
+       the pill drops its word. A longer line is cut at the edge, never wrapped onto a third line. */
     .information-widget-openmeteo {
       max-width: calc(100vw - 210px); /* page margins 32, gap 10, pill 168 */
+      padding: 0 12px 0 6px;
       overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .information-widget-openmeteo svg {
+      width: 28px;
+      height: 28px;
     }
   }
 
-  @media (max-width: 379px) {
+  @media (max-width: 387px) {
     .information-widget-openmeteo {
       max-width: calc(100vw - 138px);
     }

@@ -18,5 +18,26 @@
  "(count(argocd_app_info{health_status!~\"Healthy|Progressing\"}) or vector(0)) and count(argocd_app_info)": 1,
  "sum(increase(alertmanager_notifications_failed_total{integration=\"webhook\"}[24h])) or vector(0)": 2,
  "count(ALERTS{alertstate=\"firing\",alertname!~\"Watchdog|InfoInhibitor|KubePodNotReady|KubePodCrashLooping|KubeDeploymentReplicasMismatch|KubeContainerWaiting|CPUThrottlingHigh|KubeHpaReplicasMismatch\"}) or vector(0)": 4,
- "sum(clamp_min(homelab:proxmox_csi_slots_free:count, 0)) or vector(0)": 6
+ "sum(clamp_min(homelab:proxmox_csi_slots_free:count, 0)) or vector(0)": 6,
+ "(count(max by (exported_namespace, name) (certmanager_certificate_ready_status{condition=\"True\"}) == 0) or vector(0)) and count(certmanager_certificate_ready_status)": 1,
+ "min(certmanager_certificate_expiration_timestamp_seconds > 0) - time()": 518400,
+ "(count(max by (namespace, name, project) (argocd_app_info{sync_status=\"Unknown\"}) or max by (namespace, name, project) (argocd_app_condition{condition=\"ComparisonError\"})) or vector(0)) and count(argocd_app_info)": 2,
+ "(sum(increase(argocd_notifications_deliveries_total{succeeded=\"false\"}[1h])) or vector(0)) and count(argocd_app_info)": 3,
+ "probe_success == 0": [
+  {
+   "metric": {
+    "instance": "https://admin.internal.starktastic.net",
+    "tier": "gate"
+   },
+   "value": 0
+  },
+  {
+   "metric": {
+    "instance": "1.1.1.1",
+    "tier": "external",
+    "probe_kind": "icmp"
+   },
+   "value": 0
+  }
+ ]
 }

@@ -43,11 +43,6 @@ html:root {
 #Iron-tab { --d1-glyph: url("/images/glyph-iron.svg"); }
 
 /* group labels: a short steel dash before them (a round dot would read as a status light) */
-.service-group-name,
-.bookmark-group-name {
-  text-shadow: none;
-}
-
 .service-group-name::before,
 .bookmark-group-name::before {
   content: "";

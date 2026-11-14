@@ -474,6 +474,21 @@ data:
         }
       }
     }
+
+    /* List rows (a name and one value) have no class of their own. A gutter between the name and its value; the
+       value stays on one line and the name wraps. :not() skips the wrappers that hold rows. */
+    .service-card :is(a, div):has(> div:first-child + div:last-child > div:only-child) {
+      column-gap: 12px;
+    }
+
+    .service-card :is(a, div):has(> div:first-child + div:last-child > div:only-child):not(:has(div div div)) > div:first-child {
+      min-width: 0;
+    }
+
+    .service-card :is(a, div):has(> div:first-child + div:last-child > div:only-child):not(:has(div div div)) > div:last-child {
+      flex: none;
+      white-space: nowrap;
+    }
     /* no-hook:end */
     /* ==========================================================================
        Admin layer: violet on navy, desktop-first ("calm, glassy control room").
@@ -926,23 +941,6 @@ data:
         max-width: 760px;
       }
     }
-
-    /* no-hook:start */
-    /* List rows (a name and one value) have no class of their own. A gutter between the name and its value; the
-       value stays on one line and the name wraps. :not() skips the wrappers that hold rows. */
-    .service-card :is(a, div):has(> div:first-child + div:last-child > div:only-child) {
-      column-gap: 12px;
-    }
-
-    .service-card :is(a, div):has(> div:first-child + div:last-child > div:only-child):not(:has(div div div)) > div:first-child {
-      min-width: 0;
-    }
-
-    .service-card :is(a, div):has(> div:first-child + div:last-child > div:only-child):not(:has(div div div)) > div:last-child {
-      flex: none;
-      white-space: nowrap;
-    }
-    /* no-hook:end */
   kubernetes.yaml: |
     mode: cluster
   settings.yaml: |
@@ -1601,6 +1599,40 @@ data:
               label: Date
               format: relativeDate
               limit: 6
+      - New movies:
+          id: new-movies
+          icon: mdi-movie-open
+          description: Latest additions
+          widget:
+            type: customapi
+            url: http://jellyfin-main.media:8096/Items/Latest?IncludeItemTypes=Movie&Limit=6&Fields=DateCreated
+            headers:
+              Authorization: MediaBrowser Token="{{ "{{" }}HOMEPAGE_VAR_JELLYFIN_HOUSEHOLD_TOKEN{{ "}}" }}"
+            refreshInterval: 900000
+            display: dynamic-list
+            mappings:
+              name: Name
+              label: DateCreated
+              format: relativeDate
+              limit: 6
+              target: https://benplus.app/web/#/details?id={Id}&serverId={ServerId}
+      - New episodes:
+          id: new-episodes
+          icon: mdi-television-play
+          description: Latest additions
+          widget:
+            type: customapi
+            url: http://jellyfin-main.media:8096/Items/Latest?IncludeItemTypes=Episode&groupItems=false&Limit=6&Fields=DateCreated
+            headers:
+              Authorization: MediaBrowser Token="{{ "{{" }}HOMEPAGE_VAR_JELLYFIN_HOUSEHOLD_TOKEN{{ "}}" }}"
+            refreshInterval: 900000
+            display: dynamic-list
+            mappings:
+              name: SeriesName
+              label: DateCreated
+              format: relativeDate
+              limit: 6
+              target: https://benplus.app/web/#/details?id={Id}&serverId={ServerId}
       - Dispatcharr:
           id: dispatcharr
           icon: dispatcharr.png
@@ -1674,8 +1706,8 @@ data:
           widget:
             type: calibreweb
             url: http://calibre-web.media:8083
-            username: '{{ "{{" }}HOMEPAGE_VAR_CALIBRE_USER{{ "}}" }}'
-            password: '{{ "{{" }}HOMEPAGE_VAR_CALIBRE_PASS{{ "}}" }}'
+            username: '{{ "{{" }}HOMEPAGE_VAR_CALIBRE_HOUSEHOLD_USER{{ "}}" }}'
+            password: '{{ "{{" }}HOMEPAGE_VAR_CALIBRE_HOUSEHOLD_PASS{{ "}}" }}'
       - Shelfmark:
           id: shelfmark
           icon: mdi-bookshelf

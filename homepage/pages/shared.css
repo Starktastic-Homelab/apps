@@ -439,4 +439,19 @@ body {
     }
   }
 }
+
+/* List rows (a name and one value) have no class of their own. A gutter between the name and its value; the
+   value stays on one line and the name wraps. :not() skips the wrappers that hold rows. */
+.service-card :is(a, div):has(> div:first-child + div:last-child > div:only-child) {
+  column-gap: 12px;
+}
+
+.service-card :is(a, div):has(> div:first-child + div:last-child > div:only-child):not(:has(div div div)) > div:first-child {
+  min-width: 0;
+}
+
+.service-card :is(a, div):has(> div:first-child + div:last-child > div:only-child):not(:has(div div div)) > div:last-child {
+  flex: none;
+  white-space: nowrap;
+}
 /* no-hook:end */

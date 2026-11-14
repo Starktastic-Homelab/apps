@@ -1,0 +1,12 @@
+[
+ {
+  "path": "/jellyfin-main-media-8096/Items/Latest",
+  "query": "IncludeItemTypes=Episode",
+  "file": "jellyfin-main-media-8096/Items/Latest-Episode.json"
+ },
+ {
+  "path": "/jellyfin-main-media-8096/Items/Latest",
+  "query": "IncludeItemTypes=Movie",
+  "file": "jellyfin-main-media-8096/Items/Latest-Movie.json"
+ }
+]

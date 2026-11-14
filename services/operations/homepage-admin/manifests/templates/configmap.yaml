@@ -2061,6 +2061,35 @@ data:
           siteMonitor: http://cleanuparr.media:11011/health
           namespace: media
           app: cleanuparr
+      - Unpackerr:
+          id: unpackerr
+          icon: unpackerr.png
+          description: Archive extraction
+          namespace: media
+          app: unpackerr
+          widget:
+            type: prometheusmetric
+            url: http://kube-prometheus-stack-prometheus.monitoring:9090
+            refreshInterval: 60000
+            metrics:
+            - label: Extracting
+              query: sum(unpackerr_gauges{name="extracting"})
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+            - label: Failed
+              query: sum(unpackerr_gauges{name="failed"})
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+            - label: Extracted
+              query: sum(unpackerr_gauges{name="extracted"})
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
     - Subtitles:
       - Bazarr:
           id: bazarr
@@ -2629,6 +2658,23 @@ data:
           siteMonitor: http://falco-falcosidekick-ui.falco:2802
           namespace: falco
           app: falco
+          widget:
+            type: prometheusmetric
+            url: http://kube-prometheus-stack-prometheus.monitoring:9090
+            refreshInterval: 300000
+            metrics:
+            - label: Events 24h
+              query: floor(sum(increase((sum by (pod) (falcosecurity_falcosidekick_falco_events_total) or 0 * sum by (pod) (up{job="falco-falcosidekick"} == 1))[24h:1m]))) and count(up{job="falco-falcosidekick"} == 1)
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+            - label: Output Errors 24h
+              query: floor(sum(increase((sum by (pod) (falcosecurity_falcosidekick_outputs_total{status!="ok"}) or 0 * sum by (pod) (up{job="falco-falcosidekick"} == 1))[24h:1m]))) and count(up{job="falco-falcosidekick"} == 1)
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
     - Observe:
       - Grafana:
           id: grafana
@@ -2638,13 +2684,23 @@ data:
           href: https://grafana.internal.starktastic.net
           siteMonitor: http://kube-prometheus-stack-grafana.monitoring:80/api/health
           namespace: monitoring
-          widget:
-            type: grafana
+          widgets:
+          - type: grafana
             alerts: alertmanager
             url: http://kube-prometheus-stack-grafana.monitoring:80
             username: '{{ "{{" }}HOMEPAGE_VAR_GRAFANA_USER{{ "}}" }}'
             password: '{{ "{{" }}HOMEPAGE_VAR_GRAFANA_PASS{{ "}}" }}'
             version: 2
+          - type: prometheusmetric
+            url: http://kube-prometheus-stack-prometheus.monitoring:9090
+            refreshInterval: 300000
+            metrics:
+            - label: Dashboards
+              query: max(grafana_stat_totals_dashboard)
+            - label: Active Users
+              query: max(grafana_stat_active_users)
+            - label: Alert Rules
+              query: max(grafana_stat_totals_alert_rules)
       - Prometheus:
           id: prometheus
           icon: prometheus.png
@@ -2656,6 +2712,56 @@ data:
           widget:
             type: prometheus
             url: http://kube-prometheus-stack-prometheus.monitoring:9090
+      - Telemetry:
+          id: telemetry
+          icon: mdi-chart-timeline-variant
+          href: https://grafana.internal.starktastic.net/explore
+          description: Loki, Alloy and Tempo · losses over 24 h
+          widgets:
+          - type: prometheusmetric
+            url: http://kube-prometheus-stack-prometheus.monitoring:9090
+            refreshInterval: 300000
+            metrics:
+            - label: Log Lines/s
+              query: sum(rate(loki_distributor_lines_received_total[5m]))
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+            - label: Logs Discarded
+              query: floor(sum(increase((sum by (pod) (loki_discarded_samples_total) or 0 * sum by (pod) (loki_build_info))[24h:5m]))) and count(loki_build_info)
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+            - label: Logs Dropped
+              query: floor(sum(increase((sum by (pod) (loki_write_dropped_entries_total) or 0 * sum by (pod) (alloy_build_info))[24h:5m]))) and count(alloy_build_info)
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+            - label: Alloy Unhealthy
+              query: (sum(alloy_component_controller_running_components{health_type=~"unhealthy|exited"}) or vector(0)) and count(alloy_build_info)
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+          - type: prometheusmetric
+            url: http://kube-prometheus-stack-prometheus.monitoring:9090
+            refreshInterval: 300000
+            metrics:
+            - label: Spans/s
+              query: sum(rate(tempo_distributor_spans_received_total[5m]))
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 1
+            - label: Spans Discarded
+              query: floor(sum(increase((sum by (pod) (tempo_discarded_spans_total) or 0 * sum by (pod) (tempo_build_info))[24h:5m]))) and count(tempo_build_info)
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
     - Core:
       - pgAdmin:
           id: pgadmin
@@ -2665,6 +2771,77 @@ data:
           siteMonitor: http://pgadmin-pgadmin4.databases:80
           namespace: databases
           app: pgadmin4
+          widgets:
+          - type: prometheusmetric
+            url: http://kube-prometheus-stack-prometheus.monitoring:9090
+            refreshInterval: 60000
+            metrics:
+            - label: Postgres
+              query: min(pg_up)
+              format:
+                type: percent
+                scale: 100
+                options:
+                  maximumFractionDigits: 0
+            - label: Connections
+              query: sum(pg_stat_database_numbackends) / sum(pg_settings_max_connections)
+              format:
+                type: percent
+                scale: 100
+                options:
+                  maximumFractionDigits: 0
+            - label: DB Size
+              query: sum(pg_database_size_bytes)
+              format:
+                type: bytes
+          - type: prometheusmetric
+            url: http://kube-prometheus-stack-prometheus.monitoring:9090
+            refreshInterval: 60000
+            metrics:
+            - label: Redis
+              query: min(redis_up)
+              format:
+                type: percent
+                scale: 100
+                options:
+                  maximumFractionDigits: 0
+            - label: Redis Memory
+              query: sum(redis_memory_used_bytes)
+              format:
+                type: bytes
+      - Cluster Services:
+          id: cluster-services
+          icon: mdi-cogs
+          description: Reloader, MetalLB and Sealed Secrets
+          widget:
+            type: prometheusmetric
+            url: http://kube-prometheus-stack-prometheus.monitoring:9090
+            refreshInterval: 300000
+            metrics:
+            - label: Failed Reloads 24h
+              query: floor(sum(increase((sum by (pod) (reloader_reloads_failed_total) or 0 * sum by (pod) (reloader_info))[24h:5m]))) and count(reloader_info)
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+            - label: LB In Use
+              query: sum(max by (pool) (metallb_allocator_addresses_in_use_total))
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+            - label: LB Pool
+              query: sum(max by (pool) (metallb_allocator_addresses_total))
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
+            - label: Unsynced Secrets
+              query: (count(sealed_secrets_controller_condition_info{condition="Synced"} != 1) or vector(0)) and count(sealed_secrets_controller_build_info)
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 0
     - Compute:
       - Proxmox VE:
           id: proxmox-ve

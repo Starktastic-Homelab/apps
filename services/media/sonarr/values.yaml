@@ -5,6 +5,8 @@ controllers:
         image:
           repository: lscr.io/linuxserver/sonarr
           tag: 4.0.20.3014-ls329@sha256:44b06045a98bc1f237b9ffefc4b28dab64cb29305e4a2a94875ae93b5224e4cc
+        env:
+          SONARR__SERVER__ALLOWEDHOSTS: sonarr,sonarr.media,sonarr.media.svc,sonarr.media.svc.cluster.local,sonarr.internal.starktastic.net
         probes:
           liveness:
             spec:

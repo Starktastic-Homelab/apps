@@ -1,18 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-  <defs>
-    <filter id="glow">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur"/>
-      <feFlood flood-color="#DC2626" flood-opacity="0.5" result="color"/>
-      <feComposite in="color" in2="blur" operator="in" result="shadow"/>
-      <feMerge>
-        <feMergeNode in="shadow"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-  </defs>
-  <rect width="48" height="48" rx="10" fill="#0F0F1A"/>
-  <text x="50%" y="34" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
-        font-size="26" font-weight="800" letter-spacing="1">
-    <tspan fill="#F1F5F9">S</tspan><tspan fill="#DC2626" filter="url(#glow)">T</tspan>
-  </text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><!-- The Starktastic mark. A copy of homepage/pages/household/files/favicon.svg: kustomize cannot read outside this folder. --><defs><linearGradient id="sq" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B1D33"/><stop offset="1" stop-color="#0F0F1A"/></linearGradient><radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#3B82F6" stop-opacity=".5"/><stop offset="1" stop-color="#3B82F6" stop-opacity="0"/></radialGradient><linearGradient id="st" gradientUnits="userSpaceOnUse" x1="12" y1="8" x2="36" y2="42"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".35" stop-color="#93C5FD"/><stop offset=".75" stop-color="#3B82F6"/><stop offset="1" stop-color="#22D3EE"/></linearGradient><linearGradient id="rim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".55"/><stop offset=".5" stop-color="#FFFFFF" stop-opacity=".08"/><stop offset="1" stop-color="#93C5FD" stop-opacity=".35"/></linearGradient></defs><rect x="1" y="1" width="46" height="46" rx="14" fill="url(#sq)"/><circle cx="24" cy="24" r="20" fill="url(#glow)"/><path d="M37.5 14.75H20.5A9.75 9.75 0 1 0 20.5 34.25A9.75 9.75 0 1 0 20.5 14.75" fill="none" stroke="url(#st)" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25"/><rect x="1.5" y="1.5" width="45" height="45" rx="13.5" fill="none" stroke="url(#rim)"/></svg>

@@ -3,7 +3,7 @@ controllers:
     containers:
       main:
         env:
-          SONARR__SERVER__ALLOWEDHOSTS: sonarr-ru,sonarr-ru.media,sonarr-ru.media.svc,sonarr-ru.media.svc.cluster.local,sonarr-ru.internal.starktastic.net
+          SONARR__SERVER__ALLOWEDHOSTS: sonarr-ru,sonarr-ru.media,sonarr-ru.internal.starktastic.net
     initContainers:
       retained-state:
         command:

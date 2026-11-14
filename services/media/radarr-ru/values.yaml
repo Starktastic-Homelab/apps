@@ -3,7 +3,7 @@ controllers:
     containers:
       main:
         env:
-          RADARR__SERVER__ALLOWEDHOSTS: radarr-ru,radarr-ru.media,radarr-ru.media.svc,radarr-ru.media.svc.cluster.local,radarr-ru.internal.starktastic.net
+          RADARR__SERVER__ALLOWEDHOSTS: radarr-ru,radarr-ru.media,radarr-ru.internal.starktastic.net
     initContainers:
       retained-state:
         command:

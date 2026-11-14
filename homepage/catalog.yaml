@@ -2243,9 +2243,11 @@ info:
           format: percent
   - audience: household
     openmeteo:
-      label: Home
+      label: Ramat Gan
+      # Two decimals on purpose: this repo is public and the page sends these to every browser. The forecast
+      # grid is far coarser, so more digits would only publish an address.
       latitude: 32.08
-      longitude: 34.78
+      longitude: 34.83
       timezone: Asia/Jerusalem
       units: metric
   - audience: household

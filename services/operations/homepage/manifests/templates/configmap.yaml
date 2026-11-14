@@ -463,6 +463,21 @@ data:
         }
       }
     }
+
+    /* List rows (a name and one value) have no class of their own. A gutter between the name and its value; the
+       value stays on one line and the name wraps. :not() skips the wrappers that hold rows. */
+    .service-card :is(a, div):has(> div:first-child + div:last-child > div:only-child) {
+      column-gap: 12px;
+    }
+
+    .service-card :is(a, div):has(> div:first-child + div:last-child > div:only-child):not(:has(div div div)) > div:first-child {
+      min-width: 0;
+    }
+
+    .service-card :is(a, div):has(> div:first-child + div:last-child > div:only-child):not(:has(div div div)) > div:last-child {
+      flex: none;
+      white-space: nowrap;
+    }
     /* no-hook:end */
     /* ==========================================================================
        Household layer: brand blue on navy, phone-first ("premium app home screen").
@@ -892,6 +907,24 @@ data:
       #inner_wrapper button:has(+ #information-widgets) {
         z-index: 31; /* the search disc sits above the tab bar's scrim */
       }
+
+      /* lists (the two Jellyfin tiles) become a grouped list: 44 px rows split by hairlines, the whole row is the target */
+      .service-card :is(a, div):has(> div:first-child + div:last-child > div:only-child) {
+        min-height: 44px;
+        margin: 0 4px;
+        padding: 0 2px;
+        border-radius: 0;
+        background: none;
+        box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.08);
+      }
+
+      .service-card :is(a, div):has(> div:first-child + div:last-child > div:only-child):last-child {
+        box-shadow: none;
+      }
+
+      .service-card a:has(> div:first-child + div:last-child > div:only-child):active {
+        background: rgb(255 255 255 / 0.07);
+      }
     }
 
     /* with the links in the header, their group leaves no box, heading or margin under the tabs */
@@ -1039,6 +1072,56 @@ data:
           description: Movies, TV & anime
           href: https://benplus.app
           siteMonitor: http://jellyfin-main.media:8096
+          widget:
+            type: customapi
+            url: http://jellyfin-main.media:8096/Items/Counts
+            headers:
+              Authorization: MediaBrowser Token="{{ "{{" }}HOMEPAGE_VAR_JELLYFIN_HOUSEHOLD_TOKEN{{ "}}" }}"
+            refreshInterval: 3600000
+            mappings:
+            - field: MovieCount
+              label: Movies
+              format: number
+            - field: SeriesCount
+              label: Series
+              format: number
+            - field: EpisodeCount
+              label: Episodes
+              format: number
+      - New movies:
+          id: new-movies
+          icon: mdi-movie-open
+          description: Latest additions
+          widget:
+            type: customapi
+            url: http://jellyfin-main.media:8096/Items/Latest?IncludeItemTypes=Movie&Limit=6&Fields=DateCreated
+            headers:
+              Authorization: MediaBrowser Token="{{ "{{" }}HOMEPAGE_VAR_JELLYFIN_HOUSEHOLD_TOKEN{{ "}}" }}"
+            refreshInterval: 900000
+            display: dynamic-list
+            mappings:
+              name: Name
+              label: DateCreated
+              format: relativeDate
+              limit: 6
+              target: https://benplus.app/web/#/details?id={Id}&serverId={ServerId}
+      - New episodes:
+          id: new-episodes
+          icon: mdi-television-play
+          description: Latest additions
+          widget:
+            type: customapi
+            url: http://jellyfin-main.media:8096/Items/Latest?IncludeItemTypes=Episode&groupItems=false&Limit=6&Fields=DateCreated
+            headers:
+              Authorization: MediaBrowser Token="{{ "{{" }}HOMEPAGE_VAR_JELLYFIN_HOUSEHOLD_TOKEN{{ "}}" }}"
+            refreshInterval: 900000
+            display: dynamic-list
+            mappings:
+              name: SeriesName
+              label: DateCreated
+              format: relativeDate
+              limit: 6
+              target: https://benplus.app/web/#/details?id={Id}&serverId={ServerId}
     - Coming Up:
       - Calendar:
           id: calendar
@@ -1099,8 +1182,8 @@ data:
           widget:
             type: calibreweb
             url: http://calibre-web.media:8083
-            username: '{{ "{{" }}HOMEPAGE_VAR_CALIBRE_USER{{ "}}" }}'
-            password: '{{ "{{" }}HOMEPAGE_VAR_CALIBRE_PASS{{ "}}" }}'
+            username: '{{ "{{" }}HOMEPAGE_VAR_CALIBRE_HOUSEHOLD_USER{{ "}}" }}'
+            password: '{{ "{{" }}HOMEPAGE_VAR_CALIBRE_HOUSEHOLD_PASS{{ "}}" }}'
       - Shelfmark:
           id: shelfmark
           icon: mdi-bookshelf

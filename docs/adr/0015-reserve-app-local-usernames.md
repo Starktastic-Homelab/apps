@@ -18,7 +18,8 @@ only through a link mailed to their address.
 - "Invite - Valid Username" (`infrastructure/controllers/authentik/manifests/blueprints/invitation-flow.yaml`) rejects a
   reserved set, compared lowercased, with "This username is reserved.": `admin`, `administrator`, `akadmin`, `guest` and
   `root`. A one-time account review adds, in lowercase, any app-local account name that isn't an Authentik username and
-  can't be renamed or removed.
+  can't be renamed or removed. Since 2026-11-14 the set also holds `homepage-household`, the household dashboard's
+  local user in Calibre-Web and Jellyfin (ADR 0018).
 - App-local accounts in those apps carry their owner's Authentik username, or their name is on the reserved set.
 - Authentik users are deactivated, not deleted. The uniqueness check (`ak_user_by`) counts inactive users, so the name
   stays taken.

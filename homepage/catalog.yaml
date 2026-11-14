@@ -501,6 +501,24 @@ tiles:
       admin:
         description: Movies, TV & anime · recent playback
     widgets:
+      # Household's library totals, on the token of the non-admin user `homepage-household` (ADR 0018). Jellyfin
+      # answers for the token's own user, so the totals cover only the libraries that user was given.
+      - audience: household-only
+        type: customapi
+        url: http://jellyfin-main.media:8096/Items/Counts
+        headers: &jellyfin_household_auth
+          Authorization: MediaBrowser Token="{{HOMEPAGE_VAR_JELLYFIN_HOUSEHOLD_TOKEN}}"
+        refreshInterval: 3600000
+        mappings:
+          - field: MovieCount
+            label: Movies
+            format: number
+          - field: SeriesCount
+            label: Series
+            format: number
+          - field: EpisodeCount
+            label: Episodes
+            format: number
       - type: customapi
         url: http://jellyfin-main.media:8096/System/Info
         headers: &jellyfin_auth
@@ -533,6 +551,46 @@ tiles:
           label: Date
           format: relativeDate
           limit: 6
+  # Jellyfin's newest arrivals. Tiles of their own, so no label hangs on a widget's position (ADR 0020). Both
+  # pages run them on the household token: Items/Latest answers for the token's own user, and admin's API key
+  # has no user. No link on the tile; each row opens its item.
+  new-movies:
+    name: New movies
+    audience: household
+    icon: mdi-movie-open
+    description: Latest additions
+    widgets:
+      - audience: household
+        type: customapi
+        url: http://jellyfin-main.media:8096/Items/Latest?IncludeItemTypes=Movie&Limit=6&Fields=DateCreated
+        headers: *jellyfin_household_auth
+        refreshInterval: 900000
+        display: dynamic-list
+        mappings:
+          name: Name
+          label: DateCreated
+          format: relativeDate
+          limit: 6
+          target: https://benplus.app/web/#/details?id={Id}&serverId={ServerId}
+  # groupItems=false keeps every row an episode, so SeriesName is always set.
+  new-episodes:
+    name: New episodes
+    audience: household
+    icon: mdi-television-play
+    description: Latest additions
+    widgets:
+      - audience: household
+        type: customapi
+        url: http://jellyfin-main.media:8096/Items/Latest?IncludeItemTypes=Episode&groupItems=false&Limit=6&Fields=DateCreated
+        headers: *jellyfin_household_auth
+        refreshInterval: 900000
+        display: dynamic-list
+        mappings:
+          name: SeriesName
+          label: DateCreated
+          format: relativeDate
+          limit: 6
+          target: https://benplus.app/web/#/details?id={Id}&serverId={ServerId}
   dispatcharr:
     name: Dispatcharr
     source: services/media/dispatcharr
@@ -596,11 +654,12 @@ tiles:
     icon: calibre-web.png
     description: E-book library
     widgets:
+      # One login for both pages: the Calibre-Web user `homepage-household`, which has no roles (ADR 0018).
       - audience: household
         type: calibreweb
         url: http://calibre-web.media:8083
-        username: "{{HOMEPAGE_VAR_CALIBRE_USER}}"
-        password: "{{HOMEPAGE_VAR_CALIBRE_PASS}}"
+        username: "{{HOMEPAGE_VAR_CALIBRE_HOUSEHOLD_USER}}"
+        password: "{{HOMEPAGE_VAR_CALIBRE_HOUSEHOLD_PASS}}"
   immich:
     name: Immich
     audience: household
@@ -1984,6 +2043,8 @@ pages:
           - name: Watch
             items:
               - jellyfin
+              - new-movies
+              - new-episodes
           - name: Coming Up
             items:
               - calendar
@@ -2099,6 +2160,8 @@ pages:
           - name: Watch
             items:
               - jellyfin
+              - new-movies
+              - new-episodes
               - dispatcharr
               - cineplete
           - name: Listen

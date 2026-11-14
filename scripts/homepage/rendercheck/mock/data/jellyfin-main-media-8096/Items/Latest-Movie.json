@@ -1,0 +1,68 @@
+[
+ {
+  "Name": "One Battle After Another",
+  "ServerId": "4f1a2b3c4d5e6f708192a3b4c5d6e7f8",
+  "Id": "9b000000000000000000000000000001",
+  "DateCreated": "{{iso:-3h}}",
+  "ProductionYear": 2025,
+  "RunTimeTicks": 97200000000,
+  "IsFolder": false,
+  "Type": "Movie",
+  "MediaType": "Video"
+ },
+ {
+  "Name": "Sinners",
+  "ServerId": "4f1a2b3c4d5e6f708192a3b4c5d6e7f8",
+  "Id": "9b000000000000000000000000000002",
+  "DateCreated": "{{iso:-9h}}",
+  "ProductionYear": 2025,
+  "RunTimeTicks": 82200000000,
+  "IsFolder": false,
+  "Type": "Movie",
+  "MediaType": "Video"
+ },
+ {
+  "Name": "Frankenstein",
+  "ServerId": "4f1a2b3c4d5e6f708192a3b4c5d6e7f8",
+  "Id": "9b000000000000000000000000000003",
+  "DateCreated": "{{iso:-1d}}",
+  "ProductionYear": 2025,
+  "RunTimeTicks": 90000000000,
+  "IsFolder": false,
+  "Type": "Movie",
+  "MediaType": "Video"
+ },
+ {
+  "Name": "Weapons",
+  "ServerId": "4f1a2b3c4d5e6f708192a3b4c5d6e7f8",
+  "Id": "9b000000000000000000000000000004",
+  "DateCreated": "{{iso:-2d}}",
+  "ProductionYear": 2025,
+  "RunTimeTicks": 76800000000,
+  "IsFolder": false,
+  "Type": "Movie",
+  "MediaType": "Video"
+ },
+ {
+  "Name": "Москва слезам не верит",
+  "ServerId": "4f1a2b3c4d5e6f708192a3b4c5d6e7f8",
+  "Id": "9b000000000000000000000000000005",
+  "DateCreated": "{{iso:-3d}}",
+  "ProductionYear": 1979,
+  "RunTimeTicks": 90000000000,
+  "IsFolder": false,
+  "Type": "Movie",
+  "MediaType": "Video"
+ },
+ {
+  "Name": "Project Hail Mary",
+  "ServerId": "4f1a2b3c4d5e6f708192a3b4c5d6e7f8",
+  "Id": "9b000000000000000000000000000006",
+  "DateCreated": "{{iso:-5d}}",
+  "ProductionYear": 2026,
+  "RunTimeTicks": 93600000000,
+  "IsFolder": false,
+  "Type": "Movie",
+  "MediaType": "Video"
+ }
+]

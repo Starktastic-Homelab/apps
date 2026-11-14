@@ -44,10 +44,16 @@ household as links with a status dot, and household no longer holds either Seerr
    reserved name (ADR 0015). The table records every household credential, without its value or the
    `HOMEPAGE_VAR_` prefix:
 
-   | Credential                                         | Minted as                                     | Household reaches        |
-   | -------------------------------------------------- | --------------------------------------------- | ------------------------ |
-   | `SONARR_KEY`, `RADARR_KEY`                         | Each instance's API key, shared with admin    | The two iCal feeds       |
-   | `CALIBRE_HOUSEHOLD_USER`, `CALIBRE_HOUSEHOLD_PASS` | A Calibre-Web local user with no roles        | `/opds/stats`            |
+   | Credential                                         | Minted as                                                          | Household reaches                                       |
+   | -------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------- |
+   | `SONARR_KEY`, `RADARR_KEY`                         | Each instance's API key, shared with admin                         | The two iCal feeds                                      |
+   | `CALIBRE_HOUSEHOLD_USER`, `CALIBRE_HOUSEHOLD_PASS` | The Calibre-Web local user `homepage-household`, with no roles     | `/opds/stats`                                           |
+   | `JELLYFIN_HOUSEHOLD_TOKEN`                         | Access token of the Jellyfin local non-admin user of the same name | `Items/Counts`, `Items/Latest`, in that user's libraries |
+
+   Admin may run a widget on a household credential, which is never the wider one: it holds the Jellyfin token for
+   the same two lists (its own API key has no user to answer `Items/Latest` for), and since 2026-11-14 it signs in to
+   Calibre-Web as the same no-role user, so Homepage holds one Calibre-Web login. A new sign-in to Jellyfin with the
+   device id `homepage-household` replaces the token: seal the new one into both Secrets.
 
 2. **Widgets.** Any widget type and tile key, except three that no credential can scope: `prometheusmetric` (the browser
    picks the PromQL and Prometheus has no login; a `customapi` with a fixed query renders the same tile), `prometheus`

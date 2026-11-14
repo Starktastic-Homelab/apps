@@ -426,6 +426,24 @@ html:root {
   #inner_wrapper button:has(+ #information-widgets) {
     z-index: 31; /* the search disc sits above the tab bar's scrim */
   }
+
+  /* lists (the two Jellyfin tiles) become a grouped list: 44 px rows split by hairlines, the whole row is the target */
+  .service-card :is(a, div):has(> div:first-child + div:last-child > div:only-child) {
+    min-height: 44px;
+    margin: 0 4px;
+    padding: 0 2px;
+    border-radius: 0;
+    background: none;
+    box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.08);
+  }
+
+  .service-card :is(a, div):has(> div:first-child + div:last-child > div:only-child):last-child {
+    box-shadow: none;
+  }
+
+  .service-card a:has(> div:first-child + div:last-child > div:only-child):active {
+    background: rgb(255 255 255 / 0.07);
+  }
 }
 
 /* with the links in the header, their group leaves no box, heading or margin under the tabs */

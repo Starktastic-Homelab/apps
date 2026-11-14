@@ -203,7 +203,8 @@ entries:
 
         # App-local accounts that aren't Authentik users (ADR 0015): CWA, Navidrome and
         # Shelfmark link SSO logins to existing accounts by username. Lowercase entries only.
-        reserved = {"admin", "administrator", "akadmin", "guest", "root"}
+        # homepage-household is the household dashboard's local user in Calibre-Web and Jellyfin (ADR 0018).
+        reserved = {"admin", "administrator", "akadmin", "guest", "homepage-household", "root"}
 
         username = request.context.get("prompt_data", {}).get("username", "")
         if len(username) < 3:

@@ -1367,6 +1367,32 @@ tiles:
     widgets:
       - type: prometheus
         url: http://kube-prometheus-stack-prometheus.monitoring:9090
+      # Prometheus about itself, job kube-prometheus-stack-prometheus (proven live 2026-11-14,
+      # platform-metrics-probe, third batch). Config OK reads 100% when the last config reload worked. No rule in
+      # Git's own rule files reads these, so no highlight.
+      - type: prometheusmetric
+        url: http://kube-prometheus-stack-prometheus.monitoring:9090
+        refreshInterval: 60000
+        metrics:
+          - label: Config OK
+            query: min(prometheus_config_last_reload_successful{job="kube-prometheus-stack-prometheus"})
+            format:
+              type: percent
+              scale: 100
+              options:
+                maximumFractionDigits: 0
+          - label: Series
+            query: max(prometheus_tsdb_head_series{job="kube-prometheus-stack-prometheus"})
+            format: &whole
+              type: number
+              options:
+                maximumFractionDigits: 0
+          - label: Rule Fails 24h
+            query: sum(increase(prometheus_rule_evaluation_failures_total{job="kube-prometheus-stack-prometheus"}[24h]))
+            format: *whole
+          - label: Dropped Alerts 24h
+            query: sum(increase(prometheus_notifications_dropped_total{job="kube-prometheus-stack-prometheus"}[24h]))
+            format: *whole
   # Logs and traces by their own metrics; Loki itself is out of Homepage's reach (NetworkPolicy).
   telemetry:
     name: Telemetry
@@ -1483,6 +1509,84 @@ tiles:
               type: number
               options:
                 maximumFractionDigits: 0
+      # The same count split by Falco's priority. Proof: priority_raw carries critical, error, warning, notice and
+      # informational (proven live 2026-11-14, platform-metrics-probe, third batch). No alert rule in Git reads
+      # these, so no highlight.
+      - type: prometheusmetric
+        url: http://kube-prometheus-stack-prometheus.monitoring:9090
+        refreshInterval: 300000
+        metrics:
+          - label: Critical 24h
+            query:
+              floor(sum(increase((sum by (pod) (falcosecurity_falcosidekick_falco_events_total{priority_raw="critical"})
+              or 0 * sum by (pod) (up{job="falco-falcosidekick"} == 1))[24h:1m]))) and
+              count(up{job="falco-falcosidekick"} == 1)
+            format: *whole
+          - label: Error 24h
+            query:
+              floor(sum(increase((sum by (pod) (falcosecurity_falcosidekick_falco_events_total{priority_raw="error"}) or
+              0 * sum by (pod) (up{job="falco-falcosidekick"} == 1))[24h:1m]))) and count(up{job="falco-falcosidekick"}
+              == 1)
+            format: *whole
+          - label: Warning 24h
+            query:
+              floor(sum(increase((sum by (pod) (falcosecurity_falcosidekick_falco_events_total{priority_raw="warning"})
+              or 0 * sum by (pod) (up{job="falco-falcosidekick"} == 1))[24h:1m]))) and
+              count(up{job="falco-falcosidekick"} == 1)
+            format: *whole
+          - label: Notice 24h
+            query:
+              floor(sum(increase((sum by (pod) (falcosecurity_falcosidekick_falco_events_total{priority_raw="notice"})
+              or 0 * sum by (pod) (up{job="falco-falcosidekick"} == 1))[24h:1m]))) and
+              count(up{job="falco-falcosidekick"} == 1)
+            format: *whole
+  # No page of its own, so no link. Every query is proven live (2026-11-14, platform-metrics-probe, third batch):
+  # job cert-manager, certificates labelled by name and exported_namespace.
+  # Not Ready mirrors CertManagerCertNotReady (critical) and Next Expiry mirrors CertManagerCertExpiringSoon
+  # (warning, under 10 days), both in infrastructure/system/cert-manager.
+  cert-manager:
+    name: cert-manager
+    icon: mdi-certificate
+    description: Certificates and their issuers
+    namespace: cert-manager
+    app: cert-manager
+    widgets:
+      - type: prometheusmetric
+        url: http://kube-prometheus-stack-prometheus.monitoring:9090
+        refreshInterval: 60000
+        metrics:
+          - label: Certificates
+            query: count(max by (exported_namespace, name) (certmanager_certificate_ready_status))
+            format: *whole
+          - label: Not Ready
+            query:
+              (count(max by (exported_namespace, name) (certmanager_certificate_ready_status{condition="True"}) == 0) or
+              vector(0)) and count(certmanager_certificate_ready_status)
+            format: *whole
+          - label: Next Expiry
+            query: min(certmanager_certificate_expiration_timestamp_seconds > 0) - time()
+            format:
+              type: number
+              scale: 1/86400
+              suffix: " days"
+              options:
+                maximumFractionDigits: 0
+          - label: Sync Errors 24h
+            query:
+              (sum(increase(certmanager_controller_sync_error_count[24h])) or vector(0)) and
+              count(up{job="cert-manager"} == 1)
+            format: *whole
+        highlight:
+          Not Ready:
+            numeric:
+              - level: danger
+                when: gt
+                value: 0
+          Next Expiry:
+            numeric:
+              - level: warn
+                when: lt
+                value: 10
   # Argo CD's host comes from infrastructure/configs, not a services app.yaml: explicit.
   argo-cd:
     name: Argo CD
@@ -1516,6 +1620,45 @@ tiles:
           Unhealthy:
             numeric:
               - level: danger
+                when: gt
+                value: 0
+      # What the controllers themselves report. Proven live (2026-11-14, platform-metrics-probe, third batch):
+      # argocd_app_sync_total by phase, argocd_app_condition, argocd_notifications_deliveries_total by succeeded,
+      # argocd_appset_info by resource_update_status. Comparison Errors mirrors ArgoCDAppComparisonFailing and
+      # Notify Fails 1h mirrors ArgoCDNotificationDeliveryFailing, both warnings.
+      - type: prometheusmetric
+        url: http://kube-prometheus-stack-prometheus.monitoring:9090
+        refreshInterval: 60000
+        metrics:
+          - label: Sync Fails 24h
+            query:
+              (sum(increase(argocd_app_sync_total{phase!="Succeeded"}[24h])) or vector(0)) and count(argocd_app_info)
+            format: *whole
+          - label: Comparison Errors
+            query:
+              (count(max by (namespace, name, project) (argocd_app_info{sync_status="Unknown"}) or max by (namespace,
+              name, project) (argocd_app_condition{condition="ComparisonError"})) or vector(0)) and
+              count(argocd_app_info)
+            format: *whole
+          - label: Notify Fails 1h
+            query:
+              (sum(increase(argocd_notifications_deliveries_total{succeeded="false"}[1h])) or vector(0)) and
+              count(argocd_app_info)
+            format: *whole
+          - label: AppSet Errors
+            query:
+              (count(argocd_appset_info{resource_update_status!="ApplicationSetUpToDate"}) or vector(0)) and
+              count(argocd_appset_info)
+            format: *whole
+        highlight:
+          Comparison Errors:
+            numeric:
+              - level: warn
+                when: gt
+                value: 0
+          Notify Fails 1h:
+            numeric:
+              - level: warn
                 when: gt
                 value: 0
   # Off-cluster from here through AdGuard Home (GitHub PRs, Proxmox, nodes, OPNsense): explicit.
@@ -1799,6 +1942,49 @@ tiles:
               - level: warn
                 when: lt
                 value: 10
+      # Traefik's own health, job traefik-metrics (proven live 2026-11-14, platform-metrics-probe, third batch):
+      # traefik_service_requests_total by code, traefik_open_connections by entrypoint (the metrics entrypoint is
+      # left out), traefik_config_last_reload_success. No alert rule in Git reads these, so no highlight.
+      - type: prometheusmetric
+        url: http://kube-prometheus-stack-prometheus.monitoring:9090
+        refreshInterval: 30000
+        metrics:
+          - label: 5xx Rate
+            query:
+              (sum(rate(traefik_service_requests_total{code=~"5.."}[5m])) or vector(0)) and
+              count(up{job="traefik-metrics"} == 1)
+            format:
+              type: number
+              suffix: " req/s"
+              options:
+                maximumFractionDigits: 2
+          - label: Open Conns
+            query: sum(traefik_open_connections{entrypoint!="metrics"})
+            format: *whole
+          - label: Config OK
+            query: min(traefik_config_last_reload_success)
+            format:
+              type: percent
+              scale: 100
+              options:
+                maximumFractionDigits: 0
+  # Blackbox targets that fail right now, by target and tier. The list is empty when all answer. Proof:
+  # probe_success with labels instance and tier (proven live 2026-11-14, platform-metrics-probe, third batch); the
+  # Edge & WAN card counts the same series.
+  failing-probes:
+    name: Failing Probes
+    icon: mdi-lan-disconnect
+    description: Targets that do not answer
+    widgets:
+      - type: customapi
+        url: http://kube-prometheus-stack-prometheus.monitoring:9090/api/v1/query?query=probe_success%20%3D%3D%200
+        refreshInterval: 30000
+        display: dynamic-list
+        mappings:
+          items: data.result
+          name: metric.instance
+          label: metric.tier
+          limit: 8
   # Off-cluster: explicit.
   truenas:
     name: TrueNAS
@@ -1912,6 +2098,24 @@ tiles:
               type: number
               options:
                 maximumFractionDigits: 0
+      # The Intel GPU as Kubernetes sees it. Proof: kube_node_status_allocatable and
+      # kube_pod_container_resource_requests carry resource="gpu_intel_com_i915" (proven live 2026-11-14,
+      # platform-metrics-probe, third batch). Requested counts every pod that asks for one, running or not.
+      - type: prometheusmetric
+        url: http://kube-prometheus-stack-prometheus.monitoring:9090
+        refreshInterval: 300000
+        metrics:
+          - label: GPU Nodes
+            query: count(max by (node) (kube_node_status_allocatable{resource="gpu_intel_com_i915"}) > 0)
+            format: *whole
+          - label: GPU Slots
+            query: sum(max by (node) (kube_node_status_allocatable{resource="gpu_intel_com_i915"}))
+            format: *whole
+          - label: GPU Requested
+            query:
+              sum(max by (namespace, pod, container)
+              (kube_pod_container_resource_requests{resource="gpu_intel_com_i915"})) or vector(0)
+            format: *whole
 bookmarks:
   bm-my-account:
     name: My Account
@@ -2271,11 +2475,13 @@ pages:
           - name: Edge
             items:
               - traefik
+              - failing-probes
           - name: Guard
             items:
               - authentik
               - vaultwarden
               - falco
+              - cert-manager
           - name: Observe
             items:
               - grafana

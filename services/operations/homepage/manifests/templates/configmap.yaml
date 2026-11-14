@@ -591,6 +591,22 @@ data:
         var(--d1-depth);
     }
 
+    /* the heart beside "Support the server": sized to the small-caps label, not Homepage's 28 px */
+    .bookmark-group-icon {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Support links: a little of the Jellyfin card's glow, so the two rows are noticed without shouting */
+    #bm-buy-me-a-coffee > a,
+    #bm-paybox > a {
+      box-shadow:
+        inset 0 1px 0 0 rgb(255 255 255 / 0.16),
+        inset 0 0 0 1px rgb(var(--d1-acc-hi) / 0.3),
+        0 18px 40px -26px rgb(var(--d1-acc) / 0.9),
+        var(--d1-depth);
+    }
+
     /* ---------- Phone: floating glass tab bar at the thumb, 2-up launcher tiles ---------- */
     @media (max-width: 639px) {
       .information-widget-openmeteo {
@@ -785,6 +801,7 @@ data:
         tab: Watch
         style: row
         columns: 2
+        icon: mdi-heart-outline
       Listen:
         tab: Library
         style: row
@@ -1017,11 +1034,13 @@ data:
       - Buy Me a Coffee:
         - id: bm-buy-me-a-coffee
           abbr: BC
+          icon: si-buymeacoffee-#FFDD00
           href: https://buymeacoffee.com/benfaingold
           description: By card
       - PayBox:
         - id: bm-paybox
           abbr: PB
+          icon: mdi-piggy-bank-outline-#67E8F9
           href: https://links.payboxapp.com/MgzMt5tR27b
           description: Server fund group
     - Links:

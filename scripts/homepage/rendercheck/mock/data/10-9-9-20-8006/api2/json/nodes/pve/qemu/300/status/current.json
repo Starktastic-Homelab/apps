@@ -1,0 +1,10 @@
+{
+ "data": {
+  "vmid": 300,
+  "status": "running",
+  "qmpstatus": "running",
+  "cpu": 0.024,
+  "mem": 2863311530,
+  "uptime": 1209812
+ }
+}

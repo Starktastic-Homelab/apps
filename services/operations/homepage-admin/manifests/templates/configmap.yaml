@@ -1622,14 +1622,15 @@ data:
           description: Latest additions
           widget:
             type: customapi
-            url: http://jellyfin-main.media:8096/Items/Latest?IncludeItemTypes=Episode&groupItems=false&Limit=6&Fields=DateCreated
+            url: http://jellyfin-main.media:8096/Items?IncludeItemTypes=Series&Recursive=true&SortBy=DateLastContentAdded&SortOrder=Descending&Limit=6&Fields=DateLastMediaAdded
             headers:
               Authorization: MediaBrowser Token="{{ "{{" }}HOMEPAGE_VAR_JELLYFIN_HOUSEHOLD_TOKEN{{ "}}" }}"
             refreshInterval: 900000
             display: dynamic-list
             mappings:
-              name: SeriesName
-              label: DateCreated
+              items: Items
+              name: Name
+              label: DateLastMediaAdded
               format: relativeDate
               limit: 6
               target: https://benplus.app/web/#/details?id={Id}&serverId={ServerId}
@@ -2956,6 +2957,29 @@ data:
           widget:
             type: customapi
             url: https://10.9.9.20:8006/api2/json/nodes/pve/qemu/202/status/current
+            headers:
+              Authorization: PVEAPIToken={{ "{{" }}HOMEPAGE_VAR_PROXMOX_USER{{ "}}" }}={{ "{{" }}HOMEPAGE_VAR_PROXMOX_PASS{{ "}}" }}
+            refreshInterval: 60000
+            mappings:
+            - field: data.cpu
+              label: CPU
+              scale: 100
+              format: percent
+            - field: data.mem
+              label: Memory
+              format: bytes
+            - field: data.uptime
+              label: Uptime
+              format: duration
+      - Runner:
+          id: runner
+          icon: mdi-github
+          description: CI and live operations
+          proxmoxNode: pve
+          proxmoxVMID: 300
+          widget:
+            type: customapi
+            url: https://10.9.9.20:8006/api2/json/nodes/pve/qemu/300/status/current
             headers:
               Authorization: PVEAPIToken={{ "{{" }}HOMEPAGE_VAR_PROXMOX_USER{{ "}}" }}={{ "{{" }}HOMEPAGE_VAR_PROXMOX_PASS{{ "}}" }}
             refreshInterval: 60000

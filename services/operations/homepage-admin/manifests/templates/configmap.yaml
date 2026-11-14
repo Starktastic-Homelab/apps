@@ -2722,11 +2722,12 @@ data:
                 type: number
                 options:
                   maximumFractionDigits: 0
-            - label: Config OK
-              query: min(traefik_config_last_reload_success)
+            - label: Last Reload
+              query: time() - max(traefik_config_last_reload_success)
               format:
-                type: percent
-                scale: 100
+                type: number
+                scale: 1/60
+                suffix: ' min'
                 options:
                   maximumFractionDigits: 0
       - Failing Probes:

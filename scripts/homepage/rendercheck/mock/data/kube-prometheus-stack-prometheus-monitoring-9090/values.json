@@ -79,7 +79,7 @@
  "(count(argocd_appset_info{resource_update_status!=\"ApplicationSetUpToDate\"}) or vector(0)) and count(argocd_appset_info)": 0,
  "(sum(rate(traefik_service_requests_total{code=~\"5..\"}[5m])) or vector(0)) and count(up{job=\"traefik-metrics\"} == 1)": 0.02,
  "sum(traefik_open_connections{entrypoint!=\"metrics\"})": 37,
- "min(traefik_config_last_reload_success)": 1,
+ "time() - max(traefik_config_last_reload_success)": 252,
  "count(max by (node) (kube_node_status_allocatable{resource=\"gpu_intel_com_i915\"}) > 0)": 2,
  "sum(max by (node) (kube_node_status_allocatable{resource=\"gpu_intel_com_i915\"}))": 20,
  "sum(max by (namespace, pod, container) (kube_pod_container_resource_requests{resource=\"gpu_intel_com_i915\"})) or vector(0)": 3,

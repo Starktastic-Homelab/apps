@@ -1944,7 +1944,10 @@ tiles:
                 value: 10
       # Traefik's own health, job traefik-metrics (proven live 2026-11-14, platform-metrics-probe, third batch):
       # traefik_service_requests_total by code, traefik_open_connections by entrypoint (the metrics entrypoint is
-      # left out), traefik_config_last_reload_success. No alert rule in Git reads these, so no highlight.
+      # left out), traefik_config_last_reload_success. That last one is the Unix time of the last reload that
+      # worked, not a 0/1 flag (seen live 2026-11-14), so the block shows its age. Traefik reloads whenever a route
+      # or an endpoint changes; an age that only grows while pods restart means reloads have stopped working.
+      # No alert rule in Git reads these, so no highlight.
       - type: prometheusmetric
         url: http://kube-prometheus-stack-prometheus.monitoring:9090
         refreshInterval: 30000
@@ -1961,11 +1964,12 @@ tiles:
           - label: Open Conns
             query: sum(traefik_open_connections{entrypoint!="metrics"})
             format: *whole
-          - label: Config OK
-            query: min(traefik_config_last_reload_success)
+          - label: Last Reload
+            query: time() - max(traefik_config_last_reload_success)
             format:
-              type: percent
-              scale: 100
+              type: number
+              scale: 1/60
+              suffix: " min"
               options:
                 maximumFractionDigits: 0
   # Blackbox targets that fail right now, by target and tier. The list is empty when all answer. Proof:

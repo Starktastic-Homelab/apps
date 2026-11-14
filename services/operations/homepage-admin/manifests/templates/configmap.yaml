@@ -2695,8 +2695,6 @@ data:
             url: http://kube-prometheus-stack-prometheus.monitoring:9090
             refreshInterval: 300000
             metrics:
-            - label: Dashboards
-              query: max(grafana_stat_totals_dashboard)
             - label: Active Users
               query: max(grafana_stat_active_users)
             - label: Alert Rules

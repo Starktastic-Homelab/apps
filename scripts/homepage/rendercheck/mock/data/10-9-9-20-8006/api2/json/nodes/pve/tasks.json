@@ -1,0 +1,10 @@
+{
+ "data": [
+  {"upid": "UPID:pve:0012A4F1:0A1B2C3D:00000001:vzdump::root@pam:", "node": "pve", "pid": 1221873, "pstart": 169560125, "starttime": {{epoch:-5h}}, "endtime": {{epoch:-4h}}, "type": "vzdump", "id": "", "user": "root@pam", "status": "OK"},
+  {"upid": "UPID:pve:0010F2B7:09A3F1C2:00000002:vzdump::root@pam:", "node": "pve", "pid": 1110711, "pstart": 161739202, "starttime": {{epoch:-29h}}, "endtime": {{epoch:-28h}}, "type": "vzdump", "id": "", "user": "root@pam", "status": "OK"},
+  {"upid": "UPID:pve:000F4C19:092CB7A1:00000003:vzdump:100:root@pam:", "node": "pve", "pid": 1002521, "pstart": 153925537, "starttime": {{epoch:-53h}}, "endtime": {{epoch:-52h}}, "type": "vzdump", "id": "100", "user": "root@pam", "status": "WARNINGS: 1"},
+  {"upid": "UPID:pve:000E01A2:08B57D80:00000004:vzdump::root@pam:", "node": "pve", "pid": 917922, "pstart": 146111872, "starttime": {{epoch:-77h}}, "endtime": {{epoch:-76h}}, "type": "vzdump", "id": "", "user": "root@pam", "status": "OK"},
+  {"upid": "UPID:pve:000CB12F:083E4360:00000005:vzdump::root@pam:", "node": "pve", "pid": 831791, "pstart": 138298208, "starttime": {{epoch:-101h}}, "endtime": {{epoch:-100h}}, "type": "vzdump", "id": "", "user": "root@pam", "status": "job errors"}
+ ],
+ "total": 5
+}

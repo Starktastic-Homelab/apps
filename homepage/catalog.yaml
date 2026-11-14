@@ -1280,22 +1280,20 @@ tiles:
     description: Dashboards & alerting
     app: grafana
     widgets:
-      - type: grafana
-        alerts: alertmanager
-        url: http://kube-prometheus-stack-grafana.monitoring:80
-        username: "{{HOMEPAGE_VAR_GRAFANA_USER}}"
-        password: "{{HOMEPAGE_VAR_GRAFANA_PASS}}"
-        version: 2
-      # Grafana's own counters, needing no login. No dashboard count here: the widget above already shows one.
+      # Grafana's own counters from Prometheus. They replace the native widget, which needed a Grafana Server
+      # Admin login; firing alerts are on Pulse (Alerts), read from Alertmanager. No alert-rule count:
+      # grafana_stat_totals_alert_rules counts rules made in Grafana, and the rules here are Prometheus'.
       - type: prometheusmetric
         url: http://kube-prometheus-stack-prometheus.monitoring:9090
         refreshInterval: 300000
         metrics:
           # Proof: grafana_stat_* (proven live 2026-11-14, platform-metrics-probe).
+          - label: Dashboards
+            query: max(grafana_stat_totals_dashboard)
+          - label: Data Sources
+            query: max(grafana_stat_totals_datasource)
           - label: Active Users
             query: max(grafana_stat_active_users)
-          - label: Alert Rules
-            query: max(grafana_stat_totals_alert_rules)
   # The link opens Grafana Explore and the monitor hits Prometheus directly, so both stay explicit.
   prometheus:
     name: Prometheus

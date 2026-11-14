@@ -19,7 +19,7 @@ Log in with the username and password you created during sign-up.
 
 REQUEST NEW CONTENT
 
-Can't find something? Use Jellyseerr to request movies and TV shows - they'll be added automatically.
+Can't find something? Use Seerr to request movies and TV shows - they'll be added automatically.
 {% if media_preference == "original" or media_preference == "both" %}
 - https://request.benplus.app - Original content{% endif %}{% if media_preference == "ru" %}
 - https://request-ru.benplus.app - Русский дубляж{% elif media_preference == "both" %}

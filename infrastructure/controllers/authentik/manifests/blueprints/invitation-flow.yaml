@@ -148,7 +148,7 @@ entries:
             '<p>Server address: <strong style="color: #F4F6FF;">https://benplus.app</strong></p>'
             '<p>Log in with the username and password you created during sign-up.</p>'
             '<h3 style="font-size: 16px; color: #F4F6FF; margin-top: 20px;">Request New Content</h3>'
-            '<p>Can\u2019t find something? Use Jellyseerr to request movies and TV shows &mdash; they\u2019ll be added automatically.</p>'
+            '<p>Can\u2019t find something? Use Seerr to request movies and TV shows &mdash; they\u2019ll be added automatically.</p>'
             f'{request_links}'
             '<p style="margin-top: 24px; color: #C0D0F2; font-size: 13px;">You\u2019ll also receive this info by email. Questions? Reach out to the person who invited you.</p>'
             '</div>'

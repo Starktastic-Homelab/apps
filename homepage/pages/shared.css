@@ -152,7 +152,17 @@ body {
   font-weight: 800;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  text-shadow: 0 0 18px rgb(var(--d1-acc) / 0.55);
+  /* a 1px dark outline and a soft feather: the labels scroll across the arc of light and keep 4.5:1 on it */
+  text-shadow:
+    1px 0 #04070f,
+    -1px 0 #04070f,
+    0 1px #04070f,
+    0 -1px #04070f,
+    1px 1px #04070f,
+    -1px 1px #04070f,
+    1px -1px #04070f,
+    -1px -1px #04070f,
+    0 0 6px rgb(4 7 18 / 0.7);
 }
 
 .service-group-name::after,

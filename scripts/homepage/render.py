@@ -1,4 +1,5 @@
 """Build one Homepage page's ConfigMap data from the catalog and its pass-through files."""
+import base64
 import copy
 import re
 import textwrap
@@ -282,7 +283,8 @@ def build_page(repo: Path, cat: dict, page: str) -> dict[str, Any]:
             raise CatalogError(f"{rel}/files/{f.name}: clashes with a generated data key")
         if not f.is_file() or f.is_symlink():
             raise CatalogError(f"{rel}/files/{f.name}: not a regular file")
-        data[f.name] = f.read_text(encoding="utf-8")
+        # a PNG is the one binary kind: phones take no SVG for a tab or home-screen icon
+        data[f.name] = f.read_bytes() if f.suffix == ".png" else f.read_text(encoding="utf-8")
     data.update({
         "docker.yaml": "",
         "custom.js": "",
@@ -310,6 +312,8 @@ def dump_page(page: str, data: dict) -> str:
     out = [HEADER, f"apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: {PAGES[page]['configmap']}\n"
                    "  namespace: operations\ndata:\n"]
     for key, val in data.items():
+        if isinstance(val, bytes):
+            continue
         if isinstance(val, str):
             body = val.rstrip("\n") + "\n" if val.strip() else ""
         else:
@@ -322,6 +326,10 @@ def dump_page(page: str, data: dict) -> str:
             # `|` without an indentation indicator would take the first line's indent as the block's.
             raise CatalogError(f"pages.{page}: data key {key} starts with whitespace")
         out.append(f"  {key}: |\n" + textwrap.indent(body, "    ", lambda ln: ln.strip("\n") != ""))
+    binary = {key: val for key, val in data.items() if isinstance(val, bytes)}
+    if binary:  # Kubernetes keeps bytes that are not UTF-8 text under binaryData, base64-encoded
+        out.append("binaryData:\n")
+        out += [f"  {key}: {base64.b64encode(val).decode()}\n" for key, val in binary.items()]
     return "".join(out)
 
 

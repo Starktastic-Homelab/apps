@@ -6,7 +6,16 @@ theme: dark
 color: violet
 hideVersion: true
 disableIndexing: true
-favicon: /icons/favicon.svg
+# A PNG, not the SVG mark: an iPhone takes no SVG for its tab icon or its home-screen icon and falls back to
+# Homepage's own. scripts/homepage/make_icons.py renders it from files/favicon.svg, which the header logo
+# still uses. The same file is the installed app's icon, so no default Homepage icon is left anywhere.
+favicon: /images/icon-192.png
+pwa:
+  icons:
+    - src: /images/icon-192.png
+      sizes: 192x192
+      type: image/png
+      purpose: any maskable
 # custom.css swaps in the animated aurora only on wide screens that welcome motion.
 background: /images/aurora-still.svg
 cardBlur: xl

@@ -26,6 +26,10 @@ configMapGenerator:
       - account_confirmation_branded.html=templates/account_confirmation_branded.html
       - password_reset_branded.html=templates/password_reset_branded.html
       - welcome_instructions.html=templates/welcome_instructions.html
+      # a .txt beside a template is that mail's plain-text part
+      - account_confirmation_branded.txt=templates/account_confirmation_branded.txt
+      - password_reset_branded.txt=templates/password_reset_branded.txt
+      - welcome_instructions.txt=templates/welcome_instructions.txt
   - name: authentik-invitation-blueprint
     files:
       - invitation-flow.yaml=blueprints/invitation-flow.yaml
@@ -34,6 +38,7 @@ configMapGenerator:
       - logo.svg=branding/logo.svg
       - favicon.svg=branding/favicon.svg
       - background.svg=branding/background.svg
+      - mail-mark.png=branding/mail-mark.png
   - name: authentik-branding-blueprint
     files:
       - branding.yaml=blueprints/branding.yaml

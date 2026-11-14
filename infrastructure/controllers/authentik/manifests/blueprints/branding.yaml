@@ -52,58 +52,123 @@ entries:
       branding_favicon: "branding/favicon.svg"
       branding_default_flow_background: "branding/background.svg"
       branding_custom_css: |
-        /* Starktastic Services - Custom Authentik Theme
-         * Palette: Crimson (#DC2626), Blue (#3B82F6), Dark (#0F0F1A)
-         */
+        /* Starktastic login pages: the household dashboard's glass on its aurora (ADR 0021).
+           Brand CSS reaches every Authentik interface, so nothing here is set on :root. Rules on
+           ak-flow-executor touch login pages only: its parts, and variables that pass down into
+           the components inside it. Red is for errors. */
 
-        :root {
-          /* Override Authentik accent colors - crimson ramp */
-          --ak-accent-50: #FEF2F2;
-          --ak-accent-100: #FEE2E2;
-          --ak-accent-200: #FECACA;
-          --ak-accent-300: #FCA5A5;
-          --ak-accent-400: #F87171;
-          --ak-accent-500: #EF4444;
-          --ak-accent-600: #DC2626;
-          --ak-accent-700: #B91C1C;
-          --ak-accent-800: #991B1B;
-          --ak-accent-900: #7F1D1D;
-        }
+        ak-flow-executor {
+          --st-flow: 1; /* switches on the no-hook block below */
+          --st-ink: 244 246 255;
+          --st-text: 226 233 250;
+          --st-dim: 192 208 242;
+          --st-acc: 59 130 246; /* brand blue #3B82F6 */
+          --st-acc-hi: 147 197 253;
+          --st-fill: 13 18 42;
 
-        /* Dark theme accent overrides */
-        :host([theme="dark"]) {
-          --ak-accent-500: #EF4444;
-          --ak-accent-600: #DC2626;
-        }
+          --ak-c-login--MaxWidth: 27.5rem;
+          /* Authentik derives the column from the width on :root, so it is derived again here */
+          --ak-c-login__main-ColumnWidth: minmax(min(100%, var(--ak-c-login--MaxWidth)), var(--ak-c-login--MaxWidth));
+          --ak-c-login__main--BackgroundColor: rgb(var(--st-fill) / 0.58);
+          --ak-c-login__main--Color: rgb(var(--st-text));
+          --ak-c-login__main--BoxShadow:
+            inset 0 1px 0 0 rgb(255 255 255 / 0.18), inset 0 0 0 1px rgb(255 255 255 / 0.08),
+            0 1px 1px rgb(0 0 0 / 0.25), 0 22px 44px -22px rgb(0 0 0 / 0.75);
 
-        /* Flow executor background */
-        .pf-c-login {
-          --pf-c-login--BackgroundColor: #0F0F1A;
-        }
-
-        /* Login card glow - subtle blue */
-        .pf-c-login__main {
-          border: 1px solid rgba(59, 130, 246, 0.12);
-          box-shadow: 0 0 40px rgba(59, 130, 246, 0.05),
-                      0 4px 24px rgba(0, 0, 0, 0.4);
+          /* a solid button keeps white text at 6.7:1 if the no-hook block stops matching */
+          --pf-global--primary-color--100: #1D4ED8;
+          --pf-global--primary-color--200: #1E40AF;
+          --pf-global--link--Color: rgb(var(--st-acc-hi));
+          --pf-global--link--Color--hover: #BFDBFE;
+          --pf-global--Color--100: rgb(var(--st-text));
+          --pf-global--Color--200: rgb(var(--st-dim));
+          --pf-global--danger-color--100: #F87171;
         }
 
-        /* Primary buttons - crimson */
-        .pf-c-button.pf-m-primary {
-          --pf-c-button--m-primary--BackgroundColor: #DC2626;
-          --pf-c-button--m-primary--hover--BackgroundColor: #B91C1C;
-          --pf-c-button--m-primary--focus--BackgroundColor: #B91C1C;
-          --pf-c-button--m-primary--active--BackgroundColor: #991B1B;
+        /* brand navy under the aurora, and the aurora on phones too (Authentik shows no picture below 35rem) */
+        body:has(ak-flow-executor) {
+          --ak-global--background-color: #0F0F1A;
         }
 
-        /* Links - blue */
-        .pf-c-login__main-footer-links a,
-        .pf-c-form__helper-text a {
-          color: #60A5FA;
+        body:has(ak-flow-executor)::before {
+          background-image: var(--ak-global--background-image);
         }
-        .pf-c-form__helper-text a:hover {
-          color: #93C5FD;
+
+        ak-flow-executor::part(main) {
+          border-radius: 24px;
+          color: rgb(var(--st-text));
+          background-image: linear-gradient(180deg, rgb(255 255 255 / 0.1) 0%, rgb(255 255 255 / 0.035) 38%, rgb(255 255 255 / 0.02) 100%);
+          backdrop-filter: blur(22px) saturate(165%);
+          -webkit-backdrop-filter: blur(22px) saturate(165%);
         }
+
+        /* phones: Authentik spreads the card colour over the whole page, so the page is the glass */
+        @media (max-width: 35rem) {
+          ak-flow-executor::part(main) {
+            border-radius: 0;
+            background: none;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+          }
+        }
+
+        /* no-hook:start
+           Authentik 2026.8.5 has no part or variable for what these rules style. They match classes inside its
+           components, a route its source marks as deprecated, and only where --st-flow is set. If an upgrade or
+           a browser without style queries drops them, fields and buttons keep Authentik's own shapes. */
+        @container style(--st-flow: 1) {
+          .pf-c-title {
+            --pf-c-title--m-3xl--FontWeight: 800;
+            color: rgb(var(--st-ink));
+            letter-spacing: -0.02em;
+            text-align: center;
+          }
+
+          /* the "required" asterisk is not an error */
+          .pf-c-form__label {
+            --pf-c-form__label-required--Color: rgb(var(--st-acc-hi));
+          }
+
+          .pf-c-form-control {
+            min-height: 3rem;
+            padding-inline: 0.875rem;
+            border: 0;
+            border-radius: 14px;
+            color: rgb(var(--st-ink));
+            background-color: rgb(255 255 255 / 0.06); /* not the shorthand: Authentik draws its error icon as a background image */
+            box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12);
+          }
+
+          .pf-c-form-control[aria-invalid="true"] {
+            box-shadow: inset 0 0 0 1.5px var(--pf-global--danger-color--100);
+          }
+
+          .pf-c-form-control:focus-visible,
+          .pf-c-button:focus-visible {
+            outline: 2px solid rgb(var(--st-acc-hi));
+            outline-offset: 2px;
+          }
+
+          /* a disabled button keeps Authentik's own disabled look */
+          .pf-c-button.pf-m-primary:not(:disabled, .pf-m-disabled, .pf-m-aria-disabled) {
+            min-height: 3rem;
+            border-radius: 999px;
+            color: #fff;
+            font-weight: 700;
+            background: linear-gradient(180deg, rgb(255 255 255 / 0.22), rgb(255 255 255 / 0.05)), rgb(var(--st-acc) / 0.5);
+            box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.4), inset 0 0 0 1px rgb(255 255 255 / 0.5);
+            text-shadow: 0 1px 2px rgb(0 0 0 / 0.35);
+          }
+
+          .pf-c-button.pf-m-primary:not(:disabled, .pf-m-disabled, .pf-m-aria-disabled):hover {
+            filter: brightness(1.12);
+          }
+
+          .pf-c-button.pf-m-primary::after {
+            border-radius: inherit;
+          }
+        }
+        /* no-hook:end */
 
         /* Admin navbar logo sizing - increase from default 2.25rem */
         .pf-c-brand {

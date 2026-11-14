@@ -1,0 +1,10 @@
+{% autoescape off %}You're invited
+
+You've been invited to join Starktastic Services, which includes access to Ben+ and more.
+To get started, confirm your email address by opening this link:
+
+{{ url }}
+
+--
+Starktastic Services
+{% endautoescape %}

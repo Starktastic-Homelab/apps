@@ -4,22 +4,22 @@
 
 {% block content %}
 <tr>
-  <td align="center" style="padding: 10px 0 5px 0;">
-    <h2 style="font-size: 20px; color: #F8FAFC; margin: 0;">You're Invited</h2>
+  <td align="center" style="padding: 0 0 10px 0;">
+    <h1 style="margin: 0; font-size: 24px; line-height: 1.25; font-weight: 800; letter-spacing: -0.3px; color: #F4F6FF;">You're invited</h1>
+  </td>
+</tr>
+<tr>
+  <td align="center" style="padding: 0 6px 24px 6px; color: #E2E9FA;">
+    You've been invited to join Starktastic Services, which includes access to Ben+ and more.
+    To get started, confirm your email address with the button below.
   </td>
 </tr>
 <tr>
   <td align="center">
-    <table border="0">
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center">
       <tr>
-        <td align="center" style="max-width: 300px; padding: 15px 0; color: #CBD5E1;">
-          You've been invited to join Starktastic Services, which includes access to Ben+ and more.
-          To get started, please confirm your email address by clicking the button below.
-        </td>
-      </tr>
-      <tr>
-        <td align="center" class="btn btn-primary">
-          <a id="confirm" href="{{ url }}" rel="noopener noreferrer" target="_blank">Confirm Email</a>
+        <td align="center" style="background-color: #1D4ED8; border: 1px solid #3B82F6; border-radius: 999px;">
+          <a id="confirm" href="{{ url }}" rel="noopener noreferrer" target="_blank" style="display: inline-block; padding: 13px 34px; font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 20px; font-weight: bold; color: #FFFFFF; text-decoration: none;">Confirm email</a>
         </td>
       </tr>
     </table>
@@ -29,8 +29,8 @@
 
 {% block sub_content %}
 <tr>
-  <td style="padding: 20px; font-size: 12px; color: #94A3B8; word-break: break-all; overflow-wrap: break-word;" align="center">
-    If the button doesn't work, copy this link into your browser: {{ url }}
+  <td align="center" style="padding: 14px 18px; font-size: 12px; line-height: 1.6; color: #A9BCE6; background-color: #0F1530; border: 1px solid #222C57; border-radius: 16px; word-break: break-all; overflow-wrap: break-word;">
+    If the button doesn't work, copy this link into your browser:<br><a href="{{ url }}" rel="noopener noreferrer" target="_blank" style="color: #93C5FD;">{{ url }}</a>
   </td>
 </tr>
 {% endblock %}

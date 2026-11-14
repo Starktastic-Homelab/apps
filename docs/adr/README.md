@@ -33,3 +33,4 @@ that supersedes the old one (don't rewrite history).
 | 0018 | [Household Homepage boundary](0018-household-homepage-boundary.md) | Accepted |
 | 0019 | [Homepage catalog generator](0019-homepage-catalog-generator.md) | Accepted |
 | 0020 | [Homepage dashboards on stable hooks with a render check](0020-homepage-dashboards-stable-hooks.md) | Accepted |
+| 0021 | [Authentik login pages and mails match the dashboards](0021-authentik-login-and-mails-match-the-dashboards.md) | Accepted |

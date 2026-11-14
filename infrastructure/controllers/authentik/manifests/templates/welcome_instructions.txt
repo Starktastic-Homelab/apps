@@ -1,0 +1,32 @@
+{% autoescape off %}Welcome aboard
+
+Hi {{ user.name|default:user.username }},
+
+Your account is all set up. Here's what you have access to.
+
+BEN+ - MEDIA STREAMING
+
+Stream movies, TV shows, and more. Install the Jellyfin app on your device:
+
+- iPhone / iPad: https://apps.apple.com/app/jellyfin-mobile/id1480192618
+- Android Phone / Tablet: https://play.google.com/store/apps/details?id=org.jellyfin.mobile
+- Android TV / Fire TV: https://play.google.com/store/apps/details?id=org.jellyfin.androidtv
+- Desktop & Other Devices: https://jellyfin.org/downloads
+- Or visit https://benplus.app in your browser
+
+Server address: https://benplus.app
+Log in with the username and password you created during sign-up.
+
+REQUEST NEW CONTENT
+
+Can't find something? Use Jellyseerr to request movies and TV shows - they'll be added automatically.
+{% if media_preference == "original" or media_preference == "both" %}
+- https://request.benplus.app - Original content{% endif %}{% if media_preference == "ru" %}
+- https://request-ru.benplus.app - Русский дубляж{% elif media_preference == "both" %}
+- https://request-ru.benplus.app - Russian dubbed content / Русский дубляж{% endif %}
+
+Questions? Reach out to the person who invited you.
+
+--
+Starktastic Services
+{% endautoescape %}

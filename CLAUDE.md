@@ -66,6 +66,8 @@ Report what ran. The PR's ArgoCD diff preview is the review of record; renders d
   `generate.py` and commit both. Never edit the two ConfigMaps by hand; a new app's tile goes in the catalog.
 - `authAdmin` means the ADR 0014 gate (`authentik-internal-gate`); `-ru` variants inherit it. The gate ignores `?app=`.
   Never rename `authentik Admins`. After the admin-middleware cleanup, fix forward, don't revert.
+- Authentik login CSS and mails follow ADR 0021: glass only through `ak-flow-executor`, class selectors only in the
+  `no-hook` block, mails readable with all CSS removed. Brand CSS reaches the admin and user pages too.
 - Every Authentik application needs a binding: with `core_default_app_access` off (ADR 0016) an unbound app denies
   everyone. Open apps bind the `Any account` policy in `blueprints/app-access.yaml`.
 - Traefik sends HSTS with includeSubDomains on websecure and websec-int: every name under starktastic.net and

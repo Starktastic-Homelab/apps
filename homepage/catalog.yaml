@@ -1756,10 +1756,37 @@ tiles:
           label: used_fraction
           format: percent
           scale: 100
-      # The last backup runs, newest first: the result on the left, when it started on the right. One row per
-      # job run, not per guest. starttime is Unix seconds, so it is scaled to the milliseconds a date needs.
-      # The token needs Sys.Audit on /nodes/pve: without it Proxmox answers with an empty list, not an error,
-      # because the scheduler's tasks belong to root@pam.
+  # Proxmox's backup (vzdump) runs, in a tile of their own so its name says what the rows are: as a list under
+  # the Proxmox tile's storages they read "OK ... 6 days ago" with nothing to say what was OK (Ben, 2026-11-14).
+  # Two labelled blocks give the last run and its result; the list under them is the history, newest first.
+  # One row is one job run, not one guest. starttime is Unix seconds, scaled to the milliseconds a date needs.
+  # The token needs Sys.Audit on /nodes/pve, and has it: the list filled on the live page. Without it Proxmox
+  # answers with an empty list, not an error, because the scheduler's tasks belong to root@pam.
+  # Proxmox's results are not Prometheus alert rules, so a last run that did not end in OK is amber at most.
+  vm-backups:
+    name: VM Backups
+    icon: mdi-backup-restore
+    href: https://10.9.9.20:8006
+    description: Proxmox backup runs, newest first
+    widgets:
+      - type: customapi
+        url: https://10.9.9.20:8006/api2/json/nodes/pve/tasks?typefilter=vzdump&limit=1
+        headers: *pve_auth
+        refreshInterval: 300000
+        mappings:
+          - field: data.0.starttime
+            label: Last Run
+            format: relativeDate
+            scale: 1000
+          - field: data.0.status
+            label: Result
+        highlight:
+          Result:
+            string:
+              - level: warn
+                when: equals
+                value: OK
+                negate: true
       - type: customapi
         url: https://10.9.9.20:8006/api2/json/nodes/pve/tasks?typefilter=vzdump&limit=5
         headers: *pve_auth
@@ -2535,6 +2562,7 @@ pages:
           - name: Storage
             items:
               - truenas
+              - vm-backups
           - name: Reference
             items:
               - bm-homepage

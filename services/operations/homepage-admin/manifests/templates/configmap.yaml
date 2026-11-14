@@ -3107,18 +3107,6 @@ data:
               label: used_fraction
               format: percent
               scale: 100
-          - type: customapi
-            url: https://10.9.9.20:8006/api2/json/nodes/pve/tasks?typefilter=vzdump&limit=5
-            headers:
-              Authorization: PVEAPIToken={{ "{{" }}HOMEPAGE_VAR_PROXMOX_USER{{ "}}" }}={{ "{{" }}HOMEPAGE_VAR_PROXMOX_PASS{{ "}}" }}
-            refreshInterval: 300000
-            display: dynamic-list
-            mappings:
-              items: data
-              name: status
-              label: starttime
-              format: relativeDate
-              scale: 1000
       - kube-master-01:
           id: kube-master-01
           icon: proxmox.png
@@ -3303,6 +3291,43 @@ data:
                 - level: warn
                   when: gte
                   value: 1
+      - VM Backups:
+          id: vm-backups
+          icon: mdi-backup-restore
+          href: https://10.9.9.20:8006
+          description: Proxmox backup runs, newest first
+          widgets:
+          - type: customapi
+            url: https://10.9.9.20:8006/api2/json/nodes/pve/tasks?typefilter=vzdump&limit=1
+            headers:
+              Authorization: PVEAPIToken={{ "{{" }}HOMEPAGE_VAR_PROXMOX_USER{{ "}}" }}={{ "{{" }}HOMEPAGE_VAR_PROXMOX_PASS{{ "}}" }}
+            refreshInterval: 300000
+            mappings:
+            - field: data.0.starttime
+              label: Last Run
+              format: relativeDate
+              scale: 1000
+            - field: data.0.status
+              label: Result
+            highlight:
+              Result:
+                string:
+                - level: warn
+                  when: equals
+                  value: OK
+                  negate: true
+          - type: customapi
+            url: https://10.9.9.20:8006/api2/json/nodes/pve/tasks?typefilter=vzdump&limit=5
+            headers:
+              Authorization: PVEAPIToken={{ "{{" }}HOMEPAGE_VAR_PROXMOX_USER{{ "}}" }}={{ "{{" }}HOMEPAGE_VAR_PROXMOX_PASS{{ "}}" }}
+            refreshInterval: 300000
+            display: dynamic-list
+            mappings:
+              items: data
+              name: status
+              label: starttime
+              format: relativeDate
+              scale: 1000
   bookmarks.yaml: |
     - Code:
       - apps:

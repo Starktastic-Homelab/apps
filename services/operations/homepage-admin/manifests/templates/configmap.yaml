@@ -3107,6 +3107,18 @@ data:
               label: used_fraction
               format: percent
               scale: 100
+          - type: customapi
+            url: https://10.9.9.20:8006/api2/json/nodes/pve/tasks?typefilter=vzdump&limit=5
+            headers:
+              Authorization: PVEAPIToken={{ "{{" }}HOMEPAGE_VAR_PROXMOX_USER{{ "}}" }}={{ "{{" }}HOMEPAGE_VAR_PROXMOX_PASS{{ "}}" }}
+            refreshInterval: 300000
+            display: dynamic-list
+            mappings:
+              items: data
+              name: status
+              label: starttime
+              format: relativeDate
+              scale: 1000
       - kube-master-01:
           id: kube-master-01
           icon: proxmox.png

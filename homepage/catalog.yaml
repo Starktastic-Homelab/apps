@@ -1756,6 +1756,21 @@ tiles:
           label: used_fraction
           format: percent
           scale: 100
+      # The last backup runs, newest first: the result on the left, when it started on the right. One row per
+      # job run, not per guest. starttime is Unix seconds, so it is scaled to the milliseconds a date needs.
+      # The token needs Sys.Audit on /nodes/pve: without it Proxmox answers with an empty list, not an error,
+      # because the scheduler's tasks belong to root@pam.
+      - type: customapi
+        url: https://10.9.9.20:8006/api2/json/nodes/pve/tasks?typefilter=vzdump&limit=5
+        headers: *pve_auth
+        refreshInterval: 300000
+        display: dynamic-list
+        mappings:
+          items: data
+          name: status
+          label: starttime
+          format: relativeDate
+          scale: 1000
   kube-master-01:
     name: kube-master-01
     icon: proxmox.png

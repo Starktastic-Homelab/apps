@@ -114,10 +114,11 @@ jobs:
       # svc.ns.svc.cluster.local tries every search suffix — including the node's
       # mgmt.arpa — before the absolute name, leaking one upstream query per lookup.
       # `service` (same ns) or `service.namespace` (cross ns) hit on attempt 1 or 2.
+      # *arr ALLOWEDHOSTS only matches Host headers (no lookup); live callers still send the FQDN.
       - name: No cluster.local FQDNs
         run: |
           hits=$(git grep -n 'svc\.cluster\.local' -- . ':!docs' ':!.github' \
-            | grep -v 'crowdsecLapiHost\|https://argocd-server' || true)
+            | grep -v 'crowdsecLapiHost\|https://argocd-server\|__SERVER__ALLOWEDHOSTS:' || true)
           if [ -n "$hits" ]; then
             echo "$hits"
             echo "❌ Use 'service' or 'service.namespace' instead of a .svc.cluster.local FQDN."

@@ -591,13 +591,14 @@ data:
         var(--d1-depth);
     }
 
-    /* the heart beside "Support the server": sized to the small-caps label, not Homepage's 28 px */
+    /* the heart beside "Support the server" (seen only without the header pill, below): sized to the small-caps
+       label, not Homepage's 28 px */
     .bookmark-group-icon {
       width: 18px;
       height: 18px;
     }
 
-    /* Support links: a little of the Jellyfin card's glow, so the two rows are noticed without shouting */
+    /* Support links: a little of the Jellyfin card's glow, so the two are noticed without shouting */
     #bm-buy-me-a-coffee > a,
     #bm-paybox > a {
       box-shadow:
@@ -746,10 +747,161 @@ data:
       }
     }
 
+    /* ---------- Support links: a pill in the header, on every tab ---------- */
+    /* The pill is an empty slot; the two links of the page-level "Support the server" group are laid over its right
+       end. A browser without anchor positioning gets no pill and shows that group under every tab instead. */
+    @supports (anchor-name: --hp-support) {
+      #information-widgets::after {
+        content: "Support";
+        grid-area: support;
+        justify-self: end;
+        display: flex;
+        align-items: center;
+        height: 48px;
+        padding: 0 100px 0 16px; /* the two 44 px links sit in the right 94 px */
+        border-radius: 999px;
+        color: rgb(var(--color-300));
+        background: var(--d1-sheen), rgb(var(--d1-fill) / 0.5);
+        backdrop-filter: blur(20px) saturate(170%);
+        -webkit-backdrop-filter: blur(20px) saturate(170%);
+        box-shadow:
+          inset 0 1px 0 0 rgb(255 255 255 / 0.16),
+          inset 0 0 0 1px rgb(255 255 255 / 0.1),
+          var(--d1-depth);
+        font-size: 15px;
+        anchor-name: --hp-support;
+      }
+
+      /* no room for the word on a small phone, or in the one-line header below 1280 px */
+      @media (max-width: 379px), (min-width: 1024px) and (max-width: 1279px) {
+        #information-widgets::after {
+          content: "";
+          padding: 0 94px 0 2px;
+        }
+      }
+
+      #bm-buy-me-a-coffee,
+      #bm-paybox {
+        position: absolute; /* in the page container, like the search bar */
+        z-index: 21; /* Homepage stacks the header at 20 */
+        position-anchor: --hp-support;
+        top: anchor(top);
+        bottom: anchor(bottom);
+        right: calc(anchor(right) + 2px);
+        display: grid;
+        place-items: center;
+        width: 44px;
+      }
+
+      #bm-buy-me-a-coffee {
+        right: calc(anchor(right) + 50px);
+      }
+
+      #bm-buy-me-a-coffee > a,
+      #bm-paybox > a {
+        width: 44px;
+        height: 44px;
+        margin: 0;
+        border-radius: 999px;
+      }
+
+      #bm-buy-me-a-coffee > a:focus-visible,
+      #bm-paybox > a:focus-visible {
+        outline: 2px solid rgb(var(--d1-acc-hi));
+        outline-offset: 2px;
+      }
+
+      #bm-buy-me-a-coffee .bookmark-icon,
+      #bm-paybox .bookmark-icon {
+        width: 44px;
+        min-height: 44px;
+        background: none;
+      }
+
+      /* the link keeps its name as a tooltip and for screen readers (Homepage sets it as the title) */
+      #bm-buy-me-a-coffee .bookmark-text,
+      #bm-paybox .bookmark-text {
+        display: none;
+      }
+
+      /* phone: beside the weather, which gives way if a long forecast would push the pill off the screen */
+      @media (max-width: 639px) {
+        #information-widgets {
+          grid-template-areas:
+            "logo brand brand status"
+            "date date date date"
+            "weather weather support support";
+        }
+
+        .information-widget-openmeteo {
+          max-width: calc(100vw - 218px); /* page margins 32, gap 10, pill 176 */
+          overflow: hidden;
+        }
+      }
+
+      @media (max-width: 379px) {
+        .information-widget-openmeteo {
+          max-width: calc(100vw - 138px);
+        }
+      }
+
+      /* 640 to 1023 px: one line has no room for the pill, so it shares a second line with the weather, as on a phone */
+      @media (min-width: 640px) and (max-width: 1023px) {
+        #information-widgets {
+          grid-template-columns: auto auto minmax(0, 1fr) auto auto;
+          grid-template-areas:
+            "logo brand . status date"
+            "weather weather . support support";
+        }
+
+        .information-widget-openmeteo {
+          justify-self: start;
+        }
+      }
+
+      /* 1024 to 1279 px: the search bar gives up the width (its label shortens in the no-hook block); max-content
+         keeps the grid from taking it out of the logo and the weather instead */
+      @media (min-width: 1024px) and (max-width: 1279px) {
+        #information-widgets {
+          grid-template-columns:
+            max-content max-content minmax(0, 1fr) minmax(170px, 420px) max-content max-content max-content max-content;
+          grid-template-areas: "logo brand . search status weather date support";
+        }
+      }
+
+      @media (min-width: 1280px) {
+        #information-widgets {
+          grid-template-columns: auto auto minmax(0, 1fr) minmax(240px, 420px) auto auto auto auto;
+          grid-template-areas: "logo brand . search status weather date support";
+        }
+      }
+    }
+
     /* no-hook:start */
     @media (max-width: 639px) {
       #inner_wrapper button:has(+ #information-widgets) {
         z-index: 31; /* the search disc sits above the tab bar's scrim */
+      }
+    }
+
+    /* with the links in the header, their group leaves no box, heading or margin under the tabs */
+    @supports (anchor-name: --hp-support) {
+      #layout-groups > div:has(#bm-paybox) {
+        display: contents;
+      }
+
+      #layout-groups button:has(+ div #bm-paybox) {
+        display: none;
+      }
+
+      #layout-groups ul:has(> #bm-paybox) {
+        margin: 0;
+      }
+
+      @media (min-width: 1024px) and (max-width: 1279px) {
+        #inner_wrapper button:has(+ #information-widgets)::after {
+          content: "Search"; /* the bar is about 180 px wide here */
+        }
       }
     }
     /* no-hook:end */
@@ -797,11 +949,6 @@ data:
         tab: Watch
         style: row
         columns: 2
-      Support the server:
-        tab: Watch
-        style: row
-        columns: 2
-        icon: mdi-heart-outline
       Listen:
         tab: Library
         style: row
@@ -834,6 +981,10 @@ data:
         tab: Tools
         style: row
         columns: 2
+      Support the server:
+        style: row
+        columns: 2
+        icon: mdi-heart-outline
   widgets.yaml: |
     - logo:
         icon: /icons/favicon.svg
@@ -1030,6 +1181,15 @@ data:
           href: https://listmonk.starktastic.net
           siteMonitor: http://listmonk.operations:9000
   bookmarks.yaml: |
+    - Links:
+      - My Account:
+        - id: bm-my-account
+          abbr: AC
+          href: https://auth.starktastic.net
+      - GitHub:
+        - id: bm-github
+          abbr: GH
+          href: https://github.com/Starktastic-Homelab
     - Support the server:
       - Buy Me a Coffee:
         - id: bm-buy-me-a-coffee
@@ -1043,12 +1203,3 @@ data:
           icon: mdi-piggy-bank-outline-#67E8F9
           href: https://links.payboxapp.com/MgzMt5tR27b
           description: Server fund group
-    - Links:
-      - My Account:
-        - id: bm-my-account
-          abbr: AC
-          href: https://auth.starktastic.net
-      - GitHub:
-        - id: bm-github
-          abbr: GH
-          href: https://github.com/Starktastic-Homelab

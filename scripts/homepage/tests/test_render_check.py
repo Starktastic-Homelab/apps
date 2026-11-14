@@ -135,6 +135,14 @@ class FailureTests(unittest.TestCase):
         self.assertRegex("\n".join(lines), r"household A .*\bx\b.* missing")
         self.assertRegex("\n".join(lines), r"household B .*\bx\b.* belongs to tab A")
 
+    def test_failures_page_level_group_is_on_every_tab(self):
+        inv = dict(INV, groups=INV["groups"][:2] + [dict(INV["groups"][2], tab=None)])  # L, holding bm
+        every = [run("A", ["x", "bm"], ["G", "L"]), run("B", ["y", "bm"], ["H", "L"])]
+        self.assertEqual(failures(inv, every, "household"), [])
+        lines = "\n".join(failures(inv, good(), "household"))  # tab A shows neither
+        self.assertRegex(lines, r"household A .*\bbm\b.* missing")
+        self.assertRegex(lines, r"household A .*group L is missing")
+
     def test_failures_tab_never_rendered(self):
         self.assertRegex("\n".join(failures(INV, [good()[0]], "household")), r"tab B was never rendered")
 

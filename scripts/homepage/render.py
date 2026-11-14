@@ -236,9 +236,9 @@ def build_page(repo: Path, cat: dict, page: str) -> dict[str, Any]:
     group_of = {k: v for k, v in group_of.items() if k in cat["tiles"]}
 
     services, bookmarks, layout = [], [], {}
-    for tab in pdata.get("tabs") or []:
-        for g in tab.get("groups") or []:
-            layout[g["name"]] = _layout(g, tab["name"])
+    for tab, g, parents in walk_groups(pdata):
+        if not parents:  # top-level groups; a group with no tab comes last, so it closes every tab
+            layout[g["name"]] = _layout(g, tab)
             target = bookmarks if _has_bookmark(cat, g) else services
             target.append({g["name"]: _emit_items(cat, page, g, group_of)})
 

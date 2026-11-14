@@ -1993,14 +1993,6 @@ pages:
             items:
               - seerr
               - seerr-ru
-          # Links out only: the page handles no money, keys or webhooks (ADR 0020, decision 8).
-          - name: Support the server
-            icon: mdi-heart-outline
-            style: row
-            columns: 2
-            items:
-              - bm-buy-me-a-coffee
-              - bm-paybox
       - name: Library
         groups:
           - name: Listen
@@ -2056,6 +2048,17 @@ pages:
             items:
               - bm-my-account
               - bm-github
+    # Page-level groups have no tab, so Homepage shows them on every tab. The stylesheet lays these two links
+    # over a slot in the header; a browser without CSS anchor positioning shows this group under every tab.
+    # Links out only: the page handles no money, keys or webhooks (ADR 0020, decision 8).
+    groups:
+      - name: Support the server
+        icon: mdi-heart-outline
+        style: row
+        columns: 2
+        items:
+          - bm-buy-me-a-coffee
+          - bm-paybox
   admin:
     tabs:
       - name: Pulse

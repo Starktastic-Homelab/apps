@@ -130,13 +130,13 @@ def failures(inv: dict, runs: list, page: str) -> list:
         if not r["search"]:
             out.append(f"{where}: the search button is not on screen")
         ids = set(r["ids"])
-        for eid, tab in home.items():
-            if tab == r["tab"] and eid not in ids:
+        for eid, tab in home.items():  # tab None: a page-level group, on every tab
+            if tab in (r["tab"], None) and eid not in ids:
                 out.append(f"{where}: {eid} is missing")
-            elif tab != r["tab"] and eid in ids:
+            elif tab not in (r["tab"], None) and eid in ids:
                 out.append(f"{where}: {eid} belongs to tab {tab}")
         for group, tab in tab_of_group.items():
-            if tab == r["tab"] and group not in r["groups"]:
+            if tab in (r["tab"], None) and group not in r["groups"]:
                 out.append(f"{where}: group {group} is missing")
         if r["errors"]:
             out.append(f"{where}: {r['errors']} widget error box(es)")

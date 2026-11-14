@@ -167,6 +167,8 @@ def walk_groups(page: dict):
     for tab in page.get("tabs", []):
         for group in tab.get("groups", []):
             yield from rec(tab.get("name"), group, [])
+    for group in page.get("groups") or []:  # page-level groups have no tab: Homepage shows them on every tab
+        yield from rec(None, group, [])
 
 
 def _list(val, path) -> list:
@@ -286,6 +288,8 @@ def _check_page(cat, page):
         tab_slugs.add(s)
         for g, grp in enumerate(_list(tab.get("groups"), f"{tpath}.groups")):
             group(f"{tpath}.groups[{g}]", grp, [])
+    for g, grp in enumerate(_list(data.get("groups"), f"{base}.groups")):
+        group(f"{base}.groups[{g}]", grp, [])
 
     for kind, entries in (("tiles", tiles), ("bookmarks", bookmarks)):
         names = {}

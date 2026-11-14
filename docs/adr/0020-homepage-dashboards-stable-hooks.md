@@ -47,11 +47,16 @@ bumps are merged by hand since #1552, and nothing in CI rendered either page. De
    header from 1024 px up and a glass disc in the corner below that; with a keyboard, just typing opens it too.
    The bar is the same button, laid over an empty header slot with CSS anchor positioning; a browser without
    it keeps the disc. The header search widget, which only searched the web, is gone.
-8. **Support links (added 2026-11-14).** The household page ends its first tab with a "Support the server"
-   bookmark group: a Buy Me a Coffee page and a PayBox group. They are links out only. The page handles no money,
-   keys or webhooks, and the pod fetches nothing for them. The links are as public as this repo, so nothing
-   personal goes on the page; Bit is left out because a private Bit account has no shareable link, only a phone
-   number. Admin does not show the group.
+8. **Support links (added 2026-11-14).** The household page has a "Support the server" bookmark group: a Buy
+   Me a Coffee page and a PayBox group. They are links out only. The page handles no money, keys or webhooks,
+   and the pod fetches nothing for them. The links are as public as this repo, so nothing personal goes on the
+   page; Bit is left out because a private Bit account has no shareable link, only a phone number. Admin does
+   not show the group.
+   The links sit in the header on every tab, as two icon buttons in a "Support" pill. The group is page-level in
+   the catalog (`pages.<page>.groups`): it has no tab, so Homepage renders it on every tab, and the stylesheet
+   lays its two links over an empty header slot with CSS anchor positioning, as it does the search bar. A
+   browser without it shows the group, with its heading, under every tab. The header takes a second line from
+   640 to 1023 px, where one line has no room for the pill.
 
 ## Rationale
 

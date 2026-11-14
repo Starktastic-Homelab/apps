@@ -142,6 +142,17 @@ class RenderTests(unittest.TestCase):
         sub = build("admin", edit=lambda c: c["pages"]["admin"]["tabs"][1]["groups"][0]["items"][2].pop("columns"))
         self.assertEqual(sub["settings.yaml"]["layout"]["Media"]["Arr"], {})
 
+    def test_page_level_group_has_no_tab(self):
+        def move(c):  # Links leaves its tab and becomes a page-level group
+            links = c["pages"]["household"]["tabs"][1]["groups"].pop()
+            c["pages"]["household"]["groups"] = [dict(links, style="row")]
+        h = build("household", edit=move)
+        self.assertEqual(list(h["settings.yaml"]["layout"]), ["Coming Up", "Watch", "Links"])
+        self.assertEqual(h["settings.yaml"]["layout"]["Links"], {"style": "row"})  # no tab: on every tab
+        self.assertEqual([next(iter(g)) for g in h["bookmarks.yaml"]], ["Links"])
+        with self.assertRaisesRegex(CatalogError, r"duplicate group name 'Watch'"):
+            build("household", edit=lambda c: c["pages"]["household"].update(groups=[{"name": "Watch", "items": []}]))
+
     def test_rule10_css_data_name(self):
         with self.assertRaisesRegex(CatalogError, r"custom\.css.*Nope"):
             build("household", pages={"household": {"custom.css": 'li[data-name="Nope"] {}\n'}})

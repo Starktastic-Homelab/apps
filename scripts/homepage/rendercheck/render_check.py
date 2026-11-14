@@ -107,6 +107,9 @@ def build_config(data: dict, down: set, pods: bool = False) -> dict:
     data["kubernetes.yaml"] = {"mode": "disabled"}
     out = {}
     for key, val in data.items():
+        if isinstance(val, bytes):  # a PNG icon: served as it is
+            out[key] = val
+            continue
         text = val if isinstance(val, str) else yaml.safe_dump(val, sort_keys=False, allow_unicode=True,
                                                                width=float("inf"))
         out[key] = PLACEHOLDER.sub("mock", text)
@@ -145,6 +148,7 @@ def failures(inv: dict, runs: list, page: str) -> list:
         if r["scenario"] == "calm" and r["danger"]:
             out.append(f"{where}: {r['danger']} danger block(s) in the calm scenario (red is for alarms only)")
         out += [f"{where}: {url} failed to load" for url in r["missing"]]
+        out += [f"{where}: {problem}" for problem in r.get("icons", [])]
         if page == "household" and r["viewport"].startswith("390x"):
             out += [f"{where}: under 44x44 px: {s}" for s in r["small"] if not any(k in s for k in SMALL_ALLOW)]
         for sel, hit in r["selectors"].items():
@@ -158,6 +162,30 @@ def failures(inv: dict, runs: list, page: str) -> list:
 
 
 SETTLED_JS = "() => !!document.querySelector('#layout-groups') && !document.querySelector('.animate-pulse')"
+# The page's tab icon, its home-screen icon and the installed app's icons must be this repo's own files, and a
+# phone takes only a PNG for the last two: an SVG there made an iPhone fall back to Homepage's default icon.
+ICONS_JS = r"""
+async () => {
+  const want = [...document.querySelectorAll('link[rel="icon"], link[rel="apple-touch-icon"]')]
+    .map((l) => [l.href, l.rel === "apple-touch-icon", l.rel]);
+  const manifest = document.querySelector('link[rel="manifest"]');
+  if (manifest) {
+    const icons = (await (await fetch(manifest.href)).json()).icons || [];
+    for (const icon of icons) want.push([new URL(icon.src, location.href).href, true, "manifest icon"]);
+  }
+  const bad = [];
+  if (!want.some(([, , what]) => what === "apple-touch-icon")) bad.push("no apple-touch-icon link");
+  for (const [url, png, what] of want) {
+    const path = new URL(url).pathname;
+    if (!/^\/(images|icons)\//.test(path)) { bad.push(`${what} ${path} is Homepage's default`); continue; }
+    const resp = await fetch(url);
+    const type = resp.headers.get("content-type") || "";
+    if (!resp.ok) bad.push(`${what} ${path} answers ${resp.status}`);
+    else if (png && !type.startsWith("image/png")) bad.push(`${what} ${path} is ${type}: a phone needs a PNG`);
+  }
+  return bad;
+}
+"""
 SNAPSHOT_JS = r"""
 () => {
   const q = (sel) => [...document.querySelectorAll(sel)];
@@ -263,11 +291,10 @@ def up(repo: Path, work: Path, scenario: str, pages: list, pods: bool = False) -
         mounts = ["-v", f"{cfg}:/app/config"]
         for key, text in build_config(build_page(repo, cat, page), DOWN[scenario], pods).items():
             target = mount_path(key)
-            if target.startswith("/app/config/"):
-                (cfg / key).write_text(text, encoding="utf-8")
-            else:
-                (pub / key).write_text(text, encoding="utf-8")
-                mounts += ["-v", f"{pub / key}:{target}:ro"]
+            path = (cfg if target.startswith("/app/config/") else pub) / key
+            path.write_bytes(text if isinstance(text, bytes) else text.encode("utf-8"))
+            if path.parent == pub:
+                mounts += ["-v", f"{path}:{target}:ro"]
         port = PORTS[page]
         sh("docker", "run", "-d", "--name", f"hpcheck-{page}", "--network", NETWORK, "-p", f"127.0.0.1:{port}:3000",
            "-e", f"HOMEPAGE_ALLOWED_HOSTS=localhost:{port},127.0.0.1:{port}",
@@ -336,8 +363,9 @@ def snapshot(browser, page: str, inv: dict, scenario: str, out: Path | None) -> 
                 pass
             tab_page.wait_for_timeout(1500)
             snap = tab_page.evaluate(SNAPSHOT_JS)
+            icons = tab_page.evaluate(ICONS_JS) if i == 0 else []  # the head is the same on every tab
             runs.append({"tab": tab["name"], "viewport": vp, "scenario": scenario, "missing": sorted(set(missing)),
-                         **snap})
+                         "icons": icons, **snap})
             if out:
                 name = f"{page}-{scenario}-{vp}-{slug(tab['name'])}"
                 tab_page.screenshot(path=str(out / f"{name}.png"))

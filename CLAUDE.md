@@ -28,6 +28,7 @@ python3 scripts/check-homepage-coverage.py    # PyYAML + helm
 python3 scripts/check-homepage-household.py   # PyYAML + helm: ADR 0018 rules for household
 python3 scripts/homepage/generate.py [--check|--inventory]   # PyYAML: pages from homepage/catalog.yaml (ADR 0019)
 python3 scripts/homepage/rendercheck/render_check.py [--serve]   # Docker + Playwright: both pages on a mock (ADR 0020)
+python3 scripts/homepage/make_icons.py        # Playwright: each page's PNG icon, after its favicon.svg changes
 python3 scripts/check-admin-gate.py           # PyYAML + helm: ADR 0014 gate
 python3 scripts/check-jellyfin-compat.py      # PyYAML + helm + curl
 python3 scripts/check-argocd-notifications.py # PyYAML + helm: ntfy bodies stay valid JSON

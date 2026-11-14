@@ -1,3 +1,4 @@
+import base64
 import copy
 import json
 import os
@@ -7,10 +8,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import yaml
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from catalog import CatalogError, load_catalog
 from fixture import make_repo
-from render import PAGES, build_page
+from render import PAGES, build_page, dump_page
 
 CAT = {
     "tiles": {
@@ -269,6 +272,17 @@ class RenderTests(unittest.TestCase):
         jelly = media[0]["Jellyfin"]
         self.assertEqual(list(jelly)[0], "id")
         self.assertEqual(list(jelly)[-1], "widgets")
+
+    def test_png_file_is_binary_data(self):
+        png = b"\x89PNG\r\n\x1a\n\x00\xff{{not text}}"
+        h = build("household", pages={"household": {"files/icon-192.png": png, "files/y.svg": "<svg/>\n"}})
+        self.assertEqual(h["icon-192.png"], png)
+        doc = yaml.safe_load(dump_page("household", h))
+        self.assertEqual(base64.b64decode(doc["binaryData"]["icon-192.png"]), png)
+        self.assertEqual(list(doc["binaryData"]), ["icon-192.png"])
+        self.assertNotIn("icon-192.png", doc["data"])
+        self.assertEqual(doc["data"]["y.svg"], "<svg/>\n")
+        self.assertNotIn("binaryData", yaml.safe_load(dump_page("household", build("household"))))
 
     def test_tile_has_no_inner_name(self):
         for page in ("household", "admin"):

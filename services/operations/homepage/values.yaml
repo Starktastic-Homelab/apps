@@ -101,3 +101,6 @@ persistence:
       - path: /app/public/images/grain.svg
         subPath: grain.svg
         readOnly: true
+      - path: /app/public/images/icon-192.png
+        subPath: icon-192.png
+        readOnly: true

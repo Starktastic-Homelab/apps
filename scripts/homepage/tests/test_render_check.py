@@ -67,6 +67,11 @@ class SlugTests(unittest.TestCase):
 
 
 class BuildConfigTests(unittest.TestCase):
+    def test_build_config_keeps_binary_files(self):
+        png = b"\x89PNG\r\n\x1a\n\x00HOMEPAGE_VAR"
+        out = build_config({**DATA, "icon-192.png": png}, set())
+        self.assertEqual(out["icon-192.png"], png)
+
     def test_build_config_rewrites(self):
         before = copy.deepcopy(DATA)
         out = build_config(DATA, set())
@@ -167,6 +172,11 @@ class FailureTests(unittest.TestCase):
         runs[0]["missing"] = ["/images/aurora-still.svg"]
         self.assertRegex("\n".join(failures(INV, runs, "household")), r"/images/aurora-still\.svg")
 
+    def test_failures_default_icon(self):
+        runs = good()
+        runs[0]["icons"] = ["manifest icon /android-chrome-192x192.png is Homepage's default"]
+        self.assertRegex("\n".join(failures(INV, runs, "household")), r"A 390x844 calm: manifest icon /android-chrome")
+
     def test_failures_small_target(self):
         runs = good()
         runs[0]["small"] = ["a 30x30"]
@@ -265,7 +275,7 @@ class RealCatalogTests(unittest.TestCase):
         cat = load_catalog(ROOT)
         for page in PAGES:
             out = build_config(build_page(ROOT, cat, page), {"seerr-ru"})
-            self.assertNotIn("HOMEPAGE_VAR", "".join(out.values()))
+            self.assertNotIn("HOMEPAGE_VAR", "".join(v for v in out.values() if isinstance(v, str)))  # not the PNG
             for name in ("services.yaml", "widgets.yaml", "settings.yaml", "bookmarks.yaml", "proxmox.yaml"):
                 if name in out and name != "bookmarks.yaml":
                     with self.subTest(page=page, file=name):

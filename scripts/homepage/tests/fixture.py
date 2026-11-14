@@ -20,9 +20,12 @@ def _dump(data) -> str:
     return yaml.safe_dump(data, allow_unicode=True, sort_keys=False)
 
 
-def _write(path: Path, text: str) -> None:
+def _write(path: Path, text: str | bytes) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(text, encoding="utf-8")
+    if isinstance(text, bytes):
+        path.write_bytes(text)
+    else:
+        path.write_text(text, encoding="utf-8")
 
 
 CONFIGMAPS = {"household": "homepage-config", "admin": "homepage-admin-config"}

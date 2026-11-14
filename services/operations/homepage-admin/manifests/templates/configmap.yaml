@@ -2684,21 +2684,17 @@ data:
           href: https://grafana.internal.starktastic.net
           siteMonitor: http://kube-prometheus-stack-grafana.monitoring:80/api/health
           namespace: monitoring
-          widgets:
-          - type: grafana
-            alerts: alertmanager
-            url: http://kube-prometheus-stack-grafana.monitoring:80
-            username: '{{ "{{" }}HOMEPAGE_VAR_GRAFANA_USER{{ "}}" }}'
-            password: '{{ "{{" }}HOMEPAGE_VAR_GRAFANA_PASS{{ "}}" }}'
-            version: 2
-          - type: prometheusmetric
+          widget:
+            type: prometheusmetric
             url: http://kube-prometheus-stack-prometheus.monitoring:9090
             refreshInterval: 300000
             metrics:
+            - label: Dashboards
+              query: max(grafana_stat_totals_dashboard)
+            - label: Data Sources
+              query: max(grafana_stat_totals_datasource)
             - label: Active Users
               query: max(grafana_stat_active_users)
-            - label: Alert Rules
-              query: max(grafana_stat_totals_alert_rules)
       - Prometheus:
           id: prometheus
           icon: prometheus.png

@@ -56,8 +56,9 @@
  "floor(sum(increase((sum by (pod) (tempo_discarded_spans_total) or 0 * sum by (pod) (tempo_build_info))[24h:5m]))) and count(tempo_build_info)": 0,
  "floor(sum(increase((sum by (pod) (falcosecurity_falcosidekick_outputs_total{status!=\"ok\"}) or 0 * sum by (pod) (up{job=\"falco-falcosidekick\"} == 1))[24h:1m]))) and count(up{job=\"falco-falcosidekick\"} == 1)": 0,
  "max(grafana_stat_active_users)": 3,
- "max(grafana_stat_totals_alert_rules)": 118,
  "sum(unpackerr_gauges{name=\"extracting\"})": 1,
  "sum(unpackerr_gauges{name=\"failed\"})": 0,
- "sum(unpackerr_gauges{name=\"extracted\"})": 27
+ "sum(unpackerr_gauges{name=\"extracted\"})": 27,
+ "max(grafana_stat_totals_dashboard)": 38,
+ "max(grafana_stat_totals_datasource)": 4
 }

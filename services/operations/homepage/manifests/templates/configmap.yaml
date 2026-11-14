@@ -1111,14 +1111,15 @@ data:
           description: Latest additions
           widget:
             type: customapi
-            url: http://jellyfin-main.media:8096/Items/Latest?IncludeItemTypes=Episode&groupItems=false&Limit=6&Fields=DateCreated
+            url: http://jellyfin-main.media:8096/Items?IncludeItemTypes=Series&Recursive=true&SortBy=DateLastContentAdded&SortOrder=Descending&Limit=6&Fields=DateLastMediaAdded
             headers:
               Authorization: MediaBrowser Token="{{ "{{" }}HOMEPAGE_VAR_JELLYFIN_HOUSEHOLD_TOKEN{{ "}}" }}"
             refreshInterval: 900000
             display: dynamic-list
             mappings:
-              name: SeriesName
-              label: DateCreated
+              items: Items
+              name: Name
+              label: DateLastMediaAdded
               format: relativeDate
               limit: 6
               target: https://benplus.app/web/#/details?id={Id}&serverId={ServerId}

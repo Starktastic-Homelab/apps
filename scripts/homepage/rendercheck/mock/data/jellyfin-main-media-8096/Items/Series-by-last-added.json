@@ -1,0 +1,54 @@
+{
+ "Items": [
+  {
+   "Name": "Метод",
+   "ServerId": "4f1a2b3c4d5e6f708192a3b4c5d6e7f8",
+   "Id": "5a000000000000000000000000000001",
+   "DateLastMediaAdded": "{{iso:-20h}}",
+   "IsFolder": true,
+   "Type": "Series"
+  },
+  {
+   "Name": "Bob's Burgers",
+   "ServerId": "4f1a2b3c4d5e6f708192a3b4c5d6e7f8",
+   "Id": "5a000000000000000000000000000002",
+   "DateLastMediaAdded": "{{iso:-2d}}",
+   "IsFolder": true,
+   "Type": "Series"
+  },
+  {
+   "Name": "The Simpsons",
+   "ServerId": "4f1a2b3c4d5e6f708192a3b4c5d6e7f8",
+   "Id": "5a000000000000000000000000000003",
+   "DateLastMediaAdded": "{{iso:-2d}}",
+   "IsFolder": true,
+   "Type": "Series"
+  },
+  {
+   "Name": "One Piece",
+   "ServerId": "4f1a2b3c4d5e6f708192a3b4c5d6e7f8",
+   "Id": "5a000000000000000000000000000004",
+   "DateLastMediaAdded": "{{iso:-6d}}",
+   "IsFolder": true,
+   "Type": "Series"
+  },
+  {
+   "Name": "Slow Horses",
+   "ServerId": "4f1a2b3c4d5e6f708192a3b4c5d6e7f8",
+   "Id": "5a000000000000000000000000000005",
+   "DateLastMediaAdded": "{{iso:-7d}}",
+   "IsFolder": true,
+   "Type": "Series"
+  },
+  {
+   "Name": "Only Murders in the Building",
+   "ServerId": "4f1a2b3c4d5e6f708192a3b4c5d6e7f8",
+   "Id": "5a000000000000000000000000000006",
+   "DateLastMediaAdded": "{{iso:-14d}}",
+   "IsFolder": true,
+   "Type": "Series"
+  }
+ ],
+ "TotalRecordCount": 312,
+ "StartIndex": 0
+}

@@ -572,7 +572,8 @@ tiles:
           format: relativeDate
           limit: 6
           target: https://benplus.app/web/#/details?id={Id}&serverId={ServerId}
-  # groupItems=false keeps every row an episode, so SeriesName is always set.
+  # One row per series, newest episode first: the series sorted by when content was last added to them. (One row
+  # per episode showed a series six times when a season landed at once.) A row opens the series.
   new-episodes:
     name: New episodes
     audience: household
@@ -581,13 +582,14 @@ tiles:
     widgets:
       - audience: household
         type: customapi
-        url: http://jellyfin-main.media:8096/Items/Latest?IncludeItemTypes=Episode&groupItems=false&Limit=6&Fields=DateCreated
+        url: http://jellyfin-main.media:8096/Items?IncludeItemTypes=Series&Recursive=true&SortBy=DateLastContentAdded&SortOrder=Descending&Limit=6&Fields=DateLastMediaAdded
         headers: *jellyfin_household_auth
         refreshInterval: 900000
         display: dynamic-list
         mappings:
-          name: SeriesName
-          label: DateCreated
+          items: Items
+          name: Name
+          label: DateLastMediaAdded
           format: relativeDate
           limit: 6
           target: https://benplus.app/web/#/details?id={Id}&serverId={ServerId}
@@ -1658,6 +1660,20 @@ tiles:
         headers: *pve_auth
         refreshInterval: 60000
         mappings: *vm_blocks
+  # The self-hosted GitHub Actions runner: every repo's CI and all live operations run on it (VM 300; Ben
+  # confirmed 2026-11-14). When a workflow hangs in "queued", this dot is the first thing to look at.
+  runner:
+    name: Runner
+    icon: mdi-github
+    description: CI and live operations
+    proxmoxNode: pve
+    proxmoxVMID: 300
+    widgets:
+      - type: customapi
+        url: https://10.9.9.20:8006/api2/json/nodes/pve/qemu/300/status/current
+        headers: *pve_auth
+        refreshInterval: 60000
+        mappings: *vm_blocks
   opnsense:
     name: OPNsense
     icon: opnsense.png
@@ -2283,6 +2299,7 @@ pages:
               - kube-master-01
               - kube-worker-01
               - kube-worker-02
+              - runner
           - name: Network
             items:
               - opnsense

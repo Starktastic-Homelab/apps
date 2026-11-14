@@ -1634,12 +1634,14 @@ bookmarks:
     name: Buy Me a Coffee
     audience: household-only
     abbr: BC
+    icon: "si-buymeacoffee-#FFDD00"
     href: https://buymeacoffee.com/benfaingold
     description: By card
   bm-paybox:
     name: PayBox
     audience: household-only
     abbr: PB
+    icon: "mdi-piggy-bank-outline-#67E8F9" # PayBox has no icon in Homepage's sets; the fund is the idea
     href: https://links.payboxapp.com/MgzMt5tR27b
     description: Server fund group
   bm-apps:
@@ -1775,6 +1777,7 @@ pages:
               - seerr-ru
           # Links out only: the page handles no money, keys or webhooks (ADR 0020, decision 8).
           - name: Support the server
+            icon: mdi-heart-outline
             style: row
             columns: 2
             items:

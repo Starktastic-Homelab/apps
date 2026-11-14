@@ -28,6 +28,10 @@ global:
     - name: branding-assets
       mountPath: /data/media/public/branding/background.svg
       subPath: background.svg
+    # Authentik attaches this file to any mail whose body says cid:logo (ADR 0021): our mark replaces its logo
+    - name: branding-assets
+      mountPath: /web/dist/assets/icons/icon_left_brand.png
+      subPath: mail-mark.png
 authentik:
   log_level: info
   email:

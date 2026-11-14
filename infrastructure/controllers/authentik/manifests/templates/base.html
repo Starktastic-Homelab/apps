@@ -1,114 +1,66 @@
 {% load authentik_stages_email %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <meta name="supported-color-schemes" content="dark">
+    <title>Starktastic Services</title>
+    {# ADR 0021. Everything a mail needs is inline: a client that drops this block loses only the extras in it. No bgcolor attributes, so a client that drops all CSS shows dark text on white. This file also wraps Authentik's built-in mails, which is what the .st-card rules are for. #}
     <style type="text/css">
-      body {
-        font-family: Arial, sans-serif;
-        font-size: 14px;
-        color: #E2E8F0;
-        background-color: #0F0F1A;
-        margin: 0;
-        padding: 0;
-      }
-      h1, h2, h3 {
-        color: #F8FAFC;
-      }
-      h2 {
-        display: inline-block;
-        font-family: Arial, sans-serif;
-        font-size: 28px;
-        line-height: 125%;
-        font-weight: 700;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        margin: 0;
-      }
-      a {
-        color: #60A5FA;
-      }
-      a:hover {
-        color: #93C5FD;
-      }
-      .flexibleImage { height: auto; }
-      .properties-table {
-        width: 100%;
-        text-align: left;
-        font-size: 14px;
-        font-weight: 400;
-        font-family: Arial, sans-serif;
-        border-collapse: collapse;
-      }
-      .properties-table tr:first-child { border-top: 1px solid rgba(59, 130, 246, 0.2); }
-      .properties-table tr:first-child>td { padding-top: 24px; }
-      .properties-table tr:last-child { border-bottom: 1px solid rgba(59, 130, 246, 0.2); }
-      .properties-table tr:last-child>td { padding-bottom: 24px; }
-      .properties-table td { line-height: 24px; vertical-align: top; padding: 4px 15px; }
-      .td-right { text-align: right; white-space: nowrap; }
-      .btn-primary {
-        text-decoration: none;
-        color: #FFF;
-        background-color: #DC2626;
-        border: solid #DC2626;
-        border-width: 10px 20px;
-        width: 100%;
-        line-height: 2em;
-        font-weight: bold;
-        text-align: center;
-        cursor: pointer;
-        display: inline-block;
-        border-radius: 6px;
-        text-transform: capitalize;
-      }
-      .btn-primary a { color: #fff; text-decoration: none; }
+      a { color: #93C5FD; }
+      h1, h2, h3 { color: #F4F6FF; font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+      .st-card h1 { margin: 0 0 4px 0; font-size: 24px; line-height: 1.25; }
+      .st-card td { color: #E2E9FA !important; }
+      .st-sub td { color: #A9BCE6 !important; }
+      .st-card td.btn-primary { padding: 13px 34px; background-color: #1D4ED8; border: 1px solid #3B82F6; border-radius: 999px; }
+      .st-card td.btn-primary a { color: #FFFFFF !important; font-weight: bold; text-decoration: none; }
+      .properties-table { width: 100%; text-align: left; border-collapse: collapse; }
+      .properties-table td { padding: 4px 12px; line-height: 24px; vertical-align: top; border-top: 1px solid #2A3566; }
+      .st-card td.td-right { text-align: right; white-space: nowrap; color: #C0D0F2 !important; }
     </style>
   </head>
-  <body>
-    <div class="wrapper" style="background-color: #0F0F1A;">
-      <center>
-        <div style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; table-layout: fixed; width: 100%; max-width: 448px; padding: 60px 20px; font-size: 14px;">
-          <table border="0" align="center" width="100%">
+  <body style="margin: 0; padding: 0; background-color: #0F0F1A;">
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #0F0F1A; background-image: radial-gradient(ellipse 90% 420px at 12% 0%, rgba(59,130,246,0.42), rgba(59,130,246,0) 70%), radial-gradient(ellipse 70% 380px at 100% 12%, rgba(99,102,241,0.34), rgba(99,102,241,0) 70%);">
+      <tr>
+        <td align="center" style="padding: 44px 14px 36px 14px; font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 15px; line-height: 1.6; color: #E2E9FA;">
+          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 480px;">
             <tr>
-              <td style="padding: 20px; border: 1px solid rgba(59, 130, 246, 0.15); border-radius: 8px; background-color: #1A1A2E;">
-                <table width="100%" style="border-spacing: 0; margin-top: 15px;">
-                  <tr height="60">
-                    <td align="center" style="padding: 10px 0 20px 0;">
-                      <div style="text-align: center;">
-                        <span style="font-family: Arial, sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 2px; color: #F8FAFC;">STARK</span><span style="font-family: Arial, sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 2px; color: #DC2626;">TASTIC</span>
-                        <br/>
-                        <span style="font-family: Arial, sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 4px; color: #94A3B8; text-transform: uppercase;">Services</span>
-                      </div>
-                    </td>
+              <td align="center" style="padding: 0 0 26px 0;">
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                  <tr>
+                    {# cid:logo makes Authentik attach its mail logo, which values.yaml replaces with branding/mail-mark.png #}
+                    <td style="padding: 0 12px 0 0;"><img src="{% block logo_url %}cid:logo{% endblock %}" width="40" height="40" alt="" style="display: block; border: 0; width: 40px; height: 40px;"></td>
+                    <td style="font-family: Manrope, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 25px; line-height: 40px; font-weight: 800; letter-spacing: -0.4px; color: #F4F6FF;">Starktastic</td>
                   </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td class="st-card" style="padding: 30px 26px 30px 26px; background-color: #131B3A; border: 1px solid #2A3566; border-top: 1px solid #47568F; border-radius: 24px;">
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
                   {% block content %}
                   {% endblock %}
                 </table>
               </td>
             </tr>
             <tr>
-              <td>
-                <table border="0" style="margin-top: 10px;" width="100%">
-                  <tr>
-                    <td style="background: #1A1A2E; border-radius: 6px;">
-                      <table style="width: 100%;">
-                        {% block sub_content %}
-                        {% endblock %}
-                      </table>
-                    </td>
-                  </tr>
+              <td class="st-sub" style="padding: 12px 0 0 0;">
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                  {% block sub_content %}
+                  {% endblock %}
                 </table>
               </td>
             </tr>
             <tr>
-              <td align="center" style="padding-top: 16px; font-size: 12px; color: #64748B;">
+              <td align="center" style="padding: 22px 0 0 0; font-size: 12px; line-height: 1.5; color: #7D94C8;">
                 Starktastic Services
               </td>
             </tr>
           </table>
-        </div>
-      </center>
-    </div>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>

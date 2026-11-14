@@ -4,39 +4,39 @@
 
 {% block content %}
 <tr>
-  <td align="center" style="padding: 10px 0 5px 0;">
-    <h2 style="font-size: 20px; color: #F8FAFC; margin: 0;">Welcome Aboard</h2>
+  <td align="center" style="padding: 0 0 14px 0;">
+    <h1 style="margin: 0; font-size: 24px; line-height: 1.25; font-weight: 800; letter-spacing: -0.3px; color: #F4F6FF;">Welcome aboard</h1>
   </td>
 </tr>
 <tr>
-  <td style="padding: 20px; color: #CBD5E1;">
-    <p style="margin-top: 0;">Hi {{ user.name|default:user.username }},</p>
-    <p>Your account is all set up. Here's what you have access to.</p>
+  <td style="color: #E2E9FA;">
+    <p style="margin: 0 0 12px 0;">Hi {{ user.name|default:user.username }},</p>
+    <p style="margin: 0 0 22px 0;">Your account is all set up. Here's what you have access to.</p>
 
-    <h2 style="font-size: 18px; margin-top: 24px;">Ben+ &mdash; Media Streaming</h2>
-    <p>Stream movies, TV shows, and more. Install the Jellyfin app on your device:</p>
-    <table border="0" style="margin: 10px 0 20px 0;">
-      <tr><td style="padding: 4px 15px;"><a href="https://apps.apple.com/app/jellyfin-mobile/id1480192618" rel="noopener noreferrer" target="_blank">iPhone / iPad</a></td></tr>
-      <tr><td style="padding: 4px 15px;"><a href="https://play.google.com/store/apps/details?id=org.jellyfin.mobile" rel="noopener noreferrer" target="_blank">Android Phone / Tablet</a></td></tr>
-      <tr><td style="padding: 4px 15px;"><a href="https://play.google.com/store/apps/details?id=org.jellyfin.androidtv" rel="noopener noreferrer" target="_blank">Android TV / Fire TV</a></td></tr>
-      <tr><td style="padding: 4px 15px;"><a href="https://jellyfin.org/downloads" rel="noopener noreferrer" target="_blank">Desktop &amp; Other Devices</a></td></tr>
-      <tr><td style="padding: 4px 15px;">Or visit <a href="https://benplus.app" rel="noopener noreferrer" target="_blank">benplus.app</a> in your browser</td></tr>
+    <p style="margin: 0 0 6px 0; font-size: 12px; line-height: 1.4; font-weight: bold; letter-spacing: 1.6px; text-transform: uppercase; color: #93C5FD;">Ben+ &middot; Media streaming</p>
+    <p style="margin: 0 0 12px 0;">Stream movies, TV shows, and more. Install the Jellyfin app on your device:</p>
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 0 0 16px 0;">
+      <tr><td style="padding: 9px 14px; border-top: 1px solid #2A3566;"><a href="https://apps.apple.com/app/jellyfin-mobile/id1480192618" rel="noopener noreferrer" target="_blank" style="color: #93C5FD; font-weight: bold; text-decoration: none;">iPhone / iPad</a></td></tr>
+      <tr><td style="padding: 9px 14px; border-top: 1px solid #2A3566;"><a href="https://play.google.com/store/apps/details?id=org.jellyfin.mobile" rel="noopener noreferrer" target="_blank" style="color: #93C5FD; font-weight: bold; text-decoration: none;">Android Phone / Tablet</a></td></tr>
+      <tr><td style="padding: 9px 14px; border-top: 1px solid #2A3566;"><a href="https://play.google.com/store/apps/details?id=org.jellyfin.androidtv" rel="noopener noreferrer" target="_blank" style="color: #93C5FD; font-weight: bold; text-decoration: none;">Android TV / Fire TV</a></td></tr>
+      <tr><td style="padding: 9px 14px; border-top: 1px solid #2A3566;"><a href="https://jellyfin.org/downloads" rel="noopener noreferrer" target="_blank" style="color: #93C5FD; font-weight: bold; text-decoration: none;">Desktop &amp; Other Devices</a></td></tr>
+      <tr><td style="padding: 9px 14px; border-top: 1px solid #2A3566; border-bottom: 1px solid #2A3566;">Or visit <a href="https://benplus.app" rel="noopener noreferrer" target="_blank" style="color: #93C5FD; font-weight: bold; text-decoration: none;">benplus.app</a> in your browser</td></tr>
     </table>
-    <p>Server address: <strong>https://benplus.app</strong></p>
-    <p>Log in with the username and password you created during sign-up.</p>
+    <p style="margin: 0 0 6px 0;">Server address: <strong style="color: #F4F6FF;">https://benplus.app</strong></p>
+    <p style="margin: 0 0 24px 0;">Log in with the username and password you created during sign-up.</p>
 
-    <h3 style="font-size: 16px; margin-top: 20px;">Request New Content</h3>
-    <p>Can't find something? Use Jellyseerr to request movies and TV shows &mdash; they'll be added automatically.</p>
+    <p style="margin: 0 0 6px 0; font-size: 12px; line-height: 1.4; font-weight: bold; letter-spacing: 1.6px; text-transform: uppercase; color: #93C5FD;">Request new content</p>
+    <p style="margin: 0 0 10px 0;">Can't find something? Use Seerr to request movies and TV shows &mdash; they'll be added automatically.</p>
     {% if media_preference == "original" or media_preference == "both" %}
-    <p><a href="https://request.benplus.app" rel="noopener noreferrer" target="_blank" style="font-weight: bold;">request.benplus.app</a> &mdash; Original content</p>
+    <p style="margin: 0 0 6px 0;"><a href="https://request.benplus.app" rel="noopener noreferrer" target="_blank" style="color: #93C5FD; font-weight: bold; text-decoration: none;">request.benplus.app</a> &mdash; Original content</p>
     {% endif %}
     {% if media_preference == "ru" %}
-    <p><a href="https://request-ru.benplus.app" rel="noopener noreferrer" target="_blank" style="font-weight: bold;">request-ru.benplus.app</a> &mdash; Русский дубляж</p>
+    <p style="margin: 0 0 6px 0;"><a href="https://request-ru.benplus.app" rel="noopener noreferrer" target="_blank" style="color: #93C5FD; font-weight: bold; text-decoration: none;">request-ru.benplus.app</a> &mdash; Русский дубляж</p>
     {% elif media_preference == "both" %}
-    <p><a href="https://request-ru.benplus.app" rel="noopener noreferrer" target="_blank" style="font-weight: bold;">request-ru.benplus.app</a> &mdash; Russian dubbed content / Русский дубляж</p>
+    <p style="margin: 0 0 6px 0;"><a href="https://request-ru.benplus.app" rel="noopener noreferrer" target="_blank" style="color: #93C5FD; font-weight: bold; text-decoration: none;">request-ru.benplus.app</a> &mdash; Russian dubbed content / Русский дубляж</p>
     {% endif %}
 
-    <p style="margin-top: 20px; color: #94A3B8;">Questions? Reach out to the person who invited you.</p>
+    <p style="margin: 22px 0 0 0; font-size: 13px; color: #C0D0F2;">Questions? Reach out to the person who invited you.</p>
   </td>
 </tr>
 {% endblock %}

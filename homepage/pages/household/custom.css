@@ -296,7 +296,7 @@ html:root {
    end. A browser without anchor positioning gets no pill and shows that group under every tab instead. */
 @supports (anchor-name: --hp-support) {
   #information-widgets::after {
-    content: "Support";
+    content: "Donate";
     grid-area: support;
     justify-self: end;
     display: flex;
@@ -378,7 +378,7 @@ html:root {
     }
 
     .information-widget-openmeteo {
-      max-width: calc(100vw - 218px); /* page margins 32, gap 10, pill 176 */
+      max-width: calc(100vw - 210px); /* page margins 32, gap 10, pill 168 */
       overflow: hidden;
     }
   }

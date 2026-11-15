@@ -19,6 +19,10 @@ controllers:
           OIDC_REMEMBER_ME: "true"
           OIDC_USER_GROUP: "mealie-users"
           OIDC_ADMIN_GROUP: "mealie-admins"
+          # Authentik's stock email mapping always sends email_verified: false, and Mealie refuses that by default.
+          # Safe to accept here: sign-up confirms the address by link and keeps it unique, and no account can
+          # change its own email (ADR 0015).
+          OIDC_REQUIRES_EMAIL_VERIFICATION: "false"
           OPENAI_BASE_URL: "https://generativelanguage.googleapis.com/v1beta/openai/"
           OPENAI_MODEL: "gemini-2.0-flash"
           OPENAI_ENABLE_IMAGE_SERVICES: "true"

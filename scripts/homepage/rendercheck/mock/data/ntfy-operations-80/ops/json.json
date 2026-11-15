@@ -1,0 +1,1 @@
+{"id": "p3Lw8VbNc1Yd", "time": {{epoch:-2h}}, "expires": {{epoch:+10h}}, "event": "message", "topic": "ops", "title": "Degraded: paperless-ngx", "message": "Application health has degraded. Check ArgoCD for details.", "priority": 4, "tags": ["rotating_light", "warning"]}

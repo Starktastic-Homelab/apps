@@ -2567,11 +2567,19 @@ data:
       - ntfy:
           id: ntfy
           icon: ntfy.png
-          description: Push notifications
+          description: Push notifications · latest on ops
           href: https://ntfy.starktastic.net
           siteMonitor: http://ntfy.operations:80
           namespace: operations
           app: ntfy
+          widget:
+            type: ntfy
+            url: http://ntfy.operations:80
+            topic: ops
+            key: '{{ "{{" }}HOMEPAGE_VAR_NTFY_TOKEN{{ "}}" }}'
+            fields:
+            - title
+            - lastReceived
       - Listmonk:
           id: listmonk
           icon: listmonk.png

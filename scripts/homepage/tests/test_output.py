@@ -104,6 +104,20 @@ class TestDump(Base):
                 if not isinstance(val, str):
                     self.assertEqual(yaml.safe_load(cm["data"][key]), val, key)
 
+    def test_hass_template_line_holds_jinja(self):
+        jinja = "{% set s = states('x.y') %}{{ {'on': 'Up'}.get(s, s) }} {{ {'a': {'b': 1}}}}"
+        widget = {"type": "homeassistant", "url": "http://h", "custom": [{"label": "L", "template": jinja}]}
+        repo = self.repo(lambda c: c["tiles"]["a"].__setitem__("widgets", [widget]))
+        text = list(render_all(repo).values())[1]  # admin: a widget without an audience is admin's
+        plain = text.replace('{{ "{{" }}', "{{").replace('{{ "}}" }}', "}}")  # what Helm prints
+        for token in ('{{ "{{" }}', '{{ "}}" }}'):
+            text = text.replace(token, "")
+        self.assertNotRegex(text, r"\{\{|\}\}")  # no brace pair is left for Helm to read as its own
+        services = yaml.safe_load(yaml.safe_load(plain)["data"]["services.yaml"])
+        self.assertIn(jinja, str(services))
+        with self.assertRaisesRegex(CatalogError, r"outside a \{\{HOMEPAGE_VAR"):  # only that line may
+            render_all(self.repo(desc("{{ states('x.y') }}")))
+
 
 class TestCli(Base):
     def run_main(self, argv, repo):

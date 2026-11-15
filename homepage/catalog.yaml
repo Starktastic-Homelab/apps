@@ -1511,9 +1511,29 @@ tiles:
     icon: home-assistant.png
     description: Smart home control
     widgets:
-      - type: homeassistant
+      - &hass
+        type: homeassistant
         url: http://home-assistant-main.home-automation:8123
         key: "{{HOMEPAGE_VAR_HASS_KEY}}"
+      # Counts Home Assistant works out itself, on the token above. Each formula is Jinja, sent to its template
+      # API as the three default blocks are, and names no entity, so it holds for any set of devices. Homepage
+      # shows the first four. Only the live page proves them: a formula Home Assistant rejects shows as "400".
+      - <<: *hass
+        custom:
+          - label: Open Doors
+            template:
+              "{{ states.binary_sensor | selectattr('attributes.device_class', 'defined') |
+              selectattr('attributes.device_class', 'in', ['door', 'window', 'garage_door', 'opening']) |
+              selectattr('state', 'eq', 'on') | list | count }}"
+          - label: Unavailable
+            template: "{{ states | selectattr('state', 'eq', 'unavailable') | list | count }}"
+          - label: Low Battery
+            template:
+              "{{ states.sensor | selectattr('attributes.device_class', 'defined') |
+              selectattr('attributes.device_class', 'eq', 'battery') | map(attribute='state') | map('float', 100) |
+              select('lt', 20) | list | count }}"
+          - label: Updates
+            template: "{{ states.update | selectattr('state', 'eq', 'on') | list | count }}"
       # The home-automation namespace (Home Assistant, Zigbee2MQTT, Mosquitto) on metrics the Pulse board
       # already reads. No probe covers Home Assistant, so there is no uptime figure.
       - type: prometheusmetric
@@ -1541,6 +1561,26 @@ tiles:
     source: services/home-automation/zigbee2mqtt
     icon: zigbee2mqtt.png
     description: Zigbee device bridge
+    # Zigbee2MQTT has no HTTP API to read, but Home Assistant sees its bridge and devices through MQTT. The bridge's
+    # two entities are found by the end of their id, whatever the prefix; Devices and Offline count every MQTT
+    # device, so anything else on the broker is in them too.
+    widgets:
+      - <<: *hass
+        custom:
+          - label: Bridge
+            template:
+              "{% set s = states.binary_sensor | selectattr('entity_id', 'search', 'bridge_connection_state$') |
+              map(attribute='state') | first | default('?') %}{{ {'on': 'Online', 'off': 'Offline'}.get(s, s) }}"
+          - label: Devices
+            template: "{{ integration_entities('mqtt') | map('device_id') | reject('none') | unique | list | count }}"
+          - label: Offline
+            template:
+              "{{ integration_entities('mqtt') | select('is_state', 'unavailable') | map('device_id') | reject('none') |
+              unique | list | count }}"
+          - label: Permit Join
+            template:
+              "{% set s = states.switch | selectattr('entity_id', 'search', 'bridge_permit_join$') |
+              map(attribute='state') | first | default('?') %}{{ {'on': 'Open', 'off': 'Closed'}.get(s, s) }}"
   # ---- Platform extras (spec §8 step 2) -----------------------------------------------------------------------
   # Metrics the proof rule held back until they were seen live. Each query below names its proof: the read-only
   # probe of 2026-11-14 ("platform-metrics-probe"), which listed the metric names, the scrape jobs and sample

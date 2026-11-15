@@ -2638,6 +2638,18 @@ data:
           - type: homeassistant
             url: http://home-assistant-main.home-automation:8123
             key: '{{ "{{" }}HOMEPAGE_VAR_HASS_KEY{{ "}}" }}'
+          - type: homeassistant
+            url: http://home-assistant-main.home-automation:8123
+            key: '{{ "{{" }}HOMEPAGE_VAR_HASS_KEY{{ "}}" }}'
+            custom:
+            - label: Open Doors
+              template: '{{ "{{" }} states.binary_sensor | selectattr(''attributes.device_class'', ''defined'') | selectattr(''attributes.device_class'', ''in'', [''door'', ''window'', ''garage_door'', ''opening'']) | selectattr(''state'', ''eq'', ''on'') | list | count {{ "}}" }}'
+            - label: Unavailable
+              template: '{{ "{{" }} states | selectattr(''state'', ''eq'', ''unavailable'') | list | count {{ "}}" }}'
+            - label: Low Battery
+              template: '{{ "{{" }} states.sensor | selectattr(''attributes.device_class'', ''defined'') | selectattr(''attributes.device_class'', ''eq'', ''battery'') | map(attribute=''state'') | map(''float'', 100) | select(''lt'', 20) | list | count {{ "}}" }}'
+            - label: Updates
+              template: '{{ "{{" }} states.update | selectattr(''state'', ''eq'', ''on'') | list | count {{ "}}" }}'
           - type: prometheusmetric
             url: http://kube-prometheus-stack-prometheus.monitoring:9090
             refreshInterval: 60000
@@ -2662,6 +2674,19 @@ data:
           siteMonitor: http://zigbee2mqtt.home-automation:8080
           namespace: home-automation
           app: zigbee2mqtt
+          widget:
+            type: homeassistant
+            url: http://home-assistant-main.home-automation:8123
+            key: '{{ "{{" }}HOMEPAGE_VAR_HASS_KEY{{ "}}" }}'
+            custom:
+            - label: Bridge
+              template: '{% set s = states.binary_sensor | selectattr(''entity_id'', ''search'', ''bridge_connection_state$'') | map(attribute=''state'') | first | default(''?'') %}{{ "{{" }} {''on'': ''Online'', ''off'': ''Offline''}.get(s, s) {{ "}}" }}'
+            - label: Devices
+              template: '{{ "{{" }} integration_entities(''mqtt'') | map(''device_id'') | reject(''none'') | unique | list | count {{ "}}" }}'
+            - label: Offline
+              template: '{{ "{{" }} integration_entities(''mqtt'') | select(''is_state'', ''unavailable'') | map(''device_id'') | reject(''none'') | unique | list | count {{ "}}" }}'
+            - label: Permit Join
+              template: '{% set s = states.switch | selectattr(''entity_id'', ''search'', ''bridge_permit_join$'') | map(attribute=''state'') | first | default(''?'') %}{{ "{{" }} {''on'': ''Open'', ''off'': ''Closed''}.get(s, s) {{ "}}" }}'
     - Ship:
       - Argo CD:
           id: argo-cd

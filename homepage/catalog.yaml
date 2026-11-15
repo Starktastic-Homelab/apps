@@ -1289,6 +1289,30 @@ tiles:
     source: services/media/lingarr
     icon: mdi-translate
     description: Subtitle translation
+    widgets:
+      # Lifetime totals since the last reset (/api/statistics, v1.4.1; counts). No key: Lingarr's own sign-in is
+      # off (seen in its settings, 2026-11-15), so its API answers inside the cluster as it is; the admin gate
+      # guards its host. If sign-in is ever turned on there, both widgets need an X-Api-Key header.
+      - type: customapi
+        url: http://lingarr.media:8080/api/statistics
+        refreshInterval: 300000
+        mappings:
+          - field: totalFilesTranslated
+            label: Translated
+            format: number
+          - field: totalLinesTranslated
+            label: Lines
+            format: number
+          - field: totalSubtitles
+            label: Subtitles
+            format: number
+      # The translations waiting or running now: the answer is a bare list, so its length is the queue.
+      - type: customapi
+        url: http://lingarr.media:8080/api/translationrequest/active
+        refreshInterval: 60000
+        mappings:
+          - label: Queue
+            format: size
   home-assistant:
     name: Home Assistant
     source: services/home-automation/home-assistant

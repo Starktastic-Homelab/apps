@@ -1,0 +1,23 @@
+{
+ "id": 1,
+ "createdAt": "{{iso:-40d}}",
+ "updatedAt": "{{iso:-2h}}",
+ "totalLinesTranslated": 412873,
+ "totalFilesTranslated": 612,
+ "totalCharactersTranslated": 18244310,
+ "totalMovies": 1284,
+ "totalEpisodes": 14876,
+ "totalSubtitles": 9321,
+ "translationsByMediaType": {
+  "Movie": 148,
+  "Episode": 464
+ },
+ "translationsByService": {
+  "libretranslate": 612
+ },
+ "subtitlesByLanguage": {
+  "en:ru": 590,
+  "en:he": 22
+ },
+ "translationsByModel": {}
+}

@@ -1,0 +1,9 @@
+{
+ "drawings": [
+  {"id": "7d1c2a90-0000-4000-8000-000000000001", "name": "Homelab network", "updatedAt": "{{iso:-40m}}", "createdAt": "{{iso:-9d}}", "version": 42, "collectionId": null, "creatorName": "mock"},
+  {"id": "7d1c2a90-0000-4000-8000-000000000002", "name": "Storage layout", "updatedAt": "{{iso:-5h}}", "createdAt": "{{iso:-30d}}", "version": 17, "collectionId": null, "creatorName": "mock"},
+  {"id": "7d1c2a90-0000-4000-8000-000000000003", "name": "Backup flow", "updatedAt": "{{iso:-2d}}", "createdAt": "{{iso:-14d}}", "version": 8, "collectionId": null, "creatorName": "mock"},
+  {"id": "7d1c2a90-0000-4000-8000-000000000004", "name": "Kitchen plan", "updatedAt": "{{iso:-6d}}", "createdAt": "{{iso:-6d}}", "version": 3, "collectionId": null, "creatorName": "mock"}
+ ],
+ "totalCount": 4
+}

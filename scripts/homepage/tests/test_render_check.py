@@ -218,6 +218,8 @@ class FailureTests(unittest.TestCase):
         lines = failures(INV, runs, "admin")
         self.assertEqual(len(lines), 1)
         self.assertRegex(lines[0], r"admin A 390x844 calm: 2 block\(s\) never got a value")
+        runs[0]["pendingIn"] = ["calendar", "alerts", "calendar"]
+        self.assertRegex(failures(INV, runs, "admin")[0], r"after the wait\), in alerts, calendar$")
 
     def test_failures_danger_when_calm(self):
         runs = good()

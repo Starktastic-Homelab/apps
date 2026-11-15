@@ -779,6 +779,27 @@ tiles:
     source: services/operations/excalidash
     icon: excalidraw.png
     description: Whiteboard & diagrams
+    override:
+      admin:
+        description: Whiteboard & diagrams · recent drawings
+    # The key owner's own drawings, most recently changed first (Excalidash 0.6.7, /api/drawings). The key has
+    # only "Read drawings", which still reads the content of every drawing its owner can open. Without
+    # X-Forwarded-Proto the backend redirects to https, as for the probes in excalidash/values.yaml.
+    widgets:
+      - type: customapi
+        url: http://excalidash.operations:80/api/drawings?limit=6&sortField=updatedAt&sortDirection=desc
+        headers:
+          Authorization: Bearer {{HOMEPAGE_VAR_EXCALIDASH_KEY}}
+          X-Forwarded-Proto: https
+        refreshInterval: 300000
+        display: dynamic-list
+        mappings:
+          items: drawings
+          name: name
+          label: updatedAt
+          format: relativeDate
+          limit: 6
+          target: https://excalidash.starktastic.net/editor/{id}
   bytestash:
     name: ByteStash
     source: services/operations/bytestash

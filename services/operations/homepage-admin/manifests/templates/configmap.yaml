@@ -2290,11 +2290,26 @@ data:
       - Excalidash:
           id: excalidash
           icon: excalidraw.png
-          description: Whiteboard & diagrams
+          description: Whiteboard & diagrams · recent drawings
           href: https://excalidash.starktastic.net
           siteMonitor: http://excalidash.operations:80
           namespace: operations
           app: excalidash
+          widget:
+            type: customapi
+            url: http://excalidash.operations:80/api/drawings?limit=6&sortField=updatedAt&sortDirection=desc
+            headers:
+              Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_EXCALIDASH_KEY{{ "}}" }}
+              X-Forwarded-Proto: https
+            refreshInterval: 300000
+            display: dynamic-list
+            mappings:
+              items: drawings
+              name: name
+              label: updatedAt
+              format: relativeDate
+              limit: 6
+              target: https://excalidash.starktastic.net/editor/{id}
       - MicroBin:
           id: microbin
           icon: microbin.png

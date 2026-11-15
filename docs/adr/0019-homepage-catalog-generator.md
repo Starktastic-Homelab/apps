@@ -26,6 +26,10 @@ cluster), and the generated ConfigMaps are committed.
 4. **Generator-owned keys.** `hideErrors`, `layout`, `pwa.shortcuts`, `kubernetes.yaml`, `docker.yaml` and an empty
    `custom.js`; household never gets `namespace`, `app`, `podSelector` or `proxmox*`. Every placeholder must be a
    `{{HOMEPAGE_VAR_*}}` name, and the page's names must equal its sealed key names in both directions.
+   Amended 2026-11-15 (Ben): one line may hold other braces, a Home Assistant widget's `template:`. Its
+   formulas are Jinja, which is written with the same braces, and keeping them in the catalog means nothing
+   has to be built by hand in Home Assistant. The generator writes every brace pair as a Helm string, so
+   Helm prints the formula back unchanged; for a placeholder that is the form it always had.
 5. **Staged until cut-over.** Output goes to `homepage/staged/`, outside the AppSet globs and the diff-preview watch
    patterns (`bootstrap/appsets/cluster-apps.yaml:11` and `:79`), so nothing deploys. Sub-project 4 cuts over one page
    per PR by removing it from `STAGED`, deleting its staged copy and regenerating over today's ConfigMap. Once

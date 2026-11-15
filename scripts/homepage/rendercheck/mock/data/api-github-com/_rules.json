@@ -24,5 +24,9 @@
         }
       }
     ]
+  },
+  {
+    "path": "^/api-github-com/repos/[^/]+/[^/]+/actions/workflows/[^/]+/runs$",
+    "file": "api-github-com/workflow-runs.json"
   }
 ]

@@ -2638,6 +2638,18 @@ data:
           - type: homeassistant
             url: http://home-assistant-main.home-automation:8123
             key: '{{ "{{" }}HOMEPAGE_VAR_HASS_KEY{{ "}}" }}'
+          - type: homeassistant
+            url: http://home-assistant-main.home-automation:8123
+            key: '{{ "{{" }}HOMEPAGE_VAR_HASS_KEY{{ "}}" }}'
+            custom:
+            - label: Open Doors
+              template: '{{ "{{" }} states.binary_sensor | selectattr(''attributes.device_class'', ''defined'') | selectattr(''attributes.device_class'', ''in'', [''door'', ''window'', ''garage_door'', ''opening'']) | selectattr(''state'', ''eq'', ''on'') | list | count {{ "}}" }}'
+            - label: Unavailable
+              template: '{{ "{{" }} states | selectattr(''state'', ''eq'', ''unavailable'') | list | count {{ "}}" }}'
+            - label: Low Battery
+              template: '{{ "{{" }} states.sensor | selectattr(''attributes.device_class'', ''defined'') | selectattr(''attributes.device_class'', ''eq'', ''battery'') | map(attribute=''state'') | map(''float'', 100) | select(''lt'', 20) | list | count {{ "}}" }}'
+            - label: Updates
+              template: '{{ "{{" }} states.update | selectattr(''state'', ''eq'', ''on'') | list | count {{ "}}" }}'
           - type: prometheusmetric
             url: http://kube-prometheus-stack-prometheus.monitoring:9090
             refreshInterval: 60000
@@ -2662,6 +2674,19 @@ data:
           siteMonitor: http://zigbee2mqtt.home-automation:8080
           namespace: home-automation
           app: zigbee2mqtt
+          widget:
+            type: homeassistant
+            url: http://home-assistant-main.home-automation:8123
+            key: '{{ "{{" }}HOMEPAGE_VAR_HASS_KEY{{ "}}" }}'
+            custom:
+            - label: Bridge
+              template: '{% set s = states.binary_sensor | selectattr(''entity_id'', ''search'', ''bridge_connection_state$'') | map(attribute=''state'') | first | default(''?'') %}{{ "{{" }} {''on'': ''Online'', ''off'': ''Offline''}.get(s, s) {{ "}}" }}'
+            - label: Devices
+              template: '{{ "{{" }} integration_entities(''mqtt'') | map(''device_id'') | reject(''none'') | unique | list | count {{ "}}" }}'
+            - label: Offline
+              template: '{{ "{{" }} integration_entities(''mqtt'') | select(''is_state'', ''unavailable'') | map(''device_id'') | reject(''none'') | unique | list | count {{ "}}" }}'
+            - label: Permit Join
+              template: '{% set s = states.switch | selectattr(''entity_id'', ''search'', ''bridge_permit_join$'') | map(attribute=''state'') | first | default(''?'') %}{{ "{{" }} {''on'': ''Open'', ''off'': ''Closed''}.get(s, s) {{ "}}" }}'
     - Ship:
       - Argo CD:
           id: argo-cd
@@ -2739,8 +2764,8 @@ data:
           icon: si-github
           href: https://github.com/Starktastic-Homelab/apps/pulls
           description: Cluster manifests — open PRs
-          widget:
-            type: customapi
+          widgets:
+          - type: customapi
             url: https://api.github.com/repos/Starktastic-Homelab/apps/pulls?state=open&per_page=10
             refreshInterval: 600000
             display: dynamic-list
@@ -2753,13 +2778,32 @@ data:
               label: user.login
               limit: 5
               target: https://github.com/Starktastic-Homelab/apps/pull/{number}
+          - type: customapi
+            url: https://api.github.com/repos/Starktastic-Homelab/apps/actions/workflows/refresh.yaml/runs?status=completed&per_page=1
+            refreshInterval: 600000
+            headers:
+              Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
+              X-GitHub-Api-Version: '2022-11-28'
+              User-Agent: Homepage-Dashboard
+            mappings:
+            - field: workflow_runs.0.conclusion
+              label: Refresh
+            - field: workflow_runs.0.updated_at
+              label: Ran
+              format: relativeDate
+            highlight:
+              Refresh:
+                string:
+                - level: warn
+                  when: regex
+                  value: ^(failure|timed_out|startup_failure)$
       - Ansible:
           id: ansible
           icon: si-github
           href: https://github.com/Starktastic-Homelab/ansible/pulls
           description: Host playbooks — open PRs
-          widget:
-            type: customapi
+          widgets:
+          - type: customapi
             url: https://api.github.com/repos/Starktastic-Homelab/ansible/pulls?state=open&per_page=10
             refreshInterval: 600000
             display: dynamic-list
@@ -2772,13 +2816,32 @@ data:
               label: user.login
               limit: 5
               target: https://github.com/Starktastic-Homelab/ansible/pull/{number}
+          - type: customapi
+            url: https://api.github.com/repos/Starktastic-Homelab/ansible/actions/workflows/deploy.yml/runs?status=completed&per_page=1
+            refreshInterval: 600000
+            headers:
+              Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
+              X-GitHub-Api-Version: '2022-11-28'
+              User-Agent: Homepage-Dashboard
+            mappings:
+            - field: workflow_runs.0.conclusion
+              label: Deploy
+            - field: workflow_runs.0.updated_at
+              label: Ran
+              format: relativeDate
+            highlight:
+              Deploy:
+                string:
+                - level: warn
+                  when: regex
+                  value: ^(failure|timed_out|startup_failure)$
       - Packer:
           id: packer
           icon: si-github
           href: https://github.com/Starktastic-Homelab/packer/pulls
           description: VM images — open PRs
-          widget:
-            type: customapi
+          widgets:
+          - type: customapi
             url: https://api.github.com/repos/Starktastic-Homelab/packer/pulls?state=open&per_page=10
             refreshInterval: 600000
             display: dynamic-list
@@ -2791,13 +2854,32 @@ data:
               label: user.login
               limit: 5
               target: https://github.com/Starktastic-Homelab/packer/pull/{number}
+          - type: customapi
+            url: https://api.github.com/repos/Starktastic-Homelab/packer/actions/workflows/build.yml/runs?status=completed&per_page=1
+            refreshInterval: 600000
+            headers:
+              Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
+              X-GitHub-Api-Version: '2022-11-28'
+              User-Agent: Homepage-Dashboard
+            mappings:
+            - field: workflow_runs.0.conclusion
+              label: Build
+            - field: workflow_runs.0.updated_at
+              label: Ran
+              format: relativeDate
+            highlight:
+              Build:
+                string:
+                - level: warn
+                  when: regex
+                  value: ^(failure|timed_out|startup_failure)$
       - Terraform:
           id: terraform
           icon: si-github
           href: https://github.com/Starktastic-Homelab/terraform/pulls
           description: Infrastructure — open PRs
-          widget:
-            type: customapi
+          widgets:
+          - type: customapi
             url: https://api.github.com/repos/Starktastic-Homelab/terraform/pulls?state=open&per_page=10
             refreshInterval: 600000
             display: dynamic-list
@@ -2810,6 +2892,25 @@ data:
               label: user.login
               limit: 5
               target: https://github.com/Starktastic-Homelab/terraform/pull/{number}
+          - type: customapi
+            url: https://api.github.com/repos/Starktastic-Homelab/terraform/actions/workflows/apply.yml/runs?status=completed&per_page=1
+            refreshInterval: 600000
+            headers:
+              Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_GITHUB_TOKEN{{ "}}" }}
+              X-GitHub-Api-Version: '2022-11-28'
+              User-Agent: Homepage-Dashboard
+            mappings:
+            - field: workflow_runs.0.conclusion
+              label: Apply
+            - field: workflow_runs.0.updated_at
+              label: Ran
+              format: relativeDate
+            highlight:
+              Apply:
+                string:
+                - level: warn
+                  when: regex
+                  value: ^(failure|timed_out|startup_failure)$
     - Edge:
       - Traefik:
           id: traefik

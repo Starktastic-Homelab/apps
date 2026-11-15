@@ -1,0 +1,20 @@
+{
+ "checks": [
+  {
+   "name": "alertmanager-watchdog",
+   "slug": "alertmanager-watchdog",
+   "tags": "",
+   "desc": "",
+   "grace": 300,
+   "n_pings": 61234,
+   "status": "up",
+   "started": false,
+   "last_ping": "{{iso:-2m}}",
+   "next_ping": "{{iso:+3m}}",
+   "manual_resume": false,
+   "methods": "",
+   "unique_key": "0000000000000000000000000000000000000000",
+   "timeout": 300
+  }
+ ]
+}

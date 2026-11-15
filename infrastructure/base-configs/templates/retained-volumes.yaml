@@ -1,0 +1,45 @@
+{{- range $v := (.Files.Get "files/retained-volumes.json" | fromJsonArray) }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ $v.id }}
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  capacity:
+    storage: {{ $v.size }}
+  accessModes:
+    - ReadWriteOncePod
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: {{ $v.claim }}
+    namespace: {{ $v.namespace }}
+  csi:
+    driver: org.democratic-csi.node-manual
+    fsType: ext4
+    volumeHandle: {{ $v.id }}
+    volumeAttributes:
+      portal: {{ $.Values.global.network.storagePortal | quote }}
+      iqn: iqn.2026-11.net.starktastic.storage:{{ $v.id }}
+      lun: "0"
+      node_attach_driver: iscsi
+      provisioner_driver: node-manual
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $v.claim }}
+  namespace: {{ $v.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  accessModes:
+    - ReadWriteOncePod
+  storageClassName: ""
+  volumeName: {{ $v.id }}
+  resources:
+    requests:
+      storage: {{ $v.size }}
+{{- end }}

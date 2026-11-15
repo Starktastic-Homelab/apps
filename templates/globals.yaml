@@ -10,6 +10,8 @@ global:
   network:
     nfs:
       server: "10.9.8.30"
+    # shortcut: RFC 5737 placeholder until Foundation picks the storage VM bridge address; unroutable, so PVs fail closed.
+    storagePortal: "192.0.2.10:3260"
     loadBalancers:
       external: "10.9.8.90"
       internal: "10.9.9.90"

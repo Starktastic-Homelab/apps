@@ -84,7 +84,19 @@ class CheckTests(unittest.TestCase):
                  '--override-label', 'ok'], cwd=d, env={**os.environ, 'PR_LABELS': labels}, capture_output=True).returncode
             self.assertEqual(run(''), 1)
             self.assertEqual(run('x,ok'), 0)
-            self.assertEqual(chk.load_base('no-such-ref'), [])
+            self.assertNotEqual(subprocess.run(
+                ['python3', str(ROOT / 'scripts/check-retained-inventory.py'), '--base', 'no-such-ref',
+                 '--override-label', 'ok'], cwd=d, env={**os.environ, 'PR_LABELS': 'ok'}, capture_output=True).returncode, 0)
+            with self.assertRaises(SystemExit):
+                chk.load_base('no-such-ref')
+            # ref resolves but file absent: first inventory PR
+            inv.unlink()
+            git('rm', '-q', '--cached', chk.PATH)
+            git('commit', '-qm', 'drop')
+            self.addCleanup(os.chdir, os.getcwd())
+            os.chdir(d)
+            self.assertEqual(chk.load_base('HEAD'), [])
+            os.chdir(ROOT)
 
 
 @unittest.skipUnless(shutil.which('helm') or os.path.exists(HELM), 'helm not available')

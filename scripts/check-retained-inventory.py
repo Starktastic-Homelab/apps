@@ -90,6 +90,9 @@ def check(base, head, override=False):
 
 
 def load_base(ref):
+    # An unresolvable ref must fail closed: an empty base would skip every base check.
+    if subprocess.run(['git', 'rev-parse', '--verify', '--quiet', f'{ref}^{{commit}}'], capture_output=True).returncode:
+        sys.exit(f'ERROR: base ref {ref} does not resolve (shallow checkout?)')
     r = subprocess.run(['git', 'cat-file', '-e', f'{ref}:{PATH}'], capture_output=True)
     if r.returncode:  # file absent on base: the first inventory PR
         return []

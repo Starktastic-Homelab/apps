@@ -1,0 +1,82 @@
+{
+ "events": {
+  "total": 214,
+  "byType": {
+   "QueueItemDeleted": 9,
+   "StalledStrike": 41
+  },
+  "bySeverity": {
+   "Information": 190,
+   "Warning": 24
+  }
+ },
+ "strikes": {
+  "total": 41,
+  "byType": {
+   "Stalled": 33,
+   "SlowSpeed": 8
+  },
+  "recovered": 27
+ },
+ "removals": {
+  "total": 9,
+  "byReason": {
+   "Stalled": 7,
+   "SlowSpeed": 2
+  }
+ },
+ "cleaned": {
+  "total": 3,
+  "byReason": {
+   "MaxRatioReached": 3
+  }
+ },
+ "searches": {
+  "total": 9,
+  "completed": 9,
+  "failed": 0,
+  "grabbed": 6,
+  "byReason": {
+   "Replacement": 9
+  }
+ },
+ "jobs": {
+  "total": 2016,
+  "completed": 2016,
+  "failed": 0,
+  "byType": {
+   "QueueCleaner": {
+    "total": 2016,
+    "completed": 2016,
+    "failed": 0,
+    "lastRunAt": "{{iso:-3m}}",
+    "nextRunAt": "{{iso:+2m}}"
+   }
+  }
+ },
+ "health": {
+  "downloadClients": [
+   {
+    "id": "1",
+    "name": "qBittorrent",
+    "type": "QBittorrent",
+    "isHealthy": true,
+    "lastChecked": "{{iso:-1m}}",
+    "responseTimeMs": 12.4,
+    "errorMessage": null
+   }
+  ],
+  "arrInstances": [
+   {
+    "id": "1",
+    "name": "Sonarr",
+    "type": "Sonarr",
+    "isHealthy": true,
+    "lastChecked": "{{iso:-1m}}",
+    "errorMessage": null
+   }
+  ]
+ },
+ "timeframeHours": 168,
+ "generatedAt": "{{iso:-0s}}"
+}

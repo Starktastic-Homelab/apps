@@ -36,6 +36,11 @@ Amended 2026-11-14 (Ben): totals of what accounts do or ask for are activity too
 account's requests and cannot be narrowed to the viewer, so they show on admin only. The two Seerr tiles stay on
 household as links with a status dot, and household no longer holds either Seerr key.
 
+Amended 2026-11-15 (Ben): how many accounts an app has is not for household either; seeing it would unsettle people
+the same way. User counts show on admin only. Because the proxy returns the upstream's whole answer, a household
+widget also stays off routes whose answer carries a count of real accounts. Mealie's `/api/households/statistics` has
+a `totalUsers` field, but it counts only the service user's own household, which holds no one else.
+
 1. **Credentials.** Each household widget runs on a credential minted for household alone, at the narrowest scope its
    app offers (a dedicated non-admin user or a scoped key), with `_HOUSEHOLD` in its name, as in
    `HOMEPAGE_VAR_CALIBRE_HOUSEHOLD_USER`. Apps that offer nothing narrower are the exception and share their one key
@@ -44,16 +49,25 @@ household as links with a status dot, and household no longer holds either Seerr
    reserved name (ADR 0015). The table records every household credential, without its value or the
    `HOMEPAGE_VAR_` prefix:
 
-   | Credential                                         | Minted as                                                          | Household reaches                                       |
-   | -------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------- |
-   | `SONARR_KEY`, `RADARR_KEY`                         | Each instance's API key, shared with admin                         | The two iCal feeds                                      |
-   | `CALIBRE_HOUSEHOLD_USER`, `CALIBRE_HOUSEHOLD_PASS` | The Calibre-Web local user `homepage-household`, with no roles     | `/opds/stats`                                           |
-   | `JELLYFIN_HOUSEHOLD_TOKEN`                         | Access token of the Jellyfin local non-admin user of the same name | `Items/Counts`, `Items/Latest`, in that user's libraries |
+   | Credential                                         | Minted as                                                                       | Household reaches                                        |
+   | -------------------------------------------------- | ------------------------------------------------------------------------------- | -------------------------------------------------------- |
+   | `SONARR_KEY`, `RADARR_KEY`                         | Each instance's API key, shared with admin                                      | The two iCal feeds                                       |
+   | `CALIBRE_HOUSEHOLD_USER`, `CALIBRE_HOUSEHOLD_PASS` | The Calibre-Web local user `homepage-household`, with no roles                  | `/opds/stats`                                            |
+   | `JELLYFIN_HOUSEHOLD_TOKEN`                         | Access token of the Jellyfin local non-admin user of the same name              | `Items/Counts`, `Items/Latest`, in that user's libraries |
+   | `AUDIOBOOKSHELF_HOUSEHOLD_KEY`                     | API key that acts as the Audiobookshelf guest user of the same name             | `/api/libraries` and each library's `stats`              |
+   | `MEALIE_HOUSEHOLD_KEY`                             | Token of the Mealie non-admin user of the same name, in a household of its own  | `/api/recipes?perPage=0`, `/api/households/statistics`   |
+   | `NAVIDROME_HOUSEHOLD_USER`, `_TOKEN`, `_SALT`      | The Navidrome non-admin user of the same name: a salted token, not the password | `getAlbumList2` only, by fixed URL (see below)           |
 
    Admin may run a widget on a household credential, which is never the wider one: it holds the Jellyfin token for
    the same two lists (its own API key has no user to answer `Items/Latest` for), and since 2026-11-14 it signs in to
    Calibre-Web as the same no-role user, so Homepage holds one Calibre-Web login. A new sign-in to Jellyfin with the
    device id `homepage-household` replaces the token: seal the new one into both Secrets.
+
+   Amended 2026-11-15 (Ben): Navidrome has no API keys and no scoped users, and any Navidrome user that can list
+   albums can also read everyone's now-playing (`getNowPlaying` has no admin check). So for the "New albums" tile the
+   limit is not the credential but the request: a `customapi` widget serves exactly its configured URL, and Homepage
+   answers 403 to any other endpoint a browser asks it to proxy. Every family account already has that same reach by
+   signing in to Navidrome. This is the one household credential that is wider than its card.
 
 2. **Widgets.** Any widget type and tile key, except three that no credential can scope: `prometheusmetric` (the browser
    picks the PromQL and Prometheus has no login; a `customapi` with a fixed query renders the same tile), `prometheus`

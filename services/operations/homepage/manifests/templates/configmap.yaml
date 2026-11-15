@@ -1009,7 +1009,7 @@ data:
       Listen:
         tab: Library
         style: row
-        columns: 2
+        columns: 3
       Read:
         tab: Library
         style: row
@@ -1187,6 +1187,25 @@ data:
           description: Audiobooks & podcasts
           href: https://audiobooks.benplus.app
           siteMonitor: http://audiobookshelf.media:80
+          widget:
+            type: audiobookshelf
+            url: http://audiobookshelf.media:80
+            key: '{{ "{{" }}HOMEPAGE_VAR_AUDIOBOOKSHELF_HOUSEHOLD_KEY{{ "}}" }}'
+      - New albums:
+          id: new-albums
+          icon: mdi-album
+          description: Latest additions
+          widget:
+            type: customapi
+            url: http://navidrome.media:4533/rest/getAlbumList2?type=newest&size=6&f=json&v=1.16.1&c=homepage&u={{ "{{" }}HOMEPAGE_VAR_NAVIDROME_HOUSEHOLD_USER{{ "}}" }}&t={{ "{{" }}HOMEPAGE_VAR_NAVIDROME_HOUSEHOLD_TOKEN{{ "}}" }}&s={{ "{{" }}HOMEPAGE_VAR_NAVIDROME_HOUSEHOLD_SALT{{ "}}" }}
+            refreshInterval: 900000
+            display: dynamic-list
+            mappings:
+              items: subsonic-response.albumList2.album
+              name: name
+              label: artist
+              limit: 6
+              target: https://music.benplus.app/app/#/album/{id}/show
     - Read:
       - Calibre-Web:
           id: calibre-web
@@ -1269,6 +1288,28 @@ data:
           description: Recipes & shopping lists
           href: https://mealie.starktastic.net
           siteMonitor: http://mealie.operations:9000
+          widgets:
+          - type: customapi
+            url: http://mealie.operations:9000/api/recipes?perPage=0
+            headers:
+              Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_MEALIE_HOUSEHOLD_KEY{{ "}}" }}
+            refreshInterval: 3600000
+            mappings:
+            - field: total
+              label: Recipes
+              format: number
+          - type: customapi
+            url: http://mealie.operations:9000/api/households/statistics
+            headers:
+              Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_MEALIE_HOUSEHOLD_KEY{{ "}}" }}
+            refreshInterval: 3600000
+            mappings:
+            - field: totalCategories
+              label: Categories
+              format: number
+            - field: totalTags
+              label: Tags
+              format: number
     - Send:
       - PairDrop:
           id: pairdrop

@@ -58,6 +58,13 @@ controllers:
               secretKeyRef:
                 name: excalidash-retained-identity
                 key: csrf-secret
+          # Salts the hashes of API keys; changing it later invalidates every key. envFrom below carries it
+          # too: it is named here so that adding it rolls the pod.
+          API_KEY_HASH_PEPPER:
+            valueFrom:
+              secretKeyRef:
+                name: excalidash-secret
+                key: API_KEY_HASH_PEPPER
         envFrom:
           - secretRef:
               name: excalidash-secret

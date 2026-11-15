@@ -1562,8 +1562,10 @@ tiles:
     icon: zigbee2mqtt.png
     description: Zigbee device bridge
     # Zigbee2MQTT has no HTTP API to read, but Home Assistant sees its bridge and devices through MQTT. The bridge's
-    # two entities are found by the end of their id, whatever the prefix; Devices and Offline count every MQTT
-    # device, so anything else on the broker is in them too.
+    # two entities are found by the end of their id, whatever the prefix. Zigbee2MQTT also registers its bridge
+    # and each of its groups as a device, with itself as manufacturer (2.14.2, lib/extension/homeassistant.ts):
+    # Devices and Offline leave those out, so they count what is paired. Any other device on the broker is in
+    # them too.
     widgets:
       - <<: *hass
         custom:
@@ -1572,11 +1574,13 @@ tiles:
               "{% set s = states.binary_sensor | selectattr('entity_id', 'search', 'bridge_connection_state$') |
               map(attribute='state') | first | default('?') %}{{ {'on': 'Online', 'off': 'Offline'}.get(s, s) }}"
           - label: Devices
-            template: "{{ integration_entities('mqtt') | map('device_id') | reject('none') | unique | list | count }}"
+            template:
+              "{{ integration_entities('mqtt') | map('device_id') | reject('none') | unique | map('device_attr',
+              'manufacturer') | reject('eq', 'Zigbee2MQTT') | list | count }}"
           - label: Offline
             template:
               "{{ integration_entities('mqtt') | select('is_state', 'unavailable') | map('device_id') | reject('none') |
-              unique | list | count }}"
+              unique | map('device_attr', 'manufacturer') | reject('eq', 'Zigbee2MQTT') | list | count }}"
           - label: Permit Join
             template:
               "{% set s = states.switch | selectattr('entity_id', 'search', 'bridge_permit_join$') |

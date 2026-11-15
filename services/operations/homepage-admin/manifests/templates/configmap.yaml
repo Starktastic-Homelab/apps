@@ -2201,6 +2201,26 @@ data:
           siteMonitor: http://lingarr.media:8080
           namespace: media
           app: lingarr
+          widgets:
+          - type: customapi
+            url: http://lingarr.media:8080/api/statistics
+            refreshInterval: 300000
+            mappings:
+            - field: totalFilesTranslated
+              label: Translated
+              format: number
+            - field: totalLinesTranslated
+              label: Lines
+              format: number
+            - field: totalSubtitles
+              label: Subtitles
+              format: number
+          - type: customapi
+            url: http://lingarr.media:8080/api/translationrequest/active
+            refreshInterval: 60000
+            mappings:
+            - label: Queue
+              format: size
     - Create:
       - Excalidash:
           id: excalidash

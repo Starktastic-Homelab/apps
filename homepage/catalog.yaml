@@ -703,6 +703,23 @@ tiles:
         url: http://immich-main.media:2283
         key: "{{HOMEPAGE_VAR_IMMICH_KEY}}"
         version: 2
+      # How full the disk under Immich's library is, for household. The key has only the permission
+      # server.storage (Immich v3.4.1, GET /api/server/storage), and the answer holds disk figures only: no
+      # user and no asset (ADR 0018). Admin's own widget above already shows the library's size.
+      - audience: household-only
+        type: customapi
+        url: http://immich-main.media:2283/api/server/storage
+        headers:
+          x-api-key: "{{HOMEPAGE_VAR_IMMICH_HOUSEHOLD_KEY}}"
+        refreshInterval: 900000
+        mappings:
+          - field: diskUse
+            label: Used
+          - field: diskAvailable
+            label: Free
+          - field: diskUsagePercentage
+            label: Full
+            format: percent
       # The first six job queues in Immich's own order (a list cannot sort or filter). Needs queue.read on the key.
       - type: customapi
         url: http://immich-main.media:2283/api/queues
@@ -1585,6 +1602,18 @@ tiles:
             template:
               "{% set s = states.switch | selectattr('entity_id', 'search', 'bridge_permit_join$') |
               map(attribute='state') | first | default('?') %}{{ {'on': 'Open', 'off': 'Closed'}.get(s, s) }}"
+  # Alertmanager's Watchdog alert pings a healthchecks.io check, which mails when the pings stop: the dead man's
+  # switch for alerting (kube-prometheus-stack/values.yaml). Up and Down count the project's checks, on a
+  # read-only key. No uuid here: a check's uuid is its ping address, which is a secret.
+  healthchecks:
+    name: Watchdog
+    icon: healthchecks.png
+    href: https://healthchecks.io
+    description: Dead man's switch for alerting
+    widgets:
+      - type: healthchecks
+        url: https://healthchecks.io
+        key: "{{HOMEPAGE_VAR_HEALTHCHECKS_KEY}}"
   # ---- Platform extras (spec §8 step 2) -----------------------------------------------------------------------
   # Metrics the proof rule held back until they were seen live. Each query below names its proof: the read-only
   # probe of 2026-11-14 ("platform-metrics-probe"), which listed the metric names, the scrape jobs and sample
@@ -2852,6 +2881,7 @@ pages:
               - grafana
               - prometheus
               - telemetry
+              - healthchecks
           - name: Core
             items:
               - pgadmin

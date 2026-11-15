@@ -1231,6 +1231,20 @@ data:
           description: Photos & videos
           href: https://photos.benplus.app
           siteMonitor: http://immich-main.media:2283
+          widget:
+            type: customapi
+            url: http://immich-main.media:2283/api/server/storage
+            headers:
+              x-api-key: '{{ "{{" }}HOMEPAGE_VAR_IMMICH_HOUSEHOLD_KEY{{ "}}" }}'
+            refreshInterval: 900000
+            mappings:
+            - field: diskUse
+              label: Used
+            - field: diskAvailable
+              label: Free
+            - field: diskUsagePercentage
+              label: Full
+              format: percent
     - Create:
       - Excalidash:
           id: excalidash

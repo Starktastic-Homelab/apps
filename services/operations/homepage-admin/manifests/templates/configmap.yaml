@@ -3231,6 +3231,15 @@ data:
                 type: number
                 options:
                   maximumFractionDigits: 0
+      - Watchdog:
+          id: healthchecks
+          icon: healthchecks.png
+          href: https://healthchecks.io
+          description: Dead man's switch for alerting
+          widget:
+            type: healthchecks
+            url: https://healthchecks.io
+            key: '{{ "{{" }}HOMEPAGE_VAR_HEALTHCHECKS_KEY{{ "}}" }}'
     - Core:
       - pgAdmin:
           id: pgadmin

@@ -138,6 +138,18 @@ class RenderTests(unittest.TestCase):
         self.assertNotIn('moved', out)
         self.assertIn(".homelab-' + ID + '-data", out)
 
+    def test_numeric_like_values_render_as_strings(self):
+        import yaml
+        e = entry('123', claim='true', namespace='1e3')
+        pv, pvc = [d for d in yaml.safe_load_all(self.render([e], 'retained-volumes.yaml')) if d]
+        self.assertEqual(pv['metadata']['name'], '123')
+        self.assertEqual(pv['spec']['claimRef'], {'name': 'true', 'namespace': '1e3'})
+        self.assertEqual(pv['spec']['csi']['volumeHandle'], '123')
+        self.assertEqual((pvc['metadata']['name'], pvc['metadata']['namespace'], pvc['spec']['volumeName']),
+                         ('true', '1e3', '123'))
+        guard = yaml.safe_load(self.render([e], 'retained-volumes-guard.yaml'))
+        self.assertEqual((guard['metadata']['name'], guard['metadata']['namespace']), ('123-retained-guard', '1e3'))
+
     def test_empty_inventory_renders_nothing(self):
         self.assertEqual(self.render([], 'retained-volumes.yaml').strip(), '')
 

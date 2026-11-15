@@ -9,7 +9,8 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[3]
 APP = ROOT / 'infrastructure/system/democratic-csi'
-# Offline runs point this at an unpacked chart 0.15.1 directory.
+CHART_REF = yaml.safe_load((APP / 'app.yaml').read_text())['chart']
+# Offline runs point this at an unpacked chart directory of CHART_REF['version'].
 CHART = os.environ.get('DEMOCRATIC_CSI_CHART')
 
 
@@ -20,7 +21,7 @@ def render():
             shutil.copytree(CHART, Path(tmp) / 'chart')
             src = ['chart']
         else:
-            src = ['democratic-csi', '--repo', 'https://democratic-csi.github.io/charts/', '--version', '0.15.1']
+            src = [CHART_REF['name'], '--repo', CHART_REF['repo'], '--version', str(CHART_REF['version'])]
         out = subprocess.run(['helm', 'template', 'dc', *src, '-n', 'democratic-csi', '-f', 'values.yaml'],
                              cwd=tmp, check=True, capture_output=True, text=True).stdout
     return [d for d in yaml.safe_load_all(out) if d]

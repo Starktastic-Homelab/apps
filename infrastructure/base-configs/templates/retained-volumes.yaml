@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: {{ $v.id }}
+  name: {{ $v.id | quote }}
   annotations:
     argocd.argoproj.io/sync-options: Prune=false,Delete=false
 spec:
@@ -14,12 +14,12 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: ""
   claimRef:
-    name: {{ $v.claim }}
-    namespace: {{ $v.namespace }}
+    name: {{ $v.claim | quote }}
+    namespace: {{ $v.namespace | quote }}
   csi:
     driver: org.democratic-csi.node-manual
     fsType: ext4
-    volumeHandle: {{ $v.id }}
+    volumeHandle: {{ $v.id | quote }}
     volumeAttributes:
       portal: {{ $.Values.global.network.storagePortal | quote }}
       iqn: iqn.2026-11.net.starktastic.storage:{{ $v.id }}
@@ -30,15 +30,15 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ $v.claim }}
-  namespace: {{ $v.namespace }}
+  name: {{ $v.claim | quote }}
+  namespace: {{ $v.namespace | quote }}
   annotations:
     argocd.argoproj.io/sync-options: Prune=false,Delete=false
 spec:
   accessModes:
     - ReadWriteOncePod
   storageClassName: ""
-  volumeName: {{ $v.id }}
+  volumeName: {{ $v.id | quote }}
   resources:
     requests:
       storage: {{ $v.size }}

@@ -822,6 +822,9 @@ tiles:
     name: ConvertX
     audience: household
     source: services/operations/convertx
+    # With ALLOW_UNAUTHENTICATED a request for / makes an anonymous user and inserts a jobs row (v0.20.0,
+    # src/pages/root.tsx), so the status dot wrote one on every poll. /healthcheck only answers.
+    monitorPath: /healthcheck
     icon: convertx.png
     description: File format converter
   # ---- Apps extras (spec §8 step 2) ---------------------------------------------------------------------------

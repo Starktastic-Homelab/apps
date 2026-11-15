@@ -1250,7 +1250,7 @@ data:
           icon: convertx.png
           description: File format converter
           href: https://convertx.starktastic.net
-          siteMonitor: http://convertx.operations:3000
+          siteMonitor: http://convertx.operations:3000/healthcheck
       - Stirling PDF:
           id: stirling-pdf
           icon: stirling-pdf.png

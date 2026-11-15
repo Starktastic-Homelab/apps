@@ -2332,7 +2332,7 @@ data:
           icon: convertx.png
           description: File format converter
           href: https://convertx.starktastic.net
-          siteMonitor: http://convertx.operations:3000
+          siteMonitor: http://convertx.operations:3000/healthcheck
           namespace: operations
           app: convertx
       - Stirling PDF:

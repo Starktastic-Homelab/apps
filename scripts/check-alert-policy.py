@@ -3,6 +3,7 @@
 
 from pathlib import Path
 import json
+import re
 import subprocess
 import sys
 
@@ -353,6 +354,74 @@ checks.append({
     "exp_samples": [{"labels": '{namespace="monitoring",pod="tempo-0",tenant="failing"}', "value": 15}],
 })
 
+storage_docs = list(yaml.safe_load_all(
+    (ROOT / "services/operations/kube-prometheus-stack/manifests/storage-vm.yaml").read_text()
+))
+scrape = next(d for d in storage_docs if d["kind"] == "ScrapeConfig")
+storage_rule_groups = next(d for d in storage_docs if d["kind"] == "PrometheusRule")["spec"]["groups"]
+storage = {rule["alert"]: rule for group in storage_rule_groups for rule in group["rules"]}
+assert scrape["metadata"]["labels"]["release"] == "kube-prometheus-stack"
+# Every job matcher must name the ScrapeConfig job, or the alert never sees a series.
+for rule in storage.values():
+    assert set(re.findall(r'job="([^"]*)"', rule["expr"])) <= {scrape["spec"]["jobName"]}, rule["alert"]
+assert scrape["spec"]["staticConfigs"][0]["targets"] == [
+    load("templates/globals.yaml")["global"]["network"]["storagePortal"].rsplit(":", 1)[0] + ":9100"
+], "ScrapeConfig host must match global.network.storagePortal"
+
+S = 'job="storage-vm"'
+FENCER_FILE = f'{{{S},file="/var/lib/prometheus/node-exporter/storage-fencer.prom"}}'
+storage_tests = []
+# Each case is its own promtool group, so absent() sees only that case's series. Series values are
+# per minute and the check runs at 30m (2h cases at 150m).
+for alert, series, at, expected in [
+    ("StorageVMDown", [(f"up{{{S}}}", "0x30")], "30m",
+     [(f'{{__name__="up",{S}}}', 0)]),
+    ("StorageReconcileFailing", [(f"storage_last_reconcile_success_timestamp_seconds{{{S}}}", "0x150")], "150m",
+     [(f'{{{S}}}', 9000)]),
+    ("StorageTargetMissing", [(f'storage_target_missing{{{S},id="grafana"}}', "1x30")], "30m",
+     [(f'{{__name__="storage_target_missing",{S},id="grafana"}}', 1)]),
+    ("StorageVGLowSpace",
+     [(f'storage_vg_free_bytes{{{S},vg="retained"}}', "10x30"), (f'storage_vg_size_bytes{{{S},vg="retained"}}', "100x30"),
+      (f'storage_vg_free_bytes{{{S},vg="regen"}}', "50x30"), (f'storage_vg_size_bytes{{{S},vg="regen"}}', "100x30")],
+     "30m", [(f'{{{S},vg="retained"}}', 0.1)]),
+    ("StoragePendingDelete", [(f'storage_pending_delete{{{S},id="old",since="1"}}', "1x30")], "30m",
+     [(f'{{__name__="storage_pending_delete",{S},id="old",since="1"}}', 1)]),
+    ("StorageHoldCreate", [(f"storage_hold_create{{{S}}}", "1x30")], "30m",
+     [(f'{{__name__="storage_hold_create",{S}}}', 1)]),
+    ("StorageWorkerFenced", [(f'storage_fence_active{{{S},node="worker-01"}}', "1x30")], "30m",
+     [(f'{{__name__="storage_fence_active",{S},node="worker-01"}}', 1)]),
+    ("StorageFenceFailed", [(f"storage_fence_failures_total{{{S}}}", "0+1x30")], "30m",
+     [(f'{{{S}}}', 10)]),
+    # Blind, one case per cause: bad credentials, API unreachable, stale textfile.
+    ("StorageFencerBlind",
+     [(f"storage_fencer_last_api_success_timestamp_seconds{{{S}}}", "0x30"),
+      (f'storage_fencer_api_errors_total{{{S},code="auth"}}', "0+1x30"),
+      (f"node_textfile_mtime_seconds{FENCER_FILE}", "1799x30")], "30m",
+     [(f'{{{S}}}', 1800)]),
+    ("StorageFencerBlind",
+     [(f"storage_fencer_last_api_success_timestamp_seconds{{{S}}}", "0x30"),
+      (f'storage_fencer_api_errors_total{{{S},code="unreachable"}}', "0+1x30"),
+      (f"node_textfile_mtime_seconds{FENCER_FILE}", "1799x30")], "30m",
+     [(f'{{{S}}}', 1800)]),
+    ("StorageFencerBlind",
+     [(f"storage_fencer_last_api_success_timestamp_seconds{{{S}}}", "1799x30"),
+      (f"node_textfile_mtime_seconds{FENCER_FILE}", "0x30")], "30m",
+     [(f'{{{S},file="/var/lib/prometheus/node-exporter/storage-fencer.prom"}}', 1800)]),
+    ("NodeOutOfServiceTaintStuck",
+     [('kube_node_spec_taint{node="worker-01",key="node.kubernetes.io/out-of-service",value="nodeshutdown",effect="NoExecute"}', "1x30")],
+     "30m",
+     [('{__name__="kube_node_spec_taint",node="worker-01",key="node.kubernetes.io/out-of-service",value="nodeshutdown",effect="NoExecute"}', 1)]),
+]:
+    storage_tests.append({
+        "interval": "1m",
+        "input_series": [{"series": name, "values": values} for name, values in series],
+        "promql_expr_test": [{
+            "expr": storage[alert]["expr"],
+            "eval_time": at,
+            "exp_samples": [{"labels": labels, "value": value} for labels, value in expected],
+        }],
+    })
+
 subprocess.run(
     [*(sys.argv[1:] or ["promtool"]), "test", "rules", "/dev/stdin"],
     input=yaml.safe_dump({
@@ -361,7 +430,7 @@ subprocess.run(
             "interval": "1m",
             "input_series": inputs,
             "promql_expr_test": checks,
-        }, *crowdsec_tests, *admin_gate_tests],
+        }, *crowdsec_tests, *admin_gate_tests, *storage_tests],
     }),
     text=True,
     check=True,

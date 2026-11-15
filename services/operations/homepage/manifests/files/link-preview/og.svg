@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <radialGradient id="ga"><stop offset="0" stop-color="#3B82F6" stop-opacity=".55"/><stop offset="1" stop-color="#3B82F6" stop-opacity="0"/></radialGradient>
+    <radialGradient id="gb"><stop offset="0" stop-color="#6366F1" stop-opacity=".45"/><stop offset="1" stop-color="#6366F1" stop-opacity="0"/></radialGradient>
+    <radialGradient id="gc"><stop offset="0" stop-color="#0891B2" stop-opacity=".35"/><stop offset="1" stop-color="#0891B2" stop-opacity="0"/></radialGradient>
+    <linearGradient id="sq" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B1D33"/><stop offset="1" stop-color="#0F0F1A"/></linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#3B82F6" stop-opacity=".5"/><stop offset="1" stop-color="#3B82F6" stop-opacity="0"/></radialGradient>
+    <linearGradient id="st" gradientUnits="userSpaceOnUse" x1="12" y1="8" x2="36" y2="42"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".35" stop-color="#93C5FD"/><stop offset=".75" stop-color="#3B82F6"/><stop offset="1" stop-color="#22D3EE"/></linearGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".55"/><stop offset=".5" stop-color="#FFFFFF" stop-opacity=".08"/><stop offset="1" stop-color="#93C5FD" stop-opacity=".35"/></linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#0B0C16"/>
+  <ellipse cx="1040" cy="90" rx="560" ry="420" fill="url(#ga)"/>
+  <ellipse cx="160" cy="600" rx="620" ry="380" fill="url(#gb)"/>
+  <ellipse cx="760" cy="640" rx="420" ry="260" fill="url(#gc)"/>
+  <!-- the household favicon mark, scaled 48 → 216 -->
+  <g transform="translate(96 207) scale(4.5)">
+    <rect x="1" y="1" width="46" height="46" rx="14" fill="url(#sq)"/>
+    <circle cx="24" cy="24" r="20" fill="url(#glow)"/>
+    <path d="M37.5 14.75H20.5A9.75 9.75 0 1 0 20.5 34.25A9.75 9.75 0 1 0 20.5 14.75" fill="none" stroke="url(#st)" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25"/>
+    <rect x="1.5" y="1.5" width="45" height="45" rx="13.5" fill="none" stroke="url(#rim)"/>
+  </g>
+  <text x="372" y="318" font-family="Manrope" font-weight="800" font-size="104" letter-spacing="-2" fill="#F8FAFC">Starktastic</text>
+  <text x="376" y="384" font-family="Manrope" font-weight="500" font-size="36" fill="#CBD5E1">Watch, listen, read and the household tools</text>
+  <text x="376" y="440" font-family="Manrope" font-weight="600" font-size="26" fill="#93C5FD">Sign in with your invite</text>
+</svg>

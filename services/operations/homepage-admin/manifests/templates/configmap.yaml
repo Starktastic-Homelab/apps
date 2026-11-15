@@ -2567,7 +2567,7 @@ data:
           icon: filebrowser.png
           description: Web file manager
           href: https://files.internal.starktastic.net
-          siteMonitor: http://filebrowser.operations:80
+          siteMonitor: http://filebrowser.operations:80/api/health
           namespace: operations
           app: filebrowser
     - Send:

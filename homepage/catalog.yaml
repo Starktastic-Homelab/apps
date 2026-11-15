@@ -1017,6 +1017,9 @@ tiles:
   filebrowser:
     name: Filebrowser
     source: services/operations/filebrowser
+    # The address its own probes use (filebrowser/app.yaml and values.yaml): the dot then says the app is
+    # healthy, not only that its front page is served.
+    monitorPath: /api/health
     icon: filebrowser.png
     description: Web file manager
   mealie:

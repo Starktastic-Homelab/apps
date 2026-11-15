@@ -2682,9 +2682,9 @@ data:
             - label: Bridge
               template: '{% set s = states.binary_sensor | selectattr(''entity_id'', ''search'', ''bridge_connection_state$'') | map(attribute=''state'') | first | default(''?'') %}{{ "{{" }} {''on'': ''Online'', ''off'': ''Offline''}.get(s, s) {{ "}}" }}'
             - label: Devices
-              template: '{{ "{{" }} integration_entities(''mqtt'') | map(''device_id'') | reject(''none'') | unique | list | count {{ "}}" }}'
+              template: '{{ "{{" }} integration_entities(''mqtt'') | map(''device_id'') | reject(''none'') | unique | map(''device_attr'', ''manufacturer'') | reject(''eq'', ''Zigbee2MQTT'') | list | count {{ "}}" }}'
             - label: Offline
-              template: '{{ "{{" }} integration_entities(''mqtt'') | select(''is_state'', ''unavailable'') | map(''device_id'') | reject(''none'') | unique | list | count {{ "}}" }}'
+              template: '{{ "{{" }} integration_entities(''mqtt'') | select(''is_state'', ''unavailable'') | map(''device_id'') | reject(''none'') | unique | map(''device_attr'', ''manufacturer'') | reject(''eq'', ''Zigbee2MQTT'') | list | count {{ "}}" }}'
             - label: Permit Join
               template: '{% set s = states.switch | selectattr(''entity_id'', ''search'', ''bridge_permit_join$'') | map(attribute=''state'') | first | default(''?'') %}{{ "{{" }} {''on'': ''Open'', ''off'': ''Closed''}.get(s, s) {{ "}}" }}'
     - Ship:

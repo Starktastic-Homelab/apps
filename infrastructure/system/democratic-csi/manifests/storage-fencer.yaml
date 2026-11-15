@@ -1,0 +1,41 @@
+# Credential for the storage VM's storage-fencer (ADR 0017). Ansible copies the token and
+# ca.crt from the Secret to the VM; it can taint and cordon-patch nodes and read attachments only.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: storage-fencer
+  namespace: democratic-csi
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: storage-fencer
+rules:
+  - apiGroups: [""]
+    resources: [nodes]
+    verbs: [get, list, watch, patch]
+  - apiGroups: [storage.k8s.io]
+    resources: [volumeattachments]
+    verbs: [get, list]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: storage-fencer
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: storage-fencer
+subjects:
+  - kind: ServiceAccount
+    name: storage-fencer
+    namespace: democratic-csi
+---
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/service-account-token
+metadata:
+  name: storage-fencer-token
+  namespace: democratic-csi
+  annotations:
+    kubernetes.io/service-account.name: storage-fencer

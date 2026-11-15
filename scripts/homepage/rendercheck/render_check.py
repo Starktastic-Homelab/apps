@@ -144,7 +144,9 @@ def failures(inv: dict, runs: list, page: str) -> list:
         if r["errors"]:
             out.append(f"{where}: {r['errors']} widget error box(es)")
         if r["pending"]:
-            out.append(f"{where}: {r['pending']} block(s) never got a value (still loading after the wait)")
+            homes = ", ".join(sorted(set(r.get("pendingIn", []))))  # a flaky one is found only by its name
+            out.append(f"{where}: {r['pending']} block(s) never got a value (still loading after the wait)"
+                       + (f", in {homes}" if homes else ""))
         if r["scenario"] == "calm" and r["danger"]:
             out.append(f"{where}: {r['danger']} danger block(s) in the calm scenario (red is for alarms only)")
         out += [f"{where}: {url} failed to load" for url in r["missing"]]
@@ -236,6 +238,7 @@ SNAPSHOT_JS = r"""
     sheet: !!sheet,
     search: !!box && box.width >= 44 && box.left >= 0 && box.right <= innerWidth && box.bottom <= innerHeight,
     pending: q(".animate-pulse").length,
+    pendingIn: q(".animate-pulse").map((e) => e.closest(".service, .bookmark")?.id || e.closest("[id]")?.id || "?"),
     danger: q('.service-block[data-highlight-level="danger"]').length,
     ids: q(".service[id], .bookmark[id]").map((e) => e.id),
     groups: q(".service-group-name, .bookmark-group-name").map((e) => e.textContent.trim()),

@@ -1,0 +1,24 @@
+{
+ "data": {
+  "subscribers": {
+   "total": 14,
+   "blocklisted": null,
+   "orphans": 0
+  },
+  "lists": {
+   "total": 3,
+   "private": 1,
+   "public": 2,
+   "optin_single": 3,
+   "optin_double": 0
+  },
+  "campaigns": {
+   "total": 6,
+   "by_status": {
+    "draft": 1,
+    "finished": 5
+   }
+  },
+  "messages": 71
+ }
+}

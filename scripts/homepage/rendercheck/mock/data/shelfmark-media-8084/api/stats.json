@@ -1,0 +1,26 @@
+{
+ "generated_at": "{{iso:-0s}}",
+ "added": {
+  "ebook_7d": 4,
+  "audiobook_7d": 1,
+  "total_7d": 5,
+  "ebook_30d": 17,
+  "audiobook_30d": 6,
+  "total_30d": 23
+ },
+ "queue": {
+  "active": 1,
+  "awaiting_pickup": 0,
+  "queued": 2
+ },
+ "requests": {
+  "pending": 2,
+  "delivered": 141,
+  "failed": 3,
+  "cancelled": 1,
+  "rejected": 0
+ },
+ "errors": {
+  "failed_7d": 0
+ }
+}

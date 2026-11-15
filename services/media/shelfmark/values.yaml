@@ -11,6 +11,11 @@ controllers:
           HIDE_LOCAL_AUTH: "true"
           DISABLE_LOCAL_AUTH: "true"
           OIDC_AUTO_REDIRECT: "true"
+        # SHELFMARK_API_KEY_READONLY: a key that may only GET /api/stats, for the admin Homepage tile. Never add
+        # SHELFMARK_API_KEY here: that one is root-equivalent.
+        envFrom:
+          - secretRef:
+              name: shelfmark-secret
         probes:
           liveness:
             enabled: true

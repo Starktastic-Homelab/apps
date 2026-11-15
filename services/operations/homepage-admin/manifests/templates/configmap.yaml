@@ -1700,6 +1700,21 @@ data:
               label: user.username
               limit: 5
               target: https://audiobooks.benplus.app/item/{libraryItemId}
+      - New albums:
+          id: new-albums
+          icon: mdi-album
+          description: Latest additions
+          widget:
+            type: customapi
+            url: http://navidrome.media:4533/rest/getAlbumList2?type=newest&size=6&f=json&v=1.16.1&c=homepage&u={{ "{{" }}HOMEPAGE_VAR_NAVIDROME_HOUSEHOLD_USER{{ "}}" }}&t={{ "{{" }}HOMEPAGE_VAR_NAVIDROME_HOUSEHOLD_TOKEN{{ "}}" }}&s={{ "{{" }}HOMEPAGE_VAR_NAVIDROME_HOUSEHOLD_SALT{{ "}}" }}
+            refreshInterval: 900000
+            display: dynamic-list
+            mappings:
+              items: subsonic-response.albumList2.album
+              name: name
+              label: artist
+              limit: 6
+              target: https://music.benplus.app/app/#/album/{id}/show
     - Read:
       - Calibre-Web:
           id: calibre-web
@@ -1722,6 +1737,31 @@ data:
           siteMonitor: http://shelfmark.media:8084
           namespace: media
           app: shelfmark
+          widget:
+            type: customapi
+            url: http://shelfmark.media:8084/api/stats
+            headers:
+              X-Api-Key: '{{ "{{" }}HOMEPAGE_VAR_SHELFMARK_STATS_KEY{{ "}}" }}'
+            refreshInterval: 300000
+            mappings:
+            - field: requests.pending
+              label: Pending
+              format: number
+            - field: queue.active
+              label: Downloading
+              format: number
+            - field: added.total_7d
+              label: Added 7d
+              format: number
+            - field: errors.failed_7d
+              label: Failed 7d
+              format: number
+            highlight:
+              Failed 7d:
+                numeric:
+                - level: warn
+                  when: gt
+                  value: 0
     - Photos:
       - Immich:
           id: immich
@@ -2104,6 +2144,31 @@ data:
           siteMonitor: http://cleanuparr.media:11011/health
           namespace: media
           app: cleanuparr
+          widget:
+            type: customapi
+            url: http://cleanuparr.media:11011/api/v2/stats?hours=168
+            headers:
+              X-Api-Key: '{{ "{{" }}HOMEPAGE_VAR_CLEANUPARR_KEY{{ "}}" }}'
+            refreshInterval: 300000
+            mappings:
+            - field: removals.total
+              label: Removed 7d
+              format: number
+            - field: strikes.total
+              label: Strikes 7d
+              format: number
+            - field: strikes.recovered
+              label: Recovered 7d
+              format: number
+            - field: jobs.failed
+              label: Failed Runs 7d
+              format: number
+            highlight:
+              Failed Runs 7d:
+                numeric:
+                - level: warn
+                  when: gt
+                  value: 0
       - Unpackerr:
           id: unpackerr
           icon: unpackerr.png
@@ -2383,6 +2448,24 @@ data:
                 - level: warn
                   when: equals
                   value: Open
+          - type: customapi
+            url: http://mealie.operations:9000/api/admin/about/statistics
+            headers:
+              Authorization: Bearer {{ "{{" }}HOMEPAGE_VAR_MEALIE_KEY{{ "}}" }}
+            refreshInterval: 3600000
+            mappings:
+            - field: totalUsers
+              label: All Users
+              format: number
+            - field: totalHouseholds
+              label: Households
+              format: number
+            - field: uncategorizedRecipes
+              label: Uncategorized
+              format: number
+            - field: untaggedRecipes
+              label: Untagged
+              format: number
       - Changedetection:
           id: changedetection
           icon: changedetection.png
@@ -2497,6 +2580,28 @@ data:
           siteMonitor: http://listmonk.operations:9000
           namespace: operations
           app: listmonk
+          widget:
+            type: customapi
+            url: http://listmonk.operations:9000/api/dashboard/counts
+            headers:
+              Authorization: token {{ "{{" }}HOMEPAGE_VAR_LISTMONK_USER{{ "}}" }}:{{ "{{" }}HOMEPAGE_VAR_LISTMONK_TOKEN{{ "}}" }}
+            refreshInterval: 900000
+            mappings:
+            - field: data.subscribers.total
+              label: Subscribers
+              format: number
+            - field: data.lists.total
+              label: Lists
+              format: number
+            - field: data.campaigns.total
+              label: Campaigns
+              format: number
+            - field: data.messages
+              label: Sent
+              format: number
+              remap:
+              - value: null
+                to: 0
     - Home:
       - Home Assistant:
           id: home-assistant

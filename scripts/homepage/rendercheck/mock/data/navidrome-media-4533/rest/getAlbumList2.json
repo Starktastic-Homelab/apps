@@ -1,0 +1,79 @@
+{
+ "subsonic-response": {
+  "status": "ok",
+  "version": "1.16.1",
+  "type": "navidrome",
+  "serverVersion": "0.64.2",
+  "openSubsonic": true,
+  "albumList2": {
+   "album": [
+    {
+     "id": "al-0000",
+     "name": "In Rainbows",
+     "artist": "Radiohead",
+     "artistId": "ar-0000",
+     "coverArt": "al-0000",
+     "songCount": 10,
+     "duration": 2400,
+     "created": "{{iso:-1d}}",
+     "year": 2000
+    },
+    {
+     "id": "al-0001",
+     "name": "Кино",
+     "artist": "Кино",
+     "artistId": "ar-0001",
+     "coverArt": "al-0001",
+     "songCount": 11,
+     "duration": 2460,
+     "created": "{{iso:-2d}}",
+     "year": 2001
+    },
+    {
+     "id": "al-0002",
+     "name": "Blue Train",
+     "artist": "John Coltrane",
+     "artistId": "ar-0002",
+     "coverArt": "al-0002",
+     "songCount": 12,
+     "duration": 2520,
+     "created": "{{iso:-3d}}",
+     "year": 2002
+    },
+    {
+     "id": "al-0003",
+     "name": "Currents",
+     "artist": "Tame Impala",
+     "artistId": "ar-0003",
+     "coverArt": "al-0003",
+     "songCount": 13,
+     "duration": 2580,
+     "created": "{{iso:-4d}}",
+     "year": 2003
+    },
+    {
+     "id": "al-0004",
+     "name": "Random Access Memories",
+     "artist": "Daft Punk",
+     "artistId": "ar-0004",
+     "coverArt": "al-0004",
+     "songCount": 14,
+     "duration": 2640,
+     "created": "{{iso:-5d}}",
+     "year": 2004
+    },
+    {
+     "id": "al-0005",
+     "name": "Hounds of Love",
+     "artist": "Kate Bush",
+     "artistId": "ar-0005",
+     "coverArt": "al-0005",
+     "songCount": 15,
+     "duration": 2700,
+     "created": "{{iso:-6d}}",
+     "year": 2005
+    }
+   ]
+  }
+ }
+}

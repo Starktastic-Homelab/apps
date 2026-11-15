@@ -619,6 +619,27 @@ tiles:
     siteMonitor: http://navidrome.media:4533
     namespace: media
     app: navidrome
+  # Navidrome's newest albums, through the Subsonic API as the non-admin user `homepage-household`: a salted
+  # token, not the password (t = md5(password + salt)). Navidrome has no API keys and no scoped users: any user
+  # that can list albums can also read everyone's now-playing, so the limit here is that this widget asks for
+  # one fixed URL and Homepage serves no other (ADR 0018). An empty library answers without the list.
+  new-albums:
+    name: New albums
+    audience: household
+    icon: mdi-album
+    description: Latest additions
+    widgets:
+      - audience: household
+        type: customapi
+        url: http://navidrome.media:4533/rest/getAlbumList2?type=newest&size=6&f=json&v=1.16.1&c=homepage&u={{HOMEPAGE_VAR_NAVIDROME_HOUSEHOLD_USER}}&t={{HOMEPAGE_VAR_NAVIDROME_HOUSEHOLD_TOKEN}}&s={{HOMEPAGE_VAR_NAVIDROME_HOUSEHOLD_SALT}}
+        refreshInterval: 900000
+        display: dynamic-list
+        mappings:
+          items: subsonic-response.albumList2.album
+          name: name
+          label: artist
+          limit: 6
+          target: https://music.benplus.app/app/#/album/{id}/show
   audiobookshelf:
     name: Audiobookshelf
     audience: household
@@ -629,6 +650,12 @@ tiles:
       - type: audiobookshelf
         url: http://audiobookshelf.media:80
         key: "{{HOMEPAGE_VAR_AUDIOBOOKSHELF_KEY}}"
+      # Household's library totals: the same widget on an API key that acts as the guest user
+      # `homepage-household` (ADR 0018). The two routes it calls check library access only.
+      - audience: household-only
+        type: audiobookshelf
+        url: http://audiobookshelf.media:80
+        key: "{{HOMEPAGE_VAR_AUDIOBOOKSHELF_HOUSEHOLD_KEY}}"
   # Who is listening now. /api/sessions/open answers only an admin-type user's key, and carries client IPs.
   audiobookshelf-sessions:
     name: Audiobook Sessions
@@ -718,6 +745,34 @@ tiles:
     source: services/media/shelfmark
     icon: mdi-bookshelf
     description: Request books
+    widgets:
+      # Counts only, no titles or names (/api/stats, v1.7.0; every key is always present). The key is Shelfmark's
+      # read-only one (SHELFMARK_API_KEY_READONLY in its own secret): it can call this route and nothing else.
+      # No alert rule in Git reads Shelfmark, so failures are amber at most.
+      - type: customapi
+        url: http://shelfmark.media:8084/api/stats
+        headers:
+          X-Api-Key: "{{HOMEPAGE_VAR_SHELFMARK_STATS_KEY}}"
+        refreshInterval: 300000
+        mappings:
+          - field: requests.pending
+            label: Pending
+            format: number
+          - field: queue.active
+            label: Downloading
+            format: number
+          - field: added.total_7d
+            label: Added 7d
+            format: number
+          - field: errors.failed_7d
+            label: Failed 7d
+            format: number
+        highlight:
+          Failed 7d:
+            numeric:
+              - level: warn
+                when: gt
+                value: 0
   excalidash:
     name: Excalidash
     audience: household
@@ -954,6 +1009,53 @@ tiles:
               - level: warn
                 when: equals
                 value: Open
+      # Instance-wide counts that only an admin may read (/api/admin/about/statistics, v3.31.0), on the same
+      # token as the widget above: it answers here only while the token's owner is a Mealie admin.
+      - type: customapi
+        url: http://mealie.operations:9000/api/admin/about/statistics
+        headers:
+          Authorization: Bearer {{HOMEPAGE_VAR_MEALIE_KEY}}
+        refreshInterval: 3600000
+        mappings:
+          - field: totalUsers
+            label: All Users # the widget above already has "Users": those of the token owner's household
+            format: number
+          - field: totalHouseholds
+            label: Households
+            format: number
+          - field: uncategorizedRecipes
+            label: Uncategorized
+            format: number
+          - field: untaggedRecipes
+            label: Untagged
+            format: number
+      # Household's totals, on the token of the non-admin user `homepage-household`, which sits in a Mealie
+      # household of its own (ADR 0018): it reaches no family shopping list or meal plan. The recipe total is
+      # the whole group's; categories and tags are group-wide too. perPage=0 keeps every recipe, and with it the
+      # id of whoever added it, out of the answer: Mealie then returns the total with an empty list (read in
+      # v3.31.0's add_pagination_to_query).
+      - audience: household-only
+        type: customapi
+        url: http://mealie.operations:9000/api/recipes?perPage=0
+        headers: &mealie_household_auth
+          Authorization: Bearer {{HOMEPAGE_VAR_MEALIE_HOUSEHOLD_KEY}}
+        refreshInterval: 3600000
+        mappings:
+          - field: total
+            label: Recipes
+            format: number
+      - audience: household-only
+        type: customapi
+        url: http://mealie.operations:9000/api/households/statistics
+        headers: *mealie_household_auth
+        refreshInterval: 3600000
+        mappings:
+          - field: totalCategories
+            label: Categories
+            format: number
+          - field: totalTags
+            label: Tags
+            format: number
   pairdrop:
     name: PairDrop
     audience: household
@@ -972,6 +1074,30 @@ tiles:
     source: services/operations/listmonk
     icon: listmonk.png
     description: Newsletters & mailing lists
+    widgets:
+      # /api/dashboard/counts needs no permission (v6.2.0), so the API user has a role with none. Each call
+      # refreshes a database view, hence the 15 minutes. "Sent" is null, not 0, until a campaign exists.
+      - type: customapi
+        url: http://listmonk.operations:9000/api/dashboard/counts
+        headers:
+          Authorization: token {{HOMEPAGE_VAR_LISTMONK_USER}}:{{HOMEPAGE_VAR_LISTMONK_TOKEN}}
+        refreshInterval: 900000
+        mappings:
+          - field: data.subscribers.total
+            label: Subscribers
+            format: number
+          - field: data.lists.total
+            label: Lists
+            format: number
+          - field: data.campaigns.total
+            label: Campaigns
+            format: number
+          - field: data.messages
+            label: Sent
+            format: number
+            remap:
+              - value: null
+                to: 0
   radarr:
     name: Radarr
     source: services/media/radarr
@@ -1152,6 +1278,34 @@ tiles:
     monitorPath: /health
     icon: cleanuparr.png
     description: Stuck queue cleanup
+    widgets:
+      # The last 7 days, from Cleanuparr's own statistics (/api/v2/stats, v2.11.0; all four are counts). Its API
+      # key is the app's only key and has full power. Dry-run activity is left out, which is the API's default.
+      # No alert rule in Git reads Cleanuparr, so failed runs are amber at most.
+      - type: customapi
+        url: http://cleanuparr.media:11011/api/v2/stats?hours=168
+        headers:
+          X-Api-Key: "{{HOMEPAGE_VAR_CLEANUPARR_KEY}}"
+        refreshInterval: 300000
+        mappings:
+          - field: removals.total
+            label: Removed 7d
+            format: number
+          - field: strikes.total
+            label: Strikes 7d
+            format: number
+          - field: strikes.recovered
+            label: Recovered 7d
+            format: number
+          - field: jobs.failed
+            label: Failed Runs 7d
+            format: number
+        highlight:
+          Failed Runs 7d:
+            numeric:
+              - level: warn
+                when: gt
+                value: 0
   qbittorrent:
     name: qBittorrent
     source: services/media/qbittorrent
@@ -2350,10 +2504,11 @@ pages:
         groups:
           - name: Listen
             style: row
-            columns: 2
+            columns: 3
             items:
               - navidrome
               - audiobookshelf
+              - new-albums
           - name: Read
             style: row
             columns: 2
@@ -2461,6 +2616,7 @@ pages:
               - navidrome
               - audiobookshelf
               - audiobookshelf-sessions
+              - new-albums
           - name: Read
             items:
               - calibre-web

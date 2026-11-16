@@ -18,6 +18,10 @@ engine starts only after the read-only guard validates its app-specific retained
 marker and required native paths. Valid empty Alertmanager files are accepted.
 An absent/wrong marker or missing native state stops startup for investigation;
 do not create a marker to bypass the guard or initialize an empty replacement.
+The single exception is a disaster-recovery re-initialisation of a lost image per
+ansible `docs/backup-and-restore.md`, "Re-initialise an excluded image", pre-approved
+by Ben on 2026-11-16 and allowed only once the image is missing and no replica
+copy of it exists.
 
 Preserve the image digests, native retention and notification/service endpoints.
 Tempo uses app-template5.2.1 with its original native ConfigMap, Service,
@@ -60,7 +64,7 @@ records independent cold restores, live history/fresh ingestion, Pod recreation,
 healthy-worker movement, current-source Argo reconciliation and the accepted
 six-minute continuous watch for all four services.
 
-The original Prometheus15d/8GiB policy remains in force. During stock first
+The original Prometheus15d/8GB policy remains in force. During stock first
 startup, normal size retention expired one verified oldest18h block; the user
 explicitly accepted that exact expiry. Its data remains in the encrypted cold
 backup. This is not permission to ignore other missing history or WAL failures.

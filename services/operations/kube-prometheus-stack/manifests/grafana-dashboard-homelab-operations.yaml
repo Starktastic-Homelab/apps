@@ -1,0 +1,1107 @@
+# Grafana dashboard "Homelab: Operations", source: custom (built 2026-11-16).
+# Provisioned read-only by the Grafana sidecar. To change it, edit in Grafana, export the JSON
+# (Share > Export) and replace the block below, keeping uid homelab-operations.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-homelab-operations
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  homelab-operations.json: |
+    {
+      "uid": "homelab-operations",
+      "title": "Homelab: Operations",
+      "description": "One page for what needs attention: alerts, probes, ArgoCD, backup CronJobs, certificates, CSI slots and PVC space.",
+      "tags": [
+        "homelab",
+        "operations"
+      ],
+      "timezone": "browser",
+      "editable": true,
+      "time": {
+        "from": "now-24h",
+        "to": "now"
+      },
+      "refresh": "1m",
+      "graphTooltip": 1,
+      "schemaVersion": 42,
+      "panels": [
+        {
+          "id": 1,
+          "type": "stat",
+          "title": "Alerts firing",
+          "gridPos": {
+            "x": 0,
+            "y": 0,
+            "w": 4,
+            "h": 4
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "count(ALERTS{alertstate=\"firing\", severity=~\"warning|critical\"}) or vector(0)",
+              "refId": "A",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "description": "Warning and critical only.",
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#22c55e",
+                    "value": null
+                  },
+                  {
+                    "color": "#f59e0b",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "textMode": "value",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            }
+          }
+        },
+        {
+          "id": 2,
+          "type": "stat",
+          "title": "Probes failing",
+          "gridPos": {
+            "x": 4,
+            "y": 0,
+            "w": 4,
+            "h": 4
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "count(probe_success == 0) or vector(0)",
+              "refId": "A",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#22c55e",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "textMode": "value",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            }
+          }
+        },
+        {
+          "id": 3,
+          "type": "stat",
+          "title": "Argo apps needing attention",
+          "gridPos": {
+            "x": 8,
+            "y": 0,
+            "w": 4,
+            "h": 4
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "count(argocd_app_info{health_status!=\"Healthy\"} or argocd_app_info{sync_status!=\"Synced\"}) or vector(0)",
+              "refId": "A",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#22c55e",
+                    "value": null
+                  },
+                  {
+                    "color": "#f59e0b",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "textMode": "value",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            }
+          }
+        },
+        {
+          "id": 4,
+          "type": "stat",
+          "title": "Oldest backup run",
+          "gridPos": {
+            "x": 12,
+            "y": 0,
+            "w": 4,
+            "h": 4
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max(time() - kube_cronjob_status_last_successful_time{cronjob=~\".*backup.*\"})",
+              "refId": "A",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "description": "pg-backup and cert-backup CronJobs. Host backups (restic, vzdump) report to Healthchecks, not Prometheus.",
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#22c55e",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 93600
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "textMode": "value",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            }
+          }
+        },
+        {
+          "id": 5,
+          "type": "stat",
+          "title": "Certs expiring < 21 d",
+          "gridPos": {
+            "x": 16,
+            "y": 0,
+            "w": 4,
+            "h": 4
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "count((certmanager_certificate_expiration_timestamp_seconds - time()) < 21 * 86400) or vector(0)",
+              "refId": "A",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#22c55e",
+                    "value": null
+                  },
+                  {
+                    "color": "#f59e0b",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "textMode": "value",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            }
+          }
+        },
+        {
+          "id": 6,
+          "type": "stat",
+          "title": "CSI slots free",
+          "gridPos": {
+            "x": 20,
+            "y": 0,
+            "w": 4,
+            "h": 4
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "sum(clamp_min(homelab:proxmox_csi_slots_free:count, 0))",
+              "refId": "A",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "description": "Proxmox CSI attachment slots left across workers (29 per worker).",
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  },
+                  {
+                    "color": "#f59e0b",
+                    "value": 1
+                  },
+                  {
+                    "color": "#22c55e",
+                    "value": 10
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "textMode": "value",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            }
+          }
+        },
+        {
+          "id": 7,
+          "type": "row",
+          "title": "Needs attention",
+          "collapsed": false,
+          "gridPos": {
+            "x": 0,
+            "y": 4,
+            "w": 24,
+            "h": 1
+          },
+          "panels": []
+        },
+        {
+          "id": 8,
+          "type": "table",
+          "title": "Firing alerts",
+          "gridPos": {
+            "x": 0,
+            "y": 5,
+            "w": 12,
+            "h": 8
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "count by (alertname, severity, namespace) (ALERTS{alertstate=\"firing\", severity=~\"warning|critical\"})",
+              "refId": "A",
+              "format": "table",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "renameByName": {
+                  "alertname": "Alert",
+                  "severity": "Severity",
+                  "namespace": "Namespace",
+                  "Value": "Series"
+                },
+                "indexByName": {}
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                }
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm",
+            "sortBy": [
+              {
+                "displayName": "Series",
+                "desc": true
+              }
+            ]
+          }
+        },
+        {
+          "id": 9,
+          "type": "table",
+          "title": "Argo apps not healthy or not synced",
+          "gridPos": {
+            "x": 12,
+            "y": 5,
+            "w": 12,
+            "h": 8
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (name, health_status, sync_status) (argocd_app_info{health_status!=\"Healthy\"} or argocd_app_info{sync_status!=\"Synced\"})",
+              "refId": "A",
+              "format": "table",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "Value": true
+                },
+                "renameByName": {
+                  "name": "App",
+                  "health_status": "Health",
+                  "sync_status": "Sync"
+                },
+                "indexByName": {}
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                }
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm",
+            "sortBy": [
+              {
+                "displayName": "App",
+                "desc": false
+              }
+            ]
+          }
+        },
+        {
+          "id": 10,
+          "type": "row",
+          "title": "Probes and backups",
+          "collapsed": false,
+          "gridPos": {
+            "x": 0,
+            "y": 13,
+            "w": 24,
+            "h": 1
+          },
+          "panels": []
+        },
+        {
+          "id": 11,
+          "type": "table",
+          "title": "Probes",
+          "gridPos": {
+            "x": 0,
+            "y": 14,
+            "w": 12,
+            "h": 10
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "max by (job, tier) (probe_success)",
+              "refId": "A",
+              "format": "table",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "renameByName": {
+                  "job": "Probe",
+                  "tier": "Tier",
+                  "Value": "Status"
+                },
+                "indexByName": {}
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                }
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Status"
+                },
+                "properties": [
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-text"
+                    }
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "red",
+                          "value": null
+                        },
+                        {
+                          "color": "#22c55e",
+                          "value": 1
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "thresholds"
+                    }
+                  },
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "type": "value",
+                        "options": {
+                          "0": {
+                            "text": "DOWN"
+                          },
+                          "1": {
+                            "text": "up"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm",
+            "sortBy": [
+              {
+                "displayName": "Status",
+                "desc": false
+              }
+            ]
+          }
+        },
+        {
+          "id": 12,
+          "type": "table",
+          "title": "CronJobs: time since last success",
+          "gridPos": {
+            "x": 12,
+            "y": 14,
+            "w": 12,
+            "h": 10
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "time() - max by (namespace, cronjob) (kube_cronjob_status_last_successful_time)",
+              "refId": "A",
+              "format": "table",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "renameByName": {
+                  "namespace": "Namespace",
+                  "cronjob": "CronJob",
+                  "Value": "Since success"
+                },
+                "indexByName": {}
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                }
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Since success"
+                },
+                "properties": [
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-text"
+                    }
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "#22c55e",
+                          "value": null
+                        },
+                        {
+                          "color": "red",
+                          "value": 93600
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "thresholds"
+                    }
+                  },
+                  {
+                    "id": "unit",
+                    "value": "s"
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm",
+            "sortBy": [
+              {
+                "displayName": "Since success",
+                "desc": true
+              }
+            ]
+          }
+        },
+        {
+          "id": 13,
+          "type": "row",
+          "title": "Certificates and storage",
+          "collapsed": false,
+          "gridPos": {
+            "x": 0,
+            "y": 24,
+            "w": 24,
+            "h": 1
+          },
+          "panels": []
+        },
+        {
+          "id": 14,
+          "type": "table",
+          "title": "Certificate expiry",
+          "gridPos": {
+            "x": 0,
+            "y": 25,
+            "w": 8,
+            "h": 10
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "(max by (exported_namespace, name, issuer_name) (certmanager_certificate_expiration_timestamp_seconds) - time())",
+              "refId": "A",
+              "format": "table",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "renameByName": {
+                  "exported_namespace": "Namespace",
+                  "name": "Certificate",
+                  "issuer_name": "Issuer",
+                  "Value": "Expires in"
+                },
+                "indexByName": {
+                  "name": 0,
+                  "Value": 1,
+                  "exported_namespace": 2,
+                  "issuer_name": 3
+                }
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                }
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Expires in"
+                },
+                "properties": [
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-text"
+                    }
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "red",
+                          "value": null
+                        },
+                        {
+                          "color": "#f59e0b",
+                          "value": 604800
+                        },
+                        {
+                          "color": "#22c55e",
+                          "value": 1814400
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "thresholds"
+                    }
+                  },
+                  {
+                    "id": "unit",
+                    "value": "s"
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm",
+            "sortBy": [
+              {
+                "displayName": "Expires in",
+                "desc": false
+              }
+            ]
+          }
+        },
+        {
+          "id": 15,
+          "type": "bargauge",
+          "title": "CSI slots free per worker",
+          "gridPos": {
+            "x": 8,
+            "y": 25,
+            "w": 6,
+            "h": 10
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "homelab:proxmox_csi_slots_free:count",
+              "refId": "A",
+              "legendFormat": "{{node}}",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "min": 0,
+              "max": 29,
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  },
+                  {
+                    "color": "#f59e0b",
+                    "value": 4
+                  },
+                  {
+                    "color": "#8b5cf6",
+                    "value": 8
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "orientation": "horizontal",
+            "displayMode": "basic",
+            "showUnfilled": true,
+            "valueMode": "color",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            }
+          }
+        },
+        {
+          "id": 16,
+          "type": "table",
+          "title": "Fullest PVCs",
+          "gridPos": {
+            "x": 14,
+            "y": 25,
+            "w": 10,
+            "h": 10
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "topk(15, max by (namespace, persistentvolumeclaim) (1 - kubelet_volume_stats_available_bytes / kubelet_volume_stats_capacity_bytes))",
+              "refId": "A",
+              "format": "table",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "renameByName": {
+                  "namespace": "Namespace",
+                  "persistentvolumeclaim": "PVC",
+                  "Value": "Used"
+                },
+                "indexByName": {}
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                }
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Used"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "percentunit"
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "gauge",
+                      "mode": "basic"
+                    }
+                  },
+                  {
+                    "id": "min",
+                    "value": 0
+                  },
+                  {
+                    "id": "max",
+                    "value": 1
+                  },
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "thresholds"
+                    }
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "#8b5cf6",
+                          "value": null
+                        },
+                        {
+                          "color": "#f59e0b",
+                          "value": 0.8
+                        },
+                        {
+                          "color": "red",
+                          "value": 0.9
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm",
+            "sortBy": [
+              {
+                "displayName": "Used",
+                "desc": true
+              }
+            ]
+          }
+        }
+      ],
+      "templating": {
+        "list": []
+      },
+      "id": null
+    }

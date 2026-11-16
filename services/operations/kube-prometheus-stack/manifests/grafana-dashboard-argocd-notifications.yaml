@@ -1,0 +1,313 @@
+# Grafana dashboard "ArgoCD / Notifications / Overview", source: grafana.com 19975 (ArgoCD / Notifications / Overview).
+# Provisioned read-only by the Grafana sidecar. To change it, edit in Grafana, export the JSON
+# (Share > Export) and replace the block below, keeping uid argo-cd-notifications-overview-kask.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-argocd-notifications
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    grafana_folder: "Platform"
+data:
+  argocd-notifications.json: |
+    {
+      "annotations": {
+        "list": []
+      },
+      "description": "A dashboard that monitors ArgoCD with a focus on the notifications. The dashboards were generated using [argo-cd-mixin](https://github.com/adinhodovic/argo-cd-mixin). Open issues and create feature requests in the repository.",
+      "editable": false,
+      "links": [
+        {
+          "asDropdown": true,
+          "includeVars": false,
+          "keepTime": true,
+          "tags": [
+            "ci/cd",
+            "argo-cd"
+          ],
+          "targetBlank": true,
+          "title": "ArgoCD",
+          "type": "dashboards"
+        }
+      ],
+      "panels": [
+        {
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 0
+          },
+          "id": 1,
+          "title": "Summary",
+          "type": "row"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "description": "A timeseries panel showing the count of notification deliveries by exported service and success status.",
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "axisSoftMin": 0,
+                "fillOpacity": 100,
+                "lineWidth": 1,
+                "stacking": {
+                  "mode": "normal"
+                }
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".*false$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "red",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".*true$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "green",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 1
+          },
+          "id": 2,
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "sortBy": "Mean",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "v13.0.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "$datasource"
+              },
+              "exemplar": false,
+              "expr": "sum(\n  increase(\n    argocd_notifications_deliveries_total{\n      cluster=~\".*\",\nnamespace=~\"$namespace\",\njob=~\"$job\"\n\n,\nservice=~\"$service\"\n\n    }[$__rate_interval]\n  )\n) by (service, succeeded)\n",
+              "legendFormat": "{{ service }} - Succeeded: {{ succeeded }}"
+            }
+          ],
+          "title": "Notification Deliveries",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "description": "A timeseries panel showing the count of trigger evaluations by name and triggered status.",
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "axisSoftMin": 0,
+                "fillOpacity": 100,
+                "lineWidth": 1,
+                "stacking": {
+                  "mode": "normal"
+                }
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".*false$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "red",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".*true$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "green",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 9
+          },
+          "id": 3,
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "sortBy": "Mean",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "v13.0.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "$datasource"
+              },
+              "exemplar": false,
+              "expr": "sum(\n  increase(\n    argocd_notifications_trigger_eval_total{\n      cluster=~\".*\",\nnamespace=~\"$namespace\",\njob=~\"$job\"\n\n\n    }[$__rate_interval]\n  )\n) by (name, triggered)\n",
+              "legendFormat": "{{ name }} - Triggered: {{ triggered }}"
+            }
+          ],
+          "title": "Trigger Evaluations",
+          "type": "timeseries"
+        }
+      ],
+      "schemaVersion": 39,
+      "tags": [
+        "ci/cd",
+        "argo-cd"
+      ],
+      "templating": {
+        "list": [
+          {
+            "current": {
+              "selected": true,
+              "text": "default",
+              "value": "default"
+            },
+            "label": "Data source",
+            "name": "datasource",
+            "query": "prometheus",
+            "type": "datasource"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "${datasource}"
+            },
+            "hide": 2,
+            "label": "Cluster",
+            "name": "cluster",
+            "query": "label_values(argocd_app_info{}, cluster)",
+            "refresh": 2,
+            "sort": 1,
+            "type": "query"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "${datasource}"
+            },
+            "includeAll": false,
+            "label": "Namespace",
+            "multi": false,
+            "name": "namespace",
+            "query": "label_values(argocd_app_info{cluster=~\".*\"}, namespace)",
+            "refresh": 2,
+            "sort": 1,
+            "type": "query"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "${datasource}"
+            },
+            "includeAll": true,
+            "label": "Job",
+            "multi": true,
+            "name": "job",
+            "query": "label_values(argocd_notifications_deliveries_total{cluster=~\".*\", namespace=~\"$namespace\"}, job)",
+            "refresh": 2,
+            "sort": 1,
+            "type": "query"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "${datasource}"
+            },
+            "includeAll": true,
+            "label": "Notifications Service",
+            "multi": true,
+            "name": "service",
+            "query": "label_values(argocd_notifications_deliveries_total{cluster=~\".*\", namespace=~\"$namespace\", job=~\"$job\"}, service)",
+            "refresh": 2,
+            "sort": 1,
+            "type": "query"
+          }
+        ]
+      },
+      "time": {
+        "from": "now-6h",
+        "to": "now"
+      },
+      "timezone": "utc",
+      "title": "ArgoCD / Notifications / Overview",
+      "uid": "argo-cd-notifications-overview-kask",
+      "gnetId": 19975,
+      "id": null
+    }

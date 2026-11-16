@@ -414,6 +414,11 @@ grafana:
         defaultMode: 292
   sidecar:
     dashboards:
+      # Dashboards live as ConfigMaps in manifests/grafana-dashboard-*.yaml; the grafana_folder
+      # annotation picks the folder, and the chart's own dashboards (no annotation) stay in General.
+      folderAnnotation: grafana_folder
+      provider:
+        foldersFromFilesStructure: true
       initDashboards: true
       restartPolicy: Always
       startupProbe:

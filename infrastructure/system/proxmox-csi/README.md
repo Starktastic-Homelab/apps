@@ -18,8 +18,11 @@ stages deployment-access and secret-recovery checks before downtime, then a cold
 copy and isolated restore before worker replacement and controller activation.
 The controller activation follows those gates.
 
-The NAS dataset `apps/k3s-block` has a **160GiB aggregate quota** after the
-[October13 capacity amendment](../../../docs/superpowers/reports/2026-10-13-csi-quota-160g.md).
+The NAS dataset `apps/k3s-block` (GUID `13918781591004512447`) has a **288GiB aggregate
+quota** (live read 2026-11-16). It grew from 128GiB in reviewed steps: 160GiB in the
+[October13 capacity amendment](../../../docs/superpowers/reports/2026-10-13-csi-quota-160g.md),
+then 192GiB, 256GiB and 288GiB with the monitoring, media and utility/home cohorts.
+This is the one place that states the current quota; runbooks link here.
 It has no reservation. Individual images/PVCs retain their existing sizes;
 allocation and growth must account for all images, snapshots, historical files
 and required headroom using fresh measurements.

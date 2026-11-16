@@ -34,6 +34,8 @@ python3 scripts/check-jellyfin-compat.py      # PyYAML + helm + curl
 python3 scripts/check-argocd-notifications.py # PyYAML + helm: ntfy bodies stay valid JSON
 python3 scripts/check-alert-policy.py docker run --rm -i --network none --entrypoint promtool prom/prometheus:<ver>
 node scripts/check-linuxserver-tags.mjs       # offline assertion on renovate.json
+python3 scripts/check-image-digests.py --base origin/main   # PyYAML: a tag moved but its sha:/digest: didn't
+python3 scripts/check-image-digests.py --registry           # PyYAML + docker buildx: every pin vs its tag, by hand
 python3 scripts/check-readme-images.py
 helm template configs infrastructure/configs -f templates/globals.yaml
 bash scripts/render-diagrams.sh [--check]
@@ -77,6 +79,9 @@ Report what ran. The PR's ArgoCD diff preview is the review of record; renders d
   PVC, verify, then update the Git PV; never force-detach, recreate images, drop RWOP or prune protection,
   or fake markers to pass a guard. Each volume takes one of 29 slots per worker; change that with ansible.
 - Maintenance holds are an operation-owned AppProject deny window; toggling autosync is not a hold.
+- Renovate never moves a digest kept in a sibling `sha:`/`digest:` key; pin as `tag: <ver>@sha256:…` instead.
+  kube-prometheus-stack's Prometheus and Alertmanager must keep `sha:` (the chart copies `tag` into the
+  operator's `version:`), so their tag PRs fail `check-image-digests.py` until someone sets the new digest.
 - Only PostgreSQL and TLS certs are backed up. FlareSolverr image changes need the Falco exception (README).
 - Record decisions as ADRs (`docs/adr/`). `docs/superpowers/`, `docs/handoffs/`, `BACKLOG.md` are history.
 

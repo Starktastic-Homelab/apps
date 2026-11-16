@@ -128,6 +128,13 @@ jobs:
       - name: Check LinuxServer full-tag policy
         run: node scripts/check-linuxserver-tags.mjs
 
+      - name: Check image digests moved with their tags
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          git fetch --no-tags --depth=1 origin "$BASE_REF"
+          python3 scripts/check-image-digests.py --base FETCH_HEAD
+
       - name: Create validation report
         if: always()
         run: |

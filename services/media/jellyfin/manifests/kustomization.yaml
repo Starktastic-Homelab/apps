@@ -5,8 +5,6 @@ resources:
   - jellyfin-ldap-sync-secret.yaml
   - ldap-library-sync.yaml
   - pip-cache-pvc.yaml
-  - pvc.yaml
-  - storage-hold.yaml
 
 configMapGenerator:
   - name: jellyfin-ldap-sync

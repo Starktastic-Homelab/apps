@@ -61,12 +61,11 @@ These do not prove this installation will fail; they do make a rehearsal importa
 4. Confirm the actual backup and restore destination. This repository's PostgreSQL
    and certificate backup jobs **do not back up Jellyfin**.
 
-At the September image-upgrade preflight, `jellyfin-config` mounted at `/config`
-on NFS. Its historical provisioner path was
-`/mnt/apps/pv/media/jellyfin-config`; confirm the bound PV before filesystem work.
-The then-separate node-local `/config/cache` volume did **not** move the database off
-NFS. Jellyfin recommends local database storage; treat the existing NFS placement
-as a migration risk, not something silently changed alongside the image.
+At the September image-upgrade preflight, `/config` was the NFS claim
+`jellyfin-config` (retired 2026-11-16). It is now the retained block claim
+`jellyfin-config-block`; see the [storage runbook](../../../docs/runbooks/jellyfin-storage.md).
+The database is no longer on NFS, which Jellyfin advised against; `/config/cache`
+is now a disposable emptyDir.
 
 ### Preserve transcoding settings
 

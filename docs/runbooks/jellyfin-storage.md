@@ -50,12 +50,13 @@ retired, along with their manual workflows and Ansible enrollment/fencing roles.
 Use Git history and dated operational receipts for incident analysis; do not
 reapply historical manifests or use old release records to authorize writers.
 
-The original NFS claim `jellyfin-config` remains prune/delete-protected. The short
-`jellyfin-storage-hold` admission policy denies mounting `jellyfin-config` and
-`jellyfin-config-iscsi`. It does not match the active `jellyfin-config-block`
-claim. The `jellyfin-config-iscsi` entry is a leftover: the iSCSI source behind it
-no longer exists. Removing the NFS archive or this protection requires a separate
-recovery/retirement decision.
+The original NFS claim `jellyfin-config`, its PV and the `jellyfin-storage-hold`
+admission policy were retired on 2026-11-16. The archive under
+`/mnt/apps/pv/media/jellyfin-config` (unchanged since June 2026) is deleted on
+TrueNAS after the retirement. Until they age out, copies remain in the `apps/pv`
+snapshots, the `usbbk` replica and the off-site restic `daily` snapshots (monthly
+retention, about 12 months), for example `0d09e6c5` (2026-11-16 06:24) under
+`/srv/backup-src/pv/media/jellyfin-config`; see the Ansible backup runbook.
 
 Cleanup merges Ansible first. Keep the Apps cleanup PR draft until owned NAS
 export retirement is verified, then merge Apps: its automatic pruning removes

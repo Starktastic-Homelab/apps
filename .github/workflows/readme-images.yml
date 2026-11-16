@@ -1,0 +1,29 @@
+name: README images
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - docs/diagrams/**
+      - '**/*.md'
+      - scripts/check-readme-images.py
+      - .github/workflows/readme-images.yml
+
+concurrency:
+  group: readme-images-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Image references resolve
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # The diagrams are hand-drawn SVGs committed as they are; nothing is rendered in CI.
+      - name: Verify Markdown image references resolve
+        run: python3 scripts/check-readme-images.py

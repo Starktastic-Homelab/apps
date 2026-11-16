@@ -14,7 +14,7 @@ ArgoCD with a root app watching `bootstrap/`); the system overview is `../CLAUDE
   changing its `name`, deletes its resources; deleting an ApplicationSet file cascades to all its apps.
   Storage objects survive only through their `Prune=false,Delete=false` sync-option annotations.
 - Renovate automerges minor/patch/digest updates after 3 days (rules in `renovate.json`): that's a deploy.
-- `format.yaml` and `diagrams.yml` push commits to PR branches; pull before pushing.
+- `format.yaml` pushes commits to PR branches; pull before pushing.
 
 ## Commands
 
@@ -38,7 +38,6 @@ python3 scripts/check-image-digests.py --base origin/main   # PyYAML: a tag move
 python3 scripts/check-image-digests.py --registry           # PyYAML + docker buildx: every pin vs its tag, by hand
 python3 scripts/check-readme-images.py
 helm template configs infrastructure/configs -f templates/globals.yaml
-bash scripts/render-diagrams.sh [--check]
 ```
 
 Seal secrets offline with `scripts/seal.sh <name> <namespace> [--cluster-wide]`; never commit plaintext.
@@ -82,7 +81,7 @@ Report what ran. The PR's ArgoCD diff preview is the review of record; renders d
 - Renovate never moves a digest kept in a sibling `sha:`/`digest:` key; pin as `tag: <ver>@sha256:…` instead.
   kube-prometheus-stack's Prometheus and Alertmanager must keep `sha:` (the chart copies `tag` into the
   operator's `version:`), so their tag PRs fail `check-image-digests.py` until someone sets the new digest.
-- Only PostgreSQL and TLS certs are backed up. FlareSolverr image changes need the Falco exception (README).
+- Only PostgreSQL and TLS certs are backed up. FlareSolverr image changes need the Falco exception (`docs/operations/operator-notes.md`).
 - Record decisions as ADRs (`docs/adr/`). `docs/superpowers/`, `docs/handoffs/`, `BACKLOG.md` are history.
 
 ## Contracts

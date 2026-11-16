@@ -3,7 +3,9 @@
 Status: **cutover complete**. The preparation and cutover inputs that lived in
 `scripts/postgres-retained-startup/` were removed with their CI checks; recover
 them with `git show 45c7fb8c:scripts/postgres-retained-startup/<file>`. The rest of
-this runbook is the historical preparation record.
+this runbook is the historical preparation record. The original NFS source, its
+`postgres-storage-hold` admission guard and the encrypted cutover copies were
+[retired on 2026-11-16](../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16), so the source-rollback steps below no longer apply.
 
 ## Prepared destination and current source
 
@@ -40,8 +42,8 @@ would total84GiB nominal capacity. Before allocation, check complete dataset and
 pool usage, snapshots, hidden preserved files, staging/backup needs and full
 remaining growth of existing images; leave at least4GiB immediate headroom beyond
 the new image. Quota and PVC capacity do not reserve free space. The proposed
-name was absent and owner9999 was unused as a VM; recheck both, refuse collisions,
-and preserve historical Jellyfin files.
+name was absent and owner9999 was unused as a VM; recheck both and refuse collisions.
+The historical Jellyfin files then present were [deleted on 2026-11-16](../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16).
 
 ## Guard and chart integration
 
@@ -130,8 +132,8 @@ Runner free space remained at least 16.08 GiB, incremental usage peaked at
 checks passed. Guest/disks/media, fixture keys, plaintext/ciphertext copies,
 public temporary files and the temporary Docker alias were removed. The original
 cached image remains; independent cleanup confirmed an idle maintenance runtime
-and retained root-only receipts under
-`/var/lib/homelab-maintenance/operations/pg-csi-rehearsal-20261011/`.
+and kept root-only receipts under
+`/var/lib/homelab-maintenance/operations/pg-csi-rehearsal-20261011/` (deleted 2026-11-16).
 
 This qualifies the synthetic procedure. Production remains on NFS, with no real
 backup/key transfer or target allocation performed. A real independent cold

@@ -36,16 +36,14 @@ A quota increase is not a physical-space reservation or a new backup.
 
 Production migration is serialized under native maintenance ownership and an
 owned scoped Argo hold. Each source and every ancestor/root-share writer retires
-before the cold copy. Keep the original NFS source and accepted recovery media.
+before the cold copy. The original NFS sources, their holds and the recovery media
+were [retired on 2026-11-16](../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16).
 Merge reviewed desired CSI bindings under the hold before the first target writer;
 never return to stale NFS after target authority begins. Helper/old-writer API,
 runtime, mount, device and Proxmox references must retire before another writer.
 No forced detach or unreachable-node assumption is part of the procedure.
 
-Recovery ciphertext is retained outside Git on VM300 and the operator computer,
-with separately protected keys. Before using a recovery copy, verify its complete
-SHA256 and decrypt/restore independently, preserving every file, native POSIX
-metadata and engine history. Native fixtures must have no production scrape,
+Native fixtures must have no production scrape,
 receiver, peer or remote-write destinations. For ordinary VM replacement, retain
 the known raw disks and use the existing verified-retirement handoff.
 
@@ -66,19 +64,13 @@ six-minute continuous watch for all four services.
 
 The original Prometheus15d/8GB policy remains in force. During stock first
 startup, normal size retention expired one verified oldest18h block; the user
-explicitly accepted that exact expiry. Its data remains in the encrypted cold
-backup. This is not permission to ignore other missing history or WAL failures.
+explicitly accepted that exact expiry. Its data was in the encrypted cold backup,
+retired on 2026-11-16. This is not permission to ignore other missing history or WAL failures.
 Tempo's qualified zero-byte shutdown WAL scaffold contained no trace payload;
 only physically proven empty scaffolds were accepted during migration, and
 nonempty/corrupt/unproven replay loss still blocked acceptance.
 
-Cold ciphertext and complete manifests are retained on VM300 under
-`/var/lib/homelab-maintenance/operations/monitoring-csi-cutover-20261016/recovery/`
-and on the operator computer under
-`~/.local/share/homelab-recovery/monitoring-csi-cutover-20261016/`.
-Keys remain separate: the VM300 operation's `keys/` directory and
-`~/.config/homelab-recovery-keys/monitoring-csi-cutover-20261016/` on the computer.
-Native audit ciphertext is on both hosts; local/final audit ciphertexts and the
-sanitized final cleanup terminal are on the computer. These verified recovery
-copies are point-in-time backups. Arrange future backup/restore work separately;
-retained disks and fresh Kubernetes metadata reconstruction are not backups.
+The `monitoring-csi-cutover-20261016` cold ciphertext, manifests, audit copies and
+keys on VM300 and the operator workstation were
+[retired on 2026-11-16](../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16). Retained disks and fresh Kubernetes metadata
+reconstruction are not backups.

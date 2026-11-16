@@ -1,5 +1,10 @@
 # ntfy PostgreSQL and retained CSI recovery
 
+Private files now live on the NFS claim `operations/ntfy-files` (see the
+[ordinary-file runbook](ordinary-file-storage.md)). The `ntfy-data-block` volume and
+`vm-9999-ntfy.raw` described below, and the original NFS source, were
+[retired on 2026-11-16](../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16); those parts of this page are history.
+
 ntfy stores its database state in shared PostgreSQL and its attachments on retained
 Proxmox CSI. Runtime startup requires accepted enrollment, retained filesystem
 identity and the existing physical PostgreSQL schema.
@@ -22,15 +27,16 @@ shared database through the existing Terraform/Ansible verified-retirement workf
 Do not bypass RWOP or force-detach a disk while its old VM generation can still
 write. No Velero checkpoint or manually created application database is required.
 
-Before authoritative PostgreSQL startup, recovery may resume the unchanged cold
-SQLite sources only after all target/source writers and mounts retire and complete
+Before authoritative PostgreSQL startup, recovery could have resumed the unchanged cold
+SQLite sources only after all target/source writers and mounts retired and complete
 source fingerprints match. After startup, preserve newest PostgreSQL writes; stale
-SQLite must never be reopened as an automatic rollback. Use the current shared
-PostgreSQL backup/recovery workflow and the encrypted cutover recovery copies.
+SQLite must never be reopened as an automatic rollback; those sources no longer
+exist. Use the current shared
+PostgreSQL backup/recovery workflow.
 
-Original `ntfy-config` and `ntfy-cache` sources remain retained and admission-held.
-Do not mount them to another writer or delete their NAS directories as cleanup.
-The retained raw image and shared database are also outside disposable VM lifecycle.
+The original `ntfy-config` and `ntfy-cache` sources, their admission hold, the raw
+image and the encrypted cutover recovery copies were
+[retired on 2026-11-16](../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16).
 The SQL guard's physical identifier changes only through a separately accepted
 PostgreSQL physical recovery.
 

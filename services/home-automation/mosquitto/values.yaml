@@ -68,11 +68,6 @@ service:
 persistence:
   config:
     enabled: false
-  mosquitto-data:
-    existingClaim: mosquitto-config
-    globalMounts:
-      - path: /mosquitto/data
-    enabled: false
   mosquitto-conf:
     type: configMap
     name: mosquitto-config

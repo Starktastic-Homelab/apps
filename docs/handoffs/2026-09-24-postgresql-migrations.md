@@ -1,5 +1,8 @@
 # Handoff: officially supported PostgreSQL adoption
 
+> Retired 2026-11-16: the VM300 `operations/jellyfin*` records named below were
+> deleted ([CSI README](../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16)). This brief is history.
+
 Continue the homelab application-state reliability work as a separate PostgreSQL task. Start with discovery and a concrete migration proposal. Do not execute production cutovers merely because earlier work had maintenance approval.
 
 ## User intent and division of work

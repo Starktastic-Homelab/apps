@@ -10,8 +10,8 @@ replacement does not require a Velero checkpoint or manual backup verification.
 The unused iSCSI driver, bindings, credentials and generation guards are retired
 through the [cleanup plan](../../../docs/superpowers/plans/2026-10-06-retire-jellyfin-iscsi.md).
 The ZVOL `apps/iscsi` and TrueNAS snapshot task 2 were deleted on 2026-11-15.
-The verified October off-NAS backup, if it still exists, is the last copy of the
-pre-cutover iSCSI source and has been stale since the 10-06 cutover. There is no
+The verified October off-NAS backup of the pre-cutover iSCSI source was most
+likely among the [recovery copies deleted on 2026-11-16](../../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16); treat it as gone. There is no
 iSCSI rollback path. LDAP scheduling resumed and its first run completed successfully
 after [production acceptance](../../../docs/superpowers/reports/2026-10-06-proxmox-csi-jellyfin-cutover.md).
 
@@ -192,18 +192,18 @@ not change the running service.
 
 ### Verified checkpoint for the 12.1 cutover
 
-The cold rollback snapshot is
-`apps/pv@jellyfin-pre12-cold-20260917T061613Z-359cdcb9`. It preserves the complete
+The cold rollback snapshot was
+`apps/pv@jellyfin-pre12-cold-20260917T061613Z-359cdcb9`. It preserved the complete
 production configuration and original 10.11.11 plugin state; its SQLite databases
-and WAL were checked on independent temporary restores.
+and WAL were checked on independent temporary restores. It was
+[deleted on 2026-11-16](../../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16).
 
 Before migration, production's working copy received an explicit `auto` encoder
 preset and its old add-ons were archived at `/config/data/plugins-before-12`,
 retaining plugin configurations without changing the database files.
 Production now runs the reviewed 12.1 image with all compatible add-ons active.
 Local/LDAP administrator access, ordinary-user library restrictions, and playback
-were verified before LDAP synchronization resumed. Keep the untouched cold
-snapshot and old plugin archive.
+were verified before LDAP synchronization resumed. Keep the old plugin archive.
 
 During the first production full scan, a SQLite `database is locked` timeout
 interrupted a playback-progress write. Library requests returned to normal after the scan.
@@ -211,6 +211,10 @@ The database was on NFS during that upgrade. The separate October storage cutove
 now mounts the preserved ext4 filesystem through Proxmox CSI.
 
 ## Rollback
+
+The 10.11.11 rollback source (the cold snapshot above) was
+[deleted on 2026-11-16](../../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16), so there is no 12.1 rollback path any more. The
+procedure below is kept for a future upgrade that takes a new cold copy first.
 
 Stop Jellyfin and keep writers suspended. Restore the **complete pre-upgrade
 configuration/data/plugin state into a clean destination**, then restore the

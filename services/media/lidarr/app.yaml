@@ -1,7 +1,6 @@
 name: lidarr
 namespace: media
 deployPhase: services
-manifests: true
 commonValuesExtras:
   - templates/media-arr-common.yaml
 

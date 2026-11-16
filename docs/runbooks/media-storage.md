@@ -5,6 +5,10 @@ Audiobookshelf, Shelfmark and Cineplete use independent4GiB static upstream
 Proxmox CSI ext4 RWOP/Retain images. Each image is under
 `k3s-block:9999/vm-9999-<app>.raw`, independently of worker VM lifecycles.
 PV/PVC names are `<app>-config-block` in namespace `media` for claims.
+Cleanuparr and Cineplete have since moved to the NFS claims `media/cleanuparr-files`
+and `media/cineplete-files` (see the [ordinary-file runbook](ordinary-file-storage.md));
+their `vm-9999-<app>.raw` images and `<app>-config-block` claims were
+[retired on 2026-11-16](../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16), so those parts of this page are history.
 The normal base/variant ApplicationSet cascade and existing verified VM-retirement
 handoff reconstruct Kubernetes metadata after a full cluster replacement.
 No Velero checkpoint or manual metadata restoration is required.
@@ -35,7 +39,7 @@ NFS interfaces. Private database/config/key state moves to CSI.
 Cleanuparr2.10.6 uses PostgreSQL with schemas `data`, `events`, `users` and its
 existing dedicated-role enrollment/completion gate. Retained config preserves
 JWT, Plex client identity and DataProtection keys. The original SQLite files are
-retained in `.legacy-sqlite/` on CSI and in cold recovery, outside active database
+retained in `.legacy-sqlite/` on the `cleanuparr-files` claim, outside active database
 paths; startup rejects active SQLite files to prevent silent fallback. Do not
 run the native converter against preserved sources: it applies SQLite migrations
 in place. Use only disposable copies and an independently verified empty
@@ -52,9 +56,9 @@ fixtures use only disposable copies and no production network/media. Disable or
 postpone their background work; fixture changes never populate production.
 Populate only a verified empty target, proving every file before the marker.
 Merge reviewed desired definitions under the hold before permitting a target
-writer. Before authority the unchanged NFS source may resume only after all
-target/helpers retire. After authority, CSI/PostgreSQL contains the newest writes:
-never resume stale NFS.
+writer. Before authority the unchanged NFS source could resume only after all
+target/helpers retired. After authority, CSI/PostgreSQL contains the newest writes;
+the NFS sources no longer exist.
 
 Acceptance requires native state/API preservation, clean Pod recreation, movement
 to the other healthy worker and restored ordinary placement on the same retained
@@ -63,15 +67,8 @@ Argo operations with all existing sync options, then watch six clean minutes.
 Local linting, a ready Pod and an accepted synthetic fixture are separate gates.
 Fresh human OIDC sign-ins are not inferred from native health/API checks.
 
-Cold recovery ciphertext and manifests are retained outside Git on VM300 under
-`/var/lib/homelab-maintenance/operations/media-csi-cutover-20261017/recovery/`
-and on the operator computer under
-`~/.local/share/homelab-recovery/media-csi-cutover-20261017/`.
-Keys remain separate in the VM300 operation's `keys/` directory and
-`~/.config/homelab-recovery-keys/media-csi-cutover-20261017/` on the computer.
-Retain the original NFS sources and per-app `apps/pv` cold snapshots, independent
-of cleanup of owned helpers/private staging. Verify hashes and independently
-restore before relying on a recovery copy. These are point-in-time recovery
-copies; retained disks and fresh Kubernetes metadata reconstruction are not
-ongoing backups. Accepted production, lifecycle, reconciliation and cleanup evidence is recorded in
+The `media-csi-cutover-20261017` cold recovery ciphertext, manifests and keys on
+VM300 and the operator workstation, the cold ZFS snapshots, the original NFS sources
+and their admission holds were [deleted on 2026-11-16](../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16). Retained disks and fresh Kubernetes
+metadata reconstruction are not ongoing backups. Accepted production, lifecycle, reconciliation and cleanup evidence is recorded in
 [the completion report](../superpowers/reports/2026-10-17-media-production-completion.md).

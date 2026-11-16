@@ -92,13 +92,6 @@ service:
 persistence:
   config:
     enabled: false
-  data:
-    existingClaim: changedetection-data
-    advancedMounts:
-      main:
-        main:
-          - path: /datastore
-    enabled: false
   retained-startup:
     type: configMap
     name: utility-home-retained-startup-guard

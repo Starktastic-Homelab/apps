@@ -1,5 +1,10 @@
 # Grafana PostgreSQL and retained CSI recovery
 
+Private files now live on the NFS claim `monitoring/grafana-files` (see the
+[ordinary-file runbook](ordinary-file-storage.md)). The `grafana-data-block` volume and
+`vm-9999-grafana.raw` described below, and the original NFS source, were
+[retired on 2026-11-16](../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16); those parts of this page are history.
+
 Grafana keeps its database state in shared PostgreSQL and its private files,
 including plugins, on retained Proxmox CSI. Startup requires accepted current
 PostgreSQL enrollment, the retained file marker and the expected native SQL schema.
@@ -30,27 +35,18 @@ before Grafana starts, then continue watching. Preserve their service account,
 discovery RBAC and startup ordering: absent provisioning files can cause upstream
 Grafana to delete provisioned dashboards as orphans.
 
-Before authoritative PostgreSQL startup, the unchanged cold SQLite source may be
-resumed only after every target writer and attachment has retired and complete
+Before authoritative PostgreSQL startup, the unchanged cold SQLite source could have
+been resumed only after every target writer and attachment has retired and complete
 source fingerprints match. After startup, preserve the newest PostgreSQL writes;
-never reopen stale SQLite as an automatic rollback. Recover the database with the
+never reopen stale SQLite as an automatic rollback (that source no longer exists). Recover the database with the
 shared PostgreSQL backup/recovery workflow and recover private files from their
-retained disk or accepted encrypted recovery copy. A physical PostgreSQL recovery
+`grafana-files` volume and its backup. A physical PostgreSQL recovery
 also needs separate acceptance of its new physical identifier in the SQL guard.
 
-The original `monitoring/kube-prometheus-stack-grafana` NFS claim, PV and NAS
-directory remain retained and admission-held. Do not mount them to a new writer or
-delete them as disposable migration state. The retained raw disk and shared
-database remain outside the disposable k3s VM lifecycle.
-
-Cutover recovery ciphertexts are retained on VM300 under
-`/var/lib/homelab-maintenance/operations/grafana-csi-pg-cutover-20261016/recovery/`
-and on this computer under
-`~/.local/share/homelab-recovery/grafana-csi-pg-cutover-20261016/`.
-Their keys are separate: VM300's operation `keys/` directory and this computer's
-`~/.config/homelab-recovery-keys/grafana-csi-pg-cutover-20261016.key`.
-Keep both protected outside Git. The scheduled full PostgreSQL backup covers the
-Grafana role and database; it does not replace the private-file recovery copy.
+The original `monitoring/kube-prometheus-stack-grafana` NFS source, its admission
+hold, the raw disk and the cutover recovery ciphertexts on VM300 and the operator workstation
+were [retired on 2026-11-16](../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16). The scheduled full PostgreSQL backup covers
+the Grafana role and database; it does not cover private files.
 
 See the [qualification report](../superpowers/reports/2026-10-16-grafana-assessment.md)
 for the data conversion and independent recovery requirements.

@@ -1,5 +1,8 @@
 # Retained iSCSI hardening: scope for the original task
 
+> Retired 2026-11-16: the VM300 `operations/jellyfin*` records named below were
+> deleted ([CSI README](../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16)). This brief is history.
+
 This is a working brief and evidence-backed audit starting point, not an approved implementation design or a new maintenance authorization.
 
 ## User direction

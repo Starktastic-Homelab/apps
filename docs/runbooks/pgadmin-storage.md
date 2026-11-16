@@ -1,5 +1,10 @@
 # pgAdmin PostgreSQL and retained CSI recovery
 
+Private files now live on the NFS claim `databases/pgadmin-files` (see the
+[ordinary-file runbook](ordinary-file-storage.md)). The `pgadmin-data-block` volume and
+`vm-9999-pgadmin.raw` described below, and the original NFS source, were
+[retired on 2026-11-16](../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16); those parts of this page are history.
+
 pgAdmin keeps its complete configuration database in shared PostgreSQL and private
 files on retained Proxmox CSI. Startup requires accepted current enrollment, the
 retained file identity and the expected native SQL schema and application keys.
@@ -32,25 +37,16 @@ before stock pgAdmin can initialize anything. Keep image/schema signatures and
 guard qualification together on upgrade. Deliberate application-key rotation or
 physical PostgreSQL recovery requires separate acceptance of new guard inputs.
 
-Before authoritative PostgreSQL startup, the unchanged cold SQLite source may be
-resumed only after every target writer and attachment retires and complete source
+Before authoritative PostgreSQL startup, the unchanged cold SQLite source could have
+been resumed only after every target writer and attachment retires and complete source
 fingerprints match. After startup, preserve newest PostgreSQL writes and recover
-from accepted current SQL media; never automatically reopen stale SQLite. Recover
-private files from the retained disk or their accepted encrypted backup. Scheduled
+from accepted current SQL media; the old SQLite source no longer exists. Recover
+private files from the `pgadmin-files` volume and its backup. Scheduled
 full PostgreSQL backups cover the role/database; they do not back up private files.
 
-The original `databases/pgadmin-pgadmin4` NFS claim/PV and NAS directory remain
-retained and admission-held. Do not mount them to a new pgAdmin writer or remove
-them as temporary migration files. Retained raw storage and the database are
-independent of disposable k3s VMs.
-
-Cutover ciphertexts are retained on VM300 under
-`/var/lib/homelab-maintenance/operations/pgadmin-csi-pg-cutover-20261016/recovery/`
-and on this computer under
-`~/.local/share/homelab-recovery/pgadmin-csi-pg-cutover-20261016/`.
-Keys remain separate: VM300's operation `keys/` directory and this computer's
-`~/.config/homelab-recovery-keys/pgadmin-csi-pg-cutover-20261016.key`.
-Keep them protected outside Git.
+The original `databases/pgadmin-pgadmin4` NFS source, its admission hold, the raw
+image and the cutover ciphertexts on VM300 and the operator workstation were
+[retired on 2026-11-16](../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16).
 
 See the [qualification report](../superpowers/reports/2026-10-16-pgadmin-assessment.md)
 and [production completion report](../superpowers/reports/2026-10-16-pgadmin-production-completion.md)

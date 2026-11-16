@@ -35,7 +35,7 @@ The NFS provisioner is an additional source ancestor. Refresh the actual writer,
 client and mount census; an unknown writer blocks the checkpoint.
 
 This describes the completed migration, not a command to repeat during rebuilds.
-The private audit retains original sources, qualified operator amendments,
+The private audit kept original sources, qualified operator amendments,
 immutable inputs and native outcomes. Historical approvals and expired clocks
 cannot authorize a new operation. The completed sequence was:
 
@@ -51,7 +51,7 @@ cannot authorize a new operation. The completed sequence was:
    Immich-main stays stopped. Filebrowser and the NFS provisioner resume after
    the cold database archive and independent recovery are secured.
 4. Archive only the database subtree with complete POSIX metadata. Encrypt and
-   retain copies on VM300 and this computer, with separate keys outside Git.
+   retain copies on VM300 and the operator workstation, with separate keys outside Git.
    Independently decrypt the second copy, prove a clean native PG control state,
    restore the physical cluster with its original identity and separately restore
    all logical artifacts into a newly initialized disposable cluster. Compare
@@ -67,7 +67,7 @@ cannot authorize a new operation. The completed sequence was:
 7. Resume Immich-main and its original queue flags, restore frontends, synchronize
    full current Git revision vectors and watch normal automation for six minutes.
    Recheck an existing original photo through its real API and checksum. The
-   temporary read-only API key stays on this computer; no original file is saved.
+   temporary read-only API key stays on the operator workstation; no original file is saved.
 8. Clean exact temporary helpers/plaintext, retain source/target/snapshots and
    encrypted recovery with separate keys, audit and release native ownership.
 
@@ -94,17 +94,18 @@ Inspect unknown native outcomes instead of retrying mutations. Continue with the
 original input, nonce, clocks, exact resource generations and known terminals.
 Never renew the approved pre-target or total windows implicitly.
 
-Before authority, source recovery still requires complete target retirement and a
-validated coordinated database/photo recovery point. Before allowing uploads,
+Before authority, source recovery required complete target retirement and a
+validated coordinated database/photo recovery point; that source is gone. Before allowing uploads,
 keep Immich down until database and original-asset consistency is established.
 A snapshot-only restoration must affect only Immich's subtree; **never roll back
 all of `main/media`**, because the 19 resumed workloads may have written new data
-after the checkpoint barrier. Keep both snapshot generations and use a separately
-reviewed subtree recovery when needed.
+after the checkpoint barrier. Use a separately reviewed subtree recovery when
+needed; the checkpoint snapshot on `apps/pv` was deleted on 2026-11-16.
 
-After authority, CSI is the database authority. Never reopen the retired NFS
-cluster or remove its permanent Pod admission hold as an ad-hoc workaround. Fence
+After authority, CSI is the database authority. Never recreate the old NFS
+cluster as an ad-hoc workaround. Fence
 all current target writers, preserve the current image, and recover through a
 validated current coordinated backup. No forced detach or empty initialization.
-The original NFS PVC/PV/data and both checkpoint snapshots remain retained until
-the user separately approves their removal.
+The original `immich-pgdata` NFS PVC/PV/data, its `immich-source-hold` admission
+policy, the `immich-retained` cold snapshot and the encrypted recovery copies were
+[retired on 2026-11-16](../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16).

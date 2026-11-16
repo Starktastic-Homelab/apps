@@ -1,0 +1,1494 @@
+# Grafana dashboard "ArgoCD / Application / Overview", source: grafana.com 19974 (ArgoCD / Application / Overview).
+# Provisioned read-only by the Grafana sidecar. To change it, edit in Grafana, export the JSON
+# (Share > Export) and replace the block below, keeping uid argo-cd-application-overview-kask.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-argocd-applications
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    grafana_folder: "Platform"
+data:
+  argocd-applications.json: |
+    {
+      "annotations": {
+        "list": []
+      },
+      "description": "A dashboard that monitors ArgoCD with a focus on the applications of ArgoCD. The dashboards were generated using [argo-cd-mixin](https://github.com/adinhodovic/argo-cd-mixin). Open issues and create feature requests in the repository.",
+      "editable": false,
+      "links": [
+        {
+          "asDropdown": true,
+          "includeVars": false,
+          "keepTime": true,
+          "tags": [
+            "ci/cd",
+            "argo-cd"
+          ],
+          "targetBlank": true,
+          "title": "ArgoCD",
+          "type": "dashboards"
+        }
+      ],
+      "panels": [
+        {
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 0
+          },
+          "id": 1,
+          "title": "Summary By Project",
+          "type": "row"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "description": "A timeseries panel showing the health status of applications managed by ArgoCD.",
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "axisSoftMin": 0,
+                "fillOpacity": 100,
+                "lineWidth": 1,
+                "stacking": {
+                  "mode": "normal"
+                }
+              },
+              "decimals": 0,
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Degraded$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "red",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Healthy$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "green",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Missing$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "red",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Progressing$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Suspended$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Unknown$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "orange",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 12,
+            "x": 0,
+            "y": 1
+          },
+          "id": 2,
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "sortBy": "Mean",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "v13.0.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "$datasource"
+              },
+              "exemplar": false,
+              "expr": "sum(\n  argocd_app_info{\n    cluster=~\".*\",\nnamespace=~\"$namespace\",\njob=~\"$job\"\n\n,\ndest_server=~\"$kubernetes_cluster\",\nproject=~\"$project\"\n\n  }\n) by (job, project, health_status)\n",
+              "legendFormat": "{{ project }} - {{ health_status }}"
+            }
+          ],
+          "title": "Application Health Status",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "description": "A timeseries panel showing the sync status of applications managed by ArgoCD.",
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "axisSoftMin": 0,
+                "fillOpacity": 100,
+                "lineWidth": 1,
+                "stacking": {
+                  "mode": "normal"
+                }
+              },
+              "decimals": 0,
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - OutOfSync$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Synced$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "green",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Unknown$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "orange",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 12,
+            "x": 12,
+            "y": 1
+          },
+          "id": 3,
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "sortBy": "Mean",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "v13.0.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "$datasource"
+              },
+              "exemplar": false,
+              "expr": "sum(\n  argocd_app_info{\n    cluster=~\".*\",\nnamespace=~\"$namespace\",\njob=~\"$job\"\n\n,\ndest_server=~\"$kubernetes_cluster\",\nproject=~\"$project\"\n\n  }\n) by (job, project, sync_status)\n",
+              "legendFormat": "{{ project }} - {{ sync_status }}"
+            }
+          ],
+          "title": "Application Sync Status",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "description": "A timeseries panel showing the sync results of applications managed by ArgoCD.",
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "axisSoftMin": 0,
+                "fillOpacity": 100,
+                "lineWidth": 1,
+                "stacking": {
+                  "mode": "normal"
+                }
+              },
+              "decimals": 0,
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Error$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "red",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Failed$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "red",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Running$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Succeeded$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "green",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Terminating$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 12,
+            "x": 0,
+            "y": 7
+          },
+          "id": 4,
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "sortBy": "Mean",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "v13.0.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "$datasource"
+              },
+              "exemplar": false,
+              "expr": "sum(\n  round(\n    increase(\n      argocd_app_sync_total{\n        cluster=~\".*\",\nnamespace=~\"$namespace\",\njob=~\"$job\"\n\n,\ndest_server=~\"$kubernetes_cluster\",\nproject=~\"$project\"\n\n      }[$__rate_interval]\n    )\n  )\n) by (job, project, phase)\n",
+              "legendFormat": "{{ project }} - {{ phase }}"
+            }
+          ],
+          "title": "Application Syncs",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "description": "A timeseries panel showing whether auto sync is enabled for applications managed by ArgoCD.",
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "axisSoftMin": 0,
+                "fillOpacity": 100,
+                "lineWidth": 1,
+                "stacking": {
+                  "mode": "normal"
+                }
+              },
+              "decimals": 0,
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - false$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - true$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "green",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 12,
+            "x": 12,
+            "y": 7
+          },
+          "id": 5,
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "sortBy": "Mean",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "v13.0.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "$datasource"
+              },
+              "exemplar": false,
+              "expr": "sum(\n  argocd_app_info{\n    cluster=~\".*\",\nnamespace=~\"$namespace\",\njob=~\"$job\"\n\n,\ndest_server=~\"$kubernetes_cluster\",\nproject=~\"$project\"\n\n  }\n) by (job, project, autosync_enabled)\n",
+              "legendFormat": "{{ project }} - {{ autosync_enabled }}"
+            }
+          ],
+          "title": "Application Auto Sync Enabled",
+          "type": "timeseries"
+        },
+        {
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 18,
+            "x": 0,
+            "y": 11
+          },
+          "id": 6,
+          "title": "Applications (Unhealthy/OutOfSync/AutoSyncDisabled) Summary",
+          "type": "row"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "description": "A table listing all unhealthy applications managed by ArgoCD.",
+          "fieldConfig": {
+            "defaults": {
+              "links": [
+                {
+                  "targetBlank": true,
+                  "title": "Go To Application",
+                  "url": "https://github.com/adinhodovic/argo-cd-mixin?tab=readme-ov-file#argocd-badges"
+                }
+              ],
+              "thresholds": {
+                "steps": []
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "health_status"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 12
+          },
+          "id": 7,
+          "options": {
+            "footer": {
+              "enablePagination": true
+            },
+            "sortBy": [
+              {
+                "desc": false,
+                "displayName": "Application"
+              }
+            ]
+          },
+          "pluginVersion": "v13.0.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "$datasource"
+              },
+              "expr": "sum(\n  argocd_app_info{\n    cluster=~\".*\",\nnamespace=~\"$namespace\",\njob=~\"$job\"\n\n,\ndest_server=~\"$kubernetes_cluster\",\nproject=~\"$project\"\n,\n    health_status!~\"Healthy|Progressing\"\n  }\n) by (job, dest_server, project, name, exported_namespace, health_status) > 0\n",
+              "format": "table",
+              "instant": true
+            }
+          ],
+          "title": "Unhealthy Applications",
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "Value": true,
+                  "dest_server": true,
+                  "job": true
+                },
+                "indexByName": {
+                  "exported_namespace": 1,
+                  "health_status": 3,
+                  "name": 0,
+                  "project": 2
+                },
+                "renameByName": {
+                  "dest_server": "Cluster",
+                  "exported_namespace": "Application Namespace",
+                  "health_status": "Health Status",
+                  "job": "Job",
+                  "name": "Application",
+                  "project": "Project"
+                }
+              }
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "description": "A table listing all unhealthy applications managed by ArgoCD.",
+          "fieldConfig": {
+            "defaults": {
+              "links": [
+                {
+                  "targetBlank": true,
+                  "title": "Go To Application",
+                  "url": "https://github.com/adinhodovic/argo-cd-mixin?tab=readme-ov-file#argocd-badges"
+                }
+              ],
+              "thresholds": {
+                "steps": []
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "sync_status"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 12
+          },
+          "id": 8,
+          "options": {
+            "footer": {
+              "enablePagination": true
+            },
+            "sortBy": [
+              {
+                "desc": false,
+                "displayName": "Application"
+              }
+            ]
+          },
+          "pluginVersion": "v13.0.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "$datasource"
+              },
+              "expr": "sum(\n  argocd_app_info{\n    cluster=~\".*\",\nnamespace=~\"$namespace\",\njob=~\"$job\"\n\n,\ndest_server=~\"$kubernetes_cluster\",\nproject=~\"$project\"\n,\n    sync_status!=\"Synced\"\n  }\n) by (job, dest_server, project, name, exported_namespace, sync_status) > 0\n",
+              "format": "table",
+              "instant": true
+            }
+          ],
+          "title": "Out Of Sync Applications",
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "Value": true,
+                  "dest_server": true,
+                  "job": true
+                },
+                "indexByName": {
+                  "exported_namespace": 1,
+                  "name": 0,
+                  "project": 2,
+                  "sync_status": 3
+                },
+                "renameByName": {
+                  "dest_server": "Cluster",
+                  "exported_namespace": "Application Namespace",
+                  "job": "Job",
+                  "name": "Application",
+                  "project": "Project",
+                  "sync_status": "Sync Status"
+                }
+              }
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "description": "A table listing all applications that failed to sync in the last 7 days managed by ArgoCD.",
+          "fieldConfig": {
+            "defaults": {
+              "links": [
+                {
+                  "targetBlank": true,
+                  "title": "Go To Application",
+                  "url": "https://github.com/adinhodovic/argo-cd-mixin?tab=readme-ov-file#argocd-badges"
+                }
+              ],
+              "thresholds": {
+                "steps": []
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Value"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 20
+          },
+          "id": 9,
+          "options": {
+            "footer": {
+              "enablePagination": true
+            },
+            "sortBy": [
+              {
+                "desc": false,
+                "displayName": "Application"
+              }
+            ]
+          },
+          "pluginVersion": "v13.0.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "$datasource"
+              },
+              "expr": "sum(\n  round(\n    increase(\n      argocd_app_sync_total{\n        cluster=~\".*\",\nnamespace=~\"$namespace\",\njob=~\"$job\"\n\n,\ndest_server=~\"$kubernetes_cluster\",\nproject=~\"$project\"\n,\n        phase!=\"Succeeded\"\n      }[7d]\n    )\n  )\n) by (job, dest_server, project, name, exported_namespace, phase) > 0\n",
+              "format": "table",
+              "instant": true
+            }
+          ],
+          "title": "Applications That Failed to Sync (7d)",
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "dest_server": true,
+                  "job": true
+                },
+                "indexByName": {
+                  "exported_namespace": 1,
+                  "name": 0,
+                  "phase": 2,
+                  "project": 1
+                },
+                "renameByName": {
+                  "Value": "Count",
+                  "dest_server": "Cluster",
+                  "exported_namespace": "Application Namespace",
+                  "job": "Job",
+                  "name": "Application",
+                  "phase": "Phase",
+                  "project": "Project"
+                }
+              }
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "description": "A table listing all applications with auto sync disabled managed by ArgoCD.",
+          "fieldConfig": {
+            "defaults": {
+              "links": [
+                {
+                  "targetBlank": true,
+                  "title": "Go To Application",
+                  "url": "https://github.com/adinhodovic/argo-cd-mixin?tab=readme-ov-file#argocd-badges"
+                }
+              ],
+              "thresholds": {
+                "steps": []
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "autosync_enabled"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 20
+          },
+          "id": 10,
+          "options": {
+            "footer": {
+              "enablePagination": true
+            },
+            "sortBy": [
+              {
+                "desc": false,
+                "displayName": "Application"
+              }
+            ]
+          },
+          "pluginVersion": "v13.0.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "$datasource"
+              },
+              "expr": "sum(\n  argocd_app_info{\n    cluster=~\".*\",\nnamespace=~\"$namespace\",\njob=~\"$job\"\n\n,\ndest_server=~\"$kubernetes_cluster\",\nproject=~\"$project\"\n,\n    autosync_enabled!=\"true\"\n  }\n) by (job, dest_server, project, name, exported_namespace, autosync_enabled) > 0\n",
+              "format": "table",
+              "instant": true
+            }
+          ],
+          "title": "Applications With Auto Sync Disabled",
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "Value": true,
+                  "dest_server": true,
+                  "job": true
+                },
+                "indexByName": {
+                  "autosync_enabled": 3,
+                  "exported_namespace": 1,
+                  "name": 0,
+                  "project": 2
+                },
+                "renameByName": {
+                  "autosync_enabled": "Auto Sync Enabled",
+                  "dest_server": "Kubernetes Cluster",
+                  "exported_namespace": "Application Namespace",
+                  "job": "Job",
+                  "name": "Application",
+                  "project": "Project"
+                }
+              }
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 25
+          },
+          "id": 11,
+          "repeat": "application",
+          "title": "Application ($application)",
+          "type": "row"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "description": "A timeseries panel showing the health status of each application managed by ArgoCD.",
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "axisSoftMin": 0,
+                "fillOpacity": 100,
+                "lineWidth": 1,
+                "stacking": {
+                  "mode": "normal"
+                }
+              },
+              "decimals": 0,
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Degraded$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "red",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Healthy$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "green",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Missing$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "red",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Progressing$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Suspended$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Unknown$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "orange",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 24,
+            "x": 0,
+            "y": 27
+          },
+          "id": 12,
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "sortBy": "Mean",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "v13.0.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "$datasource"
+              },
+              "exemplar": false,
+              "expr": "sum(\n  argocd_app_info{\n    cluster=~\".*\",\nnamespace=~\"$namespace\",\njob=~\"$job\"\n\n,\ndest_server=~\"$kubernetes_cluster\",\nproject=~\"$project\"\n,\nexported_namespace=~\"$application_namespace\",\nname=~\"$application\"\n\n  }\n) by (namespace, job, dest_server, project, name, exported_namespace, health_status)\n",
+              "legendFormat": "{{ exported_namespace }}/{{ name }} - {{ health_status }}"
+            }
+          ],
+          "title": "Application Health Status by Application",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "description": "A timeseries panel showing the sync status of each application managed by ArgoCD.",
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "axisSoftMin": 0,
+                "fillOpacity": 100,
+                "lineWidth": 1,
+                "stacking": {
+                  "mode": "normal"
+                }
+              },
+              "decimals": 0,
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - OutOfSync$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Synced$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "green",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Unknown$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "orange",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 24,
+            "x": 0,
+            "y": 33
+          },
+          "id": 13,
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "sortBy": "Mean",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "v13.0.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "$datasource"
+              },
+              "exemplar": false,
+              "expr": "sum(\n  argocd_app_info{\n    cluster=~\".*\",\nnamespace=~\"$namespace\",\njob=~\"$job\"\n\n,\ndest_server=~\"$kubernetes_cluster\",\nproject=~\"$project\"\n,\nexported_namespace=~\"$application_namespace\",\nname=~\"$application\"\n\n  }\n) by (namespace, job, dest_server, project, name, exported_namespace, sync_status)\n",
+              "legendFormat": "{{ exported_namespace }}/{{ name }} - {{ sync_status }}"
+            }
+          ],
+          "title": "Application Sync Status by Application",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "description": "A timeseries panel showing the sync result of each application managed by ArgoCD.",
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "axisSoftMin": 0,
+                "fillOpacity": 100,
+                "lineWidth": 1,
+                "stacking": {
+                  "mode": "normal"
+                }
+              },
+              "decimals": 0,
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Error$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "red",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Failed$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "red",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Running$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Succeeded$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "green",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".* - Terminating$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 24,
+            "x": 0,
+            "y": 39
+          },
+          "id": 14,
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "sortBy": "Mean",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "v13.0.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "$datasource"
+              },
+              "exemplar": false,
+              "expr": "sum(\n  round(\n    increase(\n      argocd_app_sync_total{\n        cluster=~\".*\",\nnamespace=~\"$namespace\",\njob=~\"$job\"\n\n,\ndest_server=~\"$kubernetes_cluster\",\nproject=~\"$project\"\n,\nexported_namespace=~\"$application_namespace\",\nname=~\"$application\"\n\n      }[$__rate_interval]\n    )\n  )\n) by (namespace, job, dest_server, project, name, exported_namespace, phase)\n",
+              "legendFormat": "{{ exported_namespace }}/{{ name }} - {{ phase }}"
+            }
+          ],
+          "title": "Application Sync Result by Application",
+          "type": "timeseries"
+        }
+      ],
+      "schemaVersion": 39,
+      "tags": [
+        "ci/cd",
+        "argo-cd"
+      ],
+      "templating": {
+        "list": [
+          {
+            "current": {
+              "selected": true,
+              "text": "default",
+              "value": "default"
+            },
+            "label": "Data source",
+            "name": "datasource",
+            "query": "prometheus",
+            "type": "datasource"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "${datasource}"
+            },
+            "hide": 2,
+            "label": "Cluster",
+            "name": "cluster",
+            "query": "label_values(argocd_app_info{}, cluster)",
+            "refresh": 2,
+            "sort": 1,
+            "type": "query"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "${datasource}"
+            },
+            "includeAll": false,
+            "label": "Namespace",
+            "multi": false,
+            "name": "namespace",
+            "query": "label_values(argocd_app_info{cluster=~\".*\"}, namespace)",
+            "refresh": 2,
+            "sort": 1,
+            "type": "query"
+          },
+          {
+            "allValue": ".*",
+            "datasource": {
+              "type": "prometheus",
+              "uid": "${datasource}"
+            },
+            "includeAll": true,
+            "label": "Job",
+            "multi": true,
+            "name": "job",
+            "query": "label_values(job)",
+            "refresh": 2,
+            "regex": "argo.*",
+            "sort": 1,
+            "type": "query"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "${datasource}"
+            },
+            "includeAll": true,
+            "label": "Kubernetes Cluster",
+            "multi": true,
+            "name": "kubernetes_cluster",
+            "query": "label_values(argocd_app_info{cluster=~\".*\", namespace=~\"$namespace\", job=~\"$job\"}, dest_server)",
+            "refresh": 2,
+            "sort": 1,
+            "type": "query"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "${datasource}"
+            },
+            "includeAll": true,
+            "label": "Project",
+            "multi": true,
+            "name": "project",
+            "query": "label_values(argocd_app_info{cluster=~\".*\", namespace=~\"$namespace\", job=~\"$job\", dest_server=~\"$kubernetes_cluster\"}, project)",
+            "refresh": 2,
+            "sort": 1,
+            "type": "query"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "${datasource}"
+            },
+            "includeAll": true,
+            "label": "Application Namespace",
+            "multi": true,
+            "name": "application_namespace",
+            "query": "label_values(argocd_app_info{cluster=~\".*\", namespace=~\"$namespace\", job=~\"$job\", dest_server=~\"$kubernetes_cluster\", project=~\"$project\"}, exported_namespace)",
+            "refresh": 2,
+            "sort": 1,
+            "type": "query"
+          },
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "${datasource}"
+            },
+            "label": "Application",
+            "multi": true,
+            "name": "application",
+            "query": "label_values(argocd_app_info{cluster=~\".*\", namespace=~\"$namespace\", job=~\"$job\", dest_server=~\"$kubernetes_cluster\", project=~\"$project\", exported_namespace=~\"$application_namespace\"}, name)",
+            "refresh": 2,
+            "sort": 1,
+            "type": "query"
+          }
+        ]
+      },
+      "time": {
+        "from": "now-6h",
+        "to": "now"
+      },
+      "timezone": "utc",
+      "title": "ArgoCD / Application / Overview",
+      "uid": "argo-cd-application-overview-kask",
+      "gnetId": 19974,
+      "id": null
+    }

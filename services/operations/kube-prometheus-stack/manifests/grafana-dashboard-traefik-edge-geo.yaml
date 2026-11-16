@@ -1,0 +1,1276 @@
+# Grafana dashboard "Traefik Edge: Who Is Out There", source: custom (built 2026-11-16).
+# Provisioned read-only by the Grafana sidecar. To change it, edit in Grafana, export the JSON
+# (Share > Export) and replace the block below, keeping uid traefik-edge-geo.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-traefik-edge-geo
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    grafana_folder: "Edge and Security"
+data:
+  traefik-edge-geo.json: |
+    {
+      "uid": "traefik-edge-geo",
+      "title": "Traefik Edge: Who Is Out There",
+      "description": "Public (geotagged) Traefik traffic: where it comes from, what the edge did with it, and who is scanning.",
+      "tags": [
+        "traefik",
+        "geoip",
+        "security",
+        "network"
+      ],
+      "timezone": "browser",
+      "time": {
+        "from": "now-24h",
+        "to": "now"
+      },
+      "refresh": "5m",
+      "graphTooltip": 1,
+      "editable": true,
+      "schemaVersion": 42,
+      "panels": [
+        {
+          "id": 1,
+          "type": "stat",
+          "title": "Public requests",
+          "gridPos": {
+            "x": 0,
+            "y": 0,
+            "w": 4,
+            "h": 4
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "sum(count_over_time({app=\"traefik\", geoip_country_name=~\"$country\", geoip_country_code!~\"$home\"}  [$__range]))",
+              "refId": "A",
+              "queryType": "instant"
+            }
+          ],
+          "description": "Requests from public IPs (geotagged). Household traffic arrives SNATed from 10.9.x and in-cluster probes from 10.42.x; both are excluded.",
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#8b5cf6"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "textMode": "value",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            }
+          }
+        },
+        {
+          "id": 2,
+          "type": "stat",
+          "title": "Unique client IPs",
+          "gridPos": {
+            "x": 4,
+            "y": 0,
+            "w": 4,
+            "h": 4
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "count(sum by (ClientHost) (count_over_time({app=\"traefik\", geoip_country_name=~\"$country\", geoip_country_code!~\"$home\"} | json ClientHost [$__range])))",
+              "refId": "A",
+              "queryType": "instant"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#8b5cf6"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "textMode": "value",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            }
+          }
+        },
+        {
+          "id": 3,
+          "type": "stat",
+          "title": "Countries",
+          "gridPos": {
+            "x": 8,
+            "y": 0,
+            "w": 4,
+            "h": 4
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "count(sum by (geoip_country_name) (count_over_time({app=\"traefik\", geoip_country_name=~\"$country\", geoip_country_code!~\"$home\"}  [$__range])))",
+              "refId": "A",
+              "queryType": "instant"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#8b5cf6"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "textMode": "value",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            }
+          }
+        },
+        {
+          "id": 4,
+          "type": "stat",
+          "title": "Served",
+          "gridPos": {
+            "x": 12,
+            "y": 0,
+            "w": 4,
+            "h": 4
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "sum(count_over_time({app=\"traefik\", geoip_country_name=~\"$country\", geoip_country_code!~\"$home\"} | json RouterName, DownstreamStatus | label_format outcome=`{{ if not .RouterName }}no route{{ else if ge (int .DownstreamStatus) 400 }}rejected{{ else }}served{{ end }}` | outcome=`served` [$__range])) / sum(count_over_time({app=\"traefik\", geoip_country_name=~\"$country\", geoip_country_code!~\"$home\"}  [$__range]))",
+              "refId": "A",
+              "queryType": "instant"
+            }
+          ],
+          "description": "Matched a route and got a status below 400.",
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percentunit",
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#8b5cf6"
+              },
+              "decimals": 1
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "textMode": "value",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            }
+          }
+        },
+        {
+          "id": 5,
+          "type": "stat",
+          "title": "No route",
+          "gridPos": {
+            "x": 16,
+            "y": 0,
+            "w": 4,
+            "h": 4
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "sum(count_over_time({app=\"traefik\", geoip_country_name=~\"$country\", geoip_country_code!~\"$home\"} | json RouterName, DownstreamStatus | label_format outcome=`{{ if not .RouterName }}no route{{ else if ge (int .DownstreamStatus) 400 }}rejected{{ else }}served{{ end }}` | outcome=`no route` [$__range])) / sum(count_over_time({app=\"traefik\", geoip_country_name=~\"$country\", geoip_country_code!~\"$home\"}  [$__range]))",
+              "refId": "A",
+              "queryType": "instant"
+            }
+          ],
+          "description": "Traefik found no router for the Host/path and answered 404 itself. Mostly scanners, but also any client of yours using a name the public entrypoint does not serve.",
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percentunit",
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#8e8e93"
+              },
+              "decimals": 1
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "textMode": "value",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            }
+          }
+        },
+        {
+          "id": 6,
+          "type": "stat",
+          "title": "CrowdSec local bans",
+          "gridPos": {
+            "x": 20,
+            "y": 0,
+            "w": 4,
+            "h": 4
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "sum(cs_active_decisions{origin!=\"CAPI\"}) or vector(0)",
+              "refId": "A",
+              "instant": true
+            }
+          ],
+          "description": "Active decisions raised by this CrowdSec install. The community blocklist (CAPI) is excluded.",
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#f59e0b"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "textMode": "value",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            }
+          }
+        },
+        {
+          "id": 7,
+          "type": "geomap",
+          "title": "Where public requests come from",
+          "gridPos": {
+            "x": 0,
+            "y": 4,
+            "w": 15,
+            "h": 14
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "sum by (geoip_location_latitude, geoip_location_longitude, geoip_city_name, geoip_country_name) (count_over_time({app=\"traefik\", geoip_country_name=~\"$country\", geoip_country_code!~\"$home\"} | geoip_location_latitude!=`` [$__range]))",
+              "refId": "A",
+              "queryType": "instant"
+            }
+          ],
+          "description": "Bubble size = requests in the time range.",
+          "transformations": [
+            {
+              "id": "convertFieldType",
+              "options": {
+                "conversions": [
+                  {
+                    "destinationType": "number",
+                    "targetField": "geoip_location_latitude"
+                  },
+                  {
+                    "destinationType": "number",
+                    "targetField": "geoip_location_longitude"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "renameByName": {
+                  "Value": "Requests",
+                  "Value #A": "Requests",
+                  "geoip_city_name": "City",
+                  "geoip_country_name": "Country"
+                }
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#8b5cf6"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "basemap": {
+              "type": "default",
+              "name": "Basemap",
+              "config": {
+                "theme": "auto",
+                "showLabels": true
+              }
+            },
+            "controls": {
+              "mouseWheelZoom": true,
+              "showZoom": true,
+              "showAttribution": false
+            },
+            "tooltip": {
+              "mode": "details"
+            },
+            "view": {
+              "id": "coords",
+              "lat": 35,
+              "lon": 20,
+              "zoom": 2,
+              "allLayers": true
+            },
+            "layers": [
+              {
+                "type": "markers",
+                "name": "Requests",
+                "tooltip": true,
+                "location": {
+                  "mode": "coords",
+                  "latitude": "geoip_location_latitude",
+                  "longitude": "geoip_location_longitude"
+                },
+                "config": {
+                  "showLegend": false,
+                  "style": {
+                    "color": {
+                      "fixed": "#8b5cf6"
+                    },
+                    "opacity": 0.6,
+                    "size": {
+                      "field": "Requests",
+                      "fixed": 6,
+                      "min": 4,
+                      "max": 32
+                    },
+                    "symbol": {
+                      "mode": "fixed",
+                      "fixed": "img/icons/marker/circle.svg"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 8,
+          "type": "table",
+          "title": "Countries",
+          "gridPos": {
+            "x": 15,
+            "y": 4,
+            "w": 9,
+            "h": 14
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "sum by (geoip_country_name) (count_over_time({app=\"traefik\", geoip_country_name=~\"$country\", geoip_country_code!~\"$home\"}  [$__range]))",
+              "refId": "A",
+              "queryType": "instant"
+            },
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "count by (geoip_country_name) (sum by (geoip_country_name, ClientHost) (count_over_time({app=\"traefik\", geoip_country_name=~\"$country\", geoip_country_code!~\"$home\"} | json ClientHost [$__range])))",
+              "refId": "B",
+              "queryType": "instant"
+            },
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "sum by (geoip_country_name) (count_over_time({app=\"traefik\", geoip_country_name=~\"$country\", geoip_country_code!~\"$home\"} | json RouterName, DownstreamStatus | label_format outcome=`{{ if not .RouterName }}no route{{ else if ge (int .DownstreamStatus) 400 }}rejected{{ else }}served{{ end }}` | outcome=`no route` [$__range]))",
+              "refId": "C",
+              "queryType": "instant"
+            },
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "sum by (geoip_country_name) (count_over_time({app=\"traefik\", geoip_country_name=~\"$country\", geoip_country_code!~\"$home\"} | json RouterName, DownstreamStatus | label_format outcome=`{{ if not .RouterName }}no route{{ else if ge (int .DownstreamStatus) 400 }}rejected{{ else }}served{{ end }}` | outcome=`rejected` [$__range]))",
+              "refId": "D",
+              "queryType": "instant"
+            }
+          ],
+          "description": "No route = Traefik 404 with no matching router. Rejected = routed but 4xx/5xx (auth gate, app errors).",
+          "transformations": [
+            {
+              "id": "merge",
+              "options": {}
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "renameByName": {
+                  "geoip_country_name": "Country",
+                  "Value #A": "Requests",
+                  "Value #B": "IPs",
+                  "Value #C": "No route",
+                  "Value #D": "Rejected"
+                }
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                }
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Requests"
+                },
+                "properties": [
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "gauge",
+                      "mode": "basic"
+                    }
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 110
+                  },
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#8b5cf6"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm",
+            "sortBy": [
+              {
+                "displayName": "Requests",
+                "desc": true
+              }
+            ]
+          }
+        },
+        {
+          "id": 9,
+          "type": "timeseries",
+          "title": "What the edge did with them",
+          "gridPos": {
+            "x": 0,
+            "y": 18,
+            "w": 12,
+            "h": 8
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "sum by (outcome) (count_over_time({app=\"traefik\", geoip_country_name=~\"$country\", geoip_country_code!~\"$home\"} | json RouterName, DownstreamStatus | label_format outcome=`{{ if not .RouterName }}no route{{ else if ge (int .DownstreamStatus) 400 }}rejected{{ else }}served{{ end }}` [$__interval]))",
+              "refId": "A",
+              "queryType": "range",
+              "legendFormat": "{{outcome}}"
+            }
+          ],
+          "interval": "15m",
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "drawStyle": "bars",
+                "fillOpacity": 80,
+                "stacking": {
+                  "mode": "none"
+                },
+                "lineWidth": 0,
+                "scaleDistribution": {
+                  "type": "log",
+                  "log": 10
+                }
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "served"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#8b5cf6"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "rejected"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#f59e0b"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "no route"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#8e8e93"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom"
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
+          "id": 10,
+          "type": "timeseries",
+          "title": "Home vs abroad",
+          "gridPos": {
+            "x": 12,
+            "y": 18,
+            "w": 12,
+            "h": 8
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "sum by (side) (count_over_time({app=\"traefik\", geoip_country_name=~\"$country\", geoip_country_code!~\"$home\"} | label_format side=`{{ if eq .geoip_country_code \"IL\" }}Israel{{ else }}abroad{{ end }}` [$__interval]))",
+              "refId": "A",
+              "queryType": "range",
+              "legendFormat": "{{side}}"
+            }
+          ],
+          "interval": "15m",
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "drawStyle": "bars",
+                "fillOpacity": 80,
+                "stacking": {
+                  "mode": "none"
+                },
+                "lineWidth": 0,
+                "scaleDistribution": {
+                  "type": "log",
+                  "log": 10
+                }
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Israel"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#8b5cf6"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "abroad"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#f59e0b"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom"
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          }
+        },
+        {
+          "id": 90,
+          "type": "row",
+          "title": "Who is knocking",
+          "collapsed": false,
+          "gridPos": {
+            "x": 0,
+            "y": 26,
+            "w": 24,
+            "h": 1
+          },
+          "panels": []
+        },
+        {
+          "id": 11,
+          "type": "table",
+          "title": "Top client IPs",
+          "gridPos": {
+            "x": 0,
+            "y": 27,
+            "w": 12,
+            "h": 10
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "topk(25, sum by (ClientHost, geoip_country_name, geoip_city_name) (count_over_time({app=\"traefik\", geoip_country_name=~\"$country\", geoip_country_code!~\"$home\"} | json ClientHost [$__range])))",
+              "refId": "A",
+              "queryType": "instant"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "renameByName": {
+                  "ClientHost": "IP",
+                  "geoip_country_name": "Country",
+                  "geoip_city_name": "City",
+                  "Value": "Requests",
+                  "Value #A": "Requests"
+                }
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                }
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Requests"
+                },
+                "properties": [
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "gauge",
+                      "mode": "basic"
+                    }
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 110
+                  },
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#8b5cf6"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm",
+            "sortBy": [
+              {
+                "displayName": "Requests",
+                "desc": true
+              }
+            ]
+          }
+        },
+        {
+          "id": 12,
+          "type": "bargauge",
+          "title": "Host headers with no route",
+          "gridPos": {
+            "x": 12,
+            "y": 27,
+            "w": 6,
+            "h": 10
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "topk(12, sum by (RequestHost) (count_over_time({app=\"traefik\", geoip_country_name=~\"$country\", geoip_country_code!~\"$home\"} | json RouterName, RequestHost | RouterName=`` [$__range])))",
+              "refId": "A",
+              "queryType": "instant",
+              "legendFormat": "{{RequestHost}}"
+            }
+          ],
+          "description": "Host names Traefik had no route for: the WAN IP, its rDNS name, www. variants, *.internal names (also misconfigured clients of your own).",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#8e8e93"
+              },
+              "min": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "orientation": "horizontal",
+            "displayMode": "basic",
+            "showUnfilled": true,
+            "valueMode": "text",
+            "namePlacement": "left",
+            "sizing": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "/^Value/",
+              "values": true,
+              "limit": 12
+            }
+          }
+        },
+        {
+          "id": 13,
+          "type": "bargauge",
+          "title": "Probed paths (first segment)",
+          "gridPos": {
+            "x": 18,
+            "y": 27,
+            "w": 6,
+            "h": 10
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "topk(12, sum by (probe) (count_over_time({app=\"traefik\", geoip_country_name=~\"$country\", geoip_country_code!~\"$home\"} | json RouterName, RequestPath | RouterName=`` | label_format probe=`{{ regexReplaceAll \"^(/[^/?]*).*\" .RequestPath \"${1}\" }}` [$__range])))",
+              "refId": "A",
+              "queryType": "instant",
+              "legendFormat": "{{probe}}"
+            }
+          ],
+          "description": "Unrouted requests grouped by first path segment (/.env, /.git, /wp-admin...). Grouped to stay under Loki's 500-series cap.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#8e8e93"
+              },
+              "min": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "orientation": "horizontal",
+            "displayMode": "basic",
+            "showUnfilled": true,
+            "valueMode": "text",
+            "namePlacement": "left",
+            "sizing": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "/^Value/",
+              "values": true,
+              "limit": 12
+            }
+          }
+        },
+        {
+          "id": 14,
+          "type": "table",
+          "title": "Services reached from the internet",
+          "gridPos": {
+            "x": 0,
+            "y": 37,
+            "w": 12,
+            "h": 9
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "sum by (KubernetesIngressRouteName) (count_over_time({app=\"traefik\", geoip_country_name=~\"$country\", geoip_country_code!~\"$home\"} | json RouterName, KubernetesIngressRouteName, DownstreamStatus | RouterName!=`` | DownstreamStatus < 400 [$__range]))",
+              "refId": "A",
+              "queryType": "instant"
+            },
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "count by (KubernetesIngressRouteName) (sum by (KubernetesIngressRouteName, geoip_country_name) (count_over_time({app=\"traefik\", geoip_country_name=~\"$country\", geoip_country_code!~\"$home\"} | json RouterName, KubernetesIngressRouteName | RouterName!=`` [$__range])))",
+              "refId": "B",
+              "queryType": "instant"
+            }
+          ],
+          "description": "Routed requests answered below 400, per IngressRoute.",
+          "transformations": [
+            {
+              "id": "merge",
+              "options": {}
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "renameByName": {
+                  "KubernetesIngressRouteName": "IngressRoute",
+                  "Value #A": "Served",
+                  "Value #B": "Countries"
+                }
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                }
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Served"
+                },
+                "properties": [
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "gauge",
+                      "mode": "basic"
+                    }
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 110
+                  },
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#8b5cf6"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm",
+            "sortBy": [
+              {
+                "displayName": "Served",
+                "desc": true
+              }
+            ]
+          }
+        },
+        {
+          "id": 15,
+          "type": "table",
+          "title": "User agents on unrouted requests",
+          "gridPos": {
+            "x": 12,
+            "y": 37,
+            "w": 12,
+            "h": 9
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "topk(10, sum by (ua) (count_over_time({app=\"traefik\", geoip_country_name=~\"$country\", geoip_country_code!~\"$home\"} | json RouterName, ua=\"[\\\"request_User-Agent\\\"]\" | RouterName=`` [$__range])))",
+              "refId": "A",
+              "queryType": "instant"
+            }
+          ],
+          "description": "User agents on unrouted requests.",
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "renameByName": {
+                  "ua": "User agent (empty = none sent)",
+                  "Value": "Requests",
+                  "Value #A": "Requests"
+                }
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                }
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Requests"
+                },
+                "properties": [
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "gauge",
+                      "mode": "basic"
+                    }
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 110
+                  },
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#8b5cf6"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm",
+            "sortBy": [
+              {
+                "displayName": "Requests",
+                "desc": true
+              }
+            ]
+          }
+        },
+        {
+          "id": 91,
+          "type": "row",
+          "title": "Access log",
+          "collapsed": true,
+          "gridPos": {
+            "x": 0,
+            "y": 46,
+            "w": 24,
+            "h": 1
+          },
+          "panels": [
+            {
+              "id": 16,
+              "type": "logs",
+              "title": "Access log",
+              "gridPos": {
+                "x": 0,
+                "y": 47,
+                "w": 24,
+                "h": 12
+              },
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "targets": [
+                {
+                  "datasource": {
+                    "type": "loki",
+                    "uid": "loki"
+                  },
+                  "expr": "{app=\"traefik\", geoip_country_name=~\"$country\", geoip_country_code!~\"$home\"} | json | line_format `{{.DownstreamStatus}} {{.RequestMethod}} {{.RequestHost}}{{.RequestPath}}  <- {{.ClientHost}} ({{.geoip_country_code}}{{ if .geoip_city_name }}/{{.geoip_city_name}}{{ end }})  {{ if .RouterName }}-> {{.KubernetesIngressRouteName}}{{ else }}no route{{ end }}`",
+                  "refId": "A",
+                  "queryType": "range"
+                }
+              ],
+              "options": {
+                "showTime": true,
+                "wrapLogMessage": false,
+                "sortOrder": "Descending",
+                "enableLogDetails": true,
+                "dedupStrategy": "none"
+              }
+            }
+          ]
+        }
+      ],
+      "links": [
+        {
+          "title": "Traefik metrics",
+          "type": "dashboards",
+          "tags": [
+            "traefik"
+          ],
+          "asDropdown": true
+        }
+      ],
+      "templating": {
+        "list": [
+          {
+            "name": "country",
+            "label": "Country",
+            "type": "query",
+            "datasource": {
+              "type": "loki",
+              "uid": "loki"
+            },
+            "query": {
+              "label": "geoip_country_name",
+              "stream": "{app=\"traefik\"}",
+              "type": 1,
+              "refId": "country"
+            },
+            "multi": true,
+            "includeAll": true,
+            "allValue": ".+",
+            "current": {
+              "text": "All",
+              "value": "$__all"
+            },
+            "refresh": 2,
+            "sort": 1
+          },
+          {
+            "name": "home",
+            "label": "Home country",
+            "type": "custom",
+            "query": "Show : ZZ, Hide : IL",
+            "current": {
+              "text": "Show",
+              "value": "ZZ"
+            },
+            "options": [
+              {
+                "text": "Show",
+                "value": "ZZ",
+                "selected": true
+              },
+              {
+                "text": "Hide",
+                "value": "IL",
+                "selected": false
+              }
+            ]
+          }
+        ]
+      },
+      "id": null
+    }

@@ -11,6 +11,10 @@ spec:
   endpoints:
     - targetPort: metrics
       path: /metrics
+      # traefik_service_* metrics name the Traefik service in their own `service` label.
+      # Without this it is renamed exported_service and `service` is the Kubernetes
+      # Service (traefik-metrics), which empties the official Traefik dashboards.
+      honorLabels: true
   namespaceSelector:
     matchNames:
       - traefik-system

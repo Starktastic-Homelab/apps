@@ -27,16 +27,13 @@ Pod security overrides suppress a kubelet fsGroup rewrite, preserving numeric
 ownership from the old directory; the application's existing root execution is
 unchanged.
 
-The old `media/autobrr` NFS claim is blocked by the permanent Pod admission hold.
-The stopped-writer cutover protects that claim and PV against deletion, preserves
-a cold backup outside the NAS, and checks restored bytes, metadata and SQLite
-integrity before opening the CSI writer. Never return to the old SQLite copy
-once the target has accepted writes without preserving the current state first.
-Filebrowser's writable parent-directory access and the NFS provisioner must be
-stopped during cold copy. Existing NFS workloads keep running while provisioning
-waits. The preserved claim is excluded from Argo's extraneous-resource comparison.
-The admission hold prevents Autobrr Pods from mounting the old claim; it does not
-make that NAS directory immutable to Filebrowser or other authorized access.
+The stopped-writer cutover kept a cold backup outside the NAS and checked
+restored bytes, metadata and SQLite integrity before opening the CSI writer.
+Filebrowser's writable parent-directory access and the NFS provisioner were
+stopped during the cold copy. The old `media/autobrr` NFS source, its Pod
+admission hold and the cold backup were
+[retired on 2026-11-16](../../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16);
+recover from the CSI image and its backups, never from an old SQLite copy.
 
 PostgreSQL enrollment remains available but unused by Autobrr. The pinned stock
 release path saves each matching release before running actions; a database

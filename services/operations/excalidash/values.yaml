@@ -178,13 +178,6 @@ service:
 persistence:
   config:
     enabled: false
-  data:
-    existingClaim: excalidash-data
-    advancedMounts:
-      main:
-        backend:
-          - path: /app/prisma
-    enabled: false
   prisma-runtime:
     type: emptyDir
     globalMounts: []

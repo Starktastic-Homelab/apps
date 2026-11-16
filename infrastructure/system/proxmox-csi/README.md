@@ -27,6 +27,62 @@ It has no reservation. Individual images/PVCs retain their existing sizes;
 allocation and growth must account for all images, snapshots, historical files
 and required headroom using fresh measurements.
 
+## Retired migration sources (2026-11-16)
+
+On 2026-11-16 Ben decided to retire the state the storage migrations had kept for
+rollback. This is the one place that records it; it supersedes every runbook line
+that says to preserve, keep or resume that state.
+
+Deleted on 2026-11-16:
+
+- 41 retired NFS source directories under `/mnt/apps/pv`:
+  `.homelab-checkpoints/calibre-csi-9a6db837d6ba`;
+  `crowdsec/{crowdsec-config-pvc,crowdsec-db-pvc}`;
+  `databases/{data-postgres-postgresql-0,pgadmin-pgadmin4,redis-data-redis-master-0}`;
+  `default/{data-2dobom-0,data-twodobom-0}`; `filebrowser/filebrowser.db`;
+  `media/{audiobookshelf,autobrr,bazarr,cineplete-config,cineplete-data,cleanuparr,cross-seed,flaresolverr,lazylibrarian,lidarr,lingarr,navidrome,prowlarr,qbittorrent,qbittorrent-ru,radarr,radarr-ru,recyclarr,seerr,seerr-ru,shelfmark,sonarr,sonarr-ru}`;
+  `monitoring/{alertmanager-kube-prometheus-stack-alertmanager-db-alertmanager-kube-prometheus-stack-alertmanager-0,kube-prometheus-stack-grafana,prometheus-kube-prometheus-stack-prometheus-db-prometheus-kube-prometheus-stack-prometheus-0,storage-loki-0,storage-tempo-0}`;
+  `operations/{bytestash,ntfy-cache,ntfy-config}`; `traefik-system/traefik`;
+- the `k3s-block` file `.vm-9999-jellyfin.raw.partial-20261005`;
+- all 32 manual cold ZFS snapshots on `apps/pv` (the September 2026 Jellyfin ones,
+  `pre-nfs-standard`, every `homelab-*-cold-202610xx`, and the `redis-retained` and
+  `immich-retained` ones);
+- every encrypted cutover recovery copy and its keys on VM300
+  (`/var/lib/homelab-maintenance/operations/`, except the live `pg-enrollment-*`,
+  `enrollment` and `cnpg-qualification-20261010` receipts) and on the operator
+  workstation (`~/.local/share/homelab-recovery`, `~/.config/homelab-recovery-keys`),
+  including `vikunja-removal-20261018` and `monitoring-csi-cutover-20261016`.
+
+Deleted when the PR that adds this section merges:
+
+- the 14 old NFS claims `home-assistant-config`, `matter-server-data`,
+  `mosquitto-config`, `zigbee2mqtt-config`, `calibre-web`, `immich-pgdata`,
+  `bytestash-data`, `changedetection-data`, `convertx-config`, `excalidash-data`,
+  `karakeep-data`, `karakeep-meilisearch`, `microbin-config` and
+  `stirling-pdf-config`, with their PVs and directories;
+- the ten old ordinary-file block images and their PV/PVCs
+  (`vm-9999-{grafana,prowlarr,bazarr,seerr,seerr-ru,cineplete,cleanuparr,ntfy,pgadmin,changedetection-data}.raw`);
+- the 40 live old-source Pod admission holds, plus the never-deployed qBittorrent and
+  qBittorrent-RU copies in git (the `*-source-hold` policies,
+  `postgres-storage-hold`, `ordinary-file-retired-csi-hold`,
+  `calibre-retired-config-source-hold`, `paperless-retired-data-source-hold` and
+  `immich-source-hold`, with their bindings).
+
+The live `<app>-files` NFS claims and every other live directory and claim stay.
+
+**Last copies.** The restic `daily` snapshots taken 2026-11-09 to 2026-11-16 (plus
+any later daily taken before an item's deletion; ansible `docs/backup-and-restore.md`)
+are the only remaining copies. With `forget --keep-daily 14 --keep-weekly 8
+--keep-monthly 12` they age out by about 2027-01-10: the 2026-11-15 weekly is the
+last one kept, and November's monthly slot is taken after the deletions. Ben chose
+on 2026-11-16 not to pin them. VM300's recovery copies also sit in its weekly
+vzdump (restic tag `vzdump`, keep-last 2, plus the local USB keep-last 3), so for
+roughly two to three weeks. The workstation copies had no other backup beyond the
+restic content they duplicated. Vikunja's data is gone once those vzdumps rotate.
+
+Runbook steps that mention these sources, holds, snapshots or recovery copies are
+history.
+
 ## Configuration and recovery contract
 
 - The API controller runs on the control plane; the node DaemonSet runs on Linux
@@ -84,7 +140,8 @@ resize with permanently stale Git PV capacity.
 
 The controller is enabled through a separately reviewed activation change after
 the cold-copy and restore gates. Shared NAS allocation and external configuration
-recovery are complete. The old source and its writer guards remain preserved.
+recovery are complete. The old source and its writer guards were
+[retired on 2026-11-16](#retired-migration-sources-2026-11-16).
 The accepted export-withdrawal recovery trade-off is unchanged: some storage I/O
 faults require manual scale-down, verified detach and restaging. Ordinary rebuilds
 must not require a Velero checkpoint or a manual backup verification step.

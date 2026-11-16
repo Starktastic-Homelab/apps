@@ -39,8 +39,8 @@ records the verified encrypted off-NAS backup and original ext4 UUID taken at cu
 The [iSCSI cleanup plan](../superpowers/plans/2026-10-06-retire-jellyfin-iscsi.md)
 removed unused export metadata, driver, old bindings and guards. The ZVOL
 `apps/iscsi` and TrueNAS snapshot task 2 were deleted on 2026-11-15. The October
-backup, if it still exists, is the last copy of the pre-cutover iSCSI source and
-has been stale since the 10-06 cutover.
+backup of the pre-cutover iSCSI source was most likely among the
+[recovery copies deleted on 2026-11-16](../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16); treat it as gone.
 
 ## Historical tools
 
@@ -53,9 +53,10 @@ The original NFS claim `jellyfin-config`, its PV and the `jellyfin-storage-hold`
 admission policy were retired on 2026-11-16. The archive under
 `/mnt/apps/pv/media/jellyfin-config` (unchanged since June 2026) is deleted on
 TrueNAS after the retirement. Until they age out, copies remain in the `apps/pv`
-snapshots, the `usbbk` replica and the off-site restic `daily` snapshots (monthly
-retention, about 12 months), for example `0d09e6c5` (2026-11-16 06:24) under
-`/srv/backup-src/pv/media/jellyfin-config`; see the Ansible backup runbook.
+snapshots, the `usbbk` replica and the off-site restic `daily` snapshots under
+`/srv/backup-src/pv/media/jellyfin-config`; the longest-lived is the 2026-11-15 weekly.
+The [CSI README](../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16)
+states when the restic copies age out (about 2027-01-10, not pinned).
 
 Cleanup merges Ansible first. Keep the Apps cleanup PR draft until owned NAS
 export retirement is verified, then merge Apps: its automatic pruning removes

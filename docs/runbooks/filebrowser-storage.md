@@ -72,7 +72,8 @@ The October7 scan measured 239.54MiB. Capacity changes during operation require
 rechecking the complete directory and dataset. A CSI quota or PVC request is not
 proof of reserved free space. Budget full 4Gi growth, temporary staging/snapshots
 and remaining Jellyfin growth; require at least 4Gi immediate headroom beyond the
-new volume. Preserve the failed-transfer Jellyfin archive.
+new volume. The failed-transfer Jellyfin archive was preserved then; it was
+[deleted on 2026-11-16](../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16).
 
 ## Approved operation sequence
 
@@ -116,7 +117,8 @@ isolated application restore guest.
    rules and browse/read/download on both NAS sources. Write/rename/delete checks
    use only the run's separately approved scratch path.
 8. Verify clean Pod recreation and movement between healthy workers. Do not force
-   an unverified NotReady-node takeover. Preserve the old source and backup,
+   an unverified NotReady-node takeover. Preserve the old source and backup (both
+   since gone),
    remove only recorded lab-owned objects, and publish sanitized acceptance results.
 
 Planning downtime is 30–60 minutes for Filebrowser alone; refine it from the
@@ -142,6 +144,6 @@ checkpoint or per-rebuild migration procedure is added.
 
 Growth follows PVC-request, backend/filesystem verification, then PV-capacity
 reconciliation. Existing NAS snapshots cover the new image after creation but are
-not evidence of application-consistent off-NAS backups. Recurring backup policy
-and archived-source retirement are later decisions. Keep the rare storage-fault
+not evidence of application-consistent off-NAS backups. Archived sources were
+[retired on 2026-11-16](../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16). Keep the rare storage-fault
 recovery procedure from the [CSI runbook](../../infrastructure/system/proxmox-csi/README.md).

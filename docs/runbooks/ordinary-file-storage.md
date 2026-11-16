@@ -22,7 +22,7 @@ For each authorized cutover:
    `git show 45c7fb8c:scripts/ordinary-file-storage/copy_files.py`) with the contract's marker
    and identity. Refuse changed source, nonempty target, special files, external
    hard links, extended metadata or populated filesystem recovery directories.
-4. Preserve the copy receipt and original raw image. Remove only the exact helper
+4. Preserve the copy receipt and original raw image until acceptance. Remove only the exact helper
    Pod and wait for source detach before starting the app. Never auto-delete data
    after an uncertain result or overwrite a partially populated target on retry.
 5. Reconcile the workload's claim through a reviewed green PR. Keep images,
@@ -32,7 +32,7 @@ For each authorized cutover:
 6. Remove only owned holds, restore Filebrowser and verify all owners healthy,
    original unrelated resources unchanged and the selected old CSI images detached.
 
-Before target startup, the retired original CSI source remains the rollback source.
+Before target startup, the original CSI source was the rollback source.
 After target startup can write, preserve the newest NFS files and shared database;
 never automatically revert to an older ordinary-file tree or stale SQLite source.
 A failed acceptance pauses for diagnosis with both trees intact.
@@ -41,9 +41,10 @@ RWO expresses single-node intent; NFS does not provide CSI's RWOP fencing. Keep
 one Recreate replica and the established verified VM-retirement rebuild procedure.
 Capacity requests on NFS do not enforce quotas. Back up private files as well as
 PostgreSQL; a SQL backup does not contain attachments, DataProtection keys or
-private user files. Original pre-PostgreSQL NFS admission holds remain active.
+private user files.
 
-The `ordinary-file-retired-csi-hold` admission policy denies new Pods using the
-ten retired CSI claims. It must be installed only after all transfer helpers
-have retired. An ordinary Git rollback is therefore insufficient to restart an
-old source; deliberate recovery must account for writes made on the NFS target.
+All ten cutovers are complete. On 2026-11-16 the ten old raw images, their CSI
+PV/PVCs, the `ordinary-file-retired-csi-hold` admission policy and the original
+pre-PostgreSQL NFS sources and holds were [retired](../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16).
+`ordinary-file-volumes.json` now renders only the live `<app>-files` NFS volumes.
+The README section records where the last copies are and when they age out.

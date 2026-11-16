@@ -1,7 +1,6 @@
 name: home-assistant
 namespace: home-automation
 deployPhase: services
-manifests: true
 
 ingress:
   enabled: true

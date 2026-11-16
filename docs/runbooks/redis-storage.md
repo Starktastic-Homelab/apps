@@ -89,17 +89,16 @@ inspection; it is not automatically replayed.
 Before current-memory and live-AOF recovery pass, keep Redis alive. Do not restart
 it from historical disk or blindly restart Dispatcharr's web process, which can
 reset DVR queues. After AOF has been enabled, a later failure must not disable it.
-Before target authority, returning to the original source requires proving target
+Before target authority, returning to the original source required proving target
 writers fully retired and validating the source/recovery point under the original
-owner. If the original process was stopped, use only accepted current recovery,
-not its earlier stale files.
+owner. That source and its recovery copies no longer exist.
 
 After the `target-authority.json` boundary, the retained CSI image owns all new
-writes. Never reopen stale NFS state or bypass its permanent source Pod policy.
+writes. Never recreate stale NFS state.
 Retire target writers before recovery, preserve the current raw image, and recover
 the target from a validated current backup under a separately reviewed recovery
 procedure. Never force detach or delete a disk to clear a failed operation.
 
-The original source PVC/PV, NFS data, snapshots, retained target, encrypted copies
-and separate keys are deliberately preserved. Temporary plaintext and binary
+The original source PVC/PV, NFS data, its `redis-source-hold` admission policy,
+the `redis-retained` cold snapshot and the encrypted copies and keys were [retired on 2026-11-16](../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16). Temporary plaintext and binary
 staging logs are cleaned by exact owned inventory, not broad path matching.

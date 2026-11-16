@@ -73,11 +73,6 @@ service:
 persistence:
   config:
     enabled: false
-  stirling-pdf-config:
-    existingClaim: stirling-pdf-config
-    globalMounts:
-      - path: /configs
-    enabled: false
   media:
     enabled: false
   retained-startup:

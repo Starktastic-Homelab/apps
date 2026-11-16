@@ -36,10 +36,12 @@ The workstation stores/transports bytes only. Never restore stale source data
 as an ordinary rollback after target writes.
 
 The [October6 cutover report](../superpowers/reports/2026-10-06-proxmox-csi-jellyfin-cutover.md)
-records the verified encrypted off-NAS backup and retained original ext4 UUID.
+records the verified encrypted off-NAS backup and original ext4 UUID taken at cutover.
 The [iSCSI cleanup plan](../superpowers/plans/2026-10-06-retire-jellyfin-iscsi.md)
-removes unused export metadata, driver, old bindings and guards while preserving
-the original ZVOL, snapshots and backup. Source-data deletion is not included.
+removed unused export metadata, driver, old bindings and guards. The ZVOL
+`apps/iscsi` and TrueNAS snapshot task 2 were deleted on 2026-11-15. The October
+backup, if it still exists, is the last copy of the pre-cutover iSCSI source and
+has been stale since the 10-06 cutover.
 
 ## Historical tools
 
@@ -49,10 +51,11 @@ Use Git history and dated operational receipts for incident analysis; do not
 reapply historical manifests or use old release records to authorize writers.
 
 The original NFS claim `jellyfin-config` remains prune/delete-protected. The short
-`jellyfin-storage-hold` admission policy denies mounting either archived claim
-(`jellyfin-config`, `jellyfin-config-iscsi`) throughout retirement. It does not
-match the active `jellyfin-config-block` claim. Removing archived data or this
-protection requires a separate recovery/retirement decision.
+`jellyfin-storage-hold` admission policy denies mounting `jellyfin-config` and
+`jellyfin-config-iscsi`. It does not match the active `jellyfin-config-block`
+claim. The `jellyfin-config-iscsi` entry is a leftover: the iSCSI source behind it
+no longer exists. Removing the NFS archive or this protection requires a separate
+recovery/retirement decision.
 
 Cleanup merges Ansible first. Keep the Apps cleanup PR draft until owned NAS
 export retirement is verified, then merge Apps: its automatic pruning removes

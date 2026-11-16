@@ -9,10 +9,10 @@ replacement does not require a Velero checkpoint or manual backup verification.
 
 The unused iSCSI driver, bindings, credentials and generation guards are retired
 through the [cleanup plan](../../../docs/superpowers/plans/2026-10-06-retire-jellyfin-iscsi.md).
-The original ZVOL, snapshots and verified independent backup remain recovery
-archives. They became stale when this target accepted writes; restarting the old
-source is not a safe rollback. A cold reverse transfer of the newest data requires
-separate review. LDAP scheduling resumed and its first run completed successfully
+The ZVOL `apps/iscsi` and TrueNAS snapshot task 2 were deleted on 2026-11-15.
+The verified October off-NAS backup, if it still exists, is the last copy of the
+pre-cutover iSCSI source and has been stale since the 10-06 cutover. There is no
+iSCSI rollback path. LDAP scheduling resumed and its first run completed successfully
 after [production acceptance](../../../docs/superpowers/reports/2026-10-06-proxmox-csi-jellyfin-cutover.md).
 
 Production was upgraded from **10.11.11 to 12.1** on September 17, 2026.

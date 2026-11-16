@@ -9,7 +9,8 @@ The normal base/variant ApplicationSet cascade and existing verified VM-retireme
 handoff reconstruct Kubernetes metadata after a full cluster replacement.
 No Velero checkpoint or manual metadata restoration is required.
 
-The NAS dataset quota is256Gi after this cohort. Before allocating or growing any
+The NAS dataset quota was raised to256Gi for this cohort; the [CSI README](../../infrastructure/system/proxmox-csi/README.md)
+has the current value. Before allocating or growing any
 image, recheck dataset GUID, pool health, physical free and every existing raw
 image's remaining full growth, staging and spare headroom. A quota is a ceiling,
 not reserved physical space or a backup. Never overwrite/recreate an existing

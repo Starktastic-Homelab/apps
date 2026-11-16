@@ -30,7 +30,7 @@ PostgreSQL deployment and all existing credentials stay unchanged.
 
 The NAS dataset requires the full-growth reserve for every existing raw image,
 these additional33Gi, 512Mi staging and8Gi spare headroom. The dataset
-quota is192Gi after the completed migration. Before later growth, recheck actual
+quota was raised to192Gi for this migration; the [CSI README](../../infrastructure/system/proxmox-csi/README.md) has the current value. Before later growth, recheck actual
 dataset identity, pool health, free space and complete growth commitments.
 A quota increase is not a physical-space reservation or a new backup.
 

@@ -7,6 +7,8 @@ controllers:
           tag: 6.4.4.10685-ls327@sha256:7a20f20de63706eee2ff6e4ac1f989a70c961f456aa47ccb6c78f2bb7657d9ae
         env:
           RADARR__SERVER__ALLOWEDHOSTS: radarr,radarr.media,radarr.internal.starktastic.net
+          # Trust Traefik's X-Forwarded-For from the pod network, or every ingress request needs the app's own login.
+          RADARR__SERVER__TRUSTEDNETWORKS: 10.42.0.0/16
         probes:
           liveness:
             spec:

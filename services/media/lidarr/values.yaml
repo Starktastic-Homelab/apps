@@ -7,6 +7,8 @@ controllers:
           tag: 3.1.6.5079-ls48@sha256:a91ef0642c15c9bd7c4260fee98fa99972c61601e37c8a96411d6a9cf0e9ad40
         env:
           LIDARR__SERVER__ALLOWEDHOSTS: lidarr,lidarr.media,lidarr.internal.starktastic.net
+          # Trust Traefik's X-Forwarded-For from the pod network, or every ingress request needs the app's own login.
+          LIDARR__SERVER__TRUSTEDNETWORKS: 10.42.0.0/16
         probes:
           liveness:
             spec:

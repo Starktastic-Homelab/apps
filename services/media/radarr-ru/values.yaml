@@ -4,6 +4,8 @@ controllers:
       main:
         env:
           RADARR__SERVER__ALLOWEDHOSTS: radarr-ru,radarr-ru.media,radarr-ru.internal.starktastic.net
+          # Trust Traefik's X-Forwarded-For from the pod network, or every ingress request needs the app's own login.
+          RADARR__SERVER__TRUSTEDNETWORKS: 10.42.0.0/16
     initContainers:
       retained-state:
         command:

@@ -107,13 +107,11 @@ CI check are retired after production acceptance. Their implementation remains
 in Git history; do not blindly reuse its old fixed snapshot and destination.
 The permanent compatibility checks remain enabled.
 
-Removing the app lets ArgoCD delete its owned runtime resources and PVC.
-The NFS PV has **Retain** policy, so this GitOps-only cleanup does not delete
-`/mnt/apps/pv/media/jellyfin-rehearsal` or its retained PV
-`pvc-b26fa377-ee5f-441c-827e-882fbccfd445`. The old live rehearsal snapshot
-`apps/pv@jellyfin-rehearsal-20260916-359cdcb9` is also retained. Deleting those
-requires separate approval after confirming the rehearsal pod is gone.
-Snapshot references can retain blocks even after a directory is deleted.
+Removing the app let ArgoCD delete its owned runtime resources and PVC. The
+retained leftovers were deleted on 2026-11-16 (Ben's approval): the PV
+`pvc-b26fa377-ee5f-441c-827e-882fbccfd445` was already gone, then the directory
+`/mnt/apps/pv/media/jellyfin-rehearsal` and the snapshot
+`apps/pv@jellyfin-rehearsal-20260916-359cdcb9` were removed on TrueNAS.
 
 NFS snapshot exposure is unavailable on this TrueNAS installation: the `.zfs`
 snapshot directories appear empty to NFS clients. Restore **on the NAS itself**,

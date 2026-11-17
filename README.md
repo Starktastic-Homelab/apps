@@ -1,382 +1,233 @@
-<div align="center">
-
-# ☸️ Apps — Kubernetes Application Platform
-
-**GitOps-driven application deployment with ArgoCD, phased rollouts, and 60+ self-hosted services**
-
-[![ArgoCD](https://img.shields.io/badge/ArgoCD-EF7B4D?style=for-the-badge&logo=argo&logoColor=white)](https://argoproj.github.io/cd/)
-[![Helm](https://img.shields.io/badge/Helm-0F1689?style=for-the-badge&logo=helm&logoColor=white)](https://helm.sh/)
-[![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)](https://kubernetes.io/)
-[![Traefik](https://img.shields.io/badge/Traefik-24A1C1?style=for-the-badge&logo=traefikproxy&logoColor=white)](https://traefik.io/)
-
-*A single Git repo that defines the entire application layer — from infrastructure controllers to user-facing services*
-
-</div>
-
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [GitOps Architecture](#gitops-architecture)
-- [Value Cascade Design](#value-cascade-design)
-- [Infrastructure Layers](#infrastructure-layers)
-- [Service Categories](#service-categories)
-- [Network & Data Flow](#network--data-flow)
-- [Observability](#observability)
-- [Key Design Patterns](#key-design-patterns)
-- [Helper Scripts](#helper-scripts)
-- [CI/CD Automation](#cicd-automation)
-- [Prerequisites](#prerequisites)
-- [Adding a New Service](#adding-a-new-service)
-- [License \& Contributing](#license--contributing)
-
----
-
-## Overview
-
-This repository is the **single source of truth** for everything running on the K3s cluster. ArgoCD watches this repo and continuously reconciles the desired state defined here with the live cluster. The architecture features:
-
-- **Automatic service discovery** — drop an `app.yaml` file, ArgoCD picks it up
-- **4-phase ordered deployment** — CRDs before controllers, controllers before services
-- **Cascading value hierarchy** — change a domain or IP once, it propagates to every service
-- **Base/variant inheritance** — language or regional variants share 95% of their config with the base service
-- **Sealed Secrets in Git** — encrypted secrets committed alongside manifests, decrypted in-cluster
-
-The repo manages infrastructure controllers (Traefik, Authentik, cert-manager, databases), observability (Prometheus, Grafana, Loki, Tempo), and 60+ user-facing applications across home automation, media, and operations categories.
-
----
-
-## GitOps Architecture
-
-The shared [Proxmox CSI driver](infrastructure/system/proxmox-csi/README.md) manages
-retained NAS-backed block images. Jellyfin uses a static Git binding; normal cluster
-rebuilds do not require a Velero checkpoint. The retired iSCSI stack is removed
-through the [cleanup plan](docs/superpowers/plans/2026-10-06-retire-jellyfin-iscsi.md).
-
-### ApplicationSet Discovery
-
-Two ApplicationSets at the bootstrap level drive all deployments:
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/applicationset-discovery-dark.png">
-  <img alt="ApplicationSet discovery and multi-source resolution" src="docs/diagrams/applicationset-discovery.png">
-</picture>
-
-The **Matrix generator** combines a list of categories (infrastructure, services) with a Git file scanner. Every directory containing an `app.yaml` is automatically discovered and deployed — no manual Application manifests needed.
-
-Under the hood, the `templatePatch` resolves each discovered `app.yaml` into a multi-source ArgoCD Application — handling variant inheritance, value layering, and optional ingress injection — as shown in the diagram above.
-
-### Phased RollingSync
-
-Deployments are ordered through 4 phases to guarantee dependency resolution:
-
-| Phase | Label | What Deploys | Why It's First |
-|-------|-------|-------------|----------------|
-| 1 | `crds` | Prometheus Operator CRDs | CRDs must exist before any ServiceMonitor/PodMonitor |
-| 2 | `foundation` | cert-manager, sealed-secrets, NFS, MetalLB | TLS, secrets, storage, and load balancing are prerequisites |
-| 3 | `controllers` | Traefik, Authentik, databases, CrowdSec, Intel GPU | Ingress, auth, and data layers must be ready for services |
-| 4 | `services` | All user-facing applications | Everything they depend on is guaranteed available |
-
-Each phase completes fully before the next begins, ensuring clean bootstrap even on a fresh cluster.
-
----
-
-## Value Cascade Design
-
-Every Helm release inherits configuration from a strict 4-layer hierarchy — maximizing reuse and minimizing duplication:
-
-```mermaid
-flowchart TB
-    G(["🌍 globals.yaml\nCluster-wide: domains, IPs,\nNFS server, storage class"])
-    C(["📋 common.yaml\nCategory defaults: TZ, PUID/PGID,\nprobes, default PVC template"])
-    S(["📦 service/values.yaml\nService-specific: image, ports,\nenv vars, persistence mounts"])
-    V(["🔀 variant/values.yaml\nDelta override: image tag,\nLB IP, locale settings"])
-
-    G ==>|"Layer 1"| C
-    C ==>|"Layer 2"| S
-    S ==>|"Layer 3"| V
-
-    classDef globals fill:#E57000,stroke:#CC6300,color:#fff
-    classDef common fill:#7B42BC,stroke:#6A35A3,color:#fff
-    classDef service fill:#326CE5,stroke:#2B5FC2,color:#fff
-    classDef variant fill:#0F1689,stroke:#0D1270,color:#fff
-    class G globals
-    class C common
-    class S service
-    class V variant
-```
-
-| Layer | Scope | Example |
-|-------|-------|---------|
-| **globals.yaml** | Every release in the cluster | Domains, NFS server IP, MetalLB pool IPs, default storage class |
-| **common.yaml** | All services in a category | Timezone, PUID/PGID, liveness/readiness probes, NFS PVC template |
-| **values.yaml** | Single service | Container image, port mappings, environment variables, mount paths |
-| **variant values** | Override layer (optional) | Image tag override, alternate LoadBalancer IP, locale-specific settings |
-
-**Impact**: Changing the NFS server IP in `globals.yaml` automatically propagates to every service using NFS storage on the next sync — zero individual edits.
-
----
-
-## Infrastructure Layers
-
-The infrastructure is organized into four tiers, deployed in order:
-
-```
-infrastructure/
-├── system/              Phase 2 (Foundation)
-│   ├── cert-manager         TLS automation (Let's Encrypt + Cloudflare DNS-01)
-│   ├── sealed-secrets       In-cluster secret decryption
-│   ├── nfs-provisioner      Dynamic PV provisioning from TrueNAS
-│   ├── metallb              L2 load balancer (multiple IP pools)
-│   ├── intel-device-operator GPU scheduling (SR-IOV virtual functions)
-│   ├── crowdsec             Intrusion detection with mTLS
-│   ├── reloader             Restarts workloads on ConfigMap/Secret change
-│   └── prometheus-crds      Phase 1 — CRD-only (no Prometheus yet)
-│
-├── controllers/         Phase 3 (Controllers)
-│   ├── traefik              DaemonSet ingress with CrowdSec bouncer
-│   ├── authentik            SSO provider (OIDC, LDAP, ForwardAuth)
-│   └── databases            PostgreSQL + Redis (shared by services)
-│
-├── configs/             Phase 3-4 (Configuration)
-│   └── templates/           IngressRoutes, middlewares, certs, notifications
-│
-└── base-configs/        Phase 2 (Foundation)
-    └── templates/           Storage PVs, backup CronJobs (PostgreSQL, TLS certs)
-```
-
----
-
-## Service Categories
-
-Services are organized into three domains. Each service is self-contained in its own directory with an `app.yaml` and `values.yaml`:
-
-### 🏠 Home Automation
-
-Smart home infrastructure including a home automation platform, MQTT broker, and Zigbee coordinator bridge — working together for IoT device management across the local network.
-
-### 🎬 Media
-
-Bazarr keeps its database in shared PostgreSQL and private configuration on retained
-Proxmox CSI; media and subtitles remain on NFS. See the [storage and recovery
-runbook](docs/runbooks/bazarr-storage.md).
-
-A comprehensive media management ecosystem covering acquisition, organization, streaming, and discovery — with GPU-accelerated transcoding and multi-language support via base/variant service pairs.
-
-### 🔧 Operations
-
-ntfy stores users, tokens, ACLs, messages and webpush state in shared PostgreSQL;
-attachments use retained Proxmox CSI. See its [storage and recovery runbook](docs/runbooks/ntfy-storage.md).
-
-Grafana stores its database in shared PostgreSQL and private files on retained
-Proxmox CSI. See its [storage and recovery runbook](docs/runbooks/grafana-storage.md).
-
-pgAdmin stores its configuration database in shared PostgreSQL and private files on
-retained Proxmox CSI. See its [storage and recovery runbook](docs/runbooks/pgadmin-storage.md).
-
-The operational backbone: full observability stack (metrics, logs, traces, dashboards, alerting), document management, password vault, push notifications, and a collection of self-hosted productivity tools.
-
-> Services are intentionally described by category rather than enumerated individually — the lineup evolves continuously as services are added, removed, or upgraded.
-
----
-
-## Network & Data Flow
-
-External and internal traffic follow a layered security path; persistent data is served from TrueNAS over NFS:
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/network-dataflow-dark.png">
-  <img alt="Cluster network and data-flow map" src="docs/diagrams/network-dataflow.png">
-</picture>
-
-| Layer | Scope | Function |
-|-------|-------|----------|
-| **MetalLB** | All traffic | L2 load balancing to Traefik DaemonSet pods |
-| **Traefik** | All traffic | TLS termination, IngressRoute routing |
-| **CrowdSec** | External only | Bot detection, IP reputation, rate limiting |
-| **Authentik** | Per-service opt-in | OIDC/ForwardAuth SSO with group-based access |
-| **Rate Limiter** | Per-service opt-in | Request throttling (configurable per route) |
-
----
-
-## Observability
-
-A full observability stack provides metrics, logs, traces, and alerting:
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/observability-dark.png">
-  <img alt="Observability data flow" src="docs/diagrams/observability.png">
-</picture>
-
-The `homelab` MetalLB pool contains fixed `/32` reservations, so it is excluded from
-capacity alerts. A LoadBalancer without an ingress address for 10 minutes still
-alerts; capacity alerts for other pools and MetalLB configuration alerts remain
-enabled. Jellyfin LDAP sync Jobs expire after 24 hours, bounding historical failure
-alerts without suppressing new failures. Watchdog remains the intentional heartbeat.
-
-Calibre-Web probes use `/login`; Excalidash backend probes send
-`X-Forwarded-Proto: https` to its existing trusted-proxy middleware. Both receive
-direct HTTP 200 responses instead of cross-host redirects. Probe timing and normal
-application redirects remain unchanged.
-
-Falco exempts only the pinned FlareSolverr image's expected ChromeDriver execution
-in `media`, with its executable path, process ancestry, and UID constrained. Update
-the exception in `infrastructure/system/falco/values.yaml` alongside every FlareSolverr
-image pin update, including Renovate PRs. Use the Linux/amd64 image config digest
-without `sha256:`, not the manifest digest; unrelated executions remain subject to
-the original rule.
-
-Run `python3 scripts/check-alert-policy.py` with Helm, Docker, PyYAML, and `promtool`
-installed. It resolves the pinned image's config ID without pulling the FlareSolverr
-image. The check also accepts a command prefix, for example
-`python3 scripts/check-alert-policy.py docker run --rm -i --network none --entrypoint promtool prom/prometheus:v3.14.0`.
-
----
-
-## Key Design Patterns
-
-### 1. Automatic Service Discovery
-Drop an `app.yaml` file anywhere in the repo — the Matrix generator finds it and creates an ArgoCD Application. No boilerplate Application manifests to maintain.
-
-### 2. Base/Variant Inheritance
-Language variants (e.g., a Russian-language media manager) point to a base service via `baseApp` and only override what differs. A variant is typically 3-5 lines of YAML rather than duplicating an entire service config.
-
-### 3. Ingress Chart Abstraction
-A custom Helm chart generates Traefik IngressRoutes from declarative `app.yaml` fields. One line (`auth: true`) wires up Authentik ForwardAuth, TLS, and CrowdSec — no per-service IngressRoute YAML to maintain. `auth` is household SSO; `authAdmin` is the internal admin gate (ADR 0014).
-
-### 4. Pre-fetched CrowdSec Bouncer
-Traefik's CrowdSec bouncer plugin is downloaded via init container to emptyDir, not fetched at runtime. This ensures cluster restarts work even if GitHub is down.
-
-### 5. Sealed Secrets Workflow
-Secrets are encrypted with a pre-seeded certificate (matching the Ansible bootstrap), committed to Git as `SealedSecret` CRDs, and decrypted in-cluster. The full lifecycle spans three repos:
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Vault as Ansible Vault
-    participant K8s as Kubernetes
-    participant Argo as ArgoCD
-    participant SS as Sealed Secrets<br/>Controller
-    participant Dev as Developer
-    participant Git as Apps Repo
-
-    rect rgb(238, 0, 0)
-    Note over Vault,K8s: Cluster Bootstrap (Ansible)
-    Vault->>K8s: Pre-seed TLS keypair as Secret
-    Note right of K8s: labeled sealed-secrets-key: active
-    end
-
-    rect rgb(123, 66, 188)
-    Note over Argo,SS: Phase 2 — Foundation
-    Argo->>K8s: Deploy sealed-secrets controller
-    SS->>K8s: Find and adopt pre-seeded key
-    end
-
-    rect rgb(50, 108, 229)
-    Note over Dev,Git: Day-to-Day Usage
-    Dev->>Dev: seal.sh encrypts with<br/>matching public cert
-    Dev->>Git: Commit SealedSecret YAML
-    Git-->>Argo: Sync detected
-    Argo->>K8s: Apply SealedSecret CRD
-    SS->>K8s: Decrypt → plain Secret
-    K8s-->>K8s: Pod mounts Secret<br/>as env or volume
-    end
-```
-
-The key insight: because Ansible pre-seeds the exact keypair that `seal.sh` encrypts against, secrets can be sealed and committed to Git *before the cluster even exists* — and they'll decrypt correctly on first boot.
-
-### 6. Multi-Source Helm Rendering
-Each ArgoCD Application pulls from up to 4 sources: the Helm chart repo, the Git values layers, the ingress chart, and raw manifests — composing complex deployments declaratively.
-
----
-
-## Helper Scripts
-
-| Script | Purpose |
-|--------|---------|
-| `scripts/new-service.sh` | Interactive scaffolding — prompts for image, ingress, persistence and generates `app.yaml` + `values.yaml` |
-| `scripts/seal.sh` | Encrypts secrets into SealedSecret YAML using the cluster's pre-seeded certificate |
-| `scripts/ntfy-manager.sh` | CLI wrapper for managing ntfy users and access rules inside the running pod |
-| [PostgreSQL qualification](docs/operations/postgresql-enrollment-qualification.md) | Disposable enrollment, startup and full cluster rebuild results and limits |
-| [PostgreSQL enrollment](docs/operations/postgresql-enrollment.md) | Canonical inputs, retained synthetic canary and full-sync recovery |
-| `scripts/check-alert-policy.py` | Checks rendered alert behavior, bounded Job retention, and the scoped Falco exception |
-
----
-
-## CI/CD Automation
-
-Four workflows ensure safe, validated, and secure deployments:
-
-```mermaid
-flowchart TD
-    subgraph pr["PR Phase"]
-        PR([Pull Request]) --> VAL[validate-and-diff.yml]
-        VAL --> LINT["YAML Lint +\nKubeconform"]
-        VAL --> DIFF>ArgoCD Diff\nPreview]
-        PR --> FMT[format.yaml\nPrettier formatting]
-    end
-
-    subgraph merge["Merge Phase"]
-        MERGE([Push to Main]) ==> REF[refresh.yaml]
-        REF ==> SCOPE{{"Scope Detection\nWhich apps changed?"}}
-        SCOPE ==> SYNC(["ArgoCD Sync\nOnly affected apps"])
-    end
-
-    subgraph sched["Scheduled Phase"]
-        CRON([Mondays 06:00 UTC]) ==> SCAN[image-scan.yml\nTrivy image scan]
-        SCAN ==> SEC>"GitHub Security tab\nCRITICAL/HIGH findings"]
-    end
-
-    classDef val fill:#EF7B4D,stroke:#D66A3D,color:#fff
-    classDef ref fill:#326CE5,stroke:#2B5FC2,color:#fff
-    classDef scan fill:#1904DA,stroke:#1403B0,color:#fff
-    class VAL val
-    class REF ref
-    class SCAN scan
-```
-
-| Workflow | Trigger | Purpose |
-|----------|---------|---------|
-| **validate-and-diff** | PR | YAML lint + Kubeconform schema validation + ArgoCD diff preview |
-| **format** | PR | Prettier formatting for YAML/JSON/shell files |
-| **refresh** | Push to main | Smart scope detection — only syncs ArgoCD apps affected by the change |
-| **image-scan** | Schedule (Mondays 06:00 UTC) + manual | Trivy scan of deployed images — publishes CRITICAL/HIGH findings to the GitHub Security tab |
-
-The refresh workflow is **scope-aware**: it analyzes the git diff to determine whether to refresh all apps, all services, all infrastructure, or just specific applications — avoiding unnecessary reconciliation cycles.
-
----
-
-## Prerequisites
-
-- **K3s cluster** provisioned by the Ansible playbook (with ArgoCD bootstrapped)
-- **kubeseal** CLI + sealed-secrets certificate for secret encryption
-- **kubectl** configured with cluster access
-- **yq** and **crane** (for `new-service.sh` scaffolding script)
-
----
-
-## Adding a New Service
-
-```bash
-# Interactive scaffolding
+<p align="center">
+  <img src="docs/diagrams/banner.svg" alt="apps, stage 4 of 4 of Starktastic Homelab: every workload on the cluster, discovered from Git and synced by Argo CD. 75 apps, 60 services, 4 sync waves, 20 ADRs, 5 workflows.">
+</p>
+
+<p align="center">
+  <a href="https://github.com/Starktastic-Homelab/apps/actions/workflows/validate-and-diff.yml"><img src="https://github.com/Starktastic-Homelab/apps/actions/workflows/validate-and-diff.yml/badge.svg" alt="validate and diff"></a>
+  <a href="https://github.com/Starktastic-Homelab/apps/actions/workflows/refresh.yaml"><img src="https://github.com/Starktastic-Homelab/apps/actions/workflows/refresh.yaml/badge.svg" alt="refresh"></a>
+  <a href="https://github.com/Starktastic-Homelab/apps/actions/workflows/image-scan.yml"><img src="https://github.com/Starktastic-Homelab/apps/actions/workflows/image-scan.yml/badge.svg" alt="image scan"></a>
+</p>
+
+This repository is everything that runs on the homelab's K3s cluster: 15 infrastructure apps and 60
+services, each one a directory with an `app.yaml`. Argo CD finds the directories by itself, layers shared
+values under every chart and brings the cluster up in four ordered waves. A route, single sign-on, a rate
+limit and an uptime probe are a few lines in that `app.yaml`, not manifests written per app.
+
+## Where it sits
+
+<p align="center">
+  <img src="docs/diagrams/chain.svg" alt="Delivery chain: packer, terraform, ansible, then apps. This repository takes in the root app from ansible and hands over 75 apps in four sync waves.">
+</p>
+
+Ansible installs Argo CD with a root app that watches `bootstrap/` here. From then on Argo CD pulls `main`;
+no workflow applies manifests. Ansible also writes the `KUBECONFIG_RAW` organization secret that
+`refresh.yaml` uses, and seeds the Sealed Secrets key that `scripts/seal.sh` encrypts against. The
+[organization profile](https://github.com/Starktastic-Homelab) shows the whole chain.
+
+## How it works
+
+### From Git to a running app
+
+<p align="center">
+  <img src="docs/diagrams/gitops-flow.svg" alt="GitOps flow: the cluster-apps ApplicationSet finds every app.yaml, gives each Application up to four sources, and RollingSync deploys the 75 Applications in four waves; config-apps adds base-configs and infra-configs.">
+</p>
+
+Two ApplicationSets in `bootstrap/appsets/` create every Application. `cluster-apps` is a matrix of a list
+(infrastructure, services) and a git generator, so a new directory with an `app.yaml` is a new app, with no
+Application manifest to write. Its `templatePatch` reads the fields of that file and assembles the sources.
+`config-apps` adds two fixed Applications: `base-configs` for storage objects and the backup CronJobs, and
+`infra-configs` for shared routes, middlewares and certificates.
+
+| Wave | Apps | What it brings |
+|---|---|---|
+| `crds` | 1 | The Prometheus operator CRDs, so later charts can ship monitors, probes and rules |
+| `foundation` | 4 | Certificates, load balancer addresses, NFS volumes, secret decryption |
+| `controllers` | 9 | Ingress, single sign-on, databases, CrowdSec, block storage, the GPU plugin, Reloader |
+| `services` | 61 | The 60 services, plus Falco |
+
+RollingSync turns automatic sync and self-heal off for these 75 Applications: Argo CD syncs them wave by
+wave, and drift does not heal by itself. `base-configs` and `infra-configs` keep both. Every Application
+prunes, so deleting a directory deletes its resources; storage objects opt out with `Prune=false` and
+`Delete=false`.
+
+### Value layers and variants
+
+<p align="center">
+  <img src="docs/diagrams/value-cascade.svg" alt="Value cascade: globals, common, extras, the base or own values file and the variant's values file, shown for radarr and its variant radarr-ru, with the same layering for the ingress chart.">
+</p>
+
+Every chart loads `templates/globals.yaml` first, so a domain, a load balancer address or the NFS server
+is written once. Services then load `templates/common.yaml`: most of them run on the bjw-s `app-template`
+chart, so one file sets their time zone, user IDs, probe thresholds and default volume.
+
+A variant is a second instance of an app. `radarr-ru` sets `baseApp: services/media/radarr`, reuses
+radarr's `values.yaml` and adds a short file of its own with `valuesOverride: true`. Six apps are variants:
+the five `-ru` media apps, and `homepage`, which is a variant of `homepage-admin`. When a base app changes,
+`refresh.yaml` refreshes its variants too.
+
+### One request, end to end
+
+<p align="center">
+  <img src="docs/diagrams/request-path.svg" alt="Request path: public and media hosts enter through MetalLB address 10.9.8.90, the Service traefik and the entrypoint websecure; internal hosts through 10.9.9.90, traefik-internal and websec-int; then the route's middlewares, the app's Service and pod, and its volumes.">
+</p>
+
+`templates/ingress-chart` turns the `ingress` block of an `app.yaml` into a Traefik IngressRoute.
+
+| `ingress` field | Effect |
+|---|---|
+| `domainType` | `public`, `media` or `internal` (the default): picks the domain, the entrypoint, and whether CrowdSec sees the request |
+| `host` | The name under that domain; empty means the bare domain |
+| `rateLimit` | Adds `rate-limit-strong`: 100 requests per second on average, bursts of 250 |
+| `auth` | Adds `authentik-middleware`: forward auth to Authentik |
+| `authAdmin` | With `auth`, swaps in `authentik-internal-gate`, an admins-only outpost for internal hosts ([ADR 0014](docs/adr/0014-internal-admin-gate.md)) |
+| `probe` | Adds a blackbox `Probe` for the URL |
+
+MetalLB announces one pool, `homelab`, of five fixed addresses: two for Traefik, and three that go straight
+to Home Assistant and the two qBittorrent instances. TLS ends at Traefik with two wildcard certificates
+that cert-manager gets from Let's Encrypt over DNS-01.
+
+### Signals
+
+<p align="center">
+  <img src="docs/diagrams/signals.svg" alt="Signals: Prometheus scrapes metrics and keeps 15 days, Alloy sends logs to Loki (30 days) and traces to Tempo (72 hours), Grafana reads all three; alerts go from Alertmanager through alertmanager-ntfy to ntfy, the Watchdog heartbeat goes to healthchecks.io, and Argo CD notifications go to ntfy.">
+</p>
+
+Prometheus selects every ServiceMonitor, PodMonitor, rule and Probe in the cluster, so an app adds
+monitoring by shipping one object, and `ingress.probe: true` is enough for an uptime check. Alerts leave
+the cluster two ways: as push messages through ntfy, and as a heartbeat. The always-firing `Watchdog` alert
+pings healthchecks.io, which sends mail when the pings stop, so a dead Alertmanager is noticed from outside.
+
+### Secrets, storage and decisions
+
+- **Secrets are sealed offline.** `scripts/seal.sh` encrypts against `scripts/sealed-secrets-cert.pem`, and
+  only the SealedSecret is committed. Ansible seeds the matching key at bootstrap, so the secrets in Git
+  still decrypt after a cluster rebuild ([ADR 0004](docs/adr/0004-sealed-secrets.md)).
+- **Every volume names its storage class.** Most use `proxmox-retained`: block volumes from Proxmox CSI
+  with the `Retain` policy, bound to PersistentVolumes declared in `infrastructure/base-configs/`, so the
+  link between a claim and its disk lives in Git. `nfs-pv` provisions shared folders on the NAS, and the
+  media library is a static NFS volume. `local-path` stays the cluster default because k3s recreates it on
+  every start, which is why no claim relies on the default
+  ([ADR 0009](docs/adr/0009-explicit-storageclass-over-default.md)).
+- **Decisions are written down.** [`docs/adr/`](docs/adr/README.md) holds 20 architecture decision records,
+  from K3s over Talos to the admin gate.
+
+## What is in the repo
+
+| Path | What it holds |
+|---|---|
+| `bootstrap/appsets/` | The two ApplicationSets |
+| `infrastructure/system/`, `infrastructure/controllers/` | The 15 infrastructure apps |
+| `infrastructure/base-configs/` | PersistentVolumes and claims, and the PostgreSQL and certificate backup CronJobs |
+| `infrastructure/configs/` | Shared IngressRoutes, middlewares, certificates and the Argo CD notification settings |
+| `services/<category>/<app>/` | The 60 services: `app.yaml`, `values.yaml` and an optional `manifests/` |
+| `templates/` | `globals.yaml`, `common.yaml`, `media-arr-common.yaml` and `ingress-chart/` |
+| `homepage/` | The catalog and page sources behind the two dashboards |
+| `scripts/` | `new-service.sh`, `seal.sh`, and the `check-*` policy checks that CI runs |
+| `docs/` | `adr/`, `runbooks/`, `operations/` and these diagrams |
+
+<details>
+<summary><b>Infrastructure</b>: 15 apps</summary>
+
+| App | Wave | What it provides |
+|---|---|---|
+| `prometheus-operator-crds` | crds | The monitoring CRDs |
+| `cert-manager` | foundation | The `letsencrypt-prod` issuer, DNS-01 through Cloudflare |
+| `metallb` | foundation | The layer 2 address pool `homelab` |
+| `nfs-provisioner` | foundation | The storage class `nfs-pv` |
+| `sealed-secrets` | foundation | Decrypts the SealedSecrets in Git |
+| `traefik` | controllers | Ingress as a DaemonSet, with separate public and internal Services and entrypoints |
+| `authentik` | controllers | Single sign-on, with the LDAP and admin-gate outposts |
+| `postgres`, `redis`, `pgadmin` | controllers | The shared databases and their admin UI |
+| `crowdsec` | controllers | Reads the Traefik logs and feeds the bouncer middleware |
+| `proxmox-csi` | controllers | The storage class `proxmox-retained` |
+| `reloader` | controllers | Restarts workloads when a ConfigMap or Secret changes |
+| `intel-device-operator` | controllers | The Intel GPU device plugin |
+| `falco` | services | Runtime security events; critical ones go to Alertmanager |
+
+</details>
+
+<details>
+<summary><b>Services</b>: 60 apps in three categories</summary>
+
+**Home automation (3):** `home-assistant`, `mosquitto`, `zigbee2mqtt`
+
+**Media (32):** `audiobookshelf`, `autobrr`, `bazarr`, `calibre-web`, `cineplete`, `cleanuparr`,
+`cross-seed`, `dispatcharr`, `flaresolverr`, `immich`, `jellyfin`, `libretranslate`, `lidarr`, `lingarr`,
+`metube`, `navidrome`, `prowlarr`, `qbit-manage`, `qbit-manage-ru`, `qbittorrent`, `qbittorrent-ru`,
+`radarr`, `radarr-ru`, `recyclarr`, `samsung-tvplus`, `seerr`, `seerr-ru`, `shelfmark`, `sonarr`,
+`sonarr-ru`, `subgen`, `unpackerr`
+
+**Operations (25):** `alertmanager-ntfy`, `alloy`, `bytestash`, `changedetection`, `convertx`, `cyberchef`,
+`excalidash`, `filebrowser`, `homepage`, `homepage-admin`, `karakeep`, `kube-prometheus-stack`, `listmonk`,
+`loki`, `mealie`, `microbin`, `ntfy`, `pairdrop`, `paperless-ngx`, `postgres-enrollment-pilot`,
+`prometheus-blackbox-exporter`, `searxng`, `stirling-pdf`, `tempo`, `vaultwarden`
+
+</details>
+
+## Workflows
+
+| Workflow | Runs on | What it does |
+|---|---|---|
+| `validate-and-diff.yml` | pull request | yamllint, kubeconform and the policy checks (admin gate, alert policy, dashboard coverage, image digests and more), then an Argo CD diff preview as a comment |
+| `refresh.yaml` | push to `main`, manual | On the self-hosted runner: finds the apps a commit touched and runs `argocd app get --refresh` for them. It never syncs |
+| `format.yaml` | pull request | Prettier for YAML and JSON, shfmt for shell; commits the result to the branch |
+| `image-scan.yml` | Mondays 06:00 UTC, manual | Trivy over every image a `values.yaml` references; findings go to the Security tab and never block a merge |
+| `readme-images.yml` | pull request that touches Markdown or `docs/diagrams/` | Checks that every image a Markdown file references exists |
+
+The refresh is scoped. A change to `templates/globals.yaml`, the ingress chart or `bootstrap/` refreshes
+everything, and `templates/common.yaml` refreshes all services. A file under `services/` or
+`infrastructure/` refreshes the app that owns it, and its variants when a base app's `app.yaml` or
+`values.yaml` changed. Anything else, `templates/media-arr-common.yaml` included, refreshes nothing.
+
+## Run it
+
+```sh
+# Scaffold a service: asks for name, category, image, port, ingress and storage (needs yq and docker)
 ./scripts/new-service.sh
 
-# Or manually create:
-# services/<category>/<service-name>/app.yaml
-# services/<category>/<service-name>/values.yaml
-
-# Encrypt any secrets
+# Seal a secret offline (needs kubectl and kubeseal); it writes <secret-name>.yaml
 ./scripts/seal.sh <secret-name> <namespace>
 
-# Commit and push — ArgoCD discovers and deploys automatically
-git add . && git commit -m "feat: add <service>" && git push
+# See the route an app.yaml produces; a variant adds its own app.yaml after its base
+helm template radarr-ru templates/ingress-chart -f templates/globals.yaml \
+  -f services/media/radarr/app.yaml -f services/media/radarr-ru/app.yaml
+
+# Lint, and render the shared configuration chart
+YAMLLINT_CONFIG_FILE=.github/yamllint.yaml yamllint .
+helm template configs infrastructure/configs -f templates/globals.yaml
 ```
 
-The ApplicationSet will discover the new `app.yaml` on the next sync cycle and create an ArgoCD Application for it automatically.
+To add a service:
+
+1. Run `new-service.sh`. It pins the image digest and writes `services/<category>/<name>/app.yaml` and
+   `values.yaml`.
+2. Name a storage class on every volume the app adds.
+3. Put sealed secrets and other extra objects in the app's `manifests/` and set `manifests: true`.
+4. If the app has a route, add its tile to `homepage/catalog.yaml` and run
+   `python3 scripts/homepage/generate.py`. CI fails when a host is missing from the admin dashboard.
+5. Open a pull request and read the diff preview. After the merge the git generator picks up the new
+   `app.yaml`, and the app joins the `services` wave.
+
+## Operations
+
+- [Operator notes](docs/operations/operator-notes.md): storage notes for Bazarr, ntfy, Grafana and pgAdmin,
+  alert exclusions, probe paths, the FlareSolverr exception in Falco, and the alert policy check.
+- [Storage runbooks](docs/runbooks/): storage and recovery, one file per app or group of apps.
+- [Proxmox CSI](infrastructure/system/proxmox-csi/README.md): how retained block volumes are set up.
+- [PostgreSQL enrollment](docs/operations/postgresql-enrollment.md) and its
+  [qualification results](docs/operations/postgresql-enrollment-qualification.md).
+- [Architecture decision records](docs/adr/README.md) and the [security policy](SECURITY.md).
+- Backups: this repository dumps PostgreSQL and copies the TLS certificates to NFS every night. The host
+  backup that takes them off-site, and every restore path, is in
+  [ansible](https://github.com/Starktastic-Homelab/ansible/blob/main/docs/backup-and-restore.md).
 
 ---
 
-## License & Contributing
-
-This is a personal homelab project. Feel free to use it as inspiration for your own infrastructure. If you spot an issue or have a suggestion, [open an issue](../../issues) — contributions and feedback are welcome.
+<p align="center">
+  Part of <a href="https://github.com/Starktastic-Homelab"><b>Starktastic Homelab</b></a>:
+  <a href="https://github.com/Starktastic-Homelab/packer">packer</a> ·
+  <a href="https://github.com/Starktastic-Homelab/terraform">terraform</a> ·
+  <a href="https://github.com/Starktastic-Homelab/ansible">ansible</a> ·
+  <a href="https://github.com/Starktastic-Homelab/apps">apps</a><br>
+  <sub>Product logos in the diagrams are trademarks of their owners and are used only to label the components.</sub>
+</p>

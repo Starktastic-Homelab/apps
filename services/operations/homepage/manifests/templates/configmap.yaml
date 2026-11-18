@@ -1146,7 +1146,7 @@ data:
           widget:
             type: calendar
             view: agenda
-            maxEvents: 12
+            maxEvents: 14
             previousDays: 0
             showTime: true
             integrations:
@@ -1157,7 +1157,7 @@ data:
               params:
                 showName: true
             - type: ical
-              url: http://radarr.media:7878/feed/v3/calendar/Radarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_RADARR_KEY{{ "}}" }}&releaseTypes=digitalRelease&pastDays=60&futureDays=90
+              url: http://radarr.media:7878/feed/v3/calendar/Radarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_RADARR_KEY{{ "}}" }}&pastDays=60&futureDays=90
               name: Movies
               color: fuchsia
               params:

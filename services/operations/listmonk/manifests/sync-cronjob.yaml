@@ -35,9 +35,8 @@ spec:
                       -H "Authorization: Bearer ${AUTHENTIK_API_TOKEN}" \
                       "${AUTHENTIK_URL}/api/v3/core/users/?is_active=true&page=${PAGE}&page_size=100")
 
-                    echo "$RESPONSE" | jq -r '.results[] | "\(.email)\t\(.name)"' | while IFS="$(printf '\t')" read -r EMAIL NAME; do
-                      [ -z "$EMAIL" ] && continue
-
+                    # Accounts without an email are dropped in jq: read strips a leading tab, so the name would land in EMAIL.
+                    echo "$RESPONSE" | jq -r '.results[] | select((.email // "") != "") | "\(.email)\t\(.name)"' | while IFS="$(printf '\t')" read -r EMAIL NAME; do
                       echo "${EXCLUDE_EMAILS}" | tr ',' '\n' | grep -qxF "$EMAIL" && {
                         echo "Skipping excluded: ${EMAIL}"
                         continue
@@ -60,9 +59,9 @@ spec:
                       esac
                     done
 
-                    HAS_NEXT=$(echo "$RESPONSE" | jq -r '.next // empty')
-                    [ -z "$HAS_NEXT" ] && break
-                    PAGE=$((PAGE + 1))
+                    # Authentik pages under .pagination; next is the next page number, 0 on the last page.
+                    PAGE=$(echo "$RESPONSE" | jq -r '.pagination.next // 0')
+                    [ "$PAGE" = "0" ] && break
                   done
 
                   echo "Sync complete."

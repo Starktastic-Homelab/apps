@@ -1,13 +1,15 @@
 """Telegram bot that files Seerr and Seerr-RU requests as the person asking.
 
 Flow: a title -> pick a match -> (series) pick seasons -> pick a Seerr (only if they use both) -> request.
+Strangers link first: a Jellyfin Quick Connect code, or the chat ID saved by hand.
 
-People are recognised by the Telegram chat ID they save in their own Seerr profile
-(Settings > Notifications > Telegram). Both Seerrs import users from the same Jellyfin,
-so the Jellyfin user ID finds the same person in the other one. Requests carry
-X-API-User, so each person's own permissions, auto-approve and quotas apply.
+People are recognised by the Telegram chat ID in their own Seerr profile
+(Settings > Notifications > Telegram), saved by the Link flow or by hand. Both Seerrs import
+users from the same Jellyfin, so the Jellyfin user ID finds the same person in the other one.
+Requests carry X-API-User, so each person's own permissions, auto-approve and quotas apply.
 
-Every button carries its whole state in callback_data, so a restart loses nothing.
+Request buttons carry their whole state in callback_data, so a restart loses nothing;
+only a pending Quick Connect link lives in memory.
 Standard library only: it runs from a ConfigMap on the stock python image.
 """
 
@@ -23,6 +25,7 @@ import urllib.request
 MAX_RESULTS = 8
 MAX_QUERY = 200
 MEDIA_AVAILABLE = 5  # Seerr MediaStatus.AVAILABLE
+NOTIFY_APPROVED, NOTIFY_AVAILABLE = 4, 8  # Seerr Notification.MEDIA_APPROVED / MEDIA_AVAILABLE bits
 MAX_SEASON_BUTTONS = 90  # Telegram caps a keyboard at 100 buttons
 USERS_TTL = 300  # rebuild the Telegram -> Seerr map this often...
 MISS_TTL = 60  # ...or this often while unknown people write
@@ -31,6 +34,10 @@ TG_API = ""  # set in main(); holds the bot token, so never log it
 INSTANCES = []  # [{"name", "url", "key"}], set in main()
 _people = {"map": {}, "at": float("-inf")}
 _submitted = set()  # (chat, message_id) whose request button was already pressed
+# Telegram user ID -> (Quick Connect secret, deadline). The secret signs someone in: never log or show it.
+# shortcut: in memory, so a restart mid-link means tapping Link again; fine for a few-minute flow.
+_links = {}
+LINK_TTL = 540  # Jellyfin forgets a Quick Connect request after 10 minutes
 
 HELP = "Send me the name of a movie or series and I'll request it for you."
 
@@ -41,6 +48,10 @@ class Expired(Exception):
 
 class SeerrDown(Exception):
     pass
+
+
+class NotYet(Exception):
+    """Quick Connect code not approved in Jellyfin yet."""
 
 
 def log(*parts):
@@ -64,19 +75,24 @@ def http(url, body=None, headers=None, timeout=30):
 
 def seerr_call(inst, path, headers, body=None):
     try:
-        return http(inst["url"] + "/api/v1" + path, body, {"X-Api-Key": inst["key"], **headers})
+        return http(inst["url"] + "/api/v1" + path, body, headers)
     except OSError as err:  # refused, reset, DNS, timeout: Seerr is restarting or gone
         raise SeerrDown(f"{inst['name']}: {type(err).__name__}") from None
 
 
+def seerr_public(inst, path, body=None):
+    """Seerr's own Quick Connect login routes: no key, nobody to act as yet."""
+    return seerr_call(inst, path, {}, body)
+
+
 def seerr_admin(inst, path):
     """Admin-key call. Only for reading the user list: anything else goes through seerr_as."""
-    return seerr_call(inst, path, {})
+    return seerr_call(inst, path, {"X-Api-Key": inst["key"]})
 
 
 def seerr_as(inst, uid, path, body=None):
     # Without X-API-User the admin key acts as user 1.
-    return seerr_call(inst, path, {"X-API-User": str(int(uid))}, body)
+    return seerr_call(inst, path, {"X-Api-Key": inst["key"], "X-API-User": str(int(uid))}, body)
 
 
 def tg(method, **params):
@@ -148,6 +164,97 @@ def person_for(tg_id):
 def primary(person):
     i = min(person)
     return INSTANCES[i], person[i]
+
+
+# --- linking with Jellyfin Quick Connect ------------------------------------
+# The bot drives Seerr's own Quick Connect login on the first Seerr: the person approves a code
+# in Jellyfin, Seerr signs them in (creating the account only if its new-sign-in setting allows),
+# and the bot saves their Telegram ID in their Seerr profiles, which is what build_people reads.
+# shortcut: only the first Seerr signs them in (a code works once); Seerr-RU joins when they sign in there.
+
+
+def link_button():
+    return [[button("🔗 Link with Jellyfin", "l")]]
+
+
+def start_link(tg_id):
+    inst = INSTANCES[0]
+    status, resp = seerr_public(inst, "/auth/jellyfin/quickconnect/initiate", {})
+    if status != 200 or not (resp or {}).get("secret"):
+        log(f"{inst['name']} Quick Connect initiate: HTTP {status}")
+        return "Jellyfin Quick Connect isn't available right now. Try again later.", link_button()
+    now = time.monotonic()
+    for stale in [k for k, (_, deadline) in _links.items() if deadline < now]:
+        del _links[stale]
+    _links[tg_id] = (resp["secret"], now + LINK_TTL)
+    return (
+        f"In Jellyfin, open your profile, then Quick Connect, and enter this code:\n{resp['code']}\nThen tap Done.",
+        [[button("Done", "k")]],
+    )
+
+
+def save_chat_id(inst, uid, tg_id):
+    """False if the profile already holds another Telegram ID: a code someone was talked into
+    entering must not move their account to a stranger's Telegram."""
+    # As the person themselves: Seerr attaches brand-new settings to the caller. The save overwrites
+    # every notification field, so send back what is there with only the chat ID changed.
+    path = f"/user/{uid}/settings/notifications"
+    current = checked(inst, *seerr_as(inst, uid, path))
+    saved = str(current.get("telegramChatId") or "").strip()
+    if saved and saved != str(tg_id):
+        return False
+    # Also tick Seerr's "approved" and "available" Telegram notices, added to whatever they ticked.
+    # Only here, at link time, so unticking them later in Seerr sticks.
+    types = dict(current.get("notificationTypes") or {})
+    types["telegram"] = int(types.get("telegram") or 0) | NOTIFY_APPROVED | NOTIFY_AVAILABLE
+    checked(inst, *seerr_as(inst, uid, path, {**current, "telegramChatId": str(tg_id), "notificationTypes": types}))
+    return True
+
+
+def finish_link(tg_id):
+    secret, deadline = _links.get(tg_id, (None, 0.0))
+    if time.monotonic() > deadline:
+        _links.pop(tg_id, None)
+        return "That code has expired. Tap Link to get a new one.", link_button()
+    inst = INSTANCES[0]
+    status, resp = seerr_public(inst, "/auth/jellyfin/quickconnect/check?secret=" + urllib.parse.quote(secret, safe=""))
+    if status == 200 and not (resp or {}).get("authenticated"):
+        raise NotYet
+    if status != 200:  # Jellyfin no longer knows the code
+        _links.pop(tg_id, None)
+        return "That code has expired. Tap Link to get a new one.", link_button()
+    status, user = seerr_public(inst, "/auth/jellyfin/quickconnect/authenticate", {"secret": secret})
+    _links.pop(tg_id, None)  # a secret signs in once
+    if status == 403:
+        return f"{inst['name']} has no account for you and won't create one. Ask your Seerr admin to add you.", []
+    if status != 200 or "id" not in (user or {}):
+        raise SeerrDown(f"{inst['name']} Quick Connect sign-in: HTTP {status}")
+    if not save_chat_id(inst, user["id"], tg_id):
+        log(f"telegram {tg_id}: {inst['name']} user {user['id']} already has another chat ID, not linked")
+        return (
+            "Your Seerr account is already linked to another Telegram account. To move it here, clear "
+            "the chat ID in your Seerr profile (Settings > Notifications > Telegram), then tap Link again.",
+            [],
+        )
+    jf = jellyfin_key(user.get("jellyfinUserId"))
+    for other in INSTANCES[1:]:
+        try:  # best effort: only Seerr's own notifications from that Seerr depend on it
+            uid = next((u["id"] for u in list_users(other) if jf and jellyfin_key(u.get("jellyfinUserId")) == jf), None)
+            if uid is not None and not save_chat_id(other, uid, tg_id):
+                log(f"telegram {tg_id}: {other['name']} user {uid} has another chat ID, left as is")
+        except SeerrDown as err:
+            log(f"{err}; chat ID not saved there")
+    log(f"telegram {tg_id} linked to {inst['name']} user {user['id']}")
+    try:
+        _people["map"], _people["at"] = build_people(), time.monotonic()
+    except SeerrDown as err:  # the link is saved; the next message rebuilds the map
+        log(err)
+        _people["at"] = float("-inf")
+        return "✅ Linked. Seerr is slow to answer right now, so send me a title in a minute.", []
+    if str(tg_id) not in _people["map"]:
+        return "Linked, but another Seerr account has the same chat ID saved. Clear it there, then try again.", []
+    name = user.get("displayName") or user.get("jellyfinUsername") or "you"
+    return f"✅ Linked as {name}. Now send me a title.", []
 
 
 # --- Seerr reads ------------------------------------------------------------
@@ -291,8 +398,9 @@ def markup(rows):
 
 def unknown_text(tg_id):
     return (
-        "I don't know you yet. In Seerr, open your profile, then Settings > Notifications > "
-        f"Telegram, and save this chat ID:\n{tg_id}\nThen send me a title (it can take a minute to notice)."
+        "I don't know you yet. Tap Link to connect your Jellyfin account.\n\n"
+        "Or save this chat ID in your Seerr profile, under Settings > Notifications > Telegram, "
+        f"and message me again in a minute:\n{tg_id}"
     )
 
 
@@ -304,7 +412,7 @@ def on_message(msg):
     try:
         person = person_for(tg_id)
         if not person:
-            return tg("sendMessage", chat_id=chat, text=unknown_text(tg_id))
+            return tg("sendMessage", chat_id=chat, text=unknown_text(tg_id), reply_markup=markup(link_button()))
         if not text or text.startswith("/"):
             return tg("sendMessage", chat_id=chat, text=HELP)
         results = search(primary(person), text)
@@ -329,20 +437,28 @@ def on_callback(query):
             return
         tg_id, data = query["from"]["id"], query.get("data") or ""
         person = person_for(tg_id)
-        if not person:
+        if data in ("l", "k") and person and tg_id not in _links:
+            note = "You're already linked. Send me a title."
+            return
+        if data in ("l", "k"):
+            text, rows = start_link(tg_id) if data == "l" else finish_link(tg_id)
+        elif not person:
             note = "I don't know you yet. Send me any message."
             return
-        if data.startswith("r:"):
-            # A double tap lands before the first edit removes the buttons; file once.
-            sending = (msg["chat"]["id"], msg["message_id"])
-            if sending in _submitted:
-                note, sending = "Already sent.", None
-                return
-            if len(_submitted) > 1000:  # shortcut: forget old ones wholesale, fine at household volume
-                _submitted.clear()
-            _submitted.add(sending)
-        text, rows = route(person, data, tg_id)
+        else:
+            if data.startswith("r:"):
+                # A double tap lands before the first edit removes the buttons; file once.
+                sending = (msg["chat"]["id"], msg["message_id"])
+                if sending in _submitted:
+                    note, sending = "Already sent.", None
+                    return
+                if len(_submitted) > 1000:  # shortcut: forget old ones wholesale, fine at household volume
+                    _submitted.clear()
+                _submitted.add(sending)
+            text, rows = route(person, data, tg_id)
         tg("editMessageText", chat_id=msg["chat"]["id"], message_id=msg["message_id"], text=text, reply_markup=markup(rows))
+    except NotYet:
+        note = "Not approved yet. Enter the code in Jellyfin, then tap Done."
     except Expired:
         note = "This button has expired. Send the title again."
     except SeerrDown as err:

@@ -552,8 +552,9 @@ tiles:
           format: relativeDate
           limit: 6
   # Jellyfin's newest arrivals. Tiles of their own, so no label hangs on a widget's position (ADR 0020). Both
-  # pages run them on the household token: Items/Latest answers for the token's own user, and admin's API key
-  # has no user. No link on the tile; each row opens its item.
+  # pages run them on the household token: Items answers for the token's own user, and admin's API key has no
+  # user. No link on the tile; each row opens its item. New movies sorts Items by DateCreated because Items/Latest
+  # with IncludeItemTypes=Movie answered [] live on 2026-11-18 while the user's libraries held new movies.
   new-movies:
     name: New movies
     audience: household
@@ -562,11 +563,12 @@ tiles:
     widgets:
       - audience: household
         type: customapi
-        url: http://jellyfin-main.media:8096/Items/Latest?IncludeItemTypes=Movie&Limit=6&Fields=DateCreated
+        url: http://jellyfin-main.media:8096/Items?IncludeItemTypes=Movie&Recursive=true&SortBy=DateCreated&SortOrder=Descending&Limit=6&Fields=DateCreated
         headers: *jellyfin_household_auth
         refreshInterval: 900000
         display: dynamic-list
         mappings:
+          items: Items
           name: Name
           label: DateCreated
           format: relativeDate

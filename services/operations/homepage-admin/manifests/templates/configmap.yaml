@@ -1610,12 +1610,13 @@ data:
           description: Latest additions
           widget:
             type: customapi
-            url: http://jellyfin-main.media:8096/Items/Latest?IncludeItemTypes=Movie&Limit=6&Fields=DateCreated
+            url: http://jellyfin-main.media:8096/Items?IncludeItemTypes=Movie&Recursive=true&SortBy=DateCreated&SortOrder=Descending&Limit=6&Fields=DateCreated
             headers:
               Authorization: MediaBrowser Token="{{ "{{" }}HOMEPAGE_VAR_JELLYFIN_HOUSEHOLD_TOKEN{{ "}}" }}"
             refreshInterval: 900000
             display: dynamic-list
             mappings:
+              items: Items
               name: Name
               label: DateCreated
               format: relativeDate

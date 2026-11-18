@@ -1108,12 +1108,13 @@ data:
           description: Latest additions
           widget:
             type: customapi
-            url: http://jellyfin-main.media:8096/Items/Latest?IncludeItemTypes=Movie&Limit=6&Fields=DateCreated
+            url: http://jellyfin-main.media:8096/Items?IncludeItemTypes=Movie&Recursive=true&SortBy=DateCreated&SortOrder=Descending&Limit=6&Fields=DateCreated
             headers:
               Authorization: MediaBrowser Token="{{ "{{" }}HOMEPAGE_VAR_JELLYFIN_HOUSEHOLD_TOKEN{{ "}}" }}"
             refreshInterval: 900000
             display: dynamic-list
             mappings:
+              items: Items
               name: Name
               label: DateCreated
               format: relativeDate
@@ -1145,7 +1146,7 @@ data:
           widget:
             type: calendar
             view: agenda
-            maxEvents: 12
+            maxEvents: 14
             previousDays: 0
             showTime: true
             integrations:
@@ -1156,7 +1157,7 @@ data:
               params:
                 showName: true
             - type: ical
-              url: http://radarr.media:7878/feed/v3/calendar/Radarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_RADARR_KEY{{ "}}" }}&releaseTypes=digitalRelease&pastDays=60&futureDays=90
+              url: http://radarr.media:7878/feed/v3/calendar/Radarr.ics?apikey={{ "{{" }}HOMEPAGE_VAR_RADARR_KEY{{ "}}" }}&pastDays=60&futureDays=90
               name: Movies
               color: fuchsia
               params:

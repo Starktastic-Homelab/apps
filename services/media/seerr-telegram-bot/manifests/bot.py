@@ -25,6 +25,7 @@ import urllib.request
 MAX_RESULTS = 8
 MAX_QUERY = 200
 MEDIA_AVAILABLE = 5  # Seerr MediaStatus.AVAILABLE
+NOTIFY_APPROVED, NOTIFY_AVAILABLE = 4, 8  # Seerr Notification.MEDIA_APPROVED / MEDIA_AVAILABLE bits
 MAX_SEASON_BUTTONS = 90  # Telegram caps a keyboard at 100 buttons
 USERS_TTL = 300  # rebuild the Telegram -> Seerr map this often...
 MISS_TTL = 60  # ...or this often while unknown people write
@@ -202,7 +203,11 @@ def save_chat_id(inst, uid, tg_id):
     saved = str(current.get("telegramChatId") or "").strip()
     if saved and saved != str(tg_id):
         return False
-    checked(inst, *seerr_as(inst, uid, path, {**current, "telegramChatId": str(tg_id)}))
+    # Also tick Seerr's "approved" and "available" Telegram notices, added to whatever they ticked.
+    # Only here, at link time, so unticking them later in Seerr sticks.
+    types = dict(current.get("notificationTypes") or {})
+    types["telegram"] = int(types.get("telegram") or 0) | NOTIFY_APPROVED | NOTIFY_AVAILABLE
+    checked(inst, *seerr_as(inst, uid, path, {**current, "telegramChatId": str(tg_id), "notificationTypes": types}))
     return True
 
 

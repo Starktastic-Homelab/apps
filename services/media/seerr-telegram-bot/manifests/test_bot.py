@@ -24,6 +24,7 @@ SHOW = {
 MOVIE = {"title": "The Matrix", "releaseDate": "1999-03-31"}
 BEN = {0: 5, 1: 9}
 SECRET = "ab" * 32  # Quick Connect secret: must never reach Telegram
+SAVED = {"telegramChatId": "444", "telegramEnabled": True, "notificationTypes": {"email": 4094, "telegram": 76}}
 
 
 class Fake:
@@ -56,7 +57,7 @@ class Fake:
             if body is not None:  # Seerr's save overwrites every field from the body
                 row[2] = body["telegramChatId"]
                 return 200, body
-            return 200, {"telegramChatId": row[2], "pgpKey": f"pgp-{row[0]}", "telegramEnabled": True}
+            return 200, {"telegramChatId": row[2], "pgpKey": f"pgp-{row[0]}", "telegramEnabled": True, "notificationTypes": {"email": 4094, "telegram": 64}}
         if path == "/auth/jellyfin/quickconnect/initiate":
             return self.qc_initiate
         if path == "/auth/jellyfin/quickconnect/check?secret=" + SECRET:
@@ -243,8 +244,9 @@ class BotTest(unittest.TestCase):
         self.assertEqual(
             writes,
             [
-                (MAIN, "/user/6/settings/notifications", {"telegramChatId": "444", "pgpKey": "pgp-6", "telegramEnabled": True}, "6"),
-                (RU, "/user/10/settings/notifications", {"telegramChatId": "444", "pgpKey": "pgp-10", "telegramEnabled": True}, "10"),
+                # approved (4) and available (8) added to the declined (64) already ticked; email untouched
+                (MAIN, "/user/6/settings/notifications", {**SAVED, "pgpKey": "pgp-6"}, "6"),
+                (RU, "/user/10/settings/notifications", {**SAVED, "pgpKey": "pgp-10"}, "10"),
             ],
         )
         self.assertEqual(bot.person_for(444), {0: 6, 1: 10})

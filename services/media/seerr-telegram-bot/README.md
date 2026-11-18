@@ -18,7 +18,8 @@ A stranger gets two ways in:
 - **Link with Jellyfin** (the button): the bot shows a Quick Connect code, the person enters it in
   Jellyfin (profile > Quick Connect) and taps Done. The bot runs Seerr's own Quick Connect sign-in on
   the first Seerr, which creates their Seerr account only if Seerr's "Enable New Jellyfin Sign-In" is on,
-  then saves their chat ID in every Seerr they have an account in. Only the first Seerr signs them in:
+  then saves their chat ID in every Seerr they have an account in and ticks Seerr's "approved" and
+  "available" Telegram notices there, on top of anything they ticked. Only the first Seerr signs them in:
   a code works once, so Seerr-RU joins when they sign in there themselves. It never replaces a chat
   ID that's already saved: moving an account to another Telegram means clearing it in Seerr first.
 - **By hand**: the reply also shows their chat ID to paste into their Seerr profile. Seerr hides that
@@ -40,8 +41,10 @@ A stranger gets two ways in:
 3. Keep Quick Connect on in Jellyfin (**Dashboard > General**), for the Link button.
 4. Optional, for Seerr's own status messages ("approved", "available") in the same chat, and for linking
    by hand: in both Seerrs, open **Settings > Notifications > Telegram**, enable it, and enter the bot
-   username, the same token and your own chat ID. Each Seerr notifies only people whose chat ID it has
-   and who tick Telegram notification types in their profile (none are ticked by default).
+   username and the same token. Each Seerr notifies only people whose chat ID it has and who have
+   Telegram notification types ticked in their profile: linking ticks "approved" and "available", people
+   who link by hand tick them themselves (Seerr ticks none by default). The agent's own Chat ID is only
+   for admin-wide alerts; Seerr skips a person's notices when their chat ID equals it.
 
 ## Notes
 

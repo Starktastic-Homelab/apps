@@ -1,0 +1,4 @@
+name: seerr-telegram-bot
+namespace: media
+deployPhase: services
+manifests: true

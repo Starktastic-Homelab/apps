@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/diagrams/banner.svg" alt="apps, stage 4 of 4 of Starktastic Homelab: every workload on the cluster, discovered from Git and synced by Argo CD. 75 apps, 60 services, 4 sync waves, 20 ADRs, 5 workflows.">
+  <img src="docs/diagrams/banner.svg" alt="apps, stage 4 of 4 of Starktastic Homelab: every workload on the cluster, discovered from Git and synced by Argo CD. 76 apps, 61 services, 4 sync waves, 20 ADRs, 5 workflows.">
 </p>
 
 <p align="center">
@@ -8,7 +8,7 @@
   <a href="https://github.com/Starktastic-Homelab/apps/actions/workflows/image-scan.yml"><img src="https://github.com/Starktastic-Homelab/apps/actions/workflows/image-scan.yml/badge.svg" alt="image scan"></a>
 </p>
 
-This repository is everything that runs on the homelab's K3s cluster: 15 infrastructure apps and 60
+This repository is everything that runs on the homelab's K3s cluster: 15 infrastructure apps and 61
 services, each one a directory with an `app.yaml`. Argo CD finds the directories by itself, layers shared
 values under every chart and brings the cluster up in four ordered waves. A route, single sign-on, a rate
 limit and an uptime probe are a few lines in that `app.yaml`, not manifests written per app.
@@ -16,7 +16,7 @@ limit and an uptime probe are a few lines in that `app.yaml`, not manifests writ
 ## Where it sits
 
 <p align="center">
-  <img src="docs/diagrams/chain.svg" alt="Delivery chain: packer, terraform, ansible, then apps. This repository takes in the root app from ansible and hands over 75 apps in four sync waves.">
+  <img src="docs/diagrams/chain.svg" alt="Delivery chain: packer, terraform, ansible, then apps. This repository takes in the root app from ansible and hands over 76 apps in four sync waves.">
 </p>
 
 Ansible installs Argo CD with a root app that watches `bootstrap/` here. From then on Argo CD pulls `main`;
@@ -29,7 +29,7 @@ no workflow applies manifests. Ansible also writes the `KUBECONFIG_RAW` organiza
 ### From Git to a running app
 
 <p align="center">
-  <img src="docs/diagrams/gitops-flow.svg" alt="GitOps flow: the cluster-apps ApplicationSet finds every app.yaml, gives each Application up to four sources, and RollingSync deploys the 75 Applications in four waves; config-apps adds base-configs and infra-configs.">
+  <img src="docs/diagrams/gitops-flow.svg" alt="GitOps flow: the cluster-apps ApplicationSet finds every app.yaml, gives each Application up to four sources, and RollingSync deploys the 76 Applications in four waves; config-apps adds base-configs and infra-configs.">
 </p>
 
 Two ApplicationSets in `bootstrap/appsets/` create every Application. `cluster-apps` is a matrix of a list
@@ -43,7 +43,7 @@ Application manifest to write. Its `templatePatch` reads the fields of that file
 | `crds` | 1 | The Prometheus operator CRDs, so later charts can ship monitors, probes and rules |
 | `foundation` | 4 | Certificates, load balancer addresses, NFS volumes, secret decryption |
 | `controllers` | 9 | Ingress, single sign-on, databases, CrowdSec, block storage, the GPU plugin, Reloader |
-| `services` | 61 | The 60 services, plus Falco |
+| `services` | 62 | The 61 services, plus Falco |
 
 RollingSync turns automatic sync and self-heal off for these 75 Applications: Argo CD syncs them wave by
 wave, and drift does not heal by itself. `base-configs` and `infra-configs` keep both. Every Application
@@ -119,7 +119,7 @@ pings healthchecks.io, which sends mail when the pings stop, so a dead Alertmana
 | `infrastructure/system/`, `infrastructure/controllers/` | The 15 infrastructure apps |
 | `infrastructure/base-configs/` | PersistentVolumes and claims, and the PostgreSQL and certificate backup CronJobs |
 | `infrastructure/configs/` | Shared IngressRoutes, middlewares, certificates and the Argo CD notification settings |
-| `services/<category>/<app>/` | The 60 services: `app.yaml`, `values.yaml` and an optional `manifests/` |
+| `services/<category>/<app>/` | The 61 services: `app.yaml`, `values.yaml` and an optional `manifests/` |
 | `templates/` | `globals.yaml`, `common.yaml`, `media-arr-common.yaml` and `ingress-chart/` |
 | `homepage/` | The catalog and page sources behind the two dashboards |
 | `scripts/` | `new-service.sh`, `seal.sh`, and the `check-*` policy checks that CI runs |
@@ -147,15 +147,15 @@ pings healthchecks.io, which sends mail when the pings stop, so a dead Alertmana
 </details>
 
 <details>
-<summary><b>Services</b>: 60 apps in three categories</summary>
+<summary><b>Services</b>: 61 apps in three categories</summary>
 
 **Home automation (3):** `home-assistant`, `mosquitto`, `zigbee2mqtt`
 
-**Media (32):** `audiobookshelf`, `autobrr`, `bazarr`, `calibre-web`, `cineplete`, `cleanuparr`,
+**Media (33):** `audiobookshelf`, `autobrr`, `bazarr`, `calibre-web`, `cineplete`, `cleanuparr`,
 `cross-seed`, `dispatcharr`, `flaresolverr`, `immich`, `jellyfin`, `libretranslate`, `lidarr`, `lingarr`,
 `metube`, `navidrome`, `prowlarr`, `qbit-manage`, `qbit-manage-ru`, `qbittorrent`, `qbittorrent-ru`,
-`radarr`, `radarr-ru`, `recyclarr`, `samsung-tvplus`, `seerr`, `seerr-ru`, `shelfmark`, `sonarr`,
-`sonarr-ru`, `subgen`, `unpackerr`
+`radarr`, `radarr-ru`, `recyclarr`, `samsung-tvplus`, `seerr`, `seerr-ru`, `seerr-telegram-bot`,
+`shelfmark`, `sonarr`, `sonarr-ru`, `subgen`, `unpackerr`
 
 **Operations (25):** `alertmanager-ntfy`, `alloy`, `bytestash`, `changedetection`, `convertx`, `cyberchef`,
 `excalidash`, `filebrowser`, `homepage`, `homepage-admin`, `karakeep`, `kube-prometheus-stack`, `listmonk`,

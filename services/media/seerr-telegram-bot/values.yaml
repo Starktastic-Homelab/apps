@@ -1,0 +1,58 @@
+controllers:
+  main:
+    # Telegram allows one getUpdates poller per bot token: never run two pods.
+    replicas: 1
+    strategy: Recreate
+    pod:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+    containers:
+      main:
+        image:
+          repository: python
+          digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+        # -I ignores PYTHONUNBUFFERED, so -u keeps logs flowing.
+        command: [python3, -I, -B, -u, /app/bot.py]
+        env:
+          SEERR_URL: http://seerr.media:5055
+          SEERR_RU_URL: http://seerr-ru.media:5055
+        envFrom:
+          # TELEGRAM_BOT_TOKEN, SEERR_API_KEY, SEERR_RU_API_KEY
+          - secretRef:
+              name: seerr-telegram-bot-secret
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 128Mi
+        # No port to probe: a crash restarts the container, network errors back off in-process.
+        probes:
+          liveness:
+            enabled: false
+          readiness:
+            enabled: false
+          startup:
+            enabled: false
+
+persistence:
+  config:
+    enabled: false
+  bot:
+    type: configMap
+    name: seerr-telegram-bot
+    defaultMode: 292
+    globalMounts:
+      - path: /app
+        readOnly: true

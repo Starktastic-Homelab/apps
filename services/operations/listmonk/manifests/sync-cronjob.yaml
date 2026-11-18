@@ -46,10 +46,14 @@ spec:
 
                       echo "Syncing: ${NAME} <${EMAIL}>"
 
+                      # jq builds the body, so quotes and backslashes in a name stay valid JSON.
+                      BODY=$(jq -nc --arg email "$EMAIL" --arg name "$NAME" --argjson list "$LIST_ID" \
+                        '{email: $email, name: $name, status: "enabled", lists: [$list], preconfirm_subscriptions: true}')
+
                       STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
                         -u "${LISTMONK_API_USER}:${LISTMONK_API_PASSWORD}" \
                         -H "Content-Type: application/json" \
-                        -d "{\"email\":\"${EMAIL}\",\"name\":\"${NAME}\",\"status\":\"enabled\",\"lists\":[${LIST_ID}],\"preconfirm_subscriptions\":true}" \
+                        -d "$BODY" \
                         "${LISTMONK_URL}/api/subscribers")
 
                       case "$STATUS" in

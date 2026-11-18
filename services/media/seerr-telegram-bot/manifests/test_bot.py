@@ -23,6 +23,7 @@ SHOW = {
 }
 MOVIE = {"title": "The Matrix", "releaseDate": "1999-03-31"}
 BEN = {0: 5, 1: 9}
+SECRET = "ab" * 32  # Quick Connect secret: must never reach Telegram
 
 
 class Fake:
@@ -33,6 +34,11 @@ class Fake:
         self.request_reply = (201, {"status": 1})
         self.movie = MOVIE
         self.down = set()
+        self.users = {base: [list(u) for u in rows] for base, rows in USERS.items()}
+        self.qc_initiate = (200, {"code": "482913", "secret": SECRET})
+        self.qc_known, self.qc_approved = True, False
+        self.qc_sign_in = (200, {"id": 6, "jellyfinUserId": ANN_JF, "displayName": "anna"})
+        self.down_after_sign_in = set()
 
     def __call__(self, url, body=None, headers=None, timeout=30):
         if url.startswith("TG/"):
@@ -42,11 +48,23 @@ class Fake:
         self.seerr.append((base, path, body, headers))
         if base in self.down:
             raise urllib.error.URLError("connection refused")
-        users = USERS[base]
+        users = self.users[base]
         if path.startswith("/user?"):
             return 200, {"pageInfo": {"results": len(users)}, "results": [{"id": u, "jellyfinUserId": jf} for u, jf, _ in users]}
         if m := re.fullmatch(r"/user/(\d+)/settings/notifications", path):
-            return 200, {"telegramChatId": next(c for u, _, c in users if u == int(m[1]))}
+            row = next(u for u in users if u[0] == int(m[1]))
+            if body is not None:  # Seerr's save overwrites every field from the body
+                row[2] = body["telegramChatId"]
+                return 200, body
+            return 200, {"telegramChatId": row[2], "pgpKey": f"pgp-{row[0]}", "telegramEnabled": True}
+        if path == "/auth/jellyfin/quickconnect/initiate":
+            return self.qc_initiate
+        if path == "/auth/jellyfin/quickconnect/check?secret=" + SECRET:
+            return (200, {"authenticated": self.qc_approved}) if self.qc_known else (404, {"message": "gone"})
+        if path == "/auth/jellyfin/quickconnect/authenticate":
+            assert body == {"secret": SECRET}
+            self.down |= self.down_after_sign_in
+            return self.qc_sign_in
         if path.startswith("/search?"):
             return 200, {"results": self.search + [{"mediaType": "person", "id": 1, "name": "Keanu"}]}
         if re.fullmatch(r"/tv/\d+", path):
@@ -74,23 +92,36 @@ class BotTest(unittest.TestCase):
         bot.INSTANCES[:] = [{"name": "Seerr", "url": MAIN, "key": "k0"}, {"name": "Seerr-RU", "url": RU, "key": "k1"}]
         bot._people.update(map={}, at=float("-inf"))
         bot._submitted.clear()
+        bot._links.clear()
 
     def tearDown(self):
-        # The admin key acts as user 1 unless X-API-User is set: only the user scan may omit it.
-        for _, path, _, headers in self.fake.seerr:
-            if not path.startswith("/user"):
+        # The admin key acts as user 1 unless X-API-User is set: only reads of the user list may
+        # omit it, every write names a person, and the Quick Connect login carries no key at all.
+        for _, path, body, headers in self.fake.seerr:
+            if path.startswith("/auth/"):
+                self.assertNotIn("X-Api-Key", headers, path)
+            elif body is not None or not path.startswith("/user"):
                 self.assertIn("X-API-User", headers, path)
+        for _, payload in self.fake.telegram:
+            self.assertNotIn(SECRET, repr(payload))
+
+    def tap(self, tg_id, data):
+        """Press a button; returns the Telegram calls it made (an edit, then the answer)."""
+        before = len(self.fake.telegram)
+        bot.on_callback({"id": "q", "from": {"id": tg_id}, "data": data, "message": private(tg_id, message_id=7)})
+        return self.fake.telegram[before:]
 
     def test_people_are_matched_across_both_seerrs(self):
         # 111: saved in Seerr, found in Seerr-RU by Jellyfin ID. 222: local Seerr-RU user.
         # 333: saved by two different people, so nobody gets it.
         self.assertEqual(bot.build_people(), {"111": BEN, "222": {1: 3}})
 
-    def test_unknown_person_gets_their_id_and_nothing_else(self):
+    def test_unknown_person_gets_link_button_and_their_id(self):
         bot.on_message(private(999, text="matrix"))
         (method, body), = self.fake.telegram
         self.assertEqual(method, "sendMessage")
         self.assertIn("999", body["text"])
+        self.assertEqual(buttons(body["reply_markup"]["inline_keyboard"]), [("🔗 Link with Jellyfin", "l")])
         self.assertTrue(all(path.startswith("/user") for _, path, _, _ in self.fake.seerr))
 
     def test_groups_are_ignored(self):
@@ -197,6 +228,75 @@ class BotTest(unittest.TestCase):
         bot.on_callback(tap)
         self.assertEqual([p for _, p, _, _ in self.fake.seerr].count("/request"), 1)
         self.assertEqual(self.fake.telegram[-1], ("answerCallbackQuery", {"callback_query_id": "q", "text": "Already sent."}))
+
+
+    def test_quick_connect_links_both_seerrs(self):
+        (_, shown), _ = self.tap(444, "l")
+        self.assertEqual(shown["text"], "In Jellyfin, open your profile, then Quick Connect, and enter this code:\n482913\nThen tap Done.")
+        self.assertEqual(buttons(shown["reply_markup"]["inline_keyboard"]), [("Done", "k")])
+        (_, answer), = self.tap(444, "k")
+        self.assertEqual(answer["text"], "Not approved yet. Enter the code in Jellyfin, then tap Done.")
+        self.fake.qc_approved = True
+        (_, shown), _ = self.tap(444, "k")
+        self.assertEqual(shown["text"], "✅ Linked as anna. Now send me a title.")
+        writes = [(base, path, body, h["X-API-User"]) for base, path, body, h in self.fake.seerr if body and "settings" in path]
+        self.assertEqual(
+            writes,
+            [
+                (MAIN, "/user/6/settings/notifications", {"telegramChatId": "444", "pgpKey": "pgp-6", "telegramEnabled": True}, "6"),
+                (RU, "/user/10/settings/notifications", {"telegramChatId": "444", "pgpKey": "pgp-10", "telegramEnabled": True}, "10"),
+            ],
+        )
+        self.assertEqual(bot.person_for(444), {0: 6, 1: 10})
+        self.assertNotIn(444, bot._links)
+
+    def test_forgotten_code_starts_over(self):
+        self.tap(444, "l")
+        self.fake.qc_known = False
+        (_, shown), _ = self.tap(444, "k")
+        self.assertEqual(shown["text"], "That code has expired. Tap Link to get a new one.")
+        self.assertEqual(buttons(shown["reply_markup"]["inline_keyboard"]), [("🔗 Link with Jellyfin", "l")])
+
+    def test_sign_in_refused_by_seerr(self):
+        self.fake.qc_approved, self.fake.qc_sign_in = True, (403, {"message": "Access denied."})
+        self.tap(444, "l")
+        (_, shown), _ = self.tap(444, "k")
+        self.assertEqual(shown["text"], "Seerr has no account for you and won't create one. Ask your Seerr admin to add you.")
+        self.assertFalse([p for _, p, b, _ in self.fake.seerr if b and "settings" in p])
+
+    def test_quick_connect_off(self):
+        self.fake.qc_initiate = (500, {"message": "Failed to initiate quick connect."})
+        (_, shown), _ = self.tap(444, "l")
+        self.assertEqual(shown["text"], "Jellyfin Quick Connect isn't available right now. Try again later.")
+        self.assertEqual(bot._links, {})
+
+    def test_link_never_moves_an_account_to_another_telegram(self):
+        self.fake.users[MAIN][1][2] = "999"  # Anna already linked her own Telegram
+        self.fake.qc_approved = True
+        self.tap(444, "l")
+        (_, shown), _ = self.tap(444, "k")
+        self.assertTrue(shown["text"].startswith("Your Seerr account is already linked to another Telegram account."))
+        self.assertFalse([p for _, p, b, _ in self.fake.seerr if b and "settings" in p])
+        self.assertEqual(self.fake.users[MAIN][1][2], "999")
+
+    def test_link_reports_a_real_duplicate(self):
+        # 333 is saved by user 7 here and by someone else in Seerr-RU: linking as 7 can't fix that.
+        self.fake.qc_approved, self.fake.qc_sign_in = True, (200, {"id": 7, "jellyfinUserId": X_JF})
+        self.tap(333, "l")
+        (_, shown), _ = self.tap(333, "k")
+        self.assertEqual(shown["text"], "Linked, but another Seerr account has the same chat ID saved. Clear it there, then try again.")
+
+    def test_link_survives_the_other_seerr_being_down(self):
+        self.fake.qc_approved, self.fake.down_after_sign_in = True, {RU}
+        self.tap(444, "l")
+        (_, shown), _ = self.tap(444, "k")
+        self.assertEqual(shown["text"], "✅ Linked. Seerr is slow to answer right now, so send me a title in a minute.")
+        self.assertEqual(self.fake.users[MAIN][1][2], "444")
+
+    def test_linked_person_cannot_relink(self):
+        (_, answer), = self.tap(111, "l")
+        self.assertEqual(answer["text"], "You're already linked. Send me a title.")
+        self.assertFalse([p for _, p, _, _ in self.fake.seerr if p.startswith("/auth/")])
 
 
 class LoopTest(unittest.TestCase):

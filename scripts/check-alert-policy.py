@@ -392,6 +392,18 @@ for alert, series, at, expected in [
      [(f'{{__name__="storage_fence_active",{S},node="worker-01"}}', 1)]),
     ("StorageFenceFailed", [(f"storage_fence_failures_total{{{S}}}", "0+1x30")], "30m",
      [(f'{{{S}}}', 10)]),
+    # Draining: a start over 120 s old fires (worker-01 idle at 0 stays quiet); 60 s old, exactly 120 s old (strict),
+    # and a fresh start every minute (repeated failed proofs) do not.
+    ("StorageFenceDraining",
+     [(f'storage_fence_acl_delete_started_timestamp_seconds{{{S},node="worker-02"}}', "60x30"),
+      (f'storage_fence_acl_delete_started_timestamp_seconds{{{S},node="worker-01"}}', "0x30")], "30m",
+     [(f'{{__name__="storage_fence_acl_delete_started_timestamp_seconds",{S},node="worker-02"}}', 60)]),
+    ("StorageFenceDraining",
+     [(f'storage_fence_acl_delete_started_timestamp_seconds{{{S},node="worker-02"}}', "1740x30")], "30m", []),
+    ("StorageFenceDraining",
+     [(f'storage_fence_acl_delete_started_timestamp_seconds{{{S},node="worker-02"}}', "1680x30")], "30m", []),
+    ("StorageFenceDraining",
+     [(f'storage_fence_acl_delete_started_timestamp_seconds{{{S},node="worker-02"}}', "0+60x30")], "30m", []),
     # Blind, one case per cause: bad credentials, API unreachable, stale textfile.
     ("StorageFencerBlind",
      [(f"storage_fencer_last_api_success_timestamp_seconds{{{S}}}", "0x30"),

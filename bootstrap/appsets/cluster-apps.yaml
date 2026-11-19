@@ -158,7 +158,7 @@ spec:
               {{- if and $basePath (dig "valuesOverride" false .) }}
               - $values/{{.path.path}}/values.yaml
               {{- end }}
-        {{- else }}
+        {{- else if dig "chart" false . }}
         - repoURL: "{{ .chart.repo }}"
           chart: "{{ .chart.name }}"
           targetRevision: "{{ .chart.version }}"

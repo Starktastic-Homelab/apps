@@ -86,7 +86,15 @@ spec:
             severity: critical
           annotations:
             summary: "The storage fencer failed to fence a worker"
-            description: "A fence proof failed; the fencer retries on every loop and no out-of-service taint is set until it passes."
+            description: "A fence proof failed, or a fencer loop could not get the LIO lock for 120 s (a manual fence or the reconcile waiting on a stalled backend; see StorageFenceDraining and the fencer journal). The fencer retries on every loop and no out-of-service taint is set until a proof passes."
+        # 120 s > proof_timeout_seconds (60 s) + 2 x 5 s API calls; revisit if the proof timeout grows.
+        - alert: StorageFenceDraining
+          expr: 0 < storage_fence_acl_delete_started_timestamp_seconds{job="storage-vm"} < time() - 120
+          labels:
+            severity: critical
+          annotations:
+            summary: "The fence of {{ $labels.node }} has waited over 2 minutes for its storage"
+            description: "The storage behind {{ $labels.node }}'s volumes is not answering (since {{ $value | humanizeTimestamp }}). The fence finishes, and the worker fails over, when it answers; nothing is tainted until then. Do not restart the fencer or the storage VM: the wait cannot be interrupted. StorageFencerBlind follows after 10 minutes for the same wait. If the fencer is not running, the gauge is stale, not a live drain."
         - alert: StorageFencerBlind
           expr: |
             (time() - storage_fencer_last_api_success_timestamp_seconds{job="storage-vm"} > 600)
@@ -97,7 +105,7 @@ spec:
             severity: critical
           annotations:
             summary: "The storage fencer cannot see the cluster or has stopped"
-            description: "No Kubernetes API success for 10 minutes (see storage_fencer_api_errors_total: auth or unreachable) or its textfile is stale."
+            description: "No Kubernetes API success for 10 minutes (see storage_fencer_api_errors_total: auth or unreachable) or its textfile is stale. If StorageFenceDraining is firing, this is the same wait: do not restart the fencer."
         - alert: NodeOutOfServiceTaintStuck
           expr: kube_node_spec_taint{key="node.kubernetes.io/out-of-service"} == 1
           for: 15m

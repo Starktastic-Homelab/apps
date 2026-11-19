@@ -1,0 +1,5 @@
+# Argo CD chart values for the diff preview's throwaway cluster: match production's
+# kustomize Helm inflation (ansible bootstrap_cluster argocd.yml), which democratic-csi needs.
+configs:
+  cm:
+    kustomize.buildOptions: --enable-helm

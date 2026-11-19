@@ -2,7 +2,3 @@ name: democratic-csi
 namespace: democratic-csi
 deployPhase: controllers
 manifests: true
-chart:
-  repo: https://democratic-csi.github.io/charts/
-  name: democratic-csi
-  version: 0.15.1

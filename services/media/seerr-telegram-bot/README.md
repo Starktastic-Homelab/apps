@@ -6,6 +6,10 @@ one, they confirm it with a single Request button. The bot files it as that pers
 their own permissions, auto-approve and quotas apply. `manifests/bot.py` is standard-library Python,
 mounted from a ConfigMap on the stock `python` image. There's no image to build.
 
+For a list with posters, type the bot's username and a title in its chat (`@bot dune`), or tap
+**🖼 With posters** under a text search. Telegram shows each match with a small poster; picking one posts
+it as a TMDB link and the bot carries on from there. This only works in the bot's own chat.
+
 ## How people are recognised
 
 The bot reads the Telegram chat ID saved in each person's Seerr profile (**Settings > Notifications >
@@ -39,7 +43,9 @@ A stranger gets two ways in:
 
    Press Ctrl+D. It replaces `seerr-telegram-bot-secret.yaml`, which `manifests/kustomization.yaml` already lists.
 3. Keep Quick Connect on in Jellyfin (**Dashboard > General**), for the Link button.
-4. Optional, for Seerr's own status messages ("approved", "available") in the same chat, and for linking
+4. For the poster list, turn on inline mode: `/setinline` in @BotFather, pick the bot, and give a placeholder
+   such as `Search a title…`. Without it, **🖼 With posters** only types the bot's name into the chat.
+5. Optional, for Seerr's own status messages ("approved", "available") in the same chat, and for linking
    by hand: in both Seerrs, open **Settings > Notifications > Telegram**, enable it, and enter the bot
    username and the same token. Each Seerr notifies only people whose chat ID it has and who have
    Telegram notification types ticked in their profile: linking ticks "approved" and "available", people
@@ -51,4 +57,5 @@ A stranger gets two ways in:
 - Telegram allows one poller per token, so the Deployment is `replicas: 1` with `Recreate`.
 - Request buttons carry their state in `callback_data`, so a restart loses nothing. Only a pending
   Quick Connect link lives in memory; its secret is never shown or logged.
+- Posters are TMDB image URLs (`image.tmdb.org`); Telegram fetches them, the pod downloads nothing.
 - Tests: `python3 -m unittest discover -s services/media/seerr-telegram-bot/manifests` (not in CI).

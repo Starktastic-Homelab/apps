@@ -1,6 +1,7 @@
 """Telegram bot that files Seerr and Seerr-RU requests as the person asking.
 
 Flow: a title -> pick a match -> (series) pick seasons -> pick a Seerr (only if they use both) -> request.
+The match can also be picked from Telegram's inline list ("@bot title"), which shows posters.
 Strangers link first: a Jellyfin Quick Connect code, or the chat ID saved by hand.
 
 People are recognised by the Telegram chat ID in their own Seerr profile
@@ -13,6 +14,7 @@ only a pending Quick Connect link lives in memory.
 Standard library only: it runs from a ConfigMap on the stock python image.
 """
 
+import html
 import json
 import os
 import re
@@ -26,6 +28,8 @@ MAX_RESULTS = 8
 MAX_QUERY = 200
 MEDIA_AVAILABLE = 5  # Seerr MediaStatus.AVAILABLE
 NOTIFY_APPROVED, NOTIFY_AVAILABLE = 4, 8  # Seerr Notification.MEDIA_APPROVED / MEDIA_AVAILABLE bits
+POSTER = "https://image.tmdb.org/t/p/w154"  # Telegram fetches the thumbnail itself
+TMDB = "https://www.themoviedb.org/"
 MAX_SEASON_BUTTONS = 90  # Telegram caps a keyboard at 100 buttons
 USERS_TTL = 300  # rebuild the Telegram -> Seerr map this often...
 MISS_TTL = 60  # ...or this often while unknown people write
@@ -309,6 +313,27 @@ def first_step(result):
     return f"s:{result['id']}:0" if result["mediaType"] == "tv" else f"d:m:{result['id']}:-"
 
 
+def article(result):
+    """An inline result: poster thumbnail beside the title. Picking it posts the title as a TMDB link."""
+    kind = "m" if result["mediaType"] == "movie" else "t"
+    name = label(kind, result)
+    link = f"{TMDB}{result['mediaType']}/{result['id']}"
+    item = {
+        "type": "article",
+        "id": first_step(result),
+        "title": name,
+        "description": (result.get("overview") or "")[:120],
+        "input_message_content": {
+            "message_text": f'<a href="{link}">{html.escape(name, quote=False)}</a>',
+            "parse_mode": "HTML",
+            "link_preview_options": {"is_disabled": True},
+        },
+    }
+    if result.get("posterPath"):
+        item["thumbnail_url"] = POSTER + result["posterPath"]
+    return item
+
+
 def view_seasons(person, tmdb, mask):
     show = details(primary(person), "t", tmdb)
     numbers = season_numbers(show)
@@ -413,6 +438,11 @@ def on_message(msg):
         person = person_for(tg_id)
         if not person:
             return tg("sendMessage", chat_id=chat, text=unknown_text(tg_id), reply_markup=markup(link_button()))
+        # A pick from the inline list arrives as a TMDB link: carry on from that title.
+        link = next((e.get("url") or "" for e in msg.get("entities") or [] if e.get("type") == "text_link"), "")
+        if m := re.match(re.escape(TMDB) + r"(movie|tv)/(\d+)", link):
+            reply, rows = route(person, first_step({"mediaType": m[1], "id": m[2]}), tg_id)
+            return tg("sendMessage", chat_id=chat, text=reply, reply_markup=markup(rows))
         if not text or text.startswith("/"):
             return tg("sendMessage", chat_id=chat, text=HELP)
         results = search(primary(person), text)
@@ -423,10 +453,30 @@ def on_message(msg):
         else:
             reply = "Which one did you mean?"
             rows = [[button(label("m" if r["mediaType"] == "movie" else "t", r), first_step(r))] for r in results]
+            posters = [{"text": "🖼 With posters", "switch_inline_query_current_chat": text}]
+            try:
+                return tg("sendMessage", chat_id=chat, text=reply, reply_markup=markup(rows + [posters]))
+            except RuntimeError as err:  # e.g. inline mode still off in BotFather: send the plain list
+                log(f"posters button refused: {err}")
         tg("sendMessage", chat_id=chat, text=reply, reply_markup=markup(rows))
     except SeerrDown as err:
         log(err)
         tg("sendMessage", chat_id=chat, text="Seerr isn't answering right now. Try again later.")
+
+
+def on_inline(query):
+    text = (query.get("query") or "").strip()[:MAX_QUERY]
+    # is_personal: results depend on who asks (a stranger gets the Link button instead).
+    answer = {"inline_query_id": query["id"], "results": [], "is_personal": True, "cache_time": 10}
+    try:
+        person = person_for(query["from"]["id"])
+        if not person:
+            answer["button"] = {"text": "Link your account first", "start_parameter": "link"}
+        elif text and query.get("chat_type") == "sender":  # only in the bot's own chat, where picks land
+            answer["results"] = [article(r) for r in search(primary(person), text)]
+    except SeerrDown as err:
+        log(err)
+    tg("answerInlineQuery", **answer)
 
 
 def on_callback(query):
@@ -480,7 +530,7 @@ def main():
     log("polling Telegram")
     while True:
         try:
-            updates = tg("getUpdates", offset=offset, timeout=50, allowed_updates=["message", "callback_query"])
+            updates = tg("getUpdates", offset=offset, timeout=50, allowed_updates=["message", "callback_query", "inline_query"])
             delay = 1
         except Exception as err:  # network or Telegram trouble: back off, never die
             log(f"getUpdates: {type(err).__name__}: {err}")
@@ -494,6 +544,8 @@ def main():
                     on_message(update["message"])
                 elif "callback_query" in update:
                     on_callback(update["callback_query"])
+                elif "inline_query" in update:
+                    on_inline(update["inline_query"])
             except Exception as err:
                 log(f"update {update['update_id']}: {type(err).__name__}: {err}")
 

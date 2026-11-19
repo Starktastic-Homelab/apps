@@ -166,3 +166,20 @@ spec:
             description:
               "{{ $labels.namespace }}/{{ $labels.pod }}/{{ $labels.container }} was killed for exceeding its memory
               limit and restarted. Check dependent services -- a database OOM takes its clients down with it."
+    # Tempo skips retention and compaction for a tenant whose blocklist poll fails. On
+    # 2026-11-07 one torn block (0-byte meta.json) failed every poll for 12 days and filled
+    # the PVC; this counter rose every poll the whole time. Tempo 3 has no poll_errors_total.
+    - name: tempo
+      rules:
+        - alert: TempoBlocklistPollFailing
+          expr: sum by (namespace, pod, tenant) (increase(tempodb_blocklist_tenant_index_errors_total[15m])) > 0
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Tempo blocklist poll failing ({{ $labels.tenant }})"
+            description:
+              "{{ $labels.namespace }}/{{ $labels.pod }} cannot poll the blocklist for tenant {{ $labels.tenant }}, so
+              retention and compaction are stopped and the PVC will fill. Grep the logs for 'failed to poll' and look
+              for a block under traces/{{ $labels.tenant }} with an empty or missing meta.json. Prune expired blocks
+              first if the disk is nearly full: compaction needs free space."

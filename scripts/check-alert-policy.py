@@ -341,6 +341,18 @@ for series, expected in [
         ],
     })
 
+# Tempo only creates the counter on the first poll error; a recovered tenant must clear.
+for tenant, values in [("failing", "0+1x40"), ("recovered", "0+1x10 10+0x30"), ("fine", "0+0x40")]:
+    inputs.append({
+        "series": f'tempodb_blocklist_tenant_index_errors_total{{namespace="monitoring",pod="tempo-0",tenant="{tenant}"}}',
+        "values": values,
+    })
+checks.append({
+    "expr": argocd["TempoBlocklistPollFailing"]["expr"],
+    "eval_time": "30m",
+    "exp_samples": [{"labels": '{namespace="monitoring",pod="tempo-0",tenant="failing"}', "value": 15}],
+})
+
 subprocess.run(
     [*(sys.argv[1:] or ["promtool"]), "test", "rules", "/dev/stdin"],
     input=yaml.safe_dump({

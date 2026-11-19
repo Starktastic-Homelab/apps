@@ -40,10 +40,13 @@ class Fake:
         self.qc_known, self.qc_approved = True, False
         self.qc_sign_in = (200, {"id": 6, "jellyfinUserId": ANN_JF, "displayName": "anna"})
         self.down_after_sign_in = set()
+        self.inline_off = False  # BotFather inline mode not turned on yet
 
     def __call__(self, url, body=None, headers=None, timeout=30):
         if url.startswith("TG/"):
             self.telegram.append((url[3:], body))
+            if self.inline_off and "switch_inline_query_current_chat" in repr(body):
+                return 400, {"ok": False, "description": "Bad Request: BOT_INLINE_DISABLED"}
             return 200, {"ok": True, "result": True}
         base, path = url.split("/api/v1", 1)
         self.seerr.append((base, path, body, headers))
@@ -82,7 +85,7 @@ def private(tg_id, **extra):
 
 
 def buttons(rows):
-    return [(b["text"], b["callback_data"]) for row in rows for b in row]
+    return [(b["text"], b.get("callback_data", b.get("switch_inline_query_current_chat"))) for row in rows for b in row]
 
 
 class BotTest(unittest.TestCase):
@@ -135,10 +138,53 @@ class BotTest(unittest.TestCase):
         self.assertEqual(body["text"], "Which one did you mean?")
         self.assertEqual(
             buttons(body["reply_markup"]["inline_keyboard"]),
-            [("🎬 The Matrix (1999)", "d:m:603:-"), ("📺 Breaking Bad (2008)", "s:1396:0")],
+            [("🎬 The Matrix (1999)", "d:m:603:-"), ("📺 Breaking Bad (2008)", "s:1396:0"), ("🖼 With posters", "the matrix!")],
         )
         search = next(p for _, p, _, _ in self.fake.seerr if p.startswith("/search"))
         self.assertEqual(search, "/search?query=the%20matrix%21&page=1")
+
+    def test_inline_list_shows_posters(self):
+        self.fake.search[0].update(posterPath="/m.jpg", overview="A hacker learns the truth.")
+        self.fake.search[1]["name"] = "Law & Order's"  # titles go out as HTML
+        bot.on_inline({"id": "iq", "from": {"id": 111}, "query": " matrix ", "chat_type": "sender"})
+        (method, body), = self.fake.telegram
+        self.assertEqual(method, "answerInlineQuery")
+        self.assertEqual((body["inline_query_id"], body["is_personal"]), ("iq", True))
+        movie, show = body["results"]
+        self.assertEqual(
+            (movie["id"], movie["title"], movie["description"], movie["thumbnail_url"]),
+            ("d:m:603:-", "🎬 The Matrix (1999)", "A hacker learns the truth.", "https://image.tmdb.org/t/p/w154/m.jpg"),
+        )
+        self.assertEqual(movie["input_message_content"]["message_text"], '<a href="https://www.themoviedb.org/movie/603">🎬 The Matrix (1999)</a>')
+        self.assertEqual(show["input_message_content"]["message_text"], '<a href="https://www.themoviedb.org/tv/1396">📺 Law &amp; Order\'s (2008)</a>')
+        self.assertNotIn("thumbnail_url", show)  # no poster on TMDB: Telegram shows the row without one
+
+    def test_list_still_arrives_if_telegram_refuses_the_posters_button(self):
+        self.fake.inline_off = True
+        bot.on_message(private(111, text="matrix"))
+        refused, (method, body) = self.fake.telegram
+        self.assertEqual((refused[0], method), ("sendMessage", "sendMessage"))
+        self.assertEqual(buttons(body["reply_markup"]["inline_keyboard"]), [("🎬 The Matrix (1999)", "d:m:603:-"), ("📺 Breaking Bad (2008)", "s:1396:0")])
+
+    def test_inline_list_only_for_known_people_in_the_bots_chat(self):
+        bot.on_inline({"id": "a", "from": {"id": 999}, "query": "matrix", "chat_type": "sender"})
+        bot.on_inline({"id": "b", "from": {"id": 111}, "query": "matrix", "chat_type": "group"})
+        bot.on_inline({"id": "c", "from": {"id": 111}, "query": " ", "chat_type": "sender"})
+        stranger, group, empty = (body for _, body in self.fake.telegram)
+        self.assertEqual((stranger["results"], stranger["button"]["start_parameter"]), ([], "link"))
+        self.assertEqual((group["results"], empty["results"]), ([], []))
+        self.assertNotIn("button", group)
+        self.assertFalse([p for _, p, _, _ in self.fake.seerr if p.startswith("/search")])
+
+    def test_inline_pick_carries_on_from_the_title(self):
+        for url, text in (
+            ("https://www.themoviedb.org/movie/603", "🎬 The Matrix (1999)\nSend the request to:"),
+            ("https://www.themoviedb.org/tv/1396", "📺 Breaking Bad (2008)\nWhich seasons?"),
+        ):
+            entity = {"type": "text_link", "offset": 0, "length": 20, "url": url}
+            bot.on_message(private(111, text="🎬 picked", via_bot={"id": 1, "is_bot": True}, entities=[entity]))
+            self.assertEqual(self.fake.telegram[-1][1]["text"], text)
+        self.assertFalse([p for _, p, _, _ in self.fake.seerr if p.startswith("/search")])
 
     def test_one_match_skips_to_seasons(self):
         self.fake.search = self.fake.search[1:]
@@ -308,7 +354,8 @@ class LoopTest(unittest.TestCase):
         def tg(method, **params):
             polls.append(params["offset"])
             if len(polls) == 1:
-                return [{"update_id": 41, "message": "boom"}, {"update_id": 42, "message": "ok"}]
+                self.assertIn("inline_query", params["allowed_updates"])
+                return [{"update_id": 41, "message": "boom"}, {"update_id": 42, "message": "ok"}, {"update_id": 43, "inline_query": "iq"}]
             raise SystemExit  # stop the endless loop
 
         def on_message(msg):
@@ -317,17 +364,17 @@ class LoopTest(unittest.TestCase):
                 raise RuntimeError("handler bug")
 
         env = {"TELEGRAM_BOT_TOKEN": "t", "SEERR_URL": "a/", "SEERR_API_KEY": "k", "SEERR_RU_URL": "b", "SEERR_RU_API_KEY": "k"}
-        saved = bot.tg, bot.on_message, dict(os.environ)
-        bot.tg, bot.on_message = tg, on_message
+        saved = bot.tg, bot.on_message, bot.on_inline, dict(os.environ)
+        bot.tg, bot.on_message, bot.on_inline = tg, on_message, handled.append
         os.environ.update(env)
         try:
             with self.assertRaises(SystemExit):
                 bot.main()
         finally:
-            bot.tg, bot.on_message = saved[0], saved[1]
+            bot.tg, bot.on_message, bot.on_inline = saved[:3]
             os.environ.clear()
-            os.environ.update(saved[2])
-        self.assertEqual((handled, polls), (["boom", "ok"], [0, 43]))
+            os.environ.update(saved[3])
+        self.assertEqual((handled, polls), (["boom", "ok", "iq"], [0, 44]))
         self.assertEqual([i["url"] for i in bot.INSTANCES], ["a", "b"])
 
 

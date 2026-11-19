@@ -44,6 +44,12 @@ node:
     extraEnv:
       - name: FILESYSTEM_TYPE_DETECTION_STRATEGY
         value: blkid
+      # F6 (ADR 0017): after a fencing failover ext4 MMP holds the mount 42 s, up to ~720 s on slow storage. The
+      # default 30 s timeout does not stop that mount but reports INTERNAL, which kubelet treats as final, so a pod
+      # deleted before the retry leaves the mount and session behind. 900 s (ms) outlasts MMP and kubelet's 2 min
+      # NodeStage deadline, whose DeadlineExceeded is non-final. Also bounds umount/findmnt.
+      - name: MOUNT_DEFAULT_TIMEOUT
+        value: "900000"
     # F14 (ADR 0017): kubelet's graceful shutdown waits only for pod unmounts, so the node
     # plugin must outlive the NodeUnstage that follows. Wait (max 20 s) while a democratic-csi
     # globalmount dir or an iSCSI session to our storage VM is left: the dir goes at the unstage's

@@ -90,6 +90,21 @@ class ValuesTests(unittest.TestCase):
         env = {e['name']: e.get('value') for c in node if c['name'] == 'csi-driver' for e in c['env']}
         self.assertEqual(env['FILESYSTEM_TYPE_DETECTION_STRATEGY'], 'blkid')
 
+    def test_mount_timeout_outlasts_mmp_and_kubelet(self):
+        # F6 (ADR 0017): the driver's mount timeout (ms) must outlast ext4's worst MMP wait (~720 s) and kubelet's
+        # 2 min NodeStage deadline, so a long wait ends non-final (DeadlineExceeded/Aborted), never INTERNAL.
+        node = next(cs for k, cs in containers() if k == 'DaemonSet')
+        env = {e['name']: e.get('value') for c in node if c['name'] == 'csi-driver' for e in c['env']}
+        self.assertEqual(env['MOUNT_DEFAULT_TIMEOUT'], '900000')
+        self.assertGreater(int(env['MOUNT_DEFAULT_TIMEOUT']), 720000)
+        self.assertGreater(int(env['MOUNT_DEFAULT_TIMEOUT']), 120000)
+        for name in ('ISCSI_DEFAULT_TIMEOUT', 'FILESYSTEM_DEFAULT_TIMEOUT'):
+            self.assertNotIn(name, env)
+        others = [(k, c['name']) for k, cs in containers() for c in cs
+                  if (k, c['name']) != ('DaemonSet', 'csi-driver')
+                  and any(e['name'] == 'MOUNT_DEFAULT_TIMEOUT' for e in c.get('env', []))]
+        self.assertEqual(others, [])
+
     def test_attacher_runs(self):
         dep = next(cs for k, cs in containers() if k == 'Deployment')
         self.assertTrue(any('csi-attacher' in c['image'] for c in dep))

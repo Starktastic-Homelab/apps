@@ -45,7 +45,7 @@ Application manifest to write. Its `templatePatch` reads the fields of that file
 | `controllers` | 9 | Ingress, single sign-on, databases, CrowdSec, block storage, the GPU plugin, Reloader |
 | `services` | 62 | The 61 services, plus Falco |
 
-RollingSync turns automatic sync and self-heal off for these 75 Applications: Argo CD syncs them wave by
+RollingSync turns automatic sync and self-heal off for these 76 Applications: Argo CD syncs them wave by
 wave, and drift does not heal by itself. `base-configs` and `infra-configs` keep both. Every Application
 prunes, so deleting a directory deletes its resources; storage objects opt out with `Prune=false` and
 `Delete=false`.

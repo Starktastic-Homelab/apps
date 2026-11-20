@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1100" height="862" viewBox="0 0 1100 862" role="img" aria-labelledby="t d">
   <title id="t">GitOps flow: from a directory in Git to a running app</title>
-  <desc id="d">The root app from ansible applies the two ApplicationSets in bootstrap/appsets. cluster-apps is a matrix of a list and a git generator: it finds every app.yaml under infrastructure (15) and services (60) and creates 75 Applications. Its templatePatch gives each Application up to four sources: the Helm chart with its value layers, this repository as a values reference, the ingress chart for services with ingress.enabled, and the app's manifests directory when manifests is true. The second ApplicationSet, config-apps, creates base-configs and infra-configs from two fixed paths and keeps autosync. RollingSync then syncs the 75 Applications one wave after another by the deploy-phase label: crds (1: prometheus-operator-crds), foundation (4: cert-manager, metallb, nfs-provisioner, sealed-secrets), controllers (9: traefik, authentik, postgres, redis, pgadmin, crowdsec, proxmox-csi, reloader, intel-device-operator) and services (61: the 60 services plus falco).</desc>
+  <desc id="d">The root app from ansible applies the two ApplicationSets in bootstrap/appsets. cluster-apps is a matrix of a list and a git generator: it finds every app.yaml under infrastructure (15) and services (61) and creates 76 Applications. Its templatePatch gives each Application up to four sources: the Helm chart with its value layers, this repository as a values reference, the ingress chart for services with ingress.enabled, and the app's manifests directory when manifests is true. The second ApplicationSet, config-apps, creates base-configs and infra-configs from two fixed paths and keeps autosync. RollingSync then syncs the 76 Applications one wave after another by the deploy-phase label: crds (1: prometheus-operator-crds), foundation (4: cert-manager, metallb, nfs-provisioner, sealed-secrets), controllers (9: traefik, authentik, postgres, redis, pgadmin, crowdsec, proxmox-csi, reloader, intel-device-operator) and services (62: the 61 services plus falco).</desc>
   <defs>
     <radialGradient id="ga"><stop offset="0" stop-color="#3B82F6" stop-opacity=".55"/><stop offset="1" stop-color="#3B82F6" stop-opacity="0"/></radialGradient>
     <radialGradient id="gb"><stop offset="0" stop-color="#6366F1" stop-opacity=".45"/><stop offset="1" stop-color="#6366F1" stop-opacity="0"/></radialGradient>
@@ -130,9 +130,9 @@
   <rect class="wf" x="336" y="186" width="228" height="28" rx="8"/><text class="wft mono" x="346" y="204.375" font-size="12.5">infrastructure/**/app.yaml</text>
   <rect class="chip" x="572" y="188" width="40" height="24" rx="10"/><text class="chipt" x="592" y="204.68" font-size="13" font-weight="700" text-anchor="middle">15</text>
   <rect class="wf" x="336" y="220" width="228" height="28" rx="8"/><text class="wft mono" x="346" y="238.375" font-size="12.5">services/**/app.yaml</text>
-  <rect class="chip" x="572" y="222" width="40" height="24" rx="10"/><text class="chipt" x="592" y="238.68" font-size="13" font-weight="700" text-anchor="middle">60</text>
+  <rect class="chip" x="572" y="222" width="40" height="24" rx="10"/><text class="chipt" x="592" y="238.68" font-size="13" font-weight="700" text-anchor="middle">61</text>
   <text class="t2" x="336" y="267" font-size="12.5">one Application per file found:</text>
-  <rect class="chip" x="336" y="278" width="276" height="34" rx="10"/><text class="chipt" x="474" y="300.04" font-size="14" font-weight="700" text-anchor="middle">75 Applications</text>
+  <rect class="chip" x="336" y="278" width="276" height="34" rx="10"/><text class="chipt" x="474" y="300.04" font-size="14" font-weight="700" text-anchor="middle">76 Applications</text>
 
   <path class="edge" d="M282 220H313"/><path class="flow" d="M282 220H313"/><path class="head" d="M323 220l-10 -5.5v11.0z"/>
   <circle class="badge" cx="298" cy="220" r="11"/><text class="badget" x="298" y="224.5" font-size="13" font-weight="800" text-anchor="middle">1</text>
@@ -191,7 +191,7 @@
   <rect class="chip" x="214" y="550" width="44" height="24" rx="10"/><text class="chipt" x="236" y="566.68" font-size="13" font-weight="700" text-anchor="middle">1</text>
   <rect class="chip" x="474" y="550" width="44" height="24" rx="10"/><text class="chipt" x="496" y="566.68" font-size="13" font-weight="700" text-anchor="middle">4</text>
   <rect class="chip" x="734" y="550" width="44" height="24" rx="10"/><text class="chipt" x="756" y="566.68" font-size="13" font-weight="700" text-anchor="middle">9</text>
-  <rect class="chip" x="994" y="550" width="44" height="24" rx="10"/><text class="chipt" x="1016" y="566.68" font-size="13" font-weight="700" text-anchor="middle">61</text>
+  <rect class="chip" x="994" y="550" width="44" height="24" rx="10"/><text class="chipt" x="1016" y="566.68" font-size="13" font-weight="700" text-anchor="middle">62</text>
   <path class="rule" d="M60 582H258M320 582H518M580 582H778M840 582H1038"/>
   <g class="t2" font-size="12.5">
     <text class="mono" x="60" y="604">prometheus-operator-crds</text>
@@ -222,7 +222,7 @@
     <text x="60" y="748">later charts need</text>
     <text x="320" y="730">certificates, addresses,</text>
     <text x="320" y="748">NFS volumes, secrets</text>
-    <text x="840" y="748">and 53 more</text>
+    <text x="840" y="748">and 54 more</text>
   </g>
   <path class="edge" d="M274 649H295"/><path class="flow" d="M274 649H295"/><path class="head" d="M305 649l-10 -5.5v11.0z"/>
   <path class="edge" d="M534 649H555"/><path class="flow" d="M534 649H555"/><path class="head" d="M565 649l-10 -5.5v11.0z"/>
@@ -237,5 +237,5 @@
     <text x="425" y="810.5"><tspan class="mono t1" font-size="12.5">templatePatch</tspan> builds the sources</text>
     <text x="780" y="810.5">the label <tspan class="mono t1" font-size="12.5">deploy-phase</tspan> sets the wave</text>
   </g>
-  <text class="t3" x="40" y="838" font-size="12.5">RollingSync turns automatic sync and self-heal off for these 75 apps; base-configs and infra-configs keep both.</text>
+  <text class="t3" x="40" y="838" font-size="12.5">RollingSync turns automatic sync and self-heal off for these 76 apps; base-configs and infra-configs keep both.</text>
 </svg>

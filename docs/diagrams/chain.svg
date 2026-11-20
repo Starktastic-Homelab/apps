@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1100" height="220" viewBox="0 0 1100 220" role="img" aria-labelledby="t d">
   <title id="t">Where apps sits in the delivery chain</title>
-  <desc id="d">The chain runs packer, terraform, ansible, apps. apps takes in the root app from ansible; Argo CD then pulls main and hands over 75 apps in four sync waves.</desc>
+  <desc id="d">The chain runs packer, terraform, ansible, apps. apps takes in the root app from ansible; Argo CD then pulls main and hands over 76 apps in four sync waves.</desc>
   <defs>
     <radialGradient id="ga"><stop offset="0" stop-color="#3B82F6" stop-opacity=".55"/><stop offset="1" stop-color="#3B82F6" stop-opacity="0"/></radialGradient>
     <radialGradient id="gb"><stop offset="0" stop-color="#6366F1" stop-opacity=".45"/><stop offset="1" stop-color="#6366F1" stop-opacity="0"/></radialGradient>
@@ -137,6 +137,6 @@
     <text class="t3" x="40" y="176">Takes in</text>
     <text class="t1" x="134" y="176">the root app from ansible; Argo CD then pulls main</text>
     <text class="t3" x="40" y="199">Hands over</text>
-    <text class="t1" x="134" y="199">75 apps in four sync waves</text>
+    <text class="t1" x="134" y="199">76 apps in four sync waves</text>
   </g>
 </svg>

@@ -21,8 +21,8 @@ not reserved physical space or a backup. Never overwrite/recreate an existing
 raw image, force detach, or permit two writers to bypass a failed handoff.
 
 Each stock engine starts only after a read-only guard validates its exact marker
-and required native state, without opening SQLite, repairing a filesystem or
-creating missing data. A wrong/absent marker or missing database stops startup.
+(plus content checks for the few apps that have them), without opening SQLite,
+repairing a filesystem or creating missing data. A wrong/absent marker stops startup.
 Investigate the retained image and filesystem identity; do not create a marker or
 an empty database to bypass the guard. Keep the pinned application images.
 Sonarr/Radarr RU overrides retain their own claim and marker identities.

@@ -15,8 +15,8 @@ No Velero checkpoint or manual Kubernetes-metadata recovery is required.
 
 All bindings are RWOP/Retain and protected against Argo prune/delete. Each stock
 engine starts only after the read-only guard validates its app-specific retained
-marker and required native paths. Valid empty Alertmanager files are accepted.
-An absent/wrong marker or missing native state stops startup for investigation;
+marker; it checks no native paths (ADR 0017, Guards).
+An absent/wrong marker stops startup for investigation;
 do not create a marker to bypass the guard or initialize an empty replacement.
 The single exception is a disaster-recovery re-initialisation of a lost image per
 ansible `docs/backup-and-restore.md`, "Re-initialise an excluded image", pre-approved

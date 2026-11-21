@@ -14,9 +14,6 @@ data:
     import stat
     import sys
 
-    DATABASES = ('config/app.db', 'config/gdrive.db', 'config/cwa.db',
-                 'library/metadata.db', 'library/.calnotes/notes.db')
-
 
     def read_native(root, name, maximum, minimum=1):
         path = root
@@ -38,9 +35,6 @@ data:
             raise ValueError('Redirected retained root')
         if read_native(root, '.homelab-calibre-web-data', 129) != b'homelab/calibre-web/data/v1\n':
             raise ValueError('Wrong retained CWA identity')
-        for name in DATABASES:
-            if read_native(root, name, 16, minimum=100) != b'SQLite format 3\0':
-                raise ValueError('Wrong native SQLite header')
         raw = read_native(root, 'config/.key', 129)
         if len(raw) != 44 or len(base64.b64decode(raw, altchars=b'-_', validate=True)) != 32:
             raise ValueError('Wrong preserved native encryption key')

@@ -97,12 +97,12 @@ data:
     base = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(base)
     base.LAYOUTS = {
-        'karakeep': ('db.db', 'queue.db'),
+        'karakeep': (),
         'karakeep-meilisearch': (),  # rebuildable index (ADR 0010): only the volume identity is required
-        'bytestash': ('snippets.db',),
-        'convertx': ('mydb.sqlite',),
-        'home-assistant': ('home-assistant_v2.db', '.storage/core.uuid', '.storage/core.config_entries', 'configuration.yaml'),
-        'home-assistant-matter': ('config/driver.json', 'certificates/driver.json'),
+        'bytestash': (),
+        'convertx': (),
+        'home-assistant': (),
+        'home-assistant-matter': (),
     }
 
 

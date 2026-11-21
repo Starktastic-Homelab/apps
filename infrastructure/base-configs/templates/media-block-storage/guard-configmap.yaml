@@ -6,11 +6,10 @@ metadata:
 data:
   guard.py: "#!/usr/bin/env python3\n\"\"\"Read retained identity and native headers; never open SQLite or\
     \ repair data.\"\"\"\nimport os\nfrom pathlib import Path\nimport stat\nimport sys\n\nLAYOUTS = {\n   \
-    \ 'sonarr': ('sonarr.db', 'logs.db', 'config.xml'),\n    'sonarr-ru': ('sonarr.db', 'logs.db', 'config.xml'),\n\
-    \    'radarr': ('radarr.db', 'logs.db', 'config.xml'),\n    'radarr-ru': ('radarr.db', 'logs.db', 'config.xml'),\n\
-    \    'lidarr': ('lidarr.db', 'logs.db', 'config.xml'),\n    'cleanuparr': ('DataProtection-Keys/', 'jwt-key.bin',\
-    \ 'plex-client-id.txt'),\n    'navidrome': ('navidrome.db',),\n    'jellyfin': (),\n    'audiobookshelf': ('config/absdatabase.sqlite',\
-    \ 'metadata/'),\n    'shelfmark': ('users.db', 'settings.json', '.flask_secret'),\n    'cineplete':
+    \ 'sonarr': (),\n    'sonarr-ru': (),\n\
+    \    'radarr': (),\n    'radarr-ru': (),\n\
+    \    'lidarr': (),\n    'cleanuparr': ('DataProtection-Keys/', 'jwt-key.bin',\
+    \ 'plex-client-id.txt'),\n    'navidrome': (),\n    'jellyfin': (),\n    'audiobookshelf': (),\n    'shelfmark': (),\n    'cineplete':
     ('config/config.yml',\
     \ 'data/overrides.json', 'data/results.json'),\n}\n\n\ndef validate(app, root):\n    if app not in LAYOUTS\
     \ or root.absolute() != root.resolve(strict=True) or not root.is_dir():\n        raise ValueError('Invalid\

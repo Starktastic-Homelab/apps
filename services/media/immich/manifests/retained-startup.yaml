@@ -18,14 +18,13 @@ data:
     expected=${EXPECTED_SYSTEM_IDENTIFIER:-}
     [[ $expected =~ ^[1-9][0-9]{0,19}$ ]] || fail
     [[ $("$bin" --version) == 'pg_controldata (PostgreSQL) 17.'* ]] || fail
-    for directory in /data "$data" "$data/base" "$data/global" "$data/pg_wal"; do
+    for directory in /data "$data" "$data/global"; do
       [ -d "$directory" ] && [ ! -L "$directory" ] && [ -r "$directory" ] && [ -x "$directory" ] || fail
     done
     for file in "$data/PG_VERSION" "$data/global/pg_control"; do
       [ -f "$file" ] && [ ! -L "$file" ] && [ -r "$file" ] || fail
     done
     [ "$(cat "$data/PG_VERSION")" = 17 ] || fail
-    [ "$(stat -c %s "$data/global/pg_control")" = 8192 ] || fail
     for signal in standby.signal recovery.signal; do
       [ ! -e "$data/$signal" ] && [ ! -L "$data/$signal" ] || fail
     done

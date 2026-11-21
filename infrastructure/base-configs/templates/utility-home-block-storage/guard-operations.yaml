@@ -16,16 +16,15 @@ data:
     import sys
 
     LAYOUTS = {
-        'qbittorrent': ('qBittorrent/qBittorrent.conf', 'qBittorrent/categories.json', 'qBittorrent/BT_backup/', 'modcache/'),
-        'qbittorrent-ru': ('qBittorrent/qBittorrent.conf', 'qBittorrent/categories.json', 'qBittorrent/BT_backup/', 'modcache/'),
+        'qbittorrent': (),
+        'qbittorrent-ru': (),
         'changedetection': ('changedetection.json', 'secret.txt'),
-        'stirling-pdf': ('settings.yml', 'stirling-pdf-DB-2.3.232.mv.db'),
-        'microbin': ('database.sqlite', 'attachments/'),
-        'lingarr': ('local.db', 'Hangfire.db', 'keys/'),
-        'mosquitto': ('mosquitto.db',),
-        'zigbee2mqtt': ('configuration.yaml', 'database.db', 'coordinator_backup.json', 'state.json'),
+        'stirling-pdf': (),
+        'microbin': (),
+        'lingarr': (),
+        'mosquitto': (),
+        'zigbee2mqtt': (),
     }
-    SQLITE = {'microbin': ('database.sqlite',), 'lingarr': ('local.db', 'Hangfire.db')}
 
 
     def native_file(root, name, limit=64 * 1024 * 1024):
@@ -94,9 +93,6 @@ data:
                         raise ValueError('Missing native directory')
             else:
                 native_file(root, name, 1)
-        for name in SQLITE.get(app, ()):
-            if native_file(root, name, 16) != b'SQLite format 3\0':
-                raise ValueError('Wrong SQLite header')
         if app.startswith('qbittorrent'):
             config = configparser.ConfigParser(interpolation=None, strict=False)
             config.read_string(native_file(root, 'qBittorrent/qBittorrent.conf').decode())

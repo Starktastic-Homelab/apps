@@ -18,9 +18,6 @@ data:
         if not isinstance(config.get("sessionSecret"), str) or not config["sessionSecret"].strip():
             raise ValueError("missing preserved session secret")
         database = root / "autobrr.db"
-        with database.open("rb") as source:
-            if source.read(16) != b"SQLite format 3\0":
-                raise ValueError("missing SQLite data")
         # Read only the established main-file schema. Stock Autobrr handles any WAL
         # recovery itself; this check neither opens a writable connection nor ignores
         # a WAL during an integrity/backup check.

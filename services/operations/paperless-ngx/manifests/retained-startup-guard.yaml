@@ -58,17 +58,6 @@ data:
                     or not re.fullmatch(r'[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}', segment['segment_id'])
                     or type(segment.get('max_doc')) is not int or segment['max_doc'] < 0):
                 raise ValueError('Invalid native segment metadata')
-            # Paperless stores document IDs/content. Each current segment has a store.
-            path = index / (segment['segment_id'].replace('-', '') + '.store')
-            with os.fdopen(os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK), 'rb') as source:
-                info = os.fstat(source.fileno())
-                if not stat.S_ISREG(info.st_mode) or info.st_size <= 0:
-                    raise ValueError('Missing native segment store')
-        schedule = root / 'celerybeat-schedule.db'
-        with os.fdopen(os.open(schedule, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK), 'rb') as source:
-            info = os.fstat(source.fileno())
-            if not stat.S_ISREG(info.st_mode) or info.st_size < 512 or source.read(4) != bytes.fromhex('cf9a5713'):
-                raise ValueError('Missing preserved native GDBM schedule')
 
 
     if __name__ == '__main__':

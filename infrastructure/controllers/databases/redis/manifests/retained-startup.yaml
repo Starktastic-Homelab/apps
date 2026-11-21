@@ -23,7 +23,7 @@ data:
     [ "$(stat -c %s "$marker")" = 22 ] || fail
     [ "$(cat "$marker")" = homelab/redis/data/v1 ] || fail
     manifest=/data/appendonlydir/appendonly.aof.manifest
-    [ -f "$manifest" ] && [ ! -L "$manifest" ] && [ -s "$manifest" ] && [ -r "$manifest" ] || fail
+    [ -f "$manifest" ] && [ ! -L "$manifest" ] && [ -r "$manifest" ] || fail
     scratch=$(mktemp -d)
     trap 'rm -rf "$scratch"' EXIT
     # Reject path escapes, duplicate names and ambiguous

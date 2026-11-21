@@ -24,6 +24,9 @@ controllers:
           PAPERLESS_OCR_LANGUAGE: eng+rus+heb
           PAPERLESS_DATE_PARSER_LANGUAGES: en+ru+he
           PAPERLESS_CONSUMER_POLLING_INTERVAL: "30"
+          # Paperless Jinja; app-template runs tpl over values, so the braces are escaped.
+          PAPERLESS_FILENAME_FORMAT:
+            '{{ "{{" }} created_year {{ "}}" }}/{{ "{{" }} correspondent {{ "}}" }}/{{ "{{" }} title {{ "}}" }}'
           PAPERLESS_APPS: allauth.socialaccount.providers.openid_connect
           PAPERLESS_SOCIAL_AUTO_SIGNUP: "true"
           PAPERLESS_SOCIALACCOUNT_ALLOW_SIGNUPS: "true"

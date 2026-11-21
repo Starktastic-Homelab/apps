@@ -12,9 +12,10 @@ verified Node retirement and CSI topology handle fresh VM generations. Replacing
 the control plane replaces all workers as the accepted fencing boundary. No
 Velero checkpoint or manual backup verification gates routine rebuilds.
 
-Since 2026-11-22, the `retained-state` init container runs the
-native-layout guard (`media-retained-startup-guard`, `jellyfin`) and refuses a blank or wrong
-filesystem; a refusal is a stop, never a reason to edit the volume.
+The `retained-state` init container runs the identity guard
+(`media-retained-startup-guard`, `jellyfin`): it refuses a filesystem without the marker
+`.homelab-jellyfin-data`, so a blank or wrong volume never starts. A refusal is a stop, never
+a reason to edit the volume or write a marker.
 
 The PV/PVC are Retain, RWOP and protected from Argo prune/delete. Do not remove
 those protections to resolve an attachment problem. The accepted rare storage-fault

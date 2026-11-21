@@ -9,7 +9,7 @@ data:
     \ 'sonarr': ('sonarr.db', 'logs.db', 'config.xml'),\n    'sonarr-ru': ('sonarr.db', 'logs.db', 'config.xml'),\n\
     \    'radarr': ('radarr.db', 'logs.db', 'config.xml'),\n    'radarr-ru': ('radarr.db', 'logs.db', 'config.xml'),\n\
     \    'lidarr': ('lidarr.db', 'logs.db', 'config.xml'),\n    'cleanuparr': ('DataProtection-Keys/', 'jwt-key.bin',\
-    \ 'plex-client-id.txt'),\n    'navidrome': ('navidrome.db',),\n    'jellyfin': ('system.xml', 'data/data/jellyfin.db'),\n    'audiobookshelf': ('config/absdatabase.sqlite',\
+    \ 'plex-client-id.txt'),\n    'navidrome': ('navidrome.db',),\n    'jellyfin': (),\n    'audiobookshelf': ('config/absdatabase.sqlite',\
     \ 'metadata/'),\n    'shelfmark': ('users.db', 'settings.json', '.flask_secret'),\n    'cineplete':
     ('config/config.yml',\
     \ 'data/overrides.json', 'data/results.json'),\n}\n\n\ndef validate(app, root):\n    if app not in LAYOUTS\

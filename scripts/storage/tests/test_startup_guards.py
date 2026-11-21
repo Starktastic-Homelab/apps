@@ -11,8 +11,6 @@ T = "infrastructure/base-configs/templates/"
 GUARDS = {"jellyfin": T + "media-block-storage/guard-configmap.yaml",
           "filebrowser": T + "operations-home-block-storage/guard-operations.yaml"}
 SQLITE = b"SQLite format 3\0" + b"\0" * 84
-LAYOUT = {"jellyfin": {"system.xml": b"<ServerConfiguration/>", "data/data/jellyfin.db": SQLITE},
-          "filebrowser": {"database.sqlite": SQLITE}}
 # an existing app of each guard, to pin that its marker is still required
 OTHER = {"jellyfin": ("sonarr", {"sonarr.db": SQLITE, "logs.db": SQLITE, "config.xml": b"<Config/>"}),
          "filebrowser": ("bytestash", {"snippets.db": SQLITE})}
@@ -23,13 +21,13 @@ def marker(app):
     return {f".homelab-{app}-data": f"homelab/{app}/data/v1\n".encode()}
 
 
-def run_guard(app, root) -> int:
-    data = yaml.safe_load((ROOT / GUARDS[app.split(":")[0]]).read_text())["data"]
+def run_guard(configmap, app, root):
+    data = yaml.safe_load((ROOT / GUARDS[configmap]).read_text())["data"]
     with tempfile.TemporaryDirectory() as d:
         for name, text in data.items():
             Path(d, name).write_text(text)
-        return subprocess.run([sys.executable, "-I", "-B", str(Path(d, "guard.py")), app.split(":")[-1], str(root)],
-                              capture_output=True).returncode
+        return subprocess.run([sys.executable, "-I", "-B", str(Path(d, "guard.py")), app, str(root)],
+                              capture_output=True, text=True)
 
 
 class Guards(unittest.TestCase):
@@ -50,50 +48,42 @@ class Guards(unittest.TestCase):
             with self.subTest(app=app):
                 fn(app)
 
-    def guard(self, app, root, name=None):
-        # run_guard keys the ConfigMap on the part before ':'; the app argument is the part after
-        return run_guard(f"{app}:{name or app}", root)
+    def accepts(self, configmap, root, app=None):
+        r = run_guard(configmap, app or configmap, root)
+        self.assertEqual(r.returncode, 0, r.stderr)
 
-    def test_accepts_native_layout(self):
-        self.each(lambda a: self.assertEqual(self.guard(a, self.tree({**LAYOUT[a], **marker(a)})), 0))
+    def refuses(self, configmap, root, app=None):
+        r = run_guard(configmap, app or configmap, root)
+        self.assertEqual(r.returncode, 1)
+        self.assertIn("refused; recovery acceptance is required.", r.stderr)  # a deliberate refusal, not a crash
+
+    def test_accepts_marker_alone(self):
+        # marker-only: no native files are required (Ben, 2026-11-22)
+        self.each(lambda a: self.accepts(a, self.tree(marker(a))))
 
     def test_refuses_missing_or_wrong_marker(self):
         def check(a):
-            self.assertEqual(self.guard(a, self.tree(LAYOUT[a])), 1)
-            self.assertEqual(self.guard(a, self.tree({**LAYOUT[a], f".homelab-{a}-data": b"homelab/other/data/v1\n"})), 1)
+            self.refuses(a, self.tree({"data/": None}))
+            self.refuses(a, self.tree({f".homelab-{a}-data": b"homelab/other/data/v1\n"}))
+            self.refuses(a, self.tree({f".homelab-{a}-data": b""}))
         self.each(check)
 
     def test_refuses_blank_filesystem(self):
-        self.each(lambda a: self.assertEqual(self.guard(a, self.tree({"lost+found/": None})), 1))
+        self.each(lambda a: self.refuses(a, self.tree({"lost+found/": None})))
 
-    def test_refuses_each_missing_file(self):
+    def test_refuses_symlinked_marker(self):
         def check(a):
-            for gone in LAYOUT[a]:
-                files = {k: v for k, v in LAYOUT[a].items() if k != gone}
-                self.assertEqual(self.guard(a, self.tree({**files, **marker(a)})), 1, gone)
-        self.each(check)
-
-    def test_refuses_wrong_sqlite_header(self):
-        def check(a):
-            db = next(k for k in LAYOUT[a] if k.endswith((".db", ".sqlite")))
-            self.assertEqual(self.guard(a, self.tree({**LAYOUT[a], db: b"\0" * 100, **marker(a)})), 1)
-        self.each(check)
-
-    def test_refuses_symlinked_file(self):
-        def check(a):
-            db = next(k for k in LAYOUT[a] if k.endswith((".db", ".sqlite")))
-            outside = Path(self.tree({"real": SQLITE}), "real")
-            root = Path(self.tree({**{k: v for k, v in LAYOUT[a].items() if k != db}, **marker(a)}))
-            (root / db).parent.mkdir(parents=True, exist_ok=True)
-            os.symlink(outside, root / db)
-            self.assertEqual(self.guard(a, root), 1)
+            outside = Path(self.tree(marker(a)), f".homelab-{a}-data")
+            root = Path(self.tree({"lost+found/": None}))
+            os.symlink(outside, root / f".homelab-{a}-data")
+            self.refuses(a, root)
         self.each(check)
 
     def test_other_apps_keep_their_marker(self):
         def check(a):
             other, files = OTHER[a]
-            self.assertEqual(self.guard(a, self.tree(files), other), 1)
-            self.assertEqual(self.guard(a, self.tree({**files, **marker(other)}), other), 0)
+            self.refuses(a, self.tree(files), other)
+            self.accepts(a, self.tree({**files, **marker(other)}), other)
         self.each(check)
 
 

@@ -4,7 +4,7 @@ controllers:
       main:
         image:
           repository: lscr.io/linuxserver/prowlarr
-          tag: 2.7.0.5723-ls168@sha256:6660787a99b2e58203539583663c973b48979fc00ff2cb78dc0ea17429e1f6ef
+          tag: 3.0.2.5780-ls169@sha256:45117ba8439e2337a92ffe38a451a4dafc0be771754d05d88cdf102419d09646
         env:
           PROWLARR__SERVER__ALLOWEDHOSTS: prowlarr,prowlarr.media,prowlarr.internal.starktastic.net
           # Trust Traefik's X-Forwarded-For from the pod network, or every ingress request needs the app's own login.

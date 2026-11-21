@@ -4,7 +4,7 @@ controllers:
       main:
         image:
           repository: lscr.io/linuxserver/lidarr
-          tag: 3.1.6.5079-ls48@sha256:a91ef0642c15c9bd7c4260fee98fa99972c61601e37c8a96411d6a9cf0e9ad40
+          tag: 3.1.6.5079-ls49@sha256:8fb40ada166dd1880cb1b166df5bcbb081107523f20ab60df05c313e2052a467
         env:
           LIDARR__SERVER__ALLOWEDHOSTS: lidarr,lidarr.media,lidarr.internal.starktastic.net
           # Trust Traefik's X-Forwarded-For from the pod network, or every ingress request needs the app's own login.

@@ -14,6 +14,8 @@ controllers:
           PAPERLESS_DBNAME: paperless
           PAPERLESS_DBUSER: paperless
           PAPERLESS_URL: https://paperless.internal.starktastic.net
+          # 3.5.0+ allows only the PAPERLESS_URL host and localhost; Homepage calls the Service name.
+          PAPERLESS_ALLOWED_HOSTS: paperless-ngx.operations
           PAPERLESS_USE_X_FORWARD_HOST: "true"
           PAPERLESS_USE_X_FORWARD_PORT: "true"
           PAPERLESS_PROXY_SSL_HEADER: '["HTTP_X_FORWARDED_PROTO","https"]'
@@ -21,7 +23,7 @@ controllers:
           PAPERLESS_OCR_LANGUAGES: rus heb
           PAPERLESS_OCR_LANGUAGE: eng+rus+heb
           PAPERLESS_DATE_PARSER_LANGUAGES: en+ru+he
-          PAPERLESS_CONSUMER_POLLING: "30"
+          PAPERLESS_CONSUMER_POLLING_INTERVAL: "30"
           PAPERLESS_APPS: allauth.socialaccount.providers.openid_connect
           PAPERLESS_SOCIAL_AUTO_SIGNUP: "true"
           PAPERLESS_SOCIALACCOUNT_ALLOW_SIGNUPS: "true"
@@ -33,16 +35,27 @@ controllers:
           - secretRef:
               name: paperless-ngx-secret
         probes:
+          # Kubelet sends the pod IP as Host, which ALLOWED_HOSTS rejects; localhost is always allowed.
           liveness:
             enabled: true
-            type: HTTP
-            port: 8000
-            path: /
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 8000
+                httpHeaders:
+                  - name: Host
+                    value: localhost
           readiness:
             enabled: true
-            type: HTTP
-            port: 8000
-            path: /
+            custom: true
+            spec:
+              httpGet:
+                path: /
+                port: 8000
+                httpHeaders:
+                  - name: Host
+                    value: localhost
           startup:
             enabled: true
             type: TCP

@@ -73,10 +73,6 @@ controllers:
             cpu: 100m
             memory: 64Mi
       enrollment:
-        command:
-          - python3
-          - -B
-          - /gate/completion_gate.py
         args:
           - --id
           - bazarr
@@ -84,27 +80,6 @@ controllers:
           - bazarr
           - --role
           - bazarr
-        securityContext:
-          runAsNonRoot: true
-          runAsUser: 1001
-          runAsGroup: 1001
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          capabilities:
-            drop:
-              - ALL
-          seccompProfile:
-            type: RuntimeDefault
-        resources:
-          requests:
-            cpu: 25m
-            memory: 32Mi
-          limits:
-            cpu: 100m
-            memory: 64Mi
-        image:
-          repository: python
-          digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
         dependsOn: retained-state
 service:
   main:
@@ -118,36 +93,6 @@ persistence:
     defaultMode: 493
     globalMounts:
       - path: /scripts
-  pg-completion-script:
-    type: configMap
-    name: postgres-completion-gate
-    defaultMode: 292
-    globalMounts: []
-    advancedMounts:
-      main:
-        enrollment:
-          - path: /gate
-            readOnly: true
-  pg-completion-api:
-    type: custom
-    volumeSpec:
-      projected:
-        defaultMode: 292
-        sources:
-          - serviceAccountToken:
-              path: token
-              expirationSeconds: 600
-          - configMap:
-              name: kube-root-ca.crt
-              items:
-                - key: ca.crt
-                  path: ca.crt
-    globalMounts: []
-    advancedMounts:
-      main:
-        enrollment:
-          - path: /gate-api
-            readOnly: true
   config:
     enabled: false
   bazarr-config:

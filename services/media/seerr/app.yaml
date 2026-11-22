@@ -9,3 +9,5 @@ ingress:
   auth: false
   rateLimit: true
 manifests: true
+commonValuesExtras:
+  - templates/postgres-consumer.yaml

@@ -43,8 +43,10 @@ class CompletionGate(unittest.TestCase):
     def test_every_consumer_namespace_has_the_configmap(self):
         consumers = set()
         for values in [*ROOT.glob('infrastructure/**/values.yaml'), *ROOT.glob('services/**/values.yaml')]:
-            if re.search(r'^\s+name: ' + NAME + r'$', values.read_text(), re.M):
-                consumers.add(yaml.safe_load((values.parent / 'app.yaml').read_text())['namespace'])
+            app = yaml.safe_load((values.parent / 'app.yaml').read_text())
+            if (re.search(r'^\s+name: ' + NAME + r'$', values.read_text(), re.M)
+                    or 'templates/postgres-consumer.yaml' in (app.get('commonValuesExtras') or [])):
+                consumers.add(app['namespace'])
         self.assertGreaterEqual(len(consumers), 5)
         self.assertEqual(consumers, template_namespaces())
 

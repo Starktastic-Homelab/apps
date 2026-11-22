@@ -11,3 +11,5 @@ ingress:
   auth: false
   rateLimit: true
   probe: true
+commonValuesExtras:
+  - templates/postgres-consumer.yaml

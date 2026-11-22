@@ -336,7 +336,7 @@ class Wiring(unittest.TestCase):
             text = path.read_text()
             group.add((re.search(r"^  namespace: (\S+)$", text, re.M)[1], re.search(r"^  name: (\S+)$", text, re.M)[1]))
         self.assertEqual(len(group), 6)
-        mounts = {}
+        mounts, seen = {}, set()
         for app_yaml in sorted(glob.glob(str(ROOT / "services/*/*/app.yaml"))
                                + glob.glob(str(ROOT / "infrastructure/*/*/*/app.yaml"))):
             d = Path(app_yaml).parent
@@ -344,20 +344,23 @@ class Wiring(unittest.TestCase):
             base = ROOT / app["baseApp"] if app.get("baseApp") else None
             layers = ([base / "values.yaml"] + ([d / "values.yaml"] if app.get("valuesOverride") else [])
                       if base else [d / "values.yaml"])
-            name = None
+            name, native = None, set()
             for layer in layers:
                 if layer.exists():
                     retained = ((load(layer).get("persistence") or {}).get("retained-startup") or {})
                     name = retained.get("name", name)
-            if name is None:
-                continue
+                    # chart-native volumes (prometheus, grafana, loki, pgadmin, postgres, redis) name it elsewhere
+                    native |= set(re.findall(r"^\s+name: (\S+-retained-startup(?:-guard)?)\s*$", layer.read_text(), re.M))
             owned = {k for o in (d, base) if o and (o / "manifests/kustomization.yaml").exists()
                      for k in generated(o / "manifests")}
-            key = (app["namespace"], name)
-            mounts[d.name] = key
-            with self.subTest(app=d.name, configmap=name):
-                self.assertTrue(key in group or key in owned, key)
+            if name is not None:
+                mounts[d.name] = (app["namespace"], name)
+            for cm in native | ({name} if name else set()):
+                with self.subTest(app=d.name, configmap=cm):
+                    self.assertTrue((app["namespace"], cm) in group | owned, cm)
+                    seen.add((app["namespace"], cm))
         self.assertGreaterEqual(len(mounts), 32)
+        self.assertGreaterEqual(len(seen), 25)
         for app, base in CONTENT_MOUNTS.items():
             with self.subTest(content_app=app):
                 self.assertNotIn(mounts[app], group)

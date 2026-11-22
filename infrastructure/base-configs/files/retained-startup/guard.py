@@ -11,11 +11,14 @@ import stat
 import sys
 
 
+NAME = r'[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?'
+
+
 def validate(app, root, kind='data', marker_file=None):
     if marker_file is None:
         marker_file = '.homelab-' + app + '-' + kind
-    if (not re.fullmatch(r'[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?', app) or kind not in ('data', 'config')
-            or not re.fullmatch(r'\.homelab-[a-z0-9-]+-(data|config)', marker_file)
+    if (not re.fullmatch(NAME, app) or not re.fullmatch(NAME, kind)
+            or not re.fullmatch(r'\.homelab-' + NAME + '-' + NAME, marker_file)
             or root.absolute() != root.resolve(strict=True) or not root.is_dir()):
         raise ValueError('Invalid retained root, application, kind or marker file')
     marker = root / marker_file

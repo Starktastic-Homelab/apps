@@ -10,3 +10,5 @@ ingress:
   port: 11011
   auth: false
   rateLimit: true
+commonValuesExtras:
+  - templates/postgres-consumer.yaml

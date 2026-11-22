@@ -95,6 +95,9 @@ jobs:
           pip install -r scripts/storage/requirements.txt
           python3 -m unittest discover -s scripts/storage/tests -v
 
+      - name: Check PostgreSQL completion gate copies
+        run: python3 -m unittest discover -s scripts/postgres-enrollment/tests -v
+
       - name: Check alert policy
         id: alerts
         env:

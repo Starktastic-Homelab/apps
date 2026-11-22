@@ -89,7 +89,7 @@ extraInitContainers: |
         cpu: 100m
         memory: 64Mi
   - name: postgres-enrollment-acceptance
-    image: python@sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+    image: python@sha256:8c9a3bf2d6dea60d60a2ae2a07c2b2fb1e7d8daed64b146b6792c74ae0d62ac4
     command:
     - python3
     - -B
@@ -126,7 +126,7 @@ extraInitContainers: |
 extraVolumes:
   - name: pg-completion-script
     configMap:
-      name: pgadmin-postgres-completion
+      name: postgres-completion-gate
       defaultMode: 292
   - name: pg-completion-api
     projected:

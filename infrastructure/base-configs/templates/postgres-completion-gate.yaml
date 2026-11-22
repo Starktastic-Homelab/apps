@@ -1,0 +1,11 @@
+{{- /* One PostgreSQL enrollment completion gate per consumer namespace; consumers mount it at /gate. */}}
+{{- range list "crowdsec" "databases" "media" "monitoring" "operations" }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-completion-gate
+  namespace: {{ . }}
+data:
+  completion_gate.py: |{{ $.Files.Get "files/postgres-enrollment/completion_gate.py" | nindent 4 }}
+{{- end }}

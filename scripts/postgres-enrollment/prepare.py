@@ -16,9 +16,13 @@ from urllib.parse import quote
 
 import yaml
 
-from completion_gate import generation, hook_name
-
 ROOT = Path(__file__).resolve().parent
+# The base-configs chart owns the gate so .Files.Get can render its per-namespace ConfigMap.
+GATE = ROOT.parents[1] / 'infrastructure' / 'base-configs' / 'files' / 'postgres-enrollment' / 'completion_gate.py'
+sys.path.insert(0, str(GATE.parent))
+from completion_gate import generation, hook_name  # noqa: E402
+
+GATE_CONFIGMAP = 'postgres-completion-gate'
 NAME = re.compile(r'[a-z][a-z0-9_]{0,62}', re.ASCII)
 KEY = re.compile(r'[a-z][a-z0-9_-]{0,62}', re.ASCII)
 KUBE_NAME = re.compile(r'[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?', re.ASCII)
@@ -61,7 +65,7 @@ def render_configmap(config: dict, encrypted_data=None) -> dict:
     if encrypted_data is not None:
         data = result['data']
         data.update({'completion-protocol-version': '1',
-                     'completion_gate.py': (ROOT / 'completion_gate.py').read_text(),
+                     'completion_gate.py': GATE.read_text(),
                      'encrypted-inputs-sha256': hashlib.sha256(json.dumps(
                          encrypted_data, sort_keys=True, separators=(',', ':')).encode()).hexdigest(),
                      'job-template.json': json.dumps(yaml.safe_load((ROOT / 'job.yaml').read_text()),
@@ -77,9 +81,7 @@ def consumer_sources(options) -> tuple[list[dict], dict]:
     metadata = {'name': name, 'namespace': options.app_namespace,
                 'annotations': {'argocd.argoproj.io/sync-wave': '-1'}}
     resources = [{'apiVersion': 'v1', 'kind': 'ServiceAccount', 'metadata': metadata,
-                  'automountServiceAccountToken': False},
-                 {'apiVersion': 'v1', 'kind': 'ConfigMap', 'metadata': metadata,
-                  'data': {'completion_gate.py': (ROOT / 'completion_gate.py').read_text()}}]
+                  'automountServiceAccountToken': False}]
     for namespace in ('argocd', 'databases'):
         resources.append({'apiVersion': 'rbac.authorization.k8s.io/v1', 'kind': 'RoleBinding',
                           'metadata': {**metadata, 'namespace': namespace},
@@ -96,7 +98,7 @@ def consumer_sources(options) -> tuple[list[dict], dict]:
         'serviceAccountName': name, 'automountServiceAccountToken': False,
         'initContainers': [
             {'name': 'postgres-enrollment-acceptance',
-             'image': 'python@sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c',
+             'image': 'python@sha256:8c9a3bf2d6dea60d60a2ae2a07c2b2fb1e7d8daed64b146b6792c74ae0d62ac4',
              'command': ['python3', '-B', '/gate/completion_gate.py'],
              'args': ['--id', options.id, '--database', options.database, '--role', options.role],
              'securityContext': security,
@@ -114,7 +116,7 @@ def consumer_sources(options) -> tuple[list[dict], dict]:
              'resources': {'requests': {'cpu': '10m', 'memory': '16Mi'}, 'limits': {'cpu': '100m', 'memory': '32Mi'}},
              'volumeMounts': [mount('pg-completion-password', '/credentials')]}],
         'volumes': [
-            {'name': 'pg-completion-script', 'configMap': {'name': name, 'defaultMode': 0o444}},
+            {'name': 'pg-completion-script', 'configMap': {'name': GATE_CONFIGMAP, 'defaultMode': 0o444}},
             {'name': 'pg-completion-api', 'projected': {'defaultMode': 0o444, 'sources': [
                 {'serviceAccountToken': {'path': 'token', 'expirationSeconds': 600}},
                 {'configMap': {'name': 'kube-root-ca.crt', 'items': [{'key': 'ca.crt', 'path': 'ca.crt'}]}}]}},

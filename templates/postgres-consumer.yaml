@@ -1,0 +1,65 @@
+# PostgreSQL enrollment completion gate wiring shared by app-template consumers
+# whose controller is `main` with init container `enrollment`.
+# Loaded via `commonValuesExtras`. Each app still sets its ServiceAccount, the
+# enrollment args (--id/--database/--role) and dependsOn.
+controllers:
+  main:
+    initContainers:
+      enrollment:
+        command:
+          - python3
+          - -B
+          - /gate/completion_gate.py
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 25m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
+        image:
+          repository: python
+          digest: sha256:8c9a3bf2d6dea60d60a2ae2a07c2b2fb1e7d8daed64b146b6792c74ae0d62ac4
+persistence:
+  # rendered per namespace by infrastructure/base-configs/templates/postgres-completion-gate.yaml
+  pg-completion-script:
+    type: configMap
+    name: postgres-completion-gate
+    defaultMode: 292
+    globalMounts: []
+    advancedMounts:
+      main:
+        enrollment:
+          - path: /gate
+            readOnly: true
+  pg-completion-api:
+    type: custom
+    volumeSpec:
+      projected:
+        defaultMode: 292
+        sources:
+          - serviceAccountToken:
+              path: token
+              expirationSeconds: 600
+          - configMap:
+              name: kube-root-ca.crt
+              items:
+                - key: ca.crt
+                  path: ca.crt
+    globalMounts: []
+    advancedMounts:
+      main:
+        enrollment:
+          - path: /gate-api
+            readOnly: true

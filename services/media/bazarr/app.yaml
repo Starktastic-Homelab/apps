@@ -3,6 +3,7 @@ namespace: media
 deployPhase: services
 manifests: true
 commonValuesExtras:
+  - templates/postgres-consumer.yaml
   - templates/media-arr-common.yaml
 
 ingress:

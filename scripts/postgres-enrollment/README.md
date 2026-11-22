@@ -90,8 +90,13 @@ Review bundle paths/metadata before any separately approved source integration.
 
 ## Consumer completion gate (inactive)
 
-`consumer-gate.yaml` supplies a dedicated ServiceAccount, a local script ConfigMap
-and two RoleBindings for this declaration. Integrate the shared
+`consumer-gate.yaml` supplies a dedicated ServiceAccount and two RoleBindings for
+this declaration. The script itself lives once, in
+`infrastructure/base-configs/files/postgres-enrollment/completion_gate.py`;
+base-configs renders it as the `postgres-completion-gate` ConfigMap in every
+namespace listed in `templates/postgres-completion-gate.yaml`, so a consumer in a
+new namespace adds that namespace there. The enrollment ConfigMap keeps its own
+hash-bound copy; `tests/test_completion_gate.py` checks both. Integrate the shared
 `completion-reader-roles.yaml` once with the PostgreSQL Application. Each Role
 permits only GET of one named object: `argocd/applications/postgres` and
 `databases/configmaps/postgres-enrollment-config`. Consumers cannot read Kubernetes

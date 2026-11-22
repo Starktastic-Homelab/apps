@@ -31,7 +31,5 @@ controllers:
           - --role
           - seerr_ru
 persistence:
-  pg-completion-script:
-    name: seerr-ru-postgres-completion
   seerr-config:
     existingClaim: seerr-ru-files

@@ -23,6 +23,3 @@ and any `<kind>` or marker file) are in its app's `values.yaml`, on the init con
 `/retained-startup/guard.py`; the uid is that container's `runAsUser`. A new app needs only that init container and
 its marker, never a change to the guard or its tests; an app in a new namespace also adds that namespace to the
 template's list.
-
-Jellyfin (`/config/.homelab-jellyfin-data`) and filebrowser (`/home/filebrowser/data/.homelab-filebrowser-data`) carry
-markers but are not wired to the guard yet.

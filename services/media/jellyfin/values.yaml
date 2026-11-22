@@ -69,6 +69,36 @@ controllers:
           - mkdir -p /disposable/cache; chown 1000:1000 /disposable/cache
         securityContext:
           runAsUser: 0
+        dependsOn: retained-state
+      retained-state:
+        image:
+          repository: python
+          digest: sha256:8c9a3bf2d6dea60d60a2ae2a07c2b2fb1e7d8daed64b146b6792c74ae0d62ac4
+        command:
+          - python3
+          - -I
+          - -B
+          - /retained-startup/guard.py
+          - jellyfin
+          - /retained
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
 service:
   main:
     controller: main
@@ -87,10 +117,35 @@ persistence:
     enabled: false
   jellyfin-config:
     existingClaim: jellyfin-config-block
-    globalMounts:
-      - path: /config
+    globalMounts: []
+    advancedMounts:
+      main:
+        main:
+          - path: /config
+        disposable-dirs:
+          - path: /config
+        retained-state:
+          - path: /retained
+            readOnly: true
+  retained-startup:
+    type: configMap
+    name: retained-startup-guard
+    defaultMode: 292
+    globalMounts: []
+    advancedMounts:
+      main:
+        retained-state:
+          - path: /retained-startup
+            readOnly: true
   media:
     enabled: true
+    globalMounts: []
+    advancedMounts:
+      main:
+        main:
+          - path: /data
+        disposable-dirs:
+          - path: /data
   disposable:
     enabled: true
     type: emptyDir

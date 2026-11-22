@@ -147,7 +147,7 @@ persistence:
             readOnly: true
   pg-completion-script:
     type: configMap
-    name: cleanuparr-postgres-completion
+    name: postgres-completion-gate
     defaultMode: 292
     globalMounts: []
     advancedMounts:

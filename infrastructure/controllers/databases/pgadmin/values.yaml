@@ -126,7 +126,7 @@ extraInitContainers: |
 extraVolumes:
   - name: pg-completion-script
     configMap:
-      name: pgadmin-postgres-completion
+      name: postgres-completion-gate
       defaultMode: 292
   - name: pg-completion-api
     projected:

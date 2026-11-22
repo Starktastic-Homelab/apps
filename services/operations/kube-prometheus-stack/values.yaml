@@ -334,7 +334,7 @@ grafana:
   extraContainerVolumes:
     - name: pg-completion-script
       configMap:
-        name: grafana-postgres-completion
+        name: postgres-completion-gate
         defaultMode: 292
     - name: pg-completion-api
       projected:

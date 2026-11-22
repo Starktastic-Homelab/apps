@@ -157,7 +157,7 @@ persistence:
           - path: /app/prisma
   pg-completion-script:
     type: configMap
-    name: pg-enrollment-79675ba459da9b1e17ec
+    name: postgres-completion-gate
     defaultMode: 292
     globalMounts: []
     advancedMounts:

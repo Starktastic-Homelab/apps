@@ -145,7 +145,7 @@ persistence:
     type: custom
     volumeSpec:
       configMap:
-        name: pg-enrollment-1e4986c3643f40013471
+        name: postgres-completion-gate
         defaultMode: 292
     globalMounts: []
     advancedMounts:

@@ -179,7 +179,7 @@ persistence:
     enabled: false
   pg-completion-script:
     type: configMap
-    name: prowlarr-postgres-completion
+    name: postgres-completion-gate
     defaultMode: 292
     globalMounts: []
     advancedMounts:

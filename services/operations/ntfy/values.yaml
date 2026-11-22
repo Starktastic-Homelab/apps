@@ -124,7 +124,7 @@ persistence:
       - path: /var/cache/ntfy
   pg-completion-script:
     type: configMap
-    name: ntfy-postgres-completion
+    name: postgres-completion-gate
     defaultMode: 292
     globalMounts: []
     advancedMounts:

@@ -120,7 +120,7 @@ persistence:
       - path: /scripts
   pg-completion-script:
     type: configMap
-    name: bazarr-postgres-completion
+    name: postgres-completion-gate
     defaultMode: 292
     globalMounts: []
     advancedMounts:

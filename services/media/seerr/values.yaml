@@ -126,7 +126,7 @@ persistence:
     enabled: false
   pg-completion-script:
     type: configMap
-    name: seerr-postgres-completion
+    name: postgres-completion-gate
     defaultMode: 292
     globalMounts: []
     advancedMounts:

@@ -35,8 +35,8 @@ Use the existing [preparation helper](../../scripts/postgres-enrollment/README.m
 for each approved consumer, starting with the current config and encrypted
 aggregate. Preserve prior ciphertext and unrelated application Secret keys.
 Before enabling a consumer to use PostgreSQL, integrate the helper's generated
-gate into actual chart values and render its dedicated ServiceAccount, ordered
-init containers and exact volume mounts before merging that activation.
+gate into actual chart values and render its dedicated ServiceAccount, its acceptance
+init container (ordered with the app's other inits) and exact volume mounts before merging that activation.
 Enrollment-only preparation leaves these consumer fragments inactive.
 Runtime/gate/Job-template changes require regenerating the matching ConfigMap and
 Job from existing ciphertext. Do not patch only one input.

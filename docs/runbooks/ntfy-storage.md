@@ -17,9 +17,9 @@ VAPID identity; do not rotate it as part of storage recovery.
 The attachment volume is `operations/ntfy-data-block`:8GiB ext4,
 ReadWriteOncePod, Retain, backed by
 `homelab//k3s-block/9999/vm-9999-ntfy.raw`. It mounts at `/var/cache/ntfy` and requires
-`.homelab-ntfy-data` containing `homelab/ntfy/data/v1` plus the attachments directory.
-The retained guard refuses SQLite fallback, missing identity, a different physical
-PostgreSQL server, missing stock schema, and unaccepted current enrollment inputs.
+`.homelab-ntfy-data` holding exactly `homelab/ntfy/data/v1` and a newline, checked by
+the generic marker guard (`infrastructure/base-configs/files/retained-startup/guard.py`, ConfigMap `retained-startup-guard`). It no longer checks SQLite files, the PostgreSQL server or the schema, and there
+is no startup SQL check; the enrollment completion gate still runs.
 A newly empty database or disk is never a recovery procedure.
 
 Ordinary node replacement and full metadata rebuild reuse the retained disk and
@@ -37,8 +37,6 @@ PostgreSQL backup/recovery workflow.
 The original `ntfy-config` and `ntfy-cache` sources, their admission hold, the raw
 image and the encrypted cutover recovery copies were
 [retired on 2026-11-16](../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16).
-The SQL guard's physical identifier changes only through a separately accepted
-PostgreSQL physical recovery.
 
 The initial conversion uses the unchanged importer from ntfyv2.29.0. Source schema
 markers must not be edited. Populated `user_email`/`user_magic_link`, duplicate
@@ -50,7 +48,5 @@ Production cutover and recovery/lifecycle acceptance are recorded in the
 
 ## Native image schema upgrades
 
-The SQL guard accepts exactly user/message/webpush 9/15/1 and 9/16/1, including
-only the latter's `message.claimed_at BIGINT NOT NULL` column. Unknown versions
-remain blocked. No CI check covers this: before merging an ntfy image change,
-confirm by hand that its schema stays guard-compatible. No production DDL is part of a guard compatibility fix.
+No startup check pins the schema version any more. Before merging an ntfy image
+change, read its release notes for schema migrations.

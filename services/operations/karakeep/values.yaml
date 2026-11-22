@@ -117,7 +117,7 @@ controllers:
       retained-data:
         image:
           repository: python
-          digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+          digest: sha256:8c9a3bf2d6dea60d60a2ae2a07c2b2fb1e7d8daed64b146b6792c74ae0d62ac4
         command:
           - python3
           - -I
@@ -146,7 +146,7 @@ controllers:
       retained-meilisearch:
         image:
           repository: python
-          digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+          digest: sha256:8c9a3bf2d6dea60d60a2ae2a07c2b2fb1e7d8daed64b146b6792c74ae0d62ac4
         command:
           - python3
           - -I
@@ -204,7 +204,7 @@ persistence:
     globalMounts: []
   retained-startup:
     type: configMap
-    name: operations-home-retained-startup-guard
+    name: retained-startup-guard
     defaultMode: 292
     globalMounts: []
     advancedMounts:

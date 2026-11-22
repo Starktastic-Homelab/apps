@@ -20,17 +20,17 @@ Existing settings and integration credentials remain in `/config`.
 | Media/subtitles | Existing NFS `media-library-pvc`, mounted at `/data` |
 | Former SQLite source (deleted 2026-11-16) | `10.9.8.30:/mnt/apps/pv/media/bazarr` |
 
-The stock image stays pinned. The retained guard rejects missing/wrong config,
-credentials or database identity, an incomplete schema and active SQLite files.
-Both native PostgreSQL environment settings and `postgresql.enabled: true` in the
-preserved config must agree. Missing data must fail startup rather than create a
-fresh installation. The former SQLite source, its PVC and its admission policy
+The stock image stays pinned. The `retained-state` init runs the generic marker guard (`infrastructure/base-configs/files/retained-startup/guard.py`, ConfigMap `retained-startup-guard`)
+with `bazarr /config config`: it refuses startup unless the marker above is a regular
+file holding exactly that content and a newline. It no longer checks credentials,
+configuration, the database schema or SQLite files, and there is no startup SQL check.
+Missing data must fail startup rather than create a fresh installation. The former SQLite source, its PVC and its admission policy
 were deleted on 2026-11-16; there is no SQLite fallback.
 
 Ordinary rebuilds use the existing Terraform/Ansible cohort and verified retirement
 procedure. Retained images and sealed declarations rebind through GitOps. RWOP,
 verified retirement and the shared storage fencing policy protect the writer;
-a marker or database guard alone does not establish safe writer retirement.
+the marker guard alone does not establish safe writer retirement.
 
 Recovery requires matching PostgreSQL and configuration backups. Stock Bazarr's
 PostgreSQL-mode ZIP backup contains configuration only; its SQLite-oriented restore

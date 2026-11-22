@@ -12,6 +12,11 @@ verified Node retirement and CSI topology handle fresh VM generations. Replacing
 the control plane replaces all workers as the accepted fencing boundary. No
 Velero checkpoint or manual backup verification gates routine rebuilds.
 
+The volume root carries the marker `.homelab-jellyfin-data` holding exactly
+`homelab/jellyfin/data/v1` and a newline. No startup guard reads it yet; a later
+change wires the [generic marker guard](retained-startup-guard.md) for Jellyfin.
+Never write or rewrite the marker by hand.
+
 The PV/PVC are Retain, RWOP and protected from Argo prune/delete. Do not remove
 those protections to resolve an attachment problem. The accepted rare storage-fault
 recovery procedure is in the [CSI runbook](../../infrastructure/system/proxmox-csi/README.md).

@@ -5,13 +5,13 @@ selects ten ordinary-file volumes. Their fixed bindings are declared by
 `infrastructure/base-configs/files/ordinary-file-volumes.json` and rendered by
 `templates/ordinary-file-storage.yaml` inside the base-configs chart.
 The active workload values select these prepared NFS claims. Preparing bindings alone does not switch workload mounts. Do not mount a fresh
-empty target into an application: retained identity guards must pass first.
+empty target into an application: the generic marker guard must pass first.
 
 For each authorized cutover:
 
 1. Record exact Git revision, Application/controller/Pod/PVC/PV identities, raw
    image handle and target NAS directory identity. Require healthy nodes, current
-   enrollment and successful read-only SQL guards. Refuse reused target paths.
+   enrollment and a passing marker guard. Refuse reused target paths.
 2. Hold only the relevant Argo owners against automated reconciliation. Hold
    frontend Service selectors before scaling the selected controller to zero;
    wait for its old Pods, runtime processes and mounts to retire. Hold Filebrowser
@@ -19,8 +19,8 @@ For each authorized cutover:
 3. Create a temporary helper with the retired CSI source mounted read-only and
    the fresh NFS target mounted writable. Check bindings and source identity.
    Run `copy_files.py` (removed from the tree; recover it with
-   `git show 45c7fb8c:scripts/ordinary-file-storage/copy_files.py`) with the contract's marker
-   and identity. Refuse changed source, nonempty target, special files, external
+   `git show 45c7fb8c:scripts/ordinary-file-storage/copy_files.py`) with the volume's
+   [marker file and content](retained-startup-guard.md). Refuse changed source, nonempty target, special files, external
    hard links, extended metadata or populated filesystem recovery directories.
 4. Preserve the copy receipt and original raw image until acceptance. Remove only the exact helper
    Pod and wait for source detach before starting the app. Never auto-delete data

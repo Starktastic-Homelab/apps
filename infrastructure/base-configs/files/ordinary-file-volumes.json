@@ -3,80 +3,60 @@
     "app": "prowlarr",
     "namespace": "media",
     "claim": "prowlarr-files",
-    "capacity": "4Gi",
-    "marker": ".homelab-prowlarr-config",
-    "identity": "homelab/prowlarr/config/v1\n"
+    "capacity": "4Gi"
   },
   {
     "app": "seerr",
     "namespace": "media",
     "claim": "seerr-files",
-    "capacity": "4Gi",
-    "marker": ".homelab-seerr-config",
-    "identity": "homelab/seerr/config/v1\n"
+    "capacity": "4Gi"
   },
   {
     "app": "seerr-ru",
     "namespace": "media",
     "claim": "seerr-ru-files",
-    "capacity": "4Gi",
-    "marker": ".homelab-seerr-config",
-    "identity": "homelab/seerr-ru/config/v1\n"
+    "capacity": "4Gi"
   },
   {
     "app": "bazarr",
     "namespace": "media",
     "claim": "bazarr-files",
-    "capacity": "4Gi",
-    "marker": ".homelab-bazarr-config",
-    "identity": "homelab/bazarr/config/v1\n"
+    "capacity": "4Gi"
   },
   {
     "app": "cleanuparr",
     "namespace": "media",
     "claim": "cleanuparr-files",
-    "capacity": "4Gi",
-    "marker": ".homelab-cleanuparr-data",
-    "identity": "homelab/cleanuparr/data/v1\n"
+    "capacity": "4Gi"
   },
   {
     "app": "grafana",
     "namespace": "monitoring",
     "claim": "grafana-files",
-    "capacity": "2Gi",
-    "marker": ".homelab-grafana-data",
-    "identity": "homelab/grafana/data/v1\n"
+    "capacity": "2Gi"
   },
   {
     "app": "pgadmin",
     "namespace": "databases",
     "claim": "pgadmin-files",
-    "capacity": "1Gi",
-    "marker": ".homelab-pgadmin-data",
-    "identity": "homelab/pgadmin/data/v1\n"
+    "capacity": "1Gi"
   },
   {
     "app": "ntfy",
     "namespace": "operations",
     "claim": "ntfy-files",
-    "capacity": "8Gi",
-    "marker": ".homelab-ntfy-data",
-    "identity": "homelab/ntfy/data/v1\n"
+    "capacity": "8Gi"
   },
   {
     "app": "cineplete",
     "namespace": "media",
     "claim": "cineplete-files",
-    "capacity": "4Gi",
-    "marker": ".homelab-cineplete-data",
-    "identity": "homelab/cineplete/data/v1\n"
+    "capacity": "4Gi"
   },
   {
     "app": "changedetection",
     "namespace": "operations",
     "claim": "changedetection-files",
-    "capacity": "1Gi",
-    "marker": ".homelab-changedetection-data",
-    "identity": "homelab/changedetection/data/v1\n"
+    "capacity": "1Gi"
   }
 ]

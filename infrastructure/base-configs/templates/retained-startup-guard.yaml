@@ -1,0 +1,11 @@
+{{- /* One generic marker guard per namespace that runs a retained-volume guard init container. */}}
+{{- range list "databases" "home-automation" "media" "monitoring" "operations" }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: retained-startup-guard
+  namespace: {{ . }}
+data:
+  guard.py: |{{ $.Files.Get "files/retained-startup/guard.py" | nindent 4 }}
+{{- end }}

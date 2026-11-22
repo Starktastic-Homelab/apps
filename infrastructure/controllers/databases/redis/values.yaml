@@ -25,10 +25,14 @@ master:
       effect: NoExecute
   initContainers:
     - name: verify-retained-data
-      image: registry-1.docker.io/bitnami/redis@sha256:59078af5aec997137eb95f34fed376487b471e05c9a244c2812a13598c434950
+      image: python@sha256:8c9a3bf2d6dea60d60a2ae2a07c2b2fb1e7d8daed64b146b6792c74ae0d62ac4
       command:
-        - /bin/bash
-        - /retained-startup/guard.sh
+        - python3
+        - -I
+        - -B
+        - /retained-startup/guard.py
+        - redis
+        - /data
       securityContext:
         runAsUser: 1001
         runAsGroup: 1001
@@ -44,10 +48,9 @@ master:
         requests:
           cpu: 10m
           memory: 32Mi
-          ephemeral-storage: 2Gi
         limits:
-          memory: 256Mi
-          ephemeral-storage: 3Gi
+          cpu: 100m
+          memory: 64Mi
       volumeMounts:
         - name: redis-data
           mountPath: /data
@@ -55,8 +58,6 @@ master:
         - name: retained-startup
           mountPath: /retained-startup
           readOnly: true
-        - name: retained-scratch
-          mountPath: /tmp
   extraVolumeMounts:
     - name: server-acl
       mountPath: /opt/bitnami/redis/acl
@@ -68,11 +69,8 @@ master:
         defaultMode: 292
     - name: retained-startup
       configMap:
-        name: redis-retained-startup
+        name: retained-startup-guard
         defaultMode: 292
-    - name: retained-scratch
-      emptyDir:
-        sizeLimit: 3Gi
 volumePermissions:
   enabled: false
 metrics:

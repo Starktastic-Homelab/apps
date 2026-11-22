@@ -17,12 +17,12 @@ The static PV/PVC survive fresh Kubernetes metadata through Git; the image stays
 on the NAS during VM replacement. The established Ansible VM-retirement fencing
 and coupled worker replacement when the control plane is replaced remain required.
 
-The read-only startup init container checks the retained identity marker,
-preserved session-secret presence, SQLite header and established application
-schema. It does not create files, format a database or replace the stock
-application's WAL recovery. Its immutable SQLite connection inspects only the
-main-file schema; it is not a latest-data integrity or backup check. A missing
-marker, config or established database blocks startup pending verified recovery.
+The read-only startup init container runs the generic marker guard (`infrastructure/base-configs/files/retained-startup/guard.py`, ConfigMap `retained-startup-guard`) as
+`autobrr /config config`: `/config/.homelab-autobrr-config` must be a regular file
+holding exactly `homelab/autobrr/config/v1` and a newline. It checks no config,
+SQLite header or schema, and it does not create files or replace the stock
+application's WAL recovery. A missing or wrong marker blocks startup pending
+verified recovery.
 Pod security overrides suppress a kubelet fsGroup rewrite, preserving numeric
 ownership from the old directory; the application's existing root execution is
 unchanged.

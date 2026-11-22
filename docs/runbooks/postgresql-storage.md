@@ -47,12 +47,15 @@ The historical Jellyfin files then present were [deleted on 2026-11-16](../../in
 
 ## Guard and chart integration
 
-The guard lives in
-[`retained-startup-guard.yaml`](../../infrastructure/controllers/databases/postgres/manifests/retained-startup-guard.yaml). The final overlay binds its
-expected ID to the same canonical physical server as enrollment. It runs the
-guard as1001 with read-only data before the unmodified pinned Bitnami entrypoint,
-replaces the unconditional PID-removal init, and disables volumePermissions and
-fsGroup handling. A populated target must already be accessible to1001.
+The `verify-retained-data` init runs the generic marker guard
+([`guard.py`](../../infrastructure/base-configs/files/retained-startup/guard.py), ConfigMap
+`retained-startup-guard`) as 1001 with read-only data before the unmodified pinned
+Bitnami entrypoint. It refuses startup unless `/bitnami/postgresql/.homelab-postgres-data`
+(on the claim root, outside PGDATA) is a regular file holding exactly
+`homelab/postgres/data/v1` and a newline. It no longer checks the PostgreSQL major,
+control file or physical system identifier. It replaces the unconditional
+PID-removal init, and the chart disables volumePermissions and fsGroup handling.
+A populated target must already be accessible to 1001.
 
 The overlay uses an explicit existing claim, Linux workers and indefinite
 not-ready/unreachable NoExecute tolerations. It preserves the server/exporter
@@ -244,8 +247,9 @@ Ordinary rebuilds keep the Packer/Terraform/Ansible flow: static Git binding
 reattaches retained data, verified retirement excludes old VM writers, and a
 control-plane replacement replaces the whole k3s cohort. No Velero checkpoint
 or per-rebuild copy is added. Missing/wrong data blocks startup. A separately
-approved logical restore that creates a new physical server requires reviewed
-guard and enrollment identity changes; it is not ordinary retained-disk recovery.
+approved logical restore that creates a new physical server requires a reviewed
+enrollment identity change and an approved marker on the new disk; it is not
+ordinary retained-disk recovery.
 
 Growth follows PVC request, verified backend/filesystem expansion, then Git PV
 capacity reconciliation. Keep the accepted storage-fault manual fencing procedure

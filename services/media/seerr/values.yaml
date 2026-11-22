@@ -51,27 +51,15 @@ controllers:
       retained-state:
         image:
           repository: python
-          digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
+          digest: sha256:8c9a3bf2d6dea60d60a2ae2a07c2b2fb1e7d8daed64b146b6792c74ae0d62ac4
         command:
           - python3
           - -I
           - -B
           - /retained-startup/guard.py
-          - /app/config
           - seerr
-        env:
-          NODE_ENV: production
-          DB_TYPE: postgres
-          DB_HOST: postgres-postgresql.databases
-          DB_PORT: "5432"
-          DB_USER: seerr
-          DB_NAME: seerr
-          DB_POOL_SIZE: "3"
-          DB_PASS:
-            valueFrom:
-              secretKeyRef:
-                name: seerr-postgres-secret
-                key: password
+          - /app/config
+          - config
         securityContext:
           runAsNonRoot: true
           runAsUser: 1000
@@ -124,45 +112,6 @@ controllers:
           repository: python
           digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
         dependsOn: retained-state
-      database:
-        command:
-          - /bin/sh
-          - -ec
-          - export PGPASSWORD="$(cat /credentials/password)"; exec psql -XqAt -v ON_ERROR_STOP=1 -f
-            /retained-startup/main.sql >/dev/null 2>&1
-        env:
-          - name: PGHOST
-            value: postgres-postgresql.databases
-          - name: PGPORT
-            value: "5432"
-          - name: PGUSER
-            value: seerr
-          - name: PGDATABASE
-            value: seerr
-          - name: PGCONNECT_TIMEOUT
-            value: "10"
-        securityContext:
-          runAsNonRoot: true
-          runAsUser: 1001
-          runAsGroup: 1001
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          capabilities:
-            drop:
-              - ALL
-          seccompProfile:
-            type: RuntimeDefault
-        resources:
-          requests:
-            cpu: 10m
-            memory: 16Mi
-          limits:
-            cpu: 100m
-            memory: 32Mi
-        image:
-          repository: postgres:18.6-alpine
-          digest: sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd
-        dependsOn: enrollment
 service:
   main:
     controller: main
@@ -205,19 +154,6 @@ persistence:
         enrollment:
           - path: /gate-api
             readOnly: true
-  pg-completion-password:
-    type: secret
-    name: seerr-postgres-secret
-    defaultMode: 292
-    items:
-      - key: password
-        path: password
-    globalMounts: []
-    advancedMounts:
-      main:
-        database:
-          - path: /credentials
-            readOnly: true
   media:
     enabled: false
   seerr-config:
@@ -232,14 +168,11 @@ persistence:
             readOnly: true
   retained-startup:
     type: configMap
-    name: seerr-retained-startup-guard
+    name: retained-startup-guard
     defaultMode: 292
     globalMounts: []
     advancedMounts:
       main:
         retained-state:
-          - path: /retained-startup
-            readOnly: true
-        database:
           - path: /retained-startup
             readOnly: true

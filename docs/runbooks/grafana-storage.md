@@ -7,14 +7,14 @@ Private files now live on the NFS claim `monitoring/grafana-files` (see the
 
 Grafana keeps its database state in shared PostgreSQL and its private files,
 including plugins, on retained Proxmox CSI. Startup requires accepted current
-PostgreSQL enrollment, the retained file marker and the expected native SQL schema.
+PostgreSQL enrollment and the retained file marker.
 
 The file volume is `monitoring/grafana-data-block`: 2GiB ext4,
 ReadWriteOncePod, Retain, backed by
 `homelab//k3s-block/9999/vm-9999-grafana.raw`. It mounts at `/var/lib/grafana` and
-requires `.homelab-grafana-data` containing `homelab/grafana/data/v1` plus the
-plugins directory. The guard rejects missing identity, SQLite fallback files,
-competing database configuration or a different physical PostgreSQL server.
+requires `.homelab-grafana-data` holding exactly `homelab/grafana/data/v1` and a
+newline, checked by the generic marker guard (`infrastructure/base-configs/files/retained-startup/guard.py`, ConfigMap `retained-startup-guard`). It no longer checks the plugins directory, SQLite files,
+database configuration or the PostgreSQL server, and there is no startup SQL check.
 An empty replacement database or disk is never a recovery procedure.
 
 Ordinary node replacement and full Kubernetes metadata rebuild reuse the retained
@@ -26,9 +26,8 @@ database is required.
 Keep the existing admin, OIDC and renderer Secrets, Grafana encryption
 configuration and shared PostgreSQL credentials. The cutover preserves encrypted
 data and keys without rekeying. A successful key-rewrap command alone does not
-prove that existing encrypted values can be decrypted. Keep the image, native
-catalog and migration-log signatures, guard qualification and encryption
-configuration together when upgrading Grafana.
+prove that existing encrypted values can be decrypted. Keep the image and
+encryption configuration together when upgrading Grafana.
 
 The chart's dashboard and datasource sidecars synchronize their provisioning files
 before Grafana starts, then continue watching. Preserve their service account,
@@ -40,8 +39,7 @@ been resumed only after every target writer and attachment has retired and compl
 source fingerprints match. After startup, preserve the newest PostgreSQL writes;
 never reopen stale SQLite as an automatic rollback (that source no longer exists). Recover the database with the
 shared PostgreSQL backup/recovery workflow and recover private files from their
-`grafana-files` volume and its backup. A physical PostgreSQL recovery
-also needs separate acceptance of its new physical identifier in the SQL guard.
+`grafana-files` volume and its backup.
 
 The original `monitoring/kube-prometheus-stack-grafana` NFS source, its admission
 hold, the raw disk and the cutover recovery ciphertexts on VM300 and the operator workstation

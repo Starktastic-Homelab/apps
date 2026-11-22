@@ -138,36 +138,6 @@ controllers:
         image:
           repository: python
           digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
-      retained-database:
-        command:
-          - /bin/sh
-          - -ec
-          - |
-            export PGPASSWORD="$(cat /credentials/password)"
-            exec psql -XqAt -v ON_ERROR_STOP=1 -f /retained-database/main.sql >/dev/null 2>&1
-        env:
-          - name: PGHOST
-            value: postgres-postgresql.databases
-          - name: PGPORT
-            value: "5432"
-          - name: PGUSER
-            value: excalidash
-          - name: PGDATABASE
-            value: excalidash
-          - name: PGCONNECT_TIMEOUT
-            value: "10"
-        securityContext: *id001
-        resources:
-          requests:
-            cpu: 10m
-            memory: 16Mi
-          limits:
-            cpu: 100m
-            memory: 32Mi
-        image:
-          repository: postgres:18.6-alpine
-          digest: sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd
-        dependsOn: postgres-enrollment-acceptance
 service:
   main:
     controller: main
@@ -214,27 +184,4 @@ persistence:
       main:
         postgres-enrollment-acceptance:
           - path: /gate-api
-            readOnly: true
-  pg-completion-password:
-    type: secret
-    name: excalidash-database
-    defaultMode: 292
-    items:
-      - key: password
-        path: password
-    globalMounts: []
-    advancedMounts:
-      main:
-        retained-database:
-          - path: /credentials
-            readOnly: true
-  retained-database:
-    type: configMap
-    name: excalidash-retained-database-guard
-    defaultMode: 292
-    globalMounts: []
-    advancedMounts:
-      main:
-        retained-database:
-          - path: /retained-database
             readOnly: true

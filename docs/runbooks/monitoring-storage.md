@@ -14,9 +14,12 @@ No Velero checkpoint or manual Kubernetes-metadata recovery is required.
 | Tempo | 5Gi | vm-9999-tempo.raw | traces/WAL |
 
 All bindings are RWOP/Retain and protected against Argo prune/delete. Each stock
-engine starts only after the read-only guard validates its app-specific retained
-marker and required native paths. Valid empty Alertmanager files are accepted.
-An absent/wrong marker or missing native state stops startup for investigation;
+engine starts only after the generic marker guard (`infrastructure/base-configs/files/retained-startup/guard.py`, ConfigMap `retained-startup-guard`) finds its marker on the volume root:
+`.homelab-<app>-data` holding exactly `homelab/<app>/data/v1` and a newline, that is
+`.homelab-prometheus-data`, `.homelab-alertmanager-data`, `.homelab-loki-data` and
+`.homelab-tempo-data`. It checks no native paths and never creates or repairs data.
+[The guard runbook](retained-startup-guard.md) gives the marker rule; each app's guard arguments are in its `values.yaml`.
+An absent/wrong marker stops startup for investigation;
 do not create a marker to bypass the guard or initialize an empty replacement.
 The single exception is a disaster-recovery re-initialisation of a lost image per
 ansible `docs/backup-and-restore.md`, "Re-initialise an excluded image", pre-approved

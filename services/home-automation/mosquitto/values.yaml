@@ -81,7 +81,7 @@ persistence:
     enabled: false
   retained-startup:
     type: configMap
-    name: mosquitto-retained-startup-guard
+    name: retained-startup-guard
     defaultMode: 292
     globalMounts: []
     advancedMounts:

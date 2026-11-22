@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: media-retained-startup-guard
-  namespace: media
-data:
-  guard.py: |{{ .Files.Get "files/retained-startup/guard.py" | nindent 4 }}

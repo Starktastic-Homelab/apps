@@ -61,8 +61,8 @@ extraInitContainers: |
     - -I
     - -B
     - /retained-startup/guard.py
+    - pgadmin
     - /var/lib/pgadmin
-    - /etc/pgadmin-postgres
     securityContext:
       runAsNonRoot: true
       runAsUser: 5050
@@ -74,21 +74,12 @@ extraInitContainers: |
         - ALL
       seccompProfile: &id002
         type: RuntimeDefault
-    env:
-    - name: PGADMIN_CONFIG_CONFIG_DATABASE_URI_FILE
-      value: /etc/pgadmin-postgres/uri
-    - name: PGADMIN_CONFIG_SQLALCHEMY_ENGINE_OPTIONS
-      value: '{''pool_size'': 2, ''max_overflow'': 1, ''pool_recycle'': 300, ''pool_pre_ping'':
-        True}'
     volumeMounts:
     - name: pgadmin-data
       mountPath: /var/lib/pgadmin
       readOnly: true
     - name: retained-startup
       mountPath: /retained-startup
-      readOnly: true
-    - name: pg-completion-password
-      mountPath: /etc/pgadmin-postgres
       readOnly: true
     resources:
       requests:
@@ -132,39 +123,6 @@ extraInitContainers: |
     - name: pg-completion-api
       mountPath: /gate-api
       readOnly: true
-  - name: postgres-canonical-login
-    image: postgres:18.6-alpine@sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd
-    command:
-    - /bin/sh
-    - -ec
-    - export PGPASSWORD="$(cat /credentials/password)"; exec psql -XqAt -v ON_ERROR_STOP=1
-      -f /retained-startup/main.sql >/dev/null 2>&1
-    env:
-    - name: PGHOST
-      value: postgres-postgresql.databases
-    - name: PGPORT
-      value: '5432'
-    - name: PGUSER
-      value: pgadmin
-    - name: PGDATABASE
-      value: pgadmin
-    - name: PGCONNECT_TIMEOUT
-      value: '10'
-    securityContext: *id003
-    resources:
-      requests:
-        cpu: 10m
-        memory: 16Mi
-      limits:
-        cpu: 100m
-        memory: 32Mi
-    volumeMounts:
-    - name: pg-completion-password
-      mountPath: /credentials
-      readOnly: true
-    - name: retained-startup
-      mountPath: /retained-startup
-      readOnly: true
 extraVolumes:
   - name: pg-completion-script
     configMap:
@@ -193,7 +151,7 @@ extraVolumes:
           path: uri
   - name: retained-startup
     configMap:
-      name: pgadmin-retained-startup-guard
+      name: retained-startup-guard
       defaultMode: 292
 extraVolumeMounts:
   - name: pg-completion-password

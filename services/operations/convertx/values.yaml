@@ -91,7 +91,7 @@ persistence:
             readOnly: true
   retained-startup:
     type: configMap
-    name: operations-home-retained-startup-guard
+    name: retained-startup-guard
     defaultMode: 292
     globalMounts: []
     advancedMounts:

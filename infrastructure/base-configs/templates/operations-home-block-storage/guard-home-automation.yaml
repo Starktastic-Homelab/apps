@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: operations-home-retained-startup-guard
-  namespace: home-automation
-data:
-  guard.py: |{{ .Files.Get "files/retained-startup/guard.py" | nindent 4 }}

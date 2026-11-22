@@ -79,7 +79,7 @@ persistence:
             readOnly: true
   retained-startup:
     type: configMap
-    name: media-retained-startup-guard
+    name: retained-startup-guard
     defaultMode: 292
     globalMounts: []
     advancedMounts:

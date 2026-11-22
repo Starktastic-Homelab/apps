@@ -48,6 +48,7 @@ controllers:
           - -I
           - -B
           - /retained-startup/guard.py
+          - calibre-web
           - /retained
         securityContext:
           runAsUser: 1000
@@ -98,7 +99,7 @@ persistence:
             readOnly: true
   retained-startup:
     type: configMap
-    name: calibre-retained-startup-guard
+    name: retained-startup-guard
     defaultMode: 292
     advancedMounts:
       main:

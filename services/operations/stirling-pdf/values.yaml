@@ -77,7 +77,7 @@ persistence:
     enabled: false
   retained-startup:
     type: configMap
-    name: stirling-pdf-retained-startup-guard
+    name: retained-startup-guard
     defaultMode: 292
     globalMounts: []
     advancedMounts:

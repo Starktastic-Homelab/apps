@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: monitoring-retained-startup-guard
-  namespace: monitoring
-data:
-  guard.py: |{{ .Files.Get "files/retained-startup/guard.py" | nindent 4 }}

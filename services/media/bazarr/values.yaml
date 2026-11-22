@@ -44,28 +44,16 @@ controllers:
     initContainers:
       retained-state:
         image:
-          repository: lscr.io/linuxserver/bazarr
-          tag: v1.6.2-ls373@sha256:e0c5d45965242830c5eeddaafe9ae2b5e8ca3f6c01ecda9ee9364f550921dc50
+          repository: python
+          digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
         command:
-          - /lsiopy/bin/python3
+          - python3
           - -I
           - -B
           - /retained-startup/guard.py
+          - bazarr
           - /config
-        env:
-          POSTGRES_ENABLED: "true"
-          POSTGRES_HOST: postgres-postgresql.databases
-          POSTGRES_PORT: "5432"
-          POSTGRES_DATABASE: bazarr
-          POSTGRES_USERNAME: bazarr
-          POSTGRES_PASSWORD:
-            valueFrom:
-              secretKeyRef:
-                name: bazarr-postgres-secret
-                key: password
-        envFrom:
-          - secretRef:
-              name: bazarr-secret
+          - config
         securityContext:
           runAsNonRoot: true
           runAsUser: 1000
@@ -118,45 +106,6 @@ controllers:
           repository: python
           digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
         dependsOn: retained-state
-      database:
-        command:
-          - /bin/sh
-          - -ec
-          - export PGPASSWORD="$(cat /credentials/password)"; exec psql -XqAt -v ON_ERROR_STOP=1 -f
-            /retained-startup/main.sql >/dev/null 2>&1
-        env:
-          - name: PGHOST
-            value: postgres-postgresql.databases
-          - name: PGPORT
-            value: "5432"
-          - name: PGUSER
-            value: bazarr
-          - name: PGDATABASE
-            value: bazarr
-          - name: PGCONNECT_TIMEOUT
-            value: "10"
-        securityContext:
-          runAsNonRoot: true
-          runAsUser: 1001
-          runAsGroup: 1001
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          capabilities:
-            drop:
-              - ALL
-          seccompProfile:
-            type: RuntimeDefault
-        resources:
-          requests:
-            cpu: 10m
-            memory: 16Mi
-          limits:
-            cpu: 100m
-            memory: 32Mi
-        image:
-          repository: postgres:18.6-alpine
-          digest: sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd
-        dependsOn: enrollment
 service:
   main:
     ports:
@@ -199,19 +148,6 @@ persistence:
         enrollment:
           - path: /gate-api
             readOnly: true
-  pg-completion-password:
-    type: secret
-    name: bazarr-postgres-secret
-    defaultMode: 292
-    items:
-      - key: password
-        path: password
-    globalMounts: []
-    advancedMounts:
-      main:
-        database:
-          - path: /credentials
-            readOnly: true
   config:
     enabled: false
   bazarr-config:
@@ -226,14 +162,11 @@ persistence:
             readOnly: true
   retained-startup:
     type: configMap
-    name: bazarr-retained-startup-guard
+    name: retained-startup-guard
     defaultMode: 292
     globalMounts: []
     advancedMounts:
       main:
         retained-state:
-          - path: /retained-startup
-            readOnly: true
-        database:
           - path: /retained-startup
             readOnly: true

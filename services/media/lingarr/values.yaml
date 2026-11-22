@@ -110,7 +110,7 @@ persistence:
           - path: /data
   retained-startup:
     type: configMap
-    name: utility-home-retained-startup-guard
+    name: retained-startup-guard
     defaultMode: 292
     globalMounts: []
     advancedMounts:

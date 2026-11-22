@@ -54,7 +54,9 @@ controllers:
           - -I
           - -B
           - /retained-startup/guard.py
+          - autobrr
           - /config
+          - config
         securityContext:
           runAsNonRoot: true
           runAsUser: 1000
@@ -84,7 +86,8 @@ service:
 persistence:
   retained-startup:
     type: configMap
-    name: autobrr-retained-startup-guard
+    name: retained-startup-guard
+    defaultMode: 292
     globalMounts: []
     advancedMounts:
       main:

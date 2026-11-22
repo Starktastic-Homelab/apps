@@ -83,13 +83,15 @@ controllers:
     initContainers:
       verify-retained-data:
         image:
-          repository: ghcr.io/immich-app/postgres
-          tag: 17-vectorchord0.4.3-pgvector0.8.1@sha256:79b95b795f0911e95ffa4d092a2162c4d81a984d5629bc8f786afe0bc0657671
+          repository: python
+          digest: sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c
         command:
-          - /bin/bash
-          - /retained-startup/guard.sh
-        env:
-          EXPECTED_SYSTEM_IDENTIFIER: "7614955115223928876"
+          - python3
+          - -I
+          - -B
+          - /retained-startup/guard.py
+          - immich-postgres
+          - /data
         securityContext:
           runAsUser: 999
           runAsGroup: 999
@@ -192,7 +194,7 @@ persistence:
           - path: /cache
   retained-startup:
     type: configMap
-    name: immich-postgres-retained-startup
+    name: retained-startup-guard
     defaultMode: 292
     globalMounts: []
     advancedMounts:
@@ -200,11 +202,3 @@ persistence:
         verify-retained-data:
           - path: /retained-startup
             readOnly: true
-  retained-scratch:
-    type: emptyDir
-    sizeLimit: 16Mi
-    globalMounts: []
-    advancedMounts:
-      postgres:
-        verify-retained-data:
-          - path: /tmp

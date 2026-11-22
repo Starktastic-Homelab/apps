@@ -90,6 +90,7 @@ controllers:
           - -I
           - -B
           - /retained-startup/guard.py
+          - paperless
           - /retained
         securityContext:
           runAsUser: 1000
@@ -133,7 +134,7 @@ persistence:
             subPath: consume
   retained-startup:
     type: configMap
-    name: paperless-retained-startup-guard
+    name: retained-startup-guard
     defaultMode: 292
     advancedMounts:
       main:

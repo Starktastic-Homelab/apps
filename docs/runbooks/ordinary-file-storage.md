@@ -19,8 +19,8 @@ For each authorized cutover:
 3. Create a temporary helper with the retired CSI source mounted read-only and
    the fresh NFS target mounted writable. Check bindings and source identity.
    Run `copy_files.py` (removed from the tree; recover it with
-   `git show 45c7fb8c:scripts/ordinary-file-storage/copy_files.py`) with the contract's marker
-   and identity. Refuse changed source, nonempty target, special files, external
+   `git show 45c7fb8c:scripts/ordinary-file-storage/copy_files.py`) with the volume's
+   [marker file and content](retained-startup-guard.md). Refuse changed source, nonempty target, special files, external
    hard links, extended metadata or populated filesystem recovery directories.
 4. Preserve the copy receipt and original raw image until acceptance. Remove only the exact helper
    Pod and wait for source detach before starting the app. Never auto-delete data

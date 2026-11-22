@@ -1,0 +1,36 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - alertmanager-healthchecks-secret.yaml
+  - custom-rules.yaml
+  - grafana-admin-secret.yaml
+  - grafana-dashboard-argocd-applications.yaml
+  - grafana-dashboard-argocd-notifications.yaml
+  - grafana-dashboard-authentik.yaml
+  - grafana-dashboard-blackbox.yaml
+  - grafana-dashboard-cert-manager.yaml
+  - grafana-dashboard-crowdsec.yaml
+  - grafana-dashboard-homelab-operations.yaml
+  - grafana-dashboard-metallb.yaml
+  - grafana-dashboard-node-exporter-full.yaml
+  - grafana-dashboard-postgresql.yaml
+  - grafana-dashboard-redis.yaml
+  - grafana-dashboard-traefik-edge-geo.yaml
+  - grafana-dashboard-traefik.yaml
+  - grafana-dashboard-unpackerr.yaml
+  - grafana-oidc-secret.yaml
+  - grafana-postgres-secret.yaml
+  - postgres-completion-gate.yaml
+  - proxmox-csi-capacity.yaml
+
+# The workload mounts this ConfigMap by name from another Argo source, so the name stays fixed.
+generatorOptions:
+  disableNameSuffixHash: true
+
+configMapGenerator:
+  - name: grafana-retained-startup-guard
+    namespace: monitoring
+    files:
+      - guard.py=retained-startup/guard.py
+      - main.sql=retained-startup/main.sql

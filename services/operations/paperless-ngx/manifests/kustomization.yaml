@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - paperless-ngx-secret.yaml
+  - pvc.yaml
+
+# The workload mounts this ConfigMap by name from another Argo source, so the name stays fixed.
+generatorOptions:
+  disableNameSuffixHash: true
+
+configMapGenerator:
+  - name: paperless-retained-startup-guard
+    namespace: operations
+    files:
+      - guard.py=retained-startup/guard.py

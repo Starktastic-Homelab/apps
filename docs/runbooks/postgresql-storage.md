@@ -247,8 +247,9 @@ Ordinary rebuilds keep the Packer/Terraform/Ansible flow: static Git binding
 reattaches retained data, verified retirement excludes old VM writers, and a
 control-plane replacement replaces the whole k3s cohort. No Velero checkpoint
 or per-rebuild copy is added. Missing/wrong data blocks startup. A separately
-approved logical restore that creates a new physical server requires reviewed
-guard and enrollment identity changes; it is not ordinary retained-disk recovery.
+approved logical restore that creates a new physical server requires a reviewed
+enrollment identity change and an approved marker on the new disk; it is not
+ordinary retained-disk recovery.
 
 Growth follows PVC request, verified backend/filesystem expansion, then Git PV
 capacity reconciliation. Keep the accepted storage-fault manual fencing procedure

@@ -14,8 +14,8 @@ Velero checkpoint or manual backup verification gates routine rebuilds.
 
 The volume root carries the marker `.homelab-jellyfin-data` holding exactly
 `homelab/jellyfin/data/v1` and a newline. No startup guard reads it yet; a later
-change wires the generic marker guard (ConfigMap `retained-startup-guard`) for
-Jellyfin. A missing marker is a stop, never a reason to write one.
+change wires the [generic marker guard](retained-startup-guard.md) for Jellyfin.
+Never write or rewrite the marker by hand.
 
 The PV/PVC are Retain, RWOP and protected from Argo prune/delete. Do not remove
 those protections to resolve an attachment problem. The accepted rare storage-fault

@@ -18,7 +18,7 @@ engine starts only after the generic marker guard (`infrastructure/base-configs/
 `.homelab-<app>-data` holding exactly `homelab/<app>/data/v1` and a newline, that is
 `.homelab-prometheus-data`, `.homelab-alertmanager-data`, `.homelab-loki-data` and
 `.homelab-tempo-data`. It checks no native paths and never creates or repairs data.
-[Every marker](retained-startup-guard.md) is listed with its guard arguments.
+[The guard runbook](retained-startup-guard.md) gives the marker rule; each app's guard arguments are in its `values.yaml`.
 An absent/wrong marker stops startup for investigation;
 do not create a marker to bypass the guard or initialize an empty replacement.
 The single exception is a disaster-recovery re-initialisation of a lost image per

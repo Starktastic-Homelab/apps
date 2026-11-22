@@ -28,7 +28,7 @@ the app's own user. It checks no native files, formats or versions and never
 creates or repairs data. A wrong/absent marker stops startup. Investigate the
 retained image and filesystem identity; do not create a marker to bypass the guard.
 Keep the pinned application images. Sonarr/Radarr RU overrides retain their own
-claim and marker identities. [Every marker](retained-startup-guard.md) is listed with its guard arguments.
+claim and marker identities. [The guard runbook](retained-startup-guard.md) gives the marker rule; each app's guard arguments are in its `values.yaml`.
 
 Cineplete retains both former claims under `config/` and `data/` on its image.
 Audiobookshelf retains config/database under `config/` and its formerly

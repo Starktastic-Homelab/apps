@@ -12,8 +12,8 @@ key and in `media/autobrr-postgres-secret` under `password`. The latter Secret i
 reserved for later conversion and is unused by the current Autobrr deployment.
 Autobrr keeps its existing configuration, Pod template and retained NFS claim;
 this stage does not read or convert its SQLite data. After the user merges the
-preparation PR, verify full-hook acceptance, canonical login, ownership/grants
-and a full-sync retry, preserving the pilot and existing consumers.
+preparation PR, verify full-hook acceptance (including the hook's own login
+check), ownership/grants and a full-sync retry, preserving the pilot and existing consumers.
 
 The expected physical system identifier is `7584099661242523698`. Installation
 requires the separately approved one-time bootstrap of the admin-only
@@ -53,20 +53,21 @@ enrollment acceptance. The Sync hook runs after server health; successful hooks
 are cleaned up, failed hooks retain evidence. A failed PostgreSQL hook can hold
 later services-phase Argo rollouts. Existing application Pods continue running.
 
-New consumers first require current successful full-hook acceptance, then verify
-canonical database login. The API token is confined to the acceptance init; the
+New consumers require current successful full-hook acceptance. They do not
+check their own database login: an application with a wrong credential fails on
+its own when it connects. The API token is confined to the acceptance init; the
 main application receives only its own database credential. Missing/stale Argo
 metadata, unavailable API or denied reads keeps fresh Pods waiting. Existing
 running Pods do not continuously recheck acceptance.
 
 The services-phase canary has no ingress, Service or PVC. It writes one fixed-key
-sentinel only after both init checks, verifies the same payload on every start,
+sentinel only after the acceptance init, verifies the same payload on every start,
 and never overwrites a mismatch. Its readiness marker confirms that startup
 verification completed; it is not a continuous PostgreSQL availability monitor.
 Keep the declaration, encrypted credentials and sentinel for future rebuilds.
 
 If a hook fails, inspect its sanitized logs and current input generation, resolve
-the cause, and retry a full sync. Canonical login failure never resets an
+the cause, and retry a full sync. A hook login failure never resets an
 established password or recreates a database. Stop and inspect durable receipts
 before retrying an uncertain bootstrap outcome. Removing declarations or
 reverting manifests does not drop SQL objects or the ledger; any such deletion

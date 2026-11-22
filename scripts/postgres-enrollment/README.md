@@ -104,15 +104,15 @@ Secrets through the API, list/watch objects, modify resources or use administrat
 credentials. Multi-namespace resources require reviewed Argo project permissions.
 
 `consumer-init.yaml` is a **PodSpec fragment**, not a deployable workload. Merge its
-ServiceAccount selection, two ordered init containers and volumes into the app's
+ServiceAccount selection, acceptance init container and volumes into the app's
 actual Helm values; preserve other init containers/volumes and any existing
 ServiceAccount permissions needed by that app. Review the rendered Pod and
 bindings before activation. Do not mount `/gate-api` or its volume in the main app:
-the projected token is confined to the Python init. The following native psql init
-mounts only the exact application password key, verifies login with `SELECT 1`,
-and suppresses private connection error output. The main app still receives its
-ordinary app credentials through its existing configuration. Both inits run as
-UID1001 without privilege escalation, writable root filesystem or capabilities.
+the projected token is confined to the Python init. Consumers do not check their
+own database login; an app with a wrong credential fails on its own when it
+connects. The main app receives its ordinary app credentials through its existing
+configuration. The init runs as UID1001 without privilege escalation, writable
+root filesystem or capabilities.
 
 Preparation fingerprints the declared config, native runtime, gate protocol/code,
 full Job template and a digest of aggregate **ciphertext**, never a password hash.

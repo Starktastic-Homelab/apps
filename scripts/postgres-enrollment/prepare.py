@@ -103,25 +103,12 @@ def consumer_sources(options) -> tuple[list[dict], dict]:
              'args': ['--id', options.id, '--database', options.database, '--role', options.role],
              'securityContext': security,
              'resources': {'requests': {'cpu': '25m', 'memory': '32Mi'}, 'limits': {'cpu': '100m', 'memory': '64Mi'}},
-             'volumeMounts': [mount('pg-completion-script', '/gate'), mount('pg-completion-api', '/gate-api')]},
-            {'name': 'postgres-canonical-login',
-             'image': yaml.safe_load((ROOT / 'job.yaml').read_text())['spec']['template']['spec']['containers'][0]['image'],
-             'command': ['/bin/sh', '-ec',
-                         'export PGPASSWORD="$(cat /credentials/password)"; '
-                         'exec psql -XqAt -v ON_ERROR_STOP=1 -c "SELECT 1" >/dev/null 2>&1'],
-             'env': [{'name': k, 'value': v} for k, v in {
-                 'PGHOST': 'postgres-postgresql.databases', 'PGPORT': '5432',
-                 'PGUSER': options.role, 'PGDATABASE': options.database, 'PGCONNECT_TIMEOUT': '10'}.items()],
-             'securityContext': security,
-             'resources': {'requests': {'cpu': '10m', 'memory': '16Mi'}, 'limits': {'cpu': '100m', 'memory': '32Mi'}},
-             'volumeMounts': [mount('pg-completion-password', '/credentials')]}],
+             'volumeMounts': [mount('pg-completion-script', '/gate'), mount('pg-completion-api', '/gate-api')]}],
         'volumes': [
             {'name': 'pg-completion-script', 'configMap': {'name': GATE_CONFIGMAP, 'defaultMode': 0o444}},
             {'name': 'pg-completion-api', 'projected': {'defaultMode': 0o444, 'sources': [
                 {'serviceAccountToken': {'path': 'token', 'expirationSeconds': 600}},
-                {'configMap': {'name': 'kube-root-ca.crt', 'items': [{'key': 'ca.crt', 'path': 'ca.crt'}]}}]}},
-            {'name': 'pg-completion-password', 'secret': {'secretName': options.app_secret,
-                'defaultMode': 0o444, 'items': [{'key': options.app_password_key, 'path': 'password'}]}}]}
+                {'configMap': {'name': 'kube-root-ca.crt', 'items': [{'key': 'ca.crt', 'path': 'ca.crt'}]}}]}}]}
     return resources, fragment
 
 

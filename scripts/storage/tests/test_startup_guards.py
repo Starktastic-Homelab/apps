@@ -1,11 +1,6 @@
-import ast
-import base64
 import glob
-import json
 import os
 import re
-import sqlite3
-import struct
 import subprocess
 import sys
 import tempfile
@@ -15,30 +10,72 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[3]
-GENERIC = "infrastructure/base-configs/files/retained-startup/guard.py"
-TEMPLATES = "infrastructure/base-configs/templates/"
-GENERIC_MESSAGE = "Retained state refused; recovery acceptance is required."
-SQLITE = b"SQLite format 3\0" + b"\0" * 84
-# apps the group guards serve today, plus two not yet wired (jellyfin, filebrowser) and an unlisted one
-MARKER_ONLY = ("sonarr", "sonarr-ru", "radarr", "radarr-ru", "lidarr", "navidrome", "audiobookshelf", "shelfmark",
-               "jellyfin", "alertmanager", "prometheus", "loki", "tempo", "karakeep", "karakeep-meilisearch",
-               "bytestash", "convertx", "filebrowser", "home-assistant", "home-assistant-matter", "microbin",
-               "lingarr", "newapp")
+GUARD = "infrastructure/base-configs/files/retained-startup/guard.py"
+TEMPLATE = "infrastructure/base-configs/templates/retained-startup-guard.yaml"
+CONFIGMAP = "retained-startup-guard"
+PYTHON = "python@sha256:a11116e648ddd8a05e1120014c8e6ac259f718040b67e2dcd6a7c0b7bab3ff2c"
+REFUSED = "Retained state refused; recovery acceptance is required."
 UNSAFE = ("", "../x", "a/b", "A", "-x", "x-", "x" * 64, "a\n")
 
+# Every retained-volume guard (Ben, 2026-11-22: one generic marker guard, no content or database checks).
+# guarded app: (app dir, root, *optional kind and marker file); each must match its live marker exactly.
+GUARDS = {
+    "radarr": ("radarr", "/retained"),
+    "radarr-ru": ("radarr-ru", "/retained"),
+    "sonarr": ("sonarr", "/retained"),
+    "sonarr-ru": ("sonarr-ru", "/retained"),
+    "lidarr": ("lidarr", "/retained"),
+    "navidrome": ("navidrome", "/retained"),
+    "audiobookshelf": ("audiobookshelf", "/retained"),
+    "shelfmark": ("shelfmark", "/retained"),
+    "cineplete": ("cineplete", "/retained"),
+    "cleanuparr": ("cleanuparr", "/retained"),
+    "autobrr": ("autobrr", "/config", "config"),
+    "bazarr": ("bazarr", "/config", "config"),
+    "prowlarr": ("prowlarr", "/config", "config"),
+    "seerr": ("seerr", "/app/config", "config"),
+    # seerr-ru's live marker file is named after its base app; never rename a marker
+    "seerr-ru": ("seerr-ru", "/app/config", "config", ".homelab-seerr-config"),
+    "calibre-web": ("calibre-web", "/retained"),
+    "qbittorrent": ("qbittorrent", "/retained"),
+    "qbittorrent-ru": ("qbittorrent-ru", "/retained"),
+    "lingarr": ("lingarr", "/retained"),
+    # both PostgreSQL markers sit outside PGDATA, on the claim's root
+    "immich-postgres": ("immich", "/data"),
+    "postgres": ("postgres", "/bitnami/postgresql"),
+    "redis": ("redis", "/data"),
+    "pgadmin": ("pgadmin", "/var/lib/pgadmin"),
+    "home-assistant": ("home-assistant", "/retained"),
+    "home-assistant-matter": ("home-assistant", "/retained"),
+    "mosquitto": ("mosquitto", "/retained"),
+    "zigbee2mqtt": ("zigbee2mqtt", "/retained"),
+    "bytestash": ("bytestash", "/retained"),
+    "convertx": ("convertx", "/retained"),
+    "karakeep": ("karakeep", "/retained"),
+    "karakeep-meilisearch": ("karakeep", "/retained"),
+    "changedetection": ("changedetection", "/retained"),
+    "stirling-pdf": ("stirling-pdf", "/retained"),
+    "microbin": ("microbin", "/retained"),
+    "ntfy": ("ntfy", "/var/cache/ntfy"),
+    "paperless": ("paperless-ngx", "/retained"),
+    "prometheus": ("kube-prometheus-stack", "/data"),
+    "alertmanager": ("kube-prometheus-stack", "/data"),
+    "grafana": ("kube-prometheus-stack", "/var/lib/grafana"),
+    "loki": ("loki", "/data"),
+    "tempo": ("tempo", "/data"),
+}
 
-def marker(app):
-    return {f".homelab-{app}-data": f"homelab/{app}/data/v1\n".encode()}
+
+def run(args, timeout=60):
+    return subprocess.run([sys.executable, "-I", "-B", str(ROOT / GUARD)] + [str(a) for a in args],
+                          capture_output=True, text=True, env={"PATH": os.environ["PATH"]}, timeout=timeout)
 
 
-def run_script(path, args, env=None, timeout=60):
-    path = ROOT / path
-    cmd = [sys.executable, "-I", "-B", str(path)] if path.suffix == ".py" else ["/bin/bash", str(path)]
-    return subprocess.run(cmd + [str(a) for a in args], capture_output=True, text=True,
-                          env=env if env is not None else {"PATH": os.environ["PATH"]}, timeout=timeout)
+def marker(app, kind="data", name=None):
+    return {name or f".homelab-{app}-{kind}": f"homelab/{app}/{kind}/v1\n".encode()}
 
 
-class Base(unittest.TestCase):
+class GenericGuard(unittest.TestCase):
     def tree(self, files):
         d = tempfile.TemporaryDirectory()
         self.addCleanup(d.cleanup)
@@ -49,60 +86,59 @@ class Base(unittest.TestCase):
             else:
                 p.parent.mkdir(parents=True, exist_ok=True)
                 p.write_bytes(content)
-        return d.name
+        return Path(d.name)
 
-    def ok(self, path, args, env=None):
-        r = run_script(path, args, env)
+    def accepts(self, *args):
+        r = run(args)
         self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(r.stdout, "Retained identity accepted.\n")
 
-    def no(self, path, args, message, env=None):
-        r = run_script(path, args, env)
+    def refuses(self, *args, timeout=60):
+        r = run(args, timeout)
         self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
-        self.assertIn(message, r.stderr)  # a deliberate refusal, not a crash
+        self.assertEqual(r.stderr, REFUSED + "\n")  # one deliberate refusal line, not a crash
 
-
-class GenericGuard(Base):
-    """The one marker-only guard every group ConfigMap in base-configs serves (Ben, 2026-11-22)."""
-
-    def accepts(self, app, root):
-        self.ok(GENERIC, [app, root])
-
-    def refuses(self, app, root):
-        self.no(GENERIC, [app, root], GENERIC_MESSAGE)
-
-    def test_accepts_marker_alone_for_any_name(self):
-        for app in MARKER_ONLY:
+    def test_accepts_any_well_formed_name_and_both_kinds(self):
+        for app in ("sonarr", "radarr-ru", "a", "x" * 63, "new-app-2"):
             with self.subTest(app=app):
                 self.accepts(app, self.tree(marker(app)))
+                self.accepts(app, self.tree(marker(app)), "data")
+                self.accepts(app, self.tree(marker(app, "config")), "config")
 
-    def test_refuses_missing_wrong_empty_or_oversized_marker(self):
-        for app in MARKER_ONLY:
-            with self.subTest(app=app):
-                self.refuses(app, self.tree({"lost+found/": None}))
-                self.refuses(app, self.tree({f".homelab-{app}-data": b"homelab/other/data/v1\n"}))
-                self.refuses(app, self.tree({f".homelab-{app}-data": b""}))
-                self.refuses(app, self.tree({f".homelab-{app}-data": marker(app)[f".homelab-{app}-data"] + b"x" * 128}))
-                self.refuses(app, self.tree({f".homelab-{app}-data/": None}))
+    def test_accepts_an_explicit_marker_file(self):
+        root = self.tree(marker("seerr-ru", "config", ".homelab-seerr-config"))
+        self.accepts("seerr-ru", root, "config", ".homelab-seerr-config")
+        self.refuses("seerr-ru", root, "config")  # the default name is not there
+
+    def test_refuses_missing_wrong_empty_oversized_or_directory_marker(self):
+        name, good = next(iter(marker("sonarr").items()))
+        for files in ({"lost+found/": None}, {name: b"homelab/radarr/data/v1\n"}, {name: b"homelab/sonarr/config/v1\n"},
+                      {name: good.rstrip()}, {name: b""}, {name: good + b"x" * 128}, {name + "/": None},
+                      marker("radarr"), marker("sonarr", "config")):
+            with self.subTest(files=files):
+                self.refuses("sonarr", self.tree(files))
+
+    def test_kind_and_marker_file_must_agree_with_content(self):
+        self.refuses("seerr", self.tree(marker("seerr", "config")))  # default kind is data
+        self.refuses("seerr", self.tree(marker("seerr")), "config")
+        self.refuses("seerr-ru", self.tree(marker("seerr", "config", ".homelab-seerr-config")),
+                     "config", ".homelab-seerr-config")
 
     def test_refuses_symlinked_marker_or_root(self):
-        outside = Path(self.tree(marker("sonarr")), ".homelab-sonarr-data")
-        root = Path(self.tree({"lost+found/": None}))
+        outside = self.tree(marker("sonarr")) / ".homelab-sonarr-data"
+        root = self.tree({"lost+found/": None})
         os.symlink(outside, root / ".homelab-sonarr-data")
         self.refuses("sonarr", root)
-        link = Path(self.tree({}), "root")
+        link = self.tree({}) / "root"
         os.symlink(outside.parent, link)
         self.refuses("sonarr", link)
+        self.refuses("sonarr", "relative")
+        self.refuses("sonarr", outside)  # a file, not a dir
 
     def test_refuses_fifo_marker_without_blocking(self):
-        # the f2258f10 monitoring guard opened without O_NONBLOCK and hung here; init must exit 1 instead
-        root = Path(self.tree({"lost+found/": None}))
+        root = self.tree({"lost+found/": None})
         os.mkfifo(root / ".homelab-prometheus-data")
-        r = run_script(GENERIC, ["prometheus", root], timeout=10)
-        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
-        self.assertIn(GENERIC_MESSAGE, r.stderr)
-
-    def test_other_apps_keep_their_marker(self):
-        self.refuses("sonarr", self.tree(marker("radarr")))
+        self.refuses("prometheus", root, timeout=10)
 
     def test_refuses_unsafe_app_name(self):
         for app in UNSAFE:
@@ -110,269 +146,172 @@ class GenericGuard(Base):
                 files = {f".homelab-{app}-data": f"homelab/{app}/data/v1\n".encode()}  # "/" names plant nested markers
                 self.refuses(app, self.tree(files))
 
+    def test_refuses_bad_kind_or_marker_file(self):
+        planted = {**marker("sonarr"), "sub/.homelab-sonarr-data": b"homelab/sonarr/data/v1\n",
+                   ".homelab-sonarr-other": b"homelab/sonarr/data/v1\n", "x": b"homelab/sonarr/data/v1\n"}
+        for kind in ("", "Data", "other", "data/"):
+            with self.subTest(kind=kind):
+                self.refuses("sonarr", self.tree(planted), kind)
+        for name in ("", "x", "sub/.homelab-sonarr-data", "../.homelab-sonarr-data", ".homelab-sonarr-other",
+                     ".homelab-Sonarr-data", ".homelab--data", ".homelab-sonarr-data\n", "/.homelab-sonarr-data"):
+            with self.subTest(name=name):
+                self.refuses("sonarr", self.tree(planted), "data", name)
+
     def test_refuses_wrong_argument_count(self):
         root = self.tree(marker("sonarr"))
-        self.no(GENERIC, ["sonarr"], GENERIC_MESSAGE)
-        self.no(GENERIC, ["sonarr", root, root], GENERIC_MESSAGE)
+        self.refuses()
+        self.refuses("sonarr")
+        self.refuses("sonarr", root, "data", ".homelab-sonarr-data", "extra")
 
-    def test_base_configs_guards_name_no_app(self):
+    def test_guard_and_template_name_no_app(self):
         names = {Path(p).parent.name for p in glob.glob(str(ROOT / "services/*/*/app.yaml"))
-                 + glob.glob(str(ROOT / "infrastructure/*/*/*/app.yaml"))}
+                 + glob.glob(str(ROOT / "infrastructure/**/app.yaml"), recursive=True)} | set(GUARDS)
         self.assertIn("cleanuparr", names)
-        files = [ROOT / GENERIC] + sorted((ROOT / TEMPLATES).glob("*/guard*.yaml"))
-        self.assertGreaterEqual(len(files), 7)
-        for path in files:
-            text = path.read_text()
-            with self.subTest(file=str(path.relative_to(ROOT))):
-                self.assertNotIn("LAYOUTS", text)
+        for path in (GUARD, TEMPLATE):
+            text = (ROOT / path).read_text()
+            with self.subTest(file=path):
                 self.assertEqual([n for n in names if re.search(rf"""['"]{re.escape(n)}['"]""", text)], [])
-        for node in ast.walk(ast.parse((ROOT / GENERIC).read_text())):
-            if isinstance(node, ast.Compare):
-                self.assertNotIn("app", [getattr(n, "id", None) for n in [node.left, *node.comparators]])
-            if isinstance(node, ast.Attribute) and node.attr in ("startswith", "endswith"):
-                self.assertNotEqual(getattr(node.value, "id", None), "app")
+                self.assertEqual([n for n in names if re.search(rf"(?<![\w-]){re.escape(n)}(?![\w-])", text)], [])
 
-    def test_group_templates_load_the_file(self):
-        for path in sorted((ROOT / TEMPLATES).glob("*/guard*.yaml")):
-            with self.subTest(file=path.name):
-                self.assertIn('guard.py: |{{ .Files.Get "files/retained-startup/guard.py" | nindent 4 }}',
-                              path.read_text())
-
-
-# App-owned guards that check native content as well as the marker
-MOSQUITTO = (b"\x00\xb5\x00mosquitto db" + b"\0" * 4 + (6).to_bytes(4, "big")
-             + struct.pack("!II", 1, 16) + bytes(9) + b"\x08" + bytes(6))
-QBIT = {"qBittorrent/qBittorrent.conf": b"[BitTorrent]\n", "qBittorrent/categories.json": b"{}"}
-UTILITY = "verified recovery is required."
-CLEANUPARR_ENV = {"PATH": os.environ["PATH"], "DATABASE_PROVIDER": "postgres",
-                  "POSTGRES_HOST": "postgres-postgresql.databases", "POSTGRES_PORT": "5432",
-                  "POSTGRES_USER": "cleanuparr", "POSTGRES_DB": "cleanuparr", "POSTGRES_PASS": "dummy"}
-CONTENT = {  # app: (guard, refusal, argv apps, content files)
-    "cleanuparr": ("services/media/cleanuparr/manifests/retained-startup/guard.py",
-                   "recovery acceptance is required.", ("cleanuparr",),
-                   {"DataProtection-Keys/key-1.xml": b"<key/>", "jwt-key.bin": bytes(32),
-                    "plex-client-id.txt": b"id"}),
-    "cineplete": ("services/media/cineplete/manifests/retained-startup/guard.py",
-                  "recovery acceptance is required.", ("cineplete",),
-                  {"config/config.yml": b"a: 1\n", "data/overrides.json": b"{}", "data/results.json": b"{}"}),
-    "qbittorrent": ("services/media/qbittorrent/manifests/retained-startup/guard.py", UTILITY,
-                    ("qbittorrent", "qbittorrent-ru"), QBIT),
-    "changedetection": ("services/operations/changedetection/manifests/retained-startup/guard.py", UTILITY,
-                        ("changedetection",), {"changedetection.json": b"{}", "secret.txt": b"s" * 64}),
-    "stirling-pdf": ("services/operations/stirling-pdf/manifests/retained-startup/guard.py", UTILITY,
-                     ("stirling-pdf",), {"stirling-pdf-DB-2.3.232.mv.db": b"H:2,block:0"}),
-    "mosquitto": ("services/home-automation/mosquitto/manifests/retained-startup/guard.py", UTILITY,
-                  ("mosquitto",), {"mosquitto.db": MOSQUITTO}),
-    "zigbee2mqtt": ("services/home-automation/zigbee2mqtt/manifests/retained-startup/guard.py", UTILITY,
-                    ("zigbee2mqtt",), {"database.db": b'{"id": 1}\n', "state.json": b"{}",
-                                       "coordinator_backup.json": json.dumps({"metadata": {
-                                           "format": "zigpy/open-coordinator-backup", "version": 1}}).encode()}),
-}
-# a variant mounts its base app's ConfigMap, so it must not mount a group guard either
-CONTENT_MOUNTS = {**{app: app for app in CONTENT}, "qbittorrent-ru": "qbittorrent"}
-
-
-class ContentGuards(Base):
-    def each(self, fn):
-        for app, (path, message, argv, files) in CONTENT.items():
-            env = CLEANUPARR_ENV if app == "cleanuparr" else None
-            for name in argv:
-                with self.subTest(app=name):
-                    fn(path, message, name, files, env)
-
-    def test_marker_and_content_accepted(self):
-        self.each(lambda p, m, a, f, e: self.ok(p, [a, self.tree({**marker(a), **f})], e))
-
-    def test_marker_alone_refused(self):
-        self.each(lambda p, m, a, f, e: self.no(p, [a, self.tree(marker(a))], m, e))
-
-    def test_content_alone_refused(self):
-        self.each(lambda p, m, a, f, e: self.no(p, [a, self.tree(f)], m, e))
-
-    def test_each_content_file_required(self):
-        def check(p, m, a, f, e):
-            for name in f:
-                self.no(p, [a, self.tree({**marker(a), **{k: v for k, v in f.items() if k != name}})], m, e)
-        self.each(check)
-
-    def test_foreign_app_refused_even_with_valid_state(self):
-        for app, (path, message, argv, files) in CONTENT.items():
-            env = CLEANUPARR_ENV if app == "cleanuparr" else None
-            for other in ("sonarr", app + "-x", "qbittorrent-rux"):
-                with self.subTest(app=app, other=other):
-                    self.no(path, [other, self.tree({**marker(other), **files})], message, env)
-
-    def test_refuses_unsafe_app_name(self):
-        for app, (path, message, argv, files) in CONTENT.items():
-            for name in UNSAFE:
-                with self.subTest(app=app, name=name):
-                    self.no(path, [name, self.tree({f".homelab-{name}-data": f"homelab/{name}/data/v1\n".encode(),
-                                                    **files})], message)
-
-    def test_cleanuparr_backend_and_fallback(self):
-        path, message, _, files = CONTENT["cleanuparr"]
-        good = {**marker("cleanuparr"), **files}
-        self.no(path, ["cleanuparr", self.tree(good)], message, {**CLEANUPARR_ENV, "POSTGRES_HOST": "sqlite"})
-        self.no(path, ["cleanuparr", self.tree(good)], message, {**CLEANUPARR_ENV, "POSTGRES_PASS": ""})
-        self.no(path, ["cleanuparr", self.tree({**good, "events.db-wal": b"x"})], message, CLEANUPARR_ENV)
-        self.no(path, ["cleanuparr", self.tree({**good, "jwt-key.bin": bytes(31)})], message, CLEANUPARR_ENV)
-
-    def test_mosquitto_format(self):
-        path, message, _, _ = CONTENT["mosquitto"]
-        bad = MOSQUITTO[:19] + (5).to_bytes(4, "big") + MOSQUITTO[23:]
-        self.no(path, ["mosquitto", self.tree({**marker("mosquitto"), "mosquitto.db": bad})], message)
-
-
-# Per-app guards moved from inline ConfigMap keys to files, bytes unchanged
-PER_APP = {  # script: refusal message
-    "services/media/autobrr/manifests/retained-startup/guard.py":
-        "Retained Autobrr state is missing or invalid; restore acceptance is required.",
-    "services/media/calibre-web/manifests/retained-startup/guard.py":
-        "Retained CWA identity/native state refused; recovery acceptance is required.",
-    "services/operations/paperless-ngx/manifests/retained-startup/guard.py":
-        "Retained Paperless data refused; recovery acceptance is required.",
-    "infrastructure/controllers/databases/redis/manifests/retained-startup/guard.sh":
-        "Retained Redis startup refused: identity/integrity check failed.",
-    "infrastructure/controllers/databases/postgres/manifests/retained-startup/guard.sh":
-        "Retained PostgreSQL startup refused: data identity validation failed.",
-    "services/media/immich/manifests/retained-startup/guard.sh":
-        "Retained Immich PostgreSQL startup refused: identity check failed.",
-}
-
-
-def retained_folders():
-    return sorted(Path(p) for p in glob.glob(str(ROOT / "*/*/*/manifests/retained-startup"))
-                  + glob.glob(str(ROOT / "*/*/*/*/manifests/retained-startup")))
-
-
-class PerAppGuards(Base):
-    def test_every_guard_file_parses(self):
-        files = [p for d in retained_folders() for p in sorted(d.iterdir())]
-        self.assertGreaterEqual(len(files), 25)
-        for path in files:
-            with self.subTest(file=str(path.relative_to(ROOT))):
-                if path.suffix == ".py":
-                    compile(path.read_text(), str(path), "exec")
-                elif path.suffix == ".sh":
-                    r = subprocess.run(["/bin/bash", "-n", str(path)], capture_output=True, text=True)
-                    self.assertEqual(r.returncode, 0, r.stderr)
-
-    def test_per_app_scripts_refuse_blank_tree(self):
-        for path, message in PER_APP.items():
-            with self.subTest(script=path):
-                # bash guards read fixed in-container paths and tools: locally this only proves refusal
-                self.no(path, [self.tree({"lost+found/": None})], message)
-
-    def test_autobrr_content(self):
-        path = next(p for p in PER_APP if "autobrr" in p)
-        message = PER_APP[path]
-        files = {".homelab-autobrr-config": b"homelab/autobrr/config/v1\n", "config.toml": b'sessionSecret = "s"\n'}
-        self.no(path, [self.tree(files)], message)
-        root = self.tree(files)
-        with sqlite3.connect(Path(root, "autobrr.db")) as db:
-            for table in ("indexer", "irc_network", "filter", "action", "client", "release_profile_duplicate"):
-                db.execute(f"CREATE TABLE {table} (id INTEGER)")
-        db.close()
-        self.ok(path, [root])
-        self.no(path, [self.tree({**files, "autobrr.db": SQLITE})], message)
-
-    def test_calibre_web_content(self):
-        path = next(p for p in PER_APP if "calibre" in p)
-        message = PER_APP[path]
-        files = {**marker("calibre-web"), "config/.key": base64.urlsafe_b64encode(bytes(32))}
-        self.ok(path, [self.tree(files)])
-        self.no(path, [self.tree(marker("calibre-web"))], message)
-        self.no(path, [self.tree({**files, "config/.key": b"x" * 44})], message)
-
-    def test_paperless_content(self):
-        path = next(p for p in PER_APP if "paperless" in p)
-        message = PER_APP[path]
-        segment = "0123abcd-0000-0000-0000-0123456789ab"
-        files = {
-            ".homelab-paperless-data": b"homelab/paperless/data/v1\n", ".index_version": b"7\n",
-            "index/.index_settings.json": json.dumps({"schema_version": 1, "language": "en"}).encode(),
-            "index/meta.json": json.dumps({"schema": [{"name": "id"}, {"name": "content"}], "opstamp": 3,
-                                           "segments": [{"segment_id": segment, "max_doc": 2}]}).encode()}
-        self.ok(path, [self.tree(files)])
-        self.no(path, [self.tree({".homelab-paperless-data": files[".homelab-paperless-data"]})], message)
-        self.no(path, [self.tree({**files, ".index_version": b"0"})], message)
-        bad = json.dumps({"schema": [], "opstamp": 3, "segments": []}).encode()
-        self.no(path, [self.tree({**files, "index/meta.json": bad})], message)
+    def test_template_serves_the_file(self):
+        self.assertIn('guard.py: |{{ $.Files.Get "files/retained-startup/guard.py" | nindent 4 }}',
+                      (ROOT / TEMPLATE).read_text())
 
 
 def load(path):
     return yaml.safe_load(Path(path).read_text()) or {}
 
 
-def generated(manifests):
-    """(namespace, name) -> source files of each ConfigMap a manifests dir's kustomization generates."""
-    kust = load(manifests / "kustomization.yaml")
-    return {(g.get("namespace", kust.get("namespace")), g["name"]): [f.split("=")[-1] for f in g.get("files", [])]
-            for g in kust.get("configMapGenerator", [])}
+def merge(base, over):
+    """Helm values layering: maps merge, everything else replaces."""
+    if isinstance(base, dict) and isinstance(over, dict):
+        return {**base, **{k: merge(base.get(k), v) for k, v in over.items()}}
+    return over
+
+
+def apps():
+    """(app dir, namespace, merged values) for every app, layered as bootstrap/appsets/cluster-apps.yaml does."""
+    for app_yaml in sorted(glob.glob(str(ROOT / "services/*/*/app.yaml"))
+                           + glob.glob(str(ROOT / "infrastructure/**/app.yaml"), recursive=True)):
+        d = Path(app_yaml).parent
+        app = load(app_yaml)
+        base = ROOT / app["baseApp"] if app.get("baseApp") else None
+        layers = ([base / "values.yaml"] + ([d / "values.yaml"] if app.get("valuesOverride") else [])
+                  if base else [d / "values.yaml"])
+        values = {}
+        for layer in layers:
+            if layer.exists():
+                values = merge(values, load(layer))
+        yield d, app["namespace"], values
+
+
+def walk(node, key=None):
+    """Yield (key, node) for every mapping, parsing string-block init lists (pgadmin) too."""
+    if isinstance(node, str) and key == "extraInitContainers":
+        node = yaml.safe_load(node)
+    if isinstance(node, dict):
+        yield key, node
+        for k, v in node.items():
+            yield from walk(v, k)
+    elif isinstance(node, list):
+        for v in node:
+            yield from walk(v, key)
+
+
+def mounts(values, container, init):
+    """(mount path, readOnly, volume source) for an init container, app-template or plain Kubernetes form."""
+    if "volumeMounts" in container:
+        volumes = {n["name"]: n for _, n in walk(values)
+                   if "name" in n and {"configMap", "persistentVolumeClaim"} & set(n)}
+        return [(m["mountPath"], m.get("readOnly"), volumes.get(m["name"], {})) for m in container["volumeMounts"]]
+    found = []
+    for entry in (values.get("persistence") or {}).values():
+        for controller in (entry.get("advancedMounts") or {}).values():
+            for m in controller.get(init) or []:
+                found.append((m["path"], m.get("readOnly"), entry))
+    return found
+
+
+def guards():
+    """(app dir, namespace, init name, container, mounts) for every init container that runs /retained-startup/."""
+    for d, namespace, values in apps():
+        for key, node in walk(values):
+            command = node.get("command")
+            if isinstance(command, list) and any("/retained-startup/" in str(c) for c in command):
+                init = node.get("name", key)
+                yield d, namespace, init, node, mounts(values, node, init)
+
+
+def template_namespaces():
+    return re.findall(r'"([a-z0-9-]+)"', re.search(r"range list ([^}]*)", (ROOT / TEMPLATE).read_text())[1])
 
 
 class Wiring(unittest.TestCase):
-    def test_kustomizations_are_complete(self):
-        dirs = sorted(Path(p).parent for p in glob.glob(str(ROOT / "*/*/*/manifests/kustomization.yaml"))
-                      + glob.glob(str(ROOT / "*/*/*/*/manifests/kustomization.yaml")))
-        self.assertGreaterEqual(len(dirs), 22)
-        for manifests in dirs:
-            with self.subTest(dir=str(manifests.relative_to(ROOT))):
-                kust = load(manifests / "kustomization.yaml")
-                yamls = {p.name for p in manifests.glob("*.yaml")} - {"kustomization.yaml"}
-                self.assertEqual(yamls, set(kust.get("resources", [])))  # an unlisted file is pruned live
-                used = {f for files in generated(manifests).values() for f in files}
-                guards = {f"retained-startup/{p.name}" for p in (manifests / "retained-startup").glob("*")}
-                self.assertLessEqual(guards, used)
+    def test_every_guard_is_the_generic_guard(self):
+        seen = {}
+        for d, namespace, init, container, found in guards():
+            command = container["command"]
+            with self.subTest(app=d.name, init=init):
+                self.assertEqual(command[:4], ["python3", "-I", "-B", "/retained-startup/guard.py"])
+                app, root, *rest = command[4:]
+                self.assertNotIn(app, seen)
+                seen[app] = (d.name, root, *rest)
+                image = container["image"]
+                self.assertEqual(image if isinstance(image, str) else f"{image['repository']}@{image['digest']}", PYTHON)
+                self.assertNotIn("args", container)
+                self.assertIn(namespace, template_namespaces())
+                cm = [(ro, src) for path, ro, src in found if path == "/retained-startup"]
+                self.assertEqual(len(cm), 1)
+                ro, src = cm[0]
+                self.assertTrue(ro)
+                self.assertEqual((src.get("configMap") or src).get("name"), CONFIGMAP)
+                self.assertEqual((src.get("configMap") or src).get("defaultMode"), 292)
+                claim = [ro for path, ro, _ in found if path == root]
+                self.assertEqual(claim, [True])  # the claim is mounted once, read-only, at the root
+                security = container["securityContext"]
+                self.assertIn("runAsUser", security)
+                self.assertTrue(security["readOnlyRootFilesystem"])
+                self.assertEqual(security["capabilities"]["drop"], ["ALL"])
+        self.assertEqual(seen, GUARDS)
 
-    def test_every_retained_startup_folder_is_generated(self):
-        folders = retained_folders()
-        self.assertGreaterEqual(len(folders), 19)
-        for folder in folders:
-            manifests = folder.parent
-            with self.subTest(dir=str(manifests.relative_to(ROOT))):
-                self.assertTrue((manifests / "kustomization.yaml").exists())
-                self.assertNotIn("namespace", load(manifests / "kustomization.yaml"))  # set per generator
-                self.assertTrue(generated(manifests))
-                app = load(manifests.parent / "app.yaml")
-                self.assertTrue(app.get("manifests"))
-                self.assertNotIn("baseApp", app)  # a variant renders only its own dir: never define the guard twice
+    def test_template_namespaces_are_the_consumers(self):
+        self.assertEqual(sorted(template_namespaces()), sorted({ns for _, ns, *_ in guards()}))
+        self.assertEqual(sorted(template_namespaces()),
+                         ["databases", "home-automation", "media", "monitoring", "operations"])
 
-    def test_every_mount_resolves_in_its_namespace(self):
-        group = set()
-        for path in (ROOT / TEMPLATES).glob("*/guard*.yaml"):
-            text = path.read_text()
-            group.add((re.search(r"^  namespace: (\S+)$", text, re.M)[1], re.search(r"^  name: (\S+)$", text, re.M)[1]))
-        self.assertEqual(len(group), 6)
-        mounts, seen = {}, set()
-        for app_yaml in sorted(glob.glob(str(ROOT / "services/*/*/app.yaml"))
-                               + glob.glob(str(ROOT / "infrastructure/*/*/*/app.yaml"))):
-            d = Path(app_yaml).parent
-            app = load(app_yaml)
-            base = ROOT / app["baseApp"] if app.get("baseApp") else None
-            layers = ([base / "values.yaml"] + ([d / "values.yaml"] if app.get("valuesOverride") else [])
-                      if base else [d / "values.yaml"])
-            name, native = None, set()
-            for layer in layers:
-                if layer.exists():
-                    retained = ((load(layer).get("persistence") or {}).get("retained-startup") or {})
-                    name = retained.get("name", name)
-                    # chart-native volumes (prometheus, grafana, loki, pgadmin, postgres, redis) name it elsewhere
-                    native |= set(re.findall(r"^\s+name: (\S+-retained-startup(?:-guard)?)\s*$", layer.read_text(), re.M))
-            owned = {k for o in (d, base) if o and (o / "manifests/kustomization.yaml").exists()
-                     for k in generated(o / "manifests")}
-            if name is not None:
-                mounts[d.name] = (app["namespace"], name)
-            for cm in native | ({name} if name else set()):
-                with self.subTest(app=d.name, configmap=cm):
-                    self.assertTrue((app["namespace"], cm) in group | owned, cm)
-                    seen.add((app["namespace"], cm))
-        self.assertGreaterEqual(len(mounts), 32)
-        self.assertGreaterEqual(len(seen), 25)
-        for app, base in CONTENT_MOUNTS.items():
-            with self.subTest(content_app=app):
-                self.assertNotIn(mounts[app], group)
-                self.assertEqual(mounts[app][1], f"{base}-retained-startup-guard")
+    def test_database_markers_are_pinned(self):
+        # Neither marker exists until the controller writes it live, before merge
+        self.assertEqual(GUARDS["postgres"], ("postgres", "/bitnami/postgresql"))
+        self.assertEqual(GUARDS["immich-postgres"], ("immich", "/data"))
+        by_app = {c["command"][4]: (ns, c["command"][5:]) for _, ns, _, c, _ in guards()}
+        self.assertEqual(by_app["postgres"], ("databases", ["/bitnami/postgresql"]))
+        self.assertEqual(by_app["immich-postgres"], ("media", ["/data"]))
+
+    def test_no_other_retained_configmap_is_mounted(self):
+        for d, _, values in apps():
+            for _, node in walk(values):
+                source = node.get("configMap")
+                name = source.get("name") if isinstance(source, dict) else (
+                    node.get("name") if node.get("type") == "configMap" else None)
+                if name and "retained" in name:
+                    with self.subTest(app=d.name, configmap=name):
+                        self.assertEqual(name, CONFIGMAP)
+
+
+class NothingLeftBehind(unittest.TestCase):
+    def test_no_retained_startup_dirs(self):
+        self.assertEqual([p for p in glob.glob(str(ROOT / "**/retained-startup"), recursive=True)
+                          if "/infrastructure/base-configs/files/" not in p], [])
+
+    def test_no_other_guard_configmap(self):
+        pattern = re.compile(r"[a-z0-9]-retained-(?:startup|database-guard)")
+        hits = []
+        for top in ("infrastructure", "services", "templates", "bootstrap", "scripts"):
+            for path in (ROOT / top).rglob("*"):
+                if path.is_file() and path.suffix in (".yaml", ".yml", ".py", ".sh", ".sql", ".json", ".tpl"):
+                    if path != Path(__file__).resolve() and pattern.search(path.read_text(errors="replace")):
+                        hits.append(str(path.relative_to(ROOT)))
+        self.assertEqual(hits, [])
 
 
 if __name__ == "__main__":

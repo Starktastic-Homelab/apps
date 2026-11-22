@@ -1,8 +1,7 @@
 # PostgreSQL enrollment completion gate wiring shared by app-template consumers
-# whose controller is `main` with init containers `enrollment` and `database`.
+# whose controller is `main` with init container `enrollment`.
 # Loaded via `commonValuesExtras`. Each app still sets its ServiceAccount, the
-# enrollment args (--id/--database/--role) and dependsOn, its `database` init
-# and `persistence.pg-completion-password.name`.
+# enrollment args (--id/--database/--role) and dependsOn.
 controllers:
   main:
     initContainers:
@@ -63,16 +62,4 @@ persistence:
       main:
         enrollment:
           - path: /gate-api
-            readOnly: true
-  pg-completion-password:
-    type: secret
-    defaultMode: 292
-    items:
-      - key: password
-        path: password
-    globalMounts: []
-    advancedMounts:
-      main:
-        database:
-          - path: /credentials
             readOnly: true

@@ -207,7 +207,7 @@ class RetainedGuards(unittest.TestCase):
         for path, (message, _, _) in SHARED.items():
             for app in ("", "../x", "a/b", "A", "-x", "x-", "x" * 64, "a\n"):
                 with self.subTest(script=path, app=app):
-                    files = {} if "/" in app else {f".homelab-{app}-data": f"homelab/{app}/data/v1\n".encode()}
+                    files = {f".homelab-{app}-data": f"homelab/{app}/data/v1\n".encode()}  # "/" names plant nested markers
                     self.no(T + path, [app, self.tree(files)], message)
 
     def test_group_guards_list_only_apps_with_checks(self):

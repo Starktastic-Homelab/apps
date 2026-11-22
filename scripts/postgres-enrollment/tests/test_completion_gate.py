@@ -64,6 +64,8 @@ class CompletionGate(unittest.TestCase):
                                      app_secret='example-db-secret', app_password_key='password')
         resources, fragment = prepare.consumer_sources(options)
         self.assertNotIn('ConfigMap', [r['kind'] for r in resources])
+        self.assertEqual([c['name'] for c in fragment['initContainers']], ['postgres-enrollment-acceptance'])
+        self.assertEqual([v['name'] for v in fragment['volumes']], ['pg-completion-script', 'pg-completion-api'])
         script = next(v for v in fragment['volumes'] if v['name'] == 'pg-completion-script')
         self.assertEqual(script['configMap']['name'], NAME)
 

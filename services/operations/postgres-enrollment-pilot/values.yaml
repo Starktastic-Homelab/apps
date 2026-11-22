@@ -43,47 +43,6 @@ controllers:
           limits:
             cpu: 100m
             memory: 64Mi
-      postgres-canonical-login:
-        image:
-          repository: postgres
-          tag: 18.6-alpine
-          digest: sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd
-        command:
-          - /bin/sh
-          - -ec
-          - export PGPASSWORD="$(cat /credentials/password)"; exec psql -XqAt -v ON_ERROR_STOP=1 -c "SELECT 1"
-            >/dev/null 2>&1
-        env:
-          - name: PGHOST
-            value: postgres-postgresql.databases
-          - name: PGPORT
-            value: "5432"
-          - name: PGUSER
-            value: homelab_enrollment_pilot
-          - name: PGDATABASE
-            value: homelab_enrollment_pilot
-          - name: PGCONNECT_TIMEOUT
-            value: "10"
-        securityContext:
-          runAsNonRoot: true
-          runAsUser: 1001
-          runAsGroup: 1001
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          capabilities:
-            drop:
-              - ALL
-          seccompProfile:
-            type: RuntimeDefault
-        resources:
-          requests:
-            cpu: 10m
-            memory: 16Mi
-          limits:
-            cpu: 100m
-            memory: 32Mi
-        dependsOn:
-          - postgres-enrollment-acceptance
     containers:
       main:
         image:
@@ -187,9 +146,6 @@ persistence:
     globalMounts: []
     advancedMounts:
       main:
-        postgres-canonical-login:
-          - path: /credentials
-            readOnly: true
         main:
           - path: /credentials
             readOnly: true

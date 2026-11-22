@@ -215,9 +215,9 @@ maintenance change in this preparation PR.
    physical ID/catalog and server health. No source writer may coexist.
 7. Restore the generation-specific enrollment Job in desired state and run a
    full native PostgreSQL Application hook against the healthy retained server.
-   Verify both canonical logins, unchanged established objects and ready ledger,
-   then repeat full sync. Restore the pilot and validate its ordered gates and
-   existing sentinel. Release existing consumers through the reviewed PR only
+   Verify the hook's login checks, unchanged established objects and ready
+   ledger, then repeat full sync. Restore the pilot and validate its acceptance
+   gate and existing sentinel. Release existing consumers through the reviewed PR only
    after database/restore acceptance; verify their application behavior and
    readiness, not merely SQL or Argo status. Preserve all existing credentials.
 8. Verify clean server Pod recreation and movement between healthy workers using

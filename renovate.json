@@ -133,14 +133,14 @@
       "automerge": false
     },
     {
-      "description": "One Renovate path for the python image: the python regex custom manager below reads every pin. helm-values and kubernetes see only some of them (not the app-template repository/digest form, not a string block such as pgadmin's extraInitContainers), so they are off for python to avoid editing the same pin twice.",
+      "description": "One Renovate path for the python image: the python regex custom manager below reads every digest pin (a tag-only pin such as jellyfin's python:alpine is left unmanaged, as before). helm-values and kubernetes see only some of them (not the app-template repository/digest form, not a string block such as pgadmin's extraInitContainers), so they are off for python to avoid editing the same pin twice.",
       "matchManagers": ["helm-values", "kubernetes"],
       "matchDatasources": ["docker"],
       "matchPackageNames": ["python"],
       "enabled": false
     },
     {
-      "description": "Group every python image pin (retained-startup guards, PostgreSQL completion gates, the enrollment generator, tools) into one PR, so all pins move to one digest together. A digest-only pin tracks python:latest.",
+      "description": "Group every python digest pin (retained-startup guards, PostgreSQL completion gates, the enrollment generator, tools) into one PR, so all pins move to one digest together. A digest-only pin tracks python:latest.",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["python"],
       "groupName": "python image"
@@ -182,7 +182,7 @@
       "datasourceTemplate": "{{datasource}}"
     },
     {
-      "description": "Every python image pin, in any form: app-template `repository: python` + `digest:` (which helm-values skips, as it needs a tag), `python@sha256:` strings in values, manifests and string blocks, and the enrollment generator's literal.",
+      "description": "Every python digest pin: app-template `repository: python` + `digest:` (which helm-values skips, as it needs a tag), `python@sha256:` strings in values, manifests and string blocks, and the enrollment generator's literal.",
       "customType": "regex",
       "managerFilePatterns": ["/^(infrastructure|services)/.*\\.yaml$/", "/^scripts/.*\\.py$/"],
       "matchStrings": [

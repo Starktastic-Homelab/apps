@@ -18,7 +18,7 @@ app's name.
 
 The marker rule is the same for every volume: the marker is `<root>/.homelab-<app>-<kind>` and holds
 `homelab/<app>/<kind>/v1` and a newline. `<app>` and `<kind>` are lowercase names (letters, digits and inner
-hyphens, at most 63 characters); `<kind>` defaults to `data`. Each guarded workload's arguments (`<app>`, `<root>`,
+hyphens, at most 63 characters, and the whole marker must fit in 128 bytes); `<kind>` defaults to `data`. Each guarded workload's arguments (`<app>`, `<root>`,
 and any `<kind>` or marker file) are in its app's `values.yaml`, on the init container whose command runs
 `/retained-startup/guard.py`; the uid is that container's `runAsUser`. A new app needs only that init container and
 its marker, never a change to the guard or its tests; an app in a new namespace also adds that namespace to the

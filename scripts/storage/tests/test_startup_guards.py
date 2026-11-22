@@ -58,7 +58,7 @@ class GenericGuard(unittest.TestCase):
                 self.accepts(app, self.tree(marker(app)), "data")
                 for kind in ("config", "cache", "state-2"):
                     self.accepts(app, self.tree(marker(app, kind)), kind)
-        self.accepts("a", self.tree(marker("a", "x" * 63)), "x" * 63)  # both at 63 would pass the 128-byte cap
+        self.accepts("a", self.tree(marker("a", "x" * 63)), "x" * 63)  # a 63-character kind; app + kind must fit 128 bytes
 
     def test_accepts_an_explicit_marker_file(self):
         root = self.tree(marker("seerr-ru", "config", ".homelab-seerr-config"))
@@ -109,11 +109,18 @@ class GenericGuard(unittest.TestCase):
         for kind in UNSAFE + ("Data", "data/", "other"):  # "other" is well formed, but its marker holds data
             with self.subTest(kind=kind):
                 self.refuses("sonarr", self.tree(planted), kind)
+                # a valid explicit file whose content names the bad kind, so only the kind pattern refuses
+                files = {".homelab-sonarr-other": f"homelab/sonarr/{kind}/v1\n".encode()}
+                if kind != "other":
+                    self.refuses("sonarr", self.tree(files), kind, ".homelab-sonarr-other")
         for name in ("", "x", "sub/.homelab-sonarr-data", "../.homelab-sonarr-data", ".homelab-sonarr-",
                      ".homelab-Sonarr-data", ".homelab--data", ".homelab-sonarr-data\n", "/.homelab-sonarr-data",
                      ".homelab-sonarr-Data", ".homelab-sonarr-data-", ".homelab-" + "x" * 64 + "-data"):
             with self.subTest(name=name):
-                self.refuses("sonarr", self.tree(planted), "data", name)
+                files = dict(planted)
+                if name and "/" not in name:  # plant the bad name itself, so only the name pattern refuses
+                    files[name] = b"homelab/sonarr/data/v1\n"
+                self.refuses("sonarr", self.tree(files), "data", name)
 
     def test_refuses_wrong_argument_count(self):
         root = self.tree(marker("sonarr"))

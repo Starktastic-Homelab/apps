@@ -1,6 +1,7 @@
 name: zigbee2mqtt
 namespace: home-automation
 deployPhase: services
+manifests: true
 
 ingress:
   enabled: true

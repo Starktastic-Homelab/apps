@@ -119,7 +119,7 @@ persistence:
     globalMounts: []
   retained-startup:
     type: configMap
-    name: utility-home-retained-startup-guard
+    name: qbittorrent-retained-startup-guard
     defaultMode: 292
     globalMounts: []
     advancedMounts:

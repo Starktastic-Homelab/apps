@@ -31,11 +31,11 @@ def marker(app):
     return {f".homelab-{app}-data": f"homelab/{app}/data/v1\n".encode()}
 
 
-def run_script(path, args, env=None):
+def run_script(path, args, env=None, timeout=60):
     path = ROOT / path
     cmd = [sys.executable, "-I", "-B", str(path)] if path.suffix == ".py" else ["/bin/bash", str(path)]
     return subprocess.run(cmd + [str(a) for a in args], capture_output=True, text=True,
-                          env=env if env is not None else {"PATH": os.environ["PATH"]})
+                          env=env if env is not None else {"PATH": os.environ["PATH"]}, timeout=timeout)
 
 
 class Base(unittest.TestCase):
@@ -92,6 +92,14 @@ class GenericGuard(Base):
         link = Path(self.tree({}), "root")
         os.symlink(outside.parent, link)
         self.refuses("sonarr", link)
+
+    def test_refuses_fifo_marker_without_blocking(self):
+        # the f2258f10 monitoring guard opened without O_NONBLOCK and hung here; init must exit 1 instead
+        root = Path(self.tree({"lost+found/": None}))
+        os.mkfifo(root / ".homelab-prometheus-data")
+        r = run_script(GENERIC, ["prometheus", root], timeout=10)
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn(GENERIC_MESSAGE, r.stderr)
 
     def test_other_apps_keep_their_marker(self):
         self.refuses("sonarr", self.tree(marker("radarr")))

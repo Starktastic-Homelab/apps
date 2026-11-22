@@ -133,6 +133,19 @@
       "automerge": false
     },
     {
+      "description": "One Renovate path for the python image: the python regex custom manager below reads every pin. helm-values and kubernetes see only some of them (not the app-template repository/digest form, not a string block such as pgadmin's extraInitContainers), so they are off for python to avoid editing the same pin twice.",
+      "matchManagers": ["helm-values", "kubernetes"],
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["python"],
+      "enabled": false
+    },
+    {
+      "description": "Group every python image pin (retained-startup guards, PostgreSQL completion gates, the enrollment generator, tools) into one PR, so all pins move to one digest together. A digest-only pin tracks python:latest.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["python"],
+      "groupName": "python image"
+    },
+    {
       "description": "Retained Stirling H2 filename and engine need storage-format review before an image update",
       "matchPackageNames": ["stirlingtools/stirling-pdf"],
       "matchFileNames": ["services/operations/stirling-pdf/values.yaml"],
@@ -167,6 +180,17 @@
         "# renovate: datasource=(?<datasource>\\S+)\\n\\s+\\S+:\\s*\"?(?<depName>[^:\"\\s]+):(?<currentValue>[^\"\\s]+)\"?"
       ],
       "datasourceTemplate": "{{datasource}}"
+    },
+    {
+      "description": "Every python image pin, in any form: app-template `repository: python` + `digest:` (which helm-values skips, as it needs a tag), `python@sha256:` strings in values, manifests and string blocks, and the enrollment generator's literal.",
+      "customType": "regex",
+      "managerFilePatterns": ["/^(infrastructure|services)/.*\\.yaml$/", "/^scripts/.*\\.py$/"],
+      "matchStrings": [
+        "repository: \"?python\"?\\n\\s+digest: \"?(?<currentDigest>sha256:[a-f0-9]{64})",
+        "['\"\\s]python@(?<currentDigest>sha256:[a-f0-9]{64})"
+      ],
+      "depNameTemplate": "python",
+      "datasourceTemplate": "docker"
     },
     {
       "description": "Update pinned tool versions in CI workflows",

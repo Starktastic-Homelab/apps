@@ -10,9 +10,11 @@ fragments remain reference and qualification inputs, not an activation switch.
 Redis uses the stock upstream Proxmox CSI driver with a statically prebound
 2GiB ext4 RWOP/Retain image, owner9999, cache none. Terraform does not own this
 image. A normal cluster rebuild recreates the Kubernetes objects and reuses the
-same image. The retained-data init guard validates the marker and complete native
-AOF layout before stock Redis starts. Missing/wrong/empty storage blocks startup;
-there is no dynamic fallback or empty initialization.
+same image. The `verify-retained-data` init runs the generic marker guard (`infrastructure/base-configs/files/retained-startup/guard.py`, ConfigMap `retained-startup-guard`)
+before stock Redis starts: `/data/.homelab-redis-data` must be a regular file holding
+exactly `homelab/redis/data/v1` and a newline. It no longer checks the AOF layout.
+A missing/wrong marker blocks startup; there is no dynamic fallback or empty
+initialization.
 
 The default application password and data permissions stay unchanged. Native ACLs
 deny application `CONFIG SET` and `ACL`; a distinct `homelab-maintenance` account

@@ -6,15 +6,15 @@ Private files now live on the NFS claim `databases/pgadmin-files` (see the
 [retired on 2026-11-16](../../infrastructure/system/proxmox-csi/README.md#retired-migration-sources-2026-11-16); those parts of this page are history.
 
 pgAdmin keeps its complete configuration database in shared PostgreSQL and private
-files on retained Proxmox CSI. Startup requires accepted current enrollment, the
-retained file identity and the expected native SQL schema and application keys.
+files on retained Proxmox CSI. Startup requires accepted current enrollment and the
+retained file marker.
 
 The file volume is `databases/pgadmin-data-block`:1GiB ext4, ReadWriteOncePod,
 Retain, backed by `homelab//k3s-block/9999/vm-9999-pgadmin.raw`. It mounts at
 `/var/lib/pgadmin` and requires `.homelab-pgadmin-data` containing
-`homelab/pgadmin/data/v1` plus `storage`, `sessions` and `azurecredentialcache`.
-The guard rejects SQLite engine/backup files, competing configuration, missing
-state and the wrong physical PostgreSQL server. An empty database or replacement
+`homelab/pgadmin/data/v1` and a newline, checked by the generic marker guard (`infrastructure/base-configs/files/retained-startup/guard.py`, ConfigMap `retained-startup-guard`).
+It no longer checks native directories, SQLite files, configuration or the
+PostgreSQL server, and there is no startup SQL check. An empty database or replacement
 disk is never a recovery procedure.
 
 Ordinary worker replacement and full Kubernetes metadata rebuild reuse the static
@@ -30,12 +30,6 @@ Python string required by the stock entrypoint. It uses the shared `pgadmin`
 database/role and a pool limited to two connections plus one overflow connection.
 No application patch or new controller is involved. Retain the current internal
 and webserver authentication settings and saved-server declarations.
-
-The SQL guard checks the complete native schema catalog, migration markers,
-original key fingerprints, active administrator and physical PostgreSQL identity
-before stock pgAdmin can initialize anything. Keep image/schema signatures and
-guard qualification together on upgrade. Deliberate application-key rotation or
-physical PostgreSQL recovery requires separate acceptance of new guard inputs.
 
 Before authoritative PostgreSQL startup, the unchanged cold SQLite source could have
 been resumed only after every target writer and attachment retires and complete source

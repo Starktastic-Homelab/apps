@@ -12,10 +12,10 @@ verified Node retirement and CSI topology handle fresh VM generations. Replacing
 the control plane replaces all workers as the accepted fencing boundary. No
 Velero checkpoint or manual backup verification gates routine rebuilds.
 
-The `retained-state` init container runs the identity guard
-(`media-retained-startup-guard`, `jellyfin`): it refuses a filesystem without the marker
-`.homelab-jellyfin-data`, so a blank or wrong volume never starts. A refusal is a stop, never
-a reason to edit the volume or write a marker.
+The volume root carries the marker `.homelab-jellyfin-data` holding exactly
+`homelab/jellyfin/data/v1` and a newline. No startup guard reads it yet; a later
+change wires the generic marker guard (ConfigMap `retained-startup-guard`) for
+Jellyfin. A missing marker is a stop, never a reason to write one.
 
 The PV/PVC are Retain, RWOP and protected from Argo prune/delete. Do not remove
 those protections to resolve an attachment problem. The accepted rare storage-fault

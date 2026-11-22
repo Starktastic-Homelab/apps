@@ -18,10 +18,12 @@ mounted through `media/immich-library-pvc` (PV `immich-library-pv`,
 asset paths are unchanged. The checkpoint below describes the layout at the time,
 when Immich still shared `main/media` with the media workloads.
 
-Normal Terraform/Ansible cluster rebuilds reuse the retained image. A read-only
-init guard validates PG17, its control-file CRC, exact physical system identifier,
-required native data, and refuses standby/recovery signals and wrong/empty
-storage. Stock PID/WAL handling is accepted only under the selected RWOP and VM
+Normal Terraform/Ansible cluster rebuilds reuse the retained image. The read-only
+`verify-retained-data` init runs the generic marker guard (`infrastructure/base-configs/files/retained-startup/guard.py`, ConfigMap `retained-startup-guard`): it refuses
+startup unless `/data/.homelab-immich-postgres-data` (on the claim root, outside
+`/data/pgdata`) is a regular file holding exactly `homelab/immich-postgres/data/v1`
+and a newline. It no longer checks the PostgreSQL major, control file or physical
+system identifier. Stock PID/WAL handling is accepted only under the selected RWOP and VM
 retirement fencing. There is no BusyBox PID-deletion init or recursive fsGroup
 ownership rewrite. A missing or invalid image blocks startup.
 

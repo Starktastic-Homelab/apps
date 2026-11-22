@@ -5,13 +5,13 @@ selects ten ordinary-file volumes. Their fixed bindings are declared by
 `infrastructure/base-configs/files/ordinary-file-volumes.json` and rendered by
 `templates/ordinary-file-storage.yaml` inside the base-configs chart.
 The active workload values select these prepared NFS claims. Preparing bindings alone does not switch workload mounts. Do not mount a fresh
-empty target into an application: retained identity guards must pass first.
+empty target into an application: the generic marker guard must pass first.
 
 For each authorized cutover:
 
 1. Record exact Git revision, Application/controller/Pod/PVC/PV identities, raw
    image handle and target NAS directory identity. Require healthy nodes, current
-   enrollment and successful read-only SQL guards. Refuse reused target paths.
+   enrollment and a passing marker guard. Refuse reused target paths.
 2. Hold only the relevant Argo owners against automated reconciliation. Hold
    frontend Service selectors before scaling the selected controller to zero;
    wait for its old Pods, runtime processes and mounts to retire. Hold Filebrowser

@@ -13,9 +13,9 @@ the control plane replaces all workers as the accepted fencing boundary. No
 Velero checkpoint or manual backup verification gates routine rebuilds.
 
 The volume root carries the marker `.homelab-jellyfin-data` holding exactly
-`homelab/jellyfin/data/v1` and a newline. No startup guard reads it yet; a later
-change wires the [generic marker guard](retained-startup-guard.md) for Jellyfin.
-Never write or rewrite the marker by hand.
+`homelab/jellyfin/data/v1` and a newline. The
+[generic marker guard](retained-startup-guard.md) checks it before Jellyfin
+starts. Never write or rewrite the marker by hand.
 
 The PV/PVC are Retain, RWOP and protected from Argo prune/delete. Do not remove
 those protections to resolve an attachment problem. The accepted rare storage-fault

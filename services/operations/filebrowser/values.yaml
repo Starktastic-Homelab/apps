@@ -50,6 +50,36 @@ controllers:
             spec:
               failureThreshold: 30
               periodSeconds: 5
+    initContainers:
+      retained-state:
+        image:
+          repository: python
+          digest: sha256:8c9a3bf2d6dea60d60a2ae2a07c2b2fb1e7d8daed64b146b6792c74ae0d62ac4
+        command:
+          - python3
+          - -I
+          - -B
+          - /retained-startup/guard.py
+          - filebrowser
+          - /retained
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
 
 service:
   main:
@@ -64,19 +94,44 @@ persistence:
   fbconfig:
     type: configMap
     name: filebrowser-config
-    globalMounts:
-      - path: /config
-        readOnly: true
+    globalMounts: []
+    advancedMounts:
+      main:
+        main:
+          - path: /config
+            readOnly: true
   data:
     existingClaim: filebrowser-data-block
-    globalMounts:
-      - path: /home/filebrowser/data
+    globalMounts: []
+    advancedMounts:
+      main:
+        main:
+          - path: /home/filebrowser/data
+        retained-state:
+          - path: /retained
+            readOnly: true
+  retained-startup:
+    type: configMap
+    name: retained-startup-guard
+    defaultMode: 292
+    globalMounts: []
+    advancedMounts:
+      main:
+        retained-state:
+          - path: /retained-startup
+            readOnly: true
   apps:
     existingClaim: filebrowser-apps-pvc
-    globalMounts:
-      - path: /srv/apps
+    globalMounts: []
+    advancedMounts:
+      main:
+        main:
+          - path: /srv/apps
   media:
     enabled: true
     existingClaim: filebrowser-media-pvc
-    globalMounts:
-      - path: /srv/media
+    globalMounts: []
+    advancedMounts:
+      main:
+        main:
+          - path: /srv/media

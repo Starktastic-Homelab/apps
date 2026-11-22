@@ -20,9 +20,10 @@ image's remaining full growth, staging and spare headroom. A quota is a ceiling,
 not reserved physical space or a backup. Never overwrite/recreate an existing
 raw image, force detach, or permit two writers to bypass a failed handoff.
 
-Each stock engine starts only after a read-only guard validates its exact marker
-(plus content checks for the few apps that have them), without opening SQLite,
-repairing a filesystem or creating missing data. A wrong/absent marker stops startup.
+Each stock engine starts only after a read-only guard validates its exact marker,
+without opening SQLite, repairing a filesystem or creating missing data. The group
+guard in base-configs checks the identity marker only. Cleanuparr and Cineplete also
+check native content, so each owns its guard in its `manifests/retained-startup/` dir. A wrong/absent marker stops startup.
 Investigate the retained image and filesystem identity; do not create a marker or
 an empty database to bypass the guard. Keep the pinned application images.
 Sonarr/Radarr RU overrides retain their own claim and marker identities.

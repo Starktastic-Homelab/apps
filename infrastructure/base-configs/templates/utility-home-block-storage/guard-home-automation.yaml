@@ -11,19 +11,13 @@ data:
     import json
     import os
     from pathlib import Path
+    import re
     import stat
     import struct
     import sys
 
     LAYOUTS = {
-        'qbittorrent': (),
-        'qbittorrent-ru': (),
         'changedetection': ('changedetection.json', 'secret.txt'),
-        'stirling-pdf': (),
-        'microbin': (),
-        'lingarr': (),
-        'mosquitto': (),
-        'zigbee2mqtt': (),
     }
 
 
@@ -79,12 +73,12 @@ data:
 
 
     def validate(app, root):
-        if app not in LAYOUTS or root.absolute() != root.resolve(strict=True) or not stat.S_ISDIR(root.lstat().st_mode):
+        if not re.fullmatch(r'[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?', app) or root.absolute() != root.resolve(strict=True) or not stat.S_ISDIR(root.lstat().st_mode):
             raise ValueError('Invalid retained application or root')
         identity = native_file(root, '.homelab-' + app + '-data', 129)
         if identity != ('homelab/' + app + '/data/v1\n').encode():
             raise ValueError('Wrong retained identity')
-        for name in LAYOUTS[app]:
+        for name in LAYOUTS.get(app, ()):
             if name.endswith('/'):
                 path = root
                 for component in Path(name).parts:

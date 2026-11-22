@@ -1,3 +1,4 @@
+import ast
 import base64
 import json
 import os
@@ -193,6 +194,40 @@ class RetainedGuards(unittest.TestCase):
                 with self.subTest(script=path, app=app):
                     self.ok(T + path, [app, self.tree({**marker(app), **CONTENT[app]})])
                     self.no(T + path, [app, self.tree(CONTENT[app])], message)
+
+    def test_unlisted_marker_only_app_accepted(self):
+        for path, (message, _, _) in SHARED.items():
+            with self.subTest(script=path):
+                self.ok(T + path, ["newapp", self.tree(marker("newapp"))])
+                self.no(T + path, ["newapp", self.tree({"lost+found/": None})], message)
+                self.no(T + path, ["newapp", self.tree({".homelab-newapp-data": b"homelab/other/data/v1\n"})],
+                        message)
+
+    def test_refuses_unsafe_app_name(self):
+        for path, (message, _, _) in SHARED.items():
+            for app in ("", "../x", "a/b", "A", "-x", "x-", "x" * 64, "a\n"):
+                with self.subTest(script=path, app=app):
+                    files = {} if "/" in app else {f".homelab-{app}-data": f"homelab/{app}/data/v1\n".encode()}
+                    self.no(T + path, [app, self.tree(files)], message)
+
+    def test_group_guards_list_only_apps_with_checks(self):
+        def full(node):
+            return isinstance(node, (tuple, list)) and any(full(i) if isinstance(i, (tuple, list)) else True for i in node)
+        for path in SHARED:
+            for name, source in configmap_data(T + path).items():
+                if not name.endswith(".py"):
+                    continue
+                tree = ast.parse(source)
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.Assign) and any(
+                            getattr(t, "id", getattr(t, "attr", None)) == "LAYOUTS" for t in node.targets):
+                        with self.subTest(script=path, file=name):
+                            self.assertTrue(all(full(v) for v in ast.literal_eval(node.value).values()))
+                    if name == "base.py" and isinstance(node, ast.Compare):
+                        self.assertNotIn("app", [getattr(n, "id", None) for n in [node.left, *node.comparators]],
+                                         path)
+                if name == "base.py":
+                    self.assertNotIn("LAYOUTS", source, path)
 
     def test_per_app_scripts_parse_and_refuse_blank_tree(self):
         for path, (key, message) in PER_APP.items():

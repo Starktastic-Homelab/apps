@@ -178,11 +178,11 @@ def decide(i, entry, bindings, live, ci, lock, clone, direction):
     else:
         b = bindings[0]
         lp = pvs.get(b['metadata']['name'])
-        if lp and (pv_handle(lp), lp['spec']['csi'].get('driver'), lp['spec'].get('capacity', {}).get('storage')) != \
+        if lp and (pv_handle(lp), (lp['spec'].get('csi') or {}).get('driver'), lp['spec'].get('capacity', {}).get('storage')) != \
                 (old_handle(i), PROXMOX, b['spec']['capacity']['storage']):
             r.append(f"handle: live PV {b['metadata']['name']} differs from git in handle, driver or capacity")
     rp = pvs.get(i)
-    if not rp or pv_handle(rp) != i or rp['spec']['csi'].get('driver') != NODE_MANUAL:
+    if not rp or pv_handle(rp) != i or (rp['spec'].get('csi') or {}).get('driver') != NODE_MANUAL:
         r.append(f'handle: rendered PV {i} is missing or not node-manual with handle {i}')
     for name, want in expected_handles(i, direction).items():
         if name in pvs and pv_handle(pvs[name]) != want:

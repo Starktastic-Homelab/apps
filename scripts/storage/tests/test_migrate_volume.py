@@ -207,11 +207,15 @@ class Decide(Base):
             with self.subTest(case=case):
                 self.assertIn('handle', codes(self.decide(**case)))
         self.assertEqual(self.decide(live=base_live() + [pv('migrate-dst-tempo', 'tempo')]), [])
+        # a forward pair not yet torn down blocks a reverse render: a PV's csi spec is immutable
+        self.assertIn('handle', codes(self.decide('reverse', live=base_live() + [pv('migrate-src-tempo', OLD, mv.PROXMOX)])))
 
     def test_refuses_handle_render_writes_nothing(self):
         bad_live = base_live()
         bad_live[0] = binding_pv(handle='homelab//k3s-block/9999/vm-9999-loki.raw')
-        for bindings, live in ((0, None), (2, None), (1, bad_live),
+        loki_rendered = base_live()
+        loki_rendered[2] = pv('tempo', 'loki', claim='tempo-iscsi')
+        for bindings, live in ((0, None), (2, None), (1, bad_live), (1, loki_rendered),
                                (1, base_live() + [pv('migrate-dst-tempo', 'loki')])):
             out = self.outdir()
             rc, text = self.render(self.tree(bindings), out, live=live)
@@ -451,6 +455,58 @@ class Render(Base):
         guard_job = [o for o in objs if o['kind'] == 'Job' and o['metadata']['name'] == 'migrate-guard-tempo'][0]
         self.assertIn({'name': 'data', 'persistentVolumeClaim': {'claimName': 'migrate-guard-tempo', 'readOnly': True}},
                       guard_job['spec']['template']['spec']['volumes'])
+
+
+class Collectors(Base):
+    """The real collectors and entry point, against fake kubectl and gh on PATH, a temp clone and lock root."""
+
+    def test_cli_end_to_end(self):
+        root = self.tree()
+        git = lambda *a: subprocess.run(['git', '-C', str(root), '-c', 'user.name=t', '-c', 'user.email=t@t', *a],
+                                        check=True, capture_output=True)
+        git('init', '-q')
+        git('add', '.')
+        git('commit', '-qm', 'fixture')
+        git('update-ref', 'refs/remotes/origin/main', 'HEAD')
+        work = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, work)
+        (work / 'live.json').write_text(json.dumps({'items': base_live()}))
+        (work / 'bin').mkdir()
+        for name, body in (('kubectl', 'echo "$*" >> "$W/calls"\ncase "$*" in *" -l "*) echo \'{"items": []}\' ;;'
+                                        ' *) cat "$W/live.json" ;; esac'),
+                           ('gh', 'echo "$*" >> "$W/calls"\ncase "$*" in "run list"*) echo \'[{"status": "completed"}]\' ;;'
+                                  ' *) echo "[]" ;; esac')):
+            f = work / 'bin' / name
+            f.write_text('#!/bin/sh\n' + body + '\n')
+            f.chmod(0o755)
+        lock_root = work / 'lock'
+        lock_root.mkdir()
+        (lock_root / 'operation.json').write_text(json.dumps(
+            {'operation': 'storage-cutover:tempo', 'owner': 'ben', 'nonce': 'SECRET-NONCE'}))
+        env = {**os.environ, 'PATH': f"{work / 'bin'}:{os.environ['PATH']}", 'W': str(work)}
+        cli = lambda *a: subprocess.run([sys.executable, str(HERE / 'migrate_volume.py'), *a, '--repo', str(root),
+                                         '--lock-root', str(lock_root)], capture_output=True, text=True, env=env)
+        r = cli('precheck', 'tempo')
+        self.assertEqual((r.returncode, r.stdout, r.stderr), (0, '', ''))
+        calls = (work / 'calls').read_text()
+        self.assertIn('get pods,pv,pvc,volumeattachments,jobs,cronjobs,deployments,statefulsets -A -o json', calls)
+        for repo, wf in mv.REBUILDS.items():
+            self.assertIn(f'run list -R Starktastic-Homelab/{repo} --workflow {wf} --json status --limit 20', calls)
+            self.assertIn(f'pr list -R Starktastic-Homelab/{repo} --state open --json number,title,autoMergeRequest',
+                          calls)
+        out = work / 'out'
+        r = cli('render', 'tempo', '--direction', 'forward', '--out', str(out))
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertNotIn('SECRET-NONCE', ''.join(p.read_text() for p in out.iterdir()) + r.stdout + r.stderr)
+        (root / 'stray').write_text('x')  # a dirty clone is stale
+        r = cli('precheck', 'tempo')
+        self.assertEqual(r.returncode, 1)
+        self.assertIn('refused: stale-clone', r.stdout)
+        (lock_root / 'operation.json').unlink()
+        self.assertIn('refused: lock', cli('precheck', 'tempo').stdout)
+        r = cli('verify-teardown', 'tempo')
+        self.assertEqual((r.returncode, r.stdout), (0, 'teardown-ok tempo\n'))
+        self.assertIn(f'get pv,pvc,pods,jobs,configmaps -A -l {mv.LABEL}=tempo -o json', (work / 'calls').read_text())
 
 
 class Teardown(Base):

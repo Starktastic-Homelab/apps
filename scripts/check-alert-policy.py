@@ -364,6 +364,8 @@ assert scrape["metadata"]["labels"]["release"] == "kube-prometheus-stack"
 # Every job matcher must name the ScrapeConfig job, or the alert never sees a series.
 for rule in storage.values():
     assert set(re.findall(r'job="([^"]*)"', rule["expr"])) <= {scrape["spec"]["jobName"]}, rule["alert"]
+    # A bare absent() fires on the first failed scrape (stale markers); it needs a for: or absent_over_time.
+    assert "for" in rule or not re.search(r"\babsent\(", rule["expr"]), rule["alert"]
 assert scrape["spec"]["staticConfigs"][0]["targets"] == [
     load("templates/globals.yaml")["global"]["network"]["storagePortal"].rsplit(":", 1)[0] + ":9100"
 ], "ScrapeConfig host must match global.network.storagePortal"
@@ -382,6 +384,11 @@ for alert, series, at, expected in [
     ("StorageReconcileFailing", [(f"storage_last_reconcile_success_timestamp_seconds{{{S}}}", "0x310")], "310m",
      [(f'{{{S}}}', 18600)]),
     ("StorageReconcileFailing", [(f"up{{{S}}}", "1x30")], "30m", [(f'{{{S}}}', 1)]),
+    # One failed scrape writes stale markers for every series of the target: quiet. Gone for over 5 m: fires.
+    ("StorageReconcileFailing", [(f"storage_last_reconcile_success_timestamp_seconds{{{S}}}", "0x14 stale 0x15")],
+     "15m", []),
+    ("StorageReconcileFailing", [(f"storage_last_reconcile_success_timestamp_seconds{{{S}}}", "0x14 stale")],
+     "30m", [(f'{{{S}}}', 1)]),
     ("StorageTargetMissing", [(f'storage_target_missing{{{S},id="grafana"}}', "1x30")], "30m",
      [(f'{{__name__="storage_target_missing",{S},id="grafana"}}', 1)]),
     ("StorageVGLowSpace",
@@ -423,6 +430,14 @@ for alert, series, at, expected in [
      [(f"storage_fencer_last_api_success_timestamp_seconds{{{S}}}", "1799x30"),
       (f"node_textfile_mtime_seconds{FENCER_FILE}", "0x30")], "30m",
      [(f'{{{S},file="/var/lib/prometheus/node-exporter/storage-fencer.prom"}}', 1800)]),
+    # One failed scrape (every series stale for one sample) stays quiet; the target gone for over 5 m fires
+    # both absent legs (absent_over_time returns one series per leg, merged by `or` on equal labels).
+    ("StorageFencerBlind",
+     [(f"storage_fencer_last_api_success_timestamp_seconds{{{S}}}", "0+60x14 stale 900+60x15"),
+      (f"node_textfile_mtime_seconds{FENCER_FILE}", "0+60x14 stale 900+60x15")], "15m", []),
+    ("StorageFencerBlind",
+     [(f"storage_fencer_last_api_success_timestamp_seconds{{{S}}}", "0+60x14 stale"),
+      (f"node_textfile_mtime_seconds{FENCER_FILE}", "0+60x14 stale")], "30m", [(f'{{{S}}}', 1)]),
     # Boot check: a failed check, a check that has not run since the boot (timestamp 100 < boot 200), a passing one.
     ("StorageBootCheckFailed", [(f"storage_boot_check_ok{{{S}}}", "0x30")], "30m",
      [(f'{{__name__="storage_boot_check_ok",{S}}}', 0)]),

@@ -44,10 +44,11 @@ spec:
             summary: "The storage VM boot check failed or did not run"
             description: "The boot check after targetctl restore failed, has not run since the last boot, or never wrote its result: a ledgered volume may have no target. See docs/runbooks/storage-vm-restore.md, \"Boot check failed\"."
         - alert: StorageReconcileFailing
+          # absent_over_time, not absent: one failed scrape stales every series and must not page (5 m, like StorageVMDown).
           # 5 h = worst skip gap from ansible scripts/storage_ready.py WINDOWS (D29: 3 h, 4 h on the DST fall-back Sunday) + 1 h; recheck when WINDOWS change.
           expr: |
             (time() - storage_last_reconcile_success_timestamp_seconds{job="storage-vm"} > 5 * 3600)
-            or absent(storage_last_reconcile_success_timestamp_seconds{job="storage-vm"})
+            or absent_over_time(storage_last_reconcile_success_timestamp_seconds{job="storage-vm"}[5m])
           labels:
             severity: warning
           annotations:
@@ -129,11 +130,12 @@ spec:
             summary: "The fence of {{ $labels.node }} has waited over 2 minutes for its storage"
             description: "The storage behind {{ $labels.node }}'s volumes is not answering (since {{ $value | humanizeTimestamp }}). The fence finishes, and the worker fails over, when it answers; nothing is tainted until then. Do not restart the fencer or the storage VM: the wait cannot be interrupted. StorageFencerBlind follows after 10 minutes for the same wait. If the fencer is not running, the gauge is stale, not a live drain."
         - alert: StorageFencerBlind
+          # absent_over_time, not absent: one failed scrape stales every series and must not page (5 m, like StorageVMDown).
           expr: |
             (time() - storage_fencer_last_api_success_timestamp_seconds{job="storage-vm"} > 600)
-            or absent(storage_fencer_last_api_success_timestamp_seconds{job="storage-vm"})
+            or absent_over_time(storage_fencer_last_api_success_timestamp_seconds{job="storage-vm"}[5m])
             or (time() - node_textfile_mtime_seconds{job="storage-vm",file=~".*storage-fencer\\.prom"} > 600)
-            or absent(node_textfile_mtime_seconds{job="storage-vm",file=~".*storage-fencer\\.prom"})
+            or absent_over_time(node_textfile_mtime_seconds{job="storage-vm",file=~".*storage-fencer\\.prom"}[5m])
           labels:
             severity: critical
           annotations:

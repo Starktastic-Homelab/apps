@@ -430,25 +430,21 @@ for alert, series, at, expected in [
      [(f"storage_boot_check_ok{{{S}}}", "1x30"), (f"storage_boot_check_timestamp_seconds{{{S}}}", "300x30"),
       (f"node_boot_time_seconds{{{S}}}", "200x30")], "30m", []),
     ("StorageBootCheckFailed", [(f"node_boot_time_seconds{{{S}}}", "200x30")], "30m", [(f'{{{S}}}', 1)]),  # never wrote
-    # Dataset: 10% free fires; a write over 3 h old fires; 50% free and fresh, or 2 h old (one failed hourly write),
-    # stays quiet.
+    # Dataset (floor 20 GiB): 19 GiB free fires; a write over 3 h old fires; 21 GiB free and fresh, or 2 h old (one
+    # failed hourly write), stays quiet.
     ("StorageDatasetLow",
-     [(f'storage_dataset_avail_bytes{{{S},dataset="apps/k3s-block"}}', "10x30"),
-      (f'storage_dataset_size_bytes{{{S},dataset="apps/k3s-block"}}', "100x30"),
+     [(f'storage_dataset_avail_bytes{{{S},dataset="apps/k3s-block"}}', f"{19 * 2**30}x30"),
       (f"storage_dataset_timestamp_seconds{{{S}}}", "0+60x30")], "30m",
-     [(f'{{{S},dataset="apps/k3s-block"}}', 0.1)]),
+     [(f'{{__name__="storage_dataset_avail_bytes",{S},dataset="apps/k3s-block"}}', 19 * 2**30)]),
     ("StorageDatasetLow",
-     [(f'storage_dataset_avail_bytes{{{S},dataset="apps/k3s-block"}}', "50x200"),
-      (f'storage_dataset_size_bytes{{{S},dataset="apps/k3s-block"}}', "100x200"),
+     [(f'storage_dataset_avail_bytes{{{S},dataset="apps/k3s-block"}}', f"{21 * 2**30}x200"),
       (f"storage_dataset_timestamp_seconds{{{S}}}", "0x200")], "200m",
      [(f'{{{S}}}', 12000)]),
     ("StorageDatasetLow",
-     [(f'storage_dataset_avail_bytes{{{S},dataset="apps/k3s-block"}}', "50x30"),
-      (f'storage_dataset_size_bytes{{{S},dataset="apps/k3s-block"}}', "100x30"),
+     [(f'storage_dataset_avail_bytes{{{S},dataset="apps/k3s-block"}}', f"{21 * 2**30}x30"),
       (f"storage_dataset_timestamp_seconds{{{S}}}", "0+60x30")], "30m", []),
     ("StorageDatasetLow",
-     [(f'storage_dataset_avail_bytes{{{S},dataset="apps/k3s-block"}}', "50x150"),
-      (f'storage_dataset_size_bytes{{{S},dataset="apps/k3s-block"}}', "100x150"),
+     [(f'storage_dataset_avail_bytes{{{S},dataset="apps/k3s-block"}}', f"{21 * 2**30}x150"),
       (f"storage_dataset_timestamp_seconds{{{S}}}", "1800x150")], "150m", []),
     # Never written (the gauges step failed from its first run): the absent leg fires. It also covers
     # MaintenanceLockStale, whose series is written in the same file.

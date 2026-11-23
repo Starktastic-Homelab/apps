@@ -82,9 +82,8 @@
       "automerge": false
     },
     {
-      "description": "Never auto-merge the democratic-csi chart: it is the driver for every retained volume (ADR 0017) and is pinned to the version the lab qualified. Review each bump by hand, after re-running the lab checks.",
-      "matchDatasources": ["helm"],
-      "matchPackageNames": ["democratic-csi"],
+      "description": "Never auto-merge the democratic-csi chart or its images: it is the driver for every retained volume (ADR 0017) and is pinned to the versions the lab qualified. Review each bump by hand, after re-running the lab checks. File-scoped so images added to its values later are covered too.",
+      "matchFileNames": ["infrastructure/system/democratic-csi/**"],
       "automerge": false
     },
     {
@@ -196,6 +195,15 @@
         "['\"\\s]python@(?<currentDigest>sha256:[a-f0-9]{64})"
       ],
       "depNameTemplate": "python",
+      "datasourceTemplate": "docker"
+    },
+    {
+      "description": "Images written as `registry: <full image>` + `tag: <version>@<digest>` with no `repository:` (democratic-csi chart values), which helm-values does not read.",
+      "customType": "regex",
+      "managerFilePatterns": ["/^(infrastructure|services)/.*\\.yaml$/"],
+      "matchStrings": [
+        "registry: \"?(?<depName>[^\"\\s]+)\"?\\n\\s+tag: \"?(?<currentValue>[^@\"\\s]+)@(?<currentDigest>sha256:[a-f0-9]{64})"
+      ],
       "datasourceTemplate": "docker"
     },
     {

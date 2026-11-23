@@ -305,6 +305,51 @@ class Coverage(Base):
         init['volumeMounts'] = [m for m in init['volumeMounts'] if m['name'] != 'retained-data']
         self.errs_with(self.check([e], [unguarded]), 'loki', 'no guard')
 
+    def test_static_resolver_runs_guard_rules(self):
+        """The statically resolved consumers get the full guard rule: guard.py on a read-only claim mount."""
+        def loki():
+            values = yaml.safe_load((ROOT / 'services/operations/loki/values.yaml').read_text())
+            vol = next(v for v in values['singleBinary']['extraVolumes'] if v['name'] == 'retained-data')
+            vol['persistentVolumeClaim']['claimName'] = 'loki-iscsi'
+            app = yaml.safe_load((ROOT / 'services/operations/loki/app.yaml').read_text())
+            app.pop('manifests', None)
+            init = next(c for c in values['singleBinary']['initContainers'] if c['name'] == 'retained-state')
+            return ('services/operations/loki', (app, values)), init, 'retained-data', entry(
+                'loki', namespace='monitoring', claim='loki-iscsi', origin='migrated', copied='2026-12-01')
+
+        def kps(part):
+            rel = 'services/operations/kube-prometheus-stack'
+            values = yaml.safe_load((ROOT / rel / 'values.yaml').read_text())
+            spec = values[part][f'{part}Spec']
+            vct = spec['storageSpec' if part == 'prometheus' else 'storage']['volumeClaimTemplate']
+            old, vct['metadata']['name'] = vct['metadata']['name'], f'{part}-iscsi'
+            init = next(c for c in spec['initContainers'] if c['name'] == 'retained-state')
+            next(m for m in init['volumeMounts'] if m['name'] == old)['name'] = f'{part}-iscsi'
+            app = yaml.safe_load((ROOT / rel / 'app.yaml').read_text())
+            app.pop('manifests', None)
+            claim = f'{part}-iscsi-{part}-kube-prometheus-stack-{part}-0'
+            return (rel, (app, values)), init, f'{part}-iscsi', entry(
+                part, namespace='monitoring', claim=claim, origin='migrated', copied='2026-12-01')
+
+        def chown(init, vol):
+            init['command'] = ['sh', '-c', 'chown -R 10001 /data']
+
+        def writable(init, vol):
+            next(m for m in init['volumeMounts'] if m['name'] == vol).pop('readOnly')
+
+        def wrong_root(init, vol):
+            init['command'][-1] = '/elsewhere'
+
+        for make in (loki, lambda: kps('prometheus'), lambda: kps('alertmanager')):
+            app, _, _, e = make()
+            with self.subTest(e['id']):
+                self.assertEqual(self.check([e], [app]), [])
+            for mutate, words in [(chown, ('guard.py',)), (writable, ('read-only',)), (wrong_root, ('not on the claim',))]:
+                app, init, vol, e = make()
+                mutate(init, vol)
+                with self.subTest(e['id'], mutation=mutate.__name__):
+                    self.errs_with(self.check([e], [app]), e['id'], *words)
+
 
 LIVE = 'homelab.starktastic.net/live-secret-data'
 # The chart Secrets whose data must go live, by the app that renders them (ADR 0017 genericity audit, finding 4).

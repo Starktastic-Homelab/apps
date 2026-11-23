@@ -8,7 +8,7 @@ App-template charts (the AppSet's default chart) are rendered; plain and kustomi
 other charts go through check-retained-inventory.py's static resolvers.
 
   - an origin: new entry, or a migrated one with copied, has exactly one consumer; any other entry has none
-  - in a rendered or committed pod, the first init container that mounts the claim is the guard: it mounts the claim
+  - in a rendered or committed pod, or a statically resolved chart's values, the first init container that mounts the claim is the guard: it mounts the claim
     read-only and ConfigMap retained-startup-guard, and runs guard.py on that mount (an origin: new guard with the
     entry's id as <app>, an id guard.py accepts)
   - a claim named like an inventory claim but mounted in another namespace is not in the inventory
@@ -160,9 +160,10 @@ def manifest_docs(path):
 
 
 def workloads(root, app):
-    """(label, namespace, pod spec or None, claim, guarded) for every claim an app's pods mount.
+    """(label, namespace, (pod spec, volume) or None, claim, guarded) for every claim an app's pods mount.
 
-    guarded is set only for statically resolved charts, whose pods are not rendered.
+    Statically resolved charts, whose pods are not rendered, give the pod-like spec their resolver reads; guarded
+    (any init container mounts it) is the fallback for a resolver that gives none.
     """
     for source in app['sources']:
         if 'chart' in source:
@@ -173,9 +174,9 @@ def workloads(root, app):
                 for f in value_files(source):
                     if (root / f).exists():
                         values = inv.merge(values, inv.load_yaml(root / f))
-                for path, kind, ref, guarded, _ in inv.resolve(values):
+                for path, kind, ref, guarded, _, pod in inv.resolve(values):
                     if kind == 'claim':
-                        yield app['name'], app['namespace'], None, ref, guarded
+                        yield app['name'], app['namespace'], pod, ref, guarded
                 continue
         elif source.get('path') and 'helm' not in source:  # a helm path source is templated (ingress chart, helmManifests)
             docs = list(manifest_docs(root / source['path']))

@@ -188,31 +188,38 @@ KPS_STS = {
 
 
 def resolve(values):
-    """Yield (path, kind, claim or volume name, guard mounted, derived STS claim or None) per volume binding."""
+    """Yield (path, kind, claim or volume name, guard mounted, derived STS claim or None, pod) per volume binding.
+
+    pod is (pod-like {initContainers, volumes}, the claim's volume) for check-retained-guards.py's guard_errors(),
+    or None for app-template, whose pods it renders.
+    """
     controllers = values.get('controllers') or {}
     for key, p in (values.get('persistence') or {}).items():  # app-template
         if isinstance(p, dict) and isinstance(p.get('existingClaim'), str):
             guarded = any(set(mounts or {}) & set(dig(controllers, ctrl, 'initContainers') or {})
                           for ctrl, mounts in (p.get('advancedMounts') or {}).items())
-            yield ('persistence', key, 'existingClaim'), 'claim', p['existingClaim'], guarded, None
+            yield ('persistence', key, 'existingClaim'), 'claim', p['existingClaim'], guarded, None, None
     sb = values.get('singleBinary') or {}  # loki
     for n, v in enumerate(as_list(sb.get('extraVolumes'))):
         claim = dig(v, 'persistentVolumeClaim', 'claimName')
         if isinstance(claim, str):
             path = ('singleBinary', 'extraVolumes', n, 'persistentVolumeClaim', 'claimName')
-            yield path, 'claim', claim, mounted_by_init(sb.get('initContainers'), v.get('name')), None
+            pod = {'initContainers': as_list(sb.get('initContainers')), 'volumes': as_list(sb.get('extraVolumes'))}
+            yield path, 'claim', claim, mounted_by_init(sb.get('initContainers'), v.get('name')), None, (pod, v)
     for path, sts in KPS_STS.items():  # kube-prometheus-stack operator StatefulSets
         vct = dig(values, *path, 'volumeClaimTemplate')
         template = dig(vct, 'metadata', 'name')
         if not isinstance(template, str):
             continue
         guarded = mounted_by_init(dig(values, *path[:2], 'initContainers'), template)
+        pod = ({'initContainers': as_list(dig(values, *path[:2], 'initContainers')),
+                'volumes': as_list(dig(values, *path[:2], 'volumes'))}, {'name': template})
         derived = f'{template}-{sts}-0'
         # The STS adopts an existing PVC by this name whether or not volumeName is set.
-        yield path + ('volumeClaimTemplate', 'metadata', 'name'), 'claim', derived, guarded, None
+        yield path + ('volumeClaimTemplate', 'metadata', 'name'), 'claim', derived, guarded, None, pod
         name = dig(vct, 'spec', 'volumeName')
         if isinstance(name, str):
-            yield path + ('volumeClaimTemplate', 'spec', 'volumeName'), 'volume', name, guarded, derived
+            yield path + ('volumeClaimTemplate', 'spec', 'volumeName'), 'volume', name, guarded, derived, pod
 
 
 def strings(node, path=()):
@@ -255,7 +262,7 @@ def check_bindings(entries, root):
         app, values = effective_values(root, app_yaml)
         name, ns = app.get('name', app_yaml.parent.name), app.get('namespace')
         consumed, seen = set(), set()
-        for path, kind, ref, guarded, derived in resolve(values):
+        for path, kind, ref, guarded, derived, _ in resolve(values):
             e = by_claim.get((ns, ref)) if kind == 'claim' else by_id.get(ref)
             if not e:
                 continue
@@ -294,8 +301,8 @@ def check_removed(removed, root):
         app, values = effective_values(root, app_yaml)
         name, ns = app.get('name', app_yaml.parent.name), app.get('namespace')
         refs = {text for _, text in strings(values)}
-        refs |= {ref for _, kind, ref, _, _ in resolve(values) if kind == 'claim'}
-        volumes = {ref for _, kind, ref, _, _ in resolve(values) if kind == 'volume'}
+        refs |= {ref for _, kind, ref, *_ in resolve(values) if kind == 'claim'}
+        volumes = {ref for _, kind, ref, *_ in resolve(values) if kind == 'volume'}
         for e in removed:
             if e['namespace'] == ns and (e['claim'] in refs or e['id'] in volumes):
                 errors.append(f'{e["id"]}: removed, but {name} still binds {ns}/{e["claim"]}; remove the binding first')

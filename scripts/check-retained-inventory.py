@@ -146,8 +146,11 @@ def merge(base, over):
     return over
 
 
-def effective_values(root, app_yaml):
-    """The app's merged Helm values, layered as bootstrap/appsets/cluster-apps.yaml does (globals.yaml carries none)."""
+def effective_values(root, app_yaml, used=None):
+    """The app's merged Helm values, layered as bootstrap/appsets/cluster-apps.yaml does (globals.yaml carries none).
+
+    Each layer file read is added to the set `used`, when given.
+    """
     app = load_yaml(app_yaml)
     own = app_yaml.parent.relative_to(root)
     service = own.parts[0] == 'services'
@@ -162,6 +165,8 @@ def effective_values(root, app_yaml):
     for layer in layers:
         if (root / layer).exists():
             values = merge(values, load_yaml(root / layer))
+            if used is not None:
+                used.add((root / layer).resolve())
     return app, values
 
 
@@ -292,13 +297,13 @@ def check_bindings(entries, root):
 def check_removed(removed, root):
     """Errors for removed entries whose (namespace, claim) git still binds: expiry would delete a volume in use.
 
-    App values are matched by namespace (any string, plus resolve()'s derived STS claims and volumeName ids). Other
-    committed YAML under infrastructure/ and services/ is matched on any string equal to the claim, in the entry's namespace or
+    Layered app values are matched by namespace (any string, plus resolve()'s derived STS claims and volumeName ids).
+    Other committed YAML (an unlayered values.yaml too) under infrastructure/ and services/ is matched on any string equal to the claim, in the entry's namespace or
     with none set; a templated file, which cannot be parsed, on the claim as a whole word (fail closed).
     """
-    errors = []
+    errors, layered = [], set()
     for app_yaml in sorted([*(root / 'services').rglob('app.yaml'), *(root / 'infrastructure').rglob('app.yaml')]):
-        app, values = effective_values(root, app_yaml)
+        app, values = effective_values(root, app_yaml, layered)
         name, ns = app.get('name', app_yaml.parent.name), app.get('namespace')
         refs = {text for _, text in strings(values)}
         refs |= {ref for _, kind, ref, *_ in resolve(values) if kind == 'claim'}
@@ -308,7 +313,7 @@ def check_removed(removed, root):
                 errors.append(f'{e["id"]}: removed, but {name} still binds {ns}/{e["claim"]}; remove the binding first')
     for top in ('infrastructure', 'services'):
         for path in sorted((root / top).rglob('*.y*ml')):
-            if path.name == 'values.yaml':  # matched per namespace above
+            if path.resolve() in layered:  # matched per namespace above
                 continue
             text = path.read_text()
             for e in removed:

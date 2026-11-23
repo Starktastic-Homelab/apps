@@ -352,6 +352,16 @@ class BindingTests(unittest.TestCase):
         other = dict(pod, metadata={'name': 'j', 'namespace': 'elsewhere'})
         self.assertEqual(self.removed([e1], {}, {'services/x/job/manifests/cron.yaml': yaml.safe_dump(other)}), [])
         self.assertEqual(self.removed([e1], {}, {'services/x/job/manifests/cron.yaml': 'name: {{ "job-iscsi-old" }}\n'}), [])
+        # A values.yaml no app layers (a Helm path source's) is read as a manifest.
+        e = self.removed([e1], {}, {'infrastructure/x/job/manifests/values.yaml': yaml.safe_dump({'claim': 'job-iscsi'})})
+        self.assertTrue(any('values.yaml' in x and 'job-iscsi' in x for x in e), e)
+
+    def test_removal_while_bound_refused_on_repo(self):
+        # The real tree parses, and today's monitoring block bindings would refuse their removal.
+        e = chk.check_removed([entry('tempo', namespace='monitoring', claim='tempo-data-block')], ROOT)
+        self.assertTrue(any('tempo still binds monitoring/tempo-data-block' in x for x in e), e)
+        self.assertTrue(any('tempo-bindings.yaml' in x for x in e), e)
+        self.assertEqual(chk.check_removed([entry('nobody', namespace='monitoring', claim='nobody-iscsi')], ROOT), [])
 
     def test_cli_refuses_removal_while_bound(self):
         with tempfile.TemporaryDirectory() as d:

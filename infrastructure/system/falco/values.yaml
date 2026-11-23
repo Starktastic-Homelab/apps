@@ -83,6 +83,7 @@ falcosidekick:
   enabled: true
   # Its env must go live: cluster-apps.yaml ignores Secret data without this annotation. The chart puts
   # customAnnotations on every falcosidekick object; it matters only on its Secrets (the -ui ones use webui's key).
+  # checksum/config hashes the whole Secret, annotations included: editing this rolls falcosidekick once.
   customAnnotations:
     homelab.starktastic.net/live-secret-data: "true"
   serviceMonitor:

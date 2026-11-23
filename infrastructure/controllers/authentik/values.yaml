@@ -10,6 +10,7 @@ blueprints:
     - authentik-app-access-blueprint
 global:
   # Its env must go live: cluster-apps.yaml ignores Secret data without this annotation.
+  # checksum/secret hashes the whole Secret, annotations included: editing this rolls server and worker once.
   secretAnnotations:
     homelab.starktastic.net/live-secret-data: "true"
   volumes:

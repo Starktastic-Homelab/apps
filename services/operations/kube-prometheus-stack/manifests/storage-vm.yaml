@@ -44,14 +44,15 @@ spec:
             summary: "The storage VM boot check failed or did not run"
             description: "The boot check after targetctl restore failed, has not run since the last boot, or never wrote its result: a ledgered volume may have no target. See docs/runbooks/storage-vm-restore.md, \"Boot check failed\"."
         - alert: StorageReconcileFailing
+          # 5 h = worst skip gap from ansible scripts/storage_ready.py WINDOWS (D29: 3 h, 4 h on the DST fall-back Sunday) + 1 h; recheck when WINDOWS change.
           expr: |
-            (time() - storage_last_reconcile_success_timestamp_seconds{job="storage-vm"} > 4 * 3600)
+            (time() - storage_last_reconcile_success_timestamp_seconds{job="storage-vm"} > 5 * 3600)
             or absent(storage_last_reconcile_success_timestamp_seconds{job="storage-vm"})
           labels:
             severity: warning
           annotations:
-            summary: "The storage reconcile has not succeeded for 4 hours"
-            description: "No successful reconcile in 4 hours (or no timestamp at all). The hourly storage run skips the backup windows, so up to 3 hours without a run is normal. Check the hourly storage run."
+            summary: "The storage reconcile has not succeeded for 5 hours"
+            description: "No successful reconcile in 5 hours (or no timestamp at all). The hourly storage run skips the backup windows, so a gap of up to 3 hours is normal (4 on the DST fall-back night). Check the hourly storage run."
         - alert: StorageTargetMissing
           expr: storage_target_missing{job="storage-vm"} == 1
           for: 5m

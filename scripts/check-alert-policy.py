@@ -376,10 +376,12 @@ storage_tests = []
 for alert, series, at, expected in [
     ("StorageVMDown", [(f"up{{{S}}}", "0x30")], "30m",
      [(f'{{__name__="up",{S}}}', 0)]),
-    # Reconcile (threshold 4 h): scheduled runs skip the backup windows, so a 3 h gap stays quiet; past 4 h fires.
-    ("StorageReconcileFailing", [(f"storage_last_reconcile_success_timestamp_seconds{{{S}}}", "0x180")], "180m", []),
-    ("StorageReconcileFailing", [(f"storage_last_reconcile_success_timestamp_seconds{{{S}}}", "0x250")], "250m",
-     [(f'{{{S}}}', 15000)]),
+    # Reconcile (threshold 5 h): scheduled runs skip the backup windows, so gaps reach 3 h (4 h on the DST
+    # fall-back Sunday) and a 4.5 h gap stays quiet; past 5 h fires. No timestamp at all fires the absent leg.
+    ("StorageReconcileFailing", [(f"storage_last_reconcile_success_timestamp_seconds{{{S}}}", "0x270")], "270m", []),
+    ("StorageReconcileFailing", [(f"storage_last_reconcile_success_timestamp_seconds{{{S}}}", "0x310")], "310m",
+     [(f'{{{S}}}', 18600)]),
+    ("StorageReconcileFailing", [(f"up{{{S}}}", "1x30")], "30m", [(f'{{{S}}}', 1)]),
     ("StorageTargetMissing", [(f'storage_target_missing{{{S},id="grafana"}}', "1x30")], "30m",
      [(f'{{__name__="storage_target_missing",{S},id="grafana"}}', 1)]),
     ("StorageVGLowSpace",

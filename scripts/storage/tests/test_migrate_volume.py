@@ -120,6 +120,10 @@ class Base(unittest.TestCase):
         inv = root / mv.INVENTORY
         inv.parent.mkdir(parents=True)
         inv.write_text(json.dumps(inventory if inventory is not None else [entry('tempo', origin='migrated')]))
+        v = root / mv.CSI_VALUES
+        v.parent.mkdir(parents=True)
+        v.write_text(yaml.safe_dump({'node': {'driver': {'image': {
+            'registry': COPY_IMAGE.split(':')[0], 'tag': COPY_IMAGE.split(':', 1)[1]}}}}))
         g = root / mv.GLOBALS
         g.parent.mkdir(parents=True)
         g.write_text(yaml.safe_dump({'global': {'network': {'storagePortal': '192.0.2.10:3260'}}}))
@@ -248,6 +252,33 @@ class Decide(Base):
         self.assertIn('size', codes(self.decide(entry_=entry('tempo', origin='migrated', size='4Gi'))))
         self.assertIn('size', codes(self.decide('reverse', entry_=entry('tempo', origin='migrated', size='6Gi'))))
         self.assertNotIn('size', codes(self.decide(entry_=entry('tempo', origin='migrated', size='6Gi'))))
+
+    def test_refuses_unparseable_quantity(self):
+        self.assertIn('size', codes(self.decide(entry_=entry('tempo', origin='migrated', size='lots'))))
+        bad = binding_pv()
+        bad['spec']['capacity']['storage'] = '5G'
+        self.assertIn('size', codes(self.decide(bindings=[bad])))
+        got = {'live': base_live(), 'ci': base_ci(), 'lock': LOCK, 'clone': CLONE}
+        root = self.tree(inventory=[entry('tempo', origin='migrated', size='lots')])
+        buf = io.StringIO()
+        with mock.patch.object(mv, 'collect', return_value=got), contextlib.redirect_stdout(buf):
+            self.assertEqual(mv.main(['precheck', 'tempo', '--repo', str(root)]), 1)
+        self.assertRegex(buf.getvalue(), r'(?m)^refused: size: .*lots')
+
+    def test_image_comes_from_csi_values(self):
+        root = self.tree()
+        self.assertEqual(mv.copy_image(root), COPY_IMAGE)
+        real = mv.copy_image(mv.ROOT)  # the repo's own node plugin image, whatever Renovate set
+        self.assertRegex(real, r'^ghcr\.io/democratic-csi/democratic-csi:v[\d.]+@sha256:[0-9a-f]{64}$')
+        (root / mv.CSI_VALUES).write_text('node: {}\n')
+        got = {'live': base_live(), 'ci': base_ci(), 'lock': LOCK, 'clone': CLONE}
+        out = self.outdir()
+        buf = io.StringIO()
+        with mock.patch.object(mv, 'collect', return_value=got), contextlib.redirect_stdout(buf):
+            rc = mv.main(['render', 'tempo', '--direction', 'forward', '--out', str(out), '--repo', str(root)])
+        self.assertEqual(rc, 1)
+        self.assertRegex(buf.getvalue(), r'(?m)^refused: image: ')
+        self.assertNothingWritten(out)
 
     def test_refuses_copied_entry(self):
         copied = entry('tempo', origin='migrated', copied='2026-12-01')
@@ -412,6 +443,7 @@ class Render(Base):
         # pass 2 refuses gate and writes nothing on a gate.log that does not pass, or a live gate PV
         for log, live, why in (('gate-fsck-ok tempo\n', None, 'gate'), ('gate-guard-ok tempo\n', None, 'gate'),
                                ('gate-fsck-ok loki\ngate-guard-ok loki\n', None, 'gate'),
+                               ('gate-guard-ok tempo\ngate-fsck-ok tempo\n', None, 'gate'),
                                ('gate-fsck-ok tempo\ngate-guard-ok tempo\n',
                                 base_live() + [pv('migrate-gate-tempo', 'tempo')], 'handle')):
             (out / 'gate.log').write_text(log)
@@ -450,7 +482,7 @@ class Render(Base):
         entry_ = entry('tempo', origin='migrated', claim='data-tempo-0')
         live = [binding_pv(), pvc('tempo-data-block', 'tempo-data-block'), pv('tempo', 'tempo', claim='data-tempo-0'),
                 pvc('data-tempo-0', 'tempo'), sts(claim=None, vct='data')]
-        objs, why = mv.render_gate('tempo', entry_, '192.0.2.10:3260', live)
+        objs, why = mv.render_gate('tempo', entry_, '192.0.2.10:3260', live, COPY_IMAGE)
         self.assertIsNone(why)
         guard_job = [o for o in objs if o['kind'] == 'Job' and o['metadata']['name'] == 'migrate-guard-tempo'][0]
         self.assertIn({'name': 'data', 'persistentVolumeClaim': {'claimName': 'migrate-guard-tempo', 'readOnly': True}},
@@ -544,6 +576,17 @@ class CopyScript(unittest.TestCase):
         self.assertLess(gate_end, text.index('blockdev --getsize64'))
         self.assertIn('"$T" -ne "$S"', text)
         self.assertIn('reverse needs T == S', text)
+
+    def test_held_mode_refuses_when_run_directly(self):
+        d = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, d)
+        (d / 'src').write_bytes(b'x' * (4 << 20))
+        (d / 'dst').write_bytes(b'')
+        r = subprocess.run(['sh', str(SCRIPT), 'held', str(4 << 20)], capture_output=True, text=True,
+                           env={**os.environ, 'MIGRATE_SRC': str(d / 'src'), 'MIGRATE_DST': str(d / 'dst')})
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn('refused', r.stdout)
+        self.assertEqual((d / 'dst').read_bytes(), b'')
 
     @staticmethod
     def _all(text, s):

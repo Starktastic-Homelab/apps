@@ -31,9 +31,10 @@ STEP = 'homelab.starktastic.net/migration-step'  # gate.yaml holds two halves ap
 SYNC = {'argocd.argoproj.io/sync-options': 'Prune=false,Delete=false'}
 PROXMOX = 'csi.proxmox.sinextra.dev'
 NODE_MANUAL = 'org.democratic-csi.node-manual'
-# The copy and fsck image: the democratic-csi driver image (same digest as its node plugin), because the python
-# guard image ships no e2fsprogs. It has dd, cmp, blockdev, e2fsck, tune2fs, dumpe2fs, resize2fs and python3.
-COPY_IMAGE = 'ghcr.io/democratic-csi/democratic-csi:v1.9.5@sha256:fc3b7d7ed3a616714139525075312758e23a5d425ffb539ad12c9bd20fb6001f'
+# The copy and fsck image is the democratic-csi node plugin image, read from its values at render time (Renovate
+# bumps it there), because the python guard image ships no e2fsprogs. It has dd, cmp, blockdev, e2fsck, tune2fs,
+# dumpe2fs, resize2fs and python3.
+CSI_VALUES = 'infrastructure/system/democratic-csi/manifests/values.yaml'
 PY_IMAGE = 'python@sha256:8c9a3bf2d6dea60d60a2ae2a07c2b2fb1e7d8daed64b146b6792c74ae0d62ac4'
 REBUILDS = {'packer': 'build.yml', 'terraform': 'apply.yml', 'ansible': 'deploy.yml'}
 ACTIVE = {'queued', 'in_progress', 'waiting', 'requested', 'pending'}
@@ -70,6 +71,14 @@ def find_bindings(root, i):
                     (d.get('spec', {}).get('csi') or {}).get('volumeHandle') == old_handle(i):
                 found.append(d)
     return found
+
+
+def copy_image(root):
+    try:
+        img = yaml.safe_load((root / CSI_VALUES).read_text())['node']['driver']['image']
+        return f"{img['registry']}:{img['tag']}"
+    except (OSError, yaml.YAMLError, KeyError, TypeError) as e:
+        raise ValueError(f'cannot read node plugin image from {CSI_VALUES}: {e!r}')
 
 
 def storage_portal(root):
@@ -188,8 +197,12 @@ def decide(i, entry, bindings, live, ci, lock, clone, direction):
         if name in pvs and pv_handle(pvs[name]) != want:
             r.append(f'handle: PV {name} has handle {pv_handle(pvs[name])}, {direction} needs {want}')
     if entry is not None and len(bindings) == 1:
-        inv, cap = to_bytes(entry['size']), to_bytes(bindings[0]['spec']['capacity']['storage'])
-        if (direction == 'forward' and inv < cap) or (direction == 'reverse' and cap < inv):
+        try:
+            inv, cap = to_bytes(entry['size']), to_bytes(bindings[0]['spec']['capacity']['storage'])
+        except ValueError as e:
+            inv = cap = None
+            r.append(f'size: {e}')
+        if inv is not None and (direction == 'forward' and inv < cap) or (direction == 'reverse' and cap < inv):
             r.append(f"size: {direction} inventory {entry['size']} vs binding {bindings[0]['spec']['capacity']['storage']}")
     r += [f'writer: {w}' for w in writers(live, {old_handle(i), i})]
     for repo, wf in REBUILDS.items():
@@ -257,10 +270,10 @@ def script_cm(i, ns, step=None):
             'data': {'copy_volume.sh': (HERE / 'copy_volume.sh').read_text()}}
 
 
-def copy_pod(i, args, devices):
+def copy_pod(i, args, devices, image):
     """devices: {device name under /dev: claim}."""
     return {'containers': [{
-        'name': 'copy', 'image': COPY_IMAGE, 'command': ['sh', '/migrate/copy_volume.sh', *args],
+        'name': 'copy', 'image': image, 'command': ['sh', '/migrate/copy_volume.sh', *args],
         'securityContext': hardened(),
         'volumeDevices': [{'name': d, 'devicePath': f'/dev/{d}'} for d in devices],
         'volumeMounts': [{'name': 'script', 'mountPath': '/migrate', 'readOnly': True}]}],
@@ -268,14 +281,14 @@ def copy_pod(i, args, devices):
                    [{'name': d, 'persistentVolumeClaim': {'claimName': c}} for d, c in devices.items()]}
 
 
-def render_copy(i, entry, b, portal, direction):
+def render_copy(i, entry, b, portal, direction, image):
     ns, old = entry['namespace'], [proxmox_csi(b), b['spec']['capacity']['storage'], b['spec'].get('nodeAffinity')]
     new = [node_manual_csi(i, portal), entry['size'], None]
     (s_csi, s_size, s_aff), (d_csi, d_size, d_aff) = (old, new) if direction == 'forward' else (new, old)
     pairs = pair(f'migrate-src-{i}', i, ns, s_csi, s_size, node_affinity=s_aff) + \
         pair(f'migrate-dst-{i}', i, ns, d_csi, d_size, node_affinity=d_aff)
     jobs = [script_cm(i, ns), job(f'migrate-{i}', i, ns, copy_pod(
-        i, [direction, str(to_bytes(entry['size']))], {'migrate-src': f'migrate-src-{i}', 'migrate-dst': f'migrate-dst-{i}'}))]
+        i, [direction, str(to_bytes(entry['size']))], {'migrate-src': f'migrate-src-{i}', 'migrate-dst': f'migrate-dst-{i}'}, image))]
     return pairs, jobs
 
 
@@ -292,7 +305,7 @@ def guard_template(live, entry):
     return (o, next(iter(vols))), None
 
 
-def render_gate(i, entry, portal, live):
+def render_gate(i, entry, portal, live, image):
     """gate.yaml objects, or (None, reason)."""
     found, why = guard_template(live, entry)
     if why:
@@ -329,7 +342,7 @@ def render_gate(i, entry, portal, live):
         guard_pod['securityContext'] = spec['securityContext']
     objs = [script_cm(i, ns, 'gate')]
     objs += pair(gate, i, ns, node_manual_csi(i, portal), entry['size'], step='gate')
-    objs.append(job(gate, i, ns, copy_pod(i, ['gate', i], {'migrate-src': gate}), step='gate'))
+    objs.append(job(gate, i, ns, copy_pod(i, ['gate', i], {'migrate-src': gate}, image), step='gate'))
     guard_csi = dict(node_manual_csi(i, portal), fsType='ext4')
     objs += pair(gv, i, ns, guard_csi, entry['size'], mode='Filesystem', step='guard', mount_options=['ro', 'noload'])
     objs.append(job(gv, i, ns, guard_pod, step='guard'))
@@ -337,8 +350,9 @@ def render_gate(i, entry, portal, live):
 
 
 def gate_passed(log, i):
-    lines = set(log.splitlines())
-    return f'gate-fsck-ok {i}' in lines and f'gate-guard-ok {i}' in lines
+    lines = log.splitlines()
+    first = {x: lines.index(x) for x in (f'gate-fsck-ok {i}', f'gate-guard-ok {i}') if x in lines}
+    return len(first) == 2 and first[f'gate-fsck-ok {i}'] < first[f'gate-guard-ok {i}']
 
 
 def dump(path, docs):
@@ -435,10 +449,14 @@ def main(argv=None):
     gate_log = out / 'gate.log'
     pass1 = a.direction == 'reverse' and not gate_log.exists()
     portal = storage_portal(repo)
+    try:
+        image = copy_image(repo)
+    except ValueError as e:
+        return refuse([f'image: {e}'])
     # The gate check runs whatever decide found, so a pass 1 before the hold still prints its gate line.
     if a.direction == 'reverse' and entry is not None:
         if pass1:
-            objs, why = render_gate(i, entry, portal, got['live'])
+            objs, why = render_gate(i, entry, portal, got['live'], image)
         else:
             why = None if gate_passed(gate_log.read_text(), i) else f'gate: {gate_log} lacks gate-fsck-ok and gate-guard-ok {i}'
             live_pvs = {p['metadata']['name'] for p in by_kind(got['live'], 'PersistentVolume')}
@@ -460,7 +478,7 @@ def main(argv=None):
     if pass1:
         dump(out / 'gate.yaml', objs)
     else:
-        pairs, jobs = render_copy(i, entry, b, portal, a.direction)
+        pairs, jobs = render_copy(i, entry, b, portal, a.direction, image)
         dump(out / 'pairs.yaml', pairs)
         dump(out / 'job.yaml', jobs)
     (out / 'render.json').write_text(json.dumps(record, indent=2) + '\n')

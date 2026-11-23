@@ -27,6 +27,7 @@ case $mode in
     ;;
   held)
     # Internal: runs as the child of the exclusive-open holder below, so both devices stay O_EXCL throughout.
+    [ "${MIGRATE_HELD:-}" = 1 ] || die "held is internal to the holder below"
     S=$2
     log "dd $SRC -> $DST, $((S / CHUNK)) x 4M"
     dd if="$SRC" of="$DST" bs=4M count=$((S / CHUNK)) iflag=direct oflag=direct conv=fsync
@@ -50,6 +51,7 @@ fi
 log "holding O_EXCL on $SRC and $DST for dd and cmp"
 python3 -c '
 import os, subprocess, sys
+os.environ["MIGRATE_HELD"] = "1"
 fds = [os.open(p, os.O_RDONLY | os.O_EXCL) for p in sys.argv[1:3]]
 sys.exit(subprocess.call(sys.argv[3:]))
 ' "$SRC" "$DST" sh "$0" held "$S"

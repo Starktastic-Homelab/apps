@@ -107,16 +107,12 @@ spec:
         # merged but never live. Such a Secret carries the annotation
         # homelab.starktastic.net/live-secret-data: "true" from its chart values.
         # Name fallbacks, for charts that cannot annotate the Secret:
-        # - authentik: UNVERIFIED, its chart was not rendered offline
-        # - falco-falcosidekick: UNVERIFIED, the falco chart was not rendered offline
-        # - democratic-csi-driver-config: the chart's driver-config-secret.yaml has no annotations key
+        # - democratic-csi-driver-config: chart 0.15.1's driver-config-secret.yaml has no annotations key
         - group: ""
           kind: Secret
           jqPathExpressions:
             - >-
               select(.metadata.annotations["homelab.starktastic.net/live-secret-data"] != "true"
-              and .metadata.name != "authentik"
-              and .metadata.name != "falco-falcosidekick"
               and .metadata.name != "democratic-csi-driver-config") | .data
         - group: apps
           kind: Deployment

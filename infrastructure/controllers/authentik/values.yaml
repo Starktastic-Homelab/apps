@@ -9,6 +9,9 @@ blueprints:
     - authentik-recovery-blueprint
     - authentik-app-access-blueprint
 global:
+  # Its env must go live: cluster-apps.yaml ignores Secret data without this annotation.
+  secretAnnotations:
+    homelab.starktastic.net/live-secret-data: "true"
   volumes:
     - name: custom-email-templates
       configMap:

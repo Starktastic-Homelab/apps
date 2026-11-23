@@ -310,6 +310,8 @@ LIVE = 'homelab.starktastic.net/live-secret-data'
 # The chart Secrets whose data must go live, by the app that renders them (ADR 0017 genericity audit, finding 4).
 LIVE_SECRETS = {'kube-prometheus-stack': 'alertmanager-kube-prometheus-stack-alertmanager', 'authentik': 'authentik',
                 'falco': 'falco-falcosidekick', 'democratic-csi': 'democratic-csi-driver-config'}
+# The name fallbacks, each for a chart whose Secret template has no annotations key (democratic-csi 0.15.1).
+FALLBACKS = {'democratic-csi-driver-config'}
 
 
 class LiveSecrets(unittest.TestCase):
@@ -324,12 +326,13 @@ class LiveSecrets(unittest.TestCase):
         expr = self.expression()
         self.assertIn(f'select(.metadata.annotations["{LIVE}"] != "true"', expr)
         named = set(re.findall(r'\.metadata\.name != "([^"]+)"', expr))
-        self.assertLessEqual(named, set(LIVE_SECRETS.values()))
+        self.assertEqual(named, FALLBACKS)
         text = (ROOT / APPSET).read_text()
         for app, secret in LIVE_SECRETS.items():
             with self.subTest(secret=secret):
-                if secret in named:  # the documented fallback: the comment says why the chart cannot annotate it
-                    self.assertRegex(text, rf'# [^\n]*{re.escape(secret)}[^\n]*:', 'undocumented name fallback')
+                if secret in FALLBACKS:  # the comment names the chart key that is missing
+                    self.assertRegex(text, rf'# - {re.escape(secret)}: [^\n]*has no annotations key',
+                                     'undocumented name fallback')
                     continue
                 apps = {a['name']: a for a in chk.appset_apps(ROOT)}
                 source = next(s for s in apps[app]['sources'] if 'chart' in s)

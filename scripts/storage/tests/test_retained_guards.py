@@ -8,6 +8,7 @@ import copy
 import importlib.util
 import io
 import json
+import os
 import re
 import shutil
 import tempfile
@@ -303,6 +304,43 @@ class Coverage(Base):
         init = next(c for c in unguarded[1][1]['singleBinary']['initContainers'] if c['name'] == 'retained-state')
         init['volumeMounts'] = [m for m in init['volumeMounts'] if m['name'] != 'retained-data']
         self.errs_with(self.check([e], [unguarded]), 'loki', 'no guard')
+
+
+LIVE = 'homelab.starktastic.net/live-secret-data'
+# The chart Secrets whose data must go live, by the app that renders them (ADR 0017 genericity audit, finding 4).
+LIVE_SECRETS = {'kube-prometheus-stack': 'alertmanager-kube-prometheus-stack-alertmanager', 'authentik': 'authentik',
+                'falco': 'falco-falcosidekick', 'democratic-csi': 'democratic-csi-driver-config'}
+
+
+class LiveSecrets(unittest.TestCase):
+    def expression(self):
+        appset = yaml.safe_load((ROOT / APPSET).read_text())
+        rules = [r for r in appset['spec']['template']['spec']['ignoreDifferences'] if r['kind'] == 'Secret']
+        self.assertEqual(len(rules), 1, rules)
+        [expr] = rules[0]['jqPathExpressions']
+        return expr
+
+    def test_live_secret_annotation(self):
+        expr = self.expression()
+        self.assertIn(f'select(.metadata.annotations["{LIVE}"] != "true"', expr)
+        named = set(re.findall(r'\.metadata\.name != "([^"]+)"', expr))
+        self.assertLessEqual(named, set(LIVE_SECRETS.values()))
+        text = (ROOT / APPSET).read_text()
+        for app, secret in LIVE_SECRETS.items():
+            with self.subTest(secret=secret):
+                if secret in named:  # the documented fallback: the comment says why the chart cannot annotate it
+                    self.assertRegex(text, rf'# [^\n]*{re.escape(secret)}[^\n]*:', 'undocumented name fallback')
+                    continue
+                apps = {a['name']: a for a in chk.appset_apps(ROOT)}
+                source = next(s for s in apps[app]['sources'] if 'chart' in s)
+                cache = Path(os.environ.get('CHART_CACHE', '/nonexistent'))
+                wanted = f'{source["chart"]}-{source["targetRevision"]}.tgz'
+                if os.environ.get('CHART_CACHE') and not (cache / wanted).is_file():
+                    self.skipTest(f'offline and {wanted} is not in CHART_CACHE')
+                docs = yaml.safe_load_all(chk.render_source(ROOT, apps[app], source))
+                found = [d for d in docs if d and d['kind'] == 'Secret' and d['metadata']['name'] == secret]
+                self.assertEqual(len(found), 1, secret)
+                self.assertEqual((found[0]['metadata'].get('annotations') or {}).get(LIVE), 'true')
 
 
 class Cli(Base):

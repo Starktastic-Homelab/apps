@@ -110,6 +110,10 @@ prometheus:
 # -----------------------------------------------------------------------------
 alertmanager:
   enabled: true
+  # Its config must go live: cluster-apps.yaml ignores Secret data without this annotation.
+  secret:
+    annotations:
+      homelab.starktastic.net/live-secret-data: "true"
   alertmanagerSpec:
     replicas: 1
     persistentVolumeClaimRetentionPolicy:

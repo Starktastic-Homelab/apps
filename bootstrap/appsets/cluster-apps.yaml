@@ -103,13 +103,18 @@ spec:
         # RespectIgnoreDifferences it is never re-applied either. The exceptions
         # are chart Secrets that carry git-managed config with no generated keys
         # (Alertmanager config, authentik and falcosidekick env, democratic-csi
-        # driver config): ignoring them
-        # leaves every change to that config merged but never live.
+        # driver config): ignoring them leaves every change to that config
+        # merged but never live. Such a Secret carries the annotation
+        # homelab.starktastic.net/live-secret-data: "true" from its chart values.
+        # Name fallbacks, for charts that cannot annotate the Secret:
+        # - authentik: UNVERIFIED, its chart was not rendered offline
+        # - falco-falcosidekick: UNVERIFIED, the falco chart was not rendered offline
+        # - democratic-csi-driver-config: the chart's driver-config-secret.yaml has no annotations key
         - group: ""
           kind: Secret
           jqPathExpressions:
             - >-
-              select(.metadata.name != "alertmanager-kube-prometheus-stack-alertmanager"
+              select(.metadata.annotations["homelab.starktastic.net/live-secret-data"] != "true"
               and .metadata.name != "authentik"
               and .metadata.name != "falco-falcosidekick"
               and .metadata.name != "democratic-csi-driver-config") | .data

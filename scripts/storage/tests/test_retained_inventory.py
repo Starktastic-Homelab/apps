@@ -414,6 +414,10 @@ class RenderTests(unittest.TestCase):
         self.assertEqual(pvc['spec']['volumeName'], 'app-data')
         self.assertEqual((pvc['metadata']['namespace'], pvc['metadata']['name']), ('ns', 'app-data-claim'))
         self.assertEqual(pvc['spec']['storageClassName'], '')
+        # A pruned PVC leaves the Retain PV Released with a stale claimRef.uid, so reverting a removal would not rebind.
+        self.assertEqual((pvc['metadata'].get('annotations') or {}).get('argocd.argoproj.io/sync-options'),
+                         'Prune=false,Delete=false')
+        self.assertEqual(pvc['spec']['accessModes'], ['ReadWriteOncePod'])
 
     def test_numeric_like_values_render_as_strings(self):
         e = entry('123', claim='true', namespace='1e3')

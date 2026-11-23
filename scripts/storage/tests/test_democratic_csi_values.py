@@ -82,8 +82,12 @@ class ValuesTests(unittest.TestCase):
         self.assertTrue(images)
         for image in images:
             self.assertRegex(image, r'@sha256:[0-9a-f]{64}$', image)
-        self.assertIn('ghcr.io/democratic-csi/democratic-csi:v1.9.5@sha256:'
-                      'fc3b7d7ed3a616714139525075312758e23a5d425ffb539ad12c9bd20fb6001f', images)
+
+    def test_no_values_for_patched_out_containers(self):
+        # node-shutdown-patch.yaml removes cleanup, so values for it would be dead (and an unused pin for Renovate).
+        values = yaml.safe_load((MANIFESTS / 'values.yaml').read_text())
+        self.assertNotIn('cleanup', values.get('node', {}))
+        self.assertNotIn('cleanup', by_name(node_ds(DOCS)['containers'] + node_ds(DOCS)['initContainers']))
 
     def test_blkid_strategy_on_node(self):
         node = next(cs for k, cs in containers() if k == 'DaemonSet')
@@ -145,8 +149,10 @@ class ShutdownTests(unittest.TestCase):
     """F14: the node plugin must outlive the unstage on an undrained shutdown (ADR 0017)."""
 
     def test_chart_ref(self):
-        self.assertEqual({k: CHART_REF[k] for k in ('name', 'version', 'repo', 'releaseName', 'namespace', 'valuesFile')},
-                         {'name': 'democratic-csi', 'version': '0.15.1', 'repo': 'https://democratic-csi.github.io/charts/',
+        # Exact pin, any version: Renovate gates bumps by hand (renovate.json democratic-csi rule).
+        self.assertRegex(str(CHART_REF['version']), r'^\d+\.\d+\.\d+$')
+        self.assertEqual({k: CHART_REF[k] for k in ('name', 'repo', 'releaseName', 'namespace', 'valuesFile')},
+                         {'name': 'democratic-csi', 'repo': 'https://democratic-csi.github.io/charts/',
                           'releaseName': 'democratic-csi', 'namespace': 'democratic-csi', 'valuesFile': 'values.yaml'})
         self.assertNotIn('chart', yaml.safe_load((APP / 'app.yaml').read_text()))
 

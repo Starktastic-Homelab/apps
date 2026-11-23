@@ -78,10 +78,6 @@ node:
       registry: registry.k8s.io/sig-storage/csi-node-driver-registrar
       tag: v2.9.0@sha256:4da2674bae016b1011c2042cb719cffd9a80d34f3cf933c705b425054f86cea9
     verbosityLevel: 2
-  cleanup:
-    image:
-      registry: docker.io/busybox
-      tag: 1.37.0@sha256:66a6306db78bf2dbf3487f293aa8d6990d8e506fdffab9cc43fe422becf886e4
 
 csiProxy:
   image:

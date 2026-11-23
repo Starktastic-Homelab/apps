@@ -202,11 +202,16 @@ def resolve(values):
             yield path, 'claim', claim, mounted_by_init(sb.get('initContainers'), v.get('name')), None
     for path, sts in KPS_STS.items():  # kube-prometheus-stack operator StatefulSets
         vct = dig(values, *path, 'volumeClaimTemplate')
+        template = dig(vct, 'metadata', 'name')
+        if not isinstance(template, str):
+            continue
+        guarded = mounted_by_init(dig(values, *path[:2], 'initContainers'), template)
+        derived = f'{template}-{sts}-0'
+        # The STS adopts an existing PVC by this name whether or not volumeName is set.
+        yield path + ('volumeClaimTemplate', 'metadata', 'name'), 'claim', derived, guarded, None
         name = dig(vct, 'spec', 'volumeName')
         if isinstance(name, str):
-            template = dig(vct, 'metadata', 'name')
-            guarded = mounted_by_init(dig(values, *path[:2], 'initContainers'), template)
-            yield path + ('volumeClaimTemplate', 'spec', 'volumeName'), 'volume', name, guarded, f'{template}-{sts}-0'
+            yield path + ('volumeClaimTemplate', 'spec', 'volumeName'), 'volume', name, guarded, derived
 
 
 def strings(node, path=()):
@@ -248,12 +253,15 @@ def check_bindings(entries, root):
     for app_yaml in sorted([*(root / 'services').rglob('app.yaml'), *(root / 'infrastructure').rglob('app.yaml')]):
         app, values = effective_values(root, app_yaml)
         name, ns = app.get('name', app_yaml.parent.name), app.get('namespace')
-        consumed = set()
+        consumed, seen = set(), set()
         for path, kind, ref, guarded, derived in resolve(values):
             e = by_claim.get((ns, ref)) if kind == 'claim' else by_id.get(ref)
             if not e:
                 continue
             consumed.add(path)
+            if (path[:3], e['id']) in seen:  # a kps claim and its volumeName naming one entry: report once
+                continue
+            seen.add((path[:3], e['id']))
             if derived and (e['namespace'], e['claim']) != (ns, derived):
                 errors.append(f'{name}: volumeName {ref} needs inventory claim {ns}/{derived}, '
                               f'not {e["namespace"]}/{e["claim"]}')

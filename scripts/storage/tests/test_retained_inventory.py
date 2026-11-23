@@ -71,6 +71,11 @@ class CheckTests(unittest.TestCase):
         # must change with it.
         self.assertEqual(chk.ID_PATTERN, r'^(?!snapshot|pvmove)[a-z0-9][a-z0-9-]{0,62}$')
 
+    def test_vg_for_tripwire(self):
+        # Pins the class -> VG map; ansible roles/storage_vm/files/homelab_storage/inventory.py vg_for and
+        # lvm.py VG_NAMES must change with it.
+        self.assertEqual(chk.VG_FOR, {'retained': 'retained', 'regenerable': 'regen'})
+
     def test_three_removals_need_label(self):
         base = [entry(c) for c in 'abc']
         self.assertTrue(errs(base, []))
@@ -221,16 +226,20 @@ class BindingTests(unittest.TestCase):
             named(named(sb['initContainers'], 'retained-state')['volumeMounts'], 'retained-data')['name'] = 'other'
         return {'services/operations/loki': (real('services/operations/loki/app.yaml'), values)}
 
-    def kps(self, guard=True):
+    def kps(self, guard=True, part='prometheus', volume=True):
+        """Switch one kube-prometheus-stack StatefulSet: template renamed to <part>-iscsi, volumeName <part>."""
         rel = 'services/operations/kube-prometheus-stack'
         values = real(f'{rel}/values.yaml')
-        spec = values['prometheus']['prometheusSpec']
-        vct = spec['storageSpec']['volumeClaimTemplate']
-        vct['metadata']['name'] = 'prometheus-iscsi'
-        vct['spec'].update(volumeName='prometheus', storageClassName='')
+        spec = values[part][f'{part}Spec']
+        storage = spec['storageSpec' if part == 'prometheus' else 'storage']
+        vct = storage['volumeClaimTemplate']
+        old = vct['metadata']['name']
+        vct['metadata']['name'] = f'{part}-iscsi'
+        vct['spec'].update(volumeName=part, storageClassName='')
+        if not volume:
+            del vct['spec']['volumeName']
         if guard:
-            named(named(spec['initContainers'], 'retained-state')['volumeMounts'], 'prometheus-data-block')['name'] = \
-                'prometheus-iscsi'
+            named(named(spec['initContainers'], 'retained-state')['volumeMounts'], old)['name'] = f'{part}-iscsi'
         return {rel: (real(f'{rel}/app.yaml'), values)}
 
     def test_flag_without_copied_marker_fails(self):
@@ -244,7 +253,10 @@ class BindingTests(unittest.TestCase):
         loki = entry('loki', namespace='monitoring', claim='loki-iscsi', origin='migrated', copied='2026-12-01')
         prom = entry('prometheus', namespace='monitoring', origin='migrated', copied='2026-12-01',
                      claim='prometheus-iscsi-prometheus-kube-prometheus-stack-prometheus-0')
-        for e, tree in [(tempo, self.tempo), (loki, self.loki), (prom, self.kps)]:
+        am = entry('alertmanager', namespace='monitoring', origin='migrated', copied='2026-12-01',
+                   claim='alertmanager-iscsi-alertmanager-kube-prometheus-stack-alertmanager-0')
+        for e, tree in [(tempo, self.tempo), (loki, self.loki), (prom, self.kps),
+                        (am, lambda **kw: self.kps(part='alertmanager', **kw))]:
             with self.subTest(e['id']):
                 self.assertEqual(self.bindings([e], tree()), [])
                 errors = self.bindings([e], tree(guard=False))
@@ -258,6 +270,27 @@ class BindingTests(unittest.TestCase):
             dump(Path(d, 'services/x/y/manifests/pvc.yaml'), {'kind': 'PersistentVolumeClaim', 'metadata': {'name': 'c'}})
             e = chk.check_bindings([entry('c', namespace='anywhere', claim='c')], Path(d))
         self.assertTrue(any('static' in x for x in e), e)
+
+    def test_kps_template_rename_without_volume_name_binds(self):
+        # The STS adopts the PVC named <template>-<sts>-0 even without volumeName: the copied marker still applies.
+        prom = entry('prometheus', namespace='monitoring', origin='migrated',
+                     claim='prometheus-iscsi-prometheus-kube-prometheus-stack-prometheus-0')
+        e = self.bindings([prom], self.kps(volume=False))
+        self.assertTrue(any('prometheus' in x and 'copied' in x for x in e), e)
+        self.assertEqual(self.bindings([dict(prom, copied='2026-12-01')], self.kps(volume=False)), [])
+        e = self.bindings([dict(prom, copied='2026-12-01')], self.kps(volume=False, guard=False))
+        self.assertTrue(any('init container' in x for x in e), e)
+
+    def test_kps_sts_names_tripwire(self):
+        # KPS_STS hardcodes chart-derived STS names: <kind>-<release>-<kind>, release = app name, no name overrides.
+        rel = 'services/operations/kube-prometheus-stack'
+        self.assertEqual(real(f'{rel}/app.yaml')['name'], 'kube-prometheus-stack')
+        _, values = chk.effective_values(ROOT, ROOT / rel / 'app.yaml')
+        self.assertFalse({'fullnameOverride', 'nameOverride'} & set(values), values.keys())
+        for path, sts in chk.KPS_STS.items():
+            self.assertFalse({'fullnameOverride', 'nameOverride'} & set(values.get(path[0]) or {}), path)
+            self.assertIsInstance(chk.dig(values, *path, 'volumeClaimTemplate', 'metadata', 'name'), str, path)
+            self.assertEqual(sts, f'{path[0]}-kube-prometheus-stack-{path[0]}')
 
     def test_sts_claim_must_match_template(self):
         e = self.bindings([entry('prometheus', namespace='monitoring', claim='prometheus-iscsi', origin='migrated',

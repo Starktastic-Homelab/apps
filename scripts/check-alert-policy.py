@@ -372,12 +372,14 @@ S = 'job="storage-vm"'
 FENCER_FILE = f'{{{S},file="/var/lib/prometheus/node-exporter/storage-fencer.prom"}}'
 storage_tests = []
 # Each case is its own promtool group, so absent() sees only that case's series. Series values are
-# per minute and the check runs at 30m (2h cases at 150m).
+# per minute and the check runs at 30m unless a case names a later time.
 for alert, series, at, expected in [
     ("StorageVMDown", [(f"up{{{S}}}", "0x30")], "30m",
      [(f'{{__name__="up",{S}}}', 0)]),
-    ("StorageReconcileFailing", [(f"storage_last_reconcile_success_timestamp_seconds{{{S}}}", "0x150")], "150m",
-     [(f'{{{S}}}', 9000)]),
+    # Reconcile (threshold 4 h): scheduled runs skip the backup windows, so a 3 h gap stays quiet; past 4 h fires.
+    ("StorageReconcileFailing", [(f"storage_last_reconcile_success_timestamp_seconds{{{S}}}", "0x180")], "180m", []),
+    ("StorageReconcileFailing", [(f"storage_last_reconcile_success_timestamp_seconds{{{S}}}", "0x250")], "250m",
+     [(f'{{{S}}}', 15000)]),
     ("StorageTargetMissing", [(f'storage_target_missing{{{S},id="grafana"}}', "1x30")], "30m",
      [(f'{{__name__="storage_target_missing",{S},id="grafana"}}', 1)]),
     ("StorageVGLowSpace",

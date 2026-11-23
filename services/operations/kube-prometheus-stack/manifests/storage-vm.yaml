@@ -1,5 +1,5 @@
-# shortcut: the target is the RFC 5737 placeholder from templates/globals.yaml (storagePortal); a plain
-# manifests/ directory cannot template, so change both together when Foundation picks the bridge address.
+# The target host is global.network.storagePortal's (a plain manifests/ directory cannot template);
+# scripts/check-alert-policy.py fails when they differ.
 apiVersion: monitoring.coreos.com/v1alpha1
 kind: ScrapeConfig
 metadata:
@@ -10,7 +10,7 @@ metadata:
 spec:
   jobName: storage-vm
   staticConfigs:
-    - targets: ["192.0.2.10:9100"]
+    - targets: ["10.99.2.10:9100"]
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
@@ -30,7 +30,19 @@ spec:
             severity: critical
           annotations:
             summary: "The storage VM is not being scraped"
-            description: "Prometheus has not scraped the storage VM for 5 minutes. Retained volumes may be unreachable."
+            description: "Prometheus has not scraped the storage VM for 5 minutes. Retained volumes may be unreachable. After wave 1 Prometheus runs on regen storage, so this alert dies with the VM; the healthchecks.io Watchdog dead-man is the out-of-cluster signal. See docs/runbooks/storage-vm-rebuild.md, \"VM down\"."
+        - alert: StorageBootCheckFailed
+          expr: |
+            storage_boot_check_ok{job="storage-vm"} == 0
+            or storage_boot_check_timestamp_seconds{job="storage-vm"}
+               < on (instance, job) node_boot_time_seconds{job="storage-vm"}
+            or absent(storage_boot_check_ok{job="storage-vm"})
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            summary: "The storage VM boot check failed or did not run"
+            description: "The boot check after targetctl restore failed, has not run since the last boot, or never wrote its result: a ledgered volume may have no target. See docs/runbooks/storage-vm-restore.md, \"Boot check failed\"."
         - alert: StorageReconcileFailing
           expr: |
             (time() - storage_last_reconcile_success_timestamp_seconds{job="storage-vm"} > 2 * 3600)
@@ -57,6 +69,26 @@ spec:
           annotations:
             summary: "Volume group {{ $labels.vg }} has under 15% free"
             description: "Volume group {{ $labels.vg }} on the storage VM is below 15% free space."
+        - alert: StorageDatasetLow
+          expr: |
+            storage_dataset_avail_bytes{job="storage-vm"}
+              / on (instance, job, dataset) storage_dataset_size_bytes{job="storage-vm"} < 0.15
+            or time() - storage_dataset_timestamp_seconds{job="storage-vm"} > 3 * 3600
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "The k3s-block dataset is low on space, or its gauge is stale"
+            description: "The TrueNAS dataset behind the retained images has under 15% free as pve's df sees it, or the hourly host gauges have not been written for 3 hours (see the storage workflow's Write host gauges step). See docs/runbooks/storage-vm-growth.md, \"Dataset full\"."
+        - alert: MaintenanceLockStale
+          expr: |
+            storage_maintenance_lock_created_timestamp_seconds{job="storage-vm"} > 0
+            and time() - storage_maintenance_lock_created_timestamp_seconds{job="storage-vm"} > 6 * 3600
+          labels:
+            severity: warning
+          annotations:
+            summary: "The maintenance lock has been held by {{ $labels.operation }} for over 6 hours"
+            description: "A failed deploy, terraform or storage run keeps the lock (D31), and every storage run skips until it is released. Read that run's log first. See docs/runbooks/storage-vm-cutover.md, \"Stale lock\"."
         - alert: StoragePendingDelete
           expr: storage_pending_delete{job="storage-vm"} > 0
           for: 15m

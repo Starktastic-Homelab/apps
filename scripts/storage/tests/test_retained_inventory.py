@@ -2,6 +2,7 @@
 import contextlib
 import importlib.util
 import io
+import ipaddress
 import json
 import os
 import shutil
@@ -346,8 +347,11 @@ class RenderTests(unittest.TestCase):
         self.assertEqual(pv['metadata']['annotations']['argocd.argoproj.io/sync-options'], 'Prune=false,Delete=false')
         csi = pv['spec']['csi']
         self.assertEqual((csi['driver'], csi['fsType'], csi['volumeHandle']), ('org.democratic-csi.node-manual', 'ext4', 'app-data'))
+        portal = yaml.safe_load((ROOT / 'templates/globals.yaml').read_text())['global']['network']['storagePortal']
+        # The RFC 5737 placeholder made PVs fail closed until the storage VM address was decided (D1).
+        self.assertNotIn(ipaddress.ip_address(portal.rsplit(':', 1)[0]), ipaddress.ip_network('192.0.2.0/24'))
         self.assertEqual(csi['volumeAttributes'], {
-            'portal': '192.0.2.10:3260', 'iqn': 'iqn.2026-11.net.starktastic.storage:app-data', 'lun': '0',
+            'portal': portal, 'iqn': 'iqn.2026-11.net.starktastic.storage:app-data', 'lun': '0',
             'node_attach_driver': 'iscsi', 'provisioner_driver': 'node-manual'})
         self.assertEqual(pvc['spec']['volumeName'], 'app-data')
         self.assertEqual((pvc['metadata']['namespace'], pvc['metadata']['name']), ('ns', 'app-data-claim'))

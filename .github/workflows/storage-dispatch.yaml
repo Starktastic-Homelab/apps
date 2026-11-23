@@ -1,0 +1,22 @@
+name: Dispatch storage-changed
+
+# An inventory change starts the ansible storage reconcile now instead of at the next hourly run. No payload: the
+# ansible storage.yml re-resolves main itself (ADR 0017).
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'infrastructure/base-configs/files/retained-volumes.json'
+
+jobs:
+  dispatch:
+    name: Dispatch storage-changed to ansible
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger the storage reconcile
+        uses: peter-evans/repository-dispatch@v4
+        with:
+          token: ${{ secrets.ORG_DISPATCH_TOKEN }}
+          repository: Starktastic-Homelab/ansible
+          event-type: storage-changed

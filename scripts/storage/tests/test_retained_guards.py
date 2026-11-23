@@ -350,6 +350,15 @@ class Coverage(Base):
                 with self.subTest(e['id'], mutation=mutate.__name__):
                     self.errs_with(self.check([e], [app]), e['id'], *words)
 
+    def test_static_consumer_without_pod_spec_fails(self):
+        """A statically read binding whose resolver gives no pod spec cannot be checked: fail closed."""
+        app = {'name': 'db', 'namespace': 'databases', 'chart': {'repo': 'https://example.invalid', 'name': 'other',
+                                                                 'version': '1.0.0'}}
+        values = {'controllers': {'main': {'initContainers': {'guard': {}}}},
+                  'persistence': {'data': {'existingClaim': 'db-iscsi', 'advancedMounts': {'main': {'guard': []}}}}}
+        e = entry('db', namespace='databases', claim='db-iscsi')
+        self.errs_with(self.check([e], [('services/data/db', (app, values))]), 'db-iscsi', 'cannot be checked')
+
 
 LIVE = 'homelab.starktastic.net/live-secret-data'
 # The chart Secrets whose data must go live, by the app that renders them (ADR 0017 genericity audit, finding 4).

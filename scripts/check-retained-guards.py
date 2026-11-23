@@ -160,10 +160,10 @@ def manifest_docs(path):
 
 
 def workloads(root, app):
-    """(label, namespace, (pod spec, volume) or None, claim, guarded) for every claim an app's pods mount.
+    """(label, namespace, (pod spec, volume) or None, claim) for every claim an app's pods mount.
 
-    Statically resolved charts, whose pods are not rendered, give the pod-like spec their resolver reads; guarded
-    (any init container mounts it) is the fallback for a resolver that gives none.
+    Statically resolved charts, whose pods are not rendered, give the pod-like spec their resolver reads, or None
+    when the resolver has none (check() then fails closed).
     """
     for source in app['sources']:
         if 'chart' in source:
@@ -174,9 +174,9 @@ def workloads(root, app):
                 for f in value_files(source):
                     if (root / f).exists():
                         values = inv.merge(values, inv.load_yaml(root / f))
-                for path, kind, ref, guarded, _, pod in inv.resolve(values):
+                for path, kind, ref, _, _, pod in inv.resolve(values):
                     if kind == 'claim':
-                        yield app['name'], app['namespace'], pod, ref, guarded
+                        yield app['name'], app['namespace'], pod, ref
                 continue
         elif source.get('path') and 'helm' not in source:  # a helm path source is templated (ingress chart, helmManifests)
             docs = list(manifest_docs(root / source['path']))
@@ -190,7 +190,7 @@ def workloads(root, app):
                 for v in pod.get('volumes') or []:
                     claim = inv.dig(v, 'persistentVolumeClaim', 'claimName')
                     if claim:
-                        yield f'{app["name"]}/{doc.get("kind")}/{inv.dig(doc, "metadata", "name")}', ns, (pod, v), claim, None
+                        yield f'{app["name"]}/{doc.get("kind")}/{inv.dig(doc, "metadata", "name")}', ns, (pod, v), claim
 
 
 def guard_errors(label, e, pod, volume):
@@ -265,7 +265,7 @@ def check(entries, root):
         except RenderError as exc:
             errors.append(f'{app["name"]}: render failed: {exc}')
             continue
-        for label, ns, pod, claim, guarded in mounted:
+        for label, ns, pod, claim in mounted:
             e = by_claim.get((ns, claim))
             if e is None:
                 if claim in names:
@@ -273,9 +273,9 @@ def check(entries, root):
                                   f'(it has {names[claim]["namespace"]}/{claim})')
                 continue
             found.setdefault(e['id'], []).append(label)
-            if pod is None:
-                if not guarded:
-                    errors.append(f'{label}: claim {ns}/{claim} ({e["id"]}): no guard init container mounts it')
+            if pod is None:  # a static resolver with no pod spec: "an init container mounts it" is not a guard
+                errors.append(f'{label}: claim {ns}/{claim} ({e["id"]}): the guard cannot be checked; this chart '
+                              'needs a resolver that gives its pod spec')
             else:
                 errors += guard_errors(label, e, *pod)
     for e in entries:

@@ -41,5 +41,6 @@ spec:
   volumeName: {{ $v.id | quote }}
   resources:
     requests:
-      storage: {{ $v.size }}
+      # Constant: a bound static PVC's request can never grow (class "") nor drop below status.capacity. Growth changes the PV only (ADR 0017).
+      storage: 1Mi
 {{- end }}

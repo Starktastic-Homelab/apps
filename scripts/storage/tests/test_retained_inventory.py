@@ -1,5 +1,7 @@
 """Tests for scripts/check-retained-inventory.py and the retained-volumes renderer (the render tests need helm)."""
+import contextlib
 import importlib.util
+import io
 import json
 import os
 import shutil
@@ -17,6 +19,12 @@ chk = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(chk)
 
 HELM = shutil.which('helm')
+MI, GI = 1024 ** 2, 1024 ** 3
+VG_BYTES = {'retained': 10 * GI - 4 * MI, 'regen': 2 * GI - 4 * MI}  # retained usable 10236Mi
+VG_ALIGNED = {'retained': 10232 * MI, 'regen': VG_BYTES['regen']}  # usable/2 on a 4Mi boundary, for the edge cases
+
+
+VG_SIZES = 'scripts/storage/vg-sizes.json'
 
 
 def entry(i='data', **kw):
@@ -86,12 +94,12 @@ class CheckTests(unittest.TestCase):
             inv.write_text('[]')
             run = lambda labels: subprocess.run(
                 [sys.executable, str(ROOT / 'scripts/check-retained-inventory.py'), '--base', 'HEAD',
-                 '--override-label', 'ok'], cwd=d, env={**os.environ, 'PR_LABELS': labels}, capture_output=True).returncode
+                 '--override-label', 'ok', '--vg-sizes', str(ROOT / VG_SIZES)], cwd=d, env={**os.environ, 'PR_LABELS': labels}, capture_output=True).returncode
             self.assertEqual(run(''), 1)
             self.assertEqual(run('x,ok'), 0)
             self.assertNotEqual(subprocess.run(
                 [sys.executable, str(ROOT / 'scripts/check-retained-inventory.py'), '--base', 'no-such-ref',
-                 '--override-label', 'ok'], cwd=d, env={**os.environ, 'PR_LABELS': 'ok'}, capture_output=True).returncode, 0)
+                 '--override-label', 'ok', '--vg-sizes', str(ROOT / VG_SIZES)], cwd=d, env={**os.environ, 'PR_LABELS': 'ok'}, capture_output=True).returncode, 0)
             with self.assertRaises(SystemExit):
                 chk.load_base('no-such-ref')
             # ref resolves but file absent: first inventory PR
@@ -116,6 +124,56 @@ class CheckTests(unittest.TestCase):
     def test_copied_may_be_removed(self):
         # A revert of a switch PR has to pass CI.
         self.assertEqual(errs([entry(origin='migrated', copied='2026-12-01')], [entry(origin='migrated')]), [])
+
+    def vg(self, head, base=(), vg_bytes=VG_BYTES):
+        return chk.check(list(base), head, vg_bytes=vg_bytes)
+
+    def test_sizes_over_vg_refused(self):
+        e = self.vg([entry('a', size='5Gi'), entry('b', size='5Gi')])
+        self.assertTrue(any('VG retained' in x and str(10 * GI) in x and str(VG_BYTES['retained']) in x for x in e), e)
+        e = self.vg([entry('a', size='10236Mi')])  # fits, but leaves no reserve
+        self.assertTrue(any('VG retained' in x and 'reserve' in x for x in e), e)
+        e = self.vg([entry('a', size='2Gi'), entry('b', size='3Gi'), entry('c', size='3Gi', **{'class': 'regenerable'})])
+        self.assertTrue(e and all('VG regen' in x for x in e), e)
+        base = [entry('a', size='2Gi'), entry('b', size='3Gi')]
+        self.assertEqual(self.vg([entry('a', size='2Gi'), entry('b', size='3584Mi')], base), [])  # free 4604Mi
+        for grown in ('8Gi', '5Gi'):  # over the VG, then into the reserve
+            e = self.vg([entry('a', size='2Gi'), entry('b', size=grown)], base)
+            self.assertTrue(any('VG retained' in x for x in e), (grown, e))
+
+    def test_inventory_refused_when_reserve_not_free(self):
+        e = self.vg([entry('a', size='4Gi'), entry('b', size='3Gi')])  # free 3068Mi < largest 4Gi
+        self.assertTrue(any('VG retained' in x and str(3068 * MI) in x and str(4 * GI) in x for x in e), e)
+        e = self.vg([entry('a', size='5120Mi')], vg_bytes=VG_ALIGNED)  # free 5112Mi < its own 5120Mi
+        self.assertTrue(any('VG retained' in x and str(5120 * MI) in x for x in e), e)
+        e = self.vg([entry(f'v{n}', size='500Mi') for n in range(19)])  # free 736Mi < the 10% floor
+        self.assertTrue(any('VG retained' in x and str(VG_BYTES['retained'] // 10) in x for x in e), e)
+
+    def test_inventory_accepted_with_reserve_free(self):
+        self.assertEqual(self.vg([entry('a', size='2Gi'), entry('b', size='3Gi')]), [])
+        self.assertEqual(self.vg([entry('a', size='5116Mi')], vg_bytes=VG_ALIGNED), [])  # free equals the reserve
+        self.assertEqual(self.vg([entry(f'v{n}', size='500Mi') for n in range(18)]), [])  # free 1236Mi
+        self.assertEqual(self.vg([entry('a', size='2Gi'), entry('b', size='3Gi'),
+                                  entry('c', size='512Mi', **{'class': 'regenerable'})]), [])
+
+    def test_vg_sizes_file(self):
+        sizes = json.loads((ROOT / VG_SIZES).read_text())
+        self.assertEqual(set(sizes), {f'{vg}_gib' for vg in chk.VG_FOR.values()})
+        for v in sizes.values():
+            self.assertTrue(type(v) is int and v > 0, sizes)
+        args = ['--base', 'HEAD', '--override-label', 'x', '--inventory', str(ROOT / chk.PATH), '--vg-sizes']
+
+        def main(path):
+            with contextlib.redirect_stderr(io.StringIO()) as err:
+                rc = chk.main(args + [str(path)])
+            self.assertIn('VG sizes', err.getvalue())
+            return rc
+        with tempfile.TemporaryDirectory() as d:
+            self.assertEqual(main(Path(d, 'missing.json')), 1)
+            for bad in ['{"retained_gib": 220}', '{"retained_gib": 0, "regen_gib": 1}', '{"retained_gib": true, '
+                        '"regen_gib": 1}', '{"retained_gib": 1, "regen_gib": 1, "x": 1}', 'nope', '[]']:
+                Path(d, 'bad.json').write_text(bad)
+                self.assertEqual(main(Path(d, 'bad.json')), 1, bad)
 
     def test_unknown_field_still_rejected(self):
         self.assertTrue(errs([], [entry(foo='1')]))
@@ -272,6 +330,20 @@ class RenderTests(unittest.TestCase):
                          ('true', '1e3', '123'))
         guard = yaml.safe_load(self.render([e], 'retained-volumes-guard.yaml'))
         self.assertEqual((guard['metadata']['name'], guard['metadata']['namespace']), ('123-retained-guard', '1e3'))
+
+    def test_growth_changes_pv_not_pvc(self):
+        small, big = ([d for d in yaml.safe_load_all(self.render([entry('app-data', size=size)], 'retained-volumes.yaml'))
+                       if d] for size in ('5Gi', '6Gi'))
+        self.assertEqual((small[0]['spec']['capacity']['storage'], big[0]['spec']['capacity']['storage']), ('5Gi', '6Gi'))
+        self.assertEqual(small[1], big[1])
+
+    def test_pvc_request_immutable_across_size_change(self):
+        for size in ('4Mi', '5Gi', '64Gi'):
+            pv, pvc = [d for d in yaml.safe_load_all(self.render([entry('app-data', size=size)], 'retained-volumes.yaml'))
+                       if d]
+            # Pinned: raising it is refused by admission (class ""), lowering it below status.capacity by validation.
+            self.assertEqual(pvc['spec']['resources']['requests']['storage'], '1Mi')
+            self.assertGreaterEqual(chk.size_bytes(pv['spec']['capacity']['storage']), MI)
 
     def test_copied_does_not_change_render(self):
         for template in ('retained-volumes.yaml', 'retained-volumes-guard.yaml'):

@@ -27,6 +27,9 @@ CLASSES = {'retained', 'regenerable'}
 ORIGINS = {'migrated', 'new'}
 MAX_REMOVALS = 2
 MIB = 1024 * 1024
+VG_SIZES = 'scripts/storage/vg-sizes.json'  # mirrors terraform storage/terraform.tfvars data_disks, kept by hand
+VG_FOR = {'retained': 'retained', 'regenerable': 'regen'}  # class -> VG, as ansible inventory.vg_for
+RESERVE_MIN_DIVISOR = 10
 
 
 def size_bytes(text):
@@ -87,7 +90,7 @@ def validate(entries, label):
     return errors, by_id
 
 
-def check(base, head, override=False):
+def check(base, head, override=False, vg_bytes=None):
     errors, base_ids = validate(base, 'base')
     errs, head_ids = validate(head, 'head')
     errors += errs
@@ -108,7 +111,27 @@ def check(base, head, override=False):
             errors.append(f'{i}: size decreased {b["size"]} -> {h["size"]}')
     if len(removed) > MAX_REMOVALS and not override:
         errors.append(f'{len(removed)} removals ({", ".join(removed)}) need the override label')
+    for vg, usable in (vg_bytes or {}).items():
+        sizes = [size_bytes(e['size']) for e in head if VG_FOR[e['class']] == vg]
+        total = sum(sizes)
+        # Keep one LVM snapshot of the largest LV possible (deferred storage-VM backup path, Ben 2026-11-22).
+        reserve = max(max(sizes, default=0), usable // RESERVE_MIN_DIVISOR)
+        if total > usable:
+            errors.append(f'VG {vg}: entries sum to {total} bytes, more than its {usable} usable bytes')
+        elif usable - total < reserve:
+            errors.append(f'VG {vg}: {usable - total} bytes free, less than the snapshot reserve of {reserve} bytes')
     return errors
+
+
+def load_vg_bytes(path):
+    """{vg: usable bytes}; usable = <gib> GiB - 4 MiB (1 MiB pe_start, rest rounded down to 4 MiB extents)."""
+    with open(path) as f:
+        sizes = json.load(f)
+    want = {f'{vg}_gib' for vg in VG_FOR.values()}
+    if not isinstance(sizes, dict) or set(sizes) != want or not all(
+            type(v) is int and v > 0 for v in sizes.values()):
+        raise ValueError(f'{path}: want exactly {sorted(want)} as positive integers')
+    return {vg: sizes[f'{vg}_gib'] * 1024 * MIB - 4 * MIB for vg in VG_FOR.values()}
 
 
 def load_yaml(path):
@@ -262,11 +285,17 @@ def main(argv=None):
     ap.add_argument('--base', required=True)
     ap.add_argument('--override-label', required=True)
     ap.add_argument('--inventory', default=PATH)
+    ap.add_argument('--vg-sizes', default=VG_SIZES)
     a = ap.parse_args(argv)
+    try:  # fail closed: a missing or malformed file is an error, never a skip
+        vg_bytes = load_vg_bytes(a.vg_sizes)
+    except (OSError, ValueError) as exc:
+        print(f'ERROR: VG sizes: {exc}', file=sys.stderr)
+        return 1
     labels = [x for x in os.environ.get('PR_LABELS', '').split(',') if x]
     with open(a.inventory) as f:
         head = json.load(f)
-    errors = check(load_base(a.base), head, a.override_label in labels)
+    errors = check(load_base(a.base), head, a.override_label in labels, vg_bytes)
     if not errors:  # check_bindings expects a valid inventory
         errors = check_bindings(head, Path('.'))
     for e in errors:

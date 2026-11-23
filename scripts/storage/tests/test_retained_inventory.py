@@ -286,7 +286,9 @@ class BindingTests(unittest.TestCase):
         rel = 'services/operations/kube-prometheus-stack'
         self.assertEqual(real(f'{rel}/app.yaml')['name'], 'kube-prometheus-stack')
         _, values = chk.effective_values(ROOT, ROOT / rel / 'app.yaml')
-        self.assertFalse({'fullnameOverride', 'nameOverride'} & set(values), values.keys())
+        # cleanPrometheusOperatorObjectNames would drop the -<kind> suffix from the STS names.
+        self.assertFalse({'fullnameOverride', 'nameOverride', 'cleanPrometheusOperatorObjectNames'} & set(values),
+                         values.keys())
         for path, sts in chk.KPS_STS.items():
             self.assertFalse({'fullnameOverride', 'nameOverride'} & set(values.get(path[0]) or {}), path)
             self.assertIsInstance(chk.dig(values, *path, 'volumeClaimTemplate', 'metadata', 'name'), str, path)

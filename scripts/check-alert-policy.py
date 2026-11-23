@@ -450,6 +450,9 @@ for alert, series, at, expected in [
      [(f'storage_dataset_avail_bytes{{{S},dataset="apps/k3s-block"}}', "50x150"),
       (f'storage_dataset_size_bytes{{{S},dataset="apps/k3s-block"}}', "100x150"),
       (f"storage_dataset_timestamp_seconds{{{S}}}", "1800x150")], "150m", []),
+    # Never written (the gauges step failed from its first run): the absent leg fires. It also covers
+    # MaintenanceLockStale, whose series is written in the same file.
+    ("StorageDatasetLow", [(f"node_boot_time_seconds{{{S}}}", "200x30")], "30m", [(f'{{{S}}}', 1)]),
     # Lock (eval at 450m = 27000 s): taken 7 h ago fires, 1 h ago or free (0) stays quiet.
     ("MaintenanceLockStale",
      [(f'storage_maintenance_lock_created_timestamp_seconds{{{S},operation="ansible-deploy"}}', "1800x450")], "450m",

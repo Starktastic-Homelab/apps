@@ -74,12 +74,13 @@ spec:
             storage_dataset_avail_bytes{job="storage-vm"}
               / on (instance, job, dataset) storage_dataset_size_bytes{job="storage-vm"} < 0.15
             or time() - storage_dataset_timestamp_seconds{job="storage-vm"} > 3 * 3600
+            or absent(storage_dataset_timestamp_seconds{job="storage-vm"})
           for: 15m
           labels:
             severity: warning
           annotations:
-            summary: "The k3s-block dataset is low on space, or its gauge is stale"
-            description: "The TrueNAS dataset behind the retained images has under 15% free as pve's df sees it, or the hourly host gauges have not been written for 3 hours (see the storage workflow's Write host gauges step). See docs/runbooks/storage-vm-growth.md, \"Dataset full\"."
+            summary: "The k3s-block dataset is low on space, or its gauge is stale or missing"
+            description: "The TrueNAS dataset behind the retained images has under 15% free as pve's df sees it, or the hourly host gauges have not been written for 3 hours or were never written, which also blinds MaintenanceLockStale (see the storage workflow's Write host gauges step). See docs/runbooks/storage-vm-growth.md, \"Dataset full\"."
         - alert: MaintenanceLockStale
           expr: |
             storage_maintenance_lock_created_timestamp_seconds{job="storage-vm"} > 0

@@ -11,3 +11,12 @@ Jellyfin storage guidance is in [the runbook](../../docs/runbooks/jellyfin-stora
 
 Run `python3 -m unittest discover -s scripts/storage/tests -v` after installing
 the requirements.
+
+# Migration copy tool (temporary)
+
+`migrate_volume.py` (with `copy_volume.sh`) is the migration-only copy tool for retained-volume cutovers
+(ADR 0017): `precheck` refuses a copy while anything can write the source, `render` writes the temporary PV/PVC
+pairs and the copy Job (plus, for a reverse copy, the read-only source gate) to a directory outside the repo, and
+`verify-teardown` confirms nothing labelled for the migration is left. It runs only on the tool host that Task 4.0
+Step 7 settles (D23), because it needs `kubectl`, `gh` and the maintenance lock root together. Nothing else imports,
+renders or runs it, and Task 5.9 deletes it with its tests and this paragraph.

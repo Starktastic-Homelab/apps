@@ -317,6 +317,64 @@ class BindingTests(unittest.TestCase):
         e = self.bindings([entry('db', namespace='databases', claim='db-iscsi')], {'services/data/db': (app, values)})
         self.assertTrue(any('db-iscsi' in x and 'resolver' in x for x in e), e)
 
+    def removed(self, entries, apps, files=None):
+        with tempfile.TemporaryDirectory() as d:
+            shutil.copytree(ROOT / 'templates', Path(d, 'templates'))
+            for rel, (app, values) in apps.items():
+                dump(Path(d, rel, 'app.yaml'), app)
+                dump(Path(d, rel, 'values.yaml'), values)
+            for rel, text in (files or {}).items():
+                dump(Path(d, rel), text)
+            return chk.check_removed(entries, Path(d))
+
+    def test_removal_while_bound_refused(self):
+        # Expiry deletes the LV of a removed entry; git still binding its claim makes the PR contradict itself.
+        tempo = entry('tempo', namespace='monitoring', claim='tempo-iscsi', origin='migrated', copied='2026-12-01')
+        e = self.removed([tempo], self.tempo())
+        self.assertTrue(any('tempo' in x and 'tempo-iscsi' in x for x in e), e)
+        self.assertEqual(self.removed([tempo], self.tempo(claim='tempo-data-block')), [])
+        self.assertEqual(self.removed([dict(tempo, namespace='other')], self.tempo()), [])
+        prom = entry('prometheus', namespace='monitoring', origin='migrated', copied='2026-12-01',
+                     claim='prometheus-iscsi-prometheus-kube-prometheus-stack-prometheus-0')
+        for volume in (True, False):  # the derived STS claim binds with or without volumeName
+            e = self.removed([prom], self.kps(volume=volume))
+            self.assertTrue(any('prometheus' in x and 'removed' in x for x in e), (volume, e))
+        self.assertEqual(self.removed([prom], {}), [])
+
+    def test_removal_while_manifest_names_claim_refused(self):
+        e1 = entry('job', namespace='batch', claim='job-iscsi')
+        pod = {'kind': 'CronJob', 'metadata': {'name': 'j'}, 'spec': {'jobTemplate': {'spec': {'template': {'spec': {
+            'containers': [], 'volumes': [{'name': 'd', 'persistentVolumeClaim': {'claimName': 'job-iscsi'}}]}}}}}}
+        for files in [{'services/x/job/manifests/cron.yaml': yaml.safe_dump(pod)},
+                      {'services/x/job/manifests/cron.yaml': 'claimName: {{ "job-iscsi" }}\n'}]:
+            e = self.removed([e1], {}, files)
+            self.assertTrue(any('cron.yaml' in x and 'job-iscsi' in x for x in e), e)
+        other = dict(pod, metadata={'name': 'j', 'namespace': 'elsewhere'})
+        self.assertEqual(self.removed([e1], {}, {'services/x/job/manifests/cron.yaml': yaml.safe_dump(other)}), [])
+        self.assertEqual(self.removed([e1], {}, {'services/x/job/manifests/cron.yaml': 'name: {{ "job-iscsi-old" }}\n'}), [])
+
+    def test_cli_refuses_removal_while_bound(self):
+        with tempfile.TemporaryDirectory() as d:
+            def git(*a):
+                subprocess.run(['git', '-c', 'user.name=t', '-c', 'user.email=t@t', *a], cwd=d, check=True, capture_output=True)
+            for rel, (app, values) in self.tempo().items():
+                dump(Path(d, rel, 'app.yaml'), app)
+                dump(Path(d, rel, 'values.yaml'), values)
+            shutil.copytree(ROOT / 'templates', Path(d, 'templates'))
+            inv = Path(d, chk.PATH)
+            inv.parent.mkdir(parents=True)
+            inv.write_text(json.dumps([entry('tempo', namespace='monitoring', claim='tempo-iscsi', origin='migrated',
+                                             copied='2026-12-01', size='4Gi', **{'class': 'regenerable'})]))
+            git('init', '-q')
+            git('add', '.')
+            git('commit', '-qm', 'base')
+            inv.write_text('[]')
+            r = subprocess.run([sys.executable, str(ROOT / 'scripts/check-retained-inventory.py'), '--base', 'HEAD',
+                                '--override-label', 'ok', '--vg-sizes', str(ROOT / VG_SIZES)], cwd=d,
+                               env={**os.environ, 'PR_LABELS': 'ok'}, capture_output=True, text=True)
+            self.assertEqual(r.returncode, 1, r.stderr)
+            self.assertIn('still binds monitoring/tempo-iscsi', r.stderr)
+
     def test_repo_bindings_pass(self):
         head = json.loads((ROOT / chk.PATH).read_text())
         self.assertEqual(chk.check_bindings(head, ROOT), [])

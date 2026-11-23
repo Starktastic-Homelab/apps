@@ -3,7 +3,8 @@
 
 Rejects, against the base ref: bad ids, changed id/class/origin, size decreases, duplicates, malformed sizes,
 and more than 2 removals unless the PR carries the override label (env PR_LABELS, comma separated).
-check_bindings() then checks how app values bind the head inventory's claims (the switch to a storage-VM volume).
+check_bindings() then checks how app values bind the head inventory's claims (the switch to a storage-VM volume), and
+check_removed() refuses removing an entry whose claim git still binds.
 """
 import argparse
 import datetime
@@ -281,6 +282,42 @@ def check_bindings(entries, root):
     return errors
 
 
+def check_removed(removed, root):
+    """Errors for removed entries whose (namespace, claim) git still binds: expiry would delete a volume in use.
+
+    App values are matched by namespace (any string, plus resolve()'s derived STS claims and volumeName ids). Other
+    committed YAML under infrastructure/ and services/ is matched on any string equal to the claim, in the entry's namespace or
+    with none set; a templated file, which cannot be parsed, on the claim as a whole word (fail closed).
+    """
+    errors = []
+    for app_yaml in sorted([*(root / 'services').rglob('app.yaml'), *(root / 'infrastructure').rglob('app.yaml')]):
+        app, values = effective_values(root, app_yaml)
+        name, ns = app.get('name', app_yaml.parent.name), app.get('namespace')
+        refs = {text for _, text in strings(values)}
+        refs |= {ref for _, kind, ref, _, _ in resolve(values) if kind == 'claim'}
+        volumes = {ref for _, kind, ref, _, _ in resolve(values) if kind == 'volume'}
+        for e in removed:
+            if e['namespace'] == ns and (e['claim'] in refs or e['id'] in volumes):
+                errors.append(f'{e["id"]}: removed, but {name} still binds {ns}/{e["claim"]}; remove the binding first')
+    for top in ('infrastructure', 'services'):
+        for path in sorted((root / top).rglob('*.y*ml')):
+            if path.name == 'values.yaml':  # matched per namespace above
+                continue
+            text = path.read_text()
+            for e in removed:
+                if e['claim'] not in text:
+                    continue
+                if '{{' in text:
+                    hit = re.search(rf'(?<![\w.-]){re.escape(e["claim"])}(?![\w.-])', text)
+                else:
+                    hit = any(dig(d, 'metadata', 'namespace') in (None, e['namespace'])
+                              and any(t == e['claim'] for _, t in strings(d))
+                              for d in yaml.safe_load_all(text) if isinstance(d, dict))
+                if hit:
+                    errors.append(f'{e["id"]}: removed, but {path.relative_to(root)} still names claim {e["claim"]}')
+    return errors
+
+
 def load_base(ref):
     # An unresolvable ref must fail closed: an empty base would skip every base check.
     if subprocess.run(['git', 'rev-parse', '--verify', '--quiet', f'{ref}^{{commit}}'], capture_output=True).returncode:
@@ -306,7 +343,11 @@ def main(argv=None):
     labels = [x for x in os.environ.get('PR_LABELS', '').split(',') if x]
     with open(a.inventory) as f:
         head = json.load(f)
-    errors = check(load_base(a.base), head, a.override_label in labels, vg_bytes)
+    base = load_base(a.base)
+    errors = check(base, head, a.override_label in labels, vg_bytes)
+    if not errors:  # both inventories valid; the override label never covers a removal still bound
+        head_ids = {e['id'] for e in head}
+        errors += check_removed([e for e in base if e['id'] not in head_ids], Path('.'))
     if not validate(head, 'head')[0]:  # check_bindings expects a valid head inventory
         errors += check_bindings(head, Path('.'))
     for e in errors:

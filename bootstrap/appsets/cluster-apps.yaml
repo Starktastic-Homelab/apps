@@ -139,6 +139,8 @@ spec:
     {{- $valuesPath := or $basePath (printf "%s" .path.path) }}
     {{- $hasCommon := ne .commonValues "" }}
     {{- $extras := dig "commonValuesExtras" (list) . }}
+    {{- /* retained: <id> (origin: new only; scripts/check-retained-guards.py) adds the one-flag guard layer. */}}
+    {{- $retained := dig "retained" "" . }}
     spec:
       sources:
         {{- if $isService }}
@@ -154,10 +156,19 @@ spec:
               {{- range $extras }}
               - $values/{{ . }}
               {{- end }}
+              {{- if $retained }}
+              - $values/templates/retained-guard.yaml
+              {{- end }}
               - $values/{{ $valuesPath }}/values.yaml
               {{- if and $basePath (dig "valuesOverride" false .) }}
               - $values/{{.path.path}}/values.yaml
               {{- end }}
+            {{- if $retained }}
+            parameters:
+              - name: retained.id
+                value: {{ $retained | quote }}
+                forceString: true
+            {{- end }}
         {{- else if dig "chart" false . }}
         - repoURL: "{{ .chart.repo }}"
           chart: "{{ .chart.name }}"

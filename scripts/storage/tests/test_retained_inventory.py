@@ -353,12 +353,6 @@ class RenderTests(unittest.TestCase):
         self.assertEqual((pvc['metadata']['namespace'], pvc['metadata']['name']), ('ns', 'app-data-claim'))
         self.assertEqual(pvc['spec']['storageClassName'], '')
 
-    def test_guard_marker_only_for_new(self):
-        out = self.render([entry('fresh'), entry('moved', origin='migrated')], 'retained-volumes-guard.yaml')
-        self.assertIn('fresh-retained-guard', out)
-        self.assertNotIn('moved', out)
-        self.assertIn(".homelab-' + ID + '-data", out)
-
     def test_numeric_like_values_render_as_strings(self):
         e = entry('123', claim='true', namespace='1e3')
         pv, pvc = [d for d in yaml.safe_load_all(self.render([e], 'retained-volumes.yaml')) if d]
@@ -367,8 +361,6 @@ class RenderTests(unittest.TestCase):
         self.assertEqual(pv['spec']['csi']['volumeHandle'], '123')
         self.assertEqual((pvc['metadata']['name'], pvc['metadata']['namespace'], pvc['spec']['volumeName']),
                          ('true', '1e3', '123'))
-        guard = yaml.safe_load(self.render([e], 'retained-volumes-guard.yaml'))
-        self.assertEqual((guard['metadata']['name'], guard['metadata']['namespace']), ('123-retained-guard', '1e3'))
 
     def test_growth_changes_pv_not_pvc(self):
         small, big = ([d for d in yaml.safe_load_all(self.render([entry('app-data', size=size)], 'retained-volumes.yaml'))
@@ -385,9 +377,8 @@ class RenderTests(unittest.TestCase):
             self.assertGreaterEqual(chk.size_bytes(pv['spec']['capacity']['storage']), MI)
 
     def test_copied_does_not_change_render(self):
-        for template in ('retained-volumes.yaml', 'retained-volumes-guard.yaml'):
-            self.assertEqual(self.render([entry('app-data', origin='migrated')], template),
-                             self.render([entry('app-data', origin='migrated', copied='2026-12-01')], template))
+        self.assertEqual(self.render([entry('app-data', origin='migrated')], 'retained-volumes.yaml'),
+                         self.render([entry('app-data', origin='migrated', copied='2026-12-01')], 'retained-volumes.yaml'))
         self.assertNotIn('copied', (ROOT / 'infrastructure/base-configs/templates/retained-volumes.yaml').read_text())
 
     def test_empty_inventory_renders_nothing(self):

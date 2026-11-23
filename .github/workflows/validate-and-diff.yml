@@ -109,6 +109,9 @@ jobs:
           PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
         run: python3 scripts/check-retained-inventory.py --base origin/main --override-label storage-removals-approved
 
+      - name: Check retained volume guards
+        run: python3 scripts/check-retained-guards.py
+
       - name: Check alert policy
         id: alerts
         env:

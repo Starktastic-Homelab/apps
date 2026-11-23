@@ -1,11 +1,16 @@
-{{- /* One generic marker guard per namespace that runs a retained-volume guard init container. */}}
-{{- range list "databases" "home-automation" "media" "monitoring" "operations" }}
+{{- /* The generic marker guard in every namespace that runs a retained-volume guard init container: the fixed
+hand-wired consumers' namespaces plus each retained-volumes.json entry's (ADR 0017), each namespace once. */}}
+{{- $namespaces := list "databases" "home-automation" "media" "monitoring" "operations" }}
+{{- range $v := (.Files.Get "files/retained-volumes.json" | fromJsonArray) }}
+{{- $namespaces = append $namespaces $v.namespace }}
+{{- end }}
+{{- range ($namespaces | uniq | sortAlpha) }}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: retained-startup-guard
-  namespace: {{ . }}
+  namespace: {{ . | quote }}
 data:
   guard.py: |{{ $.Files.Get "files/retained-startup/guard.py" | nindent 4 }}
 {{- end }}

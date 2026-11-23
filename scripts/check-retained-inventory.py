@@ -239,8 +239,11 @@ def check_bindings(entries, root):
     errors = []
     by_claim = {(e['namespace'], e['claim']): e for e in entries}
     by_id = {e['id']: e for e in entries}
-    for key in sorted(set(by_claim) & static_claims(root)):
-        errors.append(f'{by_claim[key]["id"]}: claim {key[0]}/{key[1]} is a static PVC already; use a new claim')
+    static = static_claims(root)
+    for (ns, claim), e in sorted(by_claim.items()):
+        # A PVC without metadata.namespace lands in its app's namespace: match it on name alone (fail closed).
+        if (ns, claim) in static or (None, claim) in static:
+            errors.append(f'{e["id"]}: claim {ns}/{claim} is a static PVC already; use a new claim')
     users = {}
     for app_yaml in sorted([*(root / 'services').rglob('app.yaml'), *(root / 'infrastructure').rglob('app.yaml')]):
         app, values = effective_values(root, app_yaml)
@@ -296,8 +299,8 @@ def main(argv=None):
     with open(a.inventory) as f:
         head = json.load(f)
     errors = check(load_base(a.base), head, a.override_label in labels, vg_bytes)
-    if not errors:  # check_bindings expects a valid inventory
-        errors = check_bindings(head, Path('.'))
+    if not validate(head, 'head')[0]:  # check_bindings expects a valid head inventory
+        errors += check_bindings(head, Path('.'))
     for e in errors:
         print(f'ERROR: {e}', file=sys.stderr)
     return 1 if errors else 0

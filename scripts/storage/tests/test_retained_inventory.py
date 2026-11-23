@@ -254,6 +254,10 @@ class BindingTests(unittest.TestCase):
         e = self.bindings([entry('tempo', namespace='monitoring', claim='tempo-data-block')], {},
                           ['infrastructure/base-configs/templates/monitoring-block-storage/tempo-bindings.yaml'])
         self.assertTrue(any('tempo-data-block' in x and 'static' in x for x in e), e)
+        with tempfile.TemporaryDirectory() as d:  # no metadata.namespace: matched on name alone
+            dump(Path(d, 'services/x/y/manifests/pvc.yaml'), {'kind': 'PersistentVolumeClaim', 'metadata': {'name': 'c'}})
+            e = chk.check_bindings([entry('c', namespace='anywhere', claim='c')], Path(d))
+        self.assertTrue(any('static' in x for x in e), e)
 
     def test_sts_claim_must_match_template(self):
         e = self.bindings([entry('prometheus', namespace='monitoring', claim='prometheus-iscsi', origin='migrated',

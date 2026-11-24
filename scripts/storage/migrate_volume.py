@@ -81,8 +81,9 @@ def copy_image(root):
         raise ValueError(f'cannot read node plugin image from {CSI_VALUES}: {e!r}')
 
 
-def storage_portal(root):
-    return yaml.safe_load((root / GLOBALS).read_text())['global']['network']['storagePortal']
+def storage_target(root):
+    n = yaml.safe_load((root / GLOBALS).read_text())['global']['network']
+    return n['storagePortal'], n['storageTargetIqnPrefix']
 
 
 # ---------- live helpers ----------
@@ -226,9 +227,10 @@ def meta(name, i, step=None, ns=None, sync=False):
     return m
 
 
-def node_manual_csi(i, portal):
+def node_manual_csi(i, target):
+    portal, prefix = target
     return {'driver': NODE_MANUAL, 'volumeHandle': i, 'volumeAttributes': {
-        'portal': portal, 'iqn': f'iqn.2026-11.net.starktastic.storage:{i}', 'lun': '0',
+        'portal': portal, 'iqn': prefix + i, 'lun': '0',
         'node_attach_driver': 'iscsi', 'provisioner_driver': 'node-manual'}}
 
 
@@ -281,9 +283,9 @@ def copy_pod(i, args, devices, image):
                    [{'name': d, 'persistentVolumeClaim': {'claimName': c}} for d, c in devices.items()]}
 
 
-def render_copy(i, entry, b, portal, direction, image):
+def render_copy(i, entry, b, target, direction, image):
     ns, old = entry['namespace'], [proxmox_csi(b), b['spec']['capacity']['storage'], b['spec'].get('nodeAffinity')]
-    new = [node_manual_csi(i, portal), entry['size'], None]
+    new = [node_manual_csi(i, target), entry['size'], None]
     (s_csi, s_size, s_aff), (d_csi, d_size, d_aff) = (old, new) if direction == 'forward' else (new, old)
     pairs = pair(f'migrate-src-{i}', i, ns, s_csi, s_size, node_affinity=s_aff) + \
         pair(f'migrate-dst-{i}', i, ns, d_csi, d_size, node_affinity=d_aff)
@@ -305,7 +307,7 @@ def guard_template(live, entry):
     return (o, next(iter(vols))), None
 
 
-def render_gate(i, entry, portal, live, image):
+def render_gate(i, entry, target, live, image):
     """gate.yaml objects, or (None, reason)."""
     found, why = guard_template(live, entry)
     if why:
@@ -341,9 +343,9 @@ def render_gate(i, entry, portal, live, image):
     if 'securityContext' in spec:
         guard_pod['securityContext'] = spec['securityContext']
     objs = [script_cm(i, ns, 'gate')]
-    objs += pair(gate, i, ns, node_manual_csi(i, portal), entry['size'], step='gate')
+    objs += pair(gate, i, ns, node_manual_csi(i, target), entry['size'], step='gate')
     objs.append(job(gate, i, ns, copy_pod(i, ['gate', i], {'migrate-src': gate}, image), step='gate'))
-    guard_csi = dict(node_manual_csi(i, portal), fsType='ext4')
+    guard_csi = dict(node_manual_csi(i, target), fsType='ext4')
     objs += pair(gv, i, ns, guard_csi, entry['size'], mode='Filesystem', step='guard', mount_options=['ro', 'noload'])
     objs.append(job(gv, i, ns, guard_pod, step='guard'))
     return objs, None
@@ -448,7 +450,7 @@ def main(argv=None):
 
     gate_log = out / 'gate.log'
     pass1 = a.direction == 'reverse' and not gate_log.exists()
-    portal = storage_portal(repo)
+    target = storage_target(repo)
     try:
         image = copy_image(repo)
     except ValueError as e:
@@ -456,7 +458,7 @@ def main(argv=None):
     # The gate check runs whatever decide found, so a pass 1 before the hold still prints its gate line.
     if a.direction == 'reverse' and entry is not None:
         if pass1:
-            objs, why = render_gate(i, entry, portal, got['live'], image)
+            objs, why = render_gate(i, entry, target, got['live'], image)
         else:
             why = None if gate_passed(gate_log.read_text(), i) else f'gate: {gate_log} lacks gate-fsck-ok and gate-guard-ok {i}'
             live_pvs = {p['metadata']['name'] for p in by_kind(got['live'], 'PersistentVolume')}
@@ -478,7 +480,7 @@ def main(argv=None):
     if pass1:
         dump(out / 'gate.yaml', objs)
     else:
-        pairs, jobs = render_copy(i, entry, b, portal, a.direction, image)
+        pairs, jobs = render_copy(i, entry, b, target, a.direction, image)
         dump(out / 'pairs.yaml', pairs)
         dump(out / 'job.yaml', jobs)
     (out / 'render.json').write_text(json.dumps(record, indent=2) + '\n')

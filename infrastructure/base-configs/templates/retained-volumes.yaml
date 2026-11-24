@@ -22,7 +22,7 @@ spec:
     volumeHandle: {{ $v.id | quote }}
     volumeAttributes:
       portal: {{ $.Values.global.network.storagePortal | quote }}
-      iqn: iqn.2026-11.net.starktastic.storage:{{ $v.id }}
+      iqn: {{ printf "%s%s" $.Values.global.network.storageTargetIqnPrefix $v.id | quote }}
       lun: "0"
       node_attach_driver: iscsi
       provisioner_driver: node-manual

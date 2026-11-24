@@ -72,6 +72,12 @@ class CheckTests(unittest.TestCase):
         # must change with it.
         self.assertEqual(chk.ID_PATTERN, r'^(?!snapshot|pvmove)[a-z0-9][a-z0-9-]{0,62}$')
 
+    def test_target_iqn_prefix_tripwire(self):
+        # Pins the literal so a change is deliberate; ansible roles/storage_vm/files/homelab_storage/lio.py
+        # TARGET_PREFIX must change with it (and a change renames every target and its wwn).
+        network = yaml.safe_load((ROOT / 'templates/globals.yaml').read_text())['global']['network']
+        self.assertEqual(network['storageTargetIqnPrefix'], 'iqn.2026-11.net.starktastic.storage:')
+
     def test_vg_for_tripwire(self):
         # Pins the class -> VG map; ansible roles/storage_vm/files/homelab_storage/inventory.py vg_for and
         # lvm.py VG_NAMES must change with it.
@@ -415,11 +421,12 @@ class RenderTests(unittest.TestCase):
         self.assertEqual(pv['metadata']['annotations']['argocd.argoproj.io/sync-options'], 'Prune=false,Delete=false')
         csi = pv['spec']['csi']
         self.assertEqual((csi['driver'], csi['fsType'], csi['volumeHandle']), ('org.democratic-csi.node-manual', 'ext4', 'app-data'))
-        portal = yaml.safe_load((ROOT / 'templates/globals.yaml').read_text())['global']['network']['storagePortal']
+        network = yaml.safe_load((ROOT / 'templates/globals.yaml').read_text())['global']['network']
+        portal = network['storagePortal']
         # The RFC 5737 placeholder made PVs fail closed until the storage VM address was decided (D1).
         self.assertNotIn(ipaddress.ip_address(portal.rsplit(':', 1)[0]), ipaddress.ip_network('192.0.2.0/24'))
         self.assertEqual(csi['volumeAttributes'], {
-            'portal': portal, 'iqn': 'iqn.2026-11.net.starktastic.storage:app-data', 'lun': '0',
+            'portal': portal, 'iqn': network['storageTargetIqnPrefix'] + 'app-data', 'lun': '0',
             'node_attach_driver': 'iscsi', 'provisioner_driver': 'node-manual'})
         self.assertEqual(pvc['spec']['volumeName'], 'app-data')
         self.assertEqual((pvc['metadata']['namespace'], pvc['metadata']['name']), ('ns', 'app-data-claim'))

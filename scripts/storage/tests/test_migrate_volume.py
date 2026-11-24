@@ -126,7 +126,8 @@ class Base(unittest.TestCase):
             'registry': COPY_IMAGE.split(':')[0], 'tag': COPY_IMAGE.split(':', 1)[1]}}}}))
         g = root / mv.GLOBALS
         g.parent.mkdir(parents=True)
-        g.write_text(yaml.safe_dump({'global': {'network': {'storagePortal': '192.0.2.10:3260'}}}))
+        g.write_text(yaml.safe_dump({'global': {'network': {'storagePortal': '192.0.2.10:3260',
+                                                                'storageTargetIqnPrefix': 'iqn.2000-01.test.example:'}}}))
         t = root / mv.BINDINGS
         for n in range(bindings):
             f = t / f'b{n}/tempo-bindings.yaml'
@@ -363,7 +364,7 @@ class Render(Base):
         self.assertEqual(src['spec']['claimRef'], {'namespace': 'monitoring', 'name': 'migrate-src-tempo'})
         self.assertEqual(dst['spec']['csi']['driver'], mv.NODE_MANUAL)
         self.assertEqual(dst['spec']['csi']['volumeHandle'], 'tempo')
-        self.assertTrue(dst['spec']['csi']['volumeAttributes']['iqn'].endswith(':tempo'))
+        self.assertEqual(dst['spec']['csi']['volumeAttributes']['iqn'], 'iqn.2000-01.test.example:tempo')
         self.assertEqual(dst['spec']['csi']['volumeAttributes']['portal'], '192.0.2.10:3260')
         self.assertNotIn('fsType', dst['spec']['csi'])
         self.assertNotIn('nodeAffinity', dst['spec'])
@@ -482,7 +483,7 @@ class Render(Base):
         entry_ = entry('tempo', origin='migrated', claim='data-tempo-0')
         live = [binding_pv(), pvc('tempo-data-block', 'tempo-data-block'), pv('tempo', 'tempo', claim='data-tempo-0'),
                 pvc('data-tempo-0', 'tempo'), sts(claim=None, vct='data')]
-        objs, why = mv.render_gate('tempo', entry_, '192.0.2.10:3260', live, COPY_IMAGE)
+        objs, why = mv.render_gate('tempo', entry_, ('192.0.2.10:3260', 'iqn.2000-01.test.example:'), live, COPY_IMAGE)
         self.assertIsNone(why)
         guard_job = [o for o in objs if o['kind'] == 'Job' and o['metadata']['name'] == 'migrate-guard-tempo'][0]
         self.assertIn({'name': 'data', 'persistentVolumeClaim': {'claimName': 'migrate-guard-tempo', 'readOnly': True}},

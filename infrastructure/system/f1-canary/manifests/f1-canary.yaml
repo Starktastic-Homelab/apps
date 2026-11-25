@@ -1,5 +1,6 @@
 # The F1 canary (ADR 0017, D18): a 1 Gi regenerable volume with a SQLite writer that numbers rows 1..n and stops if
 # a row it acknowledged is missing. Its guard has the same shape as templates/retained-guard.yaml.
+# The volume (PV, PVC, guard ConfigMap) comes from base-configs; the namespace from the democratic-csi app.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -7,7 +8,9 @@ metadata:
   namespace: democratic-csi
 data:
   writer.py: |
-    import os, sqlite3, sys, time
+    import os, signal, sqlite3, sys, time
+    # python3 is PID 1 here: without a handler the kubelet's SIGTERM is ignored and every drain is a SIGKILL.
+    signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))
     db = sqlite3.connect('/data/rows.db', isolation_level=None)
     db.execute('PRAGMA journal_mode=WAL')
     db.execute('PRAGMA synchronous=FULL')

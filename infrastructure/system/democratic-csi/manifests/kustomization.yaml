@@ -15,7 +15,6 @@ helmCharts:
 resources:
   - namespace.yaml
   - storage-fencer.yaml
-  - f1-canary.yaml
 
 patches:
   - path: node-shutdown-patch.yaml

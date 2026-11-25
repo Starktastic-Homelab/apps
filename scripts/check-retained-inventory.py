@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """CI check for infrastructure/base-configs/files/retained-volumes.json (ADR 0017).
 
-Rejects, against the base ref: bad ids, changed id/class/origin, size decreases, duplicates, malformed sizes,
-and more than 2 removals unless the PR carries the override label (env PR_LABELS, comma separated).
+Rejects, against the base ref: bad ids, a claim not named after its id, changed class/origin, size decreases,
+duplicates, malformed sizes, entries over a VG's usable size (from terraform main), and more than 2 removals unless
+the PR carries the override label (env PR_LABELS, comma separated).
 check_bindings() then checks how app values bind the head inventory's claims (the switch to a storage-VM volume), and
 check_removed() refuses removing an entry whose claim git still binds.
 """
@@ -13,6 +14,7 @@ import os
 import re
 import subprocess
 import sys
+import urllib.request
 from pathlib import Path
 
 import yaml
@@ -28,7 +30,8 @@ CLASSES = {'retained', 'regenerable'}
 ORIGINS = {'migrated', 'new'}
 MAX_REMOVALS = 2
 MIB = 1024 * 1024
-VG_SIZES = 'scripts/storage/vg-sizes.json'  # mirrors terraform storage/terraform.tfvars data_disks, kept by hand
+# terraform owns the storage VM's data disks; their serial is the VG name. Growth merges terraform first.
+STORAGE_TFVARS = 'https://raw.githubusercontent.com/Starktastic-Homelab/terraform/main/storage/terraform.tfvars'
 VG_FOR = {'retained': 'retained', 'regenerable': 'regen'}  # class -> VG, as ansible inventory.vg_for
 RESERVE_MIN_DIVISOR = 10
 
@@ -82,12 +85,16 @@ def validate(entries, label):
                 errors.append(f'{label}: {i}: copied is only allowed on origin migrated')
             elif not valid_date(e['copied']):
                 errors.append(f'{label}: {i}: bad copied {e["copied"]!r}: want YYYY-MM-DD')
-        for k in ('namespace', 'claim'):
-            if not isinstance(e[k], str) or not e[k]:
-                errors.append(f'{label}: {i}: bad {k}')
-        if (e['namespace'], e['claim']) in claims:
+        if not isinstance(e['namespace'], str) or not e['namespace']:
+            errors.append(f'{label}: {i}: bad namespace')
+        claims_ok = {f'{i}-iscsi'} | {f'{i}-iscsi-{sts}-0' for sts in KPS_STS.values()}
+        if not isinstance(e['claim'], str) or e['claim'] not in claims_ok:
+            errors.append(f'{label}: {i}: claim must be {i}-iscsi (or {i}-iscsi-<sts>-0 for a kube-prometheus-stack '
+                          f'StatefulSet), not {e["claim"]!r}')
+        elif (e['namespace'], e['claim']) in claims:
             errors.append(f'{label}: {i}: duplicate namespace/claim')
-        claims.add((e['namespace'], e['claim']))
+        else:
+            claims.add((e['namespace'], e['claim']))
     return errors, by_id
 
 
@@ -97,12 +104,9 @@ def check(base, head, override=False, vg_bytes=None):
     errors += errs
     if errors:
         return errors
+    # An id change is a removal plus a new entry (a new claim too): check_removed() refuses it while git still binds
+    # the old claim.
     removed = sorted(set(base_ids) - set(head_ids))
-    added = set(head_ids) - set(base_ids)
-    for i in removed:
-        for j in added:
-            if (base_ids[i]['namespace'], base_ids[i]['claim']) == (head_ids[j]['namespace'], head_ids[j]['claim']):
-                errors.append(f'id changed {i} -> {j}: ids are immutable (a move is a new id plus a copy)')
     for i in set(base_ids) & set(head_ids):
         b, h = base_ids[i], head_ids[i]
         for k in ('class', 'origin'):
@@ -124,15 +128,26 @@ def check(base, head, override=False, vg_bytes=None):
     return errors
 
 
-def load_vg_bytes(path):
-    """{vg: usable bytes}; usable = <gib> GiB - 4 MiB (1 MiB pe_start, rest rounded down to 4 MiB extents)."""
-    with open(path) as f:
-        sizes = json.load(f)
-    want = {f'{vg}_gib' for vg in VG_FOR.values()}
-    if not isinstance(sizes, dict) or set(sizes) != want or not all(
-            type(v) is int and v > 0 for v in sizes.values()):
-        raise ValueError(f'{path}: want exactly {sorted(want)} as positive integers')
-    return {vg: sizes[f'{vg}_gib'] * 1024 * MIB - 4 * MIB for vg in VG_FOR.values()}
+def vg_bytes_from_tfvars(text):
+    """{vg: usable bytes} from terraform storage/terraform.tfvars data_disks; usable = <size> GiB - 4 MiB
+    (1 MiB pe_start, rest rounded down to 4 MiB extents). Each disk block is { ... size = <GiB> ... serial = "<vg>" }."""
+    sizes = {}
+    for block in re.findall(r'\{([^{}]*)\}', text):
+        size = re.search(r'^\s*size\s*=\s*(\S+)\s*$', block, re.M)
+        serial = re.search(r'^\s*serial\s*=\s*"([^"]*)"\s*$', block, re.M)
+        if not size or not serial or not re.fullmatch(r'[1-9][0-9]*', size.group(1)) or serial.group(1) in sizes:
+            raise ValueError(f'unparsable or duplicate data disk: {block.strip()!r}')
+        sizes[serial.group(1)] = int(size.group(1))
+    if set(sizes) != set(VG_FOR.values()):
+        raise ValueError(f'want data disks with serials exactly {sorted(VG_FOR.values())}, got {sorted(sizes)}')
+    return {vg: gib * 1024 * MIB - 4 * MIB for vg, gib in sizes.items()}
+
+
+def read_tfvars(source):
+    if source.startswith('https://'):
+        with urllib.request.urlopen(source, timeout=30) as r:
+            return r.read().decode()
+    return Path(source).read_text()
 
 
 def load_yaml(path):
@@ -345,12 +360,12 @@ def main(argv=None):
     ap.add_argument('--base', required=True)
     ap.add_argument('--override-label', required=True)
     ap.add_argument('--inventory', default=PATH)
-    ap.add_argument('--vg-sizes', default=VG_SIZES)
+    ap.add_argument('--storage-tfvars', default=STORAGE_TFVARS, help='URL or path; tests and offline runs pass a file')
     a = ap.parse_args(argv)
-    try:  # fail closed: a missing or malformed file is an error, never a skip
-        vg_bytes = load_vg_bytes(a.vg_sizes)
+    try:  # fail closed: a missing, unreachable or malformed source is an error, never a skip
+        vg_bytes = vg_bytes_from_tfvars(read_tfvars(a.storage_tfvars))
     except (OSError, ValueError) as exc:
-        print(f'ERROR: VG sizes: {exc}', file=sys.stderr)
+        print(f'ERROR: VG sizes from {a.storage_tfvars}: {exc}', file=sys.stderr)
         return 1
     labels = [x for x in os.environ.get('PR_LABELS', '').split(',') if x]
     with open(a.inventory) as f:

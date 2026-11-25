@@ -25,11 +25,34 @@ VG_BYTES = {'retained': 10 * GI - 4 * MI, 'regen': 2 * GI - 4 * MI}  # retained 
 VG_ALIGNED = {'retained': 10232 * MI, 'regen': VG_BYTES['regen']}  # usable/2 on a 4Mi boundary, for the edge cases
 
 
-VG_SIZES = 'scripts/storage/vg-sizes.json'
+# The shape of terraform storage/terraform.tfvars data_disks; check-retained-inventory.py reads it from terraform main.
+TFVARS = '''data_disks = [
+  {
+    interface         = "virtio1"
+    datastore_id      = "k3s-block"
+    path_in_datastore = "9998/vm-9998-disk-0.raw"
+    size              = 232
+    serial            = "retained"
+  },
+  {
+    interface         = "virtio2"
+    datastore_id      = "k3s-block"
+    path_in_datastore = "9998/vm-9998-disk-1.raw"
+    size              = 56
+    serial            = "regen"
+  },
+]
+'''
+
+
+def tfvars(d, text=TFVARS):
+    path = Path(d, 'storage.tfvars')
+    path.write_text(text)
+    return str(path)
 
 
 def entry(i='data', **kw):
-    e = {'id': i, 'namespace': 'ns', 'claim': i + '-claim', 'size': '10Gi', 'class': 'retained', 'origin': 'new'}
+    e = {'id': i, 'namespace': 'ns', 'claim': i + '-iscsi', 'size': '10Gi', 'class': 'retained', 'origin': 'new'}
     e.update(kw)
     return e
 
@@ -42,9 +65,15 @@ class CheckTests(unittest.TestCase):
     def test_valid_change_passes(self):
         self.assertEqual(errs([entry()], [entry(size='20Gi'), entry('other')]), [])
 
-    def test_id_change_rejected(self):
-        e = errs([entry('old')], [entry('new', claim='old-claim')])
-        self.assertTrue(any('id changed' in x for x in e), e)
+    def test_claim_must_follow_id(self):
+        # One rule: <id>-iscsi, or <id>-iscsi-<sts>-0 for a kube-prometheus-stack operator StatefulSet.
+        self.assertEqual(errs([], [entry('data', claim='data-iscsi')]), [])
+        for sts in chk.KPS_STS.values():
+            self.assertEqual(errs([], [entry('prometheus', claim=f'prometheus-iscsi-{sts}-0')]), [], sts)
+        for bad in ['data', 'data-claim', 'other-iscsi', 'data-iscsi-0', 'data-iscsi-foo-0', 'data-iscsi-x',
+                    'xdata-iscsi', f'data-iscsi-{next(iter(chk.KPS_STS.values()))}-1', '', 7, ['data-iscsi'], {'a': 1}]:
+            e = errs([], [entry('data', claim=bad)])
+            self.assertTrue(any('claim must be data-iscsi' in x for x in e), (bad, e))
 
     def test_class_or_origin_change_rejected(self):
         self.assertTrue(errs([entry()], [entry(**{'class': 'regenerable'})]))
@@ -65,7 +94,7 @@ class CheckTests(unittest.TestCase):
         self.assertEqual(errs([], [entry(size='512Mi')]), [])
 
     def test_duplicate_id_rejected(self):
-        self.assertTrue(errs([], [entry(), entry(claim='x')]))
+        self.assertTrue(any('duplicate id' in x for x in errs([], [entry(), entry()])))
 
     def test_id_pattern_tripwire(self):
         # Pins the literal so a change is deliberate; ansible roles/storage_vm/files/homelab_storage/inventory.py:7
@@ -106,12 +135,12 @@ class CheckTests(unittest.TestCase):
             inv.write_text('[]')
             run = lambda labels: subprocess.run(
                 [sys.executable, str(ROOT / 'scripts/check-retained-inventory.py'), '--base', 'HEAD',
-                 '--override-label', 'ok', '--vg-sizes', str(ROOT / VG_SIZES)], cwd=d, env={**os.environ, 'PR_LABELS': labels}, capture_output=True).returncode
+                 '--override-label', 'ok', '--storage-tfvars', tfvars(d)], cwd=d, env={**os.environ, 'PR_LABELS': labels}, capture_output=True).returncode
             self.assertEqual(run(''), 1)
             self.assertEqual(run('x,ok'), 0)
             self.assertNotEqual(subprocess.run(
                 [sys.executable, str(ROOT / 'scripts/check-retained-inventory.py'), '--base', 'no-such-ref',
-                 '--override-label', 'ok', '--vg-sizes', str(ROOT / VG_SIZES)], cwd=d, env={**os.environ, 'PR_LABELS': 'ok'}, capture_output=True).returncode, 0)
+                 '--override-label', 'ok', '--storage-tfvars', tfvars(d)], cwd=d, env={**os.environ, 'PR_LABELS': 'ok'}, capture_output=True).returncode, 0)
             with self.assertRaises(SystemExit):
                 chk.load_base('no-such-ref')
             # ref resolves but file absent: first inventory PR
@@ -168,24 +197,24 @@ class CheckTests(unittest.TestCase):
         self.assertEqual(self.vg([entry('a', size='2Gi'), entry('b', size='3Gi'),
                                   entry('c', size='512Mi', **{'class': 'regenerable'})]), [])
 
-    def test_vg_sizes_file(self):
-        sizes = json.loads((ROOT / VG_SIZES).read_text())
-        self.assertEqual(set(sizes), {f'{vg}_gib' for vg in chk.VG_FOR.values()})
-        for v in sizes.values():
-            self.assertTrue(type(v) is int and v > 0, sizes)
-        args = ['--base', 'HEAD', '--override-label', 'x', '--inventory', str(ROOT / chk.PATH), '--vg-sizes']
+    def test_vg_sizes_from_terraform_tfvars(self):
+        self.assertEqual(chk.vg_bytes_from_tfvars(TFVARS), {'retained': 232 * GI - 4 * MI, 'regen': 56 * GI - 4 * MI})
+        self.assertTrue(chk.STORAGE_TFVARS.startswith('https://raw.githubusercontent.com/Starktastic-Homelab/terraform/main/'))
+        self.assertTrue(chk.STORAGE_TFVARS.endswith('/storage/terraform.tfvars'))
+        args = ['--base', 'HEAD', '--override-label', 'x', '--inventory', str(ROOT / chk.PATH), '--storage-tfvars']
 
         def main(path):
             with contextlib.redirect_stderr(io.StringIO()) as err:
-                rc = chk.main(args + [str(path)])
+                rc = chk.main(args + [path])
             self.assertIn('VG sizes', err.getvalue())
             return rc
-        with tempfile.TemporaryDirectory() as d:
-            self.assertEqual(main(Path(d, 'missing.json')), 1)
-            for bad in ['{"retained_gib": 220}', '{"retained_gib": 0, "regen_gib": 1}', '{"retained_gib": true, '
-                        '"regen_gib": 1}', '{"retained_gib": 1, "regen_gib": 1, "x": 1}', 'nope', '[]']:
-                Path(d, 'bad.json').write_text(bad)
-                self.assertEqual(main(Path(d, 'bad.json')), 1, bad)
+        one = TFVARS[:TFVARS.index('  {', 20)] + ']\n'  # retained only
+        with tempfile.TemporaryDirectory() as d:  # fail closed: a missing or malformed source is an error, never a skip
+            self.assertEqual(main(str(Path(d, 'missing.tfvars'))), 1)
+            for bad in ['', 'nope', one, TFVARS.replace('"regen"', '"other"'), TFVARS.replace('= 56', '= 0'),
+                        TFVARS.replace('= 56', '= 5.6'), TFVARS.replace('"retained"', '"regen"'),
+                        TFVARS + TFVARS.replace('virtio', 'scsi')]:
+                self.assertEqual(main(tfvars(d, bad)), 1, bad)
 
     def test_unknown_field_still_rejected(self):
         self.assertTrue(errs([], [entry(foo='1')]))
@@ -386,7 +415,7 @@ class BindingTests(unittest.TestCase):
             git('commit', '-qm', 'base')
             inv.write_text('[]')
             r = subprocess.run([sys.executable, str(ROOT / 'scripts/check-retained-inventory.py'), '--base', 'HEAD',
-                                '--override-label', 'ok', '--vg-sizes', str(ROOT / VG_SIZES)], cwd=d,
+                                '--override-label', 'ok', '--storage-tfvars', tfvars(d)], cwd=d,
                                env={**os.environ, 'PR_LABELS': 'ok'}, capture_output=True, text=True)
             self.assertEqual(r.returncode, 1, r.stderr)
             self.assertIn('still binds monitoring/tempo-iscsi', r.stderr)
@@ -417,7 +446,7 @@ class RenderTests(unittest.TestCase):
         self.assertEqual(pv['metadata']['name'], 'app-data')
         self.assertEqual(pv['spec']['accessModes'], ['ReadWriteOncePod'])
         self.assertEqual(pv['spec']['persistentVolumeReclaimPolicy'], 'Retain')
-        self.assertEqual(pv['spec']['claimRef'], {'name': 'app-data-claim', 'namespace': 'ns'})
+        self.assertEqual(pv['spec']['claimRef'], {'name': 'app-data-iscsi', 'namespace': 'ns'})
         self.assertEqual(pv['metadata']['annotations']['argocd.argoproj.io/sync-options'], 'Prune=false,Delete=false')
         csi = pv['spec']['csi']
         self.assertEqual((csi['driver'], csi['fsType'], csi['volumeHandle']), ('org.democratic-csi.node-manual', 'ext4', 'app-data'))
@@ -429,7 +458,7 @@ class RenderTests(unittest.TestCase):
             'portal': portal, 'iqn': network['storageTargetIqnPrefix'] + 'app-data', 'lun': '0',
             'node_attach_driver': 'iscsi', 'provisioner_driver': 'node-manual'})
         self.assertEqual(pvc['spec']['volumeName'], 'app-data')
-        self.assertEqual((pvc['metadata']['namespace'], pvc['metadata']['name']), ('ns', 'app-data-claim'))
+        self.assertEqual((pvc['metadata']['namespace'], pvc['metadata']['name']), ('ns', 'app-data-iscsi'))
         self.assertEqual(pvc['spec']['storageClassName'], '')
         # A pruned PVC leaves the Retain PV Released with a stale claimRef.uid, so reverting a removal would not rebind.
         self.assertEqual((pvc['metadata'].get('annotations') or {}).get('argocd.argoproj.io/sync-options'),

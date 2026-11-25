@@ -84,12 +84,13 @@ holds from `retained` only.
 
 ## Check the VG budget
 
-Read-only. apps CI checks inventory sizes against `scripts/storage/vg-sizes.json` (Task 2.6), assuming each VG's
-usable size is its disk size less 4 MiB of LVM metadata. This check proves that for the real `vgcreate`.
+Read-only. apps CI checks inventory sizes against the data disk sizes in terraform `main`
+`storage/terraform.tfvars` (Task 2.6), assuming each VG's usable size is its disk size less 4 MiB of LVM metadata.
+This check proves that for the real `vgcreate`.
 
 1. `[S]` `vgs --units b --nosuffix -o vg_name,vg_size retained regen` `(not rehearsed)`.
-2. Expected: each `vg_size` equals `<gib> * 1073741824 - 4194304`, where `<gib>` is that VG's key in apps
-   `scripts/storage/vg-sizes.json`.
+2. Expected: each `vg_size` equals `<gib> * 1073741824 - 4194304`, where `<gib>` is the `size` of the data disk
+   whose `serial` is that VG's name in terraform `storage/terraform.tfvars`.
    - **Smaller:** stop. The CI rule's 4 MiB is wrong for this `vgcreate`. Fix the rule in Task 2.6's code first.
    - **Larger:** CI is only conservative. Note it in the evidence and go on.
 

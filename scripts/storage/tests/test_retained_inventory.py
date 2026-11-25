@@ -201,20 +201,73 @@ class CheckTests(unittest.TestCase):
         self.assertEqual(chk.vg_bytes_from_tfvars(TFVARS), {'retained': 232 * GI - 4 * MI, 'regen': 56 * GI - 4 * MI})
         self.assertTrue(chk.STORAGE_TFVARS.startswith('https://raw.githubusercontent.com/Starktastic-Homelab/terraform/main/'))
         self.assertTrue(chk.STORAGE_TFVARS.endswith('/storage/terraform.tfvars'))
-        args = ['--base', 'HEAD', '--override-label', 'x', '--inventory', str(ROOT / chk.PATH), '--storage-tfvars']
-
-        def main(path):
-            with contextlib.redirect_stderr(io.StringIO()) as err:
-                rc = chk.main(args + [path])
-            self.assertIn('VG sizes', err.getvalue())
-            return rc
         one = TFVARS[:TFVARS.index('  {', 20)] + ']\n'  # retained only
         with tempfile.TemporaryDirectory() as d:  # fail closed: a missing or malformed source is an error, never a skip
+            changed = Path(d, 'inventory.json')  # differs from the base, so the sizes are read
+            changed.write_text(json.dumps([entry('a', size='1Gi')]))
+            args = ['--base', 'HEAD', '--override-label', 'x', '--inventory', str(changed), '--storage-tfvars']
+
+            def main(path):
+                with contextlib.redirect_stderr(io.StringIO()) as err:
+                    rc = chk.main(args + [path])
+                self.assertIn('VG sizes', err.getvalue())
+                return rc
             self.assertEqual(main(str(Path(d, 'missing.tfvars'))), 1)
             for bad in ['', 'nope', one, TFVARS.replace('"regen"', '"other"'), TFVARS.replace('= 56', '= 0'),
                         TFVARS.replace('= 56', '= 5.6'), TFVARS.replace('"retained"', '"regen"'),
                         TFVARS + TFVARS.replace('virtio', 'scsi')]:
                 self.assertEqual(main(tfvars(d, bad)), 1, bad)
+
+    def test_tfvars_tolerates_ordinary_terraform_edits(self):
+        want = chk.vg_bytes_from_tfvars(TFVARS)
+        edits = [
+            TFVARS.replace('= 232', '= 232 # GiB').replace('"regen"', '"regen" // VG name'),
+            'tags = { env = "prod" }\nlabels = {}\n' + TFVARS + 'extra = { a = { b = 1 } }\n',
+            TFVARS.replace('serial            = "retained"', 'serial = "retained"\n    opts = { ssd = true }'),
+            'data_disks = [\n  { interface = "virtio1", size = 232, serial = "retained" },\n'
+            '  { size = 56, serial = "regen", interface = "virtio2" },\n]\n',
+            TFVARS.replace('\n', '\r\n'),
+            '/* size = 1 */\n' + TFVARS,
+            TFVARS.replace('size              = 232', '/*\n size = 999\n */\n size = 232'),  # commented out
+        ]
+        for text in edits:
+            self.assertEqual(chk.vg_bytes_from_tfvars(text), want, text)
+
+    def test_tfvars_fails_closed_on_ambiguity(self):
+        for bad in [TFVARS.replace('size              = 232', 'size = 232\n    size = 999'),
+                    TFVARS + TFVARS.replace('virtio', 'scsi'),
+                    TFVARS.replace('data_disks', 'other_disks'),
+                    TFVARS.replace('= 56', '= var.regen_size')]:
+            with self.assertRaises(ValueError, msg=bad):
+                chk.vg_bytes_from_tfvars(bad)
+
+    def test_unchanged_inventory_skips_the_terraform_fetch(self):
+        # Only an inventory change depends on terraform main; other PRs must not fail on a raw.githubusercontent outage.
+        with tempfile.TemporaryDirectory() as d:
+            def git(*a):
+                subprocess.run(['git', '-c', 'user.name=t', '-c', 'user.email=t@t', *a], cwd=d, check=True, capture_output=True)
+            inv = Path(d, chk.PATH)
+            inv.parent.mkdir(parents=True)
+            inv.write_text(json.dumps([entry('a', size='1Gi')]))
+            git('init', '-q')
+            git('add', '.')
+            git('commit', '-qm', 'base')
+            run = lambda: subprocess.run(
+                [sys.executable, str(ROOT / 'scripts/check-retained-inventory.py'), '--base', 'HEAD',
+                 '--override-label', 'ok', '--storage-tfvars', str(Path(d, 'missing.tfvars'))], cwd=d,
+                env={**os.environ, 'PR_LABELS': ''}, capture_output=True, text=True)
+            r = run()
+            self.assertEqual(r.returncode, 0, r.stderr)
+            inv.write_text(json.dumps([entry('a', size='2Gi')]))
+            r = run()
+            self.assertEqual(r.returncode, 1, r.stderr)
+            self.assertIn('VG sizes', r.stderr)
+
+    def test_bad_types_reported_not_raised(self):
+        for field in ('namespace', 'class', 'origin'):
+            for bad in (['x'], {'a': 1}, 7):
+                e = errs([], [entry(**{field: bad})])
+                self.assertTrue(e and any(field in x for x in e), (field, bad, e))
 
     def test_unknown_field_still_rejected(self):
         self.assertTrue(errs([], [entry(foo='1')]))

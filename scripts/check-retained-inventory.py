@@ -72,9 +72,9 @@ def validate(entries, label):
         if i in by_id:
             errors.append(f'{label}: duplicate id {i}')
         by_id[i] = e
-        if e['class'] not in CLASSES:
+        if not isinstance(e['class'], str) or e['class'] not in CLASSES:
             errors.append(f'{label}: {i}: bad class {e["class"]!r}')
-        if e['origin'] not in ORIGINS:
+        if not isinstance(e['origin'], str) or e['origin'] not in ORIGINS:
             errors.append(f'{label}: {i}: bad origin {e["origin"]!r}')
         try:
             size_bytes(e['size'])
@@ -91,6 +91,8 @@ def validate(entries, label):
         if not isinstance(e['claim'], str) or e['claim'] not in claims_ok:
             errors.append(f'{label}: {i}: claim must be {i}-iscsi (or {i}-iscsi-<sts>-0 for a kube-prometheus-stack '
                           f'StatefulSet), not {e["claim"]!r}')
+        elif not isinstance(e['namespace'], str):
+            pass  # reported above
         elif (e['namespace'], e['claim']) in claims:
             errors.append(f'{label}: {i}: duplicate namespace/claim')
         else:
@@ -128,16 +130,53 @@ def check(base, head, override=False, vg_bytes=None):
     return errors
 
 
+TOKEN = re.compile(r'"(?:\\.|[^"\\])*"|/\*.*?\*/|#[^\n]*|//[^\n]*|[\[\]{}]', re.S)
+
+
+def _top_level(text, start, close):
+    """Yield (open bracket, body) for each top-level {...} in text[start:] up to the matching close; comments are
+    already blanked. Raises ValueError on unbalanced input or anything but blocks, commas and space between them."""
+    depth, pos, out = 0, start, []
+    for m in TOKEN.finditer(text, start):
+        tok = m.group()
+        if tok[0] == '"':
+            continue
+        if tok in '{[':
+            if depth == 0:
+                if tok != '{' or text[pos:m.start()].strip(' \t\r\n,'):
+                    raise ValueError('data_disks must be a list of { ... } blocks')
+                begin = m.end()
+            depth += 1
+        else:
+            if depth == 0:
+                if tok != close or text[pos:m.start()].strip(' \t\r\n,'):
+                    raise ValueError('data_disks must be a list of { ... } blocks')
+                return out
+            depth -= 1
+            if depth == 0:
+                out.append(text[begin:m.start()])
+                pos = m.end()
+    raise ValueError('unbalanced data_disks list')
+
+
 def vg_bytes_from_tfvars(text):
     """{vg: usable bytes} from terraform storage/terraform.tfvars data_disks; usable = <size> GiB - 4 MiB
-    (1 MiB pe_start, rest rounded down to 4 MiB extents). Each disk block is { ... size = <GiB> ... serial = "<vg>" }."""
+    (1 MiB pe_start, rest rounded down to 4 MiB extents). Each disk has one literal size (GiB) and serial (= VG)."""
+    clean = TOKEN.sub(lambda m: m.group() if m.group()[0] in '"[]{}' else ' ', text)  # blank comments, keep strings
+    found = list(re.finditer(r'(?m)^\s*data_disks\s*=\s*\[', clean))
+    if len(found) != 1:
+        raise ValueError(f'want exactly one data_disks list, found {len(found)}')
+    m = found[0]
     sizes = {}
-    for block in re.findall(r'\{([^{}]*)\}', text):
-        size = re.search(r'^\s*size\s*=\s*(\S+)\s*$', block, re.M)
-        serial = re.search(r'^\s*serial\s*=\s*"([^"]*)"\s*$', block, re.M)
-        if not size or not serial or not re.fullmatch(r'[1-9][0-9]*', size.group(1)) or serial.group(1) in sizes:
-            raise ValueError(f'unparsable or duplicate data disk: {block.strip()!r}')
-        sizes[serial.group(1)] = int(size.group(1))
+    for block in _top_level(clean, m.end(), ']'):
+        flat = block
+        while re.search(r'\{[^{}]*\}', flat):  # drop nested objects: only the disk's own attributes count
+            flat = re.sub(r'\{[^{}]*\}', '', flat)
+        size = re.findall(r'(?<![\w.])size\s*=\s*([^\s,}]+)', flat)
+        serial = re.findall(r'(?<![\w.])serial\s*=\s*"([^"]*)"', flat)
+        if len(size) != 1 or len(serial) != 1 or not re.fullmatch(r'[1-9][0-9]*', size[0]) or serial[0] in sizes:
+            raise ValueError(f'want one literal size and one unique serial per data disk: {block.strip()!r}')
+        sizes[serial[0]] = int(size[0])
     if set(sizes) != set(VG_FOR.values()):
         raise ValueError(f'want data disks with serials exactly {sorted(VG_FOR.values())}, got {sorted(sizes)}')
     return {vg: gib * 1024 * MIB - 4 * MIB for vg, gib in sizes.items()}
@@ -362,15 +401,17 @@ def main(argv=None):
     ap.add_argument('--inventory', default=PATH)
     ap.add_argument('--storage-tfvars', default=STORAGE_TFVARS, help='URL or path; tests and offline runs pass a file')
     a = ap.parse_args(argv)
-    try:  # fail closed: a missing, unreachable or malformed source is an error, never a skip
-        vg_bytes = vg_bytes_from_tfvars(read_tfvars(a.storage_tfvars))
-    except (OSError, ValueError) as exc:
-        print(f'ERROR: VG sizes from {a.storage_tfvars}: {exc}', file=sys.stderr)
-        return 1
     labels = [x for x in os.environ.get('PR_LABELS', '').split(',') if x]
     with open(a.inventory) as f:
         head = json.load(f)
     base = load_base(a.base)
+    vg_bytes = None
+    if head != base:  # only an inventory change depends on terraform main (and on raw.githubusercontent.com)
+        try:  # fail closed: a missing, unreachable or malformed source is an error, never a skip
+            vg_bytes = vg_bytes_from_tfvars(read_tfvars(a.storage_tfvars))
+        except (OSError, ValueError) as exc:
+            print(f'ERROR: VG sizes from {a.storage_tfvars}: {exc}', file=sys.stderr)
+            return 1
     errors = check(base, head, a.override_label in labels, vg_bytes)
     if not errors:  # both inventories valid; the override label never covers a removal still bound
         head_ids = {e['id'] for e in head}

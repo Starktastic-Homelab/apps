@@ -26,8 +26,10 @@ An inventory size PR. The reconcile runs `lvextend`, then on the worker with a l
 
 1. **The PR.** In apps, raise `size` for the entry in `infrastructure/base-configs/files/retained-volumes.json`.
    Never lower it: CI rejects a size decrease, and the reconcile never shrinks.
-2. **CI.** `python3 scripts/check-retained-inventory.py --base origin/main` `(not rehearsed)`. Expected: exit 0.
-   - CI refuses a PR that takes the class over its VG's usable size (`scripts/storage/vg-sizes.json`, Task 2.6), or
+2. **CI.** `python3 scripts/check-retained-inventory.py --base origin/main --override-label storage-removals-approved`
+   `(not rehearsed)`. Expected: exit 0.
+   - CI refuses a PR that takes the class over its VG's usable size (the data disk sizes in terraform `main`
+     `storage/terraform.tfvars`, Task 2.6), or
      that leaves less than the snapshot reserve free (the largest entry in that VG, at least 10% of it).
    - A refusal there means "Grow a data disk" first.
 3. **Merge.** **Ben OK.** Live event: `storage-changed`, then a `storage.yml` run.
@@ -71,8 +73,8 @@ The terraform `storage/` root uses the bpg provider, which never resizes a disk 
      omits. The root disk `virtio0` is declared after the data disks, so bpg keeps it. A stale size fails safely: `Cannot shrink ... it is not supported!`, and a larger one
      fails with `Cannot resize ... it is not owned by this VM!`; the config is unchanged either way (lab F10 re-test).
    - Merge. **Ben OK.** Live event: a no-op apply.
-4. **Last step: the apps budget PR.** Set the new GiB for that VG in apps `scripts/storage/vg-sizes.json`. Until it
-   merges, CI keeps the old budget, which fails closed. Then re-run the bootstrap runbook's "Check the VG budget".
+4. **Last step: re-check the budget.** apps CI reads the new size from terraform `main` on its next run; there is no
+   apps PR. Re-run the bootstrap runbook's "Check the VG budget".
 
 ## Dataset full
 

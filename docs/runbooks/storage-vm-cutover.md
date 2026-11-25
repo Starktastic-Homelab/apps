@@ -15,7 +15,8 @@ Where commands run:
 
 Names, from the Task 4.W row: `<id>`, `<ns>`, `<app>` (the Argo Application), `<old_claim>`, `<old_pv>`,
 `<new_claim>`, `<size>`, `<bytes>`, `<class>`, `<vg>`, `<writer>`, `<selector>`, `<binding_file>`. `<ev>` is
-`~/.cache/claude-homelab-live/storage-migration/evidence/4.T-<id>/`.
+`~/.cache/claude-homelab-live/storage-migration/evidence/4.T-<id>/`. `<new_claim>` is always `<id>-iscsi`, or
+`<id>-iscsi-<sts>-0` for a kube-prometheus-stack StatefulSet; apps CI refuses any other name.
 
 ## Before you start
 

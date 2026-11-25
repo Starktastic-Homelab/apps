@@ -57,7 +57,7 @@ def guard_container(app='f1-canary', root='/data', name='guard', claim_vol='data
             'volumeMounts': mounts}
 
 
-def plain(name='f1-canary', namespace='democratic-csi', claim='f1-canary', inits=None):
+def plain(name='f1-canary', namespace='democratic-csi', claim='f1-canary-iscsi', inits=None):
     """A hand-wired plain Deployment under a kustomize manifests/ dir: the F1 canary's shape."""
     inits = [guard_container()] if inits is None else inits
     deploy = {
@@ -73,7 +73,7 @@ def plain(name='f1-canary', namespace='democratic-csi', claim='f1-canary', inits
                   'manifests/deployment.yaml': deploy})
 
 
-def handwritten(claim='abs-iscsi'):
+def handwritten(claim='audiobookshelf-iscsi'):
     """audiobookshelf's hand-written app-template guard, on an iSCSI claim."""
     values = yaml.safe_load((ROOT / 'services/media/audiobookshelf/values.yaml').read_text())
     values['persistence']['retained-config']['existingClaim'] = claim
@@ -244,18 +244,18 @@ class Coverage(Base):
         }
         for word, inits in cases.items():
             with self.subTest(case=word):
-                errors = self.check([entry('f1-canary', namespace='democratic-csi', claim='f1-canary')],
+                errors = self.check([entry('f1-canary', namespace='democratic-csi', claim='f1-canary-iscsi')],
                                     [plain(inits=inits)])
                 self.errs_with(errors, 'f1-canary', word)
 
     def test_new_guard_must_name_the_entry(self):
-        errors = self.check([entry('f1-canary', namespace='democratic-csi', claim='f1-canary')],
+        errors = self.check([entry('f1-canary', namespace='democratic-csi', claim='f1-canary-iscsi')],
                             [plain(inits=[guard_container(app='other')])])
         self.errs_with(errors, 'f1-canary', 'other')
 
     def test_new_id_the_guard_refuses_fails(self):
-        errors = self.check([entry('x-', namespace='democratic-csi', claim='x')],
-                            [plain(claim='x', inits=[guard_container(app='x-')])])
+        errors = self.check([entry('x-', namespace='democratic-csi', claim='x--iscsi')],
+                            [plain(claim='x--iscsi', inits=[guard_container(app='x-')])])
         self.errs_with(errors, 'x-', 'guard.py')
 
     def test_flag_rules(self):
@@ -264,7 +264,7 @@ class Coverage(Base):
             ('migrated', [entry(origin='migrated', copied='2026-12-01')], [flagged()]),
             ('not in the inventory', [], [flagged()]),
             ('non-empty string', [], [flagged(rid='')]),
-            ('no guard layer', [entry('f1-canary', namespace='democratic-csi', claim='f1-canary')],
+            ('no guard layer', [entry('f1-canary', namespace='democratic-csi', claim='f1-canary-iscsi')],
              [(lambda rel, a: (rel, ({**a[0], 'retained': 'f1-canary'}, a[1])))(*plain())]),
         ]
         for word, entries, apps in cases:
@@ -286,9 +286,9 @@ class Coverage(Base):
         self.assertEqual(chk.check([entry()], root), [])
 
     def test_handwritten_guards_pass(self):
-        abs_entry = entry('audiobookshelf', namespace='media', claim='abs-iscsi', origin='migrated', copied='2026-12-01')
+        abs_entry = entry('audiobookshelf', namespace='media', claim='audiobookshelf-iscsi', origin='migrated', copied='2026-12-01')
         self.assertEqual(self.check([abs_entry], [handwritten()]), [])
-        self.assertEqual(self.check([entry('f1-canary', namespace='democratic-csi', claim='f1-canary')], [plain()]), [])
+        self.assertEqual(self.check([entry('f1-canary', namespace='democratic-csi', claim='f1-canary-iscsi')], [plain()]), [])
 
     def test_static_resolver_consumer(self):
         """Charts that are not rendered (loki here) are read through check-retained-inventory.py's resolvers."""

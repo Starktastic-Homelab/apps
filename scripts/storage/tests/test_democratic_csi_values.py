@@ -176,8 +176,9 @@ class ShutdownTests(unittest.TestCase):
         self.assertEqual(spec['terminationGracePeriodSeconds'], 45)
 
     def test_prestop_iqn_matches_inventory(self):
-        inv = (ROOT / 'infrastructure/base-configs/templates/retained-volumes.yaml').read_text()
-        prefix = re.search(r'iqn: (iqn\.[^:]+:)', inv).group(1)
+        # retained-volumes.yaml builds each IQN from this one globals value.
+        globals_yaml = (ROOT / 'templates/globals.yaml').read_text()
+        prefix = re.search(r'storageTargetIqnPrefix: "(iqn\.[^:]+:)"', globals_yaml).group(1)
         self.assertIn(prefix.replace('.', r'\.'), prestop_script())
 
     def test_patch_targets_exist_upstream(self):

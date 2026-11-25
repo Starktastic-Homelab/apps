@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "id": "f1-canary",
+    "namespace": "democratic-csi",
+    "claim": "f1-canary-iscsi",
+    "size": "1Gi",
+    "class": "regenerable",
+    "origin": "new"
+  }
+]

@@ -1,0 +1,6 @@
+# The F1 canary writer (ADR 0017, D18) in democratic-csi's namespace. Services is RollingSync's last step, so a
+# canary that is down (first start, a lost-row exit, a guard refusal, a drill) holds back no other app's sync.
+name: f1-canary
+namespace: democratic-csi
+deployPhase: services
+manifests: true

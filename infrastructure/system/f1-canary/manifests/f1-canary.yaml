@@ -36,7 +36,7 @@ metadata:
   name: f1-canary-writer
   namespace: democratic-csi
 spec:
-  replicas: 0
+  replicas: 1
   # The claim is ReadWriteOncePod: a rolling update would wait forever for the old pod's claim.
   strategy:
     type: Recreate

@@ -124,7 +124,7 @@ spec:
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: f1-canary
+            claimName: f1-canary-iscsi
         - name: retained-guard
           configMap:
             name: retained-startup-guard

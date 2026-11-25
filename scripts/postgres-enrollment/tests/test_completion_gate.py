@@ -43,7 +43,8 @@ class CompletionGate(unittest.TestCase):
     def test_every_consumer_namespace_has_the_configmap(self):
         consumers = set()
         for values in [*ROOT.glob('infrastructure/**/values.yaml'), *ROOT.glob('services/**/values.yaml')]:
-            app = yaml.safe_load((values.parent / 'app.yaml').read_text())
+            # Nearest app.yaml up: a kustomize helmCharts values file sits in manifests/ below its app.
+            app = yaml.safe_load(next(d / 'app.yaml' for d in values.parents if (d / 'app.yaml').is_file()).read_text())
             if (re.search(r'^\s+name: ' + NAME + r'$', values.read_text(), re.M)
                     or 'templates/postgres-consumer.yaml' in (app.get('commonValuesExtras') or [])):
                 consumers.add(app['namespace'])

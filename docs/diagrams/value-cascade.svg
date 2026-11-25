@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1100" height="772" viewBox="0 0 1100 772" role="img" aria-labelledby="t d">
   <title id="t">Value cascade: five value layers, and what a variant inherits</title>
-  <desc id="d">cluster-apps passes each chart up to five value files, in this order: templates/globals.yaml for every app; templates/common.yaml for services only; the files an app.yaml lists under commonValuesExtras; the app's own values.yaml, or the base app's when baseApp is set; and the variant's own values.yaml, only with valuesOverride true. The base app radarr loads globals.yaml, common.yaml, media-arr-common.yaml and services/media/radarr/values.yaml. Its variant radarr-ru loads the same first three files, then radarr's values.yaml because baseApp points there, then services/media/radarr-ru/values.yaml. The ingress chart layers a variant's route the same way: globals.yaml, then radarr's app.yaml, then radarr-ru's app.yaml, which names its own host.</desc>
+  <desc id="d">cluster-apps passes each chart its value files in five layers, in this order: templates/globals.yaml for every app; templates/common.yaml for services only; the files an app.yaml lists under commonValuesExtras, then templates/retained-guard.yaml when an app-template app.yaml sets retained; the app's own values.yaml, or the base app's when baseApp is set; and the variant's own values.yaml, only with valuesOverride true. The base app radarr loads globals.yaml, common.yaml, media-arr-common.yaml and services/media/radarr/values.yaml. Its variant radarr-ru loads the same first three files, then radarr's values.yaml because baseApp points there, then services/media/radarr-ru/values.yaml. The ingress chart layers a variant's route the same way: globals.yaml, then radarr's app.yaml, then radarr-ru's app.yaml, which names its own host.</desc>
   <defs>
     <radialGradient id="ga"><stop offset="0" stop-color="#3B82F6" stop-opacity=".55"/><stop offset="1" stop-color="#3B82F6" stop-opacity="0"/></radialGradient>
     <radialGradient id="gb"><stop offset="0" stop-color="#6366F1" stop-opacity=".45"/><stop offset="1" stop-color="#6366F1" stop-opacity="0"/></radialGradient>
@@ -132,8 +132,8 @@
     <text x="82" y="251">addresses, NFS server, VLANs</text>
     <text x="82" y="308">services only: time zone, user IDs,</text>
     <text x="82" y="325">probe limits, the /config volume</text>
-    <text x="82" y="382">extra files an app.yaml lists, such</text>
-    <text x="82" y="399">as the shared *arr probes</text>
+    <text x="82" y="382">extra files an app.yaml lists (*arr</text>
+    <text x="82" y="399">probes), then the retained guard</text>
     <text x="82" y="456">the app's own file, or the base</text>
     <text x="82" y="473">app's when baseApp is set</text>
     <text x="82" y="530">the variant's own file, only with</text>

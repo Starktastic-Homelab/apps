@@ -1,0 +1,177 @@
+# The target host is global.network.storagePortal's (a plain manifests/ directory cannot template);
+# scripts/check-alert-policy.py fails when they differ.
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: storage-vm
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  jobName: storage-vm
+  staticConfigs:
+    - targets: ["10.99.2.10:9100"]
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: storage-vm
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: storage-vm
+      rules:
+        - alert: StorageVMDown
+          expr: up{job="storage-vm"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "The storage VM is not being scraped"
+            description:
+              'Prometheus has not scraped the storage VM for 5 minutes. Retained volumes may be unreachable. After wave
+              1 Prometheus runs on regen storage, so this alert dies with the VM; the healthchecks.io Watchdog dead-man
+              is the out-of-cluster signal. See docs/runbooks/storage-vm-rebuild.md, "VM down".'
+        - alert: StorageBootCheckFailed
+          expr: |
+            storage_boot_check_ok{job="storage-vm"} == 0
+            or storage_boot_check_timestamp_seconds{job="storage-vm"}
+               < on (instance, job) node_boot_time_seconds{job="storage-vm"}
+            or absent(storage_boot_check_ok{job="storage-vm"})
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            summary: "The storage VM boot check failed or did not run"
+            description:
+              'The boot check after targetctl restore failed, has not run since the last boot, or never wrote its
+              result: a ledgered volume may have no target. See docs/runbooks/storage-vm-restore.md, "Boot check
+              failed".'
+        - alert: StorageReconcileFailing
+          # absent_over_time, not absent: one failed scrape stales every series and must not page (5 m, like StorageVMDown).
+          # 5 h = worst skip gap from ansible scripts/storage_ready.py WINDOWS (D29: 3 h, 4 h on the DST fall-back Sunday) + 1 h; recheck when WINDOWS change.
+          expr: |
+            (time() - storage_last_reconcile_success_timestamp_seconds{job="storage-vm"} > 5 * 3600)
+            or absent_over_time(storage_last_reconcile_success_timestamp_seconds{job="storage-vm"}[5m])
+          labels:
+            severity: warning
+          annotations:
+            summary: "The storage reconcile has not succeeded for 5 hours"
+            description:
+              "No successful reconcile in 5 hours (or no timestamp at all). The hourly storage run skips the backup
+              windows, so a gap of up to 3 hours is normal (4 on the DST fall-back night). Check the hourly storage run."
+        - alert: StorageTargetMissing
+          expr: storage_target_missing{job="storage-vm"} == 1
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "An iSCSI target is missing for volume {{ $labels.id }}"
+            description: "Volume {{ $labels.id }} has no exported target on the storage VM."
+        - alert: StorageVGLowSpace
+          expr: |
+            storage_vg_free_bytes{job="storage-vm"} / on (instance, job, vg) storage_vg_size_bytes{job="storage-vm"} < 0.15
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Volume group {{ $labels.vg }} has under 15% free"
+            description: "Volume group {{ $labels.vg }} on the storage VM is below 15% free space."
+        - alert: StorageDatasetLow
+          expr: |
+            storage_dataset_avail_bytes{job="storage-vm"} < 20 * 1024^3
+            or time() - storage_dataset_timestamp_seconds{job="storage-vm"} > 3 * 3600
+            or absent(storage_dataset_timestamp_seconds{job="storage-vm"})
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "The k3s-block dataset has under 20 GiB free, or its gauge is stale or missing"
+            description:
+              'The TrueNAS dataset behind the retained images has under 20 GiB free, as pve''s df sees it (df avail is
+              bounded by the quota), or the hourly host gauges have not been written for 3 hours or were never written,
+              which also blinds MaintenanceLockStale (see the storage workflow''s Write host gauges step). See
+              docs/runbooks/storage-vm-growth.md, "Dataset full".'
+        - alert: MaintenanceLockStale
+          expr: |
+            storage_maintenance_lock_created_timestamp_seconds{job="storage-vm"} > 0
+            and time() - storage_maintenance_lock_created_timestamp_seconds{job="storage-vm"} > 6 * 3600
+          labels:
+            severity: warning
+          annotations:
+            summary: "The maintenance lock has been held by {{ $labels.operation }} for over 6 hours"
+            description:
+              'A failed deploy, terraform or storage run keeps the lock (D31), and every storage run skips until it is
+              released. Read that run''s log first. See docs/runbooks/storage-vm-cutover.md, "Stale lock".'
+        - alert: StoragePendingDelete
+          expr: storage_pending_delete{job="storage-vm"} > 0
+          for: 15m
+          labels:
+            severity: info
+          annotations:
+            summary: "Volume {{ $labels.id }} is waiting for deletion"
+            description:
+              "Volume {{ $labels.id }} is pending delete (since {{ $labels.since }}) and will be removed when its
+              quarantine ends."
+        - alert: StorageHoldCreate
+          expr: storage_hold_create{job="storage-vm"} == 1
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Volume creation on the storage VM is on hold"
+            description: "The hold_create tag is set on the retained volume group, so new volumes are not created."
+        - alert: StorageWorkerFenced
+          expr: storage_fence_active{job="storage-vm"} == 1
+          labels:
+            severity: critical
+          annotations:
+            summary: "Worker {{ $labels.node }} is fenced"
+            description: "Worker {{ $labels.node }} is cut off from storage and needs a reboot."
+        - alert: StorageFenceFailed
+          expr: increase(storage_fence_failures_total{job="storage-vm"}[10m]) > 0
+          labels:
+            severity: critical
+          annotations:
+            summary: "The storage fencer failed to fence a worker"
+            description:
+              "A fence proof failed, or a fencer loop could not get the LIO lock for 120 s (a manual fence or the
+              reconcile waiting on a stalled backend; see StorageFenceDraining and the fencer journal). The fencer
+              retries on every loop and no out-of-service taint is set until a proof passes."
+        # 120 s > proof_timeout_seconds (60 s) + 2 x 5 s API calls; revisit if the proof timeout grows.
+        - alert: StorageFenceDraining
+          expr: 0 < storage_fence_acl_delete_started_timestamp_seconds{job="storage-vm"} < time() - 120
+          labels:
+            severity: critical
+          annotations:
+            summary: "The fence of {{ $labels.node }} has waited over 2 minutes for its storage"
+            description:
+              "The storage behind {{ $labels.node }}'s volumes is not answering (since {{ $value | humanizeTimestamp
+              }}). The fence finishes, and the worker fails over, when it answers; nothing is tainted until then. Do not
+              restart the fencer or the storage VM: the wait cannot be interrupted. StorageFencerBlind follows after 10
+              minutes for the same wait. If the fencer is not running, the gauge is stale, not a live drain."
+        - alert: StorageFencerBlind
+          # absent_over_time, not absent: one failed scrape stales every series and must not page (5 m, like StorageVMDown).
+          expr: |
+            (time() - storage_fencer_last_api_success_timestamp_seconds{job="storage-vm"} > 600)
+            or absent_over_time(storage_fencer_last_api_success_timestamp_seconds{job="storage-vm"}[5m])
+            or (time() - node_textfile_mtime_seconds{job="storage-vm",file=~".*storage-fencer\\.prom"} > 600)
+            or absent_over_time(node_textfile_mtime_seconds{job="storage-vm",file=~".*storage-fencer\\.prom"}[5m])
+          labels:
+            severity: critical
+          annotations:
+            summary: "The storage fencer cannot see the cluster or has stopped"
+            description:
+              "No Kubernetes API success for 10 minutes (see storage_fencer_api_errors_total: auth or unreachable) or
+              its textfile is stale. If StorageFenceDraining is firing, this is the same wait: do not restart the
+              fencer."
+        - alert: NodeOutOfServiceTaintStuck
+          expr: kube_node_spec_taint{key="node.kubernetes.io/out-of-service"} == 1
+          for: 15m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Node {{ $labels.node }} has had the out-of-service taint for 15 minutes"
+            description: "Reboot the worker; the taint comes off when its fence is lifted."

@@ -1,6 +1,8 @@
 import glob
+import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -209,7 +211,21 @@ def guards():
 
 
 def template_namespaces():
-    return re.findall(r'"([a-z0-9-]+)"', re.search(r"range list ([^}]*)", (ROOT / TEMPLATE).read_text())[1])
+    """The template's fixed list; it adds each inventory namespace to it when it renders."""
+    return re.findall(r'"([a-z0-9-]+)"', re.search(r"\$namespaces := list ([^}]*)", (ROOT / TEMPLATE).read_text())[1])
+
+
+def render_template(entries):
+    """The template rendered with this inventory (needs helm; copied, since the helm wrapper mounts only /tmp)."""
+    with tempfile.TemporaryDirectory() as d:
+        shutil.copytree(ROOT / "infrastructure/base-configs", Path(d, "chart"))
+        shutil.copy(ROOT / "templates/globals.yaml", Path(d, "globals.yaml"))
+        Path(d, "chart/files/retained-volumes.json").write_text(json.dumps(entries))
+        out = subprocess.run(["helm", "template", "retained", "chart", "-f", "globals.yaml",
+                              "--show-only", f"templates/{Path(TEMPLATE).name}"], cwd=d, capture_output=True, text=True)
+    if out.returncode:
+        raise AssertionError(out.stderr)
+    return [doc for doc in yaml.safe_load_all(out.stdout) if doc]
 
 
 class Wiring(unittest.TestCase):
@@ -248,6 +264,21 @@ class Wiring(unittest.TestCase):
 
     def test_template_namespaces_are_the_consumers(self):
         self.assertEqual(sorted(template_namespaces()), sorted({ns for _, ns, *_ in guards()}))
+
+    def test_template_covers_inventory_namespaces(self):
+        def namespaces(entries):
+            docs = render_template(entries)
+            self.assertEqual({(d["kind"], d["metadata"]["name"]) for d in docs}, {("ConfigMap", CONFIGMAP)})
+            return [d["metadata"]["namespace"] for d in docs]
+
+        self.assertEqual(sorted(namespaces([])), sorted(template_namespaces()))
+        entry = {"size": "1Gi", "class": "retained", "origin": "new"}
+        entries = [dict(entry, id=i, namespace=ns, claim=f"{i}-iscsi")
+                   for i, ns in (("a", "democratic-csi"), ("b", "media"), ("c", "1e3"), ("d", "1e3"))]
+        found = namespaces(entries)
+        self.assertEqual(sorted(found), sorted(set(template_namespaces()) | {"democratic-csi", "1e3"}))
+        self.assertEqual(len(found), 7)
+        self.assertTrue(all(isinstance(ns, str) for ns in found), found)
 
     def test_no_other_retained_configmap_is_mounted(self):
         for d, _, values in apps():

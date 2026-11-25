@@ -1,0 +1,46 @@
+{{- range $v := (.Files.Get "files/retained-volumes.json" | fromJsonArray) }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ $v.id | quote }}
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  capacity:
+    storage: {{ $v.size }}
+  accessModes:
+    - ReadWriteOncePod
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: {{ $v.claim | quote }}
+    namespace: {{ $v.namespace | quote }}
+  csi:
+    driver: org.democratic-csi.node-manual
+    fsType: ext4
+    volumeHandle: {{ $v.id | quote }}
+    volumeAttributes:
+      portal: {{ $.Values.global.network.storagePortal | quote }}
+      iqn: {{ printf "%s%s" $.Values.global.network.storageTargetIqnPrefix $v.id | quote }}
+      lun: "0"
+      node_attach_driver: iscsi
+      provisioner_driver: node-manual
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $v.claim | quote }}
+  namespace: {{ $v.namespace | quote }}
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  accessModes:
+    - ReadWriteOncePod
+  storageClassName: ""
+  volumeName: {{ $v.id | quote }}
+  resources:
+    requests:
+      # Constant: a bound static PVC's request can never grow (class "") nor drop below status.capacity. Growth changes the PV only (ADR 0017).
+      storage: 1Mi
+{{- end }}

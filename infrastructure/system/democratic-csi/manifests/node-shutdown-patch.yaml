@@ -1,0 +1,39 @@
+# F14 (ADR 0017): keep the node plugin's sockets alive until csi-driver's preStop (values.yaml)
+# has seen the unstage through. csi-proxy and driver-registrar become native sidecars, which
+# Kubernetes stops only after the main containers exit. cleanup goes: its preStop rm -rf cut the
+# unstage, and its shell ignores SIGTERM, so it held every pod stop to the full grace. The
+# registrar (v2.9.0) clears a stale socket at start and removes its own on SIGTERM.
+# Indexes follow the chart's order csi-driver, csi-proxy, driver-registrar, cleanup, with no
+# initContainers (test_patch_targets_exist_upstream fails otherwise).
+- op: add
+  path: /spec/template/spec/terminationGracePeriodSeconds
+  value: 45
+- op: remove
+  path: /spec/template/spec/containers/3
+- op: add
+  path: /spec/template/spec/initContainers
+  value: []
+- op: move
+  from: /spec/template/spec/containers/1
+  path: /spec/template/spec/initContainers/-
+- op: move
+  from: /spec/template/spec/containers/1
+  path: /spec/template/spec/initContainers/-
+- op: add
+  path: /spec/template/spec/initContainers/0/restartPolicy
+  value: Always
+- op: add
+  path: /spec/template/spec/initContainers/1/restartPolicy
+  value: Always
+# F21: the registrar's private (no-propagation) /var/lib/kubelet copy held every globalmount staged
+# before it started, so the driver's umount did not end the fs and the iSCSI logout landed under it.
+# v2.9.0 never reads that path (--mode=kubelet-registration-probe exits 0). The tests fail the build
+# if the chart reorders the registrar's mounts.
+- op: test
+  path: /spec/template/spec/initContainers/1/name
+  value: driver-registrar
+- op: test
+  path: /spec/template/spec/initContainers/1/volumeMounts/2/name
+  value: kubelet-dir
+- op: remove
+  path: /spec/template/spec/initContainers/1/volumeMounts/2

@@ -1,0 +1,4 @@
+name: democratic-csi
+namespace: democratic-csi
+deployPhase: controllers
+manifests: true

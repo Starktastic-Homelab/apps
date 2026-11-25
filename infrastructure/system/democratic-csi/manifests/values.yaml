@@ -1,0 +1,93 @@
+# ADR 0017: node-manual mode, attacher only. Volumes are static PVs, so no provisioner,
+# resizer or snapshotter.
+csiDriver:
+  name: org.democratic-csi.node-manual
+  attachRequired: true
+
+controller:
+  externalAttacher:
+    enabled: true
+    image:
+      registry: registry.k8s.io/sig-storage/csi-attacher
+      tag: v4.4.0@sha256:4ca52e3a4ef2c392f919da80670eee6da6059689d217022729988afd12ad5a82
+    verbosityLevel: 2
+  externalProvisioner:
+    enabled: false
+  externalResizer:
+    enabled: false
+  externalSnapshotter:
+    enabled: false
+  driver:
+    image: &driverImage
+      registry: ghcr.io/democratic-csi/democratic-csi
+      tag: v1.9.5@sha256:fc3b7d7ed3a616714139525075312758e23a5d425ffb539ad12c9bd20fb6001f
+  # The chart adds kubernetes.io/os: linux itself; repeating it renders a duplicate key kustomize rejects.
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: node-role.kubernetes.io/control-plane
+                operator: Exists
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+
+node:
+  nodeSelector:
+    node-role.kubernetes.io/worker: "true"
+  driver:
+    image: *driverImage
+    # The default lsblk strategy calls a volume blank when udev data is missing, so the
+    # driver would mkfs over data. With blkid only exit code 2 counts as blank.
+    extraEnv:
+      - name: FILESYSTEM_TYPE_DETECTION_STRATEGY
+        value: blkid
+      # F6 (ADR 0017): after a fencing failover ext4 MMP holds the mount 42 s, up to ~720 s on slow storage. The
+      # default 30 s timeout does not stop that mount but reports INTERNAL, which kubelet treats as final, so a pod
+      # deleted before the retry leaves the mount and session behind. 900 s (ms) outlasts MMP and kubelet's 2 min
+      # NodeStage deadline, whose DeadlineExceeded is non-final. Also bounds umount/findmnt.
+      - name: MOUNT_DEFAULT_TIMEOUT
+        value: "900000"
+    # F14 (ADR 0017): kubelet's graceful shutdown waits only for pod unmounts, so the node
+    # plugin must outlive the NodeUnstage that follows. Wait (max 20 s) while a democratic-csi
+    # globalmount dir or an iSCSI session to our storage VM is left: the dir goes at the unstage's
+    # last step (rmdir, after the logout), not at its first (umount, which /proc/mounts shows, F22).
+    # If there was one, hold 12 s so the 10 s node status publishes the empty volumesInUse.
+    # No socket rm here: this also runs on a liveness restart, and the registrar removes its
+    # own socket on SIGTERM (node-shutdown-patch.yaml drops cleanup).
+    lifecycle:
+      preStop:
+        exec:
+          command:
+            - sh
+            - -c
+            - |
+              k=${KUBELET_DIR:-/var/lib/kubelet}/plugins/kubernetes.io/csi/org.democratic-csi.node-manual
+              s=${ISCSI_SESSIONS:-/sys/class/iscsi_session}
+              busy() {
+                for d in "$k"/*/globalmount; do [ -d "$d" ] && return 0; done
+                grep -qsx 'iqn\.2026-11\.net\.starktastic\.storage:.*' "$s"/*/targetname
+              }
+              seen=0; i=0
+              while [ $i -lt 20 ] && busy; do seen=1; i=$((i + 1)); sleep 1; done
+              if [ $seen = 1 ]; then sleep 12; fi
+  driverRegistrar:
+    image:
+      registry: registry.k8s.io/sig-storage/csi-node-driver-registrar
+      tag: v2.9.0@sha256:4da2674bae016b1011c2042cb719cffd9a80d34f3cf933c705b425054f86cea9
+    verbosityLevel: 2
+
+csiProxy:
+  image:
+    registry: ghcr.io/democratic-csi/csi-grpc-proxy
+    tag: v0.5.7@sha256:78e86badadfe67a9afdbe2c9a3afc02bc50aa43b86203c9ca6fc046ab3519e3f
+
+driver:
+  config:
+    driver: node-manual
+    node:
+      format:
+        ext4:
+          customOptions: ["-O", "mmp", "-e", "remount-ro"]

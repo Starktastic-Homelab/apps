@@ -10,6 +10,9 @@ global:
   network:
     nfs:
       server: "10.9.8.30"
+    storagePortal: "10.99.2.10:3260"
+    # Target IQN = prefix + volume id; ansible storage_vm lio.py TARGET_PREFIX must match (tripwire tests).
+    storageTargetIqnPrefix: "iqn.2026-11.net.starktastic.storage:"
     loadBalancers:
       external: "10.9.8.90"
       internal: "10.9.9.90"

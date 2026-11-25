@@ -59,6 +59,8 @@ prunes, so deleting a directory deletes its resources; storage objects opt out w
 Every chart loads `templates/globals.yaml` first, so a domain, a load balancer address or the NFS server
 is written once. Services then load `templates/common.yaml`: most of them run on the bjw-s `app-template`
 chart, so one file sets their time zone, user IDs, probe thresholds and default volume.
+An app on a new retained volume sets `retained: <id>` in its `app.yaml`, and the AppSet adds
+`templates/retained-guard.yaml` after the extras: a marker guard runs first and the volume replaces `/config`.
 
 A variant is a second instance of an app. `radarr-ru` sets `baseApp: services/media/radarr`, reuses
 radarr's `values.yaml` and adds a short file of its own with `valuesOverride: true`. Six apps are variants:

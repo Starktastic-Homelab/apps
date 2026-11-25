@@ -1,0 +1,66 @@
+# The one-flag retained guard (ADR 0017, Guards). cluster-apps.yaml adds this layer, and passes retained.id, to an
+# app-template app whose app.yaml sets `retained: <id>`; scripts/check-retained-guards.py checks every consumer.
+# One edit here restarts every flagged app at once: bump the digest in a maintenance window.
+retained:
+  id: ""
+controllers:
+  main:
+    # The claim is ReadWriteOncePod: a rolling update would wait forever for the old pod's claim.
+    strategy: Recreate
+    initContainers:
+      # The 0- prefix sorts first, so the guard runs before any app init container that mounts the claim.
+      0-retained-guard:
+        image:
+          repository: python
+          digest: sha256:8c9a3bf2d6dea60d60a2ae2a07c2b2fb1e7d8daed64b146b6792c74ae0d62ac4
+        command:
+          - python3
+          - -I
+          - -B
+          - /retained-startup/guard.py
+          - '{{ .Values.retained.id }}'
+          - /retained
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
+persistence:
+  # common.yaml's NFS /config claim would clash with the retained /config mount.
+  config:
+    enabled: false
+  retained:
+    existingClaim: '{{ required "retained.id is required" .Values.retained.id }}-iscsi'
+    # Never globalMounts: a read-write mount would also reach the guard.
+    globalMounts: []
+    advancedMounts:
+      main:
+        # An app with other paths replaces this list in its own values.yaml.
+        main:
+          - path: /config
+        0-retained-guard:
+          - path: /retained
+            readOnly: true
+  retained-guard:
+    type: configMap
+    name: retained-startup-guard
+    defaultMode: 292
+    globalMounts: []
+    advancedMounts:
+      main:
+        0-retained-guard:
+          - path: /retained-startup
+            readOnly: true

@@ -102,15 +102,18 @@ spec:
         # stay OutOfSync forever, so Secret data is ignored, and with
         # RespectIgnoreDifferences it is never re-applied either. The exceptions
         # are chart Secrets that carry git-managed config with no generated keys
-        # (Alertmanager config, authentik and falcosidekick env): ignoring them
-        # leaves every change to that config merged but never live.
+        # (Alertmanager config, authentik and falcosidekick env, democratic-csi
+        # driver config): ignoring them leaves every change to that config
+        # merged but never live. Such a Secret carries the annotation
+        # homelab.starktastic.net/live-secret-data: "true" from its chart values.
+        # Name fallbacks, for charts that cannot annotate the Secret:
+        # - democratic-csi-driver-config: chart 0.15.1's driver-config-secret.yaml has no annotations key
         - group: ""
           kind: Secret
           jqPathExpressions:
             - >-
-              select(.metadata.name != "alertmanager-kube-prometheus-stack-alertmanager"
-              and .metadata.name != "authentik"
-              and .metadata.name != "falco-falcosidekick") | .data
+              select(.metadata.annotations["homelab.starktastic.net/live-secret-data"] != "true"
+              and .metadata.name != "democratic-csi-driver-config") | .data
         - group: apps
           kind: Deployment
           jqPathExpressions:
@@ -137,6 +140,8 @@ spec:
     {{- $valuesPath := or $basePath (printf "%s" .path.path) }}
     {{- $hasCommon := ne .commonValues "" }}
     {{- $extras := dig "commonValuesExtras" (list) . }}
+    {{- /* retained: <id> (origin: new only; scripts/check-retained-guards.py) adds the one-flag guard layer. */}}
+    {{- $retained := dig "retained" "" . }}
     spec:
       sources:
         {{- if $isService }}
@@ -152,11 +157,20 @@ spec:
               {{- range $extras }}
               - $values/{{ . }}
               {{- end }}
+              {{- if $retained }}
+              - $values/templates/retained-guard.yaml
+              {{- end }}
               - $values/{{ $valuesPath }}/values.yaml
               {{- if and $basePath (dig "valuesOverride" false .) }}
               - $values/{{.path.path}}/values.yaml
               {{- end }}
-        {{- else }}
+            {{- if $retained }}
+            parameters:
+              - name: retained.id
+                value: {{ $retained | quote }}
+                forceString: true
+            {{- end }}
+        {{- else if dig "chart" false . }}
         - repoURL: "{{ .chart.repo }}"
           chart: "{{ .chart.name }}"
           targetRevision: "{{ .chart.version }}"

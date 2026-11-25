@@ -3,6 +3,8 @@ name: Validate manifests and generate ArgoCD diff preview
 on:
   pull_request:
     branches: [main]
+    # labeled/unlabeled re-run the checks so the storage-removals-approved override takes effect.
+    types: [opened, synchronize, reopened, labeled, unlabeled]
     # Both jobs are required checks; path filters leave docs-only PRs blocked.
 
 jobs:
@@ -13,6 +15,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v7.1.0
@@ -54,6 +58,8 @@ jobs:
             -not -path '*/blueprints/*' \
             -not -path '*/manifests/templates/*' \
             -not -name 'Chart.yaml' \
+            -not -name 'values.yaml' \
+            -not -name '*-patch.yaml' \
             -print0 | xargs -0 kubeconform \
             -verbose -summary -ignore-missing-schemas -schema-location default \
             -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' > kubeconform.txt 2>&1
@@ -97,6 +103,14 @@ jobs:
 
       - name: Check PostgreSQL completion gate copies
         run: python3 -m unittest discover -s scripts/postgres-enrollment/tests -v
+
+      - name: Check retained volume inventory
+        env:
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+        run: python3 scripts/check-retained-inventory.py --base origin/main --override-label storage-removals-approved
+
+      - name: Check retained volume guards
+        run: python3 scripts/check-retained-guards.py
 
       - name: Check alert policy
         id: alerts
@@ -318,6 +332,7 @@ jobs:
             -v $(pwd)/main:/base-branch \
             -v $(pwd)/pull-request:/target-branch \
             -v $(pwd)/output:/output \
+            -v $(pwd)/pull-request/.github/argocd-diff-preview-values.yaml:/argocd-config/values.yaml \
             -e TARGET_BRANCH=${{ github.head_ref }} \
             -e REPO=${{ github.repository }} \
             -e AUTO_DETECT_FILES_CHANGED=true \

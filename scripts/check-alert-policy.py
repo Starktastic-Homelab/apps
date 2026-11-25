@@ -3,6 +3,7 @@
 
 from pathlib import Path
 import json
+import re
 import subprocess
 import sys
 
@@ -353,6 +354,144 @@ checks.append({
     "exp_samples": [{"labels": '{namespace="monitoring",pod="tempo-0",tenant="failing"}', "value": 15}],
 })
 
+storage_docs = list(yaml.safe_load_all(
+    (ROOT / "services/operations/kube-prometheus-stack/manifests/storage-vm.yaml").read_text()
+))
+scrape = next(d for d in storage_docs if d["kind"] == "ScrapeConfig")
+storage_rule_groups = next(d for d in storage_docs if d["kind"] == "PrometheusRule")["spec"]["groups"]
+storage = {rule["alert"]: rule for group in storage_rule_groups for rule in group["rules"]}
+assert scrape["metadata"]["labels"]["release"] == "kube-prometheus-stack"
+# Every job matcher must name the ScrapeConfig job, or the alert never sees a series.
+for rule in storage.values():
+    assert set(re.findall(r'job="([^"]*)"', rule["expr"])) <= {scrape["spec"]["jobName"]}, rule["alert"]
+    # A bare absent() fires on the first failed scrape (stale markers); it needs a for: or absent_over_time.
+    assert "for" in rule or not re.search(r"\babsent\(", rule["expr"]), rule["alert"]
+assert scrape["spec"]["staticConfigs"][0]["targets"] == [
+    load("templates/globals.yaml")["global"]["network"]["storagePortal"].rsplit(":", 1)[0] + ":9100"
+], "ScrapeConfig host must match global.network.storagePortal"
+
+S = 'job="storage-vm"'
+FENCER_FILE = f'{{{S},file="/var/lib/prometheus/node-exporter/storage-fencer.prom"}}'
+storage_tests = []
+# Each case is its own promtool group, so absent() sees only that case's series. Series values are
+# per minute and the check runs at 30m unless a case names a later time.
+for alert, series, at, expected in [
+    ("StorageVMDown", [(f"up{{{S}}}", "0x30")], "30m",
+     [(f'{{__name__="up",{S}}}', 0)]),
+    # Reconcile (threshold 5 h): scheduled runs skip the backup windows, so gaps reach 3 h (4 h on the DST
+    # fall-back Sunday) and a 4.5 h gap stays quiet; past 5 h fires. No timestamp at all fires the absent leg.
+    ("StorageReconcileFailing", [(f"storage_last_reconcile_success_timestamp_seconds{{{S}}}", "0x270")], "270m", []),
+    ("StorageReconcileFailing", [(f"storage_last_reconcile_success_timestamp_seconds{{{S}}}", "0x310")], "310m",
+     [(f'{{{S}}}', 18600)]),
+    ("StorageReconcileFailing", [(f"up{{{S}}}", "1x30")], "30m", [(f'{{{S}}}', 1)]),
+    # One failed scrape writes stale markers for every series of the target: quiet. Gone for over 5 m: fires.
+    ("StorageReconcileFailing", [(f"storage_last_reconcile_success_timestamp_seconds{{{S}}}", "0x14 stale 0x15")],
+     "15m", []),
+    ("StorageReconcileFailing", [(f"storage_last_reconcile_success_timestamp_seconds{{{S}}}", "0x14 stale")],
+     "30m", [(f'{{{S}}}', 1)]),
+    ("StorageTargetMissing", [(f'storage_target_missing{{{S},id="grafana"}}', "1x30")], "30m",
+     [(f'{{__name__="storage_target_missing",{S},id="grafana"}}', 1)]),
+    ("StorageVGLowSpace",
+     [(f'storage_vg_free_bytes{{{S},vg="retained"}}', "10x30"), (f'storage_vg_size_bytes{{{S},vg="retained"}}', "100x30"),
+      (f'storage_vg_free_bytes{{{S},vg="regen"}}', "50x30"), (f'storage_vg_size_bytes{{{S},vg="regen"}}', "100x30")],
+     "30m", [(f'{{{S},vg="retained"}}', 0.1)]),
+    ("StoragePendingDelete", [(f'storage_pending_delete{{{S},id="old",since="1"}}', "1x30")], "30m",
+     [(f'{{__name__="storage_pending_delete",{S},id="old",since="1"}}', 1)]),
+    ("StorageHoldCreate", [(f"storage_hold_create{{{S}}}", "1x30")], "30m",
+     [(f'{{__name__="storage_hold_create",{S}}}', 1)]),
+    ("StorageWorkerFenced", [(f'storage_fence_active{{{S},node="worker-01"}}', "1x30")], "30m",
+     [(f'{{__name__="storage_fence_active",{S},node="worker-01"}}', 1)]),
+    ("StorageFenceFailed", [(f"storage_fence_failures_total{{{S}}}", "0+1x30")], "30m",
+     [(f'{{{S}}}', 10)]),
+    # Draining: a start over 120 s old fires (worker-01 idle at 0 stays quiet); 60 s old, exactly 120 s old (strict),
+    # and a fresh start every minute (repeated failed proofs) do not.
+    ("StorageFenceDraining",
+     [(f'storage_fence_acl_delete_started_timestamp_seconds{{{S},node="worker-02"}}', "60x30"),
+      (f'storage_fence_acl_delete_started_timestamp_seconds{{{S},node="worker-01"}}', "0x30")], "30m",
+     [(f'{{__name__="storage_fence_acl_delete_started_timestamp_seconds",{S},node="worker-02"}}', 60)]),
+    ("StorageFenceDraining",
+     [(f'storage_fence_acl_delete_started_timestamp_seconds{{{S},node="worker-02"}}', "1740x30")], "30m", []),
+    ("StorageFenceDraining",
+     [(f'storage_fence_acl_delete_started_timestamp_seconds{{{S},node="worker-02"}}', "1680x30")], "30m", []),
+    ("StorageFenceDraining",
+     [(f'storage_fence_acl_delete_started_timestamp_seconds{{{S},node="worker-02"}}', "0+60x30")], "30m", []),
+    # Blind, one case per cause: bad credentials, API unreachable, stale textfile.
+    ("StorageFencerBlind",
+     [(f"storage_fencer_last_api_success_timestamp_seconds{{{S}}}", "0x30"),
+      (f'storage_fencer_api_errors_total{{{S},code="auth"}}', "0+1x30"),
+      (f"node_textfile_mtime_seconds{FENCER_FILE}", "1799x30")], "30m",
+     [(f'{{{S}}}', 1800)]),
+    ("StorageFencerBlind",
+     [(f"storage_fencer_last_api_success_timestamp_seconds{{{S}}}", "0x30"),
+      (f'storage_fencer_api_errors_total{{{S},code="unreachable"}}', "0+1x30"),
+      (f"node_textfile_mtime_seconds{FENCER_FILE}", "1799x30")], "30m",
+     [(f'{{{S}}}', 1800)]),
+    ("StorageFencerBlind",
+     [(f"storage_fencer_last_api_success_timestamp_seconds{{{S}}}", "1799x30"),
+      (f"node_textfile_mtime_seconds{FENCER_FILE}", "0x30")], "30m",
+     [(f'{{{S},file="/var/lib/prometheus/node-exporter/storage-fencer.prom"}}', 1800)]),
+    # One failed scrape (every series stale for one sample) stays quiet; the target gone for over 5 m fires
+    # both absent legs (absent_over_time returns one series per leg, merged by `or` on equal labels).
+    ("StorageFencerBlind",
+     [(f"storage_fencer_last_api_success_timestamp_seconds{{{S}}}", "0+60x14 stale 900+60x15"),
+      (f"node_textfile_mtime_seconds{FENCER_FILE}", "0+60x14 stale 900+60x15")], "15m", []),
+    ("StorageFencerBlind",
+     [(f"storage_fencer_last_api_success_timestamp_seconds{{{S}}}", "0+60x14 stale"),
+      (f"node_textfile_mtime_seconds{FENCER_FILE}", "0+60x14 stale")], "30m", [(f'{{{S}}}', 1)]),
+    # Boot check: a failed check, a check that has not run since the boot (timestamp 100 < boot 200), a passing one.
+    ("StorageBootCheckFailed", [(f"storage_boot_check_ok{{{S}}}", "0x30")], "30m",
+     [(f'{{__name__="storage_boot_check_ok",{S}}}', 0)]),
+    ("StorageBootCheckFailed",
+     [(f"storage_boot_check_ok{{{S}}}", "1x30"), (f"storage_boot_check_timestamp_seconds{{{S}}}", "100x30"),
+      (f"node_boot_time_seconds{{{S}}}", "200x30")], "30m",
+     [(f'{{{S}}}', 100)]),
+    ("StorageBootCheckFailed",
+     [(f"storage_boot_check_ok{{{S}}}", "1x30"), (f"storage_boot_check_timestamp_seconds{{{S}}}", "300x30"),
+      (f"node_boot_time_seconds{{{S}}}", "200x30")], "30m", []),
+    ("StorageBootCheckFailed", [(f"node_boot_time_seconds{{{S}}}", "200x30")], "30m", [(f'{{{S}}}', 1)]),  # never wrote
+    # Dataset (floor 20 GiB): 19 GiB free fires; a write over 3 h old fires; 21 GiB free and fresh, or 2 h old (one
+    # failed hourly write), stays quiet.
+    ("StorageDatasetLow",
+     [(f'storage_dataset_avail_bytes{{{S},dataset="apps/k3s-block"}}', f"{19 * 2**30}x30"),
+      (f"storage_dataset_timestamp_seconds{{{S}}}", "0+60x30")], "30m",
+     [(f'{{__name__="storage_dataset_avail_bytes",{S},dataset="apps/k3s-block"}}', 19 * 2**30)]),
+    ("StorageDatasetLow",
+     [(f'storage_dataset_avail_bytes{{{S},dataset="apps/k3s-block"}}', f"{21 * 2**30}x200"),
+      (f"storage_dataset_timestamp_seconds{{{S}}}", "0x200")], "200m",
+     [(f'{{{S}}}', 12000)]),
+    ("StorageDatasetLow",
+     [(f'storage_dataset_avail_bytes{{{S},dataset="apps/k3s-block"}}', f"{21 * 2**30}x30"),
+      (f"storage_dataset_timestamp_seconds{{{S}}}", "0+60x30")], "30m", []),
+    ("StorageDatasetLow",
+     [(f'storage_dataset_avail_bytes{{{S},dataset="apps/k3s-block"}}', f"{21 * 2**30}x150"),
+      (f"storage_dataset_timestamp_seconds{{{S}}}", "1800x150")], "150m", []),
+    # Never written (the gauges step failed from its first run): the absent leg fires. It also covers
+    # MaintenanceLockStale, whose series is written in the same file.
+    ("StorageDatasetLow", [(f"node_boot_time_seconds{{{S}}}", "200x30")], "30m", [(f'{{{S}}}', 1)]),
+    # Lock (eval at 450m = 27000 s): taken 7 h ago fires, 1 h ago or free (0) stays quiet.
+    ("MaintenanceLockStale",
+     [(f'storage_maintenance_lock_created_timestamp_seconds{{{S},operation="ansible-deploy"}}', "1800x450")], "450m",
+     [(f'{{__name__="storage_maintenance_lock_created_timestamp_seconds",{S},operation="ansible-deploy"}}', 1800)]),
+    ("MaintenanceLockStale",
+     [(f'storage_maintenance_lock_created_timestamp_seconds{{{S},operation="ansible-deploy"}}', "23400x450")], "450m",
+     []),
+    ("MaintenanceLockStale",
+     [(f'storage_maintenance_lock_created_timestamp_seconds{{{S},operation=""}}', "0x450")], "450m", []),
+    ("NodeOutOfServiceTaintStuck",
+     [('kube_node_spec_taint{node="worker-01",key="node.kubernetes.io/out-of-service",value="nodeshutdown",effect="NoExecute"}', "1x30")],
+     "30m",
+     [('{__name__="kube_node_spec_taint",node="worker-01",key="node.kubernetes.io/out-of-service",value="nodeshutdown",effect="NoExecute"}', 1)]),
+]:
+    storage_tests.append({
+        "interval": "1m",
+        "input_series": [{"series": name, "values": values} for name, values in series],
+        "promql_expr_test": [{
+            "expr": storage[alert]["expr"],
+            "eval_time": at,
+            "exp_samples": [{"labels": labels, "value": value} for labels, value in expected],
+        }],
+    })
+
 subprocess.run(
     [*(sys.argv[1:] or ["promtool"]), "test", "rules", "/dev/stdin"],
     input=yaml.safe_dump({
@@ -361,7 +500,7 @@ subprocess.run(
             "interval": "1m",
             "input_series": inputs,
             "promql_expr_test": checks,
-        }, *crowdsec_tests, *admin_gate_tests],
+        }, *crowdsec_tests, *admin_gate_tests, *storage_tests],
     }),
     text=True,
     check=True,

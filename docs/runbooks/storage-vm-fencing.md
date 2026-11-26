@@ -32,13 +32,16 @@ The taint is exactly `node.kubernetes.io/out-of-service=nodeshutdown:NoExecute` 
    tag is malformed or conflicting. Normal: `"fenced": {}` and `"holds": ["hold_fence"]`.
 2. `[S]` `storage-fencer prove <node>`. A read-only proof as JSON: `acl_present` per target, `addr_in_set`,
    `established`. Exit 0 only when every leg passes (no ACL, address in the set, no socket).
-3. `[S]` `journalctl -u storage-fencer -o short-iso --since -30min --no-pager | tail -200` `(not rehearsed)`. Lines
-   that start with the dollar sign are the command trace. Loop reason lines, one per worker that is not Ready:
+3. `[S]` `journalctl -u storage-fencer -o short-iso --since "<UTC time>" --no-pager | tail -200`. Use an absolute
+   `--since`: a relative one moves between reads. Lines that start with the dollar sign are the command trace. The loop
+   runs every 15 s and logs one reason line per worker that is not Ready:
    - `<node>: not-ready-too-short` or `<node>: watch-too-short`: NotReady for less than 300 s, counted from the later
      of the NotReady time and the fencer's watch start (F18);
    - `<node>: foreign-va`: the worker still holds a VolumeAttachment of another driver (Proxmox CSI until
      Retirement). The fencer never taints it;
-   - `<node>: hold_fence` (or `hold_create`): the hold blocks the new fence;
+   - `<node>: hold_fence` (or `hold_create`): the hold blocks the new fence. Task 3.10 (2026-11-26): the worker was
+     NotReady 52 s after `qm stop`, `not-ready-too-short` until NotReady plus 300 s, then `hold_fence` from about
+     6 min after the stop;
    - `<node>: no-peer`, `<node>: one-at-a-time`, `<node>: no-ready-condition`.
 
    Fence lines: `fence <node>: NotReady past 300 s`, `fence <node>: tagged, bootID not settled yet`,
@@ -46,7 +49,8 @@ The taint is exactly `node.kubernetes.io/out-of-service=nodeshutdown:NoExecute` 
    `fence <node>: settled on bootID <id>`, then each loop `<node>: seen-bootid` or `<node>: not-ready`.
    Unfence lines: `untainted <node>`, then `unfenced <node>`.
 4. Alerts:
-   - **`StorageWorkerFenced`**: a fenced worker needs a reboot. One that is Ready on its fenced bootID, or on one
+   - **`StorageWorkerFenced`**: a fenced worker needs a reboot. It fires while `storage_fence_active` is 1, so for a
+     manual fence too, until the loop after the unfence. A worker that is Ready on its fenced bootID, or on one
      already seen, may be a resumed or rolled-back hung boot: reboot it (`qm reboot <vmid>`, **Ben OK**). Never
      unfence it by hand while it runs (F8).
    - **`StorageFenceFailed`**: a proof failed (no taint), or the loop could not get the LIO lock. It retries every
@@ -68,9 +72,11 @@ workers NotReady).
 1. `[P]` `qm status <vmid> --verbose`. Note `status` and `qmpstatus`. A paused VM shows `running` with
    `qmpstatus: paused`.
 2. `[S]` `storage-fencer fence <node>`. **Ben OK.**
-   Expected (lab B6 Step 5 and Step 10): exit 0 and a proof that passes,
-   `{"acl_present": {...all false}, "addr_in_set": true, "established": []}`. The VG `retained` gets
-   `fenced:<node>:unknown`. The CLI never taints.
+   Expected (lab B6 Step 5 and Step 10; Task 3.10 took 3 s): exit 0 and a proof that passes,
+   `{"acl_present": {...all false}, "addr_in_set": true, "established": []}`. Stderr shows
+   `fence <node>: tagged, bootID not settled yet`, the `nft add element` and ACL deletes (`No active iSCSI Session`
+   when the worker is off), then `fence <node>: proven`. The VG `retained` gets `fenced:<node>:unknown`. The CLI never
+   taints. Then `[S]` `storage-fencer prove <node>` exits 0 with the same proof, and `status` lists the node.
    - It needs no API and takes no bootID. A running fencer settles the tag on its next loop
      (`fence <node>: settled on bootID ...`). While the fencer is down the tag stays `unknown`.
    - An unknown name fails with `error: <name> is not a configured worker`, exit 1.
@@ -78,16 +84,45 @@ workers NotReady).
      so `StorageFenceDraining` does not fire; a running loop shows the wait as `StorageFenceFailed`.
 3. Taint, only after step 2 printed a passing proof. A taint before that lets a new writer mount while the old
    worker's queued writes can still land.
-   - `[K]` `get node <node> -o jsonpath='{.spec.taints}'` `(not rehearsed)`. A running fencer finishes a manual
-     fence, taint included, even under the hold, unless a foreign VolumeAttachment blocks it (ansible
-     `fencer.py:4-5`). If the taint is already there, skip the next line.
+   - `[K]` `get node <node> -o jsonpath='{.spec.taints}'`. A running fencer finishes a manual fence, taint included,
+     even under the hold, unless a foreign VolumeAttachment blocks it (ansible `fencer.py:4-5`): on its next loop it
+     logs `settled on bootID <id>`, `proven` and `tainted <node>` (Task 3.10: 7 s after the CLI returned). If the
+     taint is already there, skip the next line. No `tainted <node>` within about 1 min: read the journal for the
+     reason (`error: API:`, `held for over 120 s`, `error: loop:`) and bring it to Ben before any hand taint.
    - Before Retirement the worker still holds Proxmox CSI volumes: follow "Migration-only qm stop before the taint"
      instead.
    - After Retirement: `[K]` `taint node <node> node.kubernetes.io/out-of-service=nodeshutdown:NoExecute`. **Ben OK.**
      `(not rehearsed)`
 4. Expected after the taint: the worker's pods are evicted and force-detached, and they start on the other worker.
-   The first mount waits for MMP (about 42 s, up to about 720 s on slow storage). Each app starts with its data at
-   the last write it fsynced (lab: every move `contiguous=True` at the old pod's last ack).
+   The first mount waits for MMP (about 42 s, up to about 720 s on slow storage): the new worker's kernel logs
+   `ext4_multi_mount_protect: MMP interval 42 higher than expected, please wait`, then `recovery complete` after a
+   crash. Each app starts with its data at the last write it fsynced (lab: every move `contiguous=True` at the old
+   pod's last ack; Task 3.10 after a `qm stop` of the live writer: attach 5 s after the taint, MMP wait 44 s,
+   `count=` equal to the last streamed ack).
+
+## Planned drill or maintenance: cordon first
+
+Before Retirement, for a planned stop of a worker that holds Proxmox CSI volumes (Task 3.10, 2026-11-26). Moving those
+pods first leaves no foreign VolumeAttachment, so the running fencer taints by itself, after its proof, and only the
+retained volumes are force-detached; no Proxmox CSI disk is.
+
+1. `[K]` `cordon <node>`. **Ben OK.** Then delete its pods by name, **Ben OK** for the list: postgres alone first and
+   wait until it is Running on the other worker (every app behind it blips), then the other critical block-volume
+   apps, the stateless pods, the remaining block-volume apps, and last the apps the other worker has no slot for.
+   Never a DaemonSet pod or a retained writer. The other worker takes 29 Proxmox CSI volumes (ansible
+   `group_vars/all/proxmox_csi.yml`); the rest stay Pending (`exceed max volume count`) until the worker is back.
+2. Wait until the worker has no Proxmox CSI VolumeAttachment and `[P]` `qm config <vmid>` has no `scsiN:` line
+   (Task 3.10: 16-31 s after the last delete; poll, do not time it).
+3. `[P]` `qm stop <vmid>`, **Ben OK**, then "Manual fence" from step 1. The fencer's own taint replaces step 3's
+   hand taint, and Ben's OK for the fence covers it.
+4. After "Manual unfence": `[K]` `uncordon <node>`, **Ben OK**. The Pending pods start on it. Nothing else moves
+   back: to rebalance, cordon the other worker for the moves only and delete a few pods by name (**Ben OK**).
+
+Expected alerts, cleared after the uncordon except `ProxmoxCSINodeAttachmentHeadroomLow` on the other worker, which
+stays until a rebalance (step 4): `StorageWorkerFenced` for the node, the Proxmox CSI attachment headroom and capacity
+alerts, `KubePodNotReady`, `KubeDeploymentReplicasMismatch` and `BlackboxProbeFailed` for the Pending apps,
+`TargetDown` for the stopped worker's DaemonSets. `StorageFenceFailed` or `NodeOutOfServiceTaintStuck` is not
+expected.
 
 ## Migration-only qm stop before the taint
 
@@ -118,18 +153,23 @@ that really rebooted needs no manual unfence: the loop does it when the worker i
    Expected: green, `Copy the storage-fencer token and CA` changed, the fencer restarted.
 2. `[P]` `qm status <vmid> --verbose`. Expected: `status: stopped`.
 3. `[S]` `storage-fencer unfence <node> --confirm-stopped`. **Ben OK.**
-   Expected (lab B6 Step 10b): exit 0; the taint removed first, the worker's ACLs back on every target, the
-   `fenced` set empty, and the tag gone last. Its log shows `untainted <node>` (when a taint was there) and
-   `unfenced <node>`.
+   Expected (lab B6 Step 10b; Task 3.10 took 3 s): exit 0; the taint removed first, the worker's ACLs back on every
+   target, the `fenced` set empty, and the tag gone last. Its log shows `untainted <node>` (when a taint was there)
+   and `unfenced <node>`. `storage_fence_active` for the node can read 1 until the next loop rewrites the metrics
+   file.
    - A bare `storage-fencer unfence <node>` exits 1 and changes nothing; it prints the `qm status` and
      `--confirm-stopped` hint.
    - `<node> is not fenced` with exit 0: nothing to do.
 4. `[K]` `get node <node> -o jsonpath='{.spec.taints}'`: no out-of-service taint. Only if one is left, and `status`
    shows no tag for the node: `[K]` `taint node <node> node.kubernetes.io/out-of-service=nodeshutdown:NoExecute-`.
    **Ben OK.** `(not rehearsed)`
-5. `[P]` `qm start <vmid>`. **Ben OK.**
-   Expected: the worker Ready on a new bootID; `[S]` `storage-fencer status` shows `"fenced": {}`. Pods do not move
-   back on their own. Delete `UnexpectedAdmissionError` GPU pods by name (memory `gpu-admission-race`), **Ben OK**.
+5. Before Retirement, check the disks first: `[P]` `qm config <vmid>` has no `scsiN:` line, and `[K]` the worker has
+   no Proxmox CSI VolumeAttachment. A disk still attached to the stopped VM would come back with it while its pod runs
+   elsewhere: do not start, bring it to Ben.
+6. `[P]` `qm start <vmid>`. **Ben OK.**
+   Expected: the worker Ready on a new bootID (Task 3.10: 11 s after `qm start` returned); `[S]`
+   `storage-fencer status` shows `"fenced": {}` and the new bootID in the history. Pods do not move back on their
+   own. Delete `UnexpectedAdmissionError` GPU pods by name (memory `gpu-admission-race`), **Ben OK**.
 
 ## Unfence after a host cold boot
 
@@ -192,8 +232,10 @@ way.
 
 ## Evidence
 
-- Write to `~/.cache/claude-homelab-live/storage-migration/evidence/<task>/` (Task 3.10: `fence.txt`, `move.txt`,
-  `post.txt`): every command's output, the `status` JSON before and after, and the fencer journal lines.
+- Write to `~/.cache/claude-homelab-live/storage-migration/evidence/<task>/`: every command's output, the `status`
+  JSON before and after, and the fencer journal lines. Task 3.10: `facts.md`, `stop.txt`, `watch-*.txt`,
+  `fence.txt`, `prove.txt`, `restage.txt`, `unfence.txt`, `unfence-check.txt`, `start.txt`, `post.txt`,
+  `progress-*.txt`, `alerts-45m.txt`.
 - Sources: ADR 0017, Hang policy (Manual fallback, Visibility, Fences survive restarts and reloads); migration plan
   Task 3.10, D28; ansible `roles/storage_vm/files/homelab_storage/fencer.py`, `fence_policy.py:105-126`.
 - Lab: report `:399-572` (B6, F7 and F8 fixes); `storage-lab/b6/notes.md` Steps 5, 9, 10 and the F7/F8 re-run.
